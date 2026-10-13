@@ -65,7 +65,7 @@ Ces cas donnent `COMPUTED / NEITHER` et `REQUIRES_JUDGMENT / NEITHER`. Absence d
 | [`prescription-1804`](examples/prescription-1804) | Dette de 2000, action en 2015 — lecture 1804 | `COMPUTED` / `FALSE_ONLY` |
 | [`prescription-actuelle`](examples/prescription-actuelle) | Même dette — droit contemporain et transition 2008 | `COMPUTED` / `TRUE_ONLY` |
 | [`contrat-veille-2016`](examples/contrat-veille-2016) | Contrat du 30 septembre 2016 : frontière du paquet | `COMPUTED` / `TRUE_ONLY` |
-| [`contrat-jour-2016`](examples/contrat-jour-2016) | Contrat du 1 octobre 2016 : rédaction 2016 | `COMPUTED` / `TRUE_ONLY` |
+| [`contrat-jour-2016`](examples/contrat-jour-2016) | Contrat du 1er octobre 2016 : rédaction 2016 | `COMPUTED` / `TRUE_ONLY` |
 | [`contrat-2019`](examples/contrat-2019) | Contrat de 2019 : rédaction ratifiée | `COMPUTED` / `TRUE_ONLY` |
 | [`renegociation-ouverte`](examples/renegociation-ouverte) | Article 1195 : renégociation ouverte | `COMPUTED` / `TRUE_ONLY` |
 | [`risque-accepte`](examples/risque-accepte) | Risque accepté : conclusion non établie | `COMPUTED` / `NEITHER` |
