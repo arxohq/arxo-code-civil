@@ -1,0 +1,1041 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRE IV, SECTIONS 1 ET 2 :
+// DISPOSITIONS GÉNÉRALES ET DIVERSES ESPÈCES D'HYPOTHÈQUES (articles 2385 à 2417).
+//
+// DÉLAIS (sous `CC_SURETES_MOIS_AN`) :
+//   2394 — inscription de l'hypothèque de participation dans l'année qui suit
+//          la dissolution du régime ;
+//   2399 — inscription requise par le mineur devenu majeur ou émancipé, ou le
+//          majeur dont la tutelle est levée, dans le délai d'un an ;
+//   2417 — résiliation de l'hypothèque de créances futures à durée
+//          indéterminée avec un préavis de trois mois.
+//
+// PONT VERS CC-11. L'article 2394 lit le régime de participation aux acquêts,
+// matière de `fr.code_civil.regimes_matrimoniaux` (branche parallèle). Ce
+// paquet ne l'importe pas : la stipulation et la date de dissolution sont des
+// entrées typées du cas (D-CC14-06) ; le pont sera posé par le coordinateur.
+//
+// DÉCRETS. L'information des époux (2397) est réglée par décret : frontière.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2385,
+    CC_ART2386,
+    CC_ART2387,
+    CC_ART2388,
+    CC_ART2389,
+    CC_ART2390,
+    CC_ART2391,
+    CC_ART2392,
+    CC_ART2393,
+    CC_ART2394,
+    CC_ART2395,
+    CC_ART2396,
+    CC_ART2397,
+    CC_ART2398,
+    CC_ART2399,
+    CC_ART2400,
+    CC_ART2401,
+    CC_ART2402,
+    CC_ART2403,
+    CC_ART2404,
+    CC_ART2405,
+    CC_ART2406,
+    CC_ART2407,
+    CC_ART2408,
+    CC_ART2409,
+    CC_ART2410,
+    CC_ART2411,
+    CC_ART2412,
+    CC_ART2413,
+    CC_ART2414,
+    CC_ART2415,
+    CC_ART2416,
+    CC_ART2417,
+    Creance,
+    HypothequeLegaleSpeciale,
+    Personne,
+    SureteReelle,
+    acte_prevoit_le_rechargement,
+    convention_de_rechargement,
+    convention_enregistree_ou_publiee_le,
+    creance_garantie_future_indeterminable,
+    nee_le,
+    surete_sans_creance_determinable,
+};
+
+pub enum EspeceDHypotheque {
+    label fr official "Espèce d'hypothèque (article 2387)";
+    label en unofficial "Kind of mortgage (Article 2387)";
+    Legale,
+    Judiciaire,
+    Conventionnelle
+}
+
+pub enum HypothequeLegaleGenerale {
+    label fr official "Créance à laquelle une hypothèque légale générale est attachée (article 2393)";
+    label en unofficial "Claim carrying a general statutory mortgage (Article 2393)";
+    EntreEpoux,
+    MineurOuMajeurEnTutelle,
+    Legataire,
+    FraisFunerairesHypothecaires,
+    CreanceJudiciairementConstatee,
+    TresorPublic,
+    CaissesDeSecuriteSocialeHypothecaires
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation hypotheque(s: SureteReelle, creancier_p: Personne, constituant: Personne) kind empirical {
+    key(s);
+    label fr official "hypothèque : affectation d'un immeuble sans dépossession du constituant (article 2385)";
+    label en unofficial "mortgage: assignment of an immovable without dispossessing the grantor (Article 2385)";
+}
+pub relation espece_d_hypotheque(s: SureteReelle, e: EspeceDHypotheque) kind empirical {
+    key(s);
+    label fr official "hypothèque légale, judiciaire ou conventionnelle (article 2387)";
+    label en unofficial "statutory, judicial or contractual mortgage (Article 2387)";
+}
+pub relation cas_autorise_par_la_loi(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque est constituée dans un cas et selon une forme autorisés par la loi (article 2386)";
+    label en unofficial "the mortgage is created in a case and form authorised by law (Article 2386)";
+}
+pub relation droit_reel_immobilier_dans_le_commerce(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque porte sur un droit réel immobilier qui est dans le commerce (article 2388)";
+    label en unofficial "the mortgage bears on an immovable real right that is in commerce (Article 2388)";
+}
+pub relation amelioration_de_l_immeuble(s: SureteReelle, b: Bien) kind empirical {
+    label fr official "amélioration survenue à l'immeuble, ou accessoire réputé immeuble (article 2389)";
+    label en unofficial "improvement to the immovable, or accessory deemed immovable (Article 2389)";
+}
+pub relation tiers_subroge_dans_la_creance(s: SureteReelle, p: Personne) kind empirical {
+    label fr official "tiers subrogé dans la créance garantie (article 2390)";
+    label en unofficial "third party subrogated to the secured claim (Article 2390)";
+}
+pub relation dette_ou_immeuble_divise(s: SureteReelle) kind empirical {
+    label fr official "la dette est divisée, ou l'immeuble divisé, ou plusieurs immeubles sont grevés (article 2391)";
+    label en unofficial "the debt is divided, or the immovable divided, or several immovables are encumbered (Article 2391)";
+}
+pub relation hypotheque_legale_generale(s: SureteReelle, x: HypothequeLegaleGenerale) kind empirical {
+    key(s);
+    label fr official "créance à hypothèque légale générale invoquée (article 2393)";
+    label en unofficial "claim with a general statutory mortgage relied on (Article 2393)";
+}
+pub relation hypotheque_legale_speciale(s: SureteReelle, x: HypothequeLegaleSpeciale) kind empirical {
+    key(s);
+    label fr official "créance à hypothèque légale spéciale invoquée (article 2402)";
+    label en unofficial "claim with a special statutory mortgage relied on (Article 2402)";
+}
+pub relation immeuble_entre_ulterieurement(s: SureteReelle, b: Bien) kind empirical {
+    label fr official "immeuble entré par la suite dans le patrimoine du débiteur (article 2392)";
+    label en unofficial "immovable later acquired by the debtor (Article 2392)";
+}
+pub relation stipulation_de_participation_aux_acquets(s: SureteReelle) kind empirical {
+    label fr official "les époux ont stipulé la participation aux acquêts (article 2394) — entrée typée, pont vers fr.code_civil.regimes_matrimoniaux";
+    label en unofficial "the spouses stipulated participation in acquests (Article 2394) — typed input, bridge to fr.code_civil.regimes_matrimoniaux";
+}
+pub relation convention_excluant_l_inscription_2394(s: SureteReelle) kind empirical {
+    label fr official "convention contraire à la faculté d'inscrire (article 2394, al. 1)";
+    label en unofficial "agreement excluding the right to register (Article 2394, para. 1)";
+}
+pub relation dissolution_du_regime_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de dissolution du régime matrimonial (article 2394)";
+    label en unofficial "date the matrimonial regime was dissolved (Article 2394)";
+}
+pub relation demande_de_liquidation_anticipee_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la demande de liquidation anticipée (article 2394, al. 3)";
+    label en unofficial "date of the application for early liquidation (Article 2394, para. 3)";
+}
+pub relation inscription_de_l_hypotheque_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de l'inscription de l'hypothèque";
+    label en unofficial "date the mortgage was registered";
+}
+pub relation immeubles_existants_a_la_dissolution(s: SureteReelle) kind empirical {
+    label fr official "les immeubles grevés existent à la dissolution dans le patrimoine de l'époux débiteur (article 2394, al. 2)";
+    label en unofficial "the encumbered immovables exist in the debtor spouse's estate at dissolution (Article 2394, para. 2)";
+}
+pub relation clause_du_contrat_de_mariage_interdisant_2395(s: SureteReelle) kind empirical {
+    label fr official "clause expresse du contrat de mariage interdisant la cession de rang, la subrogation ou la mainlevée (articles 2395, 2440)";
+    label en unofficial "express clause of the marriage contract prohibiting assignment of rank, subrogation or release (Articles 2395, 2440)";
+}
+pub relation refus_de_l_epoux_beneficiaire(s: SureteReelle) kind empirical {
+    label fr official "l'époux bénéficiaire refuse la cession de rang, la subrogation, la réduction ou la mainlevée, ou est hors d'état de manifester sa volonté (articles 2395, 2440)";
+    label en unofficial "the beneficiary spouse refuses the assignment of rank, subrogation, reduction or release, or cannot express its will (Articles 2395, 2440)";
+}
+pub relation hypotheque_garantissant_une_pension_alimentaire(s: SureteReelle) kind empirical {
+    label fr official "hypothèque, même judiciaire, garantissant la pension alimentaire d'un époux (articles 2395, al. 2, 2440, al. 2)";
+    label en unofficial "mortgage, even judicial, securing a spouse's maintenance (Articles 2395, para. 2, 2440, para. 2)";
+}
+pub relation tutelle_ouverte(s: SureteReelle) kind empirical {
+    label fr official "une tutelle est ouverte ou une administration légale est en cours (article 2398)";
+    label en unofficial "a guardianship is opened or statutory administration is under way (Article 2398)";
+}
+pub relation fin_de_l_incapacite_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la majorité, de l'émancipation ou de la mainlevée de la tutelle des majeurs (article 2399)";
+    label en unofficial "date of majority, emancipation or end of adult guardianship (Article 2399)";
+}
+pub relation deces_du_protege_pendant_l_incapacite_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date du décès du mineur ou du majeur en tutelle encore protégé (article 2399, al. 2)";
+    label en unofficial "date of death of the minor or protected adult while still protected (Article 2399, para. 2)";
+}
+pub relation inscription_requise_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date à laquelle l'inscription est requise (articles 2394, 2399)";
+    label en unofficial "date registration is requested (Articles 2394, 2399)";
+}
+pub relation decision_de_condamnation(s: SureteReelle) kind empirical {
+    label fr official "jugement contradictoire ou par défaut, définitif ou provisoire, sentence arbitrale revêtue de l'exequatur, ou décision étrangère exécutoire en France (article 2401)";
+    label en unofficial "judgment after hearing or by default, final or provisional, arbitral award with exequatur, or foreign decision enforceable in France (Article 2401)";
+}
+pub relation emploi_des_deniers_authentiquement_constate(s: SureteReelle) kind empirical {
+    label fr official "l'acte d'emprunt constate authentiquement la destination des deniers et la quittance du vendeur leur emploi (article 2402, 2°)";
+    label en unofficial "the loan deed authentically records the purpose of the funds and the seller's receipt their use (Article 2402, 2°)";
+}
+pub relation extinction_ou_defaut_d_inscription_du_vendeur(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque spéciale du vendeur est éteinte ou n'a pas été inscrite (article 2403)";
+    label en unofficial "the seller's special mortgage is extinguished or was never registered (Article 2403)";
+}
+pub relation tiers_ayant_publie_ses_droits(s: SureteReelle) kind empirical {
+    label fr official "des tiers ont acquis et publié des droits sur l'immeuble du chef de l'acquéreur (article 2403)";
+    label en unofficial "third parties acquired and published rights over the immovable through the buyer (Article 2403)";
+}
+pub relation montant_evalue_par_l_arrete(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "évaluation sommaire du coût des mesures portée par l'arrêté de police (article 2404, 1°)";
+    label en unofficial "summary cost estimate carried by the police order (Article 2404, 1°)";
+}
+pub relation montant_du_titre_de_recouvrement(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "montant du titre de recouvrement de la créance (articles 2404, 2405)";
+    label en unofficial "amount of the recovery order (Articles 2404, 2405)";
+}
+pub relation double_inscription_faite(s: SureteReelle) kind empirical {
+    label fr official "double inscription de l'arrêté et du titre de recouvrement (article 2404)";
+    label en unofficial "double registration of the order and the recovery instrument (Article 2404)";
+}
+pub relation demolition_ordonnee(s: SureteReelle) kind empirical {
+    label fr official "la démolition du bâtiment insalubre ou menaçant ruine a été ordonnée (article 2404, al. 4)";
+    label en unofficial "demolition of the unfit or dangerous building was ordered (Article 2404, para. 4)";
+}
+pub relation seule_inscription_du_titre(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque est conservée par la seule inscription du titre de recouvrement (article 2405)";
+    label en unofficial "the mortgage is preserved by registering the recovery instrument alone (Article 2405)";
+}
+pub relation mainlevee_publiee_avant_le_titre(s: SureteReelle) kind empirical {
+    label fr official "les mesures exécutées, un arrêté de mainlevée est publié avant l'inscription du titre de recouvrement (article 2407)";
+    label en unofficial "the measures carried out, a release order is published before the recovery instrument is registered (Article 2407)";
+}
+pub relation acte_notarie(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque conventionnelle, ou le mandat d'hypothéquer, est consentie par acte notarié (article 2409)";
+    label en unofficial "the contractual mortgage, or the mandate to mortgage, is granted by notarial deed (Article 2409)";
+}
+pub relation constituant_capable_de_disposer(s: SureteReelle) kind empirical {
+    label fr official "le constituant a la capacité de disposer de l'immeuble (article 2410)";
+    label en unofficial "the grantor has capacity to dispose of the immovable (Article 2410)";
+}
+pub relation droit_conditionnel_du_constituant(s: SureteReelle) kind empirical {
+    label fr official "le constituant n'a sur l'immeuble qu'un droit conditionnel (article 2411)";
+    label en unofficial "the grantor has only a conditional right over the immovable (Article 2411)";
+}
+pub relation immeuble_indivis(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque porte sur un immeuble indivis ou une quote-part indivise (article 2412)";
+    label en unofficial "the mortgage bears on an undivided immovable or undivided share (Article 2412)";
+}
+pub relation consentie_par_tous_les_indivisaires(s: SureteReelle) kind empirical {
+    label fr official "l'hypothèque a été consentie par tous les indivisaires (article 2412)";
+    label en unofficial "all co-owners consented to the mortgage (Article 2412)";
+}
+pub relation indivisaire_constituant_alloti(s: SureteReelle) kind empirical {
+    label fr official "l'indivisaire qui a consenti l'hypothèque est alloti de l'immeuble, ou du prix de licitation (article 2412)";
+    label en unofficial "the consenting co-owner is allotted the immovable, or the auction price (Article 2412)";
+}
+pub relation contrat_passe_a_l_etranger(s: SureteReelle) kind empirical {
+    label fr official "le contrat a été passé en pays étranger (article 2413)";
+    label en unofficial "the contract was made abroad (Article 2413)";
+}
+pub relation traite_ou_loi_politique_contraire(s: SureteReelle) kind empirical {
+    label fr official "une loi politique ou un traité déroge au principe (article 2413)";
+    label en unofficial "a political law or treaty derogates from the principle (Article 2413)";
+}
+pub relation acte_designe_nature_et_situation(s: SureteReelle) kind empirical {
+    label fr official "l'acte notarié désigne spécialement la nature et la situation de chacun des immeubles (article 2414)";
+    label en unofficial "the notarial deed specifically identifies the nature and location of each immovable (Article 2414)";
+}
+pub relation cause_determinee_dans_l_acte(s: SureteReelle) kind empirical {
+    label fr official "la cause de l'hypothèque est déterminée dans l'acte (article 2415)";
+    label en unofficial "the cause of the mortgage is stated in the deed (Article 2415)";
+}
+pub relation hypotheque_a_fins_professionnelles(s: SureteReelle) kind empirical {
+    label fr official "hypothèque constituée à des fins professionnelles (article 2416)";
+    label en unofficial "mortgage created for business purposes (Article 2416)";
+}
+pub relation convention_de_rechargement_notariee(x: SureteReelle) kind empirical {
+    label fr official "la convention de rechargement revêt la forme notariée (article 2416, al. 3)";
+    label en unofficial "the reloading agreement is in notarial form (Article 2416, para. 3)";
+}
+pub relation somme_determinee_dans_l_acte(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "somme déterminée pour laquelle l'hypothèque est consentie en capital (article 2417)";
+    label en unofficial "fixed sum for which the mortgage is granted as to capital (Article 2417)";
+}
+pub relation clause_de_reevaluation_mentionnee(s: SureteReelle) kind empirical {
+    label fr official "la créance est assortie d'une clause de réévaluation et l'acte le mentionne (article 2417)";
+    label en unofficial "the claim carries an indexation clause and the deed says so (Article 2417)";
+}
+pub relation hypotheque_de_creances_futures_a_duree_indeterminee(s: SureteReelle) kind empirical {
+    label fr official "hypothèque consentie pour sûreté de créances futures et pour une durée indéterminée (article 2417, al. 2)";
+    label en unofficial "mortgage granted to secure future claims for an indefinite period (Article 2417, para. 2)";
+}
+pub relation resiliation_de_l_hypotheque_notifiee_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date à laquelle le constituant notifie la résiliation (article 2417, al. 2)";
+    label en unofficial "date the grantor gives notice of termination (Article 2417, para. 2)";
+}
+pub relation creance_garantie_par_l_hypotheque(s: SureteReelle, c: Creance) kind empirical {
+    label fr official "créance garantie par l'hypothèque";
+    label en unofficial "claim secured by the mortgage";
+}
+
+@source(CC_ART2395)
+pub external judgment relation interet_de_la_famille_exige(s: SureteReelle) {
+    authority Court;
+    label fr official "la constitution d'hypothèque ou l'aliénation empêchée est exigée par l'intérêt de la famille (articles 2395, 2440)";
+    label en unofficial "the blocked mortgage or disposal is required by the family's interest (Articles 2395, 2440)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation hypotheque_sans_depossession(s: SureteReelle) kind derived {
+    label fr official "l'immeuble est affecté en garantie sans dépossession du constituant (article 2385)";
+    label en unofficial "the immovable is assigned as security without dispossessing the grantor (Article 2385)";
+}
+pub relation hypotheque_non_autorisee(s: SureteReelle) kind derived {
+    label fr official "l'hypothèque n'a lieu que dans les cas et suivant les formes autorisés par la loi (article 2386)";
+    label en unofficial "a mortgage exists only in the cases and forms authorised by law (Article 2386)";
+}
+pub relation hypotheque_d_espece(s: SureteReelle, e: EspeceDHypotheque) kind derived {
+    label fr official "espèce de l'hypothèque (article 2387)";
+    label en unofficial "kind of the mortgage (Article 2387)";
+}
+pub relation objet_hypothecable(s: SureteReelle) kind derived {
+    label fr official "sont susceptibles d'hypothèques tous les droits réels immobiliers qui sont dans le commerce (article 2388)";
+    label en unofficial "all immovable real rights in commerce can be mortgaged (Article 2388)";
+}
+pub relation hypotheque_etendue_a(s: SureteReelle, b: Bien) kind derived {
+    label fr official "l'hypothèque s'étend aux améliorations et aux accessoires réputés immeubles (article 2389)";
+    label en unofficial "the mortgage extends to improvements and accessories deemed immovable (Article 2389)";
+}
+pub relation extension_aux_accessoires_au_profit_du_subroge(s: SureteReelle, p: Personne) kind derived {
+    label fr official "l'extension aux intérêts et accessoires profite au tiers subrogé (article 2390)";
+    label en unofficial "the extension to interest and accessories benefits the subrogated third party (Article 2390)";
+}
+pub relation hypotheque_indivisible(s: SureteReelle) kind derived {
+    label fr official "l'hypothèque est indivisible nonobstant la division de la dette ou de l'immeuble (article 2391)";
+    label en unofficial "the mortgage is indivisible despite division of the debt or the immovable (Article 2391)";
+}
+pub relation hypotheque_generale(s: SureteReelle) kind derived {
+    label fr official "hypothèque légale générale : inscription possible sur tous les immeubles actuels et complémentaire sur les immeubles futurs (articles 2392, 2393)";
+    label en unofficial "general statutory mortgage: registrable over all present immovables and, additionally, future ones (Articles 2392, 2393)";
+}
+pub relation inscription_complementaire_possible(s: SureteReelle, b: Bien) kind derived {
+    label fr official "inscription complémentaire sur l'immeuble entré ensuite dans le patrimoine du débiteur (article 2392, al. 2)";
+    label en unofficial "additional registration over the immovable later acquired by the debtor (Article 2392, para. 2)";
+}
+pub relation hypotheque_speciale(s: SureteReelle) kind derived {
+    label fr official "hypothèque légale spéciale : inscription sur le seul immeuble qu'elle grève (articles 2392, al. 3, 2402)";
+    label en unofficial "special statutory mortgage: registrable only over the immovable it encumbers (Articles 2392, para. 3, 2402)";
+}
+pub relation faculte_d_inscrire_la_participation(s: SureteReelle) kind derived {
+    label fr official "chaque époux peut inscrire l'hypothèque légale pour la sûreté de la créance de participation (article 2394)";
+    label en unofficial "each spouse may register the statutory mortgage securing the participation claim (Article 2394)";
+}
+pub relation effet_de_l_inscription_a_compter_du(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "date à compter de laquelle l'inscription produit effet (article 2394)";
+    label en unofficial "date from which the registration takes effect (Article 2394)";
+}
+pub relation limite_d_inscription_apres_dissolution(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "terme de l'année qui suit la dissolution du régime (article 2394, al. 4)";
+    label en unofficial "end of the year following dissolution of the regime (Article 2394, para. 4)";
+}
+pub relation inscription_2394_tardive(s: SureteReelle) kind derived {
+    label fr official "l'inscription est prise plus d'un an après la dissolution : hors de la faculté de l'article 2394";
+    label en unofficial "registration taken more than a year after dissolution: outside the Article 2394 option";
+}
+pub relation cession_de_rang_permise(s: SureteReelle) kind derived {
+    label fr official "l'époux bénéficiaire peut consentir une cession de son rang ou une subrogation (article 2395)";
+    label en unofficial "the beneficiary spouse may assign its rank or grant subrogation (Article 2395)";
+}
+pub relation autorisation_judiciaire_possible(s: SureteReelle) kind derived {
+    label fr official "les juges peuvent autoriser la cession de rang, la subrogation, la réduction ou la mainlevée (articles 2395, 2440)";
+    label en unofficial "the court may authorise assignment of rank, subrogation, reduction or release (Articles 2395, 2440)";
+}
+pub relation renouvellement_selon_2429(s: SureteReelle) kind derived {
+    label fr official "l'hypothèque légale des époux, ou l'inscription prise pendant la tutelle, est renouvelée selon l'article 2429 (articles 2396, 2400)";
+    label en unofficial "the spouses' statutory mortgage, or the registration taken during guardianship, is renewed under Article 2429 (Articles 2396, 2400)";
+}
+pub relation information_des_epoux_par_decret(s: SureteReelle) kind derived {
+    label fr official "frontière : l'information des époux sur les articles 2393 à 2396 est réglée par décret (article 2397)";
+    label en unofficial "boundary: informing spouses of Articles 2393 to 2396 is governed by decree (Article 2397)";
+}
+pub relation decision_sur_l_inscription_requise(s: SureteReelle) kind derived {
+    label fr official "le conseil de famille ou le juge décide si une inscription est requise sur les immeubles du tuteur ou de l'administrateur légal (article 2398)";
+    label en unofficial "the family council or the court decides whether registration over the guardian's or administrator's immovables is required (Article 2398)";
+}
+pub relation limite_d_inscription_2399(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "terme du délai d'un an pour requérir l'inscription (article 2399)";
+    label en unofficial "end of the one-year period to request registration (Article 2399)";
+}
+pub relation inscription_2399_dans_le_delai(s: SureteReelle) kind derived {
+    label fr official "l'inscription est requise dans le délai d'un an (article 2399)";
+    label en unofficial "registration is requested within the one-year period (Article 2399)";
+}
+pub relation inscription_2399_hors_delai(s: SureteReelle) kind derived {
+    label fr official "l'inscription est requise après le délai d'un an (article 2399)";
+    label en unofficial "registration is requested after the one-year period (Article 2399)";
+}
+pub relation hypotheque_legale_des_jugements(s: SureteReelle) kind derived {
+    label fr official "hypothèque légale attachée aux jugements de condamnation (article 2401)";
+    label en unofficial "statutory mortgage attaching to money judgments (Article 2401)";
+}
+pub relation action_resolutoire_fermee(s: SureteReelle) kind derived {
+    label fr official "l'action résolutoire de l'article 1654 ne peut être exercée au préjudice des tiers qui ont publié leurs droits (article 2403)";
+    label en unofficial "the rescission action under Article 1654 cannot be brought to the detriment of third parties who published their rights (Article 2403)";
+}
+pub relation hypotheque_conservee_a_concurrence(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "l'hypothèque est conservée à concurrence du montant évalué ou du titre de recouvrement s'il est inférieur (articles 2404, 2405)";
+    label en unofficial "the mortgage is preserved up to the estimated amount or the recovery instrument if lower (Articles 2404, 2405)";
+}
+pub relation fraction_au_rang_de_la_seconde_inscription(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "fraction du titre de recouvrement supérieure à la première inscription, qui prend rang à la seconde (article 2404, al. 4)";
+    label en unofficial "part of the recovery instrument above the first registration, ranking from the second (Article 2404, para. 4)";
+}
+pub relation frais_d_inscription_a_la_charge_des_debiteurs(s: SureteReelle) kind derived {
+    label fr official "les frais d'inscription sont à la charge des débiteurs (articles 2406, 2433)";
+    label en unofficial "registration costs are borne by the debtors (Articles 2406, 2433)";
+}
+pub relation premiere_inscription_caduque(s: SureteReelle) kind derived {
+    label fr official "la publication de la mainlevée emporte caducité de la première inscription (article 2407)";
+    label en unofficial "publishing the release makes the first registration lapse (Article 2407)";
+}
+pub relation hypotheque_judiciaire_regie_par_le_cpce(s: SureteReelle) kind derived {
+    label fr official "frontière : l'hypothèque judiciaire conservatoire est régie par le code des procédures civiles d'exécution (article 2408)";
+    label en unofficial "boundary: the protective judicial mortgage is governed by the Civil Enforcement Procedures Code (Article 2408)";
+}
+pub relation hypotheque_conventionnelle_valable(s: SureteReelle) kind derived {
+    label fr official "hypothèque conventionnelle consentie par acte notarié, par un constituant capable, sur des immeubles désignés, pour une somme déterminée et une cause déterminée (articles 2409, 2410, 2414, 2415, 2417)";
+    label en unofficial "contractual mortgage granted by notarial deed, by a capable grantor, over identified immovables, for a fixed sum and stated cause (Articles 2409, 2410, 2414, 2415, 2417)";
+}
+pub relation hypotheque_conventionnelle_nulle(s: SureteReelle) kind derived {
+    label fr official "nullité de l'hypothèque conventionnelle (articles 2409, 2414, 2417)";
+    label en unofficial "nullity of the contractual mortgage (Articles 2409, 2414, 2417)";
+}
+pub relation hypotheque_sous_la_meme_condition(s: SureteReelle) kind derived {
+    label fr official "hypothèque soumise à la même condition que le droit du constituant (article 2411)";
+    label en unofficial "mortgage subject to the same condition as the grantor's right (Article 2411)";
+}
+pub relation hypotheque_indivise_conservee(s: SureteReelle) kind derived {
+    label fr official "l'hypothèque de l'immeuble indivis conserve son effet (article 2412)";
+    label en unofficial "the mortgage of the undivided immovable keeps its effect (Article 2412)";
+}
+pub relation hypotheque_etrangere_sans_effet(s: SureteReelle) kind derived {
+    label fr official "le contrat passé en pays étranger ne peut donner d'hypothèque sur les biens de France (article 2413)";
+    label en unofficial "a contract made abroad cannot create a mortgage over property in France (Article 2413)";
+}
+pub relation hypotheque_rechargeable(s: SureteReelle) kind derived {
+    label fr official "hypothèque rechargeable : affectable à d'autres créances professionnelles dans la limite de la somme de l'acte (article 2416)";
+    label en unofficial "reloadable mortgage: allocable to other business claims up to the deed's sum (Article 2416)";
+}
+pub relation rechargement_hypothecaire_valable(x: SureteReelle) kind derived {
+    label fr official "convention de rechargement notariée, dans la limite de la somme de l'acte (article 2416)";
+    label en unofficial "notarial reloading agreement within the deed's sum (Article 2416)";
+}
+pub relation rechargement_hypothecaire_opposable(x: SureteReelle) kind derived {
+    label fr official "la convention de rechargement publiée est opposable aux tiers (article 2416, al. 4)";
+    label en unofficial "the published reloading agreement is effective against third parties (Article 2416, para. 4)";
+}
+pub relation garantie_etendue_a_la_creance_reevaluee(s: SureteReelle) kind derived {
+    label fr official "la garantie s'étend à la créance réévaluée (article 2417, al. 1)";
+    label en unofficial "the security extends to the indexed claim (Article 2417, para. 1)";
+}
+pub relation resiliation_de_l_hypotheque_effective_le(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "date d'effet de la résiliation, au terme du préavis de trois mois (article 2417, al. 2)";
+    label en unofficial "effective date of termination, at the end of the three-month notice (Article 2417, para. 2)";
+}
+pub relation creance_garantie_apres_resiliation(s: SureteReelle, c: Creance) kind derived {
+    label fr official "une fois résiliée, l'hypothèque ne demeure que pour la garantie des créances nées antérieurement (article 2417, al. 2)";
+    label en unofficial "once terminated, the mortgage remains only for claims that arose earlier (Article 2417, para. 2)";
+}
+pub relation creance_hors_garantie_apres_resiliation(s: SureteReelle, c: Creance) kind derived {
+    label fr official "créance née à la date d'effet de la résiliation ou après : hors de la garantie (article 2417, al. 2)";
+    label en unofficial "claim arising on or after the termination's effective date: outside the security (Article 2417, para. 2)";
+}
+
+// --- 2385 à 2392 ----------------------------------------------------------------------------
+
+@source(CC_ART2385)
+rule HypothequeSansDepossession(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2385. L'hypothèque est l'affectation d'un immeuble en garantie d'une obligation sans dépossession de celui qui la constitue";
+    label en unofficial "Article 2385. A mortgage is the assignment of an immovable to secure an obligation without dispossessing the grantor";
+    when hypotheque(s, c, p);
+    then hypotheque_sans_depossession(s);
+}
+
+@source(CC_ART2386)
+rule HypothequeHorsDesCasLegaux(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2386. L'hypothèque n'a lieu que dans les cas et suivant les formes autorisés par la loi";
+    label en unofficial "Article 2386. A mortgage exists only in the cases and forms authorised by law";
+    when hypotheque(s, c, p) and not_known(cas_autorise_par_la_loi(s));
+    then hypotheque_non_autorisee(s);
+}
+
+@source(CC_ART2387)
+rule QualificationDeLHypotheque(s: SureteReelle, c: Personne, p: Personne, e: EspeceDHypotheque) strict {
+    label fr official "Article 2387. L'hypothèque est légale, judiciaire ou conventionnelle";
+    label en unofficial "Article 2387. A mortgage is statutory, judicial or contractual";
+    when hypotheque(s, c, p) and espece_d_hypotheque(s, e);
+    then hypotheque_d_espece(s, e);
+}
+
+@source(CC_ART2388)
+rule ObjetHypothecable(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2388. Sont susceptibles d'hypothèques tous les droits réels immobiliers qui sont dans le commerce";
+    label en unofficial "Article 2388. All immovable real rights in commerce can be mortgaged";
+    when hypotheque(s, c, p) and droit_reel_immobilier_dans_le_commerce(s);
+    then objet_hypothecable(s);
+}
+
+@source(CC_ART2389)
+rule ExtensionAuxAmeliorations(s: SureteReelle, b: Bien) strict {
+    label fr official "Article 2389. L'hypothèque s'étend aux améliorations qui surviennent à l'immeuble hypothéqué, ainsi qu'aux accessoires réputés immeubles";
+    label en unofficial "Article 2389. The mortgage extends to improvements to the mortgaged immovable and to accessories deemed immovable";
+    when hypotheque_sans_depossession(s) and amelioration_de_l_immeuble(s, b);
+    then hypotheque_etendue_a(s, b);
+}
+
+@source(CC_ART2390)
+rule ExtensionAuSubroge(s: SureteReelle, p: Personne) strict {
+    label fr official "Article 2390. L'hypothèque s'étend aux intérêts et accessoires ; cette extension profite au tiers subrogé dans la créance garantie";
+    label en unofficial "Article 2390. The mortgage extends to interest and accessories; this extension benefits a third party subrogated to the secured claim";
+    when hypotheque_sans_depossession(s) and tiers_subroge_dans_la_creance(s, p);
+    then extension_aux_accessoires_au_profit_du_subroge(s, p);
+}
+
+@source(CC_ART2391)
+rule Indivisibilite(s: SureteReelle) strict {
+    label fr official "Article 2391. L'hypothèque est indivisible, nonobstant la division de la dette, de l'immeuble ou la pluralité d'immeubles";
+    label en unofficial "Article 2391. A mortgage is indivisible despite division of the debt, of the immovable, or several immovables";
+    when hypotheque_sans_depossession(s) and dette_ou_immeuble_divise(s);
+    then hypotheque_indivisible(s);
+}
+
+@source(CC_ART2392)
+rule InscriptionComplementaire(s: SureteReelle, b: Bien) strict {
+    label fr official "Article 2392, alinéa 2. Le créancier d'une hypothèque générale peut prendre des inscriptions complémentaires sur les immeubles entrés par la suite dans le patrimoine de son débiteur";
+    label en unofficial "Article 2392, paragraph 2. The holder of a general mortgage may take additional registrations over immovables the debtor later acquires";
+    when hypotheque_generale(s) and immeuble_entre_ulterieurement(s, b);
+    then inscription_complementaire_possible(s, b);
+}
+
+// --- 2393 : hypothèques légales générales (liste fermée, une règle par cas) -------------------------
+
+@source(CC_ART2393) {
+    rule GeneraleEntreEpoux(s: SureteReelle) strict {
+        label fr official "Article 2393, 1°. Créances de l'un des époux contre l'autre";
+        label en unofficial "Article 2393, 1°. Claims of one spouse against the other";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, EntreEpoux);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleMineurs(s: SureteReelle) strict {
+        label fr official "Article 2393, 2°. Créances des mineurs ou des majeurs en tutelle contre l'administrateur légal ou le tuteur";
+        label en unofficial "Article 2393, 2°. Claims of minors or protected adults against the statutory administrator or guardian";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, MineurOuMajeurEnTutelle);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleLegataire(s: SureteReelle) strict {
+        label fr official "Article 2393, 4°. Créances du légataire, sur les immeubles de la succession, en vertu de l'article 1017";
+        label en unofficial "Article 2393, 4°. Legatee's claims over the estate's immovables, under Article 1017";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, Legataire);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleFraisFuneraires(s: SureteReelle) strict {
+        label fr official "Article 2393, 5°. Créances des frais funéraires";
+        label en unofficial "Article 2393, 5°. Funeral expense claims";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, FraisFunerairesHypothecaires);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleJugement(s: SureteReelle) strict {
+        label fr official "Article 2393, 6°. Créances ayant fait l'objet d'un jugement, contre le débiteur condamné";
+        label en unofficial "Article 2393, 6°. Claims established by judgment, against the debtor ordered to pay";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, CreanceJudiciairementConstatee);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleTresor(s: SureteReelle) strict {
+        label fr official "Article 2393, 7°. Créances du Trésor public, dans les conditions du livre des procédures fiscales";
+        label en unofficial "Article 2393, 7°. Treasury claims, on the terms of the Tax Procedures Book";
+        effective [@2023-01-01, infinity);
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, TresorPublic);
+        then hypotheque_generale(s);
+    }
+    rule GeneraleSecuriteSociale(s: SureteReelle) strict {
+        label fr official "Article 2393, 8°. Créances des caisses de sécurité sociale, dans les conditions du code de la sécurité sociale";
+        label en unofficial "Article 2393, 8°. Social-security fund claims, on the terms of the Social Security Code";
+        effective [@2023-01-01, infinity);
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_generale(s, CaissesDeSecuriteSocialeHypothecaires);
+        then hypotheque_generale(s);
+    }
+}
+
+// --- 2394 à 2400 : époux et protégés ------------------------------------------------------------
+
+@source(CC_ART2394) {
+    rule FaculteDInscrireLaParticipation(s: SureteReelle) strict {
+        label fr official "Article 2394, alinéa 1. Quand les époux ont stipulé la participation aux acquêts, chacun a, sauf convention contraire, la faculté d'inscrire l'hypothèque légale";
+        label en unofficial "Article 2394, paragraph 1. Where the spouses stipulated participation in acquests, each may, unless otherwise agreed, register the statutory mortgage";
+        when hypotheque_generale(s) and stipulation_de_participation_aux_acquets(s) and not_known(convention_excluant_l_inscription_2394(s));
+        then faculte_d_inscrire_la_participation(s);
+    }
+    rule EffetDiffereALaDissolution(s: SureteReelle, i: Date, d: Date) strict {
+        label fr official "Article 2394, alinéa 2. L'inscription prise avant la dissolution n'a d'effet qu'à compter de celle-ci, si les immeubles existent alors dans le patrimoine de l'époux débiteur";
+        label en unofficial "Article 2394, paragraph 2. A registration taken before dissolution takes effect only from dissolution, if the immovables then exist in the debtor spouse's estate";
+        when faculte_d_inscrire_la_participation(s) and inscription_de_l_hypotheque_le(s, i) and dissolution_du_regime_le(s, d) and i < d
+            and immeubles_existants_a_la_dissolution(s) and not_known(liquidation_anticipee(s));
+        then effet_de_l_inscription_a_compter_du(s, d);
+    }
+    rule LiquidationAnticipeeInscriptionAnterieure(s: SureteReelle, i: Date, a: Date) strict {
+        label fr official "Article 2394, alinéa 3. En cas de liquidation anticipée, l'inscription antérieure à la demande a effet du jour de celle-ci";
+        label en unofficial "Article 2394, paragraph 3. On early liquidation, a registration earlier than the application takes effect from the application date";
+        when faculte_d_inscrire_la_participation(s) and inscription_de_l_hypotheque_le(s, i) and demande_de_liquidation_anticipee_le(s, a) and i < a;
+        then effet_de_l_inscription_a_compter_du(s, a);
+    }
+    rule LiquidationAnticipeeInscriptionPosterieure(s: SureteReelle, i: Date, a: Date) strict {
+        label fr official "Article 2394, alinéa 3. L'inscription postérieure à la demande n'a effet que de sa date, ainsi qu'il est dit à l'article 2418";
+        label en unofficial "Article 2394, paragraph 3. A registration after the application takes effect only from its own date, as provided by Article 2418";
+        when faculte_d_inscrire_la_participation(s) and inscription_de_l_hypotheque_le(s, i) and demande_de_liquidation_anticipee_le(s, a) and i >= a;
+        then effet_de_l_inscription_a_compter_du(s, i);
+    }
+    rule LiquidationAnticipee(s: SureteReelle, a: Date) strict {
+        label fr official "Article 2394, alinéa 3. Liquidation anticipée demandée";
+        label en unofficial "Article 2394, paragraph 3. Early liquidation applied for";
+        when demande_de_liquidation_anticipee_le(s, a);
+        then liquidation_anticipee(s);
+    }
+    rule LimiteDInscriptionApresDissolution(s: SureteReelle, d: Date) strict {
+        label fr official "Article 2394, alinéa 4. L'inscription pourra également être prise dans l'année qui suivra la dissolution du régime matrimonial";
+        label en unofficial "Article 2394, paragraph 4. Registration may also be taken within the year following dissolution of the matrimonial regime";
+        when faculte_d_inscrire_la_participation(s) and dissolution_du_regime_le(s, d);
+        then limite_d_inscription_apres_dissolution(s, add_calendar_period(d, 1 calendar_year));
+    }
+    rule InscriptionDansLAnnee(s: SureteReelle, i: Date, d: Date, l: Date) strict {
+        label fr official "Article 2394, alinéa 4. Prise dans l'année de la dissolution, l'inscription a effet de sa date";
+        label en unofficial "Article 2394, paragraph 4. Taken within the year after dissolution, the registration takes effect from its date";
+        when limite_d_inscription_apres_dissolution(s, l) and dissolution_du_regime_le(s, d) and inscription_de_l_hypotheque_le(s, i)
+            and i >= d and i <= l;
+        then effet_de_l_inscription_a_compter_du(s, i);
+    }
+    rule InscriptionApresLAnnee(s: SureteReelle, i: Date, l: Date) strict {
+        label fr official "Article 2394, alinéa 4. Prise plus d'un an après la dissolution, l'inscription sort de la faculté de l'article";
+        label en unofficial "Article 2394, paragraph 4. Taken more than a year after dissolution, the registration falls outside the article's option";
+        when limite_d_inscription_apres_dissolution(s, l) and inscription_de_l_hypotheque_le(s, i) and i > l;
+        then inscription_2394_tardive(s);
+    }
+}
+
+pub relation liquidation_anticipee(s: SureteReelle) kind derived {
+    label fr official "une liquidation anticipée du régime est demandée (article 2394, al. 3)";
+    label en unofficial "early liquidation of the regime is applied for (Article 2394, para. 3)";
+}
+
+@source(CC_ART2395) {
+    rule CessionDeRangParLEpoux(s: SureteReelle) strict {
+        label fr official "Article 2395, alinéas 1 et 2. Sauf clause expresse du contrat de mariage, l'époux bénéficiaire de l'inscription peut consentir une cession de son rang ou une subrogation, même pour l'hypothèque garantissant une pension alimentaire";
+        label en unofficial "Article 2395, paragraphs 1 and 2. Save an express clause of the marriage contract, the beneficiary spouse may assign its rank or grant subrogation, even for a mortgage securing maintenance";
+        when faculte_d_inscrire_la_participation(s) and not_known(clause_du_contrat_de_mariage_interdisant_2395(s));
+        then cession_de_rang_permise(s);
+    }
+    rule AutorisationJudiciaire(s: SureteReelle) strict {
+        label fr official "Article 2395, alinéa 3. Si l'époux bénéficiaire, par son refus, empêche une constitution d'hypothèque qu'exigerait l'intérêt de la famille, les juges pourront autoriser la cession de rang ou la subrogation";
+        label en unofficial "Article 2395, paragraph 3. If the beneficiary spouse's refusal blocks a mortgage the family's interest would require, the court may authorise the assignment of rank or subrogation";
+        when faculte_d_inscrire_la_participation(s) and refus_de_l_epoux_beneficiaire(s) and interet_de_la_famille_exige(s);
+        then autorisation_judiciaire_possible(s);
+    }
+    rule PensionAlimentaire(s: SureteReelle) strict {
+        label fr official "Article 2395, alinéa 2. Il en est ainsi même pour l'hypothèque judiciaire garantissant la pension alimentaire allouée à un époux";
+        label en unofficial "Article 2395, paragraph 2. The same applies to a judicial mortgage securing maintenance awarded to a spouse";
+        when hypotheque_garantissant_une_pension_alimentaire(s) and not_known(clause_du_contrat_de_mariage_interdisant_2395(s));
+        then cession_de_rang_permise(s);
+    }
+}
+
+@source(CC_ART2396)
+rule RenouvellementHypothequeDesEpoux(s: SureteReelle) strict {
+    label fr official "Article 2396. L'hypothèque légale des époux est soumise, pour le renouvellement des inscriptions, aux règles de l'article 2429 ; les jugements sont rendus dans les formes du code de procédure civile";
+    label en unofficial "Article 2396. The spouses' statutory mortgage is renewed under Article 2429; judgments follow the Code of Civil Procedure";
+    when faculte_d_inscrire_la_participation(s);
+    then renouvellement_selon_2429(s);
+}
+
+@source(CC_ART2397)
+rule InformationDesEpouxParDecret(s: SureteReelle) strict {
+    label fr official "Article 2397. Les dispositions des articles 2393 à 2396 sont portées à la connaissance des époux dans les conditions fixées par un décret";
+    label en unofficial "Article 2397. Articles 2393 to 2396 are brought to the spouses' attention on terms set by decree";
+    when faculte_d_inscrire_la_participation(s);
+    then information_des_epoux_par_decret(s);
+}
+
+@source(CC_ART2398)
+rule DecisionSurLInscriptionDuTuteur(s: SureteReelle) strict {
+    label fr official "Article 2398. A l'ouverture de toute tutelle, le conseil de famille ou, à défaut, le juge décide si une inscription doit être requise sur les immeubles du tuteur, fixe la somme et désigne les immeubles, ou la remplace par un gage ou un nantissement";
+    label en unofficial "Article 2398. On opening any guardianship, the family council or, failing it, the court decides whether registration over the guardian's immovables is required, sets the sum and designates the immovables, or replaces it with a pledge or charge";
+    when hypotheque_legale_generale(s, MineurOuMajeurEnTutelle) and tutelle_ouverte(s);
+    then decision_sur_l_inscription_requise(s);
+}
+
+@source(CC_ART2399) {
+    rule LimiteApresLaFinDeLIncapacite(s: SureteReelle, d: Date) strict {
+        label fr official "Article 2399, alinéa 1. Le mineur, après sa majorité ou son émancipation, ou le majeur après la mainlevée de la tutelle, peut requérir l'inscription dans le délai d'un an";
+        label en unofficial "Article 2399, paragraph 1. The minor, after majority or emancipation, or the adult after the guardianship ends, may request registration within one year";
+        when hypotheque_legale_generale(s, MineurOuMajeurEnTutelle) and fin_de_l_incapacite_le(s, d);
+        then limite_d_inscription_2399(s, add_calendar_period(d, 1 calendar_year));
+    }
+    rule LimiteApresLeDecesDuProtege(s: SureteReelle, d: Date) strict {
+        label fr official "Article 2399, alinéa 2. Ce droit peut être exercé par les héritiers dans l'année du décès si le protégé est décédé encore mineur ou en tutelle";
+        label en unofficial "Article 2399, paragraph 2. The heirs may exercise this right within the year of death if the protected person died while still a minor or under guardianship";
+        when hypotheque_legale_generale(s, MineurOuMajeurEnTutelle) and deces_du_protege_pendant_l_incapacite_le(s, d);
+        then limite_d_inscription_2399(s, add_calendar_period(d, 1 calendar_year));
+    }
+    rule InscriptionDansLeDelai(s: SureteReelle, l: Date, r: Date) strict {
+        label fr official "Article 2399. Inscription requise dans le délai d'un an";
+        label en unofficial "Article 2399. Registration requested within the one-year period";
+        when limite_d_inscription_2399(s, l) and inscription_requise_le(s, r) and r <= l;
+        then inscription_2399_dans_le_delai(s);
+    }
+    rule InscriptionHorsDelai(s: SureteReelle, l: Date, r: Date) strict {
+        label fr official "Article 2399. Inscription requise après le délai d'un an";
+        label en unofficial "Article 2399. Registration requested after the one-year period";
+        when limite_d_inscription_2399(s, l) and inscription_requise_le(s, r) and r > l;
+        then inscription_2399_hors_delai(s);
+    }
+}
+
+@source(CC_ART2400)
+rule RenouvellementParLeGreffier(s: SureteReelle) strict {
+    label fr official "Article 2400. Pendant la minorité et la tutelle des majeurs, l'inscription prise en vertu de l'article 2398 est renouvelée, conformément à l'article 2429, par le greffier du tribunal judiciaire";
+    label en unofficial "Article 2400. During minority and adult guardianship, the registration under Article 2398 is renewed, under Article 2429, by the court clerk";
+    when decision_sur_l_inscription_requise(s);
+    then renouvellement_selon_2429(s);
+}
+
+@source(CC_ART2401)
+rule HypothequeDesJugements(s: SureteReelle) strict {
+    label fr official "Article 2401. L'hypothèque légale attachée aux jugements de condamnation résulte des jugements contradictoires ou par défaut, définitifs ou provisoires, des sentences arbitrales revêtues de l'exequatur et des décisions étrangères exécutoires en France";
+    label en unofficial "Article 2401. The statutory mortgage attaching to money judgments arises from judgments after hearing or by default, final or provisional, arbitral awards with exequatur and foreign decisions enforceable in France";
+    when hypotheque_legale_generale(s, CreanceJudiciairementConstatee) and decision_de_condamnation(s);
+    then hypotheque_legale_des_jugements(s);
+}
+
+// --- 2402 : hypothèques légales spéciales (liste fermée) -------------------------------------------
+
+@source(CC_ART2402) {
+    rule SpecialeVendeur(s: SureteReelle) strict {
+        label fr official "Article 2402, 1°. La créance du prix de vente d'un immeuble est garantie sur celui-ci";
+        label en unofficial "Article 2402, 1°. The claim for the sale price of an immovable is secured over it";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, VendeurDImmeuble);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialePreteur(s: SureteReelle) strict {
+        label fr official "Article 2402, 2°. La créance du prêteur de deniers pour l'acquisition d'un immeuble, pourvu que l'emploi soit authentiquement constaté";
+        label en unofficial "Article 2402, 2°. The lender's claim for funds to acquire an immovable, provided the use is authentically recorded";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, PreteurDeDeniers) and emploi_des_deniers_authentiquement_constate(s);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialeSyndicat(s: SureteReelle) strict {
+        label fr official "Article 2402, 3°. Les créances du syndicat des copropriétaires relatives à l'année courante et aux quatre dernières années échues, sur le lot vendu";
+        label en unofficial "Article 2402, 3°. The co-owners' association's claims for the current year and the last four years, over the lot sold";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, SyndicatDesCoproprietaires);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialeCopartageant(s: SureteReelle) strict {
+        label fr official "Article 2402, 4°. La créance d'un héritier ou d'un copartageant, par l'effet du partage, du rapport ou de la réduction";
+        label en unofficial "Article 2402, 4°. The claim of an heir or co-sharer from partition, collation or reduction";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, Copartageant);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialeSeparationDesPatrimoines(s: SureteReelle) strict {
+        label fr official "Article 2402, 5°. Les créances sur le défunt et les legs de sommes d'argent, et les créances sur l'héritier, comme il est dit à l'article 878";
+        label en unofficial "Article 2402, 5°. Claims against the deceased and cash legacies, and claims against the heir, as provided by Article 878";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, SeparationDesPatrimoines);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialeAccedant(s: SureteReelle) strict {
+        label fr official "Article 2402, 6°. La créance de l'accédant à la propriété titulaire d'un contrat de location-accession (loi n° 84-595)";
+        label en unofficial "Article 2402, 6°. The claim of the lease-to-own purchaser (Act No. 84-595)";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, AccedantALaPropriete);
+        then hypotheque_speciale(s);
+    }
+    rule SpecialeCollectivite(s: SureteReelle) strict {
+        label fr official "Article 2402, 7°. Les créances de l'État, de la commune, de l'EPCI ou de la métropole de Lyon nées des mesures du code de la construction et de l'habitation";
+        label en unofficial "Article 2402, 7°. Claims of the State, municipality, inter-municipal body or Lyon metropolis arising from Construction and Housing Code measures";
+        when hypotheque_d_espece(s, Legale) and hypotheque_legale_speciale(s, CollectivitePubliqueHabitat);
+        then hypotheque_speciale(s);
+    }
+}
+
+@source(CC_ART2403)
+rule ActionResolutoireFermee(s: SureteReelle) strict {
+    label fr official "Article 2403. L'action résolutoire de l'article 1654 ne peut être exercée, après l'extinction ou à défaut d'inscription de l'hypothèque du vendeur, au préjudice des tiers qui ont publié leurs droits";
+    label en unofficial "Article 2403. The Article 1654 rescission action cannot be brought, after extinction or without registration of the seller's mortgage, to the detriment of third parties who published their rights";
+    when hypotheque_legale_speciale(s, VendeurDImmeuble) and extinction_ou_defaut_d_inscription_du_vendeur(s) and tiers_ayant_publie_ses_droits(s);
+    then action_resolutoire_fermee(s);
+}
+
+// --- 2404 à 2408 : créances publiques de l'habitat, frais, hypothèque judiciaire ---------------------
+
+@source(CC_ART2404) {
+    rule ConservationAConcurrence(s: SureteReelle, e: Money, t: Money) strict {
+        label fr official "Article 2404, alinéas 1 et 5. Par la double inscription, l'hypothèque est conservée à concurrence du montant évalué ou de celui du titre de recouvrement, s'il lui est inférieur";
+        label en unofficial "Article 2404, paragraphs 1 and 5. Through the double registration, the mortgage is preserved up to the estimated amount or the recovery instrument if lower";
+        when hypotheque_legale_speciale(s, CollectivitePubliqueHabitat) and double_inscription_faite(s)
+            and montant_evalue_par_l_arrete(s, e) and montant_du_titre_de_recouvrement(s, t);
+        then hypotheque_conservee_a_concurrence(s, min(e, t));
+    }
+    rule FractionAuRangDeLaSecondeInscription(s: SureteReelle, e: Money, t: Money) strict {
+        label fr official "Article 2404, alinéa 4. En cas de démolition ordonnée, la fraction du titre supérieure au montant de la première inscription prend rang à compter de la seconde";
+        label en unofficial "Article 2404, paragraph 4. Where demolition was ordered, the part of the instrument above the first registration ranks from the second";
+        when hypotheque_legale_speciale(s, CollectivitePubliqueHabitat) and double_inscription_faite(s) and demolition_ordonnee(s)
+            and montant_evalue_par_l_arrete(s, e) and montant_du_titre_de_recouvrement(s, t) and t > e;
+        then fraction_au_rang_de_la_seconde_inscription(s, t - e);
+    }
+}
+
+@source(CC_ART2405)
+rule SeuleInscriptionDuTitre(s: SureteReelle, t: Money) strict {
+    label fr official "Article 2405. Par dérogation, l'hypothèque peut être conservée par la seule inscription du titre de recouvrement, à concurrence de sa valeur";
+    label en unofficial "Article 2405. By way of exception, the mortgage may be preserved by registering the recovery instrument alone, up to its value";
+    when hypotheque_legale_speciale(s, CollectivitePubliqueHabitat) and seule_inscription_du_titre(s) and montant_du_titre_de_recouvrement(s, t);
+    then hypotheque_conservee_a_concurrence(s, t);
+}
+
+@source(CC_ART2406)
+rule FraisDInscriptionDesDebiteurs(s: SureteReelle) strict {
+    label fr official "Article 2406. Les frais d'inscription sont à la charge des débiteurs";
+    label en unofficial "Article 2406. Registration costs are borne by the debtors";
+    when hypotheque_legale_speciale(s, CollectivitePubliqueHabitat);
+    then frais_d_inscription_a_la_charge_des_debiteurs(s);
+}
+
+@source(CC_ART2407)
+rule CaduciteDeLaPremiereInscription(s: SureteReelle) strict {
+    label fr official "Article 2407. La publication d'un arrêté de mainlevée avant l'inscription du titre de recouvrement emporte caducité de la première inscription";
+    label en unofficial "Article 2407. Publishing a release order before the recovery instrument is registered makes the first registration lapse";
+    when hypotheque_legale_speciale(s, CollectivitePubliqueHabitat) and mainlevee_publiee_avant_le_titre(s);
+    then premiere_inscription_caduque(s);
+}
+
+@source(CC_ART2408)
+rule HypothequeJudiciaireConservatoire(s: SureteReelle) strict {
+    label fr official "Article 2408. L'hypothèque judiciaire, qui est constituée à titre conservatoire, est régie par le code des procédures civiles d'exécution";
+    label en unofficial "Article 2408. The judicial mortgage, created as a protective measure, is governed by the Civil Enforcement Procedures Code";
+    when hypotheque_d_espece(s, Judiciaire);
+    then hypotheque_judiciaire_regie_par_le_cpce(s);
+}
+
+// --- 2409 à 2417 : hypothèque conventionnelle ------------------------------------------------------
+
+@source(CC_ART2409, CC_ART2410, CC_ART2414, CC_ART2415, CC_ART2417) {
+    rule HypothequeConventionnelleValable(s: SureteReelle, m: Money) strict {
+        label fr official "Articles 2409, 2410, 2414, 2415 et 2417. Hypothèque conventionnelle consentie par acte notarié, par un constituant capable de disposer, sur des immeubles désignés, pour une cause et une somme déterminées";
+        label en unofficial "Articles 2409, 2410, 2414, 2415 and 2417. Contractual mortgage granted by notarial deed, by a grantor able to dispose, over identified immovables, for a stated cause and fixed sum";
+        when hypotheque_d_espece(s, Conventionnelle) and acte_notarie(s) and constituant_capable_de_disposer(s)
+            and acte_designe_nature_et_situation(s) and cause_determinee_dans_l_acte(s) and somme_determinee_dans_l_acte(s, m)
+            and not_known(creance_garantie_future_indeterminable(s)) and not_known(hypotheque_etrangere_sans_effet(s));
+        then hypotheque_conventionnelle_valable(s);
+    }
+}
+
+@source(CC_ART2409)
+rule NulliteSansActeNotarie(s: SureteReelle) strict {
+    label fr official "Article 2409. L'hypothèque conventionnelle est consentie par acte notarié ; le mandat d'hypothéquer est donné dans les mêmes formes";
+    label en unofficial "Article 2409. A contractual mortgage is granted by notarial deed; the mandate to mortgage is given in the same form";
+    when hypotheque_d_espece(s, Conventionnelle) and not_known(acte_notarie(s));
+    then hypotheque_conventionnelle_nulle(s);
+}
+
+@source(CC_ART2410)
+rule ConstituantIncapable(s: SureteReelle) strict {
+    label fr official "Article 2410. L'hypothèque conventionnelle ne peut être consentie que par celui qui a la capacité de disposer de l'immeuble";
+    label en unofficial "Article 2410. A contractual mortgage can be granted only by a person with capacity to dispose of the immovable";
+    when hypotheque_d_espece(s, Conventionnelle) and acte_notarie(s) and not_known(constituant_capable_de_disposer(s));
+    then hypotheque_conventionnelle_nulle(s);
+}
+
+@source(CC_ART2410)
+rule PositionLiberteConstituantCapableHypotheque(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2410. Liberté du constituant capable de consentir l'hypothèque";
+    label en unofficial "Article 2410. Capable grantor's liberty to grant the mortgage";
+    when hypotheque(s, c, p)
+        and hypotheque_d_espece(s, Conventionnelle)
+        and acte_notarie(s)
+        and constituant_capable_de_disposer(s);
+    then liberty LiberteConstituantCapableHypotheque {
+        holder p;
+        action constituant_capable_de_disposer(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2411)
+rule HypothequeConditionnelle(s: SureteReelle) strict {
+    label fr official "Article 2411. Celui qui n'a sur l'immeuble qu'un droit conditionnel ne peut consentir qu'une hypothèque soumise à la même condition";
+    label en unofficial "Article 2411. A person with only a conditional right over the immovable can grant only a mortgage subject to the same condition";
+    when hypotheque_d_espece(s, Conventionnelle) and droit_conditionnel_du_constituant(s);
+    then hypotheque_sous_la_meme_condition(s);
+}
+
+@source(CC_ART2411)
+rule PositionLiberteHypothequeSousCondition(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2411. Liberté du constituant de consentir une hypothèque sous la même condition";
+    label en unofficial "Article 2411. Grantor's liberty to grant a mortgage subject to the same condition";
+    when hypotheque(s, c, p)
+        and hypotheque_d_espece(s, Conventionnelle)
+        and droit_conditionnel_du_constituant(s);
+    then liberty LiberteHypothequeSousCondition {
+        holder p;
+        action hypotheque_sous_la_meme_condition(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2412) {
+    rule IndivisConsentiParTous(s: SureteReelle) strict {
+        label fr official "Article 2412, alinéa 1. L'hypothèque d'un immeuble indivis conserve son effet quel que soit le résultat du partage si elle a été consentie par tous les indivisaires";
+        label en unofficial "Article 2412, paragraph 1. A mortgage of an undivided immovable keeps its effect whatever the partition if all co-owners consented";
+        when hypotheque_d_espece(s, Conventionnelle) and immeuble_indivis(s) and consentie_par_tous_les_indivisaires(s);
+        then hypotheque_indivise_conservee(s);
+    }
+    rule IndivisaireAlloti(s: SureteReelle) strict {
+        label fr official "Article 2412. Dans le cas contraire, elle ne conserve son effet que si l'indivisaire qui l'a consentie est alloti de l'immeuble ou du prix de licitation";
+        label en unofficial "Article 2412. Otherwise it keeps effect only if the consenting co-owner is allotted the immovable or the auction price";
+        when hypotheque_d_espece(s, Conventionnelle) and immeuble_indivis(s) and not_known(consentie_par_tous_les_indivisaires(s))
+            and indivisaire_constituant_alloti(s);
+        then hypotheque_indivise_conservee(s);
+    }
+}
+
+@source(CC_ART2413)
+rule ContratEtranger(s: SureteReelle) strict {
+    label fr official "Article 2413. Les contrats passés en pays étranger ne peuvent donner d'hypothèque sur les biens de France, sauf disposition contraire des lois politiques ou des traités";
+    label en unofficial "Article 2413. Contracts made abroad cannot create mortgages over property in France, save contrary political laws or treaties";
+    when hypotheque_d_espece(s, Conventionnelle) and contrat_passe_a_l_etranger(s) and not_known(traite_ou_loi_politique_contraire(s));
+    then hypotheque_etrangere_sans_effet(s);
+}
+
+@source(CC_ART2413)
+rule PositionLiberteEcarterContratEtranger(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2413. Liberté de ne pas produire d'hypothèque par contrat étranger";
+    label en unofficial "Article 2413. Liberty not to create a mortgage through a foreign contract";
+    when hypotheque(s, c, p)
+        and hypotheque_d_espece(s, Conventionnelle)
+        and contrat_passe_a_l_etranger(s)
+        and not_known(traite_ou_loi_politique_contraire(s));
+    then liberty LiberteEcarterContratEtranger {
+        holder p;
+        action hypotheque_etrangere_sans_effet(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2414)
+rule NulliteFauteDeDesignation(s: SureteReelle) strict {
+    label fr official "Article 2414. A peine de nullité, l'acte notarié désigne spécialement la nature et la situation de chacun des immeubles";
+    label en unofficial "Article 2414. On pain of nullity, the notarial deed specifically identifies the nature and location of each immovable";
+    when hypotheque_d_espece(s, Conventionnelle) and acte_notarie(s) and not_known(acte_designe_nature_et_situation(s));
+    then hypotheque_conventionnelle_nulle(s);
+}
+
+@source(CC_ART2415)
+rule CreancesFuturesIndeterminables(s: SureteReelle) strict {
+    label fr official "Article 2415. L'hypothèque peut garantir des créances futures, pourvu qu'elles soient déterminables ; la cause en est déterminée dans l'acte";
+    label en unofficial "Article 2415. A mortgage may secure future claims, provided they are determinable; its cause is stated in the deed";
+    when hypotheque_d_espece(s, Conventionnelle) and creance_garantie_future_indeterminable(s);
+    then surete_sans_creance_determinable(s);
+}
+
+@source(CC_ART2416) {
+    rule HypothequeRechargeable(s: SureteReelle) strict {
+        label fr official "Article 2416, alinéa 1. L'hypothèque constituée à des fins professionnelles peut être affectée à d'autres créances professionnelles si l'acte le prévoit expressément";
+        label en unofficial "Article 2416, paragraph 1. A mortgage created for business purposes may be allocated to other business claims if the deed expressly so provides";
+        when hypotheque_conventionnelle_valable(s) and hypotheque_a_fins_professionnelles(s) and acte_prevoit_le_rechargement(s);
+        then hypotheque_rechargeable(s);
+    }
+    rule RechargementDansLaLimite(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, l: Money) strict {
+        label fr official "Article 2416, alinéas 2 et 3. Le constituant l'offre en garantie dans la limite de la somme de l'acte, par convention notariée, au créancier originaire ou à un nouveau créancier";
+        label en unofficial "Article 2416, paragraphs 2 and 3. The grantor offers it as security up to the deed's sum, by notarial agreement, to the original or a new creditor";
+        when hypotheque_rechargeable(s) and convention_de_rechargement(x, s, c, m) and convention_de_rechargement_notariee(x)
+            and somme_determinee_dans_l_acte(s, l) and m <= l;
+        then rechargement_hypothecaire_valable(x);
+    }
+    rule RechargementPublie(x: SureteReelle, d: Date) strict {
+        label fr official "Article 2416, alinéa 4. La convention de rechargement est publiée, à peine d'inopposabilité aux tiers";
+        label en unofficial "Article 2416, paragraph 4. The reloading agreement is published, failing which it is not effective against third parties";
+        when rechargement_hypothecaire_valable(x) and convention_enregistree_ou_publiee_le(x, d);
+        then rechargement_hypothecaire_opposable(x);
+    }
+}
+
+@source(CC_ART2417) {
+    rule NulliteFauteDeSomme(s: SureteReelle) strict {
+        label fr official "Article 2417, alinéa 1. L'hypothèque est toujours consentie, pour le capital, à hauteur d'une somme déterminée que l'acte notarié mentionne à peine de nullité";
+        label en unofficial "Article 2417, paragraph 1. A mortgage is always granted, as to capital, for a fixed sum that the notarial deed must state on pain of nullity";
+        when hypotheque_d_espece(s, Conventionnelle) and acte_notarie(s) and not_known(somme_mentionnee(s));
+        then hypotheque_conventionnelle_nulle(s);
+    }
+    rule SommeMentionnee(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2417. Somme mentionnée dans l'acte";
+        label en unofficial "Article 2417. Sum stated in the deed";
+        when somme_determinee_dans_l_acte(s, m);
+        then somme_mentionnee(s);
+    }
+    rule CreanceReevaluee(s: SureteReelle) strict {
+        label fr official "Article 2417, alinéa 1. Si la créance est assortie d'une clause de réévaluation, la garantie s'étend à la créance réévaluée, pourvu que l'acte le mentionne";
+        label en unofficial "Article 2417, paragraph 1. If the claim carries an indexation clause, the security extends to the indexed claim, provided the deed says so";
+        when hypotheque_conventionnelle_valable(s) and clause_de_reevaluation_mentionnee(s);
+        then garantie_etendue_a_la_creance_reevaluee(s);
+    }
+    rule ResiliationAvecPreavis(s: SureteReelle, n: Date) strict {
+        label fr official "Article 2417, alinéa 2. Consentie pour des créances futures et une durée indéterminée, l'hypothèque peut être résiliée à tout moment moyennant un préavis de trois mois";
+        label en unofficial "Article 2417, paragraph 2. Granted for future claims and an indefinite period, the mortgage may be terminated at any time on three months' notice";
+        when hypotheque_de_creances_futures_a_duree_indeterminee(s) and resiliation_de_l_hypotheque_notifiee_le(s, n);
+        then resiliation_de_l_hypotheque_effective_le(s, add_calendar_period(n, 3 calendar_month));
+    }
+    rule CreanceAnterieureALaResiliation(s: SureteReelle, c: Creance, e: Date, d: Date) strict {
+        label fr official "Article 2417, alinéa 2. Une fois résiliée, l'hypothèque ne demeure que pour la garantie des créances nées antérieurement";
+        label en unofficial "Article 2417, paragraph 2. Once terminated, the mortgage remains only for claims that arose earlier";
+        when resiliation_de_l_hypotheque_effective_le(s, e) and creance_garantie_par_l_hypotheque(s, c) and nee_le(c, d) and d < e;
+        then creance_garantie_apres_resiliation(s, c);
+    }
+    rule CreancePosterieureALaResiliation(s: SureteReelle, c: Creance, e: Date, d: Date) strict {
+        label fr official "Article 2417, alinéa 2. La créance née à la date d'effet de la résiliation ou après n'est plus garantie";
+        label en unofficial "Article 2417, paragraph 2. A claim arising on or after the termination's effective date is no longer secured";
+        when resiliation_de_l_hypotheque_effective_le(s, e) and creance_garantie_par_l_hypotheque(s, c) and nee_le(c, d) and d >= e;
+        then creance_hors_garantie_apres_resiliation(s, c);
+    }
+}
+
+pub relation somme_mentionnee(s: SureteReelle) kind derived {
+    label fr official "l'acte mentionne une somme déterminée";
+    label en unofficial "the deed states a fixed sum";
+}

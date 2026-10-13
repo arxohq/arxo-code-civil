@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1112 al. 1, §122 : l'initiative, le déroulement et la rupture des négociations sont libres, mais doivent impérativement satisfaire aux exigences de la bonne foi — une liberté et un devoir sur le même fait.
+test "urn:query:fr-code-civil-contrat-p07-liberte-et-devoir-des-negociations" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:p07"), @2019-03-01) { origin case_input; }
+        assert "f2": negociation_du_contrat(entity_ref("urn:fr:cc:contrat:p07:n"), entity_ref("urn:fr:cc:contrat:p07")) { origin case_input; }
+        assert "f3": negociateur(entity_ref("urn:fr:cc:contrat:p07:n"), entity_ref("urn:fr:cc:contrat:p07:p1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(MenerEtRompreLesNegociations, ACTIVE);
+    expect position(NegocierDeBonneFoi, ACTIVE);
+}

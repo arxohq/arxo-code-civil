@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 108-3 : le majeur en tutelle est domicilié chez son tuteur.
+test "urn:query:fr-code-civil-personnes-p12-domicile-du-majeur-en-tutelle" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:pers:h:protege"), @1960-01-01) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:pers:h:protege"), @2026-03-15) { origin case_input; }
+        assert "f3": tuteur_de(entity_ref("urn:fr:cc:pers:h:tuteur"), entity_ref("urn:fr:cc:pers:h:protege")) { origin case_input; }
+        assert "f4": principal_etablissement(entity_ref("urn:fr:cc:pers:h:tuteur"), entity_ref("urn:fr:cc:pers:h:nice")) { origin case_input; }
+    }
+    evaluate truth(domicile(entity_ref("urn:fr:cc:pers:h:protege"), entity_ref("urn:fr:cc:pers:h:nice")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DomicileDuMajeurEnTutelle);
+}

@@ -1,0 +1,333 @@
+// CHAPITRE IV, SECTION 1 — LES EFFETS DU CONTRAT ENTRE LES PARTIES
+// (art. 1193 à 1198).
+//
+// La force obligatoire (1193), les suites que l'équité, l'usage et la loi
+// ajoutent au contrat (1194), l'IMPRÉVISION (1195), le transfert de propriété
+// et des risques (1196 à 1198).
+//
+// L'ARTICLE 1195 EN TROIS DEGRÉS. Le texte n'offre pas une sanction mais un
+// escalier : renégociation demandée par la partie atteinte, qui continue
+// d'exécuter ; puis, en cas de refus ou d'échec, résolution conventionnelle
+// ou adaptation demandée d'un commun accord au juge ; puis, à défaut d'accord
+// dans un délai raisonnable, révision ou fin du contrat par le juge saisi
+// d'une seule partie. Chaque degré est une règle distincte, parce que le
+// texte les conditionne l'un à l'autre. Les deux appréciations —
+// « changement de circonstances imprévisible lors de la conclusion » et
+// exécution « excessivement onéreuse » — passent par le canal §47.3.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1193,
+    CC_ART1194,
+    CC_ART1195,
+    CC_ART1196,
+    CC_ART1197,
+    CC_ART1198,
+    Contrat,
+    Obligation,
+    Personne,
+    debiteur_de_l_obligation,
+    force_obligatoire,
+    partie_au_contrat,
+    regi_par_le_droit_nouveau,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------------
+
+pub relation consentement_mutuel_a_la_modification(c: Contrat) kind empirical {
+    label fr official "les parties consentent mutuellement à modifier ou révoquer le contrat (article 1193)";
+    label en unofficial "the parties mutually consent to modify or revoke the contract (Article 1193)";
+}
+pub relation cause_legale_de_revocation(c: Contrat) kind empirical {
+    label fr official "cause pour laquelle la loi autorise la modification ou la révocation du contrat (article 1193)";
+    label en unofficial "ground for which statute allows the contract's modification or revocation (Article 1193)";
+}
+pub relation suite_imposee_par_l_equite_l_usage_ou_la_loi(c: Contrat, o: Obligation) kind empirical {
+    label fr official "suite que l'équité, l'usage ou la loi donne au contrat au-delà de ce qui y est exprimé (article 1194)";
+    label en unofficial "consequence that equity, usage or statute attaches to the contract beyond what is expressed in it (Article 1194)";
+}
+pub relation changement_de_circonstances(c: Contrat, partie: Personne) kind empirical {
+    label fr official "changement de circonstances survenu depuis la conclusion du contrat (article 1195, alinéa 1)";
+    label en unofficial "change of circumstances since the contract's conclusion (Article 1195, paragraph 1)";
+}
+pub relation risque_du_changement_accepte(c: Contrat, partie: Personne) kind empirical {
+    label fr official "cette partie avait accepté d'assumer le risque du changement de circonstances (article 1195, alinéa 1)";
+    label en unofficial "this party had accepted to bear the risk of the change of circumstances (Article 1195, paragraph 1)";
+}
+pub relation renegociation_demandee(c: Contrat, partie: Personne) kind empirical {
+    label fr official "la partie atteinte a demandé une renégociation du contrat à son cocontractant (article 1195, alinéa 1)";
+    label en unofficial "the affected party asked the other party to renegotiate the contract (Article 1195, paragraph 1)";
+}
+pub relation execution_poursuivie_pendant_la_renegociation(c: Contrat, partie: Personne) kind empirical {
+    label fr official "la partie atteinte continue d'exécuter ses obligations durant la renégociation (article 1195, alinéa 1)";
+    label en unofficial "the affected party continues to perform its obligations during the renegotiation (Article 1195, paragraph 1)";
+}
+pub relation renegociation_refusee_ou_echouee(c: Contrat) kind empirical {
+    label fr official "refus ou échec de la renégociation (article 1195, alinéa 2)";
+    label en unofficial "refusal or failure of the renegotiation (Article 1195, paragraph 2)";
+}
+pub relation accord_de_resolution(c: Contrat, jour: Date) kind empirical {
+    label fr official "les parties conviennent de la résolution du contrat, à la date et aux conditions qu'elles déterminent (article 1195, alinéa 2)";
+    label en unofficial "the parties agree on the contract's termination, at the date and on the terms they determine (Article 1195, paragraph 2)";
+}
+pub relation demande_conjointe_d_adaptation_au_juge(c: Contrat) kind empirical {
+    label fr official "les parties demandent d'un commun accord au juge de procéder à l'adaptation du contrat (article 1195, alinéa 2)";
+    label en unofficial "the parties jointly ask the court to adapt the contract (Article 1195, paragraph 2)";
+}
+pub relation demande_unilaterale_au_juge(c: Contrat, partie: Personne) kind empirical {
+    label fr official "une partie demande au juge de réviser le contrat ou d'y mettre fin (article 1195, alinéa 2)";
+    label en unofficial "a party asks the court to revise the contract or to bring it to an end (Article 1195, paragraph 2)";
+}
+pub relation contrat_d_alienation_ou_de_cession_de_droit(c: Contrat) kind empirical {
+    label fr official "contrat ayant pour objet l'aliénation de la propriété ou la cession d'un autre droit (article 1196, alinéa 1)";
+    label en unofficial "contract whose object is the transfer of ownership or the assignment of another right (Article 1196, paragraph 1)";
+}
+pub relation transfert_differe(c: Contrat) kind empirical {
+    label fr official "le transfert est différé par la volonté des parties, la nature des choses ou l'effet de la loi (article 1196, alinéa 2)";
+    label en unofficial "the transfer is deferred by the parties' will, the nature of things or the effect of statute (Article 1196, paragraph 2)";
+}
+pub relation obligation_de_delivrer(o: Obligation, c: Contrat) kind empirical {
+    label fr official "obligation de délivrer la chose (articles 1196 et 1197)";
+    label en unofficial "obligation to deliver the thing (Articles 1196 and 1197)";
+}
+pub relation mise_en_demeure_du_debiteur_le(o: Obligation, jour: Date) kind empirical {
+    key(o);
+    label fr official "jour de la mise en demeure du débiteur — au sens de l'article 1344, qui vit dans le paquet du régime général des obligations (entrée typée du cas)";
+    label en unofficial "day the debtor was put in default — within Article 1344, which lives in the general regime package (typed case input)";
+}
+pub relation chose_conservee_avec_les_soins_d_une_personne_raisonnable(o: Obligation) kind empirical {
+    label fr official "la chose est conservée jusqu'à la délivrance avec tous les soins d'une personne raisonnable (article 1197)";
+    label en unofficial "the thing is kept until delivery with all the care of a reasonable person (Article 1197)";
+}
+pub relation acquereur_successif_du_meuble(c: Contrat, acquereur: Personne, auteur: Personne) kind empirical {
+    label fr official "acquéreur successif d'un même meuble corporel tenant son droit de la même personne (article 1198, alinéa 1)";
+    label en unofficial "successive acquirer of the same tangible movable holding his right from the same person (Article 1198, paragraph 1)";
+}
+pub relation possession_prise_le(c: Contrat, acquereur: Personne, jour: Date) kind empirical {
+    label fr official "jour où cet acquéreur a pris possession du meuble (article 1198, alinéa 1)";
+    label en unofficial "day this acquirer took possession of the movable (Article 1198, paragraph 1)";
+}
+pub relation acquereur_successif_de_l_immeuble(c: Contrat, acquereur: Personne, auteur: Personne) kind empirical {
+    label fr official "acquéreur successif de droits portant sur un même immeuble tenant son droit de la même personne (article 1198, alinéa 2)";
+    label en unofficial "successive acquirer of rights over the same immovable holding his right from the same person (Article 1198, paragraph 2)";
+}
+pub relation titre_authentique_publie_le(c: Contrat, acquereur: Personne, jour: Date) kind empirical {
+    label fr official "jour où cet acquéreur a publié au fichier immobilier son titre d'acquisition passé en la forme authentique (article 1198, alinéa 2)";
+    label en unofficial "day this acquirer published his authentic acquisition title in the land register (Article 1198, paragraph 2)";
+}
+pub relation acquereur_de_bonne_foi(c: Contrat, acquereur: Personne) kind empirical {
+    label fr official "cet acquéreur est de bonne foi (article 1198)";
+    label en unofficial "this acquirer is in good faith (Article 1198)";
+}
+
+// --- Canaux §47.3 ------------------------------------------------------------------------------------
+
+@source(CC_ART1195)
+pub external judgment relation changement_imprevisible_lors_de_la_conclusion(c: Contrat) {
+    authority Court;
+    label fr official "le changement de circonstances était imprévisible lors de la conclusion du contrat (article 1195, alinéa 1)";
+    label en unofficial "the change of circumstances was unforeseeable when the contract was concluded (Article 1195, paragraph 1)";
+}
+
+@source(CC_ART1195)
+pub external judgment relation execution_excessivement_onereuse(c: Contrat, partie: Personne) {
+    authority Court;
+    label fr official "le changement rend l'exécution excessivement onéreuse pour cette partie (article 1195, alinéa 1)";
+    label en unofficial "the change makes performance excessively onerous for this party (Article 1195, paragraph 1)";
+}
+
+@source(CC_ART1195)
+pub external judgment relation delai_raisonnable_d_accord_ecoule_1195(c: Contrat) {
+    authority Court;
+    label fr official "le délai raisonnable pour parvenir à un accord sur la résolution ou l'adaptation s'est écoulé sans accord (article 1195, alinéa 2)";
+    label en unofficial "the reasonable period for reaching agreement on termination or adaptation has elapsed without agreement (Article 1195, paragraph 2)";
+}
+
+// --- Têtes produites ----------------------------------------------------------------------------------
+
+pub relation contrat_modifiable_ou_revocable(c: Contrat) kind derived {
+    label fr official "le contrat peut être modifié ou révoqué (article 1193)";
+    label en unofficial "the contract may be modified or revoked (Article 1193)";
+}
+pub relation obligation_issue_des_suites_du_contrat(c: Contrat, o: Obligation) kind derived {
+    label fr official "les contrats obligent non seulement à ce qui y est exprimé, mais encore à toutes les suites que leur donnent l'équité, l'usage ou la loi (article 1194)";
+    label en unofficial "contracts bind not only as to what is expressed in them, but also as to all the consequences given them by equity, usage or statute (Article 1194)";
+}
+pub relation renegociation_ouverte(c: Contrat, partie: Personne) kind derived {
+    label fr official "la partie atteinte par le changement imprévisible peut demander une renégociation du contrat (article 1195, alinéa 1)";
+    label en unofficial "the party affected by the unforeseeable change may ask for the contract to be renegotiated (Article 1195, paragraph 1)";
+}
+pub relation resolution_conventionnelle_apres_echec(c: Contrat, jour: Date) kind derived {
+    label fr official "les parties ont convenu de la résolution du contrat après refus ou échec de la renégociation (article 1195, alinéa 2)";
+    label en unofficial "the parties agreed on the contract's termination after refusal or failure of the renegotiation (Article 1195, paragraph 2)";
+}
+pub relation adaptation_par_le_juge_ouverte(c: Contrat) kind derived {
+    label fr official "les parties peuvent demander d'un commun accord au juge de procéder à l'adaptation du contrat (article 1195, alinéa 2)";
+    label en unofficial "the parties may jointly ask the court to adapt the contract (Article 1195, paragraph 2)";
+}
+pub relation revision_ou_fin_par_le_juge_ouverte(c: Contrat, partie: Personne) kind derived {
+    label fr official "à défaut d'accord dans un délai raisonnable, le juge peut, à la demande d'une partie, réviser le contrat ou y mettre fin (article 1195, alinéa 2)";
+    label en unofficial "failing agreement within a reasonable period, the court may, at a party's request, revise the contract or bring it to an end (Article 1195, paragraph 2)";
+}
+pub relation transfert_de_propriete_a_la_conclusion(c: Contrat) kind derived {
+    label fr official "dans les contrats ayant pour objet l'aliénation de la propriété ou la cession d'un autre droit, le transfert s'opère lors de la conclusion du contrat (article 1196, alinéa 1)";
+    label en unofficial "in contracts transferring ownership or assigning another right, the transfer takes place on the contract's conclusion (Article 1196, paragraph 1)";
+}
+pub relation transfert_de_propriete_reporte(c: Contrat) kind derived {
+    label fr official "le transfert est différé par la volonté des parties, la nature des choses ou l'effet de la loi (article 1196, alinéa 2)";
+    label en unofficial "the transfer is deferred by the parties' will, the nature of things or the effect of statute (Article 1196, paragraph 2)";
+}
+pub relation charge_des_risques(c: Contrat, p: Personne) kind derived {
+    label fr official "le transfert de propriété emporte transfert des risques de la chose (article 1196, alinéa 3)";
+    label en unofficial "the transfer of ownership carries the transfer of the risks of the thing (Article 1196, paragraph 3)";
+}
+pub relation risques_retombes_sur_le_debiteur_mis_en_demeure(o: Obligation, debiteur: Personne) kind derived {
+    label fr official "le débiteur de l'obligation de délivrer retrouve la charge des risques à compter de sa mise en demeure, conformément à l'article 1344-2 (article 1196, alinéa 3)";
+    label en unofficial "the debtor of the obligation to deliver regains the risks from the time he is put in default, under Article 1344-2 (Article 1196, paragraph 3)";
+}
+pub relation obligation_de_conserver_respectee(o: Obligation) kind derived {
+    label fr official "l'obligation de délivrer la chose emporte obligation de la conserver jusqu'à la délivrance, en y apportant tous les soins d'une personne raisonnable (article 1197)";
+    label en unofficial "the obligation to deliver the thing carries the obligation to keep it until delivery, with all the care of a reasonable person (Article 1197)";
+}
+pub relation acquereur_prefere(c: Contrat, acquereur: Personne) kind derived {
+    label fr official "acquéreur préféré en cas d'acquisitions successives d'un même bien (article 1198)";
+    label en unofficial "acquirer preferred in case of successive acquisitions of the same asset (Article 1198)";
+}
+
+// --- Articles 1193 à 1198 -------------------------------------------------------------------------------
+
+@source(CC_ART1193) {
+    rule ModificationParConsentementMutuel(c: Contrat) strict {
+        label fr official "Article 1193. Les contrats ne peuvent être modifiés ou révoqués que du consentement mutuel des parties";
+        label en unofficial "Article 1193. Contracts may be modified or revoked only by the parties' mutual consent";
+        when force_obligatoire(c) and consentement_mutuel_a_la_modification(c);
+        then contrat_modifiable_ou_revocable(c);
+    }
+    rule ModificationPourUneCauseLegale(c: Contrat) strict {
+        label fr official "Article 1193. Les contrats peuvent aussi être modifiés ou révoqués pour les causes que la loi autorise";
+        label en unofficial "Article 1193. Contracts may also be modified or revoked on the grounds statute allows";
+        when force_obligatoire(c) and cause_legale_de_revocation(c);
+        then contrat_modifiable_ou_revocable(c);
+    }
+}
+
+@source(CC_ART1194)
+rule SuitesDuContrat(c: Contrat, o: Obligation) strict {
+    label fr official "Article 1194. Les contrats obligent non seulement à ce qui y est exprimé, mais encore à toutes les suites que leur donnent l'équité, l'usage ou la loi";
+    label en unofficial "Article 1194. Contracts bind not only as to what is expressed in them, but also as to all the consequences given them by equity, usage or statute";
+    when force_obligatoire(c) and suite_imposee_par_l_equite_l_usage_ou_la_loi(c, o);
+    then obligation_issue_des_suites_du_contrat(c, o);
+}
+
+@source(CC_ART1195) {
+    rule ImprevisionOuvreLaRenegociation(c: Contrat, partie: Personne) strict {
+        label fr official "Article 1195, alinéa 1. Si un changement de circonstances imprévisible lors de la conclusion du contrat rend l'exécution excessivement onéreuse pour une partie qui n'avait pas accepté d'en assumer le risque, celle-ci peut demander une renégociation à son cocontractant";
+        label en unofficial "Article 1195, paragraph 1. If an unforeseeable change of circumstances makes performance excessively onerous for a party who had not accepted to bear the risk, that party may ask the other to renegotiate";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, partie)
+            and changement_de_circonstances(c, partie)
+            and changement_imprevisible_lors_de_la_conclusion(c)
+            and execution_excessivement_onereuse(c, partie)
+            and not_known(risque_du_changement_accepte(c, partie));
+        then renegociation_ouverte(c, partie);
+    }
+    rule ObligationDExecuterPendantLaRenegociation(c: Contrat, partie: Personne) strict {
+        label fr official "Article 1195, alinéa 1. La partie qui demande la renégociation continue à exécuter ses obligations durant celle-ci";
+        label en unofficial "Article 1195, paragraph 1. The party asking for renegotiation continues to perform its obligations during it";
+        when renegociation_ouverte(c, partie) and renegociation_demandee(c, partie);
+        then duty ExecuterPendantLaRenegociation {
+            bearer partie;
+            maintain execution_poursuivie_pendant_la_renegociation(c, partie) during [@2016-10-01, infinity);
+        };
+    }
+    rule ResolutionConventionnelleApresEchec(c: Contrat, partie: Personne, jour: Date) strict {
+        label fr official "Article 1195, alinéa 2. En cas de refus ou d'échec de la renégociation, les parties peuvent convenir de la résolution du contrat, à la date et aux conditions qu'elles déterminent";
+        label en unofficial "Article 1195, paragraph 2. On refusal or failure of the renegotiation, the parties may agree on the contract's termination, at the date and on the terms they determine";
+        when renegociation_ouverte(c, partie) and renegociation_refusee_ou_echouee(c)
+            and accord_de_resolution(c, jour);
+        then resolution_conventionnelle_apres_echec(c, jour);
+    }
+    rule AdaptationDemandeeDUnCommunAccord(c: Contrat, partie: Personne) strict {
+        label fr official "Article 1195, alinéa 2. Les parties peuvent aussi demander d'un commun accord au juge de procéder à l'adaptation du contrat";
+        label en unofficial "Article 1195, paragraph 2. The parties may also jointly ask the court to adapt the contract";
+        when renegociation_ouverte(c, partie) and renegociation_refusee_ou_echouee(c)
+            and demande_conjointe_d_adaptation_au_juge(c);
+        then adaptation_par_le_juge_ouverte(c);
+    }
+    rule RevisionOuFinParLeJuge(c: Contrat, partie: Personne, demandeur: Personne) strict {
+        label fr official "Article 1195, alinéa 2. A défaut d'accord dans un délai raisonnable, le juge peut, à la demande d'une partie, réviser le contrat ou y mettre fin, à la date et aux conditions qu'il fixe";
+        label en unofficial "Article 1195, paragraph 2. Failing agreement within a reasonable period, the court may, at a party's request, revise the contract or bring it to an end, at the date and on the terms it sets";
+        when renegociation_ouverte(c, partie) and renegociation_refusee_ou_echouee(c)
+            and delai_raisonnable_d_accord_ecoule_1195(c)
+            and demande_unilaterale_au_juge(c, demandeur);
+        then revision_ou_fin_par_le_juge_ouverte(c, demandeur);
+    }
+}
+
+@source(CC_ART1196) {
+    rule TransfertALaConclusion(c: Contrat) strict {
+        label fr official "Article 1196, alinéa 1. Dans les contrats ayant pour objet l'aliénation de la propriété ou la cession d'un autre droit, le transfert s'opère lors de la conclusion du contrat";
+        label en unofficial "Article 1196, paragraph 1. In contracts transferring ownership or assigning another right, the transfer takes place on the contract's conclusion";
+        when regi_par_le_droit_nouveau(c) and contrat_d_alienation_ou_de_cession_de_droit(c)
+            and not_known(transfert_differe(c));
+        then transfert_de_propriete_a_la_conclusion(c);
+    }
+    rule TransfertDiffere(c: Contrat) strict {
+        label fr official "Article 1196, alinéa 2. Ce transfert peut être différé par la volonté des parties, la nature des choses ou par l'effet de la loi";
+        label en unofficial "Article 1196, paragraph 2. That transfer may be deferred by the parties' will, the nature of things or the effect of statute";
+        when regi_par_le_droit_nouveau(c) and contrat_d_alienation_ou_de_cession_de_droit(c)
+            and transfert_differe(c);
+        then transfert_de_propriete_reporte(c);
+    }
+    rule TransfertDesRisques(c: Contrat, acquereur: Personne) strict {
+        label fr official "Article 1196, alinéa 3. Le transfert de propriété emporte transfert des risques de la chose";
+        label en unofficial "Article 1196, paragraph 3. The transfer of ownership carries the transfer of the risks of the thing";
+        when transfert_de_propriete_a_la_conclusion(c) and partie_au_contrat(c, acquereur);
+        then charge_des_risques(c, acquereur);
+    }
+    rule RisquesRetombesSurLeDebiteurMisEnDemeure(c: Contrat, o: Obligation, debiteur: Personne, jour: Date) strict {
+        label fr official "Article 1196, alinéa 3. Le débiteur de l'obligation de délivrer retrouve la charge des risques à compter de sa mise en demeure, conformément à l'article 1344-2 et sous réserve des règles prévues à l'article 1351-1";
+        label en unofficial "Article 1196, paragraph 3. The debtor of the obligation to deliver regains the risks from the time he is put in default, under Article 1344-2 and subject to Article 1351-1";
+        when obligation_de_delivrer(o, c) and debiteur_de_l_obligation(o, debiteur)
+            and mise_en_demeure_du_debiteur_le(o, jour);
+        then risques_retombes_sur_le_debiteur_mis_en_demeure(o, debiteur);
+    }
+}
+
+@source(CC_ART1197)
+rule ObligationDeConserverJusquALaDelivrance(c: Contrat, o: Obligation) strict {
+    label fr official "Article 1197. L'obligation de délivrer la chose emporte obligation de la conserver jusqu'à la délivrance, en y apportant tous les soins d'une personne raisonnable";
+    label en unofficial "Article 1197. The obligation to deliver the thing carries the obligation to keep it until delivery, with all the care of a reasonable person";
+    when regi_par_le_droit_nouveau(c) and obligation_de_delivrer(o, c)
+        and chose_conservee_avec_les_soins_d_une_personne_raisonnable(o);
+    then obligation_de_conserver_respectee(o);
+}
+
+@source(CC_ART1198) {
+    rule PreferenceDuPremierPossesseurDeBonneFoi(c: Contrat, premier: Personne, second: Personne, auteur: Personne, jour: Date, autre: Date) strict {
+        label fr official "Article 1198, alinéa 1. Lorsque deux acquéreurs successifs d'un même meuble corporel tiennent leur droit d'une même personne, celui qui a pris possession en premier est préféré, même si son droit est postérieur, à condition qu'il soit de bonne foi";
+        label en unofficial "Article 1198, paragraph 1. Where two successive acquirers of the same tangible movable hold their right from the same person, the one who first took possession is preferred, even if his right is later, provided he is in good faith";
+        when regi_par_le_droit_nouveau(c)
+            and acquereur_successif_du_meuble(c, premier, auteur)
+            and acquereur_successif_du_meuble(c, second, auteur)
+            and possession_prise_le(c, premier, jour)
+            and possession_prise_le(c, second, autre)
+            and jour < autre
+            and acquereur_de_bonne_foi(c, premier);
+        then acquereur_prefere(c, premier);
+    }
+    rule PreferenceDuPremierPubliantDeBonneFoi(c: Contrat, premier: Personne, second: Personne, auteur: Personne, jour: Date, autre: Date) strict {
+        label fr official "Article 1198, alinéa 2. Lorsque deux acquéreurs successifs de droits portant sur un même immeuble tiennent leur droit d'une même personne, celui qui a, le premier, publié son titre d'acquisition passé en la forme authentique au fichier immobilier est préféré, même si son droit est postérieur, à condition qu'il soit de bonne foi";
+        label en unofficial "Article 1198, paragraph 2. Where two successive acquirers of rights over the same immovable hold their right from the same person, the one who first published his authentic acquisition title in the land register is preferred, even if his right is later, provided he is in good faith";
+        when regi_par_le_droit_nouveau(c)
+            and acquereur_successif_de_l_immeuble(c, premier, auteur)
+            and acquereur_successif_de_l_immeuble(c, second, auteur)
+            and titre_authentique_publie_le(c, premier, jour)
+            and titre_authentique_publie_le(c, second, autre)
+            and jour < autre
+            and acquereur_de_bonne_foi(c, premier);
+        then acquereur_prefere(c, premier);
+    }
+}

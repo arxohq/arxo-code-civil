@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 343-1 : né le 10 avril 2000, demande le 2026-04-11 — « plus de vingt-six ans ».
+test "urn:query:fr-code-civil-famille-a01-adoptant-seul-lendemain" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": adoptant(entity_ref("urn:fr:cc:fam:r:a"), entity_ref("urn:fr:cc:fam:r:p")) { origin case_input; }
+        assert "f2": ne_le(entity_ref("urn:fr:cc:fam:r:p"), @2000-04-10) { origin case_input; }
+        assert "f3": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:r:a"), @2026-04-11) { origin case_input; }
+    }
+    evaluate truth(condition_des_adoptants_remplie(entity_ref("urn:fr:cc:fam:r:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

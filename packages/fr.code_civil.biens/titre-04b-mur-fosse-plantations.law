@@ -1,0 +1,1200 @@
+// TITRE IV, section 1 — DU MUR ET DU FOSSÉ MITOYENS (653 à 673).
+//
+// LA MITOYENNETÉ EST UNE PRÉSOMPTION (653, 666) que deux faits renversent :
+// le TITRE et la MARQUE. La marque n'est pas un fait brut du dossier :
+// l'article 654 la DÉFINIT par deux signes physiques — sommité droite et à
+// plomb d'un côté, plan incliné de l'autre ; chaperon, filets ou corbeaux
+// d'un seul côté —, et l'article 666, alinéa 2, en donne un troisième pour
+// les fossés : la levée ou le rejet de la terre d'un côté seulement. Elle
+// est donc DÉDUITE, et la présomption la lit par `not_known`.
+//
+// LES DEUX NOMBRES DE L'ARTICLE 663. À défaut d'usages et de règlements, le
+// mur de séparation qui sera construit ou rétabli à l'avenir doit avoir AU
+// MOINS trente-deux décimètres dans les villes de cinquante mille âmes ET
+// AU-DESSUS, vingt-six décimètres dans les autres. Deux inégalités larges :
+// 32 dm exactement suffit, 31 dm non ; 50 000 habitants font la grande
+// ville, 49 999 non.
+//
+// LES DEUX NOMBRES DE L'ARTICLE 671. À défaut de règlements et usages, deux
+// mètres de la ligne séparative pour les plantations dont la hauteur DÉPASSE
+// deux mètres, un demi-mètre pour les autres. Le « dépasse » est STRICT :
+// une plantation de deux mètres tout juste relève du demi-mètre ; une
+// plantation de 2,01 m relève des deux mètres. La distance, elle, est
+// LARGE : « à la distance de deux mètres » est satisfaite par deux mètres.
+//
+// LES ESPALIERS (671, alinéas 2 et 3) échappent à toute distance — « sans
+// que l'on soit tenu d'observer aucune distance » — mais pas à la hauteur :
+// « ils ne pourront dépasser la crête du mur ». Et si le mur n'est pas
+// mitoyen, seul son propriétaire peut y appuyer les espaliers.
+//
+// L'ARTICLE 672 donne au voisin le droit d'exiger l'arrachage ou la
+// réduction, avec TROIS exceptions nommées — titre, destination du père de
+// famille, prescription trentenaire — qui sont des faits du dossier.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART653,
+    CC_ART654,
+    CC_ART655,
+    CC_ART656,
+    CC_ART657,
+    CC_ART658,
+    CC_ART659,
+    CC_ART660,
+    CC_ART661,
+    CC_ART662,
+    CC_ART663,
+    CC_ART665,
+    CC_ART666,
+    CC_ART667,
+    CC_ART668,
+    CC_ART669,
+    CC_ART670,
+    CC_ART671,
+    CC_ART672,
+    CC_ART673,
+    Fonds,
+    Mur,
+    Personne,
+    Plantation,
+    proprietaire_du_bien,
+    voisin,
+};
+
+// --- Entrées : le mur, le fossé, la haie ------------------------------------------------------
+
+pub enum EspeceDeCloture {
+    label fr official "Espèce de clôture séparant deux héritages (articles 653, 666 à 670)";
+    label en unofficial "Kind of enclosure separating two tenements (Articles 653, 666 to 670)";
+    MurEntreBatimentsJusquALHeberge,
+    MurEntreCoursEtJardins,
+    MurEntreEnclosDansLesChamps,
+    Fosse,
+    Haie
+}
+
+pub relation cloture_separant(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) kind empirical {
+    key(m);
+    label fr official "clôture séparant deux héritages, de l'espèce nommée (articles 653, 666)";
+    label en unofficial "enclosure separating two tenements, of the kind named (Articles 653, 666)";
+}
+pub relation titre_de_non_mitoyennete(m: Mur) kind empirical {
+    label fr official "il y a titre contraire à la mitoyenneté (articles 653, 666)";
+    label en unofficial "there is a title contrary to party status (Articles 653, 666)";
+}
+pub relation prescription_contraire_a_la_mitoyennete(m: Mur) kind empirical {
+    label fr official "il y a prescription contraire à la mitoyenneté (article 666)";
+    label en unofficial "there is prescription contrary to party status (Article 666)";
+}
+pub relation un_seul_heritage_en_etat_de_cloture(m: Mur, f: Fonds) kind empirical {
+    label fr official "un seul des héritages est en état de clôture (article 666, alinéa 1)";
+    label en unofficial "only one of the tenements is enclosed (Article 666, paragraph 1)";
+}
+pub relation sommite_droite_et_a_plomb_d_un_cote(m: Mur, f: Fonds) kind empirical {
+    label fr official "la sommité du mur est droite et à plomb de son parement du côté de ce fonds, et présente de l'autre un plan incliné (article 654, alinéa 1)";
+    label en unofficial "the top of the wall is straight and plumb with its face on this land's side, and shows a slope on the other (Article 654, paragraph 1)";
+}
+pub relation chaperon_filets_ou_corbeaux_d_un_cote(m: Mur, f: Fonds) kind empirical {
+    label fr official "il n'y a que d'un côté un chaperon ou des filets et corbeaux de pierre mis en bâtissant le mur, du côté de ce fonds (article 654, alinéa 2)";
+    label en unofficial "there is on one side only a coping, or stone fillets and corbels placed when building the wall, on this land's side (Article 654, paragraph 2)";
+}
+pub relation rejet_de_la_terre_d_un_cote(m: Mur, f: Fonds) kind empirical {
+    label fr official "pour les fossés, la levée ou le rejet de la terre se trouve d'un côté seulement, du côté de ce fonds (article 666, alinéas 2 et 3)";
+    label en unofficial "for ditches, the bank or spoil is on one side only, on this land's side (Article 666, paragraphs 2 and 3)";
+}
+pub relation quote_part_dans_le_mur(m: Mur, f: Fonds, part: Rational) kind empirical {
+    key(m, f);
+    label fr official "part de chaque copropriétaire dans le mur mitoyen (article 655)";
+    label en unofficial "share of each co-owner in the party wall (Article 655)";
+}
+pub relation abandon_du_droit_de_mitoyennete(m: Mur, f: Fonds) kind empirical {
+    label fr official "le copropriétaire abandonne le droit de mitoyenneté (articles 656, 667)";
+    label en unofficial "the co-owner abandons the party right (Articles 656, 667)";
+}
+pub relation mur_soutient_un_batiment_du_coproprietaire(m: Mur, f: Fonds) kind empirical {
+    label fr official "le mur mitoyen soutient un bâtiment appartenant à ce copropriétaire (article 656)";
+    label en unofficial "the party wall supports a building belonging to this co-owner (Article 656)";
+}
+pub relation fosse_servant_habituellement_a_l_ecoulement(m: Mur) kind empirical {
+    label fr official "le fossé sert habituellement à l'écoulement des eaux (article 667, alinéa 2)";
+    label en unofficial "the ditch habitually serves to drain water (Article 667, paragraph 2)";
+}
+pub relation poutre_ou_solive_placee_dans_le_mur(m: Mur, f: Fonds, epaisseur_restante: Quantity) kind empirical {
+    key(m, f);
+    label fr official "poutre ou solive que le copropriétaire place dans l'épaisseur du mur mitoyen, avec l'épaisseur de mur qu'il laisse (article 657)";
+    label en unofficial "beam or joist placed by the co-owner in the thickness of the party wall, with the wall thickness he leaves (Article 657)";
+}
+pub relation exhaussement_par(m: Mur, f: Fonds) kind empirical {
+    label fr official "le copropriétaire fait exhausser le mur mitoyen (articles 658 à 660)";
+    label en unofficial "the co-owner raises the party wall (Articles 658 to 660)";
+}
+pub relation mur_en_etat_de_supporter_l_exhaussement(m: Mur) kind empirical {
+    label fr official "le mur mitoyen est en état de supporter l'exhaussement (article 659)";
+    label en unofficial "the party wall is able to bear the raising (Article 659)";
+}
+pub relation depense_de_l_exhaussement(m: Mur, montant: Money) kind empirical {
+    key(m);
+    label fr official "dépense que l'exhaussement a coûté, estimée à la date de l'acquisition, compte tenu de l'état de la partie exhaussée (article 660)";
+    label en unofficial "cost of the raising, assessed at the date of acquisition, having regard to the state of the raised part (Article 660)";
+}
+pub relation valeur_du_sol_de_l_excedent_d_epaisseur(m: Mur, montant: Money) kind empirical {
+    key(m);
+    label fr official "valeur du sol fourni pour l'excédent d'épaisseur, s'il y en a (article 660)";
+    label en unofficial "value of the ground provided for the excess thickness, if any (Article 660)";
+}
+pub relation depense_du_mur(m: Mur, montant: Money) kind empirical {
+    key(m);
+    label fr official "dépense que le mur a coûté, estimée à la date de l'acquisition de sa mitoyenneté, compte tenu de son état (article 661)";
+    label en unofficial "cost of the wall, assessed at the date of acquisition of party status, having regard to its state (Article 661)";
+}
+pub relation valeur_du_sol_du_mur(m: Mur, montant: Money) kind empirical {
+    key(m);
+    label fr official "valeur du sol sur lequel le mur est bâti (article 661)";
+    label en unofficial "value of the ground on which the wall is built (Article 661)";
+}
+pub relation volonte_de_rendre_le_mur_mitoyen(m: Mur, f: Fonds) kind empirical {
+    label fr official "le propriétaire joignant le mur veut le rendre mitoyen en tout ou en partie (article 661)";
+    label en unofficial "the owner adjoining the wall wishes to make it a party wall in whole or in part (Article 661)";
+}
+pub relation volonte_d_acquerir_la_mitoyennete_de_l_exhaussement(m: Mur, f: Fonds) kind empirical {
+    label fr official "le voisin qui n'a pas contribué à l'exhaussement veut en acquérir la mitoyenneté (article 660)";
+    label en unofficial "the neighbour who did not contribute to the raising wishes to acquire party status in it (Article 660)";
+}
+pub relation enfoncement_ou_ouvrage_appuye_sur_le_mur(m: Mur, f: Fonds) kind empirical {
+    label fr official "l'un des voisins pratique un enfoncement dans le corps du mur mitoyen, ou y applique ou appuie un ouvrage (article 662)";
+    label en unofficial "one of the neighbours makes a recess in the body of the party wall, or applies or leans a work against it (Article 662)";
+}
+pub relation consentement_de_l_autre_coproprietaire(m: Mur, f: Fonds) kind empirical {
+    label fr official "l'autre copropriétaire a consenti à l'ouvrage (articles 662, 675)";
+    label en unofficial "the other co-owner consented to the work (Articles 662, 675)";
+}
+pub relation moyens_regles_par_experts(m: Mur, f: Fonds) kind empirical {
+    label fr official "à défaut de consentement, les moyens nécessaires pour que le nouvel ouvrage ne soit pas nuisible aux droits de l'autre ont été réglés par experts (article 662)";
+    label en unofficial "failing consent, the means for the new work not to harm the other's rights were settled by experts (Article 662)";
+}
+pub relation situe_en_ville_ou_faubourg(m: Mur) kind empirical {
+    label fr official "le mur de séparation est assis dans une ville ou un faubourg (article 663)";
+    label en unofficial "the separating wall stands in a town or suburb (Article 663)";
+}
+pub relation habitants_de_la_ville(m: Mur, nombre: Integer) kind empirical {
+    key(m);
+    label fr official "nombre d'âmes de la ville où le mur est assis (article 663)";
+    label en unofficial "number of inhabitants of the town where the wall stands (Article 663)";
+}
+pub relation construit_ou_retabli_a_l_avenir(m: Mur) kind empirical {
+    label fr official "le mur de séparation entre voisins sera construit ou rétabli à l'avenir (article 663)";
+    label en unofficial "the separating wall between neighbours is to be built or rebuilt in the future (Article 663)";
+}
+pub relation hauteur_prescrite_par_reglement_ou_usage(m: Mur, hauteur: Quantity) kind empirical {
+    key(m);
+    label fr official "hauteur de la clôture fixée par les règlements particuliers ou les usages constants et reconnus (article 663)";
+    label en unofficial "height of the enclosure fixed by particular regulations or by constant and recognised local usage (Article 663)";
+}
+pub relation aucun_reglement_ni_usage_sur_la_hauteur(m: Mur) kind empirical {
+    label fr official "il est établi qu'il n'existe, pour ce lieu, ni règlement particulier ni usage constant et reconnu fixant la hauteur de la clôture (article 663)";
+    label en unofficial "it is established that for this place there is neither a particular regulation nor a constant and recognised usage fixing the height of the enclosure (Article 663)";
+}
+pub relation hauteur_du_mur(m: Mur, hauteur: Quantity) kind empirical {
+    key(m);
+    label fr official "hauteur du mur, compris le chaperon (article 663)";
+    label en unofficial "height of the wall, including the coping (Article 663)";
+}
+pub relation reconstruction_du_mur_ou_de_la_maison(m: Mur) kind empirical {
+    label fr official "on reconstruit un mur mitoyen ou une maison (article 665)";
+    label en unofficial "a party wall or a house is being rebuilt (Article 665)";
+}
+pub relation prescription_acquise_avant_la_reconstruction(m: Mur) kind empirical {
+    label fr official "la prescription est acquise avant que la reconstruction se fasse (article 665)";
+    label en unofficial "prescription was acquired before the rebuilding took place (Article 665)";
+}
+pub relation destruction_de_la_haie_jusqu_a_la_limite(m: Mur, f: Fonds) kind empirical {
+    label fr official "le copropriétaire détruit la haie mitoyenne jusqu'à la limite de sa propriété (article 668, alinéa 2)";
+    label en unofficial "the co-owner destroys the party hedge up to the limit of his property (Article 668, paragraph 2)";
+}
+pub relation cession_de_mitoyennete_exigee(m: Mur, f: Fonds) kind empirical {
+    label fr official "le voisin dont l'héritage joint un fossé ou une haie non mitoyens en exige la cession de la mitoyenneté (article 668, alinéa 1)";
+    label en unofficial "the neighbour whose tenement adjoins a non-party ditch or hedge demands the transfer of party status (Article 668, paragraph 1)";
+}
+pub relation arbre_dans_la_haie_mitoyenne(p: Plantation, m: Mur) kind empirical {
+    label fr official "l'arbre se trouve dans la haie mitoyenne (article 670, alinéa 1)";
+    label en unofficial "the tree stands in the party hedge (Article 670, paragraph 1)";
+}
+pub relation arbre_plante_sur_la_ligne_separative(p: Plantation, f: Fonds, v: Fonds) kind empirical {
+    label fr official "l'arbre est planté sur la ligne séparative de deux héritages (article 670, alinéa 1)";
+    label en unofficial "the tree is planted on the boundary line of two tenements (Article 670, paragraph 1)";
+}
+pub relation arbre_mort_coupe_ou_arrache(p: Plantation) kind empirical {
+    label fr official "l'arbre est mort, ou a été coupé ou arraché (articles 670, alinéa 1, et 672, alinéa 2)";
+    label en unofficial "the tree died, or was cut or uprooted (Articles 670, paragraph 1, and 672, paragraph 2)";
+}
+pub relation arrachage_des_arbres_mitoyens_exige(p: Plantation, f: Fonds) kind empirical {
+    label fr official "un propriétaire exige que les arbres mitoyens soient arrachés (article 670, alinéa 2)";
+    label en unofficial "an owner demands that the party trees be uprooted (Article 670, paragraph 2)";
+}
+
+// --- Dérivés : la mitoyenneté ---------------------------------------------------------------------
+
+pub relation marque_de_non_mitoyennete(m: Mur, f: Fonds) kind derived {
+    label fr official "il y a marque de non-mitoyenneté du côté de ce fonds (articles 654, 666, alinéas 2 et 3)";
+    label en unofficial "there is a mark of non-party status on this land's side (Articles 654, 666, paragraphs 2 and 3)";
+}
+pub relation mur_mitoyen(m: Mur) kind derived {
+    label fr official "le mur ou la clôture est mitoyen (articles 653, 666)";
+    label en unofficial "the wall or enclosure is a party wall (Articles 653, 666)";
+}
+pub relation appartient_exclusivement_a(m: Mur, f: Fonds) kind derived {
+    label fr official "le mur ou le fossé est censé appartenir exclusivement au propriétaire du côté duquel sont l'égout, les corbeaux et filets de pierre, ou le rejet (articles 654, alinéa 3, et 666, alinéa 3)";
+    label en unofficial "the wall or ditch is deemed to belong exclusively to the owner on whose side the drip, the corbels and stone fillets, or the spoil are (Articles 654, paragraph 3, and 666, paragraph 3)";
+}
+pub relation charge_de_reparation_proportionnelle(m: Mur, f: Fonds, part: Rational) kind derived {
+    label fr official "la réparation et la reconstruction du mur mitoyen sont à la charge de tous ceux qui y ont droit, proportionnellement au droit de chacun (article 655)";
+    label en unofficial "the repair and rebuilding of a party wall fall on all those entitled to it, in proportion to each one's right (Article 655)";
+}
+pub relation dispense_par_abandon_de_la_mitoyennete(m: Mur, f: Fonds) kind derived {
+    label fr official "le copropriétaire peut se dispenser de contribuer aux réparations et reconstructions en abandonnant le droit de mitoyenneté, pourvu que le mur ne soutienne pas un bâtiment qui lui appartienne (article 656)";
+    label en unofficial "the co-owner may avoid contributing to repairs and rebuilding by abandoning the party right, provided the wall does not support a building of his own (Article 656)";
+}
+pub relation entretien_de_la_cloture_a_frais_communs(m: Mur) kind derived {
+    label fr official "la clôture mitoyenne doit être entretenue à frais communs (article 667, alinéa 1)";
+    label en unofficial "the party enclosure must be maintained at common cost (Article 667, paragraph 1)";
+}
+pub relation faculte_de_renoncer_a_la_mitoyennete_du_fosse_perdue(m: Mur) kind derived {
+    label fr official "la faculté de se soustraire à l'entretien en renonçant à la mitoyenneté cesse si le fossé sert habituellement à l'écoulement des eaux (article 667, alinéa 2)";
+    label en unofficial "the power to escape maintenance by renouncing party status ceases if the ditch habitually serves to drain water (Article 667, paragraph 2)";
+}
+pub relation cession_de_mitoyennete_ne_peut_etre_contrainte(m: Mur, f: Fonds) kind derived {
+    label fr official "le voisin dont l'héritage joint un fossé ou une haie non mitoyens ne peut contraindre le propriétaire à lui céder la mitoyenneté (article 668, alinéa 1)";
+    label en unofficial "the neighbour whose tenement adjoins a non-party ditch or hedge may not compel the owner to transfer party status (Article 668, paragraph 1)";
+}
+pub relation cession_mitoyennete_contrainte_exercee(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "contrainte exercée pour obtenir la cession de la mitoyenneté";
+    label en unofficial "compulsion exercised to obtain transfer of party status";
+}
+pub relation charge_de_construire_un_mur_sur_la_limite(m: Mur, f: Fonds) kind derived {
+    label fr official "le copropriétaire d'une haie mitoyenne peut la détruire jusqu'à la limite de sa propriété, à la charge de construire un mur sur cette limite ; la même règle s'applique au fossé mitoyen qui ne sert qu'à la clôture (article 668, alinéas 2 et 3)";
+    label en unofficial "the co-owner of a party hedge may destroy it up to the limit of his property, provided he builds a wall on that limit; the same rule applies to a party ditch serving only as an enclosure (Article 668, paragraphs 2 and 3)";
+}
+pub relation produits_de_la_haie_par_moitie(m: Mur, f: Fonds, part: Rational) kind derived {
+    label fr official "tant que dure la mitoyenneté de la haie, les produits en appartiennent aux propriétaires par moitié (article 669)";
+    label en unofficial "as long as the hedge is a party hedge, its produce belongs to the owners in equal halves (Article 669)";
+}
+pub relation arbre_mitoyen(p: Plantation) kind derived {
+    label fr official "l'arbre est mitoyen : il se trouve dans la haie mitoyenne ou est planté sur la ligne séparative (article 670, alinéa 1)";
+    label en unofficial "the tree is a party tree: it stands in the party hedge or is planted on the boundary line (Article 670, paragraph 1)";
+}
+pub relation partage_de_l_arbre_mitoyen_par_moitie(p: Plantation, part: Rational) kind derived {
+    label fr official "lorsque les arbres mitoyens meurent, sont coupés ou arrachés, ils sont partagés par moitié ; les fruits sont recueillis à frais communs et partagés aussi par moitié (article 670, alinéa 1)";
+    label en unofficial "when party trees die, are cut or uprooted, they are shared in equal halves; the fruits are gathered at common cost and also shared in halves (Article 670, paragraph 1)";
+}
+pub relation droit_d_exiger_l_arrachage_des_arbres_mitoyens(p: Plantation, f: Fonds) kind derived {
+    label fr official "chaque propriétaire a le droit d'exiger que les arbres mitoyens soient arrachés (article 670, alinéa 2)";
+    label en unofficial "each owner has the right to demand that the party trees be uprooted (Article 670, paragraph 2)";
+}
+pub relation arrachage_arbre_mitoyen_exerce(p: Plantation, f: Fonds, personne: Personne) kind empirical {
+    label fr official "arrachage de l'arbre mitoyen exercé";
+    label en unofficial "party tree uprooting exercised";
+}
+pub relation droit_de_batir_contre_le_mur_mitoyen(m: Mur, f: Fonds) kind derived {
+    label fr official "tout copropriétaire peut faire bâtir contre un mur mitoyen et y faire placer des poutres ou solives dans toute l'épaisseur du mur, à cinquante-quatre millimètres près (article 657)";
+    label en unofficial "every co-owner may build against a party wall and place beams or joists through the whole thickness of the wall, to within fifty-four millimetres (Article 657)";
+}
+pub relation poutre_trop_enfoncee(m: Mur, f: Fonds) kind derived {
+    label fr official "la poutre dépasse la limite de cinquante-quatre millimètres près de l'épaisseur du mur (article 657)";
+    label en unofficial "the beam exceeds the limit of within fifty-four millimetres of the wall's thickness (Article 657)";
+}
+pub relation depense_de_l_exhaussement_a_la_charge_de_celui_qui_exhausse(m: Mur, f: Fonds) kind derived {
+    label fr official "celui qui exhausse le mur mitoyen doit payer seul la dépense de l'exhaussement, les réparations d'entretien au-dessus de la hauteur de la clôture commune, les frais d'entretien de la partie commune dus à l'exhaussement, et rembourser au voisin toutes les dépenses rendues nécessaires par l'exhaussement (article 658)";
+    label en unofficial "the co-owner who raises the party wall must alone pay the cost of the raising, the maintenance repairs above the height of the common enclosure, the maintenance costs of the common part due to the raising, and reimburse the neighbour all expenses made necessary by the raising (Article 658)";
+}
+pub relation reconstruction_entiere_a_ses_frais(m: Mur, f: Fonds) kind derived {
+    label fr official "si le mur mitoyen n'est pas en état de supporter l'exhaussement, celui qui veut l'exhausser doit le faire reconstruire en entier à ses frais, et l'excédent d'épaisseur doit se prendre de son côté (article 659)";
+    label en unofficial "if the party wall cannot bear the raising, the one who wishes to raise it must have it entirely rebuilt at his own cost, and the excess thickness must be taken on his side (Article 659)";
+}
+pub relation prix_de_l_acquisition_de_la_mitoyennete_de_l_exhaussement(m: Mur, f: Fonds, montant: Money) kind derived {
+    label fr official "le voisin qui n'a pas contribué à l'exhaussement peut en acquérir la mitoyenneté en payant la moitié de la dépense qu'il a coûté et la valeur de la moitié du sol fourni pour l'excédent d'épaisseur (article 660)";
+    label en unofficial "the neighbour who did not contribute to the raising may acquire party status in it by paying half the cost and the value of half the ground provided for the excess thickness (Article 660)";
+}
+pub relation prix_de_l_acquisition_de_la_mitoyennete_du_mur(m: Mur, f: Fonds, montant: Money) kind derived {
+    label fr official "tout propriétaire joignant un mur a la faculté de le rendre mitoyen en remboursant au maître du mur la moitié de la dépense qu'il a coûté et la moitié de la valeur du sol sur lequel le mur est bâti (article 661)";
+    label en unofficial "every owner adjoining a wall may make it a party wall by reimbursing its owner half the cost and half the value of the ground on which it is built (Article 661)";
+}
+pub relation ouvrage_dans_le_mur_mitoyen_interdit(m: Mur, f: Fonds) kind derived {
+    label fr official "l'un des voisins ne peut pratiquer dans le corps d'un mur mitoyen aucun enfoncement, ni y appliquer ou appuyer aucun ouvrage, sans le consentement de l'autre ou sans avoir, à son refus, fait régler par experts les moyens nécessaires (article 662)";
+    label en unofficial "one of the neighbours may make no recess in the body of a party wall, nor apply or lean any work against it, without the other's consent or, failing that, without having the necessary means settled by experts (Article 662)";
+}
+pub relation servitudes_continuees_apres_reconstruction(m: Mur) kind derived {
+    label fr official "lorsqu'on reconstruit un mur mitoyen ou une maison, les servitudes actives et passives se continuent à l'égard du nouveau mur ou de la nouvelle maison, sans pouvoir être aggravées, pourvu que la reconstruction se fasse avant que la prescription soit acquise (article 665)";
+    label en unofficial "when a party wall or a house is rebuilt, the active and passive servitudes continue as regards the new wall or house, without being aggravated, provided the rebuilding takes place before prescription is acquired (Article 665)";
+}
+
+// --- Article 663 : la hauteur de la clôture -----------------------------------------------------
+
+pub relation hauteur_legale_de_cloture(m: Mur, hauteur: Quantity) kind derived {
+    label fr official "hauteur que la clôture doit avoir : celle des règlements ou usages, ou, à leur défaut, trente-deux ou vingt-six décimètres (article 663)";
+    label en unofficial "height the enclosure must have: that of the regulations or usages, or, failing those, thirty-two or twenty-six decimetres (Article 663)";
+}
+pub relation cloture_conforme_a_la_hauteur_legale(m: Mur) kind derived {
+    label fr official "la clôture a au moins la hauteur légale (article 663)";
+    label en unofficial "the enclosure has at least the statutory height (Article 663)";
+}
+pub relation cloture_insuffisante(m: Mur) kind derived {
+    label fr official "la clôture n'atteint pas la hauteur légale (article 663)";
+    label en unofficial "the enclosure does not reach the statutory height (Article 663)";
+}
+pub relation contrainte_de_contribuer_a_la_cloture(f: Fonds, v: Fonds, m: Mur) kind derived {
+    label fr official "chacun peut contraindre son voisin, dans les villes et faubourgs, à contribuer aux constructions et réparations de la clôture faisant séparation de leurs maisons, cours et jardins (article 663)";
+    label en unofficial "each may compel his neighbour, in towns and suburbs, to contribute to the building and repair of the enclosure separating their houses, yards and gardens (Article 663)";
+}
+pub relation contribution_cloture_exigee(f: Fonds, v: Fonds, m: Mur, p: Personne) kind empirical {
+    label fr official "contribution à la clôture exigée";
+    label en unofficial "enclosure contribution demanded";
+}
+
+@source(CC_ART663) {
+    rule P4PouvoirExigerContributionCloture663(m: Mur, f: Fonds, v: Fonds, p: Personne, espece: EspeceDeCloture) strict {
+        label fr official "Article 663. Le propriétaire peut contraindre son voisin à contribuer à la clôture";
+        label en unofficial "Article 663. The owner may compel the neighbour to contribute to the enclosure";
+        when cloture_separant(m, f, v, espece)
+            and proprietaire_du_bien(f, p)
+            and situe_en_ville_ou_faubourg(m);
+        then power P4PouvoirExigerContributionCloture663Actif {
+            holder p;
+            over v;
+            exercise contribution_cloture_exigee(f, v, m, p);
+            effect contrainte_de_contribuer_a_la_cloture(f, v, m);
+            valid_when situe_en_ville_ou_faubourg(m);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ContrainteDeContribuerALaCloture(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) strict {
+        label fr official "Article 663. Chacun peut contraindre son voisin, dans les villes et faubourgs, à contribuer aux constructions et réparations de la clôture faisant séparation de leurs maisons, cours et jardins assis ès dites villes et faubourgs";
+        label en unofficial "Article 663. Each may compel his neighbour, in towns and suburbs, to contribute to the building and repair of the enclosure separating their houses, yards and gardens situated in those towns and suburbs";
+        when cloture_separant(m, f, v, espece)
+            and situe_en_ville_ou_faubourg(m);
+        then contrainte_de_contribuer_a_la_cloture(f, v, m);
+    }
+    rule HauteurDeClotureParReglementOuUsage(m: Mur, hauteur: Quantity) strict {
+        label fr official "Article 663. La hauteur de la clôture sera fixée suivant les règlements particuliers ou les usages constants et reconnus";
+        label en unofficial "Article 663. The height of the enclosure is to be fixed according to the particular regulations or the constant and recognised usages";
+        when situe_en_ville_ou_faubourg(m)
+            and hauteur_prescrite_par_reglement_ou_usage(m, hauteur);
+        then hauteur_legale_de_cloture(m, hauteur);
+    }
+    rule HauteurSuppletiveTrenteDeuxDecimetres(m: Mur, nombre: Integer) strict {
+        label fr official "Article 663. À défaut d'usages et de règlements, tout mur de séparation entre voisins qui sera construit ou rétabli à l'avenir doit avoir au moins trente-deux décimètres de hauteur, compris le chaperon, dans les villes de cinquante mille âmes et au-dessus";
+        label en unofficial "Article 663. Failing usages and regulations, every separating wall between neighbours to be built or rebuilt in the future must be at least thirty-two decimetres high, including the coping, in towns of fifty thousand inhabitants and above";
+        when situe_en_ville_ou_faubourg(m)
+            and construit_ou_retabli_a_l_avenir(m)
+            and aucun_reglement_ni_usage_sur_la_hauteur(m)
+            and habitants_de_la_ville(m, nombre)
+            and nombre >= 50000;
+        then hauteur_legale_de_cloture(m, 32 dm);
+    }
+    rule HauteurSuppletiveVingtSixDecimetres(m: Mur, nombre: Integer) strict {
+        label fr official "Article 663. Et vingt-six décimètres dans les autres villes";
+        label en unofficial "Article 663. And twenty-six decimetres in the other towns";
+        when situe_en_ville_ou_faubourg(m)
+            and construit_ou_retabli_a_l_avenir(m)
+            and aucun_reglement_ni_usage_sur_la_hauteur(m)
+            and habitants_de_la_ville(m, nombre)
+            and nombre < 50000;
+        then hauteur_legale_de_cloture(m, 26 dm);
+    }
+    rule ClotureConforme(m: Mur, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 663. La clôture qui atteint au moins la hauteur légale y est conforme";
+        label en unofficial "Article 663. An enclosure reaching at least the statutory height complies with it";
+        when hauteur_legale_de_cloture(m, legale)
+            and hauteur_du_mur(m, reelle)
+            and unit_convert(magnitude(reelle), "dm") >= unit_convert(magnitude(legale), "dm");
+        then cloture_conforme_a_la_hauteur_legale(m);
+    }
+    rule ClotureInsuffisante(m: Mur, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 663. La clôture qui n'atteint pas la hauteur légale est insuffisante";
+        label en unofficial "Article 663. An enclosure that does not reach the statutory height is insufficient";
+        when hauteur_legale_de_cloture(m, legale)
+            and hauteur_du_mur(m, reelle)
+            and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm");
+        then cloture_insuffisante(m);
+    }
+}
+
+// --- Articles 653, 654, 666 : la présomption de mitoyenneté ---------------------------------------
+
+@source(CC_ART654) {
+    rule MarqueParLaSommiteDroite(m: Mur, f: Fonds) strict {
+        label fr official "Article 654, alinéa 1. Il y a marque de non-mitoyenneté lorsque la sommité du mur est droite et à plomb de son parement d'un côté, et présente de l'autre un plan incliné";
+        label en unofficial "Article 654, paragraph 1. There is a mark of non-party status when the top of the wall is straight and plumb with its face on one side, and shows a slope on the other";
+        when sommite_droite_et_a_plomb_d_un_cote(m, f);
+        then marque_de_non_mitoyennete(m, f);
+    }
+    rule MarqueParLeChaperonOuLesCorbeaux(m: Mur, f: Fonds) strict {
+        label fr official "Article 654, alinéa 2. Lors encore qu'il n'y a que d'un côté ou un chaperon ou des filets et corbeaux de pierre qui y auraient été mis en bâtissant le mur";
+        label en unofficial "Article 654, paragraph 2. Or again when there is on one side only a coping, or stone fillets and corbels placed when building the wall";
+        when chaperon_filets_ou_corbeaux_d_un_cote(m, f);
+        then marque_de_non_mitoyennete(m, f);
+    }
+    rule ProprieteExclusiveParLaMarque(m: Mur, f: Fonds) strict {
+        label fr official "Article 654, alinéa 3. Dans ces cas, le mur est censé appartenir exclusivement au propriétaire du côté duquel sont l'égout ou les corbeaux et filets de pierre";
+        label en unofficial "Article 654, paragraph 3. In those cases, the wall is deemed to belong exclusively to the owner on whose side the drip or the corbels and stone fillets are";
+        when marque_de_non_mitoyennete(m, f);
+        then appartient_exclusivement_a(m, f);
+    }
+}
+
+@source(CC_ART666) {
+    rule MarqueParLeRejetDeLaTerre(m: Mur, f: Fonds) strict {
+        label fr official "Article 666, alinéas 2 et 3. Pour les fossés, il y a marque de non-mitoyenneté lorsque la levée ou le rejet de la terre se trouve d'un côté seulement du fossé ; le fossé est censé appartenir exclusivement à celui du côté duquel le rejet se trouve";
+        label en unofficial "Article 666, paragraphs 2 and 3. For ditches, there is a mark of non-party status when the bank or spoil is on one side only; the ditch is deemed to belong exclusively to the owner on whose side the spoil is";
+        when rejet_de_la_terre_d_un_cote(m, f);
+        then marque_de_non_mitoyennete(m, f);
+    }
+    rule ClotureReputeeMitoyenne(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) strict {
+        label fr official "Article 666, alinéa 1. Toute clôture qui sépare des héritages est réputée mitoyenne, à moins qu'il n'y ait qu'un seul des héritages en état de clôture, ou s'il n'y a titre, prescription ou marque contraire";
+        label en unofficial "Article 666, paragraph 1. Every enclosure separating tenements is deemed a party enclosure, unless only one of the tenements is enclosed, or there is a contrary title, prescription or mark";
+        when cloture_separant(m, f, v, espece)
+            and not_known(titre_de_non_mitoyennete(m))
+            and not_known(prescription_contraire_a_la_mitoyennete(m))
+            and not_known(marque_de_non_mitoyennete(m, f))
+            and not_known(marque_de_non_mitoyennete(m, v))
+            and not_known(un_seul_heritage_en_etat_de_cloture(m, f))
+            and not_known(un_seul_heritage_en_etat_de_cloture(m, v));
+        then mur_mitoyen(m);
+    }
+}
+
+@source(CC_ART653)
+rule MurDeSeparationPresumeMitoyen(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) strict {
+    label fr official "Article 653. Dans les villes et les campagnes, tout mur servant de séparation entre bâtiments jusqu'à l'héberge, ou entre cours et jardins, et même entre enclos dans les champs, est présumé mitoyen s'il n'y a titre ou marque du contraire";
+    label en unofficial "Article 653. In towns and in the country, every wall serving as a separation between buildings up to the roof line, or between yards and gardens, and even between enclosures in the fields, is presumed a party wall unless there is a contrary title or mark";
+    when cloture_separant(m, f, v, espece)
+        and not_known(titre_de_non_mitoyennete(m))
+        and not_known(marque_de_non_mitoyennete(m, f))
+        and not_known(marque_de_non_mitoyennete(m, v));
+    then mur_mitoyen(m);
+}
+
+@source(CC_ART655)
+rule ChargeDeReparationDuMurMitoyen(m: Mur, f: Fonds, part: Rational) strict {
+    label fr official "Article 655. La réparation et la reconstruction du mur mitoyen sont à la charge de tous ceux qui y ont droit, et proportionnellement au droit de chacun";
+    label en unofficial "Article 655. The repair and rebuilding of the party wall fall on all those entitled to it, in proportion to each one's right";
+    when mur_mitoyen(m)
+        and quote_part_dans_le_mur(m, f, part)
+        and not_known(abandon_du_droit_de_mitoyennete(m, f));
+    then charge_de_reparation_proportionnelle(m, f, part);
+}
+
+@source(CC_ART656)
+rule DispenseParAbandonDeLaMitoyennete(m: Mur, f: Fonds) strict {
+    label fr official "Article 656. Tout copropriétaire d'un mur mitoyen peut se dispenser de contribuer aux réparations et reconstructions en abandonnant le droit de mitoyenneté, pourvu que le mur mitoyen ne soutienne pas un bâtiment qui lui appartienne";
+    label en unofficial "Article 656. Every co-owner of a party wall may avoid contributing to repairs and rebuilding by abandoning the party right, provided the party wall does not support a building belonging to him";
+    when mur_mitoyen(m)
+        and abandon_du_droit_de_mitoyennete(m, f)
+        and not_known(mur_soutient_un_batiment_du_coproprietaire(m, f));
+    then dispense_par_abandon_de_la_mitoyennete(m, f);
+}
+
+pub relation poutre_ouvrage_mitoyen_exerce(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "ouvrage contre le mur mitoyen exercé";
+    label en unofficial "party-wall work exercised";
+}
+@source(CC_ART657)
+rule P4PouvoirBatirContreMur657(m: Mur, f: Fonds, p: Personne, restante: Quantity) strict {
+    label fr official "Article 657. Le copropriétaire peut bâtir contre le mur mitoyen";
+    label en unofficial "Article 657. The co-owner may build against the party wall";
+    when mur_mitoyen(m)
+        and proprietaire_du_bien(f, p)
+        and poutre_ou_solive_placee_dans_le_mur(m, f, restante)
+        and unit_convert(magnitude(restante), "mm") >= magnitude(54 mm);
+    then power P4PouvoirBatirContreMur657Actif {
+        holder p;
+        over m;
+        exercise poutre_ou_solive_placee_dans_le_mur(m, f, restante);
+        effect droit_de_batir_contre_le_mur_mitoyen(m, f);
+        valid_when mur_mitoyen(m);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART657) {
+    rule DroitDeBatirContreLeMurMitoyen(m: Mur, f: Fonds, restante: Quantity) strict {
+        label fr official "Article 657. Tout copropriétaire peut faire bâtir contre un mur mitoyen, et y faire placer des poutres ou solives dans toute l'épaisseur du mur, à cinquante-quatre millimètres près";
+        label en unofficial "Article 657. Every co-owner may build against a party wall, and place beams or joists there through the whole thickness of the wall, to within fifty-four millimetres";
+        when mur_mitoyen(m)
+            and poutre_ou_solive_placee_dans_le_mur(m, f, restante)
+            and unit_convert(magnitude(restante), "mm") >= magnitude(54 mm);
+        then droit_de_batir_contre_le_mur_mitoyen(m, f);
+    }
+    rule PoutreTropEnfoncee(m: Mur, f: Fonds, restante: Quantity) strict {
+        label fr official "Article 657. La poutre placée sans laisser cinquante-quatre millimètres d'épaisseur de mur excède ce que l'article permet, sans préjudice du droit du voisin de la faire réduire à l'ébauchoir jusqu'à la moitié du mur";
+        label en unofficial "Article 657. A beam placed without leaving fifty-four millimetres of wall thickness exceeds what the article allows, without prejudice to the neighbour's right to have it cut back to half the wall";
+        when mur_mitoyen(m)
+            and poutre_ou_solive_placee_dans_le_mur(m, f, restante)
+            and unit_convert(magnitude(restante), "mm") < magnitude(54 mm);
+        then poutre_trop_enfoncee(m, f);
+    }
+}
+
+pub relation depenses_exhaussement_payees(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "dépenses de l'exhaussement payées";
+    label en unofficial "raising expenses paid";
+}
+pub relation reconstruction_mur_exercee(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "reconstruction entière du mur exercée";
+    label en unofficial "complete wall rebuilding exercised";
+}
+pub relation acquisition_mitoyennete_exercee(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "acquisition de la mitoyenneté exercée";
+    label en unofficial "acquisition of party status exercised";
+}
+@source(CC_ART658)
+rule P4DevoirPayerExhaussement658(m: Mur, f: Fonds, p: Personne) strict {
+    label fr official "Article 658. Celui qui exhausse doit payer les dépenses";
+    label en unofficial "Article 658. The person raising the wall must pay the expenses";
+    when mur_mitoyen(m)
+        and exhaussement_par(m, f)
+        and proprietaire_du_bien(f, p);
+    then duty P4DevoirPayerExhaussement658Actif {
+        bearer p;
+        goal achievement {
+            condition depenses_exhaussement_payees(m, f, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART658)
+rule DepenseDeLExhaussement(m: Mur, f: Fonds) strict {
+    label fr official "Article 658. Tout copropriétaire peut faire exhausser le mur mitoyen ; mais il doit payer seul la dépense de l'exhaussement et les réparations d'entretien au-dessus de la hauteur de la clôture commune, les frais d'entretien de la partie commune dus à l'exhaussement, et rembourser au propriétaire voisin toutes les dépenses rendues nécessaires par l'exhaussement";
+    label en unofficial "Article 658. Every co-owner may raise the party wall; but he alone must pay the cost of the raising and the maintenance repairs above the height of the common enclosure, the maintenance costs of the common part due to the raising, and reimburse the neighbouring owner all expenses made necessary by the raising";
+    when mur_mitoyen(m)
+        and exhaussement_par(m, f);
+    then depense_de_l_exhaussement_a_la_charge_de_celui_qui_exhausse(m, f);
+}
+
+@source(CC_ART659)
+rule P4DevoirReconstruireMur659(m: Mur, f: Fonds, p: Personne) strict {
+    label fr official "Article 659. Celui qui exhausse doit reconstruire le mur à ses frais";
+    label en unofficial "Article 659. The person raising the wall must rebuild it at own cost";
+    when mur_mitoyen(m)
+        and exhaussement_par(m, f)
+        and proprietaire_du_bien(f, p)
+        and not_known(mur_en_etat_de_supporter_l_exhaussement(m));
+    then duty P4DevoirReconstruireMur659Actif {
+        bearer p;
+        goal achievement {
+            condition reconstruction_mur_exercee(m, f, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART659)
+rule ReconstructionEntiereAvantExhaussement(m: Mur, f: Fonds) strict {
+    label fr official "Article 659. Si le mur mitoyen n'est pas en état de supporter l'exhaussement, celui qui veut l'exhausser doit le faire reconstruire en entier à ses frais, et l'excédent d'épaisseur doit se prendre de son côté";
+    label en unofficial "Article 659. If the party wall cannot bear the raising, the one who wishes to raise it must have it entirely rebuilt at his own cost, and the excess thickness must be taken on his side";
+    when mur_mitoyen(m)
+        and exhaussement_par(m, f)
+        and not_known(mur_en_etat_de_supporter_l_exhaussement(m));
+    then reconstruction_entiere_a_ses_frais(m, f);
+}
+
+@source(CC_ART660)
+rule PrixDeLaMitoyenneteDeLExhaussement(m: Mur, f: Fonds, depense: Money, sol: Money) strict {
+    label fr official "Article 660. Le voisin qui n'a pas contribué à l'exhaussement peut en acquérir la mitoyenneté en payant la moitié de la dépense qu'il a coûté et la valeur de la moitié du sol fourni pour l'excédent d'épaisseur, s'il y en a ; la dépense est estimée à la date de l'acquisition, compte tenu de l'état de la partie exhaussée";
+    label en unofficial "Article 660. The neighbour who did not contribute to the raising may acquire party status in it by paying half the cost and the value of half the ground provided for the excess thickness, if any; the cost is assessed at the date of acquisition, having regard to the state of the raised part";
+    when volonte_d_acquerir_la_mitoyennete_de_l_exhaussement(m, f)
+        and depense_de_l_exhaussement(m, depense)
+        and valeur_du_sol_de_l_excedent_d_epaisseur(m, sol);
+    then prix_de_l_acquisition_de_la_mitoyennete_de_l_exhaussement(m, f, depense * 50 percent + sol * 50 percent);
+}
+
+@source(CC_ART661)
+rule P4PouvoirAcquerirMitoyennete661(m: Mur, f: Fonds, p: Personne, depense: Money, sol: Money) strict {
+    label fr official "Article 661. Le propriétaire joignant le mur peut le rendre mitoyen";
+    label en unofficial "Article 661. The adjoining owner may make the wall a party wall";
+    when proprietaire_du_bien(f, p)
+        and volonte_de_rendre_le_mur_mitoyen(m, f)
+        and depense_du_mur(m, depense)
+        and valeur_du_sol_du_mur(m, sol);
+    then power P4PouvoirAcquerirMitoyennete661Actif {
+        holder p;
+        over m;
+        exercise volonte_de_rendre_le_mur_mitoyen(m, f);
+        effect prix_de_l_acquisition_de_la_mitoyennete_du_mur(m, f, depense * 50 percent + sol * 50 percent);
+        valid_when proprietaire_du_bien(f, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART661)
+rule PrixDeLaMitoyenneteDuMur(m: Mur, f: Fonds, depense: Money, sol: Money) strict {
+    label fr official "Article 661. Tout propriétaire joignant un mur a la faculté de le rendre mitoyen en tout ou en partie, en remboursant au maître du mur la moitié de la dépense qu'il a coûté et la moitié de la valeur du sol sur lequel le mur est bâti ; la dépense est estimée à la date de l'acquisition de sa mitoyenneté, compte tenu de l'état dans lequel il se trouve";
+    label en unofficial "Article 661. Every owner adjoining a wall may make it a party wall in whole or in part, by reimbursing its owner half the cost and half the value of the ground on which the wall is built; the cost is assessed at the date of the acquisition of party status, having regard to its state";
+    when volonte_de_rendre_le_mur_mitoyen(m, f)
+        and depense_du_mur(m, depense)
+        and valeur_du_sol_du_mur(m, sol);
+    then prix_de_l_acquisition_de_la_mitoyennete_du_mur(m, f, depense * 50 percent + sol * 50 percent);
+}
+
+pub relation ouvrage_mur_mitoyen_exerce(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "ouvrage pratiqué dans le mur mitoyen";
+    label en unofficial "work made in the party wall";
+}
+pub relation entretien_cloture_mitoyenne_exerce(m: Mur, p: Personne) kind empirical {
+    label fr official "entretien de la clôture mitoyenne exercé";
+    label en unofficial "party enclosure maintenance exercised";
+}
+pub relation mur_sur_limite_construit(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "mur construit sur la limite";
+    label en unofficial "wall built on the boundary";
+}
+@source(CC_ART662)
+rule P4InterdictionOuvrageMur662(m: Mur, f: Fonds, p: Personne) strict {
+    label fr official "Article 662. Le voisin ne peut pratiquer un ouvrage nuisible sans consentement ou expertise";
+    label en unofficial "Article 662. A neighbour may not make harmful work without consent or expert settlement";
+    when mur_mitoyen(m)
+        and proprietaire_du_bien(f, p)
+        and enfoncement_ou_ouvrage_appuye_sur_le_mur(m, f)
+        and not_known(consentement_de_l_autre_coproprietaire(m, f))
+        and not_known(moyens_regles_par_experts(m, f));
+    then prohibition P4InterdictionOuvrageMur662Actif {
+        bearer p;
+        action ouvrage_mur_mitoyen_exerce(m, f, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART662)
+rule OuvrageDansLeMurMitoyenSansConsentement(m: Mur, f: Fonds) strict {
+    label fr official "Article 662. L'un des voisins ne peut pratiquer dans le corps d'un mur mitoyen aucun enfoncement, ni y appliquer ou appuyer aucun ouvrage, sans le consentement de l'autre, ou sans avoir, à son refus, fait régler par experts les moyens nécessaires pour que le nouvel ouvrage ne soit pas nuisible aux droits de l'autre";
+    label en unofficial "Article 662. One of the neighbours may make no recess in the body of a party wall, nor apply or lean any work against it, without the other's consent, or, upon his refusal, without having the necessary means settled by experts so that the new work is not harmful to the other's rights";
+    when mur_mitoyen(m)
+        and enfoncement_ou_ouvrage_appuye_sur_le_mur(m, f)
+        and not_known(consentement_de_l_autre_coproprietaire(m, f))
+        and not_known(moyens_regles_par_experts(m, f));
+    then ouvrage_dans_le_mur_mitoyen_interdit(m, f);
+}
+
+@source(CC_ART665)
+rule ServitudesContinueesApresReconstruction(m: Mur) strict {
+    label fr official "Article 665. Lorsqu'on reconstruit un mur mitoyen ou une maison, les servitudes actives et passives se continuent à l'égard du nouveau mur ou de la nouvelle maison, sans toutefois qu'elles puissent être aggravées, et pourvu que la reconstruction se fasse avant que la prescription soit acquise";
+    label en unofficial "Article 665. When a party wall or a house is rebuilt, the active and passive servitudes continue as regards the new wall or house, without however being aggravated, and provided the rebuilding takes place before prescription is acquired";
+    when reconstruction_du_mur_ou_de_la_maison(m)
+        and not_known(prescription_acquise_avant_la_reconstruction(m));
+    then servitudes_continuees_apres_reconstruction(m);
+}
+
+@source(CC_ART667) {
+    rule P4DevoirEntretenirCloture667(m: Mur, f: Fonds, p: Personne) strict {
+        label fr official "Article 667. Le copropriétaire doit entretenir la clôture à frais communs";
+        label en unofficial "Article 667. The co-owner must maintain the enclosure at common cost";
+        when mur_mitoyen(m)
+            and proprietaire_du_bien(f, p);
+        then duty P4DevoirEntretenirCloture667Actif {
+            bearer p;
+            goal achievement {
+                condition entretien_cloture_mitoyenne_exerce(m, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule MaintenanceInterdictionOuvrageMur662(m: Mur, f: Fonds, p: Personne) strict {
+        label fr official "Article 662. Le voisin doit maintenir l'absence d'ouvrage nuisible dans le mur mitoyen";
+        label en unofficial "Article 662. The neighbour must maintain the absence of a harmful work in the party wall";
+        when mur_mitoyen(m)
+            and proprietaire_du_bien(f, p)
+            and enfoncement_ou_ouvrage_appuye_sur_le_mur(m, f);
+        then duty MaintenanceInterdictionOuvrageMur662Duty {
+            bearer p;
+            goal maintenance {
+                condition not ouvrage_mur_mitoyen_exerce(m, f, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule EntretienDeLaClotureAFraisCommuns(m: Mur) strict {
+        label fr official "Article 667, alinéa 1. La clôture mitoyenne doit être entretenue à frais communs ; mais le voisin peut se soustraire à cette obligation en renonçant à la mitoyenneté";
+        label en unofficial "Article 667, paragraph 1. The party enclosure must be maintained at common cost; but the neighbour may escape this obligation by renouncing party status";
+        when mur_mitoyen(m);
+        then entretien_de_la_cloture_a_frais_communs(m);
+    }
+    rule RenonciationImpossiblePourLeFosseDEcoulement(m: Mur) strict {
+        label fr official "Article 667, alinéa 2. Cette faculté cesse si le fossé sert habituellement à l'écoulement des eaux";
+        label en unofficial "Article 667, paragraph 2. That power ceases if the ditch habitually serves to drain water";
+        when mur_mitoyen(m)
+            and fosse_servant_habituellement_a_l_ecoulement(m);
+        then faculte_de_renoncer_a_la_mitoyennete_du_fosse_perdue(m);
+    }
+}
+
+@source(CC_ART668) {
+    rule P4DevoirConstruireMurApresDestruction668(m: Mur, f: Fonds, p: Personne) strict {
+        label fr official "Article 668. Le copropriétaire qui détruit la haie doit construire un mur sur la limite";
+        label en unofficial "Article 668. The co-owner who destroys the hedge must build a wall on the boundary";
+        when mur_mitoyen(m)
+            and proprietaire_du_bien(f, p)
+            and destruction_de_la_haie_jusqu_a_la_limite(m, f);
+        then duty P4DevoirConstruireMurApresDestruction668Actif {
+            bearer p;
+            goal achievement {
+                condition mur_sur_limite_construit(m, f, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule PasDeCessionForceeDeLaMitoyennete(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) strict {
+        label fr official "Article 668, alinéa 1. Le voisin dont l'héritage joint un fossé ou une haie non mitoyens ne peut contraindre le propriétaire de ce fossé ou de cette haie à lui céder la mitoyenneté";
+        label en unofficial "Article 668, paragraph 1. The neighbour whose tenement adjoins a non-party ditch or hedge may not compel the owner of that ditch or hedge to transfer party status to him";
+        when cloture_separant(m, f, v, espece)
+            and cession_de_mitoyennete_exigee(m, v)
+            and not_known(mur_mitoyen(m));
+        then cession_de_mitoyennete_ne_peut_etre_contrainte(m, v);
+    }
+    rule P4InterdictionContraindreCessionMitoyennete668(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture, p: Personne) strict {
+        label fr official "Article 668, alinéa 1. Le voisin ne peut contraindre à céder la mitoyenneté";
+        label en unofficial "Article 668, paragraph 1. The neighbour may not compel transfer of party status";
+        when cloture_separant(m, f, v, espece)
+            and proprietaire_du_bien(v, p)
+            and cession_de_mitoyennete_exigee(m, v);
+        then prohibition P4InterdictionContraindreCessionMitoyennete668Actif {
+            bearer p;
+            action cession_mitoyennete_contrainte_exercee(m, v, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionContraindreCessionMitoyennete668(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture, p: Personne) strict {
+        label fr official "Article 668. Le voisin doit maintenir l'absence de contrainte à la cession de la mitoyenneté";
+        label en unofficial "Article 668. The neighbour must maintain the absence of compulsion to transfer party status";
+        when cloture_separant(m, f, v, espece)
+            and proprietaire_du_bien(v, p);
+        then duty MaintenanceInterdictionContraindreCessionMitoyennete668Duty {
+            bearer p;
+            goal maintenance {
+                condition not cession_mitoyennete_contrainte_exercee(m, v, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule ChargeDeConstruireUnMurApresDestructionDeLaHaie(m: Mur, f: Fonds) strict {
+        label fr official "Article 668, alinéas 2 et 3. Le copropriétaire d'une haie mitoyenne peut la détruire jusqu'à la limite de sa propriété, à la charge de construire un mur sur cette limite ; la même règle est applicable au copropriétaire d'un fossé mitoyen qui ne sert qu'à la clôture";
+        label en unofficial "Article 668, paragraphs 2 and 3. The co-owner of a party hedge may destroy it up to the limit of his property, provided he builds a wall on that limit; the same rule applies to the co-owner of a party ditch serving only as an enclosure";
+        when mur_mitoyen(m)
+            and destruction_de_la_haie_jusqu_a_la_limite(m, f);
+        then charge_de_construire_un_mur_sur_la_limite(m, f);
+    }
+}
+
+@source(CC_ART669)
+rule ProduitsDeLaHaieMitoyenneParMoitie(m: Mur, f: Fonds, v: Fonds) strict {
+    label fr official "Article 669. Tant que dure la mitoyenneté de la haie, les produits en appartiennent aux propriétaires par moitié";
+    label en unofficial "Article 669. As long as the hedge is a party hedge, its produce belongs to the owners in equal halves";
+    when mur_mitoyen(m)
+        and cloture_separant(m, f, v, Haie);
+    then produits_de_la_haie_par_moitie(m, f, 1 / 2);
+}
+
+@source(CC_ART670) {
+    rule P4PouvoirExigerArrachageArbre670(p: Plantation, f: Fonds, personne: Personne) strict {
+        label fr official "Article 670. Le propriétaire peut exiger l'arrachage de l'arbre mitoyen";
+        label en unofficial "Article 670. The owner may demand uprooting of the party tree";
+        when arbre_mitoyen(p)
+            and arrachage_des_arbres_mitoyens_exige(p, f)
+            and proprietaire_du_bien(f, personne);
+        then power P4PouvoirExigerArrachageArbre670Actif {
+            holder personne;
+            over p;
+            exercise arrachage_arbre_mitoyen_exerce(p, f, personne);
+            effect droit_d_exiger_l_arrachage_des_arbres_mitoyens(p, f);
+            valid_when arbre_mitoyen(p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ArbreDeLaHaieMitoyenne(p: Plantation, m: Mur) strict {
+        label fr official "Article 670, alinéa 1. Les arbres qui se trouvent dans la haie mitoyenne sont mitoyens comme la haie";
+        label en unofficial "Article 670, paragraph 1. Trees standing in the party hedge are party trees like the hedge";
+        when mur_mitoyen(m)
+            and arbre_dans_la_haie_mitoyenne(p, m);
+        then arbre_mitoyen(p);
+    }
+    rule ArbrePlanteSurLaLigneSeparative(p: Plantation, f: Fonds, v: Fonds) strict {
+        label fr official "Article 670, alinéa 1. Les arbres plantés sur la ligne séparative de deux héritages sont aussi réputés mitoyens";
+        label en unofficial "Article 670, paragraph 1. Trees planted on the boundary line of two tenements are also deemed party trees";
+        when arbre_plante_sur_la_ligne_separative(p, f, v);
+        then arbre_mitoyen(p);
+    }
+    rule PartageDeLArbreMitoyenParMoitie(p: Plantation) strict {
+        label fr official "Article 670, alinéa 1. Lorsque les arbres mitoyens meurent ou lorsqu'ils sont coupés ou arrachés, ils sont partagés par moitié ; les fruits sont recueillis à frais communs et partagés aussi par moitié, soit qu'ils tombent naturellement, soit que la chute en ait été provoquée, soit qu'ils aient été cueillis";
+        label en unofficial "Article 670, paragraph 1. When party trees die or are cut or uprooted, they are shared in equal halves; the fruits are gathered at common cost and also shared in halves, whether they fall naturally, are made to fall, or are picked";
+        when arbre_mitoyen(p)
+            and arbre_mort_coupe_ou_arrache(p);
+        then partage_de_l_arbre_mitoyen_par_moitie(p, 1 / 2);
+    }
+    rule DroitDExigerLArrachageDesArbresMitoyens(p: Plantation, f: Fonds) strict {
+        label fr official "Article 670, alinéa 2. Chaque propriétaire a le droit d'exiger que les arbres mitoyens soient arrachés";
+        label en unofficial "Article 670, paragraph 2. Each owner has the right to demand that the party trees be uprooted";
+        when arbre_mitoyen(p)
+            and arrachage_des_arbres_mitoyens_exige(p, f);
+        then droit_d_exiger_l_arrachage_des_arbres_mitoyens(p, f);
+    }
+}
+
+// --- Articles 671 à 673 : les plantations près de la limite --------------------------------------
+
+pub relation plantee_sur(p: Plantation, f: Fonds) kind empirical {
+    key(p);
+    label fr official "l'arbre, arbrisseau ou arbuste est planté sur ce fonds (article 671)";
+    label en unofficial "the tree, shrub or bush is planted on this land (Article 671)";
+}
+pub relation distance_a_la_ligne_separative(p: Plantation, distance: Quantity) kind empirical {
+    key(p);
+    label fr official "distance mesurée de la plantation à la ligne séparative des deux héritages (article 671)";
+    label en unofficial "distance measured from the planting to the boundary line of the two tenements (Article 671)";
+}
+pub relation hauteur_de_la_plantation(p: Plantation, hauteur: Quantity) kind empirical {
+    key(p);
+    label fr official "hauteur de la plantation (article 671)";
+    label en unofficial "height of the planting (Article 671)";
+}
+pub relation distance_prescrite_par_reglement_ou_usage(f: Fonds, distance: Quantity) kind empirical {
+    key(f);
+    label fr official "distance prescrite par les règlements particuliers actuellement existants ou par des usages constants et reconnus (article 671)";
+    label en unofficial "distance prescribed by the particular regulations currently in force or by constant and recognised usages (Article 671)";
+}
+pub relation aucun_reglement_ni_usage_sur_les_distances(f: Fonds) kind empirical {
+    label fr official "il est établi qu'il n'existe, pour ce lieu, ni règlement particulier actuellement existant ni usage constant et reconnu fixant la distance des plantations (article 671)";
+    label en unofficial "it is established that for this place there is neither a currently existing particular regulation nor a constant and recognised usage fixing the distance of plantings (Article 671)";
+}
+pub relation plantee_en_espalier_contre_le_mur_separatif(p: Plantation, m: Mur) kind empirical {
+    key(p);
+    label fr official "la plantation est plantée en espalier, d'un côté du mur séparatif (article 671, alinéa 2)";
+    label en unofficial "the planting is trained as an espalier, on one side of the separating wall (Article 671, paragraph 2)";
+}
+pub relation hauteur_de_la_crete_du_mur(m: Mur, hauteur: Quantity) kind empirical {
+    key(m);
+    label fr official "hauteur de la crête du mur séparatif (article 671, alinéa 2)";
+    label en unofficial "height of the crest of the separating wall (Article 671, paragraph 2)";
+}
+pub relation titre_sur_la_plantation(p: Plantation) kind empirical {
+    label fr official "il y a titre justifiant la plantation à une distance moindre (article 672, alinéa 1)";
+    label en unofficial "there is a title justifying the planting at a shorter distance (Article 672, paragraph 1)";
+}
+pub relation destination_du_pere_de_famille_sur_la_plantation(p: Plantation) kind empirical {
+    label fr official "il y a destination du père de famille justifiant la plantation à une distance moindre (article 672, alinéa 1)";
+    label en unofficial "there is a destination by the former common owner justifying the planting at a shorter distance (Article 672, paragraph 1)";
+}
+pub relation prescription_trentenaire_de_la_plantation(p: Plantation) kind empirical {
+    label fr official "il y a prescription trentenaire justifiant la plantation à une distance moindre (article 672, alinéa 1)";
+    label en unofficial "there is thirty-year prescription justifying the planting at a shorter distance (Article 672, paragraph 1)";
+}
+pub relation plantation_remplacee_apres_la_mort_ou_la_coupe(p: Plantation) kind empirical {
+    label fr official "la plantation morte, coupée ou arrachée est remplacée (article 672, alinéa 2)";
+    label en unofficial "the dead, cut or uprooted planting is replaced (Article 672, paragraph 2)";
+}
+pub relation branches_avancant_sur(p: Plantation, v: Fonds) kind empirical {
+    label fr official "les branches de l'arbre, arbuste ou arbrisseau avancent sur la propriété du voisin (article 673, alinéa 1)";
+    label en unofficial "the branches of the tree, bush or shrub overhang the neighbour's property (Article 673, paragraph 1)";
+}
+pub relation racines_ronces_ou_brindilles_avancant_sur(p: Plantation, v: Fonds) kind empirical {
+    label fr official "les racines, ronces ou brindilles avancent sur l'héritage du voisin (article 673, alinéa 2)";
+    label en unofficial "the roots, brambles or twigs encroach on the neighbour's tenement (Article 673, paragraph 2)";
+}
+pub relation fruits_tombes_naturellement_des_branches(p: Plantation, v: Fonds) kind empirical {
+    label fr official "des fruits sont tombés naturellement des branches qui avancent sur la propriété du voisin (article 673, alinéa 1)";
+    label en unofficial "fruits fell naturally from the branches overhanging the neighbour's property (Article 673, paragraph 1)";
+}
+
+pub relation distance_legale_de_plantation(p: Plantation, distance: Quantity) kind derived {
+    label fr official "distance à laquelle la plantation doit se tenir de la ligne séparative : celle des règlements ou usages, ou, à leur défaut, deux mètres ou un demi-mètre (article 671, alinéa 1)";
+    label en unofficial "distance at which the planting must stand from the boundary line: that of the regulations or usages, or, failing those, two metres or half a metre (Article 671, paragraph 1)";
+}
+pub relation plantation_a_distance_legale(p: Plantation) kind derived {
+    label fr official "la plantation se tient à la distance légale ou au-delà (article 671, alinéa 1)";
+    label en unofficial "the planting stands at or beyond the statutory distance (Article 671, paragraph 1)";
+}
+pub relation plantation_a_distance_moindre(p: Plantation) kind derived {
+    label fr official "la plantation est plantée à une distance moindre que la distance légale (articles 671, alinéa 1, et 672, alinéa 1)";
+    label en unofficial "the planting is set at a distance shorter than the statutory distance (Articles 671, paragraph 1, and 672, paragraph 1)";
+}
+pub relation plantation_a_distance_moindre_exercee(p: Plantation, f: Fonds, personne: Personne) kind empirical {
+    label fr official "plantation à distance moindre exercée";
+    label en unofficial "short-distance planting exercised";
+}
+pub relation espalier_dispense_de_distance(p: Plantation, m: Mur) kind derived {
+    label fr official "l'espalier planté de chaque côté du mur séparatif n'est tenu d'observer aucune distance (article 671, alinéa 2)";
+    label en unofficial "an espalier planted on either side of the separating wall need observe no distance (Article 671, paragraph 2)";
+}
+pub relation espalier_depassant_la_crete_du_mur(p: Plantation, m: Mur) kind derived {
+    label fr official "l'espalier dépasse la crête du mur, ce que l'article ne permet pas (article 671, alinéa 2)";
+    label en unofficial "the espalier rises above the crest of the wall, which the article does not allow (Article 671, paragraph 2)";
+}
+pub relation droit_exclusif_d_appuyer_les_espaliers(m: Mur, f: Fonds) kind derived {
+    label fr official "si le mur n'est pas mitoyen, le propriétaire seul a le droit d'y appuyer les espaliers (article 671, alinéa 3)";
+    label en unofficial "if the wall is not a party wall, its owner alone may lean espaliers against it (Article 671, paragraph 3)";
+}
+pub relation exception_a_la_distance_legale(p: Plantation) kind derived {
+    label fr official "titre, destination du père de famille ou prescription trentenaire fait exception à la distance légale (article 672, alinéa 1)";
+    label en unofficial "a title, a destination by the former common owner, or thirty-year prescription is an exception to the statutory distance (Article 672, paragraph 1)";
+}
+pub relation droit_d_exiger_l_arrachage_ou_la_reduction(v: Fonds, p: Plantation) kind derived {
+    label fr official "le voisin peut exiger que les plantations faites à une distance moindre que la distance légale soient arrachées ou réduites à la hauteur déterminée (article 672, alinéa 1)";
+    label en unofficial "the neighbour may demand that plantings set at less than the statutory distance be uprooted or cut down to the prescribed height (Article 672, paragraph 1)";
+}
+pub relation arrachage_ou_reduction_plantation_exercee(v: Fonds, p: Plantation, personne: Personne) kind empirical {
+    label fr official "arrachage ou réduction de la plantation exigé";
+    label en unofficial "plant uprooting or reduction demanded";
+}
+pub relation remplacement_soumis_aux_distances_legales(p: Plantation) kind derived {
+    label fr official "si les arbres meurent ou sont coupés ou arrachés, le voisin ne peut les remplacer qu'en observant les distances légales (article 672, alinéa 2)";
+    label en unofficial "if the trees die or are cut or uprooted, the neighbour may replace them only by observing the statutory distances (Article 672, paragraph 2)";
+}
+pub relation droit_de_contraindre_a_couper_les_branches(v: Fonds, p: Plantation) kind derived {
+    label fr official "celui sur la propriété duquel avancent les branches peut contraindre le voisin à les couper (article 673, alinéa 1)";
+    label en unofficial "the owner onto whose property the branches overhang may compel the neighbour to cut them (Article 673, paragraph 1)";
+}
+pub relation fruits_tombes_appartiennent_au_voisin(v: Fonds, p: Plantation) kind derived {
+    label fr official "les fruits tombés naturellement des branches qui avancent appartiennent à celui sur la propriété duquel elles avancent (article 673, alinéa 1)";
+    label en unofficial "the fruits fallen naturally from the overhanging branches belong to the owner onto whose property they overhang (Article 673, paragraph 1)";
+}
+pub relation droit_de_couper_soi_meme_les_racines(v: Fonds, p: Plantation) kind derived {
+    label fr official "si ce sont les racines, ronces ou brindilles qui avancent, le voisin a le droit de les couper lui-même à la limite de la ligne séparative (article 673, alinéa 2)";
+    label en unofficial "if it is the roots, brambles or twigs that encroach, the neighbour may cut them himself at the boundary line (Article 673, paragraph 2)";
+}
+pub relation droit_de_couper_imprescriptible(v: Fonds, p: Plantation) kind derived {
+    label fr official "le droit de couper les racines, ronces et brindilles ou de faire couper les branches est imprescriptible : il ne s'éteint par aucun non-usage (article 673, alinéa 3)";
+    label en unofficial "the right to cut the roots, brambles and twigs, or to have the branches cut, is imprescriptible: no non-use extinguishes it (Article 673, paragraph 3)";
+}
+pub relation branches_coupees_exigees(v: Fonds, p: Plantation, personne: Personne) kind empirical {
+    label fr official "coupe des branches exigée";
+    label en unofficial "branch cutting demanded";
+}
+pub relation racines_coupees_exercee(v: Fonds, p: Plantation, personne: Personne) kind empirical {
+    label fr official "coupe des racines exercée";
+    label en unofficial "root cutting exercised";
+}
+pub relation fruits_tombes_recus(v: Fonds, p: Plantation, personne: Personne) kind empirical {
+    label fr official "fruits tombés reçus par le voisin";
+    label en unofficial "fallen fruit received by neighbour";
+}
+
+@source(CC_ART671) {
+    rule P4InterdictionPlanterDistanceMindre671(p: Plantation, f: Fonds, personne: Personne, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 671. Le propriétaire ne peut planter à une distance moindre";
+        label en unofficial "Article 671. The owner may not plant at a shorter distance";
+        when plantee_sur(p, f)
+            and proprietaire_du_bien(f, personne)
+            and distance_legale_de_plantation(p, legale)
+            and distance_a_la_ligne_separative(p, reelle)
+            and unit_convert(magnitude(reelle), "m") < unit_convert(magnitude(legale), "m");
+        then prohibition P4InterdictionPlanterDistanceMindre671Actif {
+            bearer personne;
+            action plantation_a_distance_moindre_exercee(p, f, personne);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionPlanterDistanceMindre671(p: Plantation, f: Fonds, personne: Personne, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 671. Le propriétaire doit maintenir l'absence de plantation à distance moindre";
+        label en unofficial "Article 671. The owner must maintain the absence of a planting at a shorter distance";
+        when plantee_sur(p, f)
+            and proprietaire_du_bien(f, personne)
+            and distance_legale_de_plantation(p, legale)
+            and distance_a_la_ligne_separative(p, reelle)
+            and unit_convert(magnitude(reelle), "m") < unit_convert(magnitude(legale), "m");
+        then duty MaintenanceInterdictionPlanterDistanceMindre671Duty {
+            bearer personne;
+            goal maintenance {
+                condition not plantation_a_distance_moindre_exercee(p, f, personne);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule DistanceParReglementOuUsage(p: Plantation, f: Fonds, distance: Quantity) strict {
+        label fr official "Article 671, alinéa 1. Il n'est permis d'avoir des arbres, arbrisseaux et arbustes près de la limite de la propriété voisine qu'à la distance prescrite par les règlements particuliers actuellement existants ou par des usages constants et reconnus";
+        label en unofficial "Article 671, paragraph 1. Trees, shrubs and bushes may be kept near the boundary of the neighbouring property only at the distance prescribed by the currently existing particular regulations or by constant and recognised usages";
+        when plantee_sur(p, f)
+            and distance_prescrite_par_reglement_ou_usage(f, distance);
+        then distance_legale_de_plantation(p, distance);
+    }
+    rule DistanceSuppletiveDeDeuxMetres(p: Plantation, f: Fonds, hauteur: Quantity) strict {
+        label fr official "Article 671, alinéa 1. À défaut de règlements et usages, la distance est de deux mètres de la ligne séparative des deux héritages pour les plantations dont la hauteur dépasse deux mètres";
+        label en unofficial "Article 671, paragraph 1. Failing regulations and usages, the distance is two metres from the boundary line of the two tenements for plantings whose height exceeds two metres";
+        when plantee_sur(p, f)
+            and aucun_reglement_ni_usage_sur_les_distances(f)
+            and hauteur_de_la_plantation(p, hauteur)
+            and unit_convert(magnitude(hauteur), "m") > magnitude(2 m);
+        then distance_legale_de_plantation(p, 2 m);
+    }
+    rule DistanceSuppletiveDUnDemiMetre(p: Plantation, f: Fonds, hauteur: Quantity) strict {
+        label fr official "Article 671, alinéa 1. Et d'un demi-mètre pour les autres plantations";
+        label en unofficial "Article 671, paragraph 1. And half a metre for the other plantings";
+        when plantee_sur(p, f)
+            and aucun_reglement_ni_usage_sur_les_distances(f)
+            and hauteur_de_la_plantation(p, hauteur)
+            and unit_convert(magnitude(hauteur), "m") <= magnitude(2 m);
+        then distance_legale_de_plantation(p, 0.5 m);
+    }
+    rule PlantationADistanceLegale(p: Plantation, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 671, alinéa 1. La plantation qui se tient à la distance légale ou au-delà est permise";
+        label en unofficial "Article 671, paragraph 1. A planting standing at or beyond the statutory distance is permitted";
+        when distance_legale_de_plantation(p, legale)
+            and distance_a_la_ligne_separative(p, reelle)
+            and unit_convert(magnitude(reelle), "m") >= unit_convert(magnitude(legale), "m");
+        then plantation_a_distance_legale(p);
+    }
+    rule PlantationADistanceMoindre(p: Plantation, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Article 671, alinéa 1. La plantation qui ne se tient pas à la distance légale est plantée à une distance moindre";
+        label en unofficial "Article 671, paragraph 1. A planting that does not stand at the statutory distance is set at a shorter distance";
+        when distance_legale_de_plantation(p, legale)
+            and distance_a_la_ligne_separative(p, reelle)
+            and unit_convert(magnitude(reelle), "m") < unit_convert(magnitude(legale), "m");
+        then plantation_a_distance_moindre(p);
+    }
+    rule EspalierDispenseDeDistance(p: Plantation, m: Mur, hauteur: Quantity, crete: Quantity) strict {
+        label fr official "Article 671, alinéa 2. Les arbres, arbustes et arbrisseaux de toute espèce peuvent être plantés en espaliers, de chaque côté du mur séparatif, sans que l'on soit tenu d'observer aucune distance, mais ils ne pourront dépasser la crête du mur";
+        label en unofficial "Article 671, paragraph 2. Trees, bushes and shrubs of every kind may be trained as espaliers on either side of the separating wall, without having to observe any distance, but they may not rise above the crest of the wall";
+        when plantee_en_espalier_contre_le_mur_separatif(p, m)
+            and hauteur_de_la_plantation(p, hauteur)
+            and hauteur_de_la_crete_du_mur(m, crete)
+            and unit_convert(magnitude(hauteur), "m") <= unit_convert(magnitude(crete), "m");
+        then espalier_dispense_de_distance(p, m);
+    }
+    rule EspalierDepassantLaCrete(p: Plantation, m: Mur, hauteur: Quantity, crete: Quantity) strict {
+        label fr official "Article 671, alinéa 2. Les espaliers ne pourront dépasser la crête du mur";
+        label en unofficial "Article 671, paragraph 2. The espaliers may not rise above the crest of the wall";
+        when plantee_en_espalier_contre_le_mur_separatif(p, m)
+            and hauteur_de_la_plantation(p, hauteur)
+            and hauteur_de_la_crete_du_mur(m, crete)
+            and unit_convert(magnitude(hauteur), "m") > unit_convert(magnitude(crete), "m");
+        then espalier_depassant_la_crete_du_mur(p, m);
+    }
+    rule EspalierSurMurNonMitoyen(m: Mur, f: Fonds, v: Fonds, espece: EspeceDeCloture) strict {
+        label fr official "Article 671, alinéa 3. Si le mur n'est pas mitoyen, le propriétaire seul a le droit d'y appuyer les espaliers";
+        label en unofficial "Article 671, paragraph 3. If the wall is not a party wall, its owner alone has the right to lean espaliers against it";
+        when cloture_separant(m, f, v, espece)
+            and appartient_exclusivement_a(m, f);
+        then droit_exclusif_d_appuyer_les_espaliers(m, f);
+    }
+}
+
+@source(CC_ART672) {
+    rule P4PouvoirExigerArrachageReduction672(p: Plantation, f: Fonds, v: Fonds, personne: Personne) strict {
+        label fr official "Article 672. Le voisin peut exiger l'arrachage ou la réduction";
+        label en unofficial "Article 672. The neighbour may demand uprooting or reduction";
+        when plantation_a_distance_moindre(p)
+            and plantee_sur(p, f)
+            and voisin(f, v)
+            and proprietaire_du_bien(v, personne)
+            and not_known(exception_a_la_distance_legale(p));
+        then power P4PouvoirExigerArrachageReduction672Actif {
+            holder personne;
+            over p;
+            exercise arrachage_ou_reduction_plantation_exercee(v, p, personne);
+            effect droit_d_exiger_l_arrachage_ou_la_reduction(v, p);
+            valid_when voisin(f, v);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ExceptionParTitre(p: Plantation) strict {
+        label fr official "Article 672, alinéa 1. À moins qu'il n'y ait titre";
+        label en unofficial "Article 672, paragraph 1. Unless there is a title";
+        when titre_sur_la_plantation(p);
+        then exception_a_la_distance_legale(p);
+    }
+    rule ExceptionParDestinationDuPereDeFamille(p: Plantation) strict {
+        label fr official "Article 672, alinéa 1. À moins qu'il n'y ait destination du père de famille";
+        label en unofficial "Article 672, paragraph 1. Unless there is a destination by the former common owner";
+        when destination_du_pere_de_famille_sur_la_plantation(p);
+        then exception_a_la_distance_legale(p);
+    }
+    rule ExceptionParPrescriptionTrentenaire(p: Plantation) strict {
+        label fr official "Article 672, alinéa 1. À moins qu'il n'y ait prescription trentenaire";
+        label en unofficial "Article 672, paragraph 1. Unless there is thirty-year prescription";
+        when prescription_trentenaire_de_la_plantation(p);
+        then exception_a_la_distance_legale(p);
+    }
+    rule DroitDExigerLArrachageOuLaReduction(p: Plantation, f: Fonds, v: Fonds) strict {
+        label fr official "Article 672, alinéa 1. Le voisin peut exiger que les arbres, arbrisseaux et arbustes plantés à une distance moindre que la distance légale soient arrachés ou réduits à la hauteur déterminée dans l'article précédent, à moins qu'il n'y ait titre, destination du père de famille ou prescription trentenaire";
+        label en unofficial "Article 672, paragraph 1. The neighbour may demand that trees, shrubs and bushes planted at less than the statutory distance be uprooted or cut down to the height fixed in the preceding article, unless there is a title, a destination by the former common owner, or thirty-year prescription";
+        when plantation_a_distance_moindre(p)
+            and plantee_sur(p, f)
+            and voisin(f, v)
+            and not_known(exception_a_la_distance_legale(p));
+        then droit_d_exiger_l_arrachage_ou_la_reduction(v, p);
+    }
+    rule RemplacementSoumisAuxDistancesLegales(p: Plantation) strict {
+        label fr official "Article 672, alinéa 2. Si les arbres meurent ou s'ils sont coupés ou arrachés, le voisin ne peut les remplacer qu'en observant les distances légales";
+        label en unofficial "Article 672, paragraph 2. If the trees die or are cut or uprooted, the neighbour may replace them only by observing the statutory distances";
+        when arbre_mort_coupe_ou_arrache(p)
+            and plantation_remplacee_apres_la_mort_ou_la_coupe(p);
+        then remplacement_soumis_aux_distances_legales(p);
+    }
+}
+
+@source(CC_ART673) {
+    rule P4PouvoirExigerCoupeBranches673(p: Plantation, v: Fonds, personne: Personne) strict {
+        label fr official "Article 673. Le voisin peut contraindre à couper les branches";
+        label en unofficial "Article 673. The neighbour may compel cutting of overhanging branches";
+        when branches_avancant_sur(p, v)
+            and proprietaire_du_bien(v, personne);
+        then power P4PouvoirExigerCoupeBranches673Actif {
+            holder personne;
+            over p;
+            exercise branches_coupees_exigees(v, p, personne);
+            effect droit_de_contraindre_a_couper_les_branches(v, p);
+            valid_when branches_avancant_sur(p, v);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4LiberteCouperRacines673(p: Plantation, v: Fonds, personne: Personne) strict {
+        label fr official "Article 673. Le voisin peut couper les racines, ronces et brindilles";
+        label en unofficial "Article 673. The neighbour may cut roots, brambles and twigs";
+        when racines_ronces_ou_brindilles_avancant_sur(p, v)
+            and proprietaire_du_bien(v, personne);
+        then liberty P4LiberteCouperRacines673Actif {
+            holder personne;
+            action racines_coupees_exercee(v, p, personne);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4LiberteRecevoirFruitsTombes673(p: Plantation, v: Fonds, personne: Personne) strict {
+        label fr official "Article 673. Le voisin peut recevoir les fruits tombés naturellement";
+        label en unofficial "Article 673. The neighbour may receive naturally fallen fruit";
+        when branches_avancant_sur(p, v)
+            and fruits_tombes_naturellement_des_branches(p, v)
+            and proprietaire_du_bien(v, personne);
+        then liberty P4LiberteRecevoirFruitsTombes673Actif {
+            holder personne;
+            action fruits_tombes_recus(v, p, personne);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule DroitDeContraindreACouperLesBranches(p: Plantation, v: Fonds) strict {
+        label fr official "Article 673, alinéa 1. Celui sur la propriété duquel avancent les branches des arbres, arbustes et arbrisseaux du voisin peut contraindre celui-ci à les couper";
+        label en unofficial "Article 673, paragraph 1. The owner onto whose property the branches of the neighbour's trees, bushes and shrubs overhang may compel him to cut them";
+        when branches_avancant_sur(p, v);
+        then droit_de_contraindre_a_couper_les_branches(v, p);
+    }
+    rule FruitsTombesAuVoisin(p: Plantation, v: Fonds) strict {
+        label fr official "Article 673, alinéa 1. Les fruits tombés naturellement de ces branches lui appartiennent";
+        label en unofficial "Article 673, paragraph 1. The fruits fallen naturally from those branches belong to him";
+        when branches_avancant_sur(p, v)
+            and fruits_tombes_naturellement_des_branches(p, v);
+        then fruits_tombes_appartiennent_au_voisin(v, p);
+    }
+    rule DroitDeCouperSoiMemeLesRacines(p: Plantation, v: Fonds) strict {
+        label fr official "Article 673, alinéa 2. Si ce sont les racines, ronces ou brindilles qui avancent sur son héritage, il a le droit de les couper lui-même à la limite de la ligne séparative";
+        label en unofficial "Article 673, paragraph 2. If it is the roots, brambles or twigs that encroach on his tenement, he may cut them himself at the boundary line";
+        when racines_ronces_ou_brindilles_avancant_sur(p, v);
+        then droit_de_couper_soi_meme_les_racines(v, p);
+    }
+    rule ImprescriptibiliteDuDroitDeCouperLesBranches(p: Plantation, v: Fonds) strict {
+        label fr official "Article 673, alinéa 3. Le droit de faire couper les branches des arbres, arbustes ou arbrisseaux est imprescriptible";
+        label en unofficial "Article 673, paragraph 3. The right to have the branches of trees, bushes or shrubs cut is imprescriptible";
+        when droit_de_contraindre_a_couper_les_branches(v, p);
+        then droit_de_couper_imprescriptible(v, p);
+    }
+    rule ImprescriptibiliteDuDroitDeCouperLesRacines(p: Plantation, v: Fonds) strict {
+        label fr official "Article 673, alinéa 3. Le droit de couper les racines, ronces et brindilles est imprescriptible";
+        label en unofficial "Article 673, paragraph 3. The right to cut the roots, brambles and twigs is imprescriptible";
+        when droit_de_couper_soi_meme_les_racines(v, p);
+        then droit_de_couper_imprescriptible(v, p);
+    }
+}

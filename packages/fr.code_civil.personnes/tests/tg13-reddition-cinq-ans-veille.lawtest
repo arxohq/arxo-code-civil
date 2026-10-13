@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 515: the day before the five-year term is not the statutory term.
+test "urn:query:fr-code-civil-personnes-tg13-reddition-cinq-ans-veille" {
+    given {
+        context { decision_time @2026-03-30T09:00:00Z; knowledge_time @2026-03-30T09:00:00Z; legal_time @2026-03-30; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg13:m"), entity_ref("urn:fr:cc:personnes:tg13:p"), entity_ref("urn:fr:cc:personnes:tg13:t"), @2010-01-01) { origin adjudicated; }
+        assert "f2": fin_mission_tuteur_le(entity_ref("urn:fr:cc:personnes:tg13:t"), @2021-03-31) { origin adjudicated; }
+    }
+    evaluate truth(action_reddition_expire_le(entity_ref("urn:fr:cc:personnes:tg13:m"), @2026-03-30));
+    expect truth_status == NEITHER;
+}

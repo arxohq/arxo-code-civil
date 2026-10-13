@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1137 al. 3, rédaction de 2018 : la même réticence sur l'estimation de la valeur n'est pas un dol pour l'acte de 2019.
+test "urn:query:fr-code-civil-contrat-t12-reticence-sur-la-valeur-2019-pas-de-dol" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:t12"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:t12"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:t12"), "1137") { origin case_input; }
+        assert "f4": dissimulation_intentionnelle(entity_ref("urn:fr:cc:contrat:t12"), entity_ref("urn:fr:cc:contrat:t12:info"), entity_ref("urn:fr:cc:contrat:t12:vendeur"), entity_ref("urn:fr:cc:contrat:t12:acheteur")) { origin case_input; }
+        assert "f5": information_porte_sur_l_estimation_de_la_valeur(entity_ref("urn:fr:cc:contrat:t12:info")) { origin case_input; }
+        assert "f6": caractere_determinant_du_vice(entity_ref("urn:fr:cc:contrat:t12"), entity_ref("urn:fr:cc:contrat:t12:acheteur")) { origin adjudicated; }
+    }
+    evaluate truth(vice_du_consentement(entity_ref("urn:fr:cc:contrat:t12"), entity_ref("urn:fr:cc:contrat:t12:acheteur"), Dol));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

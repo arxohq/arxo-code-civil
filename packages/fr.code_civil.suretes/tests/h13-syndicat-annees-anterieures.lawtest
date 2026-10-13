@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2418, al. 1 : pour les années antérieures, le syndicat concourt avec vendeur et prêteur — frontière déclarée.
+test "urn:query:fr-code-civil-suretes-h13-syndicat-annees-anterieures" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:h13:S"), entity_ref("urn:fr:cc:suretes:h13:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:h13:S"), PrivilegeDuSyndicatDesCoproprietaires) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:h13:S"), 300 EUR) { origin case_input; }
+        assert "f4": collocation_du_syndicat(entity_ref("urn:fr:cc:suretes:h13:S")) { origin case_input; }
+        assert "f5": part_du_syndicat_anterieure_aux_trois_annees(entity_ref("urn:fr:cc:suretes:h13:S")) { origin case_input; }
+    }
+    evaluate truth(part_anterieure_du_syndicat(entity_ref("urn:fr:cc:suretes:h13:S")));
+    expect truth_status == TRUE_ONLY;
+}

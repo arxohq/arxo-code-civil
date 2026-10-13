@@ -1,0 +1,742 @@
+// CHAPITRE III — DES HÉRITIERS (articles 731 à 758).
+//
+// Section 1 : ordres d'héritiers (734–740), degrés (741–745), division par
+// branches (746–750), représentation (751–755). Section 2 : droits du
+// conjoint survivant (756–758).
+//
+// STRATES (voir package.law) :
+//   A. pont vers `calc.kinship` : arêtes du graphe et politiques ;
+//   B. parenté avec le défunt : descendants, père et mère, frères et sœurs,
+//      ascendants ordinaires par branche, conjoint successible ;
+//   C. nœuds des souches (récursion positive) et nœuds utiles ;
+//   D. dénombrement des sous-souches, ordres occupés et appelés, présences ;
+//   E. masse dévolue à chaque groupe et fractions par souche (récursion
+//      positive sur les fractions) ;
+//   F. fraction héréditaire de chacun et vérification de la somme.
+//
+// LECTURES ADOPTÉES (consignées dans docs/foundations/fr-code-civil/DECISIONS.md) :
+//   - « enfants qui ne sont pas issus des deux époux » (757) : un enfant au
+//     premier degré compté par sa souche, qu'il vienne de son chef ou soit
+//     représenté ;
+//   - le parent unique sans frère ni sœur ni ascendant de l'autre branche
+//     recueille tout : article 748, alinéa 3 (le père ou la mère est un
+//     ascendant de sa branche) ;
+//   - les collatéraux ordinaires (4e ordre, articles 740, 745, 749, 750) ne
+//     sont pas encore formalisés : vague B4, non une frontière.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART731,
+    CC_ART732,
+    CC_ART733,
+    CC_ART734,
+    CC_ART735,
+    CC_ART736,
+    CC_ART737,
+    CC_ART738,
+    CC_ART738_1,
+    CC_ART739,
+    CC_ART741,
+    CC_ART743,
+    CC_ART744,
+    CC_ART745,
+    CC_ART746,
+    CC_ART747,
+    CC_ART748,
+    CC_ART752,
+    CC_ART752_2,
+    CC_ART753,
+    CC_ART757,
+    CC_ART757_1,
+    CC_ART757_2,
+    DroitDuConjoint,
+    Famille,
+    OptionDuConjoint,
+    Personne,
+    Succession,
+    adoption_pleniere,
+    defunt,
+    divorce_prononce,
+    existe_a_l_ouverture,
+    famille,
+    filiation,
+    mariage,
+    option_du_conjoint,
+    representable,
+    vient_de_son_chef,
+};
+
+// --- A. Pont vers le calculateur de parenté ---------------------------------------------
+
+@source(CC_ART743)
+rule CompteDesDegres(s: Succession, f: Famille) strict {
+    label fr official "Article 743. Les degrés se comptent par génération : en ligne collatérale, depuis l'un des parents jusqu'à l'auteur commun non compris, et depuis celui-ci jusqu'à l'autre parent (compte romain)";
+    label en unofficial "Article 743. Degrees are counted by generation; in the collateral line from one relative up to, but excluding, the common ancestor and down to the other (Roman count)";
+    when famille(s, f);
+    then calc.kinship::family_degree_count(f, calc.kinship::Roman);
+}
+
+@source(CC_ART733)
+rule AdoptionPleniereSubstitue(s: Succession, f: Famille) strict {
+    label fr official "Article 733, alinéa 2 (renvoi au titre VIII). L'adoption plénière confère une filiation qui se substitue à la filiation d'origine : politique « remplace » du calculateur";
+    label en unofficial "Article 733, paragraph 2 (referral to Title VIII). Full adoption substitutes the adoptive filiation for the original one: the calculator's 'replaces' policy";
+    when famille(s, f);
+    then calc.kinship::family_adoption_effect(f, calc.kinship::ReplacesBlood);
+}
+
+@source(CC_ART745)
+rule ProfondeurDeParente(s: Succession, f: Famille) strict {
+    label fr official "Article 745. Les collatéraux ne succèdent pas au-delà du sixième degré : la parenté est calculée jusqu'à la sixième génération";
+    label en unofficial "Article 745. Collaterals do not inherit beyond the sixth degree: kinship is computed up to the sixth generation";
+    when famille(s, f);
+    then calc.kinship::family_depth_cap(f, 6);
+}
+
+@source(CC_ART733) {
+    rule AreteDeFiliation(f: Famille, p: Personne, c: Personne) strict {
+        label fr official "Article 733, alinéa 1. La loi ne distingue pas selon les modes d'établissement de la filiation : tout lien de filiation établi est une arête du graphe";
+        label en unofficial "Article 733, paragraph 1. The law does not distinguish how filiation was established: every established filiation is an edge of the graph";
+        when filiation(f, p, c);
+        then calc.kinship::parent_edge(f, p, c, calc.kinship::Blood);
+    }
+    rule AreteDAdoptionPleniere(f: Famille, a: Personne, c: Personne) strict {
+        label fr official "Article 733, alinéa 2. Les droits résultant de la filiation adoptive sont réglés au titre de l'adoption : l'adoptant est parent de l'adopté";
+        label en unofficial "Article 733, paragraph 2. Rights arising from adoptive filiation are governed by the title on adoption: the adopter is a parent of the adoptee";
+        when adoption_pleniere(f, a, c);
+        then calc.kinship::parent_edge(f, a, c, calc.kinship::Adoptive);
+    }
+}
+
+@source(CC_ART732)
+rule AreteDeMariage(f: Famille, a: Personne, b: Personne) strict {
+    label fr official "Article 732. Le mariage fait du survivant un conjoint : arête d'alliance du graphe";
+    label en unofficial "Article 732. Marriage makes the survivor a spouse: marriage edge of the graph";
+    when mariage(f, a, b);
+    then calc.kinship::spouse_edge(f, a, b);
+}
+
+// --- B. Parenté avec le défunt -----------------------------------------------------------
+
+pub relation descendant(s: Succession, p: Personne, degre: Integer) kind derived {
+    label fr official "descendant du défunt au degré indiqué (articles 741, 743)";
+    label en unofficial "descendant of the deceased at the given degree (Articles 741, 743)";
+}
+pub relation pere_ou_mere_venant(s: Succession, p: Personne) kind derived {
+    label fr official "père ou mère du défunt qui vient à la succession de son chef";
+    label en unofficial "father or mother of the deceased who takes the succession in his own right";
+}
+pub relation presence_de_pere_ou_mere(s: Succession) kind derived {
+    label fr official "au moins l'un des père et mère vient à la succession";
+    label en unofficial "at least one of the father and mother takes the succession";
+}
+pub relation nombre_de_pere_et_mere(s: Succession, n: Integer) kind derived {
+    key(s);
+    label fr official "nombre des père et mère qui viennent à la succession (un ou deux)";
+    label en unofficial "number of parents who take the succession (one or two)";
+}
+pub relation conjoint_successible(s: Succession, c: Personne) kind derived {
+    label fr official "conjoint successible : conjoint survivant non divorcé (article 732)";
+    label en unofficial "surviving spouse entitled to inherit: not divorced (Article 732)";
+}
+pub relation presence_de_conjoint_successible(s: Succession) kind derived {
+    label fr official "le défunt laisse un conjoint successible";
+    label en unofficial "the deceased leaves a spouse entitled to inherit";
+}
+pub relation ascendant_ordinaire_venant(s: Succession, a: Personne, degre: Integer) kind derived {
+    label fr official "ascendant autre que les père et mère qui vient à la succession, au degré indiqué (article 739)";
+    label en unofficial "ascendant other than the parents who takes the succession, at the given degree (Article 739)";
+}
+pub relation branche(s: Succession, a: Personne, parent: Personne) kind derived {
+    label fr official "l'ascendant appartient à la branche du père ou de la mère indiqué (article 746)";
+    label en unofficial "the ascendant belongs to the branch of the given father or mother (Article 746)";
+}
+
+@source(CC_ART741, CC_ART743)
+rule DescendantDuDefunt(s: Succession, f: Famille, d: Personne, p: Personne, n: Integer) strict {
+    label fr official "Articles 741 et 743. En ligne directe descendante, on compte autant de degrés qu'il y a de générations entre le défunt et le descendant";
+    label en unofficial "Articles 741 and 743. In the direct descending line there are as many degrees as generations between the deceased and the descendant";
+    when famille(s, f) and defunt(s, d) and calc.kinship::ancestor_or_self(f, d, p, n) and n >= 1;
+    then descendant(s, p, n);
+}
+
+@source(CC_ART736) {
+    rule PereOuMereVenant(s: Succession, f: Famille, d: Personne, p: Personne) strict {
+        label fr official "Article 736. Les père et mère du défunt viennent à la succession lorsqu'ils existent et ne sont ni exclus ni renonçants";
+        label en unofficial "Article 736. The deceased's father and mother take the succession when they exist and are neither excluded nor renouncing";
+        when famille(s, f) and defunt(s, d) and calc.kinship::effective_parent(f, p, d) and vient_de_son_chef(s, p);
+        then pere_ou_mere_venant(s, p);
+    }
+    rule PresenceDePereOuMere(s: Succession, p: Personne) strict {
+        label fr official "Article 736. Présence d'au moins un des père et mère";
+        label en unofficial "Article 736. Presence of at least one parent";
+        when pere_ou_mere_venant(s, p);
+        then presence_de_pere_ou_mere(s);
+    }
+    rule NombreDePereEtMere(s: Succession, p: Personne) strict {
+        label fr official "Articles 736 et 738. Nombre des père et mère qui viennent à la succession";
+        label en unofficial "Articles 736 and 738. Number of parents who take the succession";
+        when pere_ou_mere_venant(s, p);
+        then nombre_de_pere_et_mere(s, (count distinct x: Personne where pere_ou_mere_venant(s, x)));
+    }
+}
+
+@source(CC_ART732) {
+    rule ConjointSuccessible(s: Succession, f: Famille, d: Personne, c: Personne) strict {
+        label fr official "Article 732. Est conjoint successible le conjoint survivant non divorcé";
+        label en unofficial "Article 732. The surviving spouse who is not divorced is entitled to inherit";
+        when famille(s, f) and defunt(s, d) and calc.kinship::spouses(f, c, d)
+            and existe_a_l_ouverture(s, c) and not_known(divorce_prononce(s, c));
+        then conjoint_successible(s, c);
+    }
+    rule PresenceDeConjoint(s: Succession, c: Personne) strict {
+        label fr official "Article 732. Présence d'un conjoint successible";
+        label en unofficial "Article 732. Presence of a spouse entitled to inherit";
+        when conjoint_successible(s, c);
+        then presence_de_conjoint_successible(s);
+    }
+}
+
+@source(CC_ART739, CC_ART746) {
+    rule AscendantOrdinaireVenant(s: Succession, f: Famille, d: Personne, a: Personne, n: Integer) strict {
+        label fr official "Article 739. Ascendant autre que les père et mère (degré deux et au-delà) qui vient à la succession";
+        label en unofficial "Article 739. Ascendant other than the parents (second degree and beyond) who takes the succession";
+        when famille(s, f) and defunt(s, d) and calc.kinship::ancestor_or_self(f, a, d, n) and n >= 2 and vient_de_son_chef(s, a);
+        then ascendant_ordinaire_venant(s, a, n);
+    }
+    rule BrancheDeLAscendant(s: Succession, f: Famille, d: Personne, parent: Personne, a: Personne, k: Integer) strict {
+        label fr official "Article 746. La parenté se divise en deux branches, selon qu'elle procède du père ou de la mère : l'ascendant du père est de la branche paternelle, celui de la mère de la branche maternelle";
+        label en unofficial "Article 746. Kinship divides into two branches, paternal and maternal: an ancestor of the father belongs to the paternal branch, an ancestor of the mother to the maternal one";
+        when famille(s, f) and defunt(s, d) and calc.kinship::effective_parent(f, parent, d)
+            and calc.kinship::ancestor_or_self(f, a, parent, k) and k >= 1;
+        then branche(s, a, parent);
+    }
+}
+
+// --- C. Nœuds des souches -------------------------------------------------------------------
+//
+// Un nœud d'ordre 1 est un enfant du défunt ou l'enfant d'un nœud
+// représentable ; un nœud d'ordre 2 est un frère ou une sœur du défunt ou
+// l'enfant d'un nœud représentable de cet ordre. Un nœud est UTILE s'il vient
+// de son chef ou si l'un de ses enfants est un nœud utile (sa souche n'est
+// pas vide).
+
+pub relation noeud(s: Succession, p: Personne, ordre: Integer) kind derived {
+    label fr official "position dans l'arbre des souches de l'ordre indiqué (articles 752, 752-2, 753)";
+    label en unofficial "position in the tree of stocks of the given order (Articles 752, 752-2, 753)";
+}
+pub relation noeud_utile(s: Succession, p: Personne, ordre: Integer) kind derived {
+    label fr official "nœud dont la souche recueille une part : vient de son chef ou est représenté par un nœud utile";
+    label en unofficial "node whose stock receives a share: takes in his own right or is represented by a useful node";
+}
+
+@source(CC_ART734, CC_ART735)
+rule NoeudEnfant(s: Succession, f: Famille, d: Personne, c: Personne) strict {
+    label fr official "Articles 734, 1°, et 735. Les enfants du défunt forment les souches du premier ordre";
+    label en unofficial "Articles 734, 1°, and 735. The deceased's children form the stocks of the first order";
+    when famille(s, f) and defunt(s, d) and calc.kinship::effective_parent(f, d, c);
+    then noeud(s, c, 1);
+}
+
+@source(CC_ART734, CC_ART752_2)
+rule NoeudFrereOuSoeur(s: Succession, f: Famille, d: Personne, c: Personne) strict {
+    label fr official "Articles 734, 2°, et 752-2. Les frères et sœurs du défunt forment les souches du deuxième ordre";
+    label en unofficial "Articles 734, 2°, and 752-2. The deceased's brothers and sisters form the stocks of the second order";
+    when famille(s, f) and defunt(s, d) and calc.kinship::sibling(f, c, d);
+    then noeud(s, c, 2);
+}
+
+@source(CC_ART752, CC_ART752_2, CC_ART753)
+rule NoeudDeSubdivision(s: Succession, f: Famille, q: Personne, c: Personne, o: Integer) strict {
+    label fr official "Articles 752, 752-2 et 753. La représentation a lieu à l'infini dans la ligne directe descendante et en faveur des descendants de frères et sœurs : l'enfant d'un nœud représentable est un nœud de la subdivision de souche";
+    label en unofficial "Articles 752, 752-2 and 753. Representation runs indefinitely in the descending line and for descendants of siblings: the child of a representable node is a node of the stock subdivision";
+    when famille(s, f) and monotone(noeud(s, q, o)) and representable(s, q) and calc.kinship::effective_parent(f, q, c);
+    then noeud(s, c, o);
+}
+
+@source(CC_ART744) {
+    rule NoeudUtileDeSonChef(s: Succession, p: Personne, o: Integer) strict {
+        label fr official "Article 744. L'héritier qui vient de son chef occupe sa souche";
+        label en unofficial "Article 744. An heir taking in his own right occupies his stock";
+        when noeud(s, p, o) and vient_de_son_chef(s, p);
+        then noeud_utile(s, p, o);
+    }
+    rule NoeudUtileRepresente(s: Succession, f: Famille, q: Personne, c: Personne, o: Integer) strict {
+        label fr official "Articles 751 et 753. Le représenté dont un descendant occupe la souche est un nœud utile : la représentation appelle les représentants aux droits du représenté";
+        label en unofficial "Articles 751 and 753. A represented person one of whose descendants occupies the stock is a useful node: representation calls the representatives to the rights of the represented";
+        when famille(s, f) and noeud(s, q, o) and representable(s, q)
+            and calc.kinship::effective_parent(f, q, c) and monotone(noeud_utile(s, c, o));
+        then noeud_utile(s, q, o);
+    }
+}
+
+// --- D. Sous-souches, ordres et présences -------------------------------------------------
+
+pub relation sous_souche(s: Succession, q: Personne, c: Personne, ordre: Integer) kind derived {
+    label fr official "le nœud utile c est une souche (si q est le défunt) ou une subdivision de la souche de q (article 753)";
+    label en unofficial "useful node c is a stock (if q is the deceased) or a subdivision of q's stock (Article 753)";
+}
+pub relation nombre_de_sous_souches(s: Succession, q: Personne, ordre: Integer, n: Integer) kind derived {
+    key(s, q, ordre);
+    label fr official "nombre de souches sous le défunt ou de subdivisions sous un représenté (article 753)";
+    label en unofficial "number of stocks under the deceased or of subdivisions under a represented person (Article 753)";
+}
+pub relation ordre_occupe(s: Succession, ordre: Integer) kind derived {
+    label fr official "l'ordre d'héritiers indiqué compte au moins un successible qui vient à la succession (article 734)";
+    label en unofficial "the given order of heirs has at least one successor who takes the succession (Article 734)";
+}
+pub relation ordre_appele(s: Succession, ordre: Integer) kind derived {
+    label fr official "ordre d'héritiers appelé : occupé et non exclu par un ordre antérieur (article 734, dernier alinéa)";
+    label en unofficial "order of heirs called: occupied and not excluded by an earlier order (Article 734, last paragraph)";
+}
+pub relation presence_de_collateraux_privilegies(s: Succession) kind derived {
+    label fr official "le défunt laisse des frères et sœurs ou des descendants de ceux-ci qui viennent à la succession (articles 737, 738)";
+    label en unofficial "the deceased leaves siblings or their descendants who take the succession (Articles 737, 738)";
+}
+pub relation presence_d_enfant_non_commun(s: Succession) kind derived {
+    label fr official "présence d'un ou plusieurs enfants qui ne sont pas issus des deux époux (article 757)";
+    label en unofficial "presence of one or more children who are not children of both spouses (Article 757)";
+}
+pub relation enfant_non_commun(s: Succession, e: Personne) kind derived {
+    label fr official "enfant du défunt, compté par sa souche, qui n'est pas issu des deux époux (article 757)";
+    label en unofficial "child of the deceased, counted by his stock, who is not a child of both spouses (Article 757)";
+}
+
+@source(CC_ART753) {
+    rule SoucheEnfant(s: Succession, f: Famille, d: Personne, c: Personne) strict {
+        label fr official "Articles 734, 1°, et 753. Chaque enfant dont la souche n'est pas vide forme une souche sous le défunt";
+        label en unofficial "Articles 734, 1°, and 753. Each child whose stock is not empty forms a stock under the deceased";
+        when famille(s, f) and defunt(s, d) and calc.kinship::effective_parent(f, d, c) and noeud_utile(s, c, 1);
+        then sous_souche(s, d, c, 1);
+    }
+    rule SoucheFrereOuSoeur(s: Succession, f: Famille, d: Personne, c: Personne) strict {
+        label fr official "Articles 752-2 et 753. Chaque frère ou sœur dont la souche n'est pas vide forme une souche sous le défunt";
+        label en unofficial "Articles 752-2 and 753. Each sibling whose stock is not empty forms a stock under the deceased";
+        when famille(s, f) and defunt(s, d) and calc.kinship::sibling(f, c, d) and noeud_utile(s, c, 2);
+        then sous_souche(s, d, c, 2);
+    }
+    rule SubdivisionDeSouche(s: Succession, f: Famille, q: Personne, c: Personne, o: Integer) strict {
+        label fr official "Article 753. S'il y a lieu, le partage s'opère par subdivision de souche : chaque enfant utile d'un représenté forme une subdivision";
+        label en unofficial "Article 753. Where applicable, the division operates by subdivision of stock: each useful child of a represented person forms a subdivision";
+        when famille(s, f) and noeud_utile(s, q, o) and representable(s, q)
+            and calc.kinship::effective_parent(f, q, c) and noeud_utile(s, c, o);
+        then sous_souche(s, q, c, o);
+    }
+    rule NombreDeSousSouches(s: Succession, q: Personne, c: Personne, o: Integer) strict {
+        label fr official "Article 753. Nombre de souches ou de subdivisions entre lesquelles le partage s'opère";
+        label en unofficial "Article 753. Number of stocks or subdivisions among which the division operates";
+        when sous_souche(s, q, c, o);
+        then nombre_de_sous_souches(s, q, o, (count distinct x: Personne where sous_souche(s, q, x, o)));
+    }
+}
+
+@source(CC_ART734) {
+    rule OrdreUnOccupe(s: Succession, c: Personne) strict {
+        label fr official "Article 734, 1°. Le premier ordre est occupé lorsqu'un enfant ou descendant vient à la succession";
+        label en unofficial "Article 734, 1°. The first order is occupied when a child or descendant takes the succession";
+        when noeud_utile(s, c, 1);
+        then ordre_occupe(s, 1);
+    }
+    rule OrdreDeuxOccupeParCollateral(s: Succession, c: Personne) strict {
+        label fr official "Article 734, 2°. Le deuxième ordre est occupé lorsqu'un frère, une sœur ou un descendant de ceux-ci vient à la succession";
+        label en unofficial "Article 734, 2°. The second order is occupied when a sibling or a sibling's descendant takes the succession";
+        when noeud_utile(s, c, 2);
+        then ordre_occupe(s, 2);
+    }
+    rule PresenceDeCollaterauxPrivilegies(s: Succession, c: Personne) strict {
+        label fr official "Articles 737 et 738. Présence de frères et sœurs ou de leurs descendants";
+        label en unofficial "Articles 737 and 738. Presence of siblings or their descendants";
+        when noeud_utile(s, c, 2);
+        then presence_de_collateraux_privilegies(s);
+    }
+    rule OrdreDeuxOccupeParPereOuMere(s: Succession, p: Personne) strict {
+        label fr official "Article 734, 2°. Le deuxième ordre est occupé lorsque le père ou la mère vient à la succession";
+        label en unofficial "Article 734, 2°. The second order is occupied when the father or mother takes the succession";
+        when pere_ou_mere_venant(s, p);
+        then ordre_occupe(s, 2);
+    }
+    rule OrdreTroisOccupe(s: Succession, a: Personne, n: Integer) strict {
+        label fr official "Article 734, 3°. Le troisième ordre est occupé lorsqu'un ascendant autre que les père et mère vient à la succession";
+        label en unofficial "Article 734, 3°. The third order is occupied when an ascendant other than the parents takes the succession";
+        when ascendant_ordinaire_venant(s, a, n);
+        then ordre_occupe(s, 3);
+    }
+    rule OrdreUnAppele(s: Succession) strict {
+        label fr official "Article 734, dernier alinéa. Le premier ordre, lorsqu'il est occupé, exclut les suivants";
+        label en unofficial "Article 734, last paragraph. The first order, when occupied, excludes the following ones";
+        when ordre_occupe(s, 1);
+        then ordre_appele(s, 1);
+    }
+    rule OrdreDeuxAppele(s: Succession) strict {
+        label fr official "Article 734, dernier alinéa. Le deuxième ordre est appelé à défaut d'héritier du premier";
+        label en unofficial "Article 734, last paragraph. The second order is called in default of an heir of the first";
+        when ordre_occupe(s, 2) and not_known(ordre_occupe(s, 1));
+        then ordre_appele(s, 2);
+    }
+    rule OrdreTroisAppele(s: Succession) strict {
+        label fr official "Articles 734, dernier alinéa, et 739. A défaut d'héritier des deux premiers ordres, la succession est dévolue aux ascendants autres que les père et mère";
+        label en unofficial "Articles 734, last paragraph, and 739. In default of heirs of the first two orders, the succession devolves to ascendants other than the parents";
+        when ordre_occupe(s, 3) and not_known(ordre_occupe(s, 1)) and not_known(ordre_occupe(s, 2));
+        then ordre_appele(s, 3);
+    }
+}
+
+@source(CC_ART757) {
+    rule EnfantNonCommun(s: Succession, f: Famille, d: Personne, cj: Personne, e: Personne) strict {
+        label fr official "Article 757. Enfant du défunt, compté par sa souche, dont le conjoint survivant n'est pas parent";
+        label en unofficial "Article 757. Child of the deceased, counted by his stock, of whom the surviving spouse is not a parent";
+        when famille(s, f) and defunt(s, d) and conjoint_successible(s, cj)
+            and calc.kinship::effective_parent(f, d, e) and noeud_utile(s, e, 1)
+            and not_known(calc.kinship::effective_parent(f, cj, e));
+        then enfant_non_commun(s, e);
+    }
+    rule PresenceDEnfantNonCommun(s: Succession, e: Personne) strict {
+        label fr official "Article 757. Présence d'un ou plusieurs enfants qui ne sont pas issus des deux époux";
+        label en unofficial "Article 757. Presence of one or more children who are not children of both spouses";
+        when enfant_non_commun(s, e);
+        then presence_d_enfant_non_commun(s);
+    }
+}
+
+// --- E. Droits du conjoint, masses et fractions par souche ------------------------------
+
+pub relation droits_du_conjoint(s: Succession, c: Personne, droit: DroitDuConjoint) kind derived {
+    key(s, c);
+    label fr official "droits légaux du conjoint survivant (articles 757 à 757-2)";
+    label en unofficial "statutory rights of the surviving spouse (Articles 757 to 757-2)";
+}
+pub relation masse_des_souches(s: Succession, ordre: Integer, m: Rational) kind derived {
+    key(s, ordre);
+    label fr official "fraction de la succession dévolue, en pleine propriété, aux souches de l'ordre indiqué";
+    label en unofficial "fraction of the succession devolved, in full ownership, to the stocks of the given order";
+}
+pub relation part_de_souche(s: Succession, p: Personne, ordre: Integer, x: Rational) kind derived {
+    key(s, p, ordre);
+    label fr official "fraction revenant à la souche ou subdivision de souche dont ce nœud est la tête (article 753)";
+    label en unofficial "fraction due to the stock or subdivision headed by this node (Article 753)";
+}
+pub relation part_hereditaire(s: Succession, p: Personne, x: Rational) kind derived {
+    key(s, p);
+    label fr official "fraction de la succession recueillie en pleine propriété par ce successible";
+    label en unofficial "fraction of the succession received in full ownership by this successor";
+}
+pub relation usufruit_du_conjoint(s: Succession, c: Personne) kind derived {
+    label fr official "le conjoint survivant recueille l'usufruit de la totalité des biens existants (article 757)";
+    label en unofficial "the surviving spouse receives the usufruct of all existing property (Article 757)";
+}
+
+@source(CC_ART757) {
+    rule ConjointQuartImpose(s: Succession, c: Personne) strict {
+        label fr official "Article 757. En présence d'un ou plusieurs enfants qui ne sont pas issus des deux époux, le conjoint survivant recueille la propriété du quart des biens";
+        label en unofficial "Article 757. In the presence of one or more children who are not children of both spouses, the surviving spouse receives ownership of a quarter";
+        when conjoint_successible(s, c) and ordre_appele(s, 1) and presence_d_enfant_non_commun(s);
+        then droits_du_conjoint(s, c, QuartEnPropriete);
+    }
+    rule ConjointOpteQuart(s: Succession, c: Personne) strict {
+        label fr official "Article 757. Lorsque tous les enfants sont issus des deux époux, le conjoint survivant recueille, à son choix, la propriété du quart des biens";
+        label en unofficial "Article 757. When all children are children of both spouses, the surviving spouse may choose ownership of a quarter";
+        when conjoint_successible(s, c) and ordre_appele(s, 1) and not_known(presence_d_enfant_non_commun(s))
+            and option_du_conjoint(s, c, QuartEnPropriete);
+        then droits_du_conjoint(s, c, QuartEnPropriete);
+    }
+    rule ConjointOpteUsufruit(s: Succession, c: Personne) strict {
+        label fr official "Article 757. Lorsque tous les enfants sont issus des deux époux, le conjoint survivant recueille, à son choix, l'usufruit de la totalité des biens existants";
+        label en unofficial "Article 757. When all children are children of both spouses, the surviving spouse may choose the usufruct of all existing property";
+        when conjoint_successible(s, c) and ordre_appele(s, 1) and not_known(presence_d_enfant_non_commun(s))
+            and option_du_conjoint(s, c, Usufruit);
+        then droits_du_conjoint(s, c, UsufruitDeLaTotalite);
+    }
+    rule UsufruitDuConjoint(s: Succession, c: Personne) strict {
+        label fr official "Article 757. Le conjoint qui a opté pour l'usufruit recueille l'usufruit de la totalité des biens existants ; les descendants recueillent la nue-propriété";
+        label en unofficial "Article 757. The spouse who chose usufruct receives the usufruct of all existing property; the descendants receive the bare ownership";
+        when droits_du_conjoint(s, c, UsufruitDeLaTotalite);
+        then usufruit_du_conjoint(s, c);
+    }
+}
+
+@source(CC_ART757_1) {
+    rule ConjointAvecPereEtMere(s: Succession, c: Personne) strict {
+        label fr official "Article 757-1, alinéa 1. A défaut d'enfants ou de descendants, si le défunt laisse ses père et mère, le conjoint survivant recueille la moitié des biens";
+        label en unofficial "Article 757-1, paragraph 1. In default of children or descendants, if the deceased leaves both parents, the surviving spouse receives half of the property";
+        when conjoint_successible(s, c) and not_known(ordre_occupe(s, 1)) and nombre_de_pere_et_mere(s, 2);
+        then droits_du_conjoint(s, c, MoitieEnPropriete);
+    }
+    rule ConjointAvecUnSeulParent(s: Succession, c: Personne) strict {
+        label fr official "Article 757-1, alinéa 2. Quand le père ou la mère est prédécédé, la part qui lui serait revenue échoit au conjoint survivant : trois quarts";
+        label en unofficial "Article 757-1, paragraph 2. When the father or mother is predeceased, the share that would have gone to him goes to the surviving spouse: three quarters";
+        when conjoint_successible(s, c) and not_known(ordre_occupe(s, 1)) and nombre_de_pere_et_mere(s, 1);
+        then droits_du_conjoint(s, c, TroisQuartsEnPropriete);
+    }
+    rule PereOuMereAvecConjoint(s: Succession, p: Personne, c: Personne) strict {
+        label fr official "Article 757-1. En concours avec le conjoint survivant et à défaut de descendants, le père et la mère recueillent un quart chacun";
+        label en unofficial "Article 757-1. Together with the surviving spouse and in default of descendants, the father and the mother each receive a quarter";
+        when conjoint_successible(s, c) and not_known(ordre_occupe(s, 1)) and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 4);
+    }
+}
+
+@source(CC_ART757_2)
+rule ConjointSeul(s: Succession, c: Personne) strict {
+    label fr official "Article 757-2. En l'absence d'enfants ou de descendants du défunt et de ses père et mère, le conjoint survivant recueille toute la succession";
+    label en unofficial "Article 757-2. In the absence of children or descendants and of the parents, the surviving spouse receives the whole succession";
+    when conjoint_successible(s, c) and not_known(ordre_occupe(s, 1)) and not_known(presence_de_pere_ou_mere(s));
+    then droits_du_conjoint(s, c, TotaliteEnPropriete);
+}
+
+@source(CC_ART757, CC_ART757_1, CC_ART757_2) {
+    rule PartDuConjointQuart(s: Succession, c: Personne) strict {
+        label fr official "Article 757. La propriété du quart des biens";
+        label en unofficial "Article 757. Ownership of a quarter of the property";
+        when droits_du_conjoint(s, c, QuartEnPropriete);
+        then part_hereditaire(s, c, 1 / 4);
+    }
+    rule PartDuConjointMoitie(s: Succession, c: Personne) strict {
+        label fr official "Article 757-1, alinéa 1. La moitié des biens";
+        label en unofficial "Article 757-1, paragraph 1. Half of the property";
+        when droits_du_conjoint(s, c, MoitieEnPropriete);
+        then part_hereditaire(s, c, 1 / 2);
+    }
+    rule PartDuConjointTroisQuarts(s: Succession, c: Personne) strict {
+        label fr official "Article 757-1, alinéa 2. Trois quarts des biens";
+        label en unofficial "Article 757-1, paragraph 2. Three quarters of the property";
+        when droits_du_conjoint(s, c, TroisQuartsEnPropriete);
+        then part_hereditaire(s, c, 3 / 4);
+    }
+    rule PartDuConjointTotalite(s: Succession, c: Personne) strict {
+        label fr official "Article 757-2. Toute la succession";
+        label en unofficial "Article 757-2. The whole succession";
+        when droits_du_conjoint(s, c, TotaliteEnPropriete);
+        then part_hereditaire(s, c, 1 / 1);
+    }
+}
+
+// Masse dévolue aux souches du premier ordre.
+@source(CC_ART734, CC_ART735, CC_ART757) {
+    rule MasseDesDescendantsSansConjoint(s: Succession) strict {
+        label fr official "Articles 734, 1°, et 735. Sans conjoint successible, les enfants et leurs descendants recueillent toute la succession";
+        label en unofficial "Articles 734, 1°, and 735. Without a spouse entitled to inherit, the children and their descendants receive the whole succession";
+        when ordre_appele(s, 1) and not_known(presence_de_conjoint_successible(s));
+        then masse_des_souches(s, 1, 1 / 1);
+    }
+    rule MasseDesDescendantsAvecQuartDuConjoint(s: Succession, c: Personne) strict {
+        label fr official "Article 757. Lorsque le conjoint recueille la propriété du quart, les descendants recueillent les trois quarts";
+        label en unofficial "Article 757. When the spouse receives ownership of a quarter, the descendants receive three quarters";
+        when ordre_appele(s, 1) and droits_du_conjoint(s, c, QuartEnPropriete);
+        then masse_des_souches(s, 1, 3 / 4);
+    }
+    rule MasseDesDescendantsSousUsufruit(s: Succession, c: Personne) strict {
+        label fr official "Article 757. Lorsque le conjoint recueille l'usufruit de la totalité, les descendants recueillent la totalité en nue-propriété";
+        label en unofficial "Article 757. When the spouse receives the usufruct of the whole, the descendants receive the whole in bare ownership";
+        when ordre_appele(s, 1) and droits_du_conjoint(s, c, UsufruitDeLaTotalite);
+        then masse_des_souches(s, 1, 1 / 1);
+    }
+}
+
+// Deuxième ordre sans conjoint : père et mère, frères et sœurs.
+@source(CC_ART736, CC_ART737, CC_ART738) {
+    rule PereEtMereSansCollateraux(s: Succession, p: Personne) strict {
+        label fr official "Article 736. Lorsque le défunt ne laisse ni postérité, ni frère, ni sœur, ni descendants de ces derniers, ses père et mère lui succèdent, chacun pour moitié";
+        label en unofficial "Article 736. When the deceased leaves no issue nor siblings nor their descendants, the father and mother each take half";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 2) and not_known(presence_de_collateraux_privilegies(s))
+            and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 2);
+    }
+    rule PereEtMereAvecCollateraux(s: Succession, p: Personne) strict {
+        label fr official "Article 738, alinéa 1. Lorsque les père et mère survivent au défunt sans postérité mais avec des frères et sœurs ou leurs descendants, la succession est dévolue pour un quart à chacun des père et mère";
+        label en unofficial "Article 738, paragraph 1. When both parents survive the deceased who has no issue but siblings or their descendants, each parent receives a quarter";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 2) and presence_de_collateraux_privilegies(s)
+            and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 4);
+    }
+    rule MasseDesCollaterauxAvecPereEtMere(s: Succession) strict {
+        label fr official "Article 738, alinéa 1. La moitié restante est dévolue aux frères et sœurs ou à leurs descendants";
+        label en unofficial "Article 738, paragraph 1. The remaining half devolves to the siblings or their descendants";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 2) and presence_de_collateraux_privilegies(s);
+        then masse_des_souches(s, 2, 1 / 2);
+    }
+    rule UnParentAvecCollateraux(s: Succession, p: Personne) strict {
+        label fr official "Article 738, alinéa 2. Lorsqu'un seul des père et mère survit, la succession est dévolue pour un quart à celui-ci";
+        label en unofficial "Article 738, paragraph 2. When only one parent survives, a quarter of the succession devolves to him";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 1) and presence_de_collateraux_privilegies(s)
+            and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 4);
+    }
+    rule MasseDesCollaterauxAvecUnParent(s: Succession) strict {
+        label fr official "Article 738, alinéa 2. Trois quarts aux frères et sœurs ou à leurs descendants";
+        label en unofficial "Article 738, paragraph 2. Three quarters to the siblings or their descendants";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 1) and presence_de_collateraux_privilegies(s);
+        then masse_des_souches(s, 2, 3 / 4);
+    }
+    rule MasseDesCollaterauxSansParents(s: Succession) strict {
+        label fr official "Article 737. Lorsque les père et mère sont décédés avant le défunt sans postérité, les frères et sœurs ou leurs descendants lui succèdent, à l'exclusion des autres parents";
+        label en unofficial "Article 737. When both parents predeceased and there is no issue, the siblings or their descendants inherit, to the exclusion of other relatives";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and not_known(presence_de_pere_ou_mere(s)) and presence_de_collateraux_privilegies(s);
+        then masse_des_souches(s, 2, 1 / 1);
+    }
+}
+
+// Parent unique sans frère ni sœur : fente avec l'autre branche (738-1) ou tout (748, alinéa 3).
+pub relation ascendant_de_l_autre_branche(s: Succession, a: Personne, parent: Personne) kind derived {
+    label fr official "ascendant, au degré le plus proche, de la branche du père ou de la mère qui ne vient pas à la succession (article 738-1)";
+    label en unofficial "nearest-degree ascendant of the branch of the parent who does not take the succession (Article 738-1)";
+}
+pub relation presence_d_ascendants_de_l_autre_branche(s: Succession) kind derived {
+    label fr official "présence d'ascendants de l'autre branche que celle du parent survivant (article 738-1)";
+    label en unofficial "presence of ascendants of the branch other than the surviving parent's (Article 738-1)";
+}
+
+@source(CC_ART738_1, CC_ART748) {
+    rule AscendantDeLAutreBranche(s: Succession, a: Personne, parent: Personne) strict {
+        label fr official "Article 738-1. Ascendant de l'autre branche que celle du père ou de la mère survivant, au degré le plus proche dans sa branche";
+        label en unofficial "Article 738-1. Ascendant of the branch other than the surviving parent's, at the nearest degree in his branch";
+        when nombre_de_pere_et_mere(s, 1) and ascendant_appele_dans_sa_branche(s, a, parent)
+            and not_known(pere_ou_mere_venant(s, parent));
+        then ascendant_de_l_autre_branche(s, a, parent);
+    }
+    rule PresenceDAscendantsDeLAutreBranche(s: Succession, a: Personne, parent: Personne) strict {
+        label fr official "Article 738-1. Présence d'ascendants de l'autre branche";
+        label en unofficial "Article 738-1. Presence of ascendants of the other branch";
+        when ascendant_de_l_autre_branche(s, a, parent);
+        then presence_d_ascendants_de_l_autre_branche(s);
+    }
+    rule UnParentAvecAscendantsDeLAutreBranche(s: Succession, p: Personne) strict {
+        label fr official "Article 738-1. Lorsque seul le père ou la mère survit sans postérité ni collatéraux privilégiés, mais avec des ascendants de l'autre branche, la succession est dévolue pour moitié au père ou à la mère";
+        label en unofficial "Article 738-1. When only one parent survives, without issue or privileged collaterals but with ascendants of the other branch, half devolves to the surviving parent";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 1) and not_known(presence_de_collateraux_privilegies(s))
+            and presence_d_ascendants_de_l_autre_branche(s) and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 2);
+    }
+    rule AscendantsDeLAutreBrancheAvecUnParent(s: Succession, a: Personne, parent: Personne, k: Integer) strict {
+        label fr official "Article 738-1 et article 748, alinéa 2. L'autre moitié est dévolue aux ascendants de l'autre branche ; ceux du même degré succèdent par tête";
+        label en unofficial "Article 738-1 and Article 748, paragraph 2. The other half devolves to the ascendants of the other branch; those of the same degree take per head";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 1) and not_known(presence_de_collateraux_privilegies(s))
+            and ascendant_de_l_autre_branche(s, a, parent) and nombre_par_branche(s, parent, k);
+        then part_hereditaire(s, a, (1 / 2) * (1 / k));
+    }
+    rule UnParentSeul(s: Succession, p: Personne) strict {
+        label fr official "Article 748, alinéa 3. A défaut d'ascendant dans une branche, les ascendants de l'autre branche recueillent toute la succession : le père ou la mère seul survivant, sans postérité ni collatéraux privilégiés ni ascendant de l'autre branche, recueille tout";
+        label en unofficial "Article 748, paragraph 3. In default of an ascendant in one branch, the ascendants of the other branch take the whole: the sole surviving parent, without issue, privileged collaterals or ascendants of the other branch, takes everything";
+        when ordre_appele(s, 2) and not_known(presence_de_conjoint_successible(s))
+            and nombre_de_pere_et_mere(s, 1) and not_known(presence_de_collateraux_privilegies(s))
+            and not_known(presence_d_ascendants_de_l_autre_branche(s)) and pere_ou_mere_venant(s, p);
+        then part_hereditaire(s, p, 1 / 1);
+    }
+}
+
+// Fractions par souche et subdivision (article 753).
+@source(CC_ART753) {
+    rule PartDeSoucheSousLeDefunt(s: Succession, d: Personne, c: Personne, o: Integer, m: Rational, n: Integer) strict {
+        label fr official "Article 753. Le partage s'opère par souche, comme si le représenté venait à la succession : chaque souche reçoit la masse divisée par le nombre de souches";
+        label en unofficial "Article 753. The division operates by stock, as if the represented person took the succession: each stock receives the mass divided by the number of stocks";
+        when defunt(s, d) and sous_souche(s, d, c, o) and masse_des_souches(s, o, m) and nombre_de_sous_souches(s, d, o, n);
+        then part_de_souche(s, c, o, m * (1 / n));
+    }
+    rule PartDeSubdivisionDeSouche(s: Succession, q: Personne, c: Personne, o: Integer, x: Rational, n: Integer) strict {
+        label fr official "Article 753. S'il y a lieu, il s'opère par subdivision de souche : chaque subdivision reçoit la part de la souche divisée par le nombre de subdivisions";
+        label en unofficial "Article 753. Where applicable, the division operates by subdivision of stock: each subdivision receives the stock's share divided by the number of subdivisions";
+        when sous_souche(s, q, c, o) and monotone(part_de_souche(s, q, o, x)) and nombre_de_sous_souches(s, q, o, n);
+        then part_de_souche(s, c, o, x * (1 / n));
+    }
+    rule PartHereditaireDeSonChef(s: Succession, p: Personne, o: Integer, x: Rational) strict {
+        label fr official "Article 753. A l'intérieur d'une souche ou d'une subdivision de souche, le partage se fait par tête : le successible qui vient de son chef recueille la part de sa souche";
+        label en unofficial "Article 753. Within a stock or subdivision, the division is per head: the successor taking in his own right receives the share of his stock";
+        when part_de_souche(s, p, o, x) and vient_de_son_chef(s, p);
+        then part_hereditaire(s, p, x);
+    }
+}
+
+// Troisième ordre : ascendants ordinaires, fente entre les branches (747–748).
+pub relation degre_le_plus_proche_dans_la_branche(s: Succession, parent: Personne, degre: Integer) kind derived {
+    key(s, parent);
+    label fr official "degré le plus proche parmi les ascendants ordinaires venant dans la branche indiquée (article 748)";
+    label en unofficial "nearest degree among the ordinary ascendants taking in the given branch (Article 748)";
+}
+pub relation ascendant_appele_dans_sa_branche(s: Succession, a: Personne, parent: Personne) kind derived {
+    label fr official "ascendant ordinaire au degré le plus proche de sa branche, qui exclut les plus éloignés (article 748, alinéa 1)";
+    label en unofficial "ordinary ascendant at the nearest degree of his branch, excluding the more remote (Article 748, paragraph 1)";
+}
+pub relation nombre_par_branche(s: Succession, parent: Personne, k: Integer) kind derived {
+    key(s, parent);
+    label fr official "nombre d'ascendants appelés au même degré dans la branche (article 748, alinéa 2)";
+    label en unofficial "number of ascendants called at the same degree in the branch (Article 748, paragraph 2)";
+}
+pub relation branche_representee(s: Succession, parent: Personne) kind derived {
+    label fr official "la branche compte au moins un ascendant appelé (article 748)";
+    label en unofficial "the branch has at least one called ascendant (Article 748)";
+}
+pub relation nombre_de_branches(s: Succession, b: Integer) kind derived {
+    key(s);
+    label fr official "nombre de branches comptant un ascendant appelé : deux (moitié chacune) ou une (le tout) (articles 747, 748)";
+    label en unofficial "number of branches with a called ascendant: two (half each) or one (the whole) (Articles 747, 748)";
+}
+
+@source(CC_ART747, CC_ART748) {
+    rule DegreLePlusProcheDansLaBranche(s: Succession, a: Personne, parent: Personne, n: Integer) strict {
+        label fr official "Article 748, alinéa 1. Dans chaque branche succède, à l'exclusion de tout autre, l'ascendant qui se trouve au degré le plus proche";
+        label en unofficial "Article 748, paragraph 1. In each branch the ascendant at the nearest degree inherits, to the exclusion of all others";
+        when ascendant_ordinaire_venant(s, a, n) and branche(s, a, parent);
+        then degre_le_plus_proche_dans_la_branche(s, parent,
+            (min all m: Integer for x: Personne where ascendant_ordinaire_venant(s, x, m) and branche(s, x, parent)));
+    }
+    rule AscendantAppeleDansSaBranche(s: Succession, a: Personne, parent: Personne, n: Integer) strict {
+        label fr official "Article 748, alinéa 1. L'ascendant au degré le plus proche de sa branche est appelé";
+        label en unofficial "Article 748, paragraph 1. The ascendant at the nearest degree of his branch is called";
+        when ascendant_ordinaire_venant(s, a, n) and branche(s, a, parent) and degre_le_plus_proche_dans_la_branche(s, parent, n);
+        then ascendant_appele_dans_sa_branche(s, a, parent);
+    }
+    rule NombreParBranche(s: Succession, a: Personne, parent: Personne) strict {
+        label fr official "Article 748, alinéa 2. Les ascendants au même degré succèdent par tête : leur nombre dans la branche";
+        label en unofficial "Article 748, paragraph 2. Ascendants of the same degree take per head: their number in the branch";
+        when ascendant_appele_dans_sa_branche(s, a, parent);
+        then nombre_par_branche(s, parent, (count distinct x: Personne where ascendant_appele_dans_sa_branche(s, x, parent)));
+    }
+    rule BrancheRepresentee(s: Succession, a: Personne, parent: Personne) strict {
+        label fr official "Articles 747 et 748. La branche compte un ascendant appelé";
+        label en unofficial "Articles 747 and 748. The branch has a called ascendant";
+        when ascendant_appele_dans_sa_branche(s, a, parent);
+        then branche_representee(s, parent);
+    }
+    rule NombreDeBranches(s: Succession, parent: Personne) strict {
+        label fr official "Articles 747 et 748, alinéa 3. Nombre de branches représentées : la succession se divise par moitié entre elles ; à défaut d'ascendant dans une branche, l'autre recueille tout";
+        label en unofficial "Articles 747 and 748, paragraph 3. Number of represented branches: the succession is halved between them; in default of an ascendant in one branch, the other takes all";
+        when branche_representee(s, parent);
+        then nombre_de_branches(s, (count distinct x: Personne where branche_representee(s, x)));
+    }
+    rule PartDAscendantOrdinaire(s: Succession, a: Personne, parent: Personne, b: Integer, k: Integer) strict {
+        label fr official "Articles 739, 747 et 748. Dévolue aux ascendants ordinaires, la succession se divise par moitié entre les branches, puis par tête entre les ascendants du degré le plus proche de chaque branche";
+        label en unofficial "Articles 739, 747 and 748. Devolved to ordinary ascendants, the succession is halved between the branches, then divided per head among the nearest-degree ascendants of each branch";
+        when ordre_appele(s, 3) and not_known(presence_de_conjoint_successible(s))
+            and ascendant_appele_dans_sa_branche(s, a, parent) and nombre_de_branches(s, b) and nombre_par_branche(s, parent, k);
+        then part_hereditaire(s, a, (1 / b) * (1 / k));
+    }
+}
+
+// --- F. Vérification : la succession est entièrement dévolue -------------------------------
+//
+// Garde arithmétique, non norme : la somme des fractions en pleine propriété
+// doit valoir un. Sous usufruit du conjoint, les fractions des descendants
+// portent sur la nue-propriété et somment aussi à un.
+
+pub relation succession_entierement_devolue(s: Succession) kind derived {
+    label fr official "la somme des fractions héréditaires en pleine propriété vaut un : la succession est entièrement dévolue";
+    label en unofficial "the full-ownership hereditary fractions sum to one: the succession is entirely devolved";
+}
+
+@source(CC_ART731)
+rule SuccessionEntierementDevolue(s: Succession, p: Personne, x: Rational) strict {
+    label fr official "Article 731. La succession est dévolue par la loi aux parents et au conjoint successibles : la somme des fractions vaut un";
+    label en unofficial "Article 731. The succession is devolved by law to the relatives and the spouse entitled to inherit: the fractions sum to one";
+    when part_hereditaire(s, p, x)
+        and (sum all y: Rational for q: Personne where part_hereditaire(s, q, y)) == 1 / 1;
+    then succession_entierement_devolue(s);
+}

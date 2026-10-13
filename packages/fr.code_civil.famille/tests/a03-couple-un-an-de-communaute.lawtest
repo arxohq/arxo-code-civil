@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 343 : communauté de vie depuis le 1er juin 2025 — un an au jour de la demande, condition remplie.
+test "urn:query:fr-code-civil-famille-a03-couple-un-an-de-communaute" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": couple_adoptant(entity_ref("urn:fr:cc:fam:s:a")) { origin case_input; }
+        assert "f2": adoptant(entity_ref("urn:fr:cc:fam:s:a"), entity_ref("urn:fr:cc:fam:s:x")) { origin case_input; }
+        assert "f3": adoptant(entity_ref("urn:fr:cc:fam:s:a"), entity_ref("urn:fr:cc:fam:s:y")) { origin case_input; }
+        assert "f4": ne_le(entity_ref("urn:fr:cc:fam:s:x"), @1995-01-01) { origin case_input; }
+        assert "f5": ne_le(entity_ref("urn:fr:cc:fam:s:y"), @2003-01-01) { origin case_input; }
+        assert "f6": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:s:a"), @2026-06-01) { origin case_input; }
+        assert "f7": communaute_de_vie_depuis(entity_ref("urn:fr:cc:fam:s:a"), @2025-06-01) { origin case_input; }
+    }
+    evaluate truth(condition_des_adoptants_remplie(entity_ref("urn:fr:cc:fam:s:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CoupleParLaCommunauteDeVie);
+}

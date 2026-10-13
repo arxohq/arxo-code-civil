@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CHARGEPREUVEAVECCERTIFICAT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": certificat_nationalite_delivre(entity_ref("urn:law:catalog:chargepreuveaveccertificat:v0")) { origin case_input; }
+    }
+    evaluate truth(charge_preuve_sur_contestant_certificat(entity_ref("urn:law:catalog:chargepreuveaveccertificat:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-CHARGEPREUVEGENERALENATIONALITE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": nationalite_mise_en_cause(entity_ref("urn:law:catalog:chargepreuvegeneralenationalite:v0")) { origin case_input; }
+    }
+    evaluate truth(charge_preuve_nationalite_sur_personne(entity_ref("urn:law:catalog:chargepreuvegeneralenationalite:v0")));
+    expect truth_status == TRUE_ONLY;
+}

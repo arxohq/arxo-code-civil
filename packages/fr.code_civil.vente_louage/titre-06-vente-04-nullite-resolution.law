@@ -1,0 +1,349 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1641,
+    CC_ART1642_1,
+    CC_ART1644,
+    CC_ART1648,
+    CC_ART1649,
+    CC_ART1657,
+    CC_ART1660,
+    CC_ART1674,
+    CC_ART1675,
+    CC_ART1676,
+    CC_ART1683,
+    OptionVice,
+    Personne,
+    Vente,
+    Vice,
+    acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins,
+    action_en_garantie_introduite_le,
+    action_en_garantie_recevable,
+    action_en_rescision_introduite_le,
+    action_en_rescision_recevable,
+    action_vices_apparents_introduite_le,
+    action_vices_apparents_recevable,
+    choix_de_l_acheteur,
+    delai_de_rescision_non_suspendu,
+    demande_de_rescision_par_acheteur,
+    demande_rescision_pour_lesion,
+    garantie_des_vices_exclue,
+    garantie_des_vices_ouverte,
+    lesion_superieure_a_sept_douziemes,
+    pacte_de_rachat_en_cours,
+    prise_de_possession_par_acquereur_le,
+    prix_paye,
+    reception_des_travaux_le,
+    rescision_acheteur_exclue,
+    rescision_pour_lesion_demandee,
+    resolution_de_plein_droit,
+    resolution_ou_diminution_exclue_par_reparation,
+    terme_de_rachat_applicable_en_annees,
+    terme_de_rachat_stipule_en_annees,
+    terme_de_retirement_expire,
+    valeur_de_l_immeuble_a_la_vente,
+    vendeur,
+    vendeur_peut_etre_decharge_le,
+    vendeur_s_oblige_a_reparer_vices_apparents,
+    vente_conclue_le,
+    vente_d_immeuble_a_construire,
+    vente_immobiliere,
+    vente_judiciaire,
+    vente_mobiliere_ou_denrees,
+    vente_non_judiciaire,
+    vice_de_la_chose,
+    vice_decouvert_le,
+    vice_diminue_tellement_l_usage,
+    vice_non_connu_de_l_acheteur,
+    vice_rend_impropre_a_l_usage,
+};
+
+@source(CC_ART1641)
+rule GarantieViceCache(v: Vente, x: Vice) strict {
+    label fr official "Article 1641. Garantie des défauts cachés qui rendent la chose impropre à l'usage ou le diminuent tellement";
+    label en unofficial "Article 1641. Warranty for hidden defects making the thing unfit for use or substantially diminishing that use";
+    when vice_de_la_chose(v, x) and vice_non_connu_de_l_acheteur(v, x)
+        and (vice_rend_impropre_a_l_usage(v, x) or vice_diminue_tellement_l_usage(v, x))
+        and acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(v, x);
+    then garantie_des_vices_ouverte(v, x);
+}
+
+@source(CC_ART1644)
+rule OptionRendreLaChose(v: Vente, x: Vice) strict {
+    label fr official "Article 1644. L'acheteur peut rendre la chose et se faire restituer le prix";
+    label en unofficial "Article 1644. The buyer may return the thing and recover the price";
+    when garantie_des_vices_ouverte(v, x);
+    then choix_de_l_acheteur(v, RendreLaChose);
+}
+
+@source(CC_ART1644)
+rule OptionGarderLaChose(v: Vente, x: Vice) strict {
+    label fr official "Article 1644. L'acheteur peut garder la chose et se faire rendre une partie du prix";
+    label en unofficial "Article 1644. The buyer may retain the thing and recover part of the price";
+    when garantie_des_vices_ouverte(v, x);
+    then choix_de_l_acheteur(v, GarderLaChose);
+}
+
+@source(CC_ART1642_1)
+rule DechargeUnMoisApresPossessionSiReceptionAnterieure(v: Vente, reception: Date, possession: Date) strict {
+    label fr official "Article 1642-1, alinéa 1. Après réception antérieure ou concomitante, le vendeur ne peut être déchargé avant un mois après la prise de possession";
+    label en unofficial "Article 1642-1, paragraph 1. Where acceptance is earlier or simultaneous, the seller cannot be discharged before one month after possession";
+    when vente_d_immeuble_a_construire(v) and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception <= add_calendar_period(possession, 1 calendar_month);
+    then vendeur_peut_etre_decharge_le(v, add_calendar_period(possession, 1 calendar_month));
+}
+
+@source(CC_ART1642_1)
+rule DechargeALaReceptionSiPlusTardive(v: Vente, reception: Date, possession: Date) strict {
+    label fr official "Article 1642-1, alinéa 1. Lorsque la réception est postérieure au mois suivant la possession, le vendeur ne peut être déchargé avant la réception";
+    label en unofficial "Article 1642-1, paragraph 1. Where acceptance occurs later than one month after possession, the seller cannot be discharged before acceptance";
+    when vente_d_immeuble_a_construire(v) and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception > add_calendar_period(possession, 1 calendar_month);
+    then vendeur_peut_etre_decharge_le(v, reception);
+}
+
+@source(CC_ART1642_1)
+rule ReparationEcarteResolutionOuDiminution(v: Vente) strict {
+    label fr official "Article 1642-1, alinéa 2. La résolution ou la diminution du prix est écartée si le vendeur s'oblige à réparer";
+    label en unofficial "Article 1642-1, paragraph 2. Termination or price reduction is unavailable if the seller undertakes to repair";
+    when vente_d_immeuble_a_construire(v) and vendeur_s_oblige_a_reparer_vices_apparents(v);
+    then resolution_ou_diminution_exclue_par_reparation(v);
+}
+pub relation decharge_vendeur_avant_delai_exercee(v: Vente) kind empirical {
+    label fr official "décharge du vendeur avant le délai légal exercée";
+    label en unofficial "seller discharge before statutory deadline exercised";
+}
+pub relation acquereur(v: Vente, p: Personne) kind empirical {
+    label fr official "acquéreur de la vente";
+    label en unofficial "buyer in the sale";
+}
+pub relation resolution_ou_diminution_malgre_reparation_exercee(v: Vente) kind empirical {
+    label fr official "résolution ou diminution malgré réparation exercée";
+    label en unofficial "termination or reduction despite repair exercised";
+}
+@source(CC_ART1642_1)
+rule P4InterdictionDechargeAvantDelai1642_1(v: Vente, l: Personne, p: Personne, reception: Date, possession: Date) strict {
+    label fr official "Article 1642-1. Le vendeur ne peut être déchargé avant le délai suivant la possession";
+    label en unofficial "Article 1642-1. The seller may not be discharged before the period following possession";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception <= add_calendar_period(possession, 1 calendar_month);
+    then prohibition P4InterdictionDechargeAvantDelai1642_1Actif {
+        bearer l;
+        beneficiary p;
+        action decharge_vendeur_avant_delai_exercee(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1642_1)
+rule P4MaintenanceInterdictionDechargeAvantDelai1642_1(
+    v: Vente,
+    l: Personne,
+    p: Personne,
+    reception: Date,
+    possession: Date
+) strict {
+    label fr official "Article 1642-1. Le vendeur doit maintenir l'interdiction d'être déchargé avant le délai légal";
+    label en unofficial "Article 1642-1. The seller must maintain the prohibition on discharge before the statutory period";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception <= add_calendar_period(possession, 1 calendar_month);
+    then duty P4MaintenanceInterdictionDechargeAvantDelai1642_1Duty {
+        bearer l;
+        beneficiary p;
+        goal maintenance {
+            condition not decharge_vendeur_avant_delai_exercee(v);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+@source(CC_ART1642_1)
+rule P4InterdictionDechargeAvantReception1642_1(v: Vente, l: Personne, p: Personne, reception: Date, possession: Date) strict {
+    label fr official "Article 1642-1. Le vendeur ne peut être déchargé avant la réception tardive";
+    label en unofficial "Article 1642-1. The seller may not be discharged before later acceptance";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception > add_calendar_period(possession, 1 calendar_month);
+    then prohibition P4InterdictionDechargeAvantReception1642_1Actif {
+        bearer l;
+        beneficiary p;
+        action decharge_vendeur_avant_delai_exercee(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1642_1)
+rule P4MaintenanceInterdictionDechargeAvantReception1642_1(
+    v: Vente,
+    l: Personne,
+    p: Personne,
+    reception: Date,
+    possession: Date
+) strict {
+    label fr official "Article 1642-1. Le vendeur doit maintenir l'interdiction d'être déchargé avant la réception tardive";
+    label en unofficial "Article 1642-1. The seller must maintain the prohibition on discharge before late acceptance";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and reception_des_travaux_le(v, reception)
+        and prise_de_possession_par_acquereur_le(v, possession)
+        and reception > add_calendar_period(possession, 1 calendar_month);
+    then duty P4MaintenanceInterdictionDechargeAvantReception1642_1Duty {
+        bearer l;
+        beneficiary p;
+        goal maintenance {
+            condition not decharge_vendeur_avant_delai_exercee(v);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+@source(CC_ART1642_1)
+rule P4InterdictionResolutionMalgreReparation1642_1(v: Vente, l: Personne, p: Personne) strict {
+    label fr official "Article 1642-1. La réparation écarte la résolution ou la diminution";
+    label en unofficial "Article 1642-1. Repair excludes termination or reduction";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and vendeur_s_oblige_a_reparer_vices_apparents(v);
+    then prohibition P4InterdictionResolutionMalgreReparation1642_1Actif {
+        bearer p;
+        beneficiary l;
+        action resolution_ou_diminution_malgre_reparation_exercee(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1642_1)
+rule P4MaintenanceInterdictionResolutionMalgreReparation1642_1(
+    v: Vente,
+    l: Personne,
+    p: Personne
+) strict {
+    label fr official "Article 1642-1. Le vendeur doit maintenir l'interdiction de résoudre malgré la réparation";
+    label en unofficial "Article 1642-1. The seller must maintain the prohibition on termination despite repair";
+    when vente_d_immeuble_a_construire(v) and vendeur(v, l)
+        and acquereur(v, p)
+        and vendeur_s_oblige_a_reparer_vices_apparents(v);
+    then duty P4MaintenanceInterdictionResolutionMalgreReparation1642_1Duty {
+        bearer p;
+        beneficiary l;
+        goal maintenance {
+            condition not resolution_ou_diminution_malgre_reparation_exercee(v);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+@source(CC_ART1648)
+rule ActionViceDansLesDeuxAns(v: Vente, x: Vice, decouverte: Date, introduction: Date) strict {
+    label fr official "Article 1648, alinéa 1. L'action des vices rédhibitoires est introduite dans les deux ans de la découverte";
+    label en unofficial "Article 1648, paragraph 1. The redhibitory-defect action is brought within two years of discovery";
+    when garantie_des_vices_ouverte(v, x) and vente_non_judiciaire(v)
+        and vice_decouvert_le(v, x, decouverte)
+        and action_en_garantie_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(decouverte, 2 calendar_year);
+    then action_en_garantie_recevable(v);
+}
+
+@source(CC_ART1648)
+rule ActionViceApparentDansLAnneeDeLaDecharge(v: Vente, decharge: Date, introduction: Date) strict {
+    label fr official "Article 1648, alinéa 2. L'action relative aux vices apparents de l'immeuble à construire est introduite dans l'année suivant la date de décharge";
+    label en unofficial "Article 1648, paragraph 2. An action concerning apparent defects in a building to be constructed is brought within one year after the discharge date";
+    when vendeur_peut_etre_decharge_le(v, decharge)
+        and action_vices_apparents_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(decharge, 1 calendar_year);
+    then action_vices_apparents_recevable(v);
+}
+
+@source(CC_ART1649)
+rule ExclusionVenteJudiciaire(v: Vente) strict {
+    label fr official "Article 1649. L'action en garantie n'a pas lieu dans les ventes faites par autorité de justice";
+    label en unofficial "Article 1649. The warranty action does not lie in judicial sales";
+    when vente_judiciaire(v);
+    then garantie_des_vices_exclue(v);
+}
+
+@source(CC_ART1657)
+rule ResolutionMobiliereDePleinDroit(v: Vente) strict {
+    label fr official "Article 1657. Après le terme de retirement, la vente de denrées ou d'effets mobiliers est résolue de plein droit, sans sommation";
+    label en unofficial "Article 1657. After the removal deadline, a sale of foodstuffs or movable effects is resolved by operation of law without notice";
+    when vente_mobiliere_ou_denrees(v) and terme_de_retirement_expire(v);
+    then resolution_de_plein_droit(v);
+}
+
+@source(CC_ART1660)
+rule TermeDeRachatAuMaximumCinqAns(v: Vente, n: Integer) strict {
+    label fr official "Article 1660. La faculté de rachat ne peut excéder cinq années; le terme plus long est réduit à cinq ans";
+    label en unofficial "Article 1660. The repurchase option may not exceed five years; a longer term is reduced to five years";
+    when terme_de_rachat_stipule_en_annees(v, n) and n > 5;
+    then terme_de_rachat_applicable_en_annees(v, 5);
+}
+
+@source(CC_ART1660)
+rule TermeDeRachatConserve(v: Vente, n: Integer) strict {
+    label fr official "Article 1660. Un terme de rachat de cinq années ou moins est conservé";
+    label en unofficial "Article 1660. A repurchase term of five years or less is retained";
+    when terme_de_rachat_stipule_en_annees(v, n) and n <= 5;
+    then terme_de_rachat_applicable_en_annees(v, n);
+}
+
+@source(CC_ART1674, CC_ART1675)
+rule LesionPlusDeSeptDouziemes(v: Vente, valeur: Money, prix: Money) strict {
+    label fr official "Articles 1674 et 1675. Le vendeur d'un immeuble est lésé de plus de sept douzièmes lorsque le prix est inférieur à cinq douzièmes de la valeur au jour de la vente";
+    label en unofficial "Articles 1674 and 1675. The seller of immovable property suffers lesion of more than seven twelfths where the price is less than five twelfths of value on the sale date";
+    when vente_immobiliere(v) and valeur_de_l_immeuble_a_la_vente(v, valeur) and prix_paye(v, prix)
+        and prix * 12 < valeur * 5;
+    then lesion_superieure_a_sept_douziemes(v);
+}
+
+@source(CC_ART1674, CC_ART1676)
+rule RescisionDansLesDeuxAns(v: Vente, vente: Date, introduction: Date) strict {
+    label fr official "Articles 1674 et 1676. Le vendeur lésé peut demander la rescision dans les deux années du jour de la vente";
+    label en unofficial "Articles 1674 and 1676. The injured seller may seek rescission within two years from the sale date";
+    when lesion_superieure_a_sept_douziemes(v) and vente_conclue_le(v, vente)
+        and action_en_rescision_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(vente, 2 calendar_year);
+    then action_en_rescision_recevable(v);
+}
+
+@source(CC_ART1674, CC_ART1676)
+rule PositionPouvoirRescisionPourLesion(v: Vente, s: Personne, vente: Date, introduction: Date) strict {
+    label fr official "Articles 1674 et 1676. Pouvoir du vendeur lésé de demander la rescision";
+    label en unofficial "Articles 1674 and 1676. Injured seller's power to seek rescission";
+    when vendeur(v, s) and lesion_superieure_a_sept_douziemes(v)
+        and vente_conclue_le(v, vente)
+        and action_en_rescision_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(vente, 2 calendar_year);
+    then power PouvoirRescisionPourLesion {
+        holder s;
+        exercise demande_rescision_pour_lesion(v);
+        valid_when action_en_rescision_recevable(v);
+        effect rescision_pour_lesion_demandee(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1676)
+rule PacteDeRachatNeSuspendPasLeDelai(v: Vente) strict {
+    label fr official "Article 1676, alinéa 2. Le délai de rescision court sans suspension pendant le pacte de rachat";
+    label en unofficial "Article 1676, paragraph 2. The rescission period runs without suspension during the repurchase pact";
+    when pacte_de_rachat_en_cours(v);
+    then delai_de_rescision_non_suspendu(v);
+}
+
+@source(CC_ART1683)
+rule RescisionPourLesionExcluePourAcheteur(v: Vente) strict {
+    label fr official "Article 1683. La rescision pour lésion n'a pas lieu en faveur de l'acheteur";
+    label en unofficial "Article 1683. Rescission for lesion is unavailable to the buyer";
+    when demande_de_rescision_par_acheteur(v);
+    then rescision_acheteur_exclue(v);
+}

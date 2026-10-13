@@ -1,0 +1,2004 @@
+// CHAPITRE II — DU RÉGIME EN COMMUNAUTÉ (articles 1400 à 1491).
+// Layers: qualification -> debts -> powers -> dissolution -> rewards ->
+// balances -> withdrawals -> equal division. Aggregates are only read by the
+// next layer and use `collect all` with the operation as the second binder.
+
+language "law.core" version "0.2";
+package fr.code_civil.regimes_matrimoniaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-regimes-matrimoniaux";
+
+use self::{
+    ActePatrimonial,
+    Bien,
+    CC_ART1400,
+    CC_ART1401,
+    CC_ART1402,
+    CC_ART1403,
+    CC_ART1404,
+    CC_ART1405,
+    CC_ART1406,
+    CC_ART1407,
+    CC_ART1408,
+    CC_ART1409,
+    CC_ART1410,
+    CC_ART1411,
+    CC_ART1412,
+    CC_ART1413,
+    CC_ART1414,
+    CC_ART1415,
+    CC_ART1416,
+    CC_ART1417,
+    CC_ART1418,
+    CC_ART1421,
+    CC_ART1422,
+    CC_ART1423,
+    CC_ART1424,
+    CC_ART1425,
+    CC_ART1426,
+    CC_ART1427,
+    CC_ART1428,
+    CC_ART1429,
+    CC_ART1431,
+    CC_ART1432,
+    CC_ART1433,
+    CC_ART1434,
+    CC_ART1435,
+    CC_ART1436,
+    CC_ART1437,
+    CC_ART1438,
+    CC_ART1439,
+    CC_ART1440,
+    CC_ART1441,
+    CC_ART1442,
+    CC_ART1443,
+    CC_ART1444,
+    CC_ART1445,
+    CC_ART1446,
+    CC_ART1447,
+    CC_ART1448,
+    CC_ART1449,
+    CC_ART1451,
+    CC_ART1467,
+    CC_ART1468,
+    CC_ART1469,
+    CC_ART1470,
+    CC_ART1471,
+    CC_ART1472,
+    CC_ART1473,
+    CC_ART1474,
+    CC_ART1475,
+    CC_ART1476,
+    CC_ART1477,
+    CC_ART1478,
+    CC_ART1479,
+    CC_ART1480,
+    CC_ART1482,
+    CC_ART1483,
+    CC_ART1484,
+    CC_ART1485,
+    CC_ART1486,
+    CC_ART1487,
+    CC_ART1488,
+    CC_ART1489,
+    CC_ART1490,
+    CC_ART1491,
+    CC_ART1497,
+    CC_ART1501,
+    CC_ART1503,
+    CC_ART1511,
+    CC_ART1512,
+    CC_ART1513,
+    CC_ART1515,
+    CC_ART1518,
+    CC_ART1519,
+    CC_ART1520,
+    CC_ART1521,
+    CC_ART1524,
+    CC_ART1526,
+    CC_ART1527,
+    CC_ART1536,
+    CC_ART1537,
+    CC_ART1538,
+    CC_ART1539,
+    CC_ART1540,
+    CC_ART1541,
+    CC_ART1569,
+    CC_ART1572,
+    CC_ART1573,
+    CC_ART1576,
+    CC_ART1577,
+    CC_ART1578,
+    CC_ART1580,
+    CC_ART1581,
+    CauseDeDissolution,
+    MethodeDeRecompense,
+    NatureDActe,
+    NatureDeBien,
+    OperationDeRecompense,
+    Personne,
+    RegimeMatrimonial,
+    Union,
+    accessoire_ou_accroissement_d_un_propre,
+    acquis_en_echange_d_un_propre,
+    acquis_par_succession_donation_ou_legs,
+    acquis_pendant_le_mariage,
+    acte_de_l_union,
+    action_en_nullite_introduite_le,
+    auteur_de_l_acte,
+    bien_de_l_union,
+    bien_disponible_pour_prelevement,
+    bien_retrouve_dans_le_patrimoine_emprunteur,
+    connaissance_de_l_acte_le,
+    consentement_du_conjoint,
+    depense_faite,
+    depense_necessaire,
+    dette_d_un_epoux,
+    dette_nee_pendant_la_communaute,
+    dette_personnelle_payee_par_la_communaute,
+    epoux,
+    evenement_de_dissolution,
+    fraude_de_l_epoux_debiteur,
+    masse_commune_avant_comptes,
+    mauvaise_foi_du_creancier,
+    nature_de_l_acte,
+    portion_indivise_propre_acquise,
+    preuve_du_caractere_propre,
+    profit_subsistant,
+    propre_au_jour_du_mariage,
+    propre_par_nature,
+    provient_de_l_industrie_ou_des_economies,
+    ratification_du_conjoint,
+    recompense_due_a_l_epoux,
+    recompense_due_a_la_communaute,
+    regime_applicable,
+    soulte_commune_superieure_au_bien_cede,
+    subroge_a_un_propre,
+    valeur_employee_a_acquerir_conserver_ou_ameliorer,
+};
+
+pub relation communaute_legale(u: Union) kind institutional { label fr official "Élément déclaré CC-11 : communaute_legale"; label en unofficial "CC-11 declared element: communaute_legale"; }
+pub relation bien_commun(u: Union, b: Bien) kind institutional { label fr official "Élément déclaré CC-11 : bien_commun"; label en unofficial "CC-11 declared element: bien_commun"; }
+pub relation bien_propre(u: Union, p: Personne, b: Bien) kind institutional { label fr official "Élément déclaré CC-11 : bien_propre"; label en unofficial "CC-11 declared element: bien_propre"; }
+
+@source(CC_ART1400)
+rule CommunauteLegaleApplicable(u: Union) strict { label fr official "Application CC-11 : CommunauteLegaleApplicable"; label en unofficial "CC-11 application rule: CommunauteLegaleApplicable";
+    when regime_applicable(u, CommunauteLegale);
+    then communaute_legale(u);
+}
+
+@source(CC_ART1401)
+rule AcquetDeCommunaute(u: Union, b: Bien) strict { label fr official "Application CC-11 : AcquetDeCommunaute"; label en unofficial "CC-11 application rule: AcquetDeCommunaute";
+    when communaute_legale(u) and bien_de_l_union(u, b) and acquis_pendant_le_mariage(u, b)
+        and provient_de_l_industrie_ou_des_economies(u, b);
+    then bien_commun(u, b);
+}
+
+@source(CC_ART1402)
+presumption PresomptionDeCommunaute(u: Union, b: Bien) { label fr official "Application CC-11 : PresomptionDeCommunaute"; label en unofficial "CC-11 application rule: PresomptionDeCommunaute";
+    when communaute_legale(u) and bien_de_l_union(u, b);
+    presume bien_commun(u, b);
+    unless preuve_du_caractere_propre(u, _, b);
+}
+
+@source(CC_ART1404)
+rule PreuvePropreParNature(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreParNature"; label en unofficial "CC-11 application rule: PreuvePropreParNature"; when propre_par_nature(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1405)
+rule PreuvePropreAnterieur(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreAnterieur"; label en unofficial "CC-11 application rule: PreuvePropreAnterieur"; when propre_au_jour_du_mariage(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1405)
+rule PreuvePropreParOrigine(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreParOrigine"; label en unofficial "CC-11 application rule: PreuvePropreParOrigine"; when acquis_par_succession_donation_ou_legs(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1406)
+rule PreuvePropreAccessoire(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreAccessoire"; label en unofficial "CC-11 application rule: PreuvePropreAccessoire"; when accessoire_ou_accroissement_d_un_propre(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1406)
+rule PreuvePropreSubrogation(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreSubrogation"; label en unofficial "CC-11 application rule: PreuvePropreSubrogation"; when subroge_a_un_propre(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1407)
+rule PreuvePropreEchange(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuvePropreEchange"; label en unofficial "CC-11 application rule: PreuvePropreEchange"; when acquis_en_echange_d_un_propre(u, p, b) and not_known(soulte_commune_superieure_au_bien_cede(u, b)); then preuve_du_caractere_propre(u, p, b); }
+@source(CC_ART1407)
+rule EchangeTombeEnCommunaute(u: Union, b: Bien) strict { label fr official "Application CC-11 : EchangeTombeEnCommunaute"; label en unofficial "CC-11 application rule: EchangeTombeEnCommunaute"; when acquis_en_echange_d_un_propre(u, _, b) and soulte_commune_superieure_au_bien_cede(u, b); then bien_commun(u, b); }
+@source(CC_ART1408)
+rule PreuveProprePortionIndivise(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PreuveProprePortionIndivise"; label en unofficial "CC-11 application rule: PreuveProprePortionIndivise"; when portion_indivise_propre_acquise(u, p, b); then preuve_du_caractere_propre(u, p, b); }
+
+@source(CC_ART1402, CC_ART1404, CC_ART1405, CC_ART1406, CC_ART1407, CC_ART1408)
+rule BienPropreProuve(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : BienPropreProuve"; label en unofficial "CC-11 application rule: BienPropreProuve"; when preuve_du_caractere_propre(u, p, b); then bien_propre(u, p, b); }
+
+// Articles 1403 and 1404 preserve ownership of propres; Articles 1406–1408
+// preserve the statutory reward where community value contributed.
+pub relation pleine_propriete_du_propre(u: Union, p: Personne, b: Bien) kind institutional { label fr official "Élément déclaré CC-11 : pleine_propriete_du_propre"; label en unofficial "CC-11 declared element: pleine_propriete_du_propre"; }
+@source(CC_ART1403)
+rule PleineProprieteDuPropre(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : PleineProprieteDuPropre"; label en unofficial "CC-11 application rule: PleineProprieteDuPropre"; when bien_propre(u, p, b); then pleine_propriete_du_propre(u, p, b); }
+
+// Passive community and creditor recourse (1409–1418).
+pub relation dette_entree_en_communaute(u: Union, d: fr.code_civil.core::Creance) kind institutional { label fr official "Élément déclaré CC-11 : dette_entree_en_communaute"; label en unofficial "CC-11 declared element: dette_entree_en_communaute"; }
+pub relation paiement_poursuivable_sur_biens_communs(u: Union, d: fr.code_civil.core::Creance) kind institutional { label fr official "Élément déclaré CC-11 : paiement_poursuivable_sur_biens_communs"; label en unofficial "CC-11 declared element: paiement_poursuivable_sur_biens_communs"; }
+pub relation recompense_a_la_communaute_pour_dette(u: Union, p: Personne, d: fr.code_civil.core::Creance) kind institutional { label fr official "Élément déclaré CC-11 : recompense_a_la_communaute_pour_dette"; label en unofficial "CC-11 declared element: recompense_a_la_communaute_pour_dette"; }
+pub relation exception_fraude_et_mauvaise_foi(u: Union, p: Personne, d: fr.code_civil.core::Creance) kind institutional { label fr official "Élément déclaré CC-11 : exception_fraude_et_mauvaise_foi"; label en unofficial "CC-11 declared element: exception_fraude_et_mauvaise_foi"; }
+
+@source(CC_ART1409)
+rule DetteNeePendantCommunaute(u: Union, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : DetteNeePendantCommunaute"; label en unofficial "CC-11 application rule: DetteNeePendantCommunaute"; when communaute_legale(u) and dette_nee_pendant_la_communaute(u, d); then dette_entree_en_communaute(u, d); }
+@source(CC_ART1412, CC_ART1416, CC_ART1417)
+rule RecompensePourDettePersonnelle(u: Union, p: Personne, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : RecompensePourDettePersonnelle"; label en unofficial "CC-11 application rule: RecompensePourDettePersonnelle"; when dette_personnelle_payee_par_la_communaute(u, p, d); then recompense_a_la_communaute_pour_dette(u, p, d); }
+@source(CC_ART1413)
+rule ExceptionFraudeMauvaiseFoi(u: Union, p: Personne, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : ExceptionFraudeMauvaiseFoi"; label en unofficial "CC-11 application rule: ExceptionFraudeMauvaiseFoi"; when fraude_de_l_epoux_debiteur(u, p, d) and mauvaise_foi_du_creancier(u, d); then exception_fraude_et_mauvaise_foi(u, p, d); }
+@source(CC_ART1413)
+presumption PoursuiteSurBiensCommuns(u: Union, p: Personne, d: fr.code_civil.core::Creance) { label fr official "Application CC-11 : PoursuiteSurBiensCommuns"; label en unofficial "CC-11 application rule: PoursuiteSurBiensCommuns";
+    when dette_d_un_epoux(u, p, d);
+    presume paiement_poursuivable_sur_biens_communs(u, d);
+    unless exception_fraude_et_mauvaise_foi(u, p, d);
+}
+
+// Articles 1410–1411, 1414–1415 and 1418 define limits on the creditor's
+// asset pool. They are exposed as typed conclusions for downstream remedies.
+pub relation limite_de_gage_article(u: Union, d: fr.code_civil.core::Creance, article: Text) kind institutional { label fr official "Élément déclaré CC-11 : limite_de_gage_article"; label en unofficial "CC-11 declared element: limite_de_gage_article"; }
+@source(CC_ART1410, CC_ART1411) rule LimiteDetteAnterieure(u: Union, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : LimiteDetteAnterieure"; label en unofficial "CC-11 application rule: LimiteDetteAnterieure"; when dette_d_un_epoux(u, _, d) and not_known(dette_nee_pendant_la_communaute(u, d)); then limite_de_gage_article(u, d, "1410-1411"); }
+@source(CC_ART1414) rule LimiteGainsEtSalaires(u: Union, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : LimiteGainsEtSalaires"; label en unofficial "CC-11 application rule: LimiteGainsEtSalaires"; when dette_d_un_epoux(u, _, d); then limite_de_gage_article(u, d, "1414"); }
+@source(CC_ART1415) rule LimiteCautionnementEmprunt(u: Union, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : LimiteCautionnementEmprunt"; label en unofficial "CC-11 application rule: LimiteCautionnementEmprunt"; when dette_d_un_epoux(u, _, d); then limite_de_gage_article(u, d, "1415"); }
+@source(CC_ART1418) rule LimiteBiensPropresConjoint(u: Union, d: fr.code_civil.core::Creance) strict { label fr official "Application CC-11 : LimiteBiensPropresConjoint"; label en unofficial "CC-11 application rule: LimiteBiensPropresConjoint"; when dette_entree_en_communaute(u, d); then limite_de_gage_article(u, d, "1418"); }
+
+// Administration (1421–1440).
+pub relation pouvoir_d_administrer_seul(u: Union, p: Personne) kind institutional { label fr official "Élément déclaré CC-11 : pouvoir_d_administrer_seul"; label en unofficial "CC-11 declared element: pouvoir_d_administrer_seul"; }
+pub relation consentement_conjoint_requis(a: ActePatrimonial) kind institutional { label fr official "Élément déclaré CC-11 : consentement_conjoint_requis"; label en unofficial "CC-11 declared element: consentement_conjoint_requis"; }
+pub relation acte_outrepasse_les_pouvoirs(a: ActePatrimonial) kind institutional { label fr official "Élément déclaré CC-11 : acte_outrepasse_les_pouvoirs"; label en unofficial "CC-11 declared element: acte_outrepasse_les_pouvoirs"; }
+pub relation administration_seule_exercee(u: Union, p: Personne) kind empirical { label fr official "administration seule des biens communs exercée"; label en unofficial "sole administration of community property exercised"; }
+pub relation acte_sans_consentement_exerce(a: ActePatrimonial, p: Personne) kind empirical { label fr official "acte patrimonial sans consentement du conjoint exercé"; label en unofficial "patrimonial act exercised without spousal consent"; }
+pub relation jouissance_propre_exercee(u: Union, p: Personne) kind empirical { label fr official "administration et jouissance des biens propres exercées"; label en unofficial "administration and enjoyment of separate property exercised"; }
+pub relation conjoint_hors_d_etat_ou_gestion_inapte(u: Union, p: Personne) kind empirical { label fr official "conjoint durablement hors d'état ou gestion inapte"; label en unofficial "spouse durably unable or unfit to manage"; }
+pub relation demande_substitution_exercee(u: Union, p: Personne) kind empirical { label fr official "demande judiciaire de substitution exercée"; label en unofficial "judicial substitution request exercised"; }
+pub relation annulation_acte_exercee(a: ActePatrimonial, p: Personne) kind empirical { label fr official "action en annulation de l'acte exercée"; label en unofficial "action to annul the act exercised"; }
+pub relation mise_en_peril_des_interets_familiaux(u: Union, p: Personne) kind empirical { label fr official "mise en péril des intérêts de la famille constatée"; label en unofficial "endangerment of family interests established"; }
+pub relation demande_dessaisissement_exercee(u: Union, p: Personne) kind empirical { label fr official "demande judiciaire de dessaisissement exercée"; label en unofficial "judicial divestment request exercised"; }
+pub relation date_limite_connaissance(a: ActePatrimonial, d: Date) kind institutional { label fr official "Élément déclaré CC-11 : date_limite_connaissance"; label en unofficial "CC-11 declared element: date_limite_connaissance"; }
+pub relation date_butoir_dissolution(a: ActePatrimonial, d: Date) kind institutional { label fr official "Élément déclaré CC-11 : date_butoir_dissolution"; label en unofficial "CC-11 declared element: date_butoir_dissolution"; }
+pub relation action_en_nullite_recevable(a: ActePatrimonial) kind institutional { label fr official "Élément déclaré CC-11 : action_en_nullite_recevable"; label en unofficial "CC-11 declared element: action_en_nullite_recevable"; }
+
+@source(CC_ART1421)
+rule AdministrationSeule(u: Union, p: Personne) strict { label fr official "Application CC-11 : AdministrationSeule"; label en unofficial "CC-11 application rule: AdministrationSeule"; when communaute_legale(u) and epoux(u, p); then pouvoir_d_administrer_seul(u, p); }
+@source(CC_ART1421)
+rule P4LiberteAdministrerSeul1421(u: Union, p: Personne) strict {
+    label fr official "Article 1421. Chaque époux peut administrer seul les biens communs";
+    label en unofficial "Article 1421. Each spouse may administer community property alone";
+    when communaute_legale(u) and epoux(u, p);
+    then liberty P4LiberteAdministrerSeul1421Actif {
+        holder p;
+        action administration_seule_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1422)
+rule ConsentementDonation(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementDonation"; label en unofficial "CC-11 application rule: ConsentementDonation"; when nature_de_l_acte(a, DonationEntreVifs); then consentement_conjoint_requis(a); }
+@source(CC_ART1422)
+rule P4InterdictionDonationSansConsentement1422(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Article 1422. Un époux ne peut donner un bien commun sans le consentement de l'autre";
+    label en unofficial "Article 1422. A spouse may not donate community property without the other's consent";
+    when communaute_legale(u)
+        and acte_de_l_union(u, a)
+        and auteur_de_l_acte(a, p)
+        and nature_de_l_acte(a, DonationEntreVifs)
+        and consentement_conjoint_requis(a)
+        and not_known(consentement_du_conjoint(a));
+    then prohibition P4InterdictionDonationSansConsentement1422Actif {
+        bearer p;
+        action acte_sans_consentement_exerce(a, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1422)
+rule MaintenanceP4InterdictionDonationSansConsentement1422Actif(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionDonationSansConsentement1422Actif";
+    label en unofficial "Maintain prohibition P4InterdictionDonationSansConsentement1422Actif";
+    when communaute_legale(u) and acte_de_l_union(u, a) and auteur_de_l_acte(a, p) and nature_de_l_acte(a, DonationEntreVifs) and consentement_conjoint_requis(a) and not_known(consentement_du_conjoint(a));
+    then duty MaintenanceP4InterdictionDonationSansConsentement1422ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not acte_sans_consentement_exerce(a, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1422)
+rule ConsentementSureteDetteTiers(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementSureteDetteTiers"; label en unofficial "CC-11 application rule: ConsentementSureteDetteTiers"; when nature_de_l_acte(a, SureteDetteTiers); then consentement_conjoint_requis(a); }
+@source(CC_ART1424)
+rule ConsentementAlienation(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementAlienation"; label en unofficial "CC-11 application rule: ConsentementAlienation"; when nature_de_l_acte(a, AlienationOuDroitReel); then consentement_conjoint_requis(a); }
+@source(CC_ART1424)
+rule P4InterdictionAlienationSansConsentement1424(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Article 1424. Un époux ne peut aliéner certains biens communs sans le consentement de l'autre";
+    label en unofficial "Article 1424. A spouse may not alienate certain community assets without the other's consent";
+    when communaute_legale(u)
+        and acte_de_l_union(u, a)
+        and auteur_de_l_acte(a, p)
+        and nature_de_l_acte(a, AlienationOuDroitReel)
+        and consentement_conjoint_requis(a)
+        and not_known(consentement_du_conjoint(a));
+    then prohibition P4InterdictionAlienationSansConsentement1424Actif {
+        bearer p;
+        action acte_sans_consentement_exerce(a, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1424)
+rule MaintenanceP4InterdictionAlienationSansConsentement1424Actif(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionAlienationSansConsentement1424Actif";
+    label en unofficial "Maintain prohibition P4InterdictionAlienationSansConsentement1424Actif";
+    when communaute_legale(u) and acte_de_l_union(u, a) and auteur_de_l_acte(a, p) and nature_de_l_acte(a, AlienationOuDroitReel) and consentement_conjoint_requis(a) and not_known(consentement_du_conjoint(a));
+    then duty MaintenanceP4InterdictionAlienationSansConsentement1424ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not acte_sans_consentement_exerce(a, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1424)
+rule ConsentementPerceptionCapital(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementPerceptionCapital"; label en unofficial "CC-11 application rule: ConsentementPerceptionCapital"; when nature_de_l_acte(a, PerceptionCapital); then consentement_conjoint_requis(a); }
+@source(CC_ART1424)
+rule ConsentementFiducie(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementFiducie"; label en unofficial "CC-11 application rule: ConsentementFiducie"; when nature_de_l_acte(a, TransfertFiduciaire); then consentement_conjoint_requis(a); }
+@source(CC_ART1425)
+rule ConsentementBailSpecial(a: ActePatrimonial) strict { label fr official "Application CC-11 : ConsentementBailSpecial"; label en unofficial "CC-11 application rule: ConsentementBailSpecial"; when nature_de_l_acte(a, BailRuralCommercialIndustrielArtisanal); then consentement_conjoint_requis(a); }
+@source(CC_ART1425)
+rule P4InterdictionBailSpecialSansConsentement1425(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Article 1425. Un époux ne peut donner à bail certains biens communs sans l'autre";
+    label en unofficial "Article 1425. A spouse may not lease certain community property without the other";
+    when communaute_legale(u)
+        and acte_de_l_union(u, a)
+        and auteur_de_l_acte(a, p)
+        and nature_de_l_acte(a, BailRuralCommercialIndustrielArtisanal)
+        and consentement_conjoint_requis(a)
+        and not_known(consentement_du_conjoint(a));
+    then prohibition P4InterdictionBailSpecialSansConsentement1425Actif {
+        bearer p;
+        action acte_sans_consentement_exerce(a, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1425)
+rule MaintenanceP4InterdictionBailSpecialSansConsentement1425Actif(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionBailSpecialSansConsentement1425Actif";
+    label en unofficial "Maintain prohibition P4InterdictionBailSpecialSansConsentement1425Actif";
+    when communaute_legale(u) and acte_de_l_union(u, a) and auteur_de_l_acte(a, p) and nature_de_l_acte(a, BailRuralCommercialIndustrielArtisanal) and consentement_conjoint_requis(a) and not_known(consentement_du_conjoint(a));
+    then duty MaintenanceP4InterdictionBailSpecialSansConsentement1425ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not acte_sans_consentement_exerce(a, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1427)
+rule ActeOutrepasse(a: ActePatrimonial) strict { label fr official "Application CC-11 : ActeOutrepasse"; label en unofficial "CC-11 application rule: ActeOutrepasse"; when consentement_conjoint_requis(a) and not_known(consentement_du_conjoint(a)); then acte_outrepasse_les_pouvoirs(a); }
+@source(CC_ART1427)
+rule LimiteDepuisConnaissance(a: ActePatrimonial, k: Date) strict { label fr official "Application CC-11 : LimiteDepuisConnaissance"; label en unofficial "CC-11 application rule: LimiteDepuisConnaissance"; when connaissance_de_l_acte_le(a, k); then date_limite_connaissance(a, add_calendar_period(k, 2 calendar_year)); }
+@source(CC_ART1427)
+rule ButoirDepuisDissolution(a: ActePatrimonial, u: Union, d: Date) strict { label fr official "Application CC-11 : ButoirDepuisDissolution"; label en unofficial "CC-11 application rule: ButoirDepuisDissolution"; when acte_de_l_union(u, a) and communaute_dissoute_le(u, d); then date_butoir_dissolution(a, add_calendar_period(d, 2 calendar_year)); }
+@source(CC_ART1427)
+rule NulliteRecevable(a: ActePatrimonial, f: Date, k: Date, d: Date) strict { label fr official "Application CC-11 : NulliteRecevable"; label en unofficial "CC-11 application rule: NulliteRecevable";
+    when acte_outrepasse_les_pouvoirs(a) and not_known(ratification_du_conjoint(a))
+        and action_en_nullite_introduite_le(a, f) and date_limite_connaissance(a, k)
+        and date_butoir_dissolution(a, d) and f <= k and f <= d;
+    then action_en_nullite_recevable(a);
+}
+@source(CC_ART1427)
+rule P4PouvoirDemanderAnnulation1427(u: Union, a: ActePatrimonial, p: Personne) strict {
+    label fr official "Article 1427. Le conjoint peut demander l'annulation de l'acte";
+    label en unofficial "Article 1427. The spouse may request annulment of the act";
+    when communaute_legale(u)
+        and acte_de_l_union(u, a)
+        and epoux(u, p)
+        and acte_outrepasse_les_pouvoirs(a);
+    then power P4PouvoirDemanderAnnulation1427Actif {
+        holder p;
+        over a;
+        exercise annulation_acte_exercee(a, p);
+        effect action_en_nullite_recevable(a);
+        valid_when acte_outrepasse_les_pouvoirs(a);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// Articles 1423, 1426, 1428–1440 produce powers, substitutions, mandates and
+// reward claims. Their operative channel is kept explicit instead of a flat
+// evaluative case fact.
+pub relation effet_d_administration(article: Text, u: Union, p: Personne) kind institutional { label fr official "Élément déclaré CC-11 : effet_d_administration"; label en unofficial "CC-11 declared element: effet_d_administration"; }
+@source(CC_ART1423) rule EffetLegsPartCommunautaire(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetLegsPartCommunautaire"; label en unofficial "CC-11 application rule: EffetLegsPartCommunautaire"; when epoux(u, p); then effet_d_administration("1423", u, p); }
+@source(CC_ART1426) rule EffetSubstitutionJudiciaire(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetSubstitutionJudiciaire"; label en unofficial "CC-11 application rule: EffetSubstitutionJudiciaire"; when epoux(u, p); then effet_d_administration("1426", u, p); }
+@source(CC_ART1426)
+rule P4PouvoirDemanderSubstitution1426(u: Union, p: Personne) strict {
+    label fr official "Article 1426. Le conjoint peut demander en justice à être substitué";
+    label en unofficial "Article 1426. The spouse may ask the court to be substituted";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and conjoint_hors_d_etat_ou_gestion_inapte(u, p);
+    then power P4PouvoirDemanderSubstitution1426Actif {
+        holder p;
+        over u;
+        exercise demande_substitution_exercee(u, p);
+        effect effet_d_administration("1426", u, p);
+        valid_when conjoint_hors_d_etat_ou_gestion_inapte(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1428) rule EffetAdministrationPropres(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetAdministrationPropres"; label en unofficial "CC-11 application rule: EffetAdministrationPropres"; when epoux(u, p); then effet_d_administration("1428", u, p); }
+@source(CC_ART1428)
+rule P4LiberteJouirPropres1428(u: Union, p: Personne) strict {
+    label fr official "Article 1428. Chaque époux peut administrer, jouir et disposer librement de ses propres";
+    label en unofficial "Article 1428. Each spouse may administer, enjoy and freely dispose of separate property";
+    when epoux(u, p);
+    then liberty P4LiberteJouirPropres1428Actif {
+        holder p;
+        action jouissance_propre_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1429) rule EffetDessaisissementJudiciaire(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetDessaisissementJudiciaire"; label en unofficial "CC-11 application rule: EffetDessaisissementJudiciaire"; when epoux(u, p); then effet_d_administration("1429", u, p); }
+@source(CC_ART1429)
+rule P4PouvoirDemanderDessaisissement1429(u: Union, p: Personne) strict {
+    label fr official "Article 1429. Le conjoint peut demander le dessaisissement des droits d'administration";
+    label en unofficial "Article 1429. The spouse may request divestment of administration rights";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and mise_en_peril_des_interets_familiaux(u, p);
+    then power P4PouvoirDemanderDessaisissement1429Actif {
+        holder p;
+        over u;
+        exercise demande_dessaisissement_exercee(u, p);
+        effect effet_d_administration("1429", u, p);
+        valid_when mise_en_peril_des_interets_familiaux(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation procuration_sur_propres(u: Union, p: Personne) kind empirical { label fr official "procuration d'administration des biens propres confiée"; label en unofficial "power of attorney to administer separate property entrusted"; }
+pub relation mandat_propres_exerce(u: Union, p: Personne) kind empirical { label fr official "mandat d'administration des biens propres exercé"; label en unofficial "mandate to administer separate property exercised"; }
+pub relation gestion_propres_sans_opposition(u: Union, p: Personne) kind empirical { label fr official "gestion des biens propres sans opposition"; label en unofficial "management of separate property without opposition"; }
+pub relation gestion_propres_exercee(u: Union, p: Personne) kind empirical { label fr official "gestion des biens propres exercée"; label en unofficial "management of separate property exercised"; }
+pub relation profit_biens_propres_par_communaute(u: Union, p: Personne) kind empirical { label fr official "profit tiré par la communauté des biens propres"; label en unofficial "community profit drawn from separate property"; }
+pub relation recompense_biens_propres_exercee(u: Union, p: Personne) kind empirical { label fr official "récompense due pour les biens propres exercée"; label en unofficial "reward due for separate property exercised"; }
+@source(CC_ART1431)
+rule P4LiberteConfierMandat1431(u: Union, p: Personne) strict {
+    label fr official "Article 1431. Un époux peut confier à l'autre l'administration de ses propres";
+    label en unofficial "Article 1431. A spouse may entrust administration of separate property to the other";
+    when epoux(u, p) and procuration_sur_propres(u, p);
+    then liberty P4LiberteConfierMandat1431Actif {
+        holder p;
+        action mandat_propres_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1432)
+rule P4LiberteGestionTacite1432(u: Union, p: Personne) strict {
+    label fr official "Article 1432. Un époux peut gérer les propres de l'autre sans opposition";
+    label en unofficial "Article 1432. A spouse may manage the other's separate property without opposition";
+    when epoux(u, p) and gestion_propres_sans_opposition(u, p);
+    then liberty P4LiberteGestionTacite1432Actif {
+        holder p;
+        action gestion_propres_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1433)
+rule P4DevoirRecompenserBiensPropres1433(u: Union, p: Personne) strict {
+    label fr official "Article 1433. La communauté doit récompense à l'époux propriétaire";
+    label en unofficial "Article 1433. The community owes a reward to the spouse owner";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and profit_biens_propres_par_communaute(u, p);
+    then duty P4DevoirRecompenserBiensPropres1433Actif {
+        bearer u;
+        beneficiary p;
+        goal achievement {
+            condition recompense_biens_propres_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1431, CC_ART1432) rule EffetMandatEntreEpoux(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetMandatEntreEpoux"; label en unofficial "CC-11 application rule: EffetMandatEntreEpoux"; when epoux(u, p); then effet_d_administration("1431-1432", u, p); }
+@source(CC_ART1433, CC_ART1434, CC_ART1435, CC_ART1436, CC_ART1437) rule EffetEmploiRemploiRecompense(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetEmploiRemploiRecompense"; label en unofficial "CC-11 application rule: EffetEmploiRemploiRecompense"; when epoux(u, p); then effet_d_administration("1433-1437", u, p); }
+pub relation remploi_par_anticipation(u: Union, p: Personne) kind empirical { label fr official "emploi ou remploi fait par anticipation"; label en unofficial "employment or re-employment made in advance"; }
+pub relation sommes_remploi_payees_a_la_communaute(u: Union, p: Personne) kind empirical { label fr official "sommes attendues du propre payées à la communauté"; label en unofficial "sums expected from separate property paid to the community"; }
+pub relation recompense_payee_a_la_communaute(u: Union, p: Personne) kind empirical { label fr official "récompense due à la communauté payée"; label en unofficial "reward owed to the community paid"; }
+pub relation dot_communautaire_constituee(u: Union, p: Personne) kind empirical { label fr official "dot constituée en biens de la communauté"; label en unofficial "dowry constituted in community property"; }
+pub relation part_de_dot_supportee(u: Union, p: Personne) kind empirical { label fr official "part de dot supportée par l'époux"; label en unofficial "spouse's share of dowry borne"; }
+@source(CC_ART1435)
+rule P4DevoirPayerSommesRemploi1435(u: Union, p: Personne) strict {
+    label fr official "Article 1435. L'époux doit payer à la communauté les sommes attendues dans les cinq ans";
+    label en unofficial "Article 1435. The spouse must pay the sums expected from separate property to the community within five years";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and remploi_par_anticipation(u, p);
+    then duty P4DevoirPayerSommesRemploi1435Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition sommes_remploi_payees_a_la_communaute(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1437)
+rule P4DevoirRecompenserCommunaute1437(u: Union, p: Personne) strict {
+    label fr official "Article 1437. L'époux doit récompense à la communauté pour son profit personnel";
+    label en unofficial "Article 1437. The spouse must reward the community for personal profit";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and profit_biens_propres_par_communaute(u, p);
+    then duty P4DevoirRecompenserCommunaute1437Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition recompense_payee_a_la_communaute(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1439)
+rule P4DevoirSupporterDot1439(u: Union, p: Personne) strict {
+    label fr official "Article 1439. Chaque époux doit supporter la moitié de la dot à la dissolution";
+    label en unofficial "Article 1439. Each spouse must bear half of the dowry upon dissolution";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and dot_communautaire_constituee(u, p);
+    then duty P4DevoirSupporterDot1439Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition part_de_dot_supportee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1438, CC_ART1439, CC_ART1440) rule EffetDotEnfantCommun(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetDotEnfantCommun"; label en unofficial "CC-11 application rule: EffetDotEnfantCommun"; when epoux(u, p); then effet_d_administration("1438-1440", u, p); }
+
+// Dissolution (1441–1451).
+pub relation communaute_dissoute_le(u: Union, d: Date) kind institutional { label fr official "Élément déclaré CC-11 : communaute_dissoute_le"; label en unofficial "CC-11 declared element: communaute_dissoute_le"; key(u); }
+pub relation cause_de_dissolution_reconnue(u: Union, c: CauseDeDissolution) kind institutional { label fr official "Élément déclaré CC-11 : cause_de_dissolution_reconnue"; label en unofficial "CC-11 declared element: cause_de_dissolution_reconnue"; }
+@source(CC_ART1441) rule DissolutionMort(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionMort"; label en unofficial "CC-11 application rule: DissolutionMort"; when evenement_de_dissolution(u, Mort, d); then cause_de_dissolution_reconnue(u, Mort); then communaute_dissoute_le(u, d); }
+@source(CC_ART1441) rule DissolutionAbsence(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionAbsence"; label en unofficial "CC-11 application rule: DissolutionAbsence"; when evenement_de_dissolution(u, AbsenceDeclaree, d); then cause_de_dissolution_reconnue(u, AbsenceDeclaree); then communaute_dissoute_le(u, d); }
+@source(CC_ART1441) rule DissolutionDivorce(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionDivorce"; label en unofficial "CC-11 application rule: DissolutionDivorce"; when evenement_de_dissolution(u, Divorce, d); then cause_de_dissolution_reconnue(u, Divorce); then communaute_dissoute_le(u, d); }
+@source(CC_ART1441) rule DissolutionSeparationCorps(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionSeparationCorps"; label en unofficial "CC-11 application rule: DissolutionSeparationCorps"; when evenement_de_dissolution(u, SeparationDeCorps, d); then cause_de_dissolution_reconnue(u, SeparationDeCorps); then communaute_dissoute_le(u, d); }
+@source(CC_ART1441) rule DissolutionSeparationBiens(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionSeparationBiens"; label en unofficial "CC-11 application rule: DissolutionSeparationBiens"; when evenement_de_dissolution(u, SeparationDeBiens, d); then cause_de_dissolution_reconnue(u, SeparationDeBiens); then communaute_dissoute_le(u, d); }
+@source(CC_ART1441) rule DissolutionChangementRegime(u: Union, d: Date) strict { label fr official "Application CC-11 : DissolutionChangementRegime"; label en unofficial "CC-11 application rule: DissolutionChangementRegime"; when evenement_de_dissolution(u, ChangementDeRegime, d); then cause_de_dissolution_reconnue(u, ChangementDeRegime); then communaute_dissoute_le(u, d); }
+pub relation dot_constituee_par(u: Union, p: Personne) kind empirical { label fr official "dot constituée par la personne"; label en unofficial "dowry constituted by the person"; }
+pub relation garantie_dot_exercee(u: Union, p: Personne) kind empirical { label fr official "garantie de la dot exécutée"; label en unofficial "dowry guarantee performed"; }
+@source(CC_ART1440)
+rule P4DevoirGarantirDot1440(u: Union, p: Personne) strict {
+    label fr official "Article 1440. La personne qui a constitué la dot doit la garantir";
+    label en unofficial "Article 1440. The person who constituted the dowry must guarantee it";
+    when dot_constituee_par(u, p);
+    then duty P4DevoirGarantirDot1440Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition garantie_dot_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation effet_de_dissolution(article: Text, u: Union) kind institutional { label fr official "Élément déclaré CC-11 : effet_de_dissolution"; label en unofficial "CC-11 declared element: effet_de_dissolution"; }
+@source(CC_ART1442) rule EffetReportJudiciaire(u: Union) strict { label fr official "Application CC-11 : EffetReportJudiciaire"; label en unofficial "CC-11 application rule: EffetReportJudiciaire"; when communaute_dissoute_le(u, _); then effet_de_dissolution("1442", u); }
+pub relation cessation_cohabitation_collaboration_le(u: Union, d: Date) kind empirical { label fr official "date de cessation de cohabitation et de collaboration"; label en unofficial "date cohabitation and collaboration ceased"; }
+pub relation demande_report_dissolution_exercee(u: Union, p: Personne) kind empirical { label fr official "demande de report de l'effet de la dissolution exercée"; label en unofficial "request to defer dissolution effect exercised"; }
+@source(CC_ART1442)
+rule P4PouvoirDemanderReportDissolution1442(u: Union, p: Personne) strict {
+    label fr official "Article 1442. Un époux peut demander le report de l'effet de la dissolution";
+    label en unofficial "Article 1442. A spouse may request deferral of the dissolution effect";
+    when communaute_dissoute_le(u, _)
+        and epoux(u, p)
+        and cessation_cohabitation_collaboration_le(u, _);
+    then power P4PouvoirDemanderReportDissolution1442Actif {
+        holder p;
+        over u;
+        exercise demande_report_dissolution_exercee(u, p);
+        effect effet_de_dissolution("1442", u);
+        valid_when communaute_dissoute_le(u, _);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1443, CC_ART1444, CC_ART1445, CC_ART1446, CC_ART1447, CC_ART1448, CC_ART1449) rule EffetSeparationDeBiens(u: Union) strict { label fr official "Application CC-11 : EffetSeparationDeBiens"; label en unofficial "CC-11 application rule: EffetSeparationDeBiens"; when communaute_dissoute_le(u, _); then effet_de_dissolution("1443-1449", u); }
+pub relation creancier_epoux(u: Union, p: Personne) kind empirical { label fr official "créancier de l'époux"; label en unofficial "spouse's creditor"; }
+pub relation demande_separation_par_creancier_exercee(u: Union, p: Personne) kind empirical { label fr official "demande de séparation par le créancier exercée"; label en unofficial "creditor request for separation exercised"; }
+pub relation action_separation_introduite(u: Union) kind empirical { label fr official "action en séparation de biens introduite"; label en unofficial "action for separation of property introduced"; }
+pub relation intervention_creancier_exercee(u: Union, p: Personne) kind empirical { label fr official "intervention du créancier à l'instance exercée"; label en unofficial "creditor intervention in proceedings exercised"; }
+pub relation separation_biens_obtenue(u: Union, p: Personne) kind empirical { label fr official "époux ayant obtenu la séparation de biens"; label en unofficial "spouse who obtained separation of property"; }
+pub relation contribution_charges_menage_exercee(u: Union, p: Personne) kind empirical { label fr official "contribution aux charges du ménage et à l'éducation exercée"; label en unofficial "contribution to household and education expenses exercised"; }
+@source(CC_ART1446)
+rule P4InterdictionCreancierDemanderSeparation1446(u: Union, p: Personne) strict {
+    label fr official "Article 1446. Le créancier ne peut demander la séparation de biens du chef de l'époux";
+    label en unofficial "Article 1446. The creditor may not request separation of property on the spouse's behalf";
+    when creancier_epoux(u, p);
+    then prohibition P4InterdictionCreancierDemanderSeparation1446Actif {
+        bearer p;
+        action demande_separation_par_creancier_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1446)
+rule MaintenanceP4InterdictionCreancierDemanderSeparation1446Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionCreancierDemanderSeparation1446Actif";
+    label en unofficial "Maintain prohibition P4InterdictionCreancierDemanderSeparation1446Actif";
+    when creancier_epoux(u, p);
+    then duty MaintenanceP4InterdictionCreancierDemanderSeparation1446ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not demande_separation_par_creancier_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1447)
+rule P4PouvoirIntervenirCreancier1447(u: Union, p: Personne) strict {
+    label fr official "Article 1447. Le créancier peut intervenir à l'instance";
+    label en unofficial "Article 1447. The creditor may intervene in the proceedings";
+    when creancier_epoux(u, p)
+        and action_separation_introduite(u);
+    then power P4PouvoirIntervenirCreancier1447Actif {
+        holder p;
+        over u;
+        exercise intervention_creancier_exercee(u, p);
+        effect effet_de_dissolution("1443-1449", u);
+        valid_when action_separation_introduite(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1448)
+rule P4DevoirContribuerCharges1448(u: Union, p: Personne) strict {
+    label fr official "Article 1448. L'époux séparé de biens doit contribuer aux charges du ménage";
+    label en unofficial "Article 1448. The spouse separated in property must contribute to household expenses";
+    when separation_biens_obtenue(u, p);
+    then duty P4DevoirContribuerCharges1448Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition contribution_charges_menage_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation demande_separation_biens_exercee(u: Union, p: Personne) kind empirical { label fr official "demande judiciaire de séparation de biens exercée"; label en unofficial "judicial separation of property request exercised"; }
+@source(CC_ART1443)
+rule P4PouvoirDemanderSeparationBiens1443(u: Union, p: Personne) strict {
+    label fr official "Article 1443. Le conjoint peut poursuivre la séparation de biens en justice";
+    label en unofficial "Article 1443. The spouse may pursue separation of property in court";
+    when communaute_legale(u)
+        and epoux(u, p)
+        and mise_en_peril_des_interets_familiaux(u, p);
+    then power P4PouvoirDemanderSeparationBiens1443Actif {
+        holder p;
+        over u;
+        exercise demande_separation_biens_exercee(u, p);
+        effect effet_de_dissolution("1443-1449", u);
+        valid_when mise_en_peril_des_interets_familiaux(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1451) rule EffetConventionDivorce(u: Union) strict { label fr official "Application CC-11 : EffetConventionDivorce"; label en unofficial "CC-11 application rule: EffetConventionDivorce"; when evenement_de_dissolution(u, Divorce, _); then effet_de_dissolution("1451", u); }
+pub relation convention_divorce_suspendue(u: Union) kind empirical { label fr official "convention suspendue jusqu'au jugement définitif"; label en unofficial "convention suspended until final judgment"; }
+pub relation modification_convention_demandee(u: Union, p: Personne) kind empirical { label fr official "modification de la convention demandée"; label en unofficial "modification of convention requested"; }
+pub relation execution_convention_exercee(u: Union) kind empirical { label fr official "exécution de la convention exercée"; label en unofficial "performance of convention exercised"; }
+pub relation solde_favorable_communaute(u: Union, p: Personne) kind empirical { label fr official "solde en faveur de la communauté"; label en unofficial "balance in favor of the community"; }
+pub relation rapport_solde_communaute_exerce(u: Union, p: Personne) kind empirical { label fr official "rapport du solde à la masse commune exercé"; label en unofficial "payment of balance to community exercised"; }
+pub relation solde_favorable_epoux(u: Union, p: Personne) kind empirical { label fr official "solde en faveur de l'époux"; label en unofficial "balance in favor of spouse"; }
+pub relation paiement_solde_exige(u: Union, p: Personne) kind empirical { label fr official "paiement du solde exigé"; label en unofficial "payment of balance demanded"; }
+pub relation prelevement_biens_communs_exerce(u: Union, p: Personne) kind empirical { label fr official "prélèvement de biens communs exercé"; label en unofficial "withdrawal of common assets exercised"; }
+pub relation choix_biens_prelevement_exerce(u: Union, p: Personne) kind empirical { label fr official "choix des biens à prélever exercé"; label en unofficial "choice of assets to withdraw exercised"; }
+pub relation choix_prejudiciant_conjoint(u: Union, p: Personne) kind empirical { label fr official "choix préjudiciant au conjoint"; label en unofficial "choice prejudicing the spouse"; }
+@source(CC_ART1451)
+rule P4PouvoirDemanderModificationConvention1451(u: Union, p: Personne) strict {
+    label fr official "Article 1451. L'époux peut demander la modification de la convention";
+    label en unofficial "Article 1451. A spouse may request modification of the convention";
+    when evenement_de_dissolution(u, Divorce, _)
+        and epoux(u, p);
+    then power P4PouvoirDemanderModificationConvention1451Actif {
+        holder p;
+        over u;
+        exercise modification_convention_demandee(u, p);
+        effect effet_de_dissolution("1451", u);
+        valid_when evenement_de_dissolution(u, Divorce, _);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1451)
+rule P4InterdictionExecuterConventionAvantJugement1451(u: Union) strict {
+    label fr official "Article 1451. La convention ne peut être exécutée avant la force de chose jugée";
+    label en unofficial "Article 1451. The convention may not be performed before final judgment";
+    when convention_divorce_suspendue(u);
+    then prohibition P4InterdictionExecuterConventionAvantJugement1451Actif {
+        bearer u;
+        action execution_convention_exercee(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1451)
+rule MaintenanceP4InterdictionExecuterConventionAvantJugement1451Actif(u: Union) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionExecuterConventionAvantJugement1451Actif";
+    label en unofficial "Maintain prohibition P4InterdictionExecuterConventionAvantJugement1451Actif";
+    when convention_divorce_suspendue(u);
+    then duty MaintenanceP4InterdictionExecuterConventionAvantJugement1451ActifDuty {
+        bearer u;
+        goal maintenance {
+            condition not execution_convention_exercee(u);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1470)
+rule P4DevoirRapporterSoldeCommunaute1470(u: Union, p: Personne) strict {
+    label fr official "Article 1470. L'époux doit rapporter le solde à la masse commune";
+    label en unofficial "Article 1470. The spouse must return the balance to the community";
+    when solde_favorable_communaute(u, p);
+    then duty P4DevoirRapporterSoldeCommunaute1470Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition rapport_solde_communaute_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1470)
+rule P4PouvoirExigerPaiementSolde1470(u: Union, p: Personne) strict {
+    label fr official "Article 1470. L'époux peut exiger le paiement de son solde";
+    label en unofficial "Article 1470. The spouse may demand payment of the balance";
+    when solde_favorable_epoux(u, p);
+    then power P4PouvoirExigerPaiementSolde1470Actif {
+        holder p;
+        over u;
+        exercise paiement_solde_exige(u, p);
+        effect effet_de_dissolution("1467-1475", u);
+        valid_when solde_favorable_epoux(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1471)
+rule P4PouvoirChoisirBiensPrelevement1471(u: Union, p: Personne) strict {
+    label fr official "Article 1471. L'époux qui prélève peut choisir les meubles et immeubles";
+    label en unofficial "Article 1471. The spouse making a withdrawal may choose movable and immovable assets";
+    when prelevement_biens_communs_exerce(u, p);
+    then power P4PouvoirChoisirBiensPrelevement1471Actif {
+        holder p;
+        over u;
+        exercise choix_biens_prelevement_exerce(u, p);
+        effect effet_de_dissolution("1467-1475", u);
+        valid_when prelevement_biens_communs_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1471)
+rule P4InterdictionChoixPrejudiciable1471(u: Union, p: Personne) strict {
+    label fr official "Article 1471. Le choix ne peut préjudicier aux droits du conjoint";
+    label en unofficial "Article 1471. The choice may not prejudice the spouse's rights";
+    when prelevement_biens_communs_exerce(u, p);
+    then prohibition P4InterdictionChoixPrejudiciable1471Actif {
+        bearer p;
+        action choix_prejudiciant_conjoint(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1471)
+rule MaintenanceP4InterdictionChoixPrejudiciable1471Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionChoixPrejudiciable1471Actif";
+    label en unofficial "Maintain prohibition P4InterdictionChoixPrejudiciable1471Actif";
+    when prelevement_biens_communs_exerce(u, p);
+    then duty MaintenanceP4InterdictionChoixPrejudiciable1471ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not choix_prejudiciant_conjoint(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation insuffisance_communaute(u: Union) kind empirical { label fr official "insuffisance de la communauté"; label en unofficial "community insufficiency"; }
+pub relation faute_epoux_responsable(u: Union, p: Personne) kind empirical { label fr official "faute de l'époux responsable"; label en unofficial "fault of responsible spouse"; }
+pub relation prelevement_prioritaire_exerce(u: Union, p: Personne) kind empirical { label fr official "prélèvement prioritaire exercé"; label en unofficial "priority withdrawal exercised"; }
+pub relation immeuble_annexe_ou_contigu_propre(u: Union, p: Personne, b: Bien) kind empirical { label fr official "immeuble commun annexe ou contigu au propre"; label en unofficial "common building annexed or adjoining separate property"; }
+pub relation attribution_immeuble_exercee(u: Union, p: Personne, b: Bien) kind empirical { label fr official "attribution de l'immeuble exercée"; label en unofficial "building attribution exercised"; }
+pub relation detournement_effets_communaute(u: Union, p: Personne) kind empirical { label fr official "détournement d'effets de la communauté"; label en unofficial "diversion of community assets"; }
+pub relation portion_effets_reclamee(u: Union, p: Personne) kind empirical { label fr official "réclamation de portion dans les effets"; label en unofficial "claim to share in assets"; }
+pub relation dissimulation_dette_commune(u: Union, p: Personne) kind empirical { label fr official "dissimulation consciente d'une dette commune"; label en unofficial "knowing concealment of community debt"; }
+pub relation paiement_dette_commune_exerce(u: Union, p: Personne) kind empirical { label fr official "prise en charge définitive de la dette commune"; label en unofficial "definitive assumption of community debt"; }
+@source(CC_ART1472)
+rule P4PouvoirPrelevementPrioritaire1472(u: Union, p: Personne) strict {
+    label fr official "Article 1472. Le conjoint peut exercer ses prélèvements avant l'époux responsable";
+    label en unofficial "Article 1472. The spouse may exercise withdrawals before the responsible spouse";
+    when insuffisance_communaute(u)
+        and faute_epoux_responsable(u, p);
+    then power P4PouvoirPrelevementPrioritaire1472Actif {
+        holder p;
+        over u;
+        exercise prelevement_prioritaire_exerce(u, p);
+        effect effet_de_dissolution("1467-1475", u);
+        valid_when insuffisance_communaute(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1475)
+rule P4PouvoirAttributionImmeuble1475(u: Union, p: Personne, b: Bien) strict {
+    label fr official "Article 1475. Le conjoint propriétaire peut demander l'attribution de l'immeuble";
+    label en unofficial "Article 1475. The owner spouse may request attribution of the building";
+    when immeuble_annexe_ou_contigu_propre(u, p, b);
+    then power P4PouvoirAttributionImmeuble1475Actif {
+        holder p;
+        over u;
+        exercise attribution_immeuble_exercee(u, p, b);
+        effect effet_de_dissolution("1467-1475", u);
+        valid_when immeuble_annexe_ou_contigu_propre(u, p, b);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1477)
+rule P4InterdictionDetournerEffetsCommunaute1477(u: Union, p: Personne) strict {
+    label fr official "Article 1477. L'époux ne peut détourner les effets de la communauté";
+    label en unofficial "Article 1477. A spouse may not divert community assets";
+    when detournement_effets_communaute(u, p);
+    then prohibition P4InterdictionDetournerEffetsCommunaute1477Actif {
+        bearer p;
+        action portion_effets_reclamee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1477)
+rule MaintenanceP4InterdictionDetournerEffetsCommunaute1477Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionDetournerEffetsCommunaute1477Actif";
+    label en unofficial "Maintain prohibition P4InterdictionDetournerEffetsCommunaute1477Actif";
+    when detournement_effets_communaute(u, p);
+    then duty MaintenanceP4InterdictionDetournerEffetsCommunaute1477ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not portion_effets_reclamee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1477)
+rule P4DevoirAssumerDetteDissimulee1477(u: Union, p: Personne) strict {
+    label fr official "Article 1477. L'époux doit assumer définitivement la dette commune dissimulée";
+    label en unofficial "Article 1477. The spouse must definitively assume the concealed community debt";
+    when dissimulation_dette_commune(u, p);
+    then duty P4DevoirAssumerDetteDissimulee1477Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition paiement_dette_commune_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation creance_personnelle_entre_epoux(u: Union, p: Personne) kind empirical { label fr official "créance personnelle entre époux"; label en unofficial "personal claim between spouses"; }
+pub relation exercice_creance_sur_part_ou_propres(u: Union, p: Personne) kind empirical { label fr official "exercice de la créance sur part ou biens propres"; label en unofficial "claim exercised against share or separate assets"; }
+pub relation creance_personnelle_sans_prelevement(u: Union, p: Personne) kind empirical { label fr official "créance personnelle sans prélèvement"; label en unofficial "personal claim without withdrawal"; }
+pub relation prelevement_creance_personnelle_exerce(u: Union, p: Personne) kind empirical { label fr official "prélèvement au titre d'une créance personnelle exercé"; label en unofficial "withdrawal for a personal claim exercised"; }
+pub relation interets_creance_avant_sommation(u: Union, p: Personne) kind empirical { label fr official "intérêts avant sommation"; label en unofficial "interest before formal demand"; }
+pub relation interets_avant_sommation_exiges(u: Union, p: Personne) kind empirical { label fr official "intérêts avant sommation exigés"; label en unofficial "interest before formal demand claimed"; }
+pub relation donation_entre_epoux(u: Union, p: Personne) kind empirical { label fr official "donation entre époux"; label en unofficial "donation between spouses"; }
+pub relation execution_donation_hors_actifs(u: Union, p: Personne) kind empirical { label fr official "exécution de donation hors actifs autorisés"; label en unofficial "donation performed beyond authorized assets"; }
+@source(CC_ART1478)
+rule P4PouvoirExercerCreancePersonnelle1478(u: Union, p: Personne) strict {
+    label fr official "Article 1478. L'époux peut exercer sa créance sur la part échue ou ses biens personnels";
+    label en unofficial "Article 1478. A spouse may enforce the claim against the other's share or separate assets";
+    when creance_personnelle_entre_epoux(u, p);
+    then power P4PouvoirExercerCreancePersonnelle1478Actif {
+        holder p;
+        over u;
+        exercise exercice_creance_sur_part_ou_propres(u, p);
+        effect effet_de_liquidation("1478", u, p);
+        valid_when creance_personnelle_entre_epoux(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1479)
+rule P4InterdictionPreleverCreancePersonnelle1479(u: Union, p: Personne) strict {
+    label fr official "Article 1479. La créance personnelle ne donne pas lieu à prélèvement";
+    label en unofficial "Article 1479. A personal claim does not give rise to a withdrawal";
+    when creance_personnelle_sans_prelevement(u, p);
+    then prohibition P4InterdictionPreleverCreancePersonnelle1479Actif {
+        bearer p;
+        action prelevement_creance_personnelle_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1479)
+rule MaintenanceP4InterdictionPreleverCreancePersonnelle1479Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionPreleverCreancePersonnelle1479Actif";
+    label en unofficial "Maintain prohibition P4InterdictionPreleverCreancePersonnelle1479Actif";
+    when creance_personnelle_sans_prelevement(u, p);
+    then duty MaintenanceP4InterdictionPreleverCreancePersonnelle1479ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not prelevement_creance_personnelle_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1479)
+rule P4InterdictionInteretsAvantSommation1479(u: Union, p: Personne) strict {
+    label fr official "Article 1479. Les intérêts ne courent pas avant la sommation";
+    label en unofficial "Article 1479. Interest does not run before formal demand";
+    when creance_personnelle_entre_epoux(u, p);
+    then prohibition P4InterdictionInteretsAvantSommation1479Actif {
+        bearer p;
+        action interets_avant_sommation_exiges(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1479)
+rule MaintenanceP4InterdictionInteretsAvantSommation1479Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionInteretsAvantSommation1479Actif";
+    label en unofficial "Maintain prohibition P4InterdictionInteretsAvantSommation1479Actif";
+    when creance_personnelle_entre_epoux(u, p);
+    then duty MaintenanceP4InterdictionInteretsAvantSommation1479ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not interets_avant_sommation_exiges(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1480)
+rule P4InterdictionExecuterDonationHorsActifs1480(u: Union, p: Personne) strict {
+    label fr official "Article 1480. La donation ne peut être exécutée que sur les actifs autorisés";
+    label en unofficial "Article 1480. The donation may be performed only against authorized assets";
+    when donation_entre_epoux(u, p);
+    then prohibition P4InterdictionExecuterDonationHorsActifs1480Actif {
+        bearer p;
+        action execution_donation_hors_actifs(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1480)
+rule MaintenanceP4InterdictionExecuterDonationHorsActifs1480Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionExecuterDonationHorsActifs1480Actif";
+    label en unofficial "Maintain prohibition P4InterdictionExecuterDonationHorsActifs1480Actif";
+    when donation_entre_epoux(u, p);
+    then duty MaintenanceP4InterdictionExecuterDonationHorsActifs1480ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not execution_donation_hors_actifs(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation dette_communaute_du_chef(u: Union, p: Personne) kind empirical { label fr official "dette entrée en communauté du chef de l'époux"; label en unofficial "community debt incurred by the spouse"; }
+pub relation dette_existante_dissolution(u: Union) kind empirical { label fr official "dette existante au jour de la dissolution"; label en unofficial "debt existing on dissolution"; }
+pub relation poursuite_dette_totale_exercee(u: Union, p: Personne) kind empirical { label fr official "poursuite pour la totalité de la dette exercée"; label en unofficial "proceeding for the full debt exercised"; }
+pub relation poursuite_dette_moitie_exercee(u: Union, p: Personne) kind empirical { label fr official "poursuite limitée à la moitié exercée"; label en unofficial "proceeding limited to half exercised"; }
+pub relation poursuite_dette_au_dela_moitie(u: Union, p: Personne) kind empirical { label fr official "poursuite au-delà de la moitié"; label en unofficial "proceeding beyond one half"; }
+pub relation dette_communaute_sans_recompense(u: Union, p: Personne) kind empirical { label fr official "dette de communauté sans récompense"; label en unofficial "community debt without reward"; }
+pub relation contribution_moitie_dette_exercee(u: Union, p: Personne) kind empirical { label fr official "contribution par moitié à la dette exercée"; label en unofficial "half contribution to debt exercised"; }
+@source(CC_ART1482)
+rule P4PouvoirPoursuivreDetteTotale1482(u: Union, p: Personne) strict {
+    label fr official "Article 1482. Chaque époux peut être poursuivi pour la totalité de la dette";
+    label en unofficial "Article 1482. Each spouse may be pursued for the full debt";
+    when dette_existante_dissolution(u)
+        and dette_communaute_du_chef(u, p);
+    then power P4PouvoirPoursuivreDetteTotale1482Actif {
+        holder p;
+        over u;
+        exercise poursuite_dette_totale_exercee(u, p);
+        effect effet_de_liquidation("1482", u, p);
+        valid_when dette_existante_dissolution(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1483)
+rule P4InterdictionPoursuivreAuDelaMoitie1483(u: Union, p: Personne) strict {
+    label fr official "Article 1483. L'époux ne peut être poursuivi au-delà de la moitié";
+    label en unofficial "Article 1483. The spouse may not be pursued beyond one half";
+    when dette_communaute_du_chef(u, p);
+    then prohibition P4InterdictionPoursuivreAuDelaMoitie1483Actif {
+        bearer p;
+        action poursuite_dette_au_dela_moitie(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1483)
+rule MaintenanceP4InterdictionPoursuivreAuDelaMoitie1483Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionPoursuivreAuDelaMoitie1483Actif";
+    label en unofficial "Maintain prohibition P4InterdictionPoursuivreAuDelaMoitie1483Actif";
+    when dette_communaute_du_chef(u, p);
+    then duty MaintenanceP4InterdictionPoursuivreAuDelaMoitie1483ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not poursuite_dette_au_dela_moitie(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1485)
+rule P4DevoirContribuerMoitieDette1485(u: Union, p: Personne) strict {
+    label fr official "Article 1485. Chaque époux contribue pour moitié aux dettes de communauté";
+    label en unofficial "Article 1485. Each spouse contributes one half of community debts";
+    when dette_communaute_sans_recompense(u, p);
+    then duty P4DevoirContribuerMoitieDette1485Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition contribution_moitie_dette_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation inventaire_communaute_a_clore(u: Union) kind empirical { label fr official "inventaire de communauté à clore"; label en unofficial "community inventory to be closed"; }
+pub relation inventaire_communaute_clos_exerce(u: Union) kind empirical { label fr official "clôture de l'inventaire exercée"; label en unofficial "inventory closure exercised"; }
+pub relation inventaire_a_affirmer_sincere(u: Union, p: Personne) kind empirical { label fr official "inventaire à affirmer sincère et véritable"; label en unofficial "inventory to be affirmed truthful"; }
+pub relation affirmation_inventaire_exercee(u: Union, p: Personne) kind empirical { label fr official "affirmation de l'inventaire exercée"; label en unofficial "inventory affirmation exercised"; }
+pub relation benefice_article_1483_alinea_2(u: Union, p: Personne) kind empirical { label fr official "bénéfice de l'article 1483 alinéa 2"; label en unofficial "benefit under Article 1483 paragraph 2"; }
+pub relation contribution_au_dela_emolument(u: Union, p: Personne) kind empirical { label fr official "contribution au-delà de l'émolument"; label en unofficial "contribution beyond emolument"; }
+pub relation paiement_au_dela_portion(u: Union, p: Personne) kind empirical { label fr official "paiement au-delà de la portion due"; label en unofficial "payment beyond due share"; }
+pub relation recours_excedent_exerce(u: Union, p: Personne) kind empirical { label fr official "recours pour l'excédent exercé"; label en unofficial "recourse for excess exercised"; }
+@source(CC_ART1484)
+rule P4DevoirCloreInventaire1484(u: Union) strict {
+    label fr official "Article 1484. L'inventaire doit être clos dans les neuf mois";
+    label en unofficial "Article 1484. The inventory must be closed within nine months";
+    when inventaire_communaute_a_clore(u);
+    then duty P4DevoirCloreInventaire1484Actif {
+        bearer u;
+        goal achievement {
+            condition inventaire_communaute_clos_exerce(u);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1484)
+rule P4DevoirAffirmerInventaire1484(u: Union, p: Personne) strict {
+    label fr official "Article 1484. L'inventaire doit être affirmé sincère et véritable";
+    label en unofficial "Article 1484. The inventory must be affirmed truthful";
+    when inventaire_a_affirmer_sincere(u, p);
+    then duty P4DevoirAffirmerInventaire1484Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition affirmation_inventaire_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1486)
+rule P4InterdictionContribuerAuDelaEmolument1486(u: Union, p: Personne) strict {
+    label fr official "Article 1486. L'époux ne contribue pas au-delà de son émolument";
+    label en unofficial "Article 1486. The spouse does not contribute beyond the emolument";
+    when benefice_article_1483_alinea_2(u, p);
+    then prohibition P4InterdictionContribuerAuDelaEmolument1486Actif {
+        bearer p;
+        action contribution_au_dela_emolument(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1486)
+rule MaintenanceP4InterdictionContribuerAuDelaEmolument1486Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionContribuerAuDelaEmolument1486Actif";
+    label en unofficial "Maintain prohibition P4InterdictionContribuerAuDelaEmolument1486Actif";
+    when benefice_article_1483_alinea_2(u, p);
+    then duty MaintenanceP4InterdictionContribuerAuDelaEmolument1486ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not contribution_au_dela_emolument(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1487)
+rule P4PouvoirRecoursExcedent1487(u: Union, p: Personne) strict {
+    label fr official "Article 1487. L'époux peut exercer un recours pour l'excédent";
+    label en unofficial "Article 1487. The spouse may exercise recourse for the excess";
+    when paiement_au_dela_portion(u, p);
+    then power P4PouvoirRecoursExcedent1487Actif {
+        holder p;
+        over u;
+        exercise recours_excedent_exerce(u, p);
+        effect effet_de_liquidation("1487", u, p);
+        valid_when paiement_au_dela_portion(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation paiement_excedentaire_avec_quittance_limitee(u: Union, p: Personne) kind empirical { label fr official "paiement excédentaire avec quittance limitée"; label en unofficial "excess payment with limited receipt"; }
+pub relation repetition_contre_creancier_exercee(u: Union, p: Personne) kind empirical { label fr official "répétition contre le créancier exercée"; label en unofficial "recovery against creditor exercised"; }
+pub relation hypotheque_sur_immeuble_partage(u: Union, p: Personne) kind empirical { label fr official "hypothèque sur immeuble échu en partage"; label en unofficial "mortgage on building allotted in partition"; }
+pub relation recours_moitie_dette_exerce(u: Union, p: Personne) kind empirical { label fr official "recours pour la moitié de la dette exercé"; label en unofficial "recourse for half the debt exercised"; }
+pub relation clause_partage_quotite_dette(u: Union, p: Personne) kind empirical { label fr official "clause de partage fixant une quotité de dette"; label en unofficial "partition clause fixing a debt share"; }
+pub relation paiement_quotite_clause_exerce(u: Union, p: Personne) kind empirical { label fr official "paiement selon la quotité de la clause exercé"; label en unofficial "payment under clause share exercised"; }
+pub relation heritier_epoux(u: Union, p: Personne) kind empirical { label fr official "héritier de l'époux"; label en unofficial "spouse's heir"; }
+pub relation exercice_droits_heritier(u: Union, p: Personne) kind empirical { label fr official "exercice des droits de l'époux par l'héritier"; label en unofficial "heir's exercise of spouse's rights"; }
+pub relation respect_obligations_heritier(u: Union, p: Personne) kind empirical { label fr official "respect des obligations de l'époux par l'héritier"; label en unofficial "heir's compliance with spouse's obligations"; }
+@source(CC_ART1488)
+rule P4InterdictionRepetitionContreCreancier1488(u: Union, p: Personne) strict {
+    label fr official "Article 1488. L'époux ne peut répéter contre le créancier pour l'excédent";
+    label en unofficial "Article 1488. The spouse may not recover the excess from the creditor";
+    when paiement_excedentaire_avec_quittance_limitee(u, p);
+    then prohibition P4InterdictionRepetitionContreCreancier1488Actif {
+        bearer p;
+        action repetition_contre_creancier_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1488)
+rule MaintenanceP4InterdictionRepetitionContreCreancier1488Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionRepetitionContreCreancier1488Actif";
+    label en unofficial "Maintain prohibition P4InterdictionRepetitionContreCreancier1488Actif";
+    when paiement_excedentaire_avec_quittance_limitee(u, p);
+    then duty MaintenanceP4InterdictionRepetitionContreCreancier1488ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not repetition_contre_creancier_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1489)
+rule P4PouvoirRecoursMoitieDette1489(u: Union, p: Personne) strict {
+    label fr official "Article 1489. L'époux poursuivi peut exercer un recours pour la moitié";
+    label en unofficial "Article 1489. The pursued spouse may exercise recourse for one half";
+    when hypotheque_sur_immeuble_partage(u, p);
+    then power P4PouvoirRecoursMoitieDette1489Actif {
+        holder p;
+        over u;
+        exercise recours_moitie_dette_exerce(u, p);
+        effect effet_de_liquidation("1489", u, p);
+        valid_when hypotheque_sur_immeuble_partage(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1490)
+rule P4DevoirPayerQuotiteClause1490(u: Union, p: Personne) strict {
+    label fr official "Article 1490. La clause de partage peut obliger l'époux à payer une autre quotité";
+    label en unofficial "Article 1490. The partition clause may require a spouse to pay another share";
+    when clause_partage_quotite_dette(u, p);
+    then duty P4DevoirPayerQuotiteClause1490Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition paiement_quotite_clause_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1491)
+rule P4DevoirRespecterObligationsHeritier1491(u: Union, p: Personne) strict {
+    label fr official "Article 1491. L'héritier est soumis aux mêmes obligations";
+    label en unofficial "Article 1491. The heir is subject to the same obligations";
+    when heritier_epoux(u, p);
+    then duty P4DevoirRespecterObligationsHeritier1491Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition respect_obligations_heritier(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation convention_modifier_communaute_exercee(u: Union, p: Personne) kind empirical { label fr official "modification conventionnelle de la communauté exercée"; label en unofficial "contractual modification of community exercised"; }
+pub relation creancier_bien_gage(u: Union, p: Personne) kind empirical { label fr official "créancier du bien formant le gage"; label en unofficial "creditor of asset forming security"; }
+pub relation saisie_biens_gage_exercee(u: Union, p: Personne) kind empirical { label fr official "saisie des biens formant le gage exercée"; label en unofficial "seizure of assets forming security exercised"; }
+pub relation mobilier_debiteur_conf_ondu(u: Union, p: Personne) kind empirical { label fr official "mobilier du débiteur confondu dans le patrimoine commun"; label en unofficial "debtor's movable assets merged into community"; }
+pub relation poursuite_paiement_communaute_exercee(u: Union, p: Personne) kind empirical { label fr official "poursuite du paiement sur la communauté exercée"; label en unofficial "payment pursued against community exercised"; }
+pub relation convention_administration_conjointe(u: Union) kind empirical { label fr official "convention d'administration conjointe"; label en unofficial "joint administration convention"; }
+pub relation acte_admin_signature_conjointe_exerce(u: Union, p: Personne) kind empirical { label fr official "acte d'administration sous signature conjointe"; label en unofficial "administrative act under joint signature"; }
+pub relation acte_admin_unilateral_exerce(u: Union, p: Personne) kind empirical { label fr official "acte d'administration unilatéral"; label en unofficial "unilateral administrative act"; }
+pub relation acte_conservatoire_separe_exerce(u: Union, p: Personne) kind empirical { label fr official "acte conservatoire séparé"; label en unofficial "separate preservative act"; }
+@source(CC_ART1497)
+rule P4PouvoirModifierCommunaute1497(u: Union, p: Personne) strict {
+    label fr official "Article 1497. Les époux peuvent modifier la communauté par convention";
+    label en unofficial "Article 1497. The spouses may modify the community by agreement";
+    when epoux(u, p);
+    then power P4PouvoirModifierCommunaute1497Actif {
+        holder p;
+        over u;
+        exercise convention_modifier_communaute_exercee(u, p);
+        effect effet_de_liquidation("1497", u, p);
+        valid_when epoux(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1501)
+rule P4PouvoirSaisirBiensGage1501(u: Union, p: Personne) strict {
+    label fr official "Article 1501. Le créancier peut saisir les biens formant son gage";
+    label en unofficial "Article 1501. The creditor may seize assets forming its security";
+    when creancier_bien_gage(u, p);
+    then power P4PouvoirSaisirBiensGage1501Actif {
+        holder p;
+        over u;
+        exercise saisie_biens_gage_exercee(u, p);
+        effect effet_de_liquidation("1501", u, p);
+        valid_when creancier_bien_gage(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1501)
+rule P4PouvoirPoursuivrePaiementCommunaute1501(u: Union, p: Personne) strict {
+    label fr official "Article 1501. Le créancier peut poursuivre le paiement sur toute la communauté";
+    label en unofficial "Article 1501. The creditor may pursue payment against the whole community";
+    when mobilier_debiteur_conf_ondu(u, p);
+    then power P4PouvoirPoursuivrePaiementCommunaute1501Actif {
+        holder p;
+        over u;
+        exercise poursuite_paiement_communaute_exercee(u, p);
+        effect effet_de_liquidation("1501", u, p);
+        valid_when mobilier_debiteur_conf_ondu(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1503)
+rule P4PouvoirAdministrerConjointement1503(u: Union, p: Personne) strict {
+    label fr official "Article 1503. Les époux peuvent administrer conjointement la communauté";
+    label en unofficial "Article 1503. The spouses may jointly administer the community";
+    when convention_administration_conjointe(u)
+        and epoux(u, p);
+    then power P4PouvoirAdministrerConjointement1503Actif {
+        holder p;
+        over u;
+        exercise acte_admin_signature_conjointe_exerce(u, p);
+        effect effet_de_liquidation("1503", u, p);
+        valid_when convention_administration_conjointe(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1503)
+rule P4InterdictionAdministrerUnilateralement1503(u: Union, p: Personne) strict {
+    label fr official "Article 1503. Les actes d'administration exigent la signature conjointe";
+    label en unofficial "Article 1503. Administrative acts require joint signature";
+    when convention_administration_conjointe(u)
+        and epoux(u, p);
+    then prohibition P4InterdictionAdministrerUnilateralement1503Actif {
+        bearer p;
+        action acte_admin_unilateral_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1503)
+rule MaintenanceP4InterdictionAdministrerUnilateralement1503Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionAdministrerUnilateralement1503Actif";
+    label en unofficial "Maintain prohibition P4InterdictionAdministrerUnilateralement1503Actif";
+    when convention_administration_conjointe(u) and epoux(u, p);
+    then duty MaintenanceP4InterdictionAdministrerUnilateralement1503ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not acte_admin_unilateral_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation clause_prelevement_biens_communs(u: Union, p: Personne) kind empirical { label fr official "clause autorisant le prélèvement de biens communs"; label en unofficial "clause authorizing withdrawal of common assets"; }
+pub relation prelevement_biens_communs_stipule_exerce(u: Union, p: Personne) kind empirical { label fr official "prélèvement stipulé de biens communs exercé"; label en unofficial "stipulated withdrawal of common assets exercised"; }
+pub relation contrat_bases_evaluation_soulte(u: Union) kind empirical { label fr official "contrat fixant les bases d'évaluation de la soulte"; label en unofficial "contract fixing valuation bases for equalization"; }
+pub relation fixation_valeur_soulte_demandee(u: Union, p: Personne) kind empirical { label fr official "fixation de la valeur de la soulte demandée"; label en unofficial "valuation of equalization requested"; }
+pub relation faculte_prelevement_a_exercer(u: Union, p: Personne) kind empirical { label fr official "faculté de prélèvement à exercer"; label en unofficial "withdrawal option to be exercised"; }
+pub relation notification_prelevement_heritier_exercee(u: Union, p: Personne) kind empirical { label fr official "notification du prélèvement exercée"; label en unofficial "withdrawal notification exercised"; }
+@source(CC_ART1511)
+rule P4PouvoirPreleverBiensStipules1511(u: Union, p: Personne) strict {
+    label fr official "Article 1511. L'époux bénéficiaire peut prélever certains biens communs";
+    label en unofficial "Article 1511. The beneficiary spouse may withdraw certain common assets";
+    when clause_prelevement_biens_communs(u, p);
+    then power P4PouvoirPreleverBiensStipules1511Actif {
+        holder p;
+        over u;
+        exercise prelevement_biens_communs_stipule_exerce(u, p);
+        effect effet_de_liquidation("1511", u, p);
+        valid_when clause_prelevement_biens_communs(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1512)
+rule P4PouvoirFixerValeurSoulte1512(u: Union, p: Personne) strict {
+    label fr official "Article 1512. Le contrat peut fixer les bases d'évaluation de la soulte";
+    label en unofficial "Article 1512. The contract may fix the valuation bases for equalization";
+    when contrat_bases_evaluation_soulte(u)
+        and epoux(u, p);
+    then power P4PouvoirFixerValeurSoulte1512Actif {
+        holder p;
+        over u;
+        exercise fixation_valeur_soulte_demandee(u, p);
+        effect effet_de_liquidation("1512", u, p);
+        valid_when contrat_bases_evaluation_soulte(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1513)
+rule P4PouvoirExercerFacultePrelevement1513(u: Union, p: Personne) strict {
+    label fr official "Article 1513. L'époux bénéficiaire peut exercer la faculté de prélèvement";
+    label en unofficial "Article 1513. The beneficiary spouse may exercise the withdrawal option";
+    when faculte_prelevement_a_exercer(u, p);
+    then power P4PouvoirExercerFacultePrelevement1513Actif {
+        holder p;
+        over u;
+        exercise notification_prelevement_heritier_exercee(u, p);
+        effect effet_de_liquidation("1513", u, p);
+        valid_when faculte_prelevement_a_exercer(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation clause_preciput_sur_communaute(u: Union, p: Personne) kind empirical { label fr official "clause de préciput sur la communauté"; label en unofficial "survivorship clause over community"; }
+pub relation prelevement_preciput_exerce(u: Union, p: Personne) kind empirical { label fr official "prélèvement du préciput exercé"; label en unofficial "preciput withdrawal exercised"; }
+pub relation droit_preciput_garantie(u: Union, p: Personne) kind empirical { label fr official "droit au préciput à garantir"; label en unofficial "preciput right to be secured"; }
+pub relation caution_conjoint_exigee(u: Union, p: Personne) kind empirical { label fr official "caution du conjoint exigée"; label en unofficial "security from spouse demanded"; }
+pub relation effets_preciput_vendus(u: Union) kind empirical { label fr official "effets compris dans le préciput vendus"; label en unofficial "assets included in preciput sold"; }
+pub relation vente_effets_preciput_exercee(u: Union) kind empirical { label fr official "vente des effets du préciput exercée"; label en unofficial "sale of preciput assets exercised"; }
+pub relation creancier_communaute_preciput(u: Union, p: Personne) kind empirical { label fr official "créancier de la communauté pour le préciput"; label en unofficial "community creditor concerning preciput"; }
+@source(CC_ART1515)
+rule P4PouvoirPreleverPreciput1515(u: Union, p: Personne) strict {
+    label fr official "Article 1515. Le survivant peut prélever sur la communauté avant partage";
+    label en unofficial "Article 1515. The survivor may withdraw from the community before partition";
+    when clause_preciput_sur_communaute(u, p);
+    then power P4PouvoirPreleverPreciput1515Actif {
+        holder p;
+        over u;
+        exercise prelevement_preciput_exerce(u, p);
+        effect effet_de_liquidation("1515", u, p);
+        valid_when clause_preciput_sur_communaute(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1518)
+rule P4PouvoirExigerCautionPreciput1518(u: Union, p: Personne) strict {
+    label fr official "Article 1518. L'époux peut exiger une caution en garantie du préciput";
+    label en unofficial "Article 1518. The spouse may demand security for the preciput";
+    when droit_preciput_garantie(u, p);
+    then power P4PouvoirExigerCautionPreciput1518Actif {
+        holder p;
+        over u;
+        exercise caution_conjoint_exigee(u, p);
+        effect effet_de_liquidation("1518", u, p);
+        valid_when droit_preciput_garantie(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1519)
+rule P4PouvoirVendreEffetsPreciput1519(u: Union, p: Personne) strict {
+    label fr official "Article 1519. Les créanciers peuvent faire vendre les effets du préciput";
+    label en unofficial "Article 1519. Community creditors may have preciput assets sold";
+    when effets_preciput_vendus(u)
+        and creancier_communaute_preciput(u, p);
+    then power P4PouvoirVendreEffetsPreciput1519Actif {
+        holder p;
+        over u;
+        exercise vente_effets_preciput_exercee(u);
+        effect effet_de_liquidation("1519", u, p);
+        valid_when effets_preciput_vendus(u);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation convention_derogatoire_partage_egal(u: Union, p: Personne) kind empirical { label fr official "convention dérogeant au partage égal"; label en unofficial "convention departing from equal partition"; }
+pub relation derogation_partage_egal_exercee(u: Union, p: Personne) kind empirical { label fr official "dérogation au partage égal exercée"; label en unofficial "departure from equal partition exercised"; }
+pub relation part_reduite_convenue(u: Union, p: Personne) kind empirical { label fr official "part réduite convenue"; label en unofficial "reduced share agreed"; }
+pub relation dette_communaute_proportionnelle_part(u: Union, p: Personne) kind empirical { label fr official "dette de communauté supportée proportionnellement à la part"; label en unofficial "community debt borne proportionally to share"; }
+pub relation clause_dette_plus_forte_ou_exoneree(u: Union, p: Personne) kind empirical { label fr official "clause imposant une part plus forte ou exonérant de dette"; label en unofficial "clause imposing a greater share or exempting from debt"; }
+pub relation clause_attribution_totale_survie(u: Union, p: Personne) kind empirical { label fr official "clause d'attribution intégrale au survivant"; label en unofficial "survivorship clause for entire community"; }
+pub relation dette_communaute_acquittee_entierement(u: Union, p: Personne) kind empirical { label fr official "dettes de la communauté acquittées entièrement"; label en unofficial "community debts paid in full"; }
+@source(CC_ART1520)
+rule P4PouvoirDerogerPartageEgal1520(u: Union, p: Personne) strict {
+    label fr official "Article 1520. Les époux peuvent déroger au partage égal";
+    label en unofficial "Article 1520. The spouses may depart from equal partition";
+    when convention_derogatoire_partage_egal(u, p);
+    then power P4PouvoirDerogerPartageEgal1520Actif {
+        holder p;
+        over u;
+        exercise derogation_partage_egal_exercee(u, p);
+        effect effet_de_liquidation("1520", u, p);
+        valid_when convention_derogatoire_partage_egal(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1521)
+rule P4DevoirSupporterDetteProportionnelle1521(u: Union, p: Personne) strict {
+    label fr official "Article 1521. L'époux réduit supporte les dettes proportionnellement à sa part";
+    label en unofficial "Article 1521. The reduced spouse bears debts proportionally to the share";
+    when part_reduite_convenue(u, p);
+    then duty P4DevoirSupporterDetteProportionnelle1521Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition dette_communaute_proportionnelle_part(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1521)
+rule P4InterdictionClauseDetteDisproportionnee1521(u: Union, p: Personne) strict {
+    label fr official "Article 1521. La convention ne peut imposer une part disproportionnée de dettes";
+    label en unofficial "Article 1521. The convention may not impose a disproportionate debt share";
+    when part_reduite_convenue(u, p);
+    then prohibition P4InterdictionClauseDetteDisproportionnee1521Actif {
+        bearer p;
+        action clause_dette_plus_forte_ou_exoneree(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1521)
+rule MaintenanceP4InterdictionClauseDetteDisproportionnee1521Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionClauseDetteDisproportionnee1521Actif";
+    label en unofficial "Maintain prohibition P4InterdictionClauseDetteDisproportionnee1521Actif";
+    when part_reduite_convenue(u, p);
+    then duty MaintenanceP4InterdictionClauseDetteDisproportionnee1521ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not clause_dette_plus_forte_ou_exoneree(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1524)
+rule P4DevoirAcquitterDettesAttributionTotale1524(u: Union, p: Personne) strict {
+    label fr official "Article 1524. L'époux qui retient toute la communauté doit acquitter toutes les dettes";
+    label en unofficial "Article 1524. The spouse retaining the entire community must pay all debts";
+    when clause_attribution_totale_survie(u, p);
+    then duty P4DevoirAcquitterDettesAttributionTotale1524Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition dette_communaute_acquittee_entierement(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation convention_communaute_universelle(u: Union, p: Personne) kind empirical { label fr official "convention de communauté universelle"; label en unofficial "universal community convention"; }
+pub relation etablissement_communaute_universelle_exerce(u: Union, p: Personne) kind empirical { label fr official "établissement de la communauté universelle exercé"; label en unofficial "establishment of universal community exercised"; }
+pub relation dette_epoux_presente_ou_future(u: Union, p: Personne) kind empirical { label fr official "dette présente ou future de l'époux"; label en unofficial "spouse's present or future debt"; }
+pub relation dette_universelle_acquittee(u: Union, p: Personne) kind empirical { label fr official "dette acquittée par la communauté universelle"; label en unofficial "debt paid by universal community"; }
+pub relation avantage_conventionnel_excessif(u: Union, p: Personne) kind empirical { label fr official "avantage conventionnel excessif"; label en unofficial "excessive contractual advantage"; }
+pub relation avantage_excessif_exerce(u: Union, p: Personne) kind empirical { label fr official "exécution de l'avantage excessif"; label en unofficial "excessive advantage exercised"; }
+@source(CC_ART1526)
+rule P4PouvoirEtablirCommunauteUniverselle1526(u: Union, p: Personne) strict {
+    label fr official "Article 1526. Les époux peuvent établir une communauté universelle";
+    label en unofficial "Article 1526. The spouses may establish universal community";
+    when convention_communaute_universelle(u, p);
+    then power P4PouvoirEtablirCommunauteUniverselle1526Actif {
+        holder p;
+        over u;
+        exercise etablissement_communaute_universelle_exerce(u, p);
+        effect effet_de_liquidation("1526", u, p);
+        valid_when convention_communaute_universelle(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1526)
+rule P4DevoirAcquitterDettesCommunauteUniverselle1526(u: Union, p: Personne) strict {
+    label fr official "Article 1526. La communauté universelle supporte définitivement toutes les dettes";
+    label en unofficial "Article 1526. Universal community definitively bears all debts";
+    when convention_communaute_universelle(u, p)
+        and dette_epoux_presente_ou_future(u, p);
+    then duty P4DevoirAcquitterDettesCommunauteUniverselle1526Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition dette_universelle_acquittee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1527)
+rule P4InterdictionAvantageConjugalExcessif1527(u: Union, p: Personne) strict {
+    label fr official "Article 1527. L'avantage matrimonial excessif est sans effet pour l'excédent";
+    label en unofficial "Article 1527. An excessive matrimonial advantage is ineffective for the excess";
+    when avantage_conventionnel_excessif(u, p);
+    then prohibition P4InterdictionAvantageConjugalExcessif1527Actif {
+        bearer p;
+        action avantage_excessif_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1527)
+rule MaintenanceP4InterdictionAvantageConjugalExcessif1527Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionAvantageConjugalExcessif1527Actif";
+    label en unofficial "Maintain prohibition P4InterdictionAvantageConjugalExcessif1527Actif";
+    when avantage_conventionnel_excessif(u, p);
+    then duty MaintenanceP4InterdictionAvantageConjugalExcessif1527ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not avantage_excessif_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation biens_personnels_separation(u: Union, p: Personne) kind empirical { label fr official "biens personnels sous séparation de biens"; label en unofficial "separate property under separation of property"; }
+pub relation administration_jouissance_disposition_propres_exercee(u: Union, p: Personne) kind empirical { label fr official "administration, jouissance et disposition des propres exercées"; label en unofficial "administration, enjoyment and disposition of separate property exercised"; }
+pub relation dette_personnelle_epoux(u: Union, p: Personne) kind empirical { label fr official "dette personnelle de l'époux"; label en unofficial "spouse's personal debt"; }
+pub relation paiement_dette_personnelle_exerce(u: Union, p: Personne) kind empirical { label fr official "paiement de la dette personnelle exercé"; label en unofficial "personal debt payment exercised"; }
+pub relation charges_mariage_a_contribuer(u: Union, p: Personne) kind empirical { label fr official "charges du mariage à contribuer"; label en unofficial "marital expenses to be contributed"; }
+pub relation contribution_charges_mariage_exercee(u: Union, p: Personne) kind empirical { label fr official "contribution aux charges du mariage exercée"; label en unofficial "contribution to marital expenses exercised"; }
+@source(CC_ART1536)
+rule P4LiberteAdministrerBiensPropres1536(u: Union, p: Personne) strict {
+    label fr official "Article 1536. Chaque époux conserve la libre administration de ses biens personnels";
+    label en unofficial "Article 1536. Each spouse retains free administration of separate property";
+    when biens_personnels_separation(u, p);
+    then liberty P4LiberteAdministrerBiensPropres1536Actif {
+        holder p;
+        action administration_jouissance_disposition_propres_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1536)
+rule P4DevoirAcquitterDettesPersonnelles1536(u: Union, p: Personne) strict {
+    label fr official "Article 1536. Chaque époux reste seul tenu de ses dettes personnelles";
+    label en unofficial "Article 1536. Each spouse remains solely liable for personal debts";
+    when dette_personnelle_epoux(u, p);
+    then duty P4DevoirAcquitterDettesPersonnelles1536Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition paiement_dette_personnelle_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1537)
+rule P4DevoirContribuerChargesMariage1537(u: Union, p: Personne) strict {
+    label fr official "Article 1537. Les époux contribuent aux charges du mariage";
+    label en unofficial "Article 1537. The spouses contribute to marital expenses";
+    when charges_mariage_a_contribuer(u, p);
+    then duty P4DevoirContribuerChargesMariage1537Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition contribution_charges_mariage_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation propriete_exclusive_a_prouver(u: Union, p: Personne) kind empirical { label fr official "propriété exclusive à prouver"; label en unofficial "exclusive ownership to be proven"; }
+pub relation preuve_propriete_exclusive_exercee(u: Union, p: Personne) kind empirical { label fr official "preuve de propriété exclusive exercée"; label en unofficial "proof of exclusive ownership exercised"; }
+pub relation procuration_biens_personnels(u: Union, p: Personne) kind empirical { label fr official "procuration sur les biens personnels"; label en unofficial "power of attorney over separate property"; }
+pub relation administration_mandat_exercee(u: Union, p: Personne) kind empirical { label fr official "administration sous mandat exercée"; label en unofficial "mandated administration exercised"; }
+pub relation gestion_biens_autrui_sans_opposition(u: Union, p: Personne) kind empirical { label fr official "gestion des biens d'autrui sans opposition"; label en unofficial "management of other's property without opposition"; }
+pub relation acte_gestion_mandat_exerce(u: Union, p: Personne) kind empirical { label fr official "acte de gestion sous mandat tacite exercé"; label en unofficial "management act under tacit mandate exercised"; }
+pub relation responsabilite_gestion_exercee(u: Union, p: Personne) kind empirical { label fr official "responsabilité de gestion exercée"; label en unofficial "management liability exercised"; }
+@source(CC_ART1538)
+rule P4PouvoirProuverProprieteExclusive1538(u: Union, p: Personne) strict {
+    label fr official "Article 1538. L'époux peut prouver par tous moyens sa propriété exclusive";
+    label en unofficial "Article 1538. A spouse may prove exclusive ownership by any means";
+    when propriete_exclusive_a_prouver(u, p);
+    then power P4PouvoirProuverProprieteExclusive1538Actif {
+        holder p;
+        over u;
+        exercise preuve_propriete_exclusive_exercee(u, p);
+        effect effet_de_liquidation("1538", u, p);
+        valid_when propriete_exclusive_a_prouver(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1539)
+rule P4PouvoirConfierAdministrationPropre1539(u: Union, p: Personne) strict {
+    label fr official "Article 1539. L'époux peut confier l'administration de ses biens personnels";
+    label en unofficial "Article 1539. A spouse may entrust administration of separate property";
+    when procuration_biens_personnels(u, p);
+    then power P4PouvoirConfierAdministrationPropre1539Actif {
+        holder p;
+        over u;
+        exercise administration_mandat_exercee(u, p);
+        effect effet_de_liquidation("1539", u, p);
+        valid_when procuration_biens_personnels(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1540)
+rule P4PouvoirGestionTacite1540(u: Union, p: Personne) strict {
+    label fr official "Article 1540. La gestion sans opposition vaut mandat tacite";
+    label en unofficial "Article 1540. Management without opposition constitutes tacit mandate";
+    when gestion_biens_autrui_sans_opposition(u, p);
+    then power P4PouvoirGestionTacite1540Actif {
+        holder p;
+        over u;
+        exercise acte_gestion_mandat_exerce(u, p);
+        effect effet_de_liquidation("1540", u, p);
+        valid_when gestion_biens_autrui_sans_opposition(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1540)
+rule P4DevoirRepondreGestion1540(u: Union, p: Personne) strict {
+    label fr official "Article 1540. L'époux répond de sa gestion envers l'autre";
+    label en unofficial "Article 1540. The spouse is liable for management toward the other";
+    when gestion_biens_autrui_sans_opposition(u, p);
+    then duty P4DevoirRepondreGestion1540Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition responsabilite_gestion_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+pub relation defaut_remploi_biens_conjoint(u: Union, p: Personne) kind empirical { label fr official "défaut d'emploi ou de remploi des biens du conjoint"; label en unofficial "failure to employ or reinvest spouse's assets"; }
+pub relation garantie_defaut_remploi_exercee(u: Union, p: Personne) kind empirical { label fr official "garantie du défaut de remploi exercée"; label en unofficial "guarantee for failure to reinvest exercised"; }
+pub relation ingere_operations_emploi(u: Union, p: Personne) kind empirical { label fr official "immixtion dans les opérations d'emploi"; label en unofficial "intervention in employment operations"; }
+pub relation participation_acquets_participe(u: Union, p: Personne) kind empirical { label fr official "droit de participer aux acquêts"; label en unofficial "right to participate in acquisitions"; }
+pub relation participation_acquets_exercee(u: Union, p: Personne) kind empirical { label fr official "participation aux acquêts exercée"; label en unofficial "participation in acquisitions exercised"; }
+pub relation biens_personnels_participation(u: Union, p: Personne) kind empirical { label fr official "biens personnels sous participation aux acquêts"; label en unofficial "separate property under participation regime"; }
+pub relation cession_droit_acquets(u: Union, p: Personne) kind empirical { label fr official "cession du droit de participer aux acquêts"; label en unofficial "assignment of participation right"; }
+pub relation patrimoine_final_a_etablir(u: Union, p: Personne) kind empirical { label fr official "patrimoine final à établir"; label en unofficial "final estate to be established"; }
+pub relation etat_patrimoine_final_etabli(u: Union, p: Personne) kind empirical { label fr official "état descriptif du patrimoine final établi"; label en unofficial "descriptive statement of final estate established"; }
+pub relation scelles_inventaire_biens_conjoint(u: Union, p: Personne) kind empirical { label fr official "scellés et inventaire des biens du conjoint requis"; label en unofficial "seals and inventory of spouse's assets requested"; }
+pub relation scelles_inventaire_exerce(u: Union, p: Personne) kind empirical { label fr official "scellés et inventaire exercés"; label en unofficial "seals and inventory exercised"; }
+@source(CC_ART1541)
+rule P4InterdictionGarantirDefautRemploi1541(u: Union, p: Personne) strict {
+    label fr official "Article 1541. L'époux n'est pas garant du défaut de remploi";
+    label en unofficial "Article 1541. A spouse is not guarantor for failure to reinvest";
+    when defaut_remploi_biens_conjoint(u, p)
+        and not_known(ingere_operations_emploi(u, p));
+    then prohibition P4InterdictionGarantirDefautRemploi1541Actif {
+        bearer p;
+        action garantie_defaut_remploi_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1541)
+rule MaintenanceP4InterdictionGarantirDefautRemploi1541Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionGarantirDefautRemploi1541Actif";
+    label en unofficial "Maintain prohibition P4InterdictionGarantirDefautRemploi1541Actif";
+    when defaut_remploi_biens_conjoint(u, p) and not_known(ingere_operations_emploi(u, p));
+    then duty MaintenanceP4InterdictionGarantirDefautRemploi1541ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not garantie_defaut_remploi_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1569)
+rule P4LiberteAdministrerBiensParticipation1569(u: Union, p: Personne) strict {
+    label fr official "Article 1569. Chaque époux conserve l'administration de ses biens personnels";
+    label en unofficial "Article 1569. Each spouse retains administration of separate property";
+    when biens_personnels_participation(u, p);
+    then liberty P4LiberteAdministrerBiensParticipation1569Actif {
+        holder p;
+        action administration_jouissance_disposition_propres_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1569)
+rule P4PouvoirParticiperAcquets1569(u: Union, p: Personne) strict {
+    label fr official "Article 1569. L'époux a le droit de participer aux acquêts nets";
+    label en unofficial "Article 1569. The spouse has the right to participate in net acquisitions";
+    when participation_acquets_participe(u, p);
+    then power P4PouvoirParticiperAcquets1569Actif {
+        holder p;
+        over u;
+        exercise participation_acquets_exercee(u, p);
+        effect effet_de_liquidation("1569", u, p);
+        valid_when participation_acquets_participe(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1569)
+rule P4InterdictionCederDroitAcquets1569(u: Union, p: Personne) strict {
+    label fr official "Article 1569. Le droit de participer aux acquêts est incessible avant dissolution";
+    label en unofficial "Article 1569. The right to participate is non-transferable before dissolution";
+    when participation_acquets_participe(u, p);
+    then prohibition P4InterdictionCederDroitAcquets1569Actif {
+        bearer p;
+        action cession_droit_acquets(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1569)
+rule MaintenanceP4InterdictionCederDroitAcquets1569Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionCederDroitAcquets1569Actif";
+    label en unofficial "Maintain prohibition P4InterdictionCederDroitAcquets1569Actif";
+    when participation_acquets_participe(u, p);
+    then duty MaintenanceP4InterdictionCederDroitAcquets1569ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not cession_droit_acquets(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1572)
+rule P4DevoirEtablirPatrimoineFinal1572(u: Union, p: Personne) strict {
+    label fr official "Article 1572. L'époux ou ses héritiers doivent établir le patrimoine final";
+    label en unofficial "Article 1572. The spouse or heirs must establish the final estate";
+    when patrimoine_final_a_etablir(u, p);
+    then duty P4DevoirEtablirPatrimoineFinal1572Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition etat_patrimoine_final_etabli(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1572)
+rule P4PouvoirRequerirScellesInventaire1572(u: Union, p: Personne) strict {
+    label fr official "Article 1572. Chaque époux peut requérir scellés et inventaire";
+    label en unofficial "Article 1572. Each spouse may request seals and inventory";
+    when scelles_inventaire_biens_conjoint(u, p);
+    then power P4PouvoirRequerirScellesInventaire1572Actif {
+        holder p;
+        over u;
+        exercise scelles_inventaire_exerce(u, p);
+        effect effet_de_liquidation("1572", u, p);
+        valid_when scelles_inventaire_biens_conjoint(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation donation_sans_consentement_participation(u: Union, p: Personne) kind empirical { label fr official "donation sans consentement du conjoint"; label en unofficial "donation without spouse's consent"; }
+pub relation alienation_frauduleuse_conjoint(u: Union, p: Personne) kind empirical { label fr official "aliénation frauduleuse des droits du conjoint"; label en unofficial "fraudulent alienation of spouse's rights"; }
+pub relation disposition_donation_exercee(u: Union, p: Personne) kind empirical { label fr official "disposition par donation exercée"; label en unofficial "disposition by donation exercised"; }
+pub relation alienation_frauduleuse_exercee(u: Union, p: Personne) kind empirical { label fr official "aliénation frauduleuse exercée"; label en unofficial "fraudulent alienation exercised"; }
+pub relation creance_participation_a_payer(u: Union, p: Personne) kind empirical { label fr official "créance de participation à payer"; label en unofficial "participation claim to be paid"; }
+pub relation paiement_creance_participation_exerce(u: Union, p: Personne) kind empirical { label fr official "paiement de la créance de participation exercé"; label en unofficial "payment of participation claim exercised"; }
+pub relation difficultes_graves_paiement(u: Union, p: Personne) kind empirical { label fr official "difficultés graves de paiement"; label en unofficial "serious payment difficulties"; }
+pub relation saisie_biens_attribues_conjoint(u: Union, p: Personne) kind empirical { label fr official "saisie des biens attribués au conjoint"; label en unofficial "seizure of assets allotted to spouse"; }
+@source(CC_ART1573)
+rule P4InterdictionDonationSansConsentementParticipation1573(u: Union, p: Personne) strict {
+    label fr official "Article 1573. Le conjoint ne peut donner sans consentement";
+    label en unofficial "Article 1573. A spouse may not donate without consent";
+    when donation_sans_consentement_participation(u, p);
+    then prohibition P4InterdictionDonationSansConsentementParticipation1573Actif {
+        bearer p;
+        action disposition_donation_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1573)
+rule MaintenanceP4InterdictionDonationSansConsentementParticipation1573Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionDonationSansConsentementParticipation1573Actif";
+    label en unofficial "Maintain prohibition P4InterdictionDonationSansConsentementParticipation1573Actif";
+    when donation_sans_consentement_participation(u, p);
+    then duty MaintenanceP4InterdictionDonationSansConsentementParticipation1573ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not disposition_donation_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1573)
+rule P4InterdictionAlienationFrauduleuseParticipation1573(u: Union, p: Personne) strict {
+    label fr official "Article 1573. L'aliénation frauduleuse ne peut préjudicier au conjoint";
+    label en unofficial "Article 1573. Fraudulent alienation may not prejudice the spouse";
+    when alienation_frauduleuse_conjoint(u, p);
+    then prohibition P4InterdictionAlienationFrauduleuseParticipation1573Actif {
+        bearer p;
+        action alienation_frauduleuse_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1573)
+rule MaintenanceP4InterdictionAlienationFrauduleuseParticipation1573Actif(u: Union, p: Personne) strict {
+    label fr official "Maintenir l'interdiction P4InterdictionAlienationFrauduleuseParticipation1573Actif";
+    label en unofficial "Maintain prohibition P4InterdictionAlienationFrauduleuseParticipation1573Actif";
+    when alienation_frauduleuse_conjoint(u, p);
+    then duty MaintenanceP4InterdictionAlienationFrauduleuseParticipation1573ActifDuty {
+        bearer p;
+        goal maintenance {
+            condition not alienation_frauduleuse_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1576)
+rule P4DevoirPayerCreanceParticipation1576(u: Union, p: Personne) strict {
+    label fr official "Article 1576. La créance de participation donne lieu à paiement";
+    label en unofficial "Article 1576. The participation claim must be paid";
+    when creance_participation_a_payer(u, p);
+    then duty P4DevoirPayerCreanceParticipation1576Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition paiement_creance_participation_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1576)
+rule P4PouvoirSaisirBiensAttribues1576(u: Union, p: Personne) strict {
+    label fr official "Article 1576. Les créanciers conservent le droit de saisir les biens attribués";
+    label en unofficial "Article 1576. Creditors retain the right to seize allotted assets";
+    when saisie_biens_attribues_conjoint(u, p);
+    then power P4PouvoirSaisirBiensAttribues1576Actif {
+        holder p;
+        over u;
+        exercise saisie_biens_attribues_conjoint(u, p);
+        effect effet_de_liquidation("1576", u, p);
+        valid_when saisie_biens_attribues_conjoint(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation creance_participation_a_recouvrer(u: Union, p: Personne) kind empirical { label fr official "créance de participation à recouvrer"; label en unofficial "participation claim to recover"; }
+pub relation recouvrement_creance_participation_exerce(u: Union, p: Personne) kind empirical { label fr official "recouvrement de la créance de participation exercé"; label en unofficial "recovery of participation claim exercised"; }
+pub relation liquidation_conventionnelle_echouee(u: Union) kind empirical { label fr official "liquidation conventionnelle non convenue"; label en unofficial "contractual liquidation not agreed"; }
+pub relation demande_liquidation_judiciaire_exercee(u: Union, p: Personne) kind empirical { label fr official "demande de liquidation judiciaire exercée"; label en unofficial "judicial liquidation request exercised"; }
+pub relation renseignements_liquidation_a_communiquer(u: Union, p: Personne) kind empirical { label fr official "renseignements utiles à communiquer"; label en unofficial "useful liquidation information to disclose"; }
+pub relation renseignements_liquidation_communiques(u: Union, p: Personne) kind empirical { label fr official "renseignements utiles communiqués"; label en unofficial "useful liquidation information disclosed"; }
+pub relation risque_compromet_interets_conjoint(u: Union, p: Personne) kind empirical { label fr official "risque pour les intérêts du conjoint"; label en unofficial "risk to spouse's interests"; }
+pub relation demande_liquidation_anticipee_exercee(u: Union, p: Personne) kind empirical { label fr official "demande de liquidation anticipée exercée"; label en unofficial "early liquidation request exercised"; }
+@source(CC_ART1577)
+rule P4PouvoirRecouvrerCreanceParticipation1577(u: Union, p: Personne) strict {
+    label fr official "Article 1577. L'époux créancier peut poursuivre le recouvrement";
+    label en unofficial "Article 1577. The creditor spouse may pursue recovery";
+    when creance_participation_a_recouvrer(u, p);
+    then power P4PouvoirRecouvrerCreanceParticipation1577Actif {
+        holder p;
+        over u;
+        exercise recouvrement_creance_participation_exerce(u, p);
+        effect effet_de_liquidation("1577", u, p);
+        valid_when creance_participation_a_recouvrer(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1578)
+rule P4PouvoirDemanderLiquidationJudiciaire1578(u: Union, p: Personne) strict {
+    label fr official "Article 1578. Une partie peut demander la liquidation en justice";
+    label en unofficial "Article 1578. A party may request judicial liquidation";
+    when liquidation_conventionnelle_echouee(u)
+        and epoux(u, p);
+    then power P4PouvoirDemanderLiquidationJudiciaire1578Actif {
+        holder p;
+        over u;
+        exercise demande_liquidation_judiciaire_exercee(u, p);
+        effect effet_de_liquidation("1578", u, p);
+        valid_when liquidation_conventionnelle_echouee(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1578)
+rule P4DevoirCommuniquerRenseignementsLiquidation1578(u: Union, p: Personne) strict {
+    label fr official "Article 1578. Les parties doivent communiquer les renseignements utiles";
+    label en unofficial "Article 1578. The parties must disclose useful information";
+    when renseignements_liquidation_a_communiquer(u, p);
+    then duty P4DevoirCommuniquerRenseignementsLiquidation1578Actif {
+        bearer p;
+        beneficiary u;
+        goal achievement {
+            condition renseignements_liquidation_communiques(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART1580)
+rule P4PouvoirDemanderLiquidationAnticipee1580(u: Union, p: Personne) strict {
+    label fr official "Article 1580. Le conjoint peut demander la liquidation anticipée";
+    label en unofficial "Article 1580. The spouse may request early liquidation";
+    when risque_compromet_interets_conjoint(u, p);
+    then power P4PouvoirDemanderLiquidationAnticipee1580Actif {
+        holder p;
+        over u;
+        exercise demande_liquidation_anticipee_exercee(u, p);
+        effect effet_de_liquidation("1580", u, p);
+        valid_when risque_compromet_interets_conjoint(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation convention_participation_acquets(u: Union, p: Personne) kind empirical { label fr official "convention de participation aux acquêts"; label en unofficial "participation in acquisitions convention"; }
+pub relation clause_participation_adoptee(u: Union, p: Personne) kind empirical { label fr official "clause de participation adoptée"; label en unofficial "participation clause adopted"; }
+pub relation clause_survivant_total_acquets(u: Union, p: Personne) kind empirical { label fr official "clause attribuant au survivant tous les acquêts nets"; label en unofficial "clause granting survivor all net acquisitions"; }
+pub relation droit_total_acquets_survivant_exerce(u: Union, p: Personne) kind empirical { label fr official "droit du survivant sur tous les acquêts exercé"; label en unofficial "survivor's right to all acquisitions exercised"; }
+pub relation creance_participation_interet_essentiel(u: Union, p: Personne) kind empirical { label fr official "créance de participation et intérêt essentiel"; label en unofficial "participation claim and essential interest"; }
+pub relation dation_biens_conjoint_exigee(u: Union, p: Personne) kind empirical { label fr official "dation en paiement de biens du conjoint exigée"; label en unofficial "payment in kind from spouse's assets demanded"; }
+@source(CC_ART1581)
+rule P4PouvoirAdopterClauseParticipation1581(u: Union, p: Personne) strict {
+    label fr official "Article 1581. Les époux peuvent adopter des clauses de participation";
+    label en unofficial "Article 1581. The spouses may adopt participation clauses";
+    when convention_participation_acquets(u, p);
+    then power P4PouvoirAdopterClauseParticipation1581Actif {
+        holder p;
+        over u;
+        exercise clause_participation_adoptee(u, p);
+        effect effet_de_liquidation("1581", u, p);
+        valid_when convention_participation_acquets(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1581)
+rule P4PouvoirSurvivantAcquetsTotaux1581(u: Union, p: Personne) strict {
+    label fr official "Article 1581. Le survivant peut avoir droit à la totalité des acquêts nets";
+    label en unofficial "Article 1581. The survivor may have the right to all net acquisitions";
+    when clause_survivant_total_acquets(u, p);
+    then power P4PouvoirSurvivantAcquetsTotaux1581Actif {
+        holder p;
+        over u;
+        exercise droit_total_acquets_survivant_exerce(u, p);
+        effect effet_de_liquidation("1581", u, p);
+        valid_when clause_survivant_total_acquets(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1581)
+rule P4PouvoirExigerDationBiensConjoint1581(u: Union, p: Personne) strict {
+    label fr official "Article 1581. L'époux créancier peut exiger une dation en paiement";
+    label en unofficial "Article 1581. The creditor spouse may demand payment in kind";
+    when creance_participation_interet_essentiel(u, p);
+    then power P4PouvoirExigerDationBiensConjoint1581Actif {
+        holder p;
+        over u;
+        exercise dation_biens_conjoint_exigee(u, p);
+        effect effet_de_liquidation("1581", u, p);
+        valid_when creance_participation_interet_essentiel(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// Liquidation (1467–1491).
+pub relation reprise_du_propre(u: Union, p: Personne, b: Bien) kind institutional { label fr official "Élément déclaré CC-11 : reprise_du_propre"; label en unofficial "CC-11 declared element: reprise_du_propre"; }
+pub relation methode_de_recompense(o: OperationDeRecompense, m: MethodeDeRecompense) kind institutional { label fr official "Élément déclaré CC-11 : methode_de_recompense"; label en unofficial "CC-11 declared element: methode_de_recompense"; }
+pub relation operation_d_investissement_retrouve(o: OperationDeRecompense) kind institutional { label fr official "Élément déclaré CC-11 : operation_d_investissement_retrouve"; label en unofficial "CC-11 declared element: operation_d_investissement_retrouve"; }
+pub relation montant_de_recompense(o: OperationDeRecompense, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : montant_de_recompense"; label en unofficial "CC-11 declared element: montant_de_recompense"; key(o); }
+pub relation total_du_a_l_epoux(u: Union, p: Personne, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : total_du_a_l_epoux"; label en unofficial "CC-11 declared element: total_du_a_l_epoux"; key(u, p); }
+pub relation total_du_par_l_epoux(u: Union, p: Personne, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : total_du_par_l_epoux"; label en unofficial "CC-11 declared element: total_du_par_l_epoux"; key(u, p); }
+pub relation solde_en_faveur_de_l_epoux(u: Union, p: Personne, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : solde_en_faveur_de_l_epoux"; label en unofficial "CC-11 declared element: solde_en_faveur_de_l_epoux"; }
+pub relation solde_en_faveur_de_la_communaute(u: Union, p: Personne, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : solde_en_faveur_de_la_communaute"; label en unofficial "CC-11 declared element: solde_en_faveur_de_la_communaute"; }
+pub relation total_des_rapports(u: Union, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : total_des_rapports"; label en unofficial "CC-11 declared element: total_des_rapports"; key(u); }
+pub relation total_des_prelevements(u: Union, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : total_des_prelevements"; label en unofficial "CC-11 declared element: total_des_prelevements"; key(u); }
+pub relation masse_apres_rapports(u: Union, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : masse_apres_rapports"; label en unofficial "CC-11 declared element: masse_apres_rapports"; key(u); }
+pub relation surplus_apres_prelevements(u: Union, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : surplus_apres_prelevements"; label en unofficial "CC-11 declared element: surplus_apres_prelevements"; key(u); }
+pub relation part_finale_de_communaute(u: Union, p: Personne, m: Money) kind institutional { label fr official "Élément déclaré CC-11 : part_finale_de_communaute"; label en unofficial "CC-11 declared element: part_finale_de_communaute"; }
+pub relation rang_de_prelevement(u: Union, b: Bien, rang: Integer) kind institutional { label fr official "Élément déclaré CC-11 : rang_de_prelevement"; label en unofficial "CC-11 declared element: rang_de_prelevement"; }
+
+@source(CC_ART1467) rule ReprisePropre(u: Union, p: Personne, b: Bien) strict { label fr official "Application CC-11 : ReprisePropre"; label en unofficial "CC-11 application rule: ReprisePropre"; when communaute_dissoute_le(u, _) and bien_propre(u, p, b); then reprise_du_propre(u, p, b); }
+
+@source(CC_ART1469)
+rule InvestissementRetrouve(o: OperationDeRecompense) strict { label fr official "Application CC-11 : InvestissementRetrouve"; label en unofficial "CC-11 application rule: InvestissementRetrouve";
+    when valeur_employee_a_acquerir_conserver_ou_ameliorer(o) and bien_retrouve_dans_le_patrimoine_emprunteur(o);
+    then operation_d_investissement_retrouve(o);
+}
+
+@source(CC_ART1469)
+rule MethodeGenerale(o: OperationDeRecompense, d: Money, p: Money) strict { label fr official "Application CC-11 : MethodeGenerale"; label en unofficial "CC-11 application rule: MethodeGenerale";
+    when depense_faite(o, d) and profit_subsistant(o, p)
+        and not_known(depense_necessaire(o))
+        and not_known(operation_d_investissement_retrouve(o));
+    then methode_de_recompense(o, RegleGenerale);
+}
+@source(CC_ART1469) rule MethodeDepenseNecessaire(o: OperationDeRecompense) strict { label fr official "Application CC-11 : MethodeDepenseNecessaire"; label en unofficial "CC-11 application rule: MethodeDepenseNecessaire"; when depense_necessaire(o) and not_known(operation_d_investissement_retrouve(o)); then methode_de_recompense(o, DepenseNecessaire); }
+@source(CC_ART1469) rule MethodeProfitSubsistant(o: OperationDeRecompense) strict { label fr official "Application CC-11 : MethodeProfitSubsistant"; label en unofficial "CC-11 application rule: MethodeProfitSubsistant"; when operation_d_investissement_retrouve(o) and not_known(depense_necessaire(o)); then methode_de_recompense(o, AcquisitionConservationAmelioration); }
+@source(CC_ART1469) rule MethodeDoublePlancher(o: OperationDeRecompense) strict { label fr official "Application CC-11 : MethodeDoublePlancher"; label en unofficial "CC-11 application rule: MethodeDoublePlancher"; when depense_necessaire(o) and operation_d_investissement_retrouve(o); then methode_de_recompense(o, DepenseNecessaireEtInvestissement); }
+@source(CC_ART1469) rule MontantGeneral(o: OperationDeRecompense, d: Money, p: Money) strict { label fr official "Application CC-11 : MontantGeneral"; label en unofficial "CC-11 application rule: MontantGeneral"; when methode_de_recompense(o, RegleGenerale) and depense_faite(o, d) and profit_subsistant(o, p); then montant_de_recompense(o, min(d, p)); }
+@source(CC_ART1469) rule MontantDepenseNecessaire(o: OperationDeRecompense, d: Money, p: Money) strict { label fr official "Application CC-11 : MontantDepenseNecessaire"; label en unofficial "CC-11 application rule: MontantDepenseNecessaire"; when methode_de_recompense(o, DepenseNecessaire) and depense_faite(o, d) and profit_subsistant(o, p); then montant_de_recompense(o, max(d, min(d, p))); }
+@source(CC_ART1469) rule MontantProfitSubsistant(o: OperationDeRecompense, d: Money, p: Money) strict { label fr official "Application CC-11 : MontantProfitSubsistant"; label en unofficial "CC-11 application rule: MontantProfitSubsistant"; when methode_de_recompense(o, AcquisitionConservationAmelioration) and depense_faite(o, d) and profit_subsistant(o, p); then montant_de_recompense(o, max(p, min(d, p))); }
+@source(CC_ART1469) rule MontantDoublePlancher(o: OperationDeRecompense, d: Money, p: Money) strict { label fr official "Application CC-11 : MontantDoublePlancher"; label en unofficial "CC-11 application rule: MontantDoublePlancher"; when methode_de_recompense(o, DepenseNecessaireEtInvestissement) and depense_faite(o, d) and profit_subsistant(o, p); then montant_de_recompense(o, max(d, p)); }
+
+@source(CC_ART1468, CC_ART1470)
+rule TotalDuAEpoux(u: Union, p: Personne, o: OperationDeRecompense) strict { label fr official "Application CC-11 : TotalDuAEpoux"; label en unofficial "CC-11 application rule: TotalDuAEpoux";
+    when recompense_due_a_l_epoux(u, p, o) and montant_de_recompense(o, _);
+    then total_du_a_l_epoux(u, p, sum(collect all m: Money, x: OperationDeRecompense where recompense_due_a_l_epoux(u, p, x) and montant_de_recompense(x, m)));
+}
+@source(CC_ART1468, CC_ART1470)
+rule TotalDuParEpoux(u: Union, p: Personne, o: OperationDeRecompense) strict { label fr official "Application CC-11 : TotalDuParEpoux"; label en unofficial "CC-11 application rule: TotalDuParEpoux";
+    when recompense_due_a_la_communaute(u, p, o) and montant_de_recompense(o, _);
+    then total_du_par_l_epoux(u, p, sum(collect all m: Money, x: OperationDeRecompense where recompense_due_a_la_communaute(u, p, x) and montant_de_recompense(x, m)));
+}
+@source(CC_ART1470) rule SoldePourEpoux(u: Union, p: Personne, a: Money, c: Money) strict { label fr official "Application CC-11 : SoldePourEpoux"; label en unofficial "CC-11 application rule: SoldePourEpoux"; when total_du_a_l_epoux(u, p, a) and total_du_par_l_epoux(u, p, c) and a > c; then solde_en_faveur_de_l_epoux(u, p, a - c); }
+@source(CC_ART1470) rule SoldePourCommunaute(u: Union, p: Personne, a: Money, c: Money) strict { label fr official "Application CC-11 : SoldePourCommunaute"; label en unofficial "CC-11 application rule: SoldePourCommunaute"; when total_du_a_l_epoux(u, p, a) and total_du_par_l_epoux(u, p, c) and c > a; then solde_en_faveur_de_la_communaute(u, p, c - a); }
+
+@source(CC_ART1471) rule RangArgent(u: Union, b: Bien) strict { label fr official "Application CC-11 : RangArgent"; label en unofficial "CC-11 application rule: RangArgent"; when bien_disponible_pour_prelevement(u, b, ArgentComptant); then rang_de_prelevement(u, b, 1); }
+@source(CC_ART1471) rule RangMeuble(u: Union, b: Bien) strict { label fr official "Application CC-11 : RangMeuble"; label en unofficial "CC-11 application rule: RangMeuble"; when bien_disponible_pour_prelevement(u, b, Meuble); then rang_de_prelevement(u, b, 2); }
+@source(CC_ART1471) rule RangImmeuble(u: Union, b: Bien) strict { label fr official "Application CC-11 : RangImmeuble"; label en unofficial "CC-11 application rule: RangImmeuble"; when bien_disponible_pour_prelevement(u, b, Immeuble); then rang_de_prelevement(u, b, 3); }
+
+@source(CC_ART1470, CC_ART1472)
+rule TotalRapports(u: Union, p: Personne) strict { label fr official "Application CC-11 : TotalRapports"; label en unofficial "CC-11 application rule: TotalRapports";
+    when solde_en_faveur_de_la_communaute(u, p, _);
+    then total_des_rapports(u, sum(collect all m: Money, x: Personne where solde_en_faveur_de_la_communaute(u, x, m)));
+}
+@source(CC_ART1470, CC_ART1472)
+rule TotalPrelevements(u: Union, p: Personne) strict { label fr official "Application CC-11 : TotalPrelevements"; label en unofficial "CC-11 application rule: TotalPrelevements";
+    when solde_en_faveur_de_l_epoux(u, p, _);
+    then total_des_prelevements(u, sum(collect all m: Money, x: Personne where solde_en_faveur_de_l_epoux(u, x, m)));
+}
+@source(CC_ART1470) rule MasseAvecRapports(u: Union, b: Money, r: Money) strict { label fr official "Application CC-11 : MasseAvecRapports"; label en unofficial "CC-11 application rule: MasseAvecRapports"; when masse_commune_avant_comptes(u, b) and total_des_rapports(u, r); then masse_apres_rapports(u, b + r); }
+@source(CC_ART1471, CC_ART1472) rule SurplusApresPrelevements(u: Union, b: Money, p: Money) strict { label fr official "Application CC-11 : SurplusApresPrelevements"; label en unofficial "CC-11 application rule: SurplusApresPrelevements"; when masse_apres_rapports(u, b) and total_des_prelevements(u, p); then surplus_apres_prelevements(u, b - p); }
+@source(CC_ART1475) rule PartEgale(u: Union, p: Personne, s: Money) strict { label fr official "Application CC-11 : PartEgale"; label en unofficial "CC-11 application rule: PartEgale"; when epoux(u, p) and surplus_apres_prelevements(u, s); then part_finale_de_communaute(u, p, s * (1 / 2)); }
+
+// The remaining liquidation provisions are exposed by article-specific
+// conclusions: downstream packages can attach succession sharing, concealment,
+// personal claims and post-partition debt enforcement without importing prose.
+pub relation effet_de_liquidation(article: Text, u: Union, p: Personne) kind institutional { label fr official "Élément déclaré CC-11 : effet_de_liquidation"; label en unofficial "CC-11 declared element: effet_de_liquidation"; }
+@source(CC_ART1473, CC_ART1474) rule EffetInteretsEtNaturePrelevement(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetInteretsEtNaturePrelevement"; label en unofficial "CC-11 application rule: EffetInteretsEtNaturePrelevement"; when epoux(u, p); then effet_de_liquidation("1473-1474", u, p); }
+@source(CC_ART1476) rule EffetReglesDuPartageSuccessoral(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetReglesDuPartageSuccessoral"; label en unofficial "CC-11 application rule: EffetReglesDuPartageSuccessoral"; when epoux(u, p); then effet_de_liquidation("1476", u, p); }
+@source(CC_ART1477) rule EffetRecel(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetRecel"; label en unofficial "CC-11 application rule: EffetRecel"; when epoux(u, p); then effet_de_liquidation("1477", u, p); }
+@source(CC_ART1478, CC_ART1479, CC_ART1480) rule EffetCreancesEtDonationsEntreEpoux(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetCreancesEtDonationsEntreEpoux"; label en unofficial "CC-11 application rule: EffetCreancesEtDonationsEntreEpoux"; when epoux(u, p); then effet_de_liquidation("1478-1480", u, p); }
+@source(CC_ART1482, CC_ART1483, CC_ART1484, CC_ART1485, CC_ART1486, CC_ART1487, CC_ART1488, CC_ART1489, CC_ART1490, CC_ART1491)
+rule EffetPassifApresPartage(u: Union, p: Personne) strict { label fr official "Application CC-11 : EffetPassifApresPartage"; label en unofficial "CC-11 application rule: EffetPassifApresPartage"; when epoux(u, p); then effet_de_liquidation("1482-1491", u, p); }

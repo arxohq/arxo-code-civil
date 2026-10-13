@@ -1,0 +1,182 @@
+// TITRE II — DES ACTES DE L'ETAT CIVIL.
+// Les listes de mentions sont fermées : chaque absence est explicable et la
+// complétude ne se déduit que lorsque toutes les mentions requises sont là.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART47,
+    CC_ART55,
+    CC_ART57,
+    CC_ART62,
+    CC_ART73,
+    CC_ART79,
+    CC_ART99,
+};
+
+pub entity ActeEtatCivil { label fr official "acte de l'état civil"; label en unofficial "civil-status record"; }
+pub relation acte_etranger(a: ActeEtatCivil) kind empirical { label fr official "l'acte a été dressé à l'étranger dans les formes locales"; label en unofficial "the record was made abroad in local form"; }
+pub external judgment relation acte_etranger_irregulier_falsifie_ou_inexact(a: ActeEtatCivil) { authority Court; label fr official "l'acte étranger est irrégulier, falsifié ou ses faits ne correspondent pas à la réalité"; label en unofficial "the foreign record is irregular, falsified, or its facts do not correspond to reality"; }
+pub relation acte_etranger_fait_foi(a: ActeEtatCivil) kind derived { label fr official "l'acte étranger fait foi"; label en unofficial "the foreign record has evidentiary effect"; }
+@source(CC_ART47)
+rule ForceProbanteActeEtranger(a: ActeEtatCivil) defeasible { label fr official "Article 47. L'acte étranger régulier fait foi sauf constat contraire"; label en unofficial "Article 47. A regular foreign record has evidentiary effect absent a contrary finding"; when acte_etranger(a) and not_known(acte_etranger_irregulier_falsifie_ou_inexact(a)); then acte_etranger_fait_foi(a); }
+
+pub relation accouchement_le(a: ActeEtatCivil, jour: Date) kind empirical { key(a); label fr official "jour de l'accouchement"; label en unofficial "date of delivery"; }
+pub relation naissance_declaree_le(a: ActeEtatCivil, jour: Date) kind empirical { key(a); label fr official "jour de la déclaration de naissance"; label en unofficial "date of birth declaration"; }
+pub relation commune_eloignee_decret_huit_jours(a: ActeEtatCivil) kind empirical { label fr official "le lieu figure au décret ouvrant le délai de huit jours"; label en unofficial "the place is listed by decree for the eight-day period"; }
+pub relation declaration_naissance_dans_delai(a: ActeEtatCivil) kind derived { label fr official "la naissance est déclarée dans le délai de l'article 55"; label en unofficial "birth is declared within the Article 55 period"; }
+pub relation declarer_naissance_dans_delai(a: ActeEtatCivil) kind empirical { label fr official "la personne déclare la naissance dans le délai légal"; label en unofficial "the person declares the birth within the statutory period"; }
+@source(CC_ART55) {
+  rule DeclarationNaissanceCinqJours(a: ActeEtatCivil, naissance: Date, declaration: Date) defeasible { label fr official "Article 55. La naissance est déclarée dans les cinq jours de l'accouchement"; label en unofficial "Article 55. Birth is declared within five days of delivery"; when accouchement_le(a, naissance) and naissance_declaree_le(a, declaration) and declaration <= add_calendar_period(naissance, 5 calendar_day) and not_known(commune_eloignee_decret_huit_jours(a)); then declaration_naissance_dans_delai(a); }
+  rule DeclarationNaissanceHuitJours(a: ActeEtatCivil, naissance: Date, declaration: Date) defeasible { label fr official "Article 55. Dans les lieux du décret, le délai est porté à huit jours"; label en unofficial "Article 55. In places listed by decree, the period is extended to eight days"; when accouchement_le(a, naissance) and naissance_declaree_le(a, declaration) and commune_eloignee_decret_huit_jours(a) and declaration <= add_calendar_period(naissance, 8 calendar_day); then declaration_naissance_dans_delai(a); }
+}
+@source(CC_ART55)
+rule PositionDevoirDeclarerNaissanceDansDelai(a: ActeEtatCivil) strict {
+    label fr official "Article 55. La naissance doit être déclarée dans le délai légal";
+    label en unofficial "Article 55. The birth must be declared within the statutory period";
+    when accouchement_le(a, _);
+    then duty DevoirDeclarerNaissanceDansDelai {
+        bearer entity_ref("urn:fr:cc:personnes:declarant-naissance");
+        goal achievement {
+            condition declarer_naissance_dans_delai(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+
+// Article 57: jour, heure, lieu, sexe, prénoms, nom et parents.
+pub relation naissance_mention_jour_heure_lieu(a: ActeEtatCivil) kind empirical { label fr official "l'acte de naissance mentionne jour, heure et lieu"; label en unofficial "the birth record states day, time and place"; }
+pub relation naissance_mention_sexe_prenoms_nom(a: ActeEtatCivil) kind empirical { label fr official "l'acte de naissance mentionne sexe, prénoms et nom"; label en unofficial "the birth record states sex, forenames and surname"; }
+pub relation naissance_mention_parents(a: ActeEtatCivil) kind empirical { label fr official "l'acte de naissance porte les mentions parentales requises"; label en unofficial "the birth record contains the required parental particulars"; }
+pub relation acte_naissance_complet(a: ActeEtatCivil) kind derived { label fr official "toutes les mentions fermées de l'acte de naissance sont présentes"; label en unofficial "all closed-list birth-record particulars are present"; }
+pub relation manque_mentions_naissance(a: ActeEtatCivil) kind derived { label fr official "une mention obligatoire manque à l'acte de naissance"; label en unofficial "a required birth-record particular is missing"; }
+@source(CC_ART57) {
+  rule ActeNaissanceComplet(a: ActeEtatCivil) strict { label fr official "Article 57. L'acte est complet lorsque les trois groupes de mentions sont présents"; label en unofficial "Article 57. The record is complete when all three groups of particulars are present"; when naissance_mention_jour_heure_lieu(a) and naissance_mention_sexe_prenoms_nom(a) and naissance_mention_parents(a); then acte_naissance_complet(a); }
+  rule ManqueTempsOuLieuNaissance(a: ActeEtatCivil) defeasible { label fr official "Article 57. Il manque le jour, l'heure ou le lieu"; label en unofficial "Article 57. Day, time or place is missing"; when naissance_mention_sexe_prenoms_nom(a) and naissance_mention_parents(a) and not_known(naissance_mention_jour_heure_lieu(a)); then manque_mentions_naissance(a); }
+  rule ManqueIdentiteNaissance(a: ActeEtatCivil) defeasible { label fr official "Article 57. Il manque le sexe, les prénoms ou le nom"; label en unofficial "Article 57. Sex, forenames or surname is missing"; when naissance_mention_jour_heure_lieu(a) and naissance_mention_parents(a) and not_known(naissance_mention_sexe_prenoms_nom(a)); then manque_mentions_naissance(a); }
+  rule ManqueParentsNaissance(a: ActeEtatCivil) defeasible { label fr official "Article 57. Il manque une mention parentale requise"; label en unofficial "Article 57. A required parental particular is missing"; when naissance_mention_jour_heure_lieu(a) and naissance_mention_sexe_prenoms_nom(a) and not_known(naissance_mention_parents(a)); then manque_mentions_naissance(a); }
+}
+pub relation dresser_acte_naissance_complet(a: ActeEtatCivil) kind empirical { label fr official "l'officier dresse l'acte de naissance avec les mentions requises"; label en unofficial "the officer draws up the birth record with the required particulars"; }
+pub relation acte_naissance_a_dresser(a: ActeEtatCivil) kind empirical { label fr official "un acte de naissance est à dresser à la suite de la déclaration de naissance"; label en unofficial "a birth record is to be drawn up following the birth declaration"; }
+@source(CC_ART57)
+rule PositionDevoirDresserActeNaissanceComplet(a: ActeEtatCivil) strict {
+    label fr official "Article 57. L'acte de naissance doit contenir les mentions requises";
+    label en unofficial "Article 57. The birth record must contain the required particulars";
+    when acte_naissance_a_dresser(a);
+    then duty DevoirDresserActeNaissanceComplet {
+        bearer entity_ref("urn:fr:cc:personnes:officier-etat-civil");
+        goal achievement {
+            condition dresser_acte_naissance_complet(a);
+            window [@1804-03-21, infinity];
+        };
+    };
+}
+
+pub relation acte_etat_civil_complet(a: ActeEtatCivil) kind derived { label fr official "l'acte spécial contient toutes ses mentions obligatoires"; label en unofficial "the special record contains all required particulars"; }
+pub relation reconnaissance_mention_auteur(a: ActeEtatCivil) kind empirical { label fr official "l'identité, la naissance et le domicile de l'auteur sont mentionnés"; label en unofficial "the author's identity, birth and domicile particulars are stated"; }
+pub relation reconnaissance_mention_enfant(a: ActeEtatCivil) kind empirical { label fr official "la naissance, le sexe et les prénoms de l'enfant sont mentionnés"; label en unofficial "the child's birth, sex and forenames are stated"; }
+pub relation manque_auteur_reconnaissance(a: ActeEtatCivil) kind derived { label fr official "les mentions relatives à l'auteur manquent"; label en unofficial "the author particulars are missing"; }
+pub relation manque_enfant_reconnaissance(a: ActeEtatCivil) kind derived { label fr official "les mentions relatives à l'enfant manquent"; label en unofficial "the child particulars are missing"; }
+@source(CC_ART62) {
+  rule ReconnaissanceComplete(a: ActeEtatCivil) strict { label fr official "Article 62. L'acte de reconnaissance reprend les mentions relatives à l'auteur et à l'enfant"; label en unofficial "Article 62. An acknowledgment contains the author and child particulars"; when reconnaissance_mention_auteur(a) and reconnaissance_mention_enfant(a); then acte_etat_civil_complet(a); }
+  rule ReconnaissanceSansAuteur(a: ActeEtatCivil) defeasible { label fr official "Article 62. Les mentions relatives à l'auteur manquent"; label en unofficial "Article 62. The author particulars are missing"; when reconnaissance_mention_enfant(a) and not_known(reconnaissance_mention_auteur(a)); then manque_auteur_reconnaissance(a); }
+  rule ReconnaissanceSansEnfant(a: ActeEtatCivil) defeasible { label fr official "Article 62. Les mentions relatives à l'enfant manquent"; label en unofficial "Article 62. The child particulars are missing"; when reconnaissance_mention_auteur(a) and not_known(reconnaissance_mention_enfant(a)); then manque_enfant_reconnaissance(a); }
+}
+pub relation dresser_acte_reconnaissance_complet(a: ActeEtatCivil) kind empirical { label fr official "l'officier dresse l'acte de reconnaissance avec les mentions requises"; label en unofficial "the officer draws up the acknowledgment record with the required particulars"; }
+pub relation acte_reconnaissance_a_dresser(a: ActeEtatCivil) kind empirical { label fr official "un acte de reconnaissance est à dresser"; label en unofficial "an acknowledgment record is to be drawn up"; }
+@source(CC_ART62)
+rule PositionDevoirDresserActeReconnaissanceComplet(a: ActeEtatCivil) strict {
+    label fr official "Article 62. L'acte de reconnaissance doit contenir les mentions requises";
+    label en unofficial "Article 62. The acknowledgment record must contain the required particulars";
+    when acte_reconnaissance_a_dresser(a);
+    then duty DevoirDresserActeReconnaissanceComplet {
+        bearer entity_ref("urn:fr:cc:personnes:officier-etat-civil");
+        goal achievement {
+            condition dresser_acte_reconnaissance_complet(a);
+            window [@1804-03-21, infinity];
+        };
+    };
+}
+
+pub relation consentement_mention_futurs_epoux(a: ActeEtatCivil) kind empirical { label fr official "l'identité, la profession et le domicile des futurs époux sont mentionnés"; label en unofficial "the future spouses' identity, occupation and domicile are stated"; }
+pub relation consentement_mention_consentants_parente(a: ActeEtatCivil) kind empirical { label fr official "l'identité des consentants et leur degré de parenté sont mentionnés"; label en unofficial "the consenting persons and their degree of kinship are stated"; }
+pub relation manque_futurs_epoux_consentement(a: ActeEtatCivil) kind derived { label fr official "les mentions relatives aux futurs époux manquent"; label en unofficial "the future-spouse particulars are missing"; }
+pub relation manque_consentants_parente(a: ActeEtatCivil) kind derived { label fr official "les mentions relatives aux consentants ou à leur parenté manquent"; label en unofficial "the consenting-person or kinship particulars are missing"; }
+@source(CC_ART73) {
+  rule ConsentementMariageComplet(a: ActeEtatCivil) strict { label fr official "Article 73. L'acte de consentement reprend les mentions des futurs époux, des consentants et de leur parenté"; label en unofficial "Article 73. A marriage-consent record contains the future-spouse, consenting-person and kinship particulars"; when consentement_mention_futurs_epoux(a) and consentement_mention_consentants_parente(a); then acte_etat_civil_complet(a); }
+  rule ConsentementSansFutursEpoux(a: ActeEtatCivil) defeasible { label fr official "Article 73. Les mentions relatives aux futurs époux manquent"; label en unofficial "Article 73. The future-spouse particulars are missing"; when consentement_mention_consentants_parente(a) and not_known(consentement_mention_futurs_epoux(a)); then manque_futurs_epoux_consentement(a); }
+  rule ConsentementSansConsentants(a: ActeEtatCivil) defeasible { label fr official "Article 73. Les mentions relatives aux consentants ou à leur parenté manquent"; label en unofficial "Article 73. The consenting-person or kinship particulars are missing"; when consentement_mention_futurs_epoux(a) and not_known(consentement_mention_consentants_parente(a)); then manque_consentants_parente(a); }
+}
+pub relation dresser_acte_consentement_mariage_complet(a: ActeEtatCivil) kind empirical { label fr official "l'officier dresse l'acte de consentement avec les mentions requises"; label en unofficial "the officer draws up the marriage-consent record with the required particulars"; }
+pub relation acte_consentement_mariage_a_dresser(a: ActeEtatCivil) kind empirical { label fr official "un acte authentique de consentement au mariage est à dresser"; label en unofficial "an authentic marriage-consent record is to be drawn up"; }
+@source(CC_ART73)
+rule PositionDevoirDresserActeConsentementMariageComplet(a: ActeEtatCivil) strict {
+    label fr official "Article 73. L'acte de consentement doit contenir les mentions requises";
+    label en unofficial "Article 73. The marriage-consent record must contain the required particulars";
+    when acte_consentement_mariage_a_dresser(a);
+    then duty DevoirDresserActeConsentementMariageComplet {
+        bearer entity_ref("urn:fr:cc:personnes:officier-etat-civil");
+        goal achievement {
+            condition dresser_acte_consentement_mariage_complet(a);
+            window [@1804-03-21, infinity];
+        };
+    };
+}
+
+pub relation deces_mention_jour_heure_lieu(a: ActeEtatCivil) kind empirical { label fr official "le jour, l'heure et le lieu du décès sont mentionnés"; label en unofficial "the date, time and place of death are stated"; }
+pub relation deces_mention_identite_defunt(a: ActeEtatCivil) kind empirical { label fr official "l'identité, la naissance, la profession et le domicile du défunt sont mentionnés"; label en unofficial "the deceased person's identity, birth, occupation and domicile are stated"; }
+pub relation deces_mention_parents(a: ActeEtatCivil) kind empirical { label fr official "l'identité, la profession et le domicile des parents sont mentionnés"; label en unofficial "the parents' identity, occupation and domicile are stated"; }
+pub relation deces_mention_conjoint_satisfaite(a: ActeEtatCivil) kind empirical { label fr official "la mention du conjoint est présente ou inapplicable"; label en unofficial "the spouse particular is present or inapplicable"; }
+pub relation deces_mention_partenaire_satisfaite(a: ActeEtatCivil) kind empirical { label fr official "la mention du partenaire est présente ou inapplicable"; label en unofficial "the civil-partner particular is present or inapplicable"; }
+pub relation deces_mention_declarant(a: ActeEtatCivil) kind empirical { label fr official "l'identité, l'âge, la profession, le domicile et, le cas échéant, la parenté du déclarant sont mentionnés"; label en unofficial "the declarant's identity, age, occupation, domicile and, where applicable, kinship are stated"; }
+pub relation manque_jour_heure_lieu_deces(a: ActeEtatCivil) kind derived { label fr official "le jour, l'heure ou le lieu du décès manque"; label en unofficial "the date, time or place of death is missing"; }
+pub relation manque_identite_defunt(a: ActeEtatCivil) kind derived { label fr official "une mention relative au défunt manque"; label en unofficial "a deceased-person particular is missing"; }
+pub relation manque_parents_defunt(a: ActeEtatCivil) kind derived { label fr official "une mention relative aux parents manque"; label en unofficial "a parent particular is missing"; }
+pub relation manque_conjoint_defunt(a: ActeEtatCivil) kind derived { label fr official "la mention applicable du conjoint manque"; label en unofficial "the applicable spouse particular is missing"; }
+pub relation manque_partenaire_defunt(a: ActeEtatCivil) kind derived { label fr official "la mention applicable du partenaire manque"; label en unofficial "the applicable civil-partner particular is missing"; }
+pub relation manque_declarant_deces(a: ActeEtatCivil) kind derived { label fr official "une mention relative au déclarant manque"; label en unofficial "a declarant particular is missing"; }
+@source(CC_ART79) {
+  rule ActeDecesComplet(a: ActeEtatCivil) strict { label fr official "Article 79. L'acte de décès contient les six groupes de mentions énumérés"; label en unofficial "Article 79. A death record contains all six listed groups of particulars"; when deces_mention_jour_heure_lieu(a) and deces_mention_identite_defunt(a) and deces_mention_parents(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_partenaire_satisfaite(a) and deces_mention_declarant(a); then acte_etat_civil_complet(a); }
+  rule DecesSansJourHeureLieu(a: ActeEtatCivil) defeasible { label fr official "Article 79, 1°. Le jour, l'heure ou le lieu du décès manque"; label en unofficial "Article 79(1). The date, time or place of death is missing"; when deces_mention_identite_defunt(a) and deces_mention_parents(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_partenaire_satisfaite(a) and deces_mention_declarant(a) and not_known(deces_mention_jour_heure_lieu(a)); then manque_jour_heure_lieu_deces(a); }
+  rule DecesSansIdentiteDefunt(a: ActeEtatCivil) defeasible { label fr official "Article 79, 2°. Une mention relative au défunt manque"; label en unofficial "Article 79(2). A deceased-person particular is missing"; when deces_mention_jour_heure_lieu(a) and deces_mention_parents(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_partenaire_satisfaite(a) and deces_mention_declarant(a) and not_known(deces_mention_identite_defunt(a)); then manque_identite_defunt(a); }
+  rule DecesSansParents(a: ActeEtatCivil) defeasible { label fr official "Article 79, 3°. Une mention relative aux parents manque"; label en unofficial "Article 79(3). A parent particular is missing"; when deces_mention_jour_heure_lieu(a) and deces_mention_identite_defunt(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_partenaire_satisfaite(a) and deces_mention_declarant(a) and not_known(deces_mention_parents(a)); then manque_parents_defunt(a); }
+  rule DecesSansConjoint(a: ActeEtatCivil) defeasible { label fr official "Article 79, 4°. La mention applicable du conjoint manque"; label en unofficial "Article 79(4). The applicable spouse particular is missing"; when deces_mention_jour_heure_lieu(a) and deces_mention_identite_defunt(a) and deces_mention_parents(a) and deces_mention_partenaire_satisfaite(a) and deces_mention_declarant(a) and not_known(deces_mention_conjoint_satisfaite(a)); then manque_conjoint_defunt(a); }
+  rule DecesSansPartenaire(a: ActeEtatCivil) defeasible { label fr official "Article 79, 4° bis. La mention applicable du partenaire manque"; label en unofficial "Article 79(4 bis). The applicable civil-partner particular is missing"; when deces_mention_jour_heure_lieu(a) and deces_mention_identite_defunt(a) and deces_mention_parents(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_declarant(a) and not_known(deces_mention_partenaire_satisfaite(a)); then manque_partenaire_defunt(a); }
+  rule DecesSansDeclarant(a: ActeEtatCivil) defeasible { label fr official "Article 79, 5°. Une mention relative au déclarant manque"; label en unofficial "Article 79(5). A declarant particular is missing"; when deces_mention_jour_heure_lieu(a) and deces_mention_identite_defunt(a) and deces_mention_parents(a) and deces_mention_conjoint_satisfaite(a) and deces_mention_partenaire_satisfaite(a) and not_known(deces_mention_declarant(a)); then manque_declarant_deces(a); }
+}
+pub relation dresser_acte_deces_complet(a: ActeEtatCivil) kind empirical { label fr official "l'officier dresse l'acte de décès avec les mentions requises"; label en unofficial "the officer draws up the death record with the required particulars"; }
+pub relation acte_de_deces_a_etablir(a: ActeEtatCivil) kind empirical { label fr official "un acte de décès est à dresser"; label en unofficial "a death record is to be drawn up"; }
+@source(CC_ART79)
+rule PositionDevoirDresserActeDecesComplet(a: ActeEtatCivil) strict {
+    label fr official "Article 79. L'acte de décès doit contenir les mentions requises";
+    label en unofficial "Article 79. The death record must contain the required particulars";
+    when acte_de_deces_a_etablir(a);
+    then duty DevoirDresserActeDecesComplet {
+        bearer entity_ref("urn:fr:cc:personnes:officier-etat-civil");
+        goal achievement {
+            condition dresser_acte_deces_complet(a);
+            window [@1804-03-21, infinity];
+        };
+    };
+}
+
+pub relation rectification_ou_annulation_ordonnee(a: ActeEtatCivil) kind empirical { label fr official "le procureur ou le juge a ordonné la rectification ou l'annulation"; label en unofficial "the prosecutor or court ordered correction or cancellation"; }
+pub relation acte_rectifiable_ou_annulable(a: ActeEtatCivil) kind derived { label fr official "l'acte doit être rectifié ou annulé selon la décision"; label en unofficial "the record is to be corrected or cancelled under the decision"; }
+@source(CC_ART99)
+rule EffetDecisionRectification(a: ActeEtatCivil) strict { label fr official "Article 99. La décision du procureur ou du juge emporte rectification ou annulation"; label en unofficial "Article 99. The prosecutor's or court's decision entails correction or cancellation"; when rectification_ou_annulation_ordonnee(a); then acte_rectifiable_ou_annulable(a); }
+pub relation executer_decision_rectification(a: ActeEtatCivil) kind empirical { label fr official "la décision de rectification ou d'annulation est exécutée"; label en unofficial "the correction or cancellation decision is carried out"; }
+@source(CC_ART99)
+rule PositionDevoirExecuterDecisionRectification(a: ActeEtatCivil) strict {
+    label fr official "Article 99. La décision de rectification ou d'annulation doit être exécutée";
+    label en unofficial "Article 99. The correction or cancellation decision must be carried out";
+    when rectification_ou_annulation_ordonnee(a);
+    then duty DevoirExecuterDecisionRectification {
+        bearer entity_ref("urn:fr:cc:personnes:officier-etat-civil");
+        goal achievement {
+            condition executer_decision_rectification(a);
+            window [@1804-03-21, infinity];
+        };
+    };
+}

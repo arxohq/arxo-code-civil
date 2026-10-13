@@ -1,0 +1,603 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1800,
+    CC_ART1802,
+    CC_ART1803,
+    CC_ART1805,
+    CC_ART1806,
+    CC_ART1807,
+    CC_ART1808,
+    CC_ART1809,
+    CC_ART1810,
+    CC_ART1811,
+    CC_ART1812,
+    CC_ART1813,
+    CC_ART1814,
+    CC_ART1815,
+    CC_ART1816,
+    CC_ART1817,
+    CC_ART1818,
+    CC_ART1819,
+    CC_ART1821,
+    CC_ART1822,
+    CC_ART1823,
+    CC_ART1824,
+    CC_ART1825,
+    CC_ART1826,
+    CC_ART1827,
+    CC_ART1828,
+    CC_ART1829,
+    CC_ART1831,
+    Cheptel,
+    EspeceDeCheptel,
+    Personne,
+    animaux_suffisants_pour_reconstituer_le_fonds,
+    animaux_susceptibles_de_croit_ou_de_profit,
+    bail_de_metayage_fini,
+    bailleur_conserve_la_propriete_des_vaches,
+    bailleur_de_cheptel,
+    bailleur_peut_demander_la_resolution_du_cheptel,
+    bailleur_preleve_le_fonds_et_partage_l_excedent,
+    bailleur_prevenu_de_la_tonte,
+    bailleur_proprietaire_de_la_metairie,
+    cas_fortuit_du_cheptel,
+    chacun_fournit_la_moitie_des_bestiaux,
+    cheptel_a_moitie_qualifie,
+    cheptel_de_fer_qualifie,
+    cheptel_donne_au_fermier_d_autrui,
+    cheptel_donne_au_metayer,
+    cheptel_du_metayer_fini,
+    cheptel_peri_en_entier,
+    cheptel_peri_en_partie,
+    cheptel_qualifie,
+    cheptel_saisi_par_le_proprietaire,
+    compte_des_peaux_du,
+    consentement_de_l_autre_partie_a_la_disposition,
+    convention_contraire_sur_la_perte_du_fermier,
+    convention_contraire_sur_les_laitages,
+    convention_contraire_sur_les_laitages_nulle,
+    convention_contraire_sur_les_profits_du_fermier,
+    convention_de_cheptel_nulle,
+    conventions_particulieres_du_cheptel,
+    demande_resolution_du_cheptel_exercee,
+    disposition_d_une_bete_interdite,
+    duree_du_cheptel_applicable,
+    duree_du_cheptel_convenue,
+    duree_du_cheptel_fixee_par_convention,
+    espece_du_cheptel,
+    etat_numeratif_descriptif_et_estimatif_au_bail,
+    excedent_appartient_au_preneur,
+    faute_du_preneur_prealable_au_cas_fortuit,
+    fin_du_cheptel_ou_resolution,
+    fonds_de_betail_remis,
+    fonds_preleve_et_excedent_partage,
+    fumier_appartient_a_la_metairie,
+    fumier_employe_a_l_exploitation,
+    laine_et_croit_partages,
+    laitages_fumier_et_travail_au_preneur,
+    notification_au_proprietaire_du_fonds_faite,
+    perte_fortuite_supportee_par_preneur,
+    perte_pour_le_bailleur_du_cheptel,
+    perte_supportee_en_commun,
+    perte_totale_pour_le_fermier,
+    preneur_de_cheptel,
+    preneur_de_cheptel_manque_a_ses_obligations,
+    preneur_decharge_par_le_cas_fortuit,
+    preneur_tenu_du_cas_fortuit,
+    profits_au_fermier_pendant_le_bail,
+    proprietaire_peut_saisir_et_faire_vendre,
+    propriete_non_transferee_au_preneur,
+    reglement_sur_la_valeur_au_jour_de_la_fin,
+    regles_suppletives_du_cheptel_applicables,
+    resolution_anticipee_du_cheptel_demandee,
+    saisie_du_cheptel_exercee,
+    soins_du_cheptel_assures,
+    soins_raisonnables_a_la_conservation,
+    stipulation_de_part_de_perte_superieure_au_profit,
+    stipulation_de_perte_totale_a_la_charge_du_preneur,
+    stipulation_de_prelevement_supplementaire_du_bailleur,
+    stipulation_de_toute_la_perte_a_la_charge_du_metayer,
+    stipulation_de_valeur_egale_a_l_estimation,
+    stipulation_metayer_nulle_invoquee,
+    stipulation_nulle_invoquee,
+    tonte_exercee_sans_avertissement,
+    tonte_interdite_sans_avertissement,
+    vaches_donnees_pour_loger_et_nourrir,
+};
+
+@source(CC_ART1800)
+rule QualificationDuCheptel(c: Cheptel, b: Personne, p: Personne) strict {
+    label fr official "Article 1800. Le bail à cheptel remet un fonds de bétail à garder, nourrir et soigner selon les conditions convenues";
+    label en unofficial "Article 1800. A livestock lease hands over livestock to be kept, fed and cared for under agreed conditions";
+    when bailleur_de_cheptel(c, b) and preneur_de_cheptel(c, p) and fonds_de_betail_remis(c);
+    then cheptel_qualifie(c);
+}
+
+// Section IV du chapitre II : du bail à cheptel (articles 1801 à 1831).
+//
+// L'article 1803 fait de toute cette section un droit SUPPLÉTIF : « à défaut de
+// conventions particulières ». Chaque règle de partage porte donc la condition
+// d'absence de convention particulière, et ce qui ne peut pas être stipulé est
+// nommé par les articles 1811, 1817, 1819, 1826 et 1828, non déduit.
+
+@source(CC_ART1802)
+rule AnimauxSusceptiblesDeCroitOuDeProfit(c: Cheptel) strict {
+    label fr official "Article 1802. On peut donner à cheptel toute espèce d'animaux susceptibles de croît ou de profit pour l'agriculture ou le commerce";
+    label en unofficial "Article 1802. Any kind of animal capable of increase or profit for agriculture or trade may be given on livestock lease";
+    when animaux_susceptibles_de_croit_ou_de_profit(c) and fonds_de_betail_remis(c);
+    then cheptel_qualifie(c);
+}
+
+@source(CC_ART1803)
+rule ReglesSuppletivesADefautDeConventionsParticulieres(c: Cheptel) strict {
+    label fr official "Article 1803. À défaut de conventions particulières, ces contrats se règlent par les principes qui suivent";
+    label en unofficial "Article 1803. In the absence of particular agreements, these contracts are governed by the following principles";
+    when cheptel_qualifie(c) and not_known(conventions_particulieres_du_cheptel(c));
+    then regles_suppletives_du_cheptel_applicables(c);
+}
+
+@source(CC_ART1805, CC_ART1822)
+rule EtatNumeratifNeTransportePasLaPropriete(c: Cheptel) strict {
+    label fr official "Articles 1805 et 1822. L'état numératif, descriptif et estimatif des animaux remis ne transporte pas leur propriété au preneur";
+    label en unofficial "Articles 1805 and 1822. The enumerative, descriptive and valuation statement does not transfer ownership of the animals to the lessee";
+    when etat_numeratif_descriptif_et_estimatif_au_bail(c);
+    then propriete_non_transferee_au_preneur(c);
+}
+
+@source(CC_ART1806)
+rule SoinsRaisonnablesALaConservation(c: Cheptel) strict {
+    label fr official "Article 1806. Le preneur doit les soins raisonnables à la conservation du cheptel";
+    label en unofficial "Article 1806. The lessee owes reasonable care to the preservation of the livestock";
+    when cheptel_qualifie(c);
+    then soins_raisonnables_a_la_conservation(c);
+}
+
+@source(CC_ART1806)
+rule PositionDevoirSoinsCheptel(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1806. Devoir du preneur de donner les soins raisonnables au cheptel";
+    label en unofficial "Article 1806. Lessee's duty to provide reasonable care to the livestock";
+    when preneur_de_cheptel(c, p) and cheptel_qualifie(c);
+    then duty DonnerSoinsRaisonnablesCheptel {
+        bearer p;
+        achieve soins_du_cheptel_assures(c) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1807 lu avec 1808 : la faute préalable est la seule porte par
+// laquelle le cas fortuit atteint le preneur, et la charge de la prouver est
+// au bailleur — c'est donc un fait établi du cas, non un silence.
+@source(CC_ART1807, CC_ART1808)
+rule PreneurTenuDuCasFortuitPrecedeDUneFaute(c: Cheptel) strict {
+    label fr official "Articles 1807 et 1808. Le preneur n'est tenu du cas fortuit que lorsqu'il a été précédé d'une faute de sa part, que le bailleur doit prouver";
+    label en unofficial "Articles 1807 and 1808. The lessee is liable for the fortuitous event only where preceded by his own fault, which the lessor must prove";
+    when cas_fortuit_du_cheptel(c) and faute_du_preneur_prealable_au_cas_fortuit(c);
+    then preneur_tenu_du_cas_fortuit(c);
+}
+
+@source(CC_ART1807)
+rule PositionDevoirSupporterPerteFortuiteApresFaute(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1807. Devoir du preneur de supporter la perte fortuite précédée de sa faute";
+    label en unofficial "Article 1807. Lessee's duty to bear a fortuitous loss preceded by fault";
+    when preneur_de_cheptel(c, p) and cas_fortuit_du_cheptel(c)
+        and faute_du_preneur_prealable_au_cas_fortuit(c);
+    then duty SupporterPerteFortuiteApresFaute {
+        bearer p;
+        achieve perte_fortuite_supportee_par_preneur(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1807, CC_ART1808)
+rule PreneurDechargeParLeCasFortuitSansFaute(c: Cheptel) strict {
+    label fr official "Articles 1807 et 1808. Le preneur est déchargé par le cas fortuit qu'il prouve, faute pour le bailleur d'établir une faute préalable";
+    label en unofficial "Articles 1807 and 1808. The lessee is discharged by the fortuitous event he proves, the lessor failing to establish a prior fault";
+    when cas_fortuit_du_cheptel(c)
+        and not_known(faute_du_preneur_prealable_au_cas_fortuit(c));
+    then preneur_decharge_par_le_cas_fortuit(c);
+}
+
+@source(CC_ART1809)
+rule CompteDesPeauxToujoursDu(c: Cheptel) strict {
+    label fr official "Article 1809. Le preneur déchargé par le cas fortuit est toujours tenu de rendre compte des peaux des bêtes";
+    label en unofficial "Article 1809. A lessee discharged by the fortuitous event must still account for the hides of the animals";
+    when preneur_decharge_par_le_cas_fortuit(c);
+    then compte_des_peaux_du(c);
+}
+
+@source(CC_ART1810)
+rule PerteTotaleSansFautePourLeBailleur(c: Cheptel) strict {
+    label fr official "Article 1810, alinéa 1. Si le cheptel périt en entier sans la faute du preneur, la perte est pour le bailleur";
+    label en unofficial "Article 1810, first paragraph. If the livestock wholly perishes without the lessee's fault, the loss falls on the lessor";
+    when cheptel_peri_en_entier(c) and preneur_decharge_par_le_cas_fortuit(c)
+        and not_known(cheptel_donne_au_metayer(c))
+        and not_known(espece_du_cheptel(c, CheptelDonneAuFermier));
+    then perte_pour_le_bailleur_du_cheptel(c);
+}
+
+@source(CC_ART1810)
+rule PertePartielleSupporteeEnCommun(c: Cheptel) strict {
+    label fr official "Article 1810, alinéa 2. S'il ne périt qu'une partie du cheptel, la perte est supportée en commun d'après les deux estimations";
+    label en unofficial "Article 1810, second paragraph. If only part of the livestock perishes, the loss is borne in common on the two valuations";
+    when cheptel_peri_en_partie(c) and preneur_decharge_par_le_cas_fortuit(c);
+    then perte_supportee_en_commun(c);
+}
+
+// Article 1811 : trois stipulations nommées et nulles. Chacune a sa règle,
+// parce que chacune est une interdiction distincte du texte.
+@source(CC_ART1811)
+rule StipulationDePerteTotaleNulle(c: Cheptel) strict {
+    label fr official "Article 1811. On ne peut stipuler que le preneur supportera la perte totale du cheptel arrivée par cas fortuit et sans sa faute";
+    label en unofficial "Article 1811. It may not be stipulated that the lessee will bear the total loss occurring by fortuitous event and without his fault";
+    when stipulation_de_perte_totale_a_la_charge_du_preneur(c);
+    then convention_de_cheptel_nulle(c);
+}
+
+@source(CC_ART1811)
+rule PositionInterdictionStipulationPerteTotale(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Interdiction de stipuler la perte totale à la charge du preneur";
+    label en unofficial "Article 1811. Prohibition on stipulating total loss against the lessee";
+    when preneur_de_cheptel(c, p) and stipulation_de_perte_totale_a_la_charge_du_preneur(c);
+    then prohibition NePasStipulerPerteTotale {
+        bearer p; action stipulation_nulle_invoquee(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule PositionDevoirMaintenirNullitePerteTotale(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Devoir de maintenir la nullité de la stipulation de perte totale";
+    label en unofficial "Article 1811. Duty to maintain the nullity of a total-loss stipulation";
+    when preneur_de_cheptel(c, p) and stipulation_de_perte_totale_a_la_charge_du_preneur(c);
+    then duty MaintenirNullitePerteTotale {
+        bearer p;
+        achieve stipulation_nulle_invoquee(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule PositionInterdictionStipulationPartSuperieure(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Interdiction de stipuler une part de perte supérieure à celle du profit";
+    label en unofficial "Article 1811. Prohibition on stipulating a loss share greater than the profit share";
+    when preneur_de_cheptel(c, p) and stipulation_de_part_de_perte_superieure_au_profit(c);
+    then prohibition NePasStipulerPartSuperieure {
+        bearer p; action stipulation_nulle_invoquee(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule PositionDevoirMaintenirNullitePartSuperieure(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Devoir de maintenir la nullité de la stipulation de part supérieure";
+    label en unofficial "Article 1811. Duty to maintain the nullity of a greater-loss-share stipulation";
+    when preneur_de_cheptel(c, p) and stipulation_de_part_de_perte_superieure_au_profit(c);
+    then duty MaintenirNullitePartSuperieure {
+        bearer p;
+        achieve stipulation_nulle_invoquee(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule PositionInterdictionPrelevementSupplementaire(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Interdiction du prélèvement supplémentaire par le bailleur";
+    label en unofficial "Article 1811. Prohibition on the lessor's additional taking";
+    when preneur_de_cheptel(c, p) and stipulation_de_prelevement_supplementaire_du_bailleur(c);
+    then prohibition NePasPreleverSupplementCheptel {
+        bearer p; action stipulation_nulle_invoquee(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule PositionDevoirMaintenirNullitePrelevement(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1811. Devoir de maintenir la nullité du prélèvement supplémentaire";
+    label en unofficial "Article 1811. Duty to maintain the nullity of an additional taking";
+    when preneur_de_cheptel(c, p) and stipulation_de_prelevement_supplementaire_du_bailleur(c);
+    then duty MaintenirNullitePrelevement {
+        bearer p;
+        achieve stipulation_nulle_invoquee(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1811)
+rule StipulationDePartDePerteSuperieureNulle(c: Cheptel) strict {
+    label fr official "Article 1811. On ne peut stipuler que le preneur supportera dans la perte une part plus grande que dans le profit";
+    label en unofficial "Article 1811. It may not be stipulated that the lessee will bear a greater share in the loss than in the profit";
+    when stipulation_de_part_de_perte_superieure_au_profit(c);
+    then convention_de_cheptel_nulle(c);
+}
+
+@source(CC_ART1811)
+rule StipulationDePrelevementSupplementaireNulle(c: Cheptel) strict {
+    label fr official "Article 1811. On ne peut stipuler que le bailleur prélèvera à la fin du bail quelque chose de plus que le cheptel qu'il a fourni";
+    label en unofficial "Article 1811. It may not be stipulated that the lessor will take at the end of the lease something more than the livestock he supplied";
+    when stipulation_de_prelevement_supplementaire_du_bailleur(c);
+    then convention_de_cheptel_nulle(c);
+}
+
+@source(CC_ART1817, CC_ART1826)
+rule StipulationDeValeurEgaleALEstimationNulle(c: Cheptel) strict {
+    label fr official "Articles 1817 et 1826. Est nulle toute convention par laquelle le preneur doit laisser un fonds de bétail d'une valeur égale au prix de l'estimation de celui qu'il a reçu";
+    label en unofficial "Articles 1817 and 1826. Any agreement requiring the lessee to leave a stock of a value equal to the valuation of the one he received is void";
+    when stipulation_de_valeur_egale_a_l_estimation(c);
+    then convention_de_cheptel_nulle(c);
+}
+
+@source(CC_ART1811, CC_ART1819)
+rule LaitagesFumierEtTravailAuPreneur(c: Cheptel) strict {
+    label fr official "Articles 1811 et 1819. Le preneur profite seul des laitages, du fumier et du travail des animaux donnés à cheptel";
+    label en unofficial "Articles 1811 and 1819. The lessee alone benefits from the dairy produce, the manure and the work of the animals";
+    when regles_suppletives_du_cheptel_applicables(c)
+        and not_known(espece_du_cheptel(c, CheptelDonneAuFermier));
+    then laitages_fumier_et_travail_au_preneur(c);
+}
+
+@source(CC_ART1811)
+rule LaineEtCroitPartages(c: Cheptel) strict {
+    label fr official "Article 1811. La laine et le croît se partagent";
+    label en unofficial "Article 1811. The wool and the increase are shared";
+    when regles_suppletives_du_cheptel_applicables(c);
+    then laine_et_croit_partages(c);
+}
+
+@source(CC_ART1812)
+rule DispositionDUneBeteInterditeSansConsentement(c: Cheptel) strict {
+    label fr official "Article 1812. Ni le preneur ni le bailleur ne peuvent disposer d'une bête du troupeau sans le consentement de l'autre";
+    label en unofficial "Article 1812. Neither lessee nor lessor may dispose of an animal of the herd without the other's consent";
+    when cheptel_qualifie(c) and not_known(consentement_de_l_autre_partie_a_la_disposition(c));
+    then disposition_d_une_bete_interdite(c);
+}
+
+@source(CC_ART1813)
+rule SaisieFauteDeNotificationAuProprietaire(c: Cheptel) strict {
+    label fr official "Article 1813. Le cheptel donné au fermier d'autrui doit être notifié au propriétaire ; sans quoi celui-ci peut le saisir et le faire vendre";
+    label en unofficial "Article 1813. A livestock lease given to another's farmer must be notified to the owner; failing that, he may seize it and have it sold";
+    when cheptel_donne_au_fermier_d_autrui(c)
+        and not_known(notification_au_proprietaire_du_fonds_faite(c));
+    then proprietaire_peut_saisir_et_faire_vendre(c);
+}
+
+@source(CC_ART1813)
+rule PositionPouvoirSaisieCheptelSansNotification(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1813. Pouvoir du propriétaire de saisir le cheptel sans notification";
+    label en unofficial "Article 1813. Owner's power to seize livestock without notice";
+    when bailleur_de_cheptel(c, p) and cheptel_donne_au_fermier_d_autrui(c)
+        and not_known(notification_au_proprietaire_du_fonds_faite(c));
+    then power PouvoirSaisieCheptelSansNotification {
+        holder p; exercise saisie_du_cheptel_exercee(c);
+        valid_when proprietaire_peut_saisir_et_faire_vendre(c);
+        effect cheptel_saisi_par_le_proprietaire(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1814)
+rule TonteInterditeSansAvertissement(c: Cheptel) strict {
+    label fr official "Article 1814. Le preneur ne peut tondre sans en prévenir le bailleur";
+    label en unofficial "Article 1814. The lessee may not shear without warning the lessor";
+    when cheptel_qualifie(c) and not_known(bailleur_prevenu_de_la_tonte(c));
+    then tonte_interdite_sans_avertissement(c);
+}
+
+@source(CC_ART1814)
+rule PositionInterdictionTonteSansAvertissement(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1814. Interdiction au preneur de tondre sans avertissement";
+    label en unofficial "Article 1814. Lessee's prohibition on shearing without warning";
+    when preneur_de_cheptel(c, p) and cheptel_qualifie(c)
+        and not_known(bailleur_prevenu_de_la_tonte(c));
+    then prohibition NePasTondreSansAvertissement {
+        bearer p; action tonte_exercee_sans_avertissement(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1814)
+rule PositionDevoirMaintenirAvertissementTonte(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1814. Devoir de maintenir l'avertissement préalable à la tonte";
+    label en unofficial "Article 1814. Duty to maintain prior warning before shearing";
+    when preneur_de_cheptel(c, p) and cheptel_qualifie(c);
+    then duty MaintenirAvertissementTonte {
+        bearer p; achieve bailleur_prevenu_de_la_tonte(c) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1815 : trois ans par défaut — une durée, non un délai de §86 : elle
+// ne compte aucun jour, elle qualifie le contrat.
+@source(CC_ART1815)
+rule DureeDeTroisAnsADefautDeConvention(c: Cheptel) strict {
+    label fr official "Article 1815. S'il n'y a pas de temps fixé par la convention pour la durée du cheptel, il est censé fait pour trois ans";
+    label en unofficial "Article 1815. If no time is fixed by the agreement for the duration of the livestock lease, it is deemed made for three years";
+    when cheptel_qualifie(c) and not_known(duree_du_cheptel_convenue(c));
+    then duree_du_cheptel_applicable(c, 3);
+}
+
+@source(CC_ART1815)
+rule DureeConvenueDuCheptel(c: Cheptel, n: Integer) strict {
+    label fr official "Article 1815. La durée du cheptel est celle que la convention a fixée lorsqu'elle en fixe une";
+    label en unofficial "Article 1815. The duration of the livestock lease is the one the agreement fixed where it fixes one";
+    when duree_du_cheptel_convenue(c) and duree_du_cheptel_fixee_par_convention(c, n);
+    then duree_du_cheptel_applicable(c, n);
+}
+
+@source(CC_ART1816)
+rule ResolutionAnticipeePourInexecution(c: Cheptel) strict {
+    label fr official "Article 1816. Le bailleur peut demander plus tôt la résolution si le preneur ne remplit pas ses obligations";
+    label en unofficial "Article 1816. The lessor may seek early dissolution if the lessee does not fulfil his obligations";
+    when preneur_de_cheptel_manque_a_ses_obligations(c);
+    then bailleur_peut_demander_la_resolution_du_cheptel(c);
+}
+
+@source(CC_ART1816)
+rule PositionPouvoirResolutionAnticipeeCheptel(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1816. Pouvoir du bailleur de demander la résolution anticipée";
+    label en unofficial "Article 1816. Lessor's power to seek early dissolution";
+    when bailleur_de_cheptel(c, p) and preneur_de_cheptel_manque_a_ses_obligations(c);
+    then power PouvoirResolutionAnticipeeCheptel {
+        holder p; exercise demande_resolution_du_cheptel_exercee(c);
+        valid_when bailleur_peut_demander_la_resolution_du_cheptel(c);
+        effect resolution_anticipee_du_cheptel_demandee(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1817)
+rule BailleurPreleveLeFondsEtPartageLExcedent(c: Cheptel) strict {
+    label fr official "Article 1817, alinéa 1. À la fin du bail, le bailleur prélève un même fonds de bétail et l'excédent se partage";
+    label en unofficial "Article 1817, first paragraph. At the end of the lease, the lessor takes back the same stock and the excess is shared";
+    when fin_du_cheptel_ou_resolution(c) and animaux_suffisants_pour_reconstituer_le_fonds(c)
+        and not_known(espece_du_cheptel(c, CheptelDonneAuFermier));
+    then bailleur_preleve_le_fonds_et_partage_l_excedent(c);
+}
+
+@source(CC_ART1817)
+rule PositionDevoirPreleverFondsPartagerExcedent(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1817. Devoir du bailleur de prélever le fonds et partager l'excédent";
+    label en unofficial "Article 1817. Lessor's duty to take back the stock and share the excess";
+    when bailleur_de_cheptel(c, p) and fin_du_cheptel_ou_resolution(c)
+        and animaux_suffisants_pour_reconstituer_le_fonds(c)
+        and not_known(espece_du_cheptel(c, CheptelDonneAuFermier));
+    then duty PreleverFondsPartagerExcedent {
+        bearer p; achieve fonds_preleve_et_excedent_partage(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1817, CC_ART1826)
+rule ReglementSurLaValeurAuJourDeLaFin(c: Cheptel) strict {
+    label fr official "Articles 1817 et 1826. S'il n'existe pas assez d'animaux, le règlement se fait sur la valeur des animaux au jour où le contrat prend fin";
+    label en unofficial "Articles 1817 and 1826. If there are not enough animals, the settlement is made on the value of the animals at the day the contract ends";
+    when fin_du_cheptel_ou_resolution(c)
+        and not_known(animaux_suffisants_pour_reconstituer_le_fonds(c));
+    then reglement_sur_la_valeur_au_jour_de_la_fin(c);
+}
+
+@source(CC_ART1818)
+rule CheptelAMoitieQualifie(c: Cheptel) strict {
+    label fr official "Article 1818. Le cheptel à moitié est une société dans laquelle chacun fournit la moitié des bestiaux, communs pour le profit et pour la perte";
+    label en unofficial "Article 1818. A livestock lease by halves is a partnership in which each supplies half the livestock, common for profit and loss";
+    when chacun_fournit_la_moitie_des_bestiaux(c);
+    then cheptel_a_moitie_qualifie(c);
+}
+
+// Article 1819, alinéa 3 : la nullité de la convention contraire a UNE réserve
+// nommée — que le bailleur soit propriétaire de la métairie.
+@source(CC_ART1819)
+rule ConventionContraireSurLesLaitagesNulle(c: Cheptel) strict {
+    label fr official "Article 1819, alinéa 3. Toute convention contraire sur les laitages, le fumier et les travaux est nulle, à moins que le bailleur ne soit propriétaire de la métairie";
+    label en unofficial "Article 1819, third paragraph. Any agreement to the contrary on dairy produce, manure and work is void, unless the lessor owns the sharecropping farm";
+    when cheptel_a_moitie_qualifie(c) and convention_contraire_sur_les_laitages(c)
+        and not_known(bailleur_proprietaire_de_la_metairie(c));
+    then convention_contraire_sur_les_laitages_nulle(c);
+}
+
+@source(CC_ART1821)
+rule CheptelDeFerQualifie(c: Cheptel) strict {
+    label fr official "Article 1821. Le cheptel de fer oblige le fermier à laisser, à l'expiration du bail, un même fonds de bétail que celui qu'il a reçu";
+    label en unofficial "Article 1821. The iron stock obliges the farmer to leave, at the end of the lease, the same stock as he received";
+    when espece_du_cheptel(c, CheptelDonneAuFermier) and fonds_de_betail_remis(c);
+    then cheptel_de_fer_qualifie(c);
+}
+
+@source(CC_ART1823)
+rule ProfitsAuFermierPendantLeBail(c: Cheptel) strict {
+    label fr official "Article 1823. Tous les profits appartiennent au fermier pendant la durée de son bail, s'il n'y a convention contraire";
+    label en unofficial "Article 1823. All profits belong to the farmer during his lease, unless otherwise agreed";
+    when cheptel_de_fer_qualifie(c)
+        and not_known(convention_contraire_sur_les_profits_du_fermier(c));
+    then profits_au_fermier_pendant_le_bail(c);
+}
+
+@source(CC_ART1824)
+rule FumierAppartientALaMetairie(c: Cheptel) strict {
+    label fr official "Article 1824. Dans les cheptels donnés au fermier, le fumier appartient à la métairie et doit être uniquement employé à son exploitation";
+    label en unofficial "Article 1824. In livestock leases given to the farmer, the manure belongs to the farm and must be used only in working it";
+    when cheptel_de_fer_qualifie(c);
+    then fumier_appartient_a_la_metairie(c);
+}
+
+@source(CC_ART1824)
+rule PositionDevoirEmployerFumierMetairie(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1824. Devoir d'employer le fumier à l'exploitation de la métairie";
+    label en unofficial "Article 1824. Duty to use manure in the farm's operation";
+    when preneur_de_cheptel(c, p) and cheptel_de_fer_qualifie(c);
+    then duty EmployerFumierExploitation {
+        bearer p; achieve fumier_employe_a_l_exploitation(c) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1825 : le cheptel de fer renverse la règle de l'article 1810 — la
+// perte, même fortuite, est pour le fermier.
+@source(CC_ART1825)
+rule PerteTotalePourLeFermier(c: Cheptel) strict {
+    label fr official "Article 1825. La perte, même totale et par cas fortuit, est en entier pour le fermier, s'il n'y a convention contraire";
+    label en unofficial "Article 1825. The loss, even total and by fortuitous event, falls entirely on the farmer, unless otherwise agreed";
+    when cheptel_de_fer_qualifie(c) and cheptel_peri_en_entier(c)
+        and not_known(convention_contraire_sur_la_perte_du_fermier(c));
+    then perte_totale_pour_le_fermier(c);
+}
+
+@source(CC_ART1826)
+rule ExcedentAuPreneurDuCheptelDeFer(c: Cheptel) strict {
+    label fr official "Article 1826, alinéa 2. S'il y a un excédent à la fin du cheptel donné au fermier, il appartient au preneur";
+    label en unofficial "Article 1826, second paragraph. If there is an excess at the end of the iron-stock lease, it belongs to the lessee";
+    when cheptel_de_fer_qualifie(c) and fin_du_cheptel_ou_resolution(c)
+        and animaux_suffisants_pour_reconstituer_le_fonds(c);
+    then excedent_appartient_au_preneur(c);
+}
+
+@source(CC_ART1827)
+rule PerteTotaleSansFauteDuMetayerPourLeBailleur(c: Cheptel) strict {
+    label fr official "Article 1827. Si le cheptel périt en entier sans la faute du métayer, la perte est pour le bailleur";
+    label en unofficial "Article 1827. If the livestock wholly perishes without the sharecropper's fault, the loss falls on the lessor";
+    when cheptel_donne_au_metayer(c) and cheptel_peri_en_entier(c)
+        and preneur_decharge_par_le_cas_fortuit(c);
+    then perte_pour_le_bailleur_du_cheptel(c);
+}
+
+@source(CC_ART1828)
+rule StipulationDeTouteLaPerteAuMetayerNulle(c: Cheptel) strict {
+    label fr official "Article 1828. On ne peut pas stipuler que le métayer sera tenu de toute la perte";
+    label en unofficial "Article 1828. It may not be stipulated that the sharecropper will bear the whole loss";
+    when cheptel_donne_au_metayer(c) and stipulation_de_toute_la_perte_a_la_charge_du_metayer(c);
+    then convention_de_cheptel_nulle(c);
+}
+
+@source(CC_ART1828)
+rule PositionInterdictionStipulationPerteMetayer(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1828. Interdiction de stipuler toute la perte à la charge du métayer";
+    label en unofficial "Article 1828. Prohibition on placing all loss on the sharecropper";
+    when cheptel_donne_au_metayer(c) and stipulation_de_toute_la_perte_a_la_charge_du_metayer(c)
+        and preneur_de_cheptel(c, p);
+    then prohibition NePasStipulerPerteMetayer {
+        bearer p; action stipulation_metayer_nulle_invoquee(c);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1828)
+rule PositionDevoirMaintenirNullitePerteMetayer(c: Cheptel, p: Personne) strict {
+    label fr official "Article 1828. Devoir de maintenir la nullité de la stipulation de toute la perte";
+    label en unofficial "Article 1828. Duty to maintain the nullity of a whole-loss stipulation";
+    when cheptel_donne_au_metayer(c) and stipulation_de_toute_la_perte_a_la_charge_du_metayer(c)
+        and preneur_de_cheptel(c, p);
+    then duty MaintenirNullitePerteMetayer {
+        bearer p;
+        achieve stipulation_metayer_nulle_invoquee(c) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1829)
+rule CheptelDuMetayerFinitAvecLeBail(c: Cheptel) strict {
+    label fr official "Article 1829. Ce cheptel finit avec le bail de métayage";
+    label en unofficial "Article 1829. This livestock lease ends with the sharecropping lease";
+    when cheptel_donne_au_metayer(c) and bail_de_metayage_fini(c);
+    then cheptel_du_metayer_fini(c);
+}
+
+@source(CC_ART1831)
+rule BailleurConserveLaProprieteDesVaches(c: Cheptel) strict {
+    label fr official "Article 1831. Lorsque des vaches sont données pour les loger et les nourrir, le bailleur en conserve la propriété et n'a que le profit des veaux";
+    label en unofficial "Article 1831. Where cows are given to be housed and fed, the lessor keeps ownership and has only the profit of the calves";
+    when vaches_donnees_pour_loger_et_nourrir(c);
+    then bailleur_conserve_la_propriete_des_vaches(c);
+}

@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1304-3, al. 1, et 1304-6, al. 1 : la condition suspensive dont l'accomplissement
+// a été empêché par celui qui y avait intérêt est RÉPUTÉE ACCOMPLIE ; l'obligation
+// devient dès lors pure et simple, comme si la condition s'était réalisée.
+test "urn:query:fr-code-civil-obligations-m03-condition-suspensive-reputee-accomplie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": condition_de_l_obligation(entity_ref("urn:fr:cc:obligations:emp:c"), entity_ref("urn:fr:cc:obligations:emp:k")) { origin case_input; }
+        assert "f2": espece_de_la_condition(entity_ref("urn:fr:cc:obligations:emp:k"), Suspensive) { origin case_input; }
+        assert "f3": accomplissement_empeche_par_l_interesse(entity_ref("urn:fr:cc:obligations:emp:k")) { origin case_input; }
+    }
+    evaluate truth(obligation_pure_et_simple(entity_ref("urn:fr:cc:obligations:emp:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConditionSuspensiveReputeeAccomplie);
+    expect applied(ObligationPureEtSimpleParConditionReputeeAccomplie);
+}

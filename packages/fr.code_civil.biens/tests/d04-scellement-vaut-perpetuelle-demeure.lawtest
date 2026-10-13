@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 524, al. 10, et 525, al. 1. Le scellement en plâtre fait présumer la
+// perpétuelle demeure, et l'effet mobilier devient immeuble par destination.
+test "urn:query:fr-code-civil-biens-d04-scellement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": scelle_en_platre_a_chaux_ou_a_ciment(entity_ref("urn:fr:cc:biens:d04:B"), entity_ref("urn:fr:cc:biens:d04:F")) { origin case_input; }
+    }
+    evaluate truth(immeuble_par_destination(entity_ref("urn:fr:cc:biens:d04:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

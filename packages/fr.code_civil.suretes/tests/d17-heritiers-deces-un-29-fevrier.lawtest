@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2399, al. 2 : protégé décédé le 29 février 2024 — l'année expire le 28 février 2025 ; inscription requise ce jour, dans le délai.
+test "urn:query:fr-code-civil-suretes-d17-heritiers-deces-un-29-fevrier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:d17:S"), entity_ref("urn:fr:cc:suretes:d17:B"), entity_ref("urn:fr:cc:suretes:d17:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:d17:S"), Legale) { origin case_input; }
+        assert "f3": hypotheque_legale_generale(entity_ref("urn:fr:cc:suretes:d17:S"), MineurOuMajeurEnTutelle) { origin case_input; }
+        assert "f4": deces_du_protege_pendant_l_incapacite_le(entity_ref("urn:fr:cc:suretes:d17:S"), @2024-02-29) { origin case_input; }
+        assert "f5": inscription_requise_le(entity_ref("urn:fr:cc:suretes:d17:S"), @2025-02-28) { origin case_input; }
+    }
+    evaluate truth(inscription_2399_dans_le_delai(entity_ref("urn:fr:cc:suretes:d17:S")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(LimiteApresLeDecesDuProtege);
+}

@@ -1,0 +1,361 @@
+// CODE CIVIL — LIVRE Ier : LA FAMILLE (CC-04).
+//
+// Titres V à IX, XIII et XIV : mariage, divorce, filiation, adoption,
+// autorité parentale, pacte civil de solidarité, mesures de protection des
+// victimes de violences. Les personnes, le domicile, l'absence, la minorité
+// et les majeurs protégés appartiennent au paquet `fr.code_civil.personnes`.
+//
+// CE QUI SE CALCULE dans cette première vague : l'âge du mariage (144), les
+// empêchements de parenté et d'alliance (161 à 163) et ceux du pacte civil de
+// solidarité (515-2), lus en DEGRÉS par `calc.kinship` et non donnés en faits
+// plats ; les délais des nullités (181 : cinq ans ; 184 et 191 : trente ans) ;
+// l'altération définitive du lien conjugal (238 : un an de séparation) ; la
+// période légale de conception (311 : du trois centième au cent
+// quatre-vingtième jour avant la naissance) et la présomption de paternité
+// avec son écartement (312, 313 : trois cents jours) ; les conditions d'âge et
+// de durée de l'adoption (343, 343-1, 345) ; la durée maximale de
+// l'ordonnance de protection (515-12 : douze mois).
+//
+// CE QUI RESTE AU JUGE OU AU TEXTE EXTÉRIEUR : la dispense d'âge du procureur
+// (145), la levée des prohibitions par le Président (164), la prestation
+// compensatoire (270, 271 : « autant qu'il est possible », critères ouverts),
+// l'intérêt de l'enfant (371-1, 373-2), la vraisemblance des violences
+// (515-11). Ils sont des canaux de jugement ou des décisions apportées par le
+// cas, jamais un calcul du paquet.
+//
+// Fichiers :
+//   package.law                      — types, entrées, pont vers calc.kinship
+//   titre-05-mariage.law             — art. 144 à 191
+//   titre-06-divorce.law             — art. 237, 238, 246, 296
+//   titre-07-filiation.law           — art. 311 à 334
+//   titre-08-adoption.law            — art. 343 à 356
+//   titre-09-autorite-parentale.law  — art. 371-1 à 373
+//   titre-13-14-pacs-protection.law  — art. 515-1 à 515-12
+//   sources.law                      — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+import fr.code_civil.core version "0.1.0";
+import calc.kinship version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+type Famille = calc.kinship::Family;
+
+// Politique §86 : les délais de ce livre sont calendaires et courent du jour
+// de l'acte ou de l'événement ; le Code ne prévoit ici aucun jour ouvrable.
+// Elle est PUBLIQUE : un paquet-cas qui interroge ce canon doit pouvoir la
+// nommer dans son contexte §168.2, et non en redéclarer une copie qui
+// divergerait un jour (paquet-cas `examples/mariage-et-regime`).
+pub deadline policy CC_FAMILLE_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub entity Mariage {
+    label fr official "Mariage, de sa célébration à sa dissolution (titre V)";
+    label en unofficial "Marriage, from celebration to dissolution (Title V)";
+}
+pub entity Pacs {
+    label fr official "Pacte civil de solidarité (article 515-1)";
+    label en unofficial "Civil solidarity pact (Article 515-1)";
+}
+pub entity Enfant {
+    label fr official "Enfant dont la filiation est en cause (titres VII et VIII)";
+    label en unofficial "Child whose filiation is at issue (Titles VII and VIII)";
+}
+pub entity Adoption {
+    label fr official "Demande d'adoption (titre VIII)";
+    label en unofficial "Application for adoption (Title VIII)";
+}
+pub entity OrdonnanceDeProtection {
+    label fr official "Ordonnance de protection délivrée par le juge aux affaires familiales (article 515-11)";
+    label en unofficial "Protection order issued by the family judge (Article 515-11)";
+}
+
+// --- Entrées communes ------------------------------------------------------------------------
+
+pub relation ne_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "date de naissance";
+    label en unofficial "date of birth";
+}
+pub relation date_d_appreciation(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour auquel la situation est appréciée : les âges se comptent d'une date à une date, jamais d'une horloge";
+    label en unofficial "day on which the situation is assessed: ages run from date to date, never from a clock";
+}
+pub relation graphe_familial(f: Famille) kind empirical {
+    label fr official "graphe de parenté dans lequel se lisent les empêchements (articles 161 à 163, 515-2)";
+    label en unofficial "kinship graph in which the impediments are read (Articles 161 to 163, 515-2)";
+}
+pub relation filiation_etablie(f: Famille, parent: Personne, enfant: Personne) kind empirical {
+    label fr official "filiation légalement établie entre ces deux personnes";
+    label en unofficial "legally established filiation between these two persons";
+}
+pub relation union(f: Famille, premier: Personne, second: Personne) kind empirical {
+    label fr official "mariage inscrit au graphe : il crée l'alliance des articles 161 et 515-2";
+    label en unofficial "marriage recorded in the graph: it creates the affinity of Articles 161 and 515-2";
+}
+
+// --- Mariage : entrées -------------------------------------------------------------------------
+
+pub relation epoux(m: Mariage, premier: Personne, second: Personne) kind empirical {
+    key(m);
+    label fr official "les deux personnes dont le mariage est en cause";
+    label en unofficial "the two persons whose marriage is at issue";
+}
+pub relation celebre_le(m: Mariage, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour de la célébration du mariage";
+    label en unofficial "day the marriage was celebrated";
+}
+pub relation consentement_libre(m: Mariage, epoux: Personne) kind empirical {
+    label fr official "le consentement de cet époux a été libre (articles 146, 180)";
+    label en unofficial "this spouse's consent was free (Articles 146, 180)";
+}
+pub relation demandeur_nullite(m: Mariage, p: Personne) kind empirical {
+    label fr official "personne demandant la nullité du mariage";
+    label en unofficial "person petitioning for annulment of the marriage";
+}
+pub relation consentement_vicie(m: Mariage, epoux: Personne) kind empirical {
+    label fr official "le juge a constaté que le consentement de cet époux n'a pas été libre (contrainte, crainte révérencielle) ou a été donné par erreur dans la personne ou sur ses qualités essentielles (article 180)";
+    label en unofficial "the court found this spouse's consent was not free (duress, reverential fear) or was given in error as to the person or essential qualities (Article 180)";
+}
+pub relation mariage_anterieur_non_dissous(p: Personne) kind empirical {
+    label fr official "la personne est engagée dans les liens d'un mariage non dissous (article 147)";
+    label en unofficial "the person is bound by a marriage not yet dissolved (Article 147)";
+}
+pub relation dispense_d_age_du_procureur(p: Personne) kind empirical {
+    label fr official "dispense d'âge accordée pour motifs graves par le procureur de la République (article 145)";
+    label en unofficial "age dispensation granted for serious reasons by the public prosecutor (Article 145)";
+}
+pub relation mariage_entre_freres_soeurs_conclu(a: Personne, b: Personne, m: Mariage) kind empirical {
+    label fr official "mariage conclu malgré l'empêchement entre frères et sœurs (article 162)";
+    label en unofficial "marriage concluded despite the sibling impediment (Article 162)";
+}
+pub relation mariage_entre_oncle_niece_conclu(a: Personne, b: Personne, m: Mariage) kind empirical {
+    label fr official "mariage conclu malgré l'empêchement entre oncle et nièce (article 163)";
+    label en unofficial "marriage concluded despite the uncle-niece impediment (Article 163)";
+}
+pub relation dispense_presidentielle(m: Mariage) kind empirical {
+    label fr official "levée des prohibitions par le Président de la République pour causes graves (article 164)";
+    label en unofficial "impediments lifted by the President of the Republic for serious causes (Article 164)";
+}
+pub relation conseil_famille_consentant(conseil: Personne, m: Mariage, mineur: Personne) kind empirical {
+    label fr official "conseil de famille consentant au mariage du mineur (article 159)";
+    label en unofficial "family council consenting to the minor's marriage (Article 159)";
+}
+pub relation president_accorde_dispense(president: Personne, m: Mariage) kind empirical {
+    label fr official "Président accordant la dispense des prohibitions (article 164)";
+    label en unofficial "President granting an impediment dispensation (Article 164)";
+}
+pub relation demandeur_action_filiation(e: Enfant, p: Personne) kind empirical {
+    label fr official "personne exerçant une action relative à la filiation";
+    label en unofficial "person exercising a filiation action";
+}
+pub relation action_filiation_exercee(e: Enfant, p: Personne) kind empirical {
+    label fr official "action relative à la filiation exercée dans le délai";
+    label en unofficial "filiation action exercised within the time limit";
+}
+pub relation demandeur_contestation_filiation(e: Enfant, p: Personne) kind empirical {
+    label fr official "personne contestant la filiation";
+    label en unofficial "person contesting filiation";
+}
+pub relation contestation_filiation_exercee(e: Enfant, p: Personne) kind empirical {
+    label fr official "contestation de filiation exercée";
+    label en unofficial "filiation contest exercised";
+}
+pub relation contestation_dans_delai(e: Enfant, p: Personne) kind empirical {
+    label fr official "contestation de filiation exercée dans le délai légal";
+    label en unofficial "filiation contest exercised within the legal time limit";
+}
+pub relation alliance_dissoute_par_deces(m: Mariage) kind empirical {
+    label fr official "la personne qui a créé l'alliance est décédée (article 164, 1°)";
+    label en unofficial "the person who created the affinity has died (Article 164, 1°)";
+}
+pub relation demande_en_nullite_le(m: Mariage, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour de la demande en nullité du mariage (articles 181, 184, 191)";
+    label en unofficial "day the application to annul the marriage was made (Articles 181, 184, 191)";
+}
+pub relation mariage_non_public_ou_officier_incompetent(m: Mariage) kind empirical {
+    label fr official "mariage non contracté publiquement ou non célébré devant l'officier public compétent (article 191)";
+    label en unofficial "marriage not publicly contracted or not celebrated before the competent registrar (Article 191)";
+}
+
+// --- Divorce : entrées -------------------------------------------------------------------------
+
+pub relation separes_depuis(m: Mariage, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour depuis lequel les époux vivent séparés, la communauté de vie ayant cessé (article 238)";
+    label en unofficial "day from which the spouses have lived apart, common life having ceased (Article 238)";
+}
+pub relation demande_en_divorce_le(m: Mariage, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour de la demande en divorce (articles 238, 313)";
+    label en unofficial "day the divorce petition was filed (Articles 238, 313)";
+}
+pub relation demande_pour_faute(m: Mariage) kind empirical {
+    label fr official "une demande en divorce pour faute est présentée (article 246)";
+    label en unofficial "a petition for divorce for fault is filed (Article 246)";
+}
+pub relation demande_pour_alteration(m: Mariage) kind empirical {
+    label fr official "une demande pour altération définitive du lien conjugal est présentée (articles 237, 246)";
+    label en unofficial "a petition for definitive alteration of the marital bond is filed (Articles 237, 246)";
+}
+
+// --- Filiation : entrées -----------------------------------------------------------------------
+
+pub relation ne_de(e: Enfant, personne: Personne) kind empirical {
+    key(e);
+    label fr official "l'enfant considéré, comme personne du graphe";
+    label en unofficial "the child at issue, as a person of the graph";
+}
+pub relation naissance_le(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour de la naissance de l'enfant (article 311)";
+    label en unofficial "day of the child's birth (Article 311)";
+}
+pub relation date_de_conception_examinee(e: Enfant, jour: Date) kind empirical {
+    label fr official "date dont on demande si elle appartient à la période légale de conception (article 311)";
+    label en unofficial "date for which one asks whether it falls within the legal period of conception (Article 311)";
+}
+pub relation mariage_dissous_le(m: Mariage, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour de la dissolution du mariage (décès, divorce)";
+    label en unofficial "day the marriage was dissolved (death, divorce)";
+}
+pub relation mere_mariee_a(e: Enfant, mari: Personne) kind empirical {
+    key(e);
+    label fr official "la mère de l'enfant est mariée à cette personne";
+    label en unofficial "the child's mother is married to this person";
+}
+pub relation mariage_de_la_mere(e: Enfant, m: Mariage) kind empirical {
+    key(e);
+    label fr official "mariage de la mère au cours duquel l'enfant est conçu ou né (article 312)";
+    label en unofficial "the mother's marriage during which the child was conceived or born (Article 312)";
+}
+pub relation acte_de_naissance_designe_le_mari(e: Enfant) kind empirical {
+    label fr official "l'acte de naissance désigne le mari en qualité de père (article 313)";
+    label en unofficial "the birth certificate names the husband as father (Article 313)";
+}
+pub relation possession_d_etat_a_l_egard_du_mari(e: Enfant) kind empirical {
+    label fr official "l'enfant a la possession d'état à l'égard du mari (article 314)";
+    label en unofficial "the child has apparent status with respect to the husband (Article 314)";
+}
+pub relation filiation_paternelle_etablie_envers_un_tiers(e: Enfant) kind empirical {
+    label fr official "une filiation paternelle est déjà établie à l'égard d'un tiers (article 314)";
+    label en unofficial "paternal filiation is already established with respect to a third party (Article 314)";
+}
+pub relation prive_de_l_etat_le(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour où la personne a été privée de l'état qu'elle réclame ou a commencé à jouir de l'état contesté (article 321)";
+    label en unofficial "day the person was deprived of the status claimed or began to enjoy the contested status (Article 321)";
+}
+pub relation possession_d_etat_cessee_le(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour où la possession d'état conforme au titre a cessé (article 333)";
+    label en unofficial "day the apparent status conforming to the title ceased (Article 333)";
+}
+pub relation action_en_contestation_le(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour où l'action en contestation de filiation est engagée (articles 321, 333)";
+    label en unofficial "day the action contesting filiation is brought (Articles 321, 333)";
+}
+pub relation possession_d_etat_conforme_au_titre_depuis(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour depuis lequel la possession d'état conforme au titre dure (article 333, alinéa 2)";
+    label en unofficial "day since which apparent status conforming to the title has lasted (Article 333, paragraph 2)";
+}
+
+// --- Adoption : entrées ------------------------------------------------------------------------
+
+pub relation adoptant(a: Adoption, personne: Personne) kind empirical {
+    label fr official "personne qui demande l'adoption (articles 343, 343-1)";
+    label en unofficial "person applying to adopt (Articles 343, 343-1)";
+}
+pub relation adopte(a: Adoption, enfant: Personne) kind empirical {
+    key(a);
+    label fr official "personne dont l'adoption est demandée";
+    label en unofficial "person whose adoption is sought";
+}
+pub relation couple_adoptant(a: Adoption) kind empirical {
+    label fr official "la demande est présentée par deux époux, deux partenaires ou deux concubins (article 343)";
+    label en unofficial "the application is made by two spouses, partners or cohabitants (Article 343)";
+}
+pub relation communaute_de_vie_depuis(a: Adoption, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour depuis lequel les adoptants justifient d'une communauté de vie (article 343)";
+    label en unofficial "day since which the adopters have shared a common life (Article 343)";
+}
+pub relation demande_d_adoption_le(a: Adoption, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour de la demande d'adoption";
+    label en unofficial "day of the adoption application";
+}
+pub relation accueilli_au_foyer_depuis(a: Adoption, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour depuis lequel l'enfant est accueilli au foyer du ou des adoptants (article 345)";
+    label en unofficial "day since which the child has been received in the adopters' home (Article 345)";
+}
+pub relation consentement_a_l_adoption_donne(a: Adoption) kind empirical {
+    label fr official "consentement à l'adoption valablement donné (articles 344, 348-3)";
+    label en unofficial "consent to the adoption validly given (Articles 344, 348-3)";
+}
+pub relation adoption_pleniere_demandee(a: Adoption) kind empirical {
+    label fr official "l'adoption demandée est une adoption plénière (article 345)";
+    label en unofficial "the adoption sought is a full adoption (Article 345)";
+}
+
+// --- Autorité parentale : entrées ---------------------------------------------------------------
+
+pub relation filiation_etablie_le(parent: Personne, enfant: Personne, jour: Date) kind empirical {
+    label fr official "jour où la filiation a été établie à l'égard de ce parent (article 372, alinéa 2)";
+    label en unofficial "day filiation was established with respect to this parent (Article 372, paragraph 2)";
+}
+pub relation declaration_conjointe_d_exercice_commun(parent: Personne, enfant: Personne) kind empirical {
+    label fr official "déclaration conjointe des père et mère en vue de l'exercice commun (article 372, alinéa 3)";
+    label en unofficial "joint declaration of the parents for joint exercise (Article 372, paragraph 3)";
+}
+pub relation hors_d_etat_de_manifester_sa_volonte(p: Personne) kind empirical {
+    label fr official "le père ou la mère est hors d'état de manifester sa volonté, par incapacité, absence ou toute autre cause (article 373)";
+    label en unofficial "the parent is unable to express his will, through incapacity, absence or any other cause (Article 373)";
+}
+pub relation emancipe(p: Personne) kind empirical {
+    label fr official "l'enfant est émancipé : l'autorité parentale prend fin (article 371-1, alinéa 2)";
+    label en unofficial "the child is emancipated: parental authority ends (Article 371-1, paragraph 2)";
+}
+
+// --- PACS et protection : entrées ---------------------------------------------------------------
+
+pub relation partenaires(pacs: Pacs, premier: Personne, second: Personne) kind empirical {
+    key(pacs);
+    label fr official "les deux personnes physiques qui concluent le pacte (article 515-1)";
+    label en unofficial "the two natural persons entering the pact (Article 515-1)";
+}
+pub relation pacs_anterieur_non_dissous(p: Personne) kind empirical {
+    label fr official "la personne est déjà liée par un pacte civil de solidarité (article 515-2, 3°)";
+    label en unofficial "the person is already bound by a civil solidarity pact (Article 515-2, 3°)";
+}
+pub relation mariage_des_partenaires_ou_de_l_un_le(pacs: Pacs, jour: Date) kind empirical {
+    key(pacs);
+    label fr official "jour du mariage des partenaires ou de l'un d'eux : le pacte se dissout à cette date (article 515-7, alinéa 1)";
+    label en unofficial "day the partners or one of them married: the pact dissolves on that date (Article 515-7, paragraph 1)";
+}
+pub relation deces_d_un_partenaire_le(pacs: Pacs, jour: Date) kind empirical {
+    key(pacs);
+    label fr official "jour du décès de l'un des partenaires (article 515-7, alinéa 1)";
+    label en unofficial "day one of the partners died (Article 515-7, paragraph 1)";
+}
+pub relation ordonnance_notifiee_le(o: OrdonnanceDeProtection, jour: Date) kind empirical {
+    key(o);
+    label fr official "jour de la notification de l'ordonnance de protection (article 515-12)";
+    label en unofficial "day the protection order was served (Article 515-12)";
+}
+pub relation demande_en_divorce_pendant_l_ordonnance(o: OrdonnanceDeProtection) kind empirical {
+    label fr official "une demande en divorce ou en séparation de corps a été déposée durant le délai (article 515-12)";
+    label en unofficial "a divorce or legal-separation petition was filed during the period (Article 515-12)";
+}

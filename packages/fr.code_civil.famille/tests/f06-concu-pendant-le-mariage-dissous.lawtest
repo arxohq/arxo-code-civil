@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 311 et 312 : mariage dissous le 1er janvier 2024, naissance le 1er mars — conçu pendant le mariage, le mari est le père.
+test "urn:query:fr-code-civil-famille-f06-concu-pendant-le-mariage-dissous" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": naissance_le(entity_ref("urn:fr:cc:fam:n:e"), @2024-03-01) { origin case_input; }
+        assert "f2": mariage_de_la_mere(entity_ref("urn:fr:cc:fam:n:e"), entity_ref("urn:fr:cc:fam:n:m")) { origin case_input; }
+        assert "f3": celebre_le(entity_ref("urn:fr:cc:fam:n:m"), @2019-06-01) { origin case_input; }
+        assert "f4": mere_mariee_a(entity_ref("urn:fr:cc:fam:n:e"), entity_ref("urn:fr:cc:fam:n:mari")) { origin case_input; }
+        assert "f5": acte_de_naissance_designe_le_mari(entity_ref("urn:fr:cc:fam:n:e")) { origin case_input; }
+        assert "f6": mariage_dissous_le(entity_ref("urn:fr:cc:fam:n:m"), @2024-01-01) { origin case_input; }
+    }
+    evaluate truth(presomption_de_paternite(entity_ref("urn:fr:cc:fam:n:e"), entity_ref("urn:fr:cc:fam:n:mari")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PresomptionDePaterniteParLaConception);
+}

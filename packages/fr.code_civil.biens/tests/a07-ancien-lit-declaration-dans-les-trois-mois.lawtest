@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 563, al. 2. « dans les trois mois de la notification » : la
+// déclaration du 10 mai suit une notification du 10 février — le terme se
+// compte par quantième et l'acquisition est ouverte.
+test "urn:query:fr-code-civil-biens-a07-ancien-lit-trois-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": ancien_lit_abandonne(entity_ref("urn:fr:cc:biens:a07:A"), entity_ref("urn:fr:cc:biens:a07:F")) { origin case_input; }
+        assert "f2": notification_de_l_autorite_le(entity_ref("urn:fr:cc:biens:a07:A"), @2025-02-10) { origin case_input; }
+        assert "f3": declaration_d_intention_d_acquerir_le(entity_ref("urn:fr:cc:biens:a07:A"), entity_ref("urn:fr:cc:biens:a07:F"), @2025-05-10) { origin case_input; }
+    }
+    evaluate truth(acquisition_de_l_ancien_lit_ouverte(entity_ref("urn:fr:cc:biens:a07:A"), entity_ref("urn:fr:cc:biens:a07:F")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

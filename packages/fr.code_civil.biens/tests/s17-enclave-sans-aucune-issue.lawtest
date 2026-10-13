@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 682. « aucune issue » est un fait physique, non une appréciation :
+// le fonds est enclavé et son propriétaire peut réclamer un passage.
+test "urn:query:fr-code-civil-biens-s17-enclave-sans-aucune-issue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": aucune_issue_sur_la_voie_publique(entity_ref("urn:fr:cc:biens:s17:D")) { origin case_input; }
+        assert "f2": voisin(entity_ref("urn:fr:cc:biens:s17:D"), entity_ref("urn:fr:cc:biens:s17:S")) { origin case_input; }
+    }
+    evaluate truth(droit_de_reclamer_un_passage(entity_ref("urn:fr:cc:biens:s17:D"), entity_ref("urn:fr:cc:biens:s17:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

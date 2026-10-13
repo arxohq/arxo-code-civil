@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2360, al. 2 : procédure ouverte le 1er juin — le solde retenu est celui de cette date (1 500), non celui de la réalisation (900).
+test "urn:query:fr-code-civil-suretes-g25-solde-au-jugement-d-ouverture" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": nantissement_de(entity_ref("urn:fr:cc:suretes:g25:S"), entity_ref("urn:fr:cc:suretes:g25:N")) { origin case_input; }
+        assert "f2": nantissement_de_compte(entity_ref("urn:fr:cc:suretes:g25:S")) { origin case_input; }
+        assert "f3": jugement_d_ouverture_contre_le_constituant_le(entity_ref("urn:fr:cc:suretes:g25:S"), @2024-06-01) { origin case_input; }
+        assert "f4": solde_du_compte_au(entity_ref("urn:fr:cc:suretes:g25:S"), @2024-06-01, 1500 EUR) { origin case_input; }
+        assert "f5": realisation_de_la_surete_le(entity_ref("urn:fr:cc:suretes:g25:S"), @2024-07-01) { origin case_input; }
+        assert "f6": solde_du_compte_au(entity_ref("urn:fr:cc:suretes:g25:S"), @2024-07-01, 900 EUR) { origin case_input; }
+    }
+    evaluate truth(creance_nantie_egale_au_solde(entity_ref("urn:fr:cc:suretes:g25:S"), 1500 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(SoldeAuJourDuJugementDOuverture);
+}

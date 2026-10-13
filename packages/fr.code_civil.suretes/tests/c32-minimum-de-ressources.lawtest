@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2307 : ressources 1 500, minimum L. 731-2 : 700 — seuls 800 EUR sont atteints.
+test "urn:query:fr-code-civil-suretes-c32-minimum-de-ressources" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c32:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c32:K"), entity_ref("urn:fr:cc:suretes:c32:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c32:K"), entity_ref("urn:fr:cc:suretes:c32:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:c32:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c32:B")) { origin case_input; }
+        assert "f6": mention_manuscrite_apposee(entity_ref("urn:fr:cc:suretes:c32:K")) { origin case_input; }
+        assert "f7": montant_en_toutes_lettres(entity_ref("urn:fr:cc:suretes:c32:K"), 10000 EUR) { origin case_input; }
+        assert "f8": montant_en_chiffres(entity_ref("urn:fr:cc:suretes:c32:K"), 10000 EUR) { origin case_input; }
+        assert "f9": ressources_de_la_caution(entity_ref("urn:fr:cc:suretes:c32:K"), 1500 EUR) { origin case_input; }
+        assert "f10": minimum_de_ressources_l731_2(entity_ref("urn:fr:cc:suretes:c32:K"), 700 EUR) { origin case_input; }
+    }
+    evaluate truth(part_des_ressources_saisissable(entity_ref("urn:fr:cc:suretes:c32:K"), 800 EUR));
+    expect truth_status == TRUE_ONLY;
+}

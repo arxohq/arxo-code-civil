@@ -1,0 +1,67 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2362-paiement-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2362:S"), entity_ref("urn:fr:cc:suretes:n2362:C"), entity_ref("urn:fr:cc:suretes:n2362:P"), entity_ref("urn:fr:cc:suretes:n2362:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2362:S"), entity_ref("urn:fr:cc:suretes:n2362:N")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteConstituantRecevoirPaiement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2362-paiement-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2362b:S"), entity_ref("urn:fr:cc:suretes:n2362b:C"), entity_ref("urn:fr:cc:suretes:n2362b:P"), entity_ref("urn:fr:cc:suretes:n2362b:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2362b:S"), entity_ref("urn:fr:cc:suretes:n2362b:N")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteConstituantRecevoirPaiement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2363-notification-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2363:S"), entity_ref("urn:fr:cc:suretes:n2363:C"), entity_ref("urn:fr:cc:suretes:n2363:P"), entity_ref("urn:fr:cc:suretes:n2363:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2363:S"), entity_ref("urn:fr:cc:suretes:n2363:N")) { origin case_input; }
+        assert "notice": nantissement_notifie_au_debiteur(entity_ref("urn:fr:cc:suretes:n2363:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirCreancierPayerApresNotification, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-suretes-2363-notification-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2363b:S"), entity_ref("urn:fr:cc:suretes:n2363b:C"), entity_ref("urn:fr:cc:suretes:n2363b:P"), entity_ref("urn:fr:cc:suretes:n2363b:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2363b:S"), entity_ref("urn:fr:cc:suretes:n2363b:N")) { origin case_input; }
+        assert "notice": nantissement_notifie_au_debiteur(entity_ref("urn:fr:cc:suretes:n2363b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirCreancierPayerApresNotification, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-suretes-2364-conserve-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2364:S"), entity_ref("urn:fr:cc:suretes:n2364:C"), entity_ref("urn:fr:cc:suretes:n2364:P"), entity_ref("urn:fr:cc:suretes:n2364:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2364:S"), entity_ref("urn:fr:cc:suretes:n2364:N")) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2364:S"), 5000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConserverSommes, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-suretes-2364-conserve-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2364b:S"), entity_ref("urn:fr:cc:suretes:n2364b:C"), entity_ref("urn:fr:cc:suretes:n2364b:P"), entity_ref("urn:fr:cc:suretes:n2364b:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2364b:S"), entity_ref("urn:fr:cc:suretes:n2364b:N")) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2364b:S"), 7000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConserverSommes, SATISFIED);
+}

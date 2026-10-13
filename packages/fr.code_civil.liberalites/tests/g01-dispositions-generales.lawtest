@@ -1,0 +1,144 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+test "CC07-G01-definition-donation" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "d": depouillement_actuel_et_irrevocable(entity_ref("urn:cc07:g01:l")) { origin case_input; }
+  assert "a": donation_acceptee(entity_ref("urn:cc07:g01:l")) { origin case_input; }
+ }
+ evaluate truth(donation_entre_vifs_qualifiee(entity_ref("urn:cc07:g01:l")));
+ expect evaluation_status == COMPUTED; expect truth_status == TRUE_ONLY; expect applied(DefinitionDonationEntreVifs);
+}
+
+test "CC07-G02-condition-illicite" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "c": condition_impossible_ou_illicite(entity_ref("urn:cc07:g02:l")) { origin case_input; }
+ }
+ evaluate truth(clause_reputee_non_ecrite(entity_ref("urn:cc07:g02:l")));
+ expect truth_status == TRUE_ONLY; expect applied(ConditionImpossibleOuIlliciteNonEcrite);
+}
+
+test "CC07-G03-inalienabilite-valable" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "c": clause_d_inalienabilite(entity_ref("urn:cc07:g03:l")) { origin case_input; }
+  assert "t": inalienabilite_temporaire(entity_ref("urn:cc07:g03:l")) { origin case_input; }
+  assert "i": interet_serieux_et_legitime(entity_ref("urn:cc07:g03:l")) { origin case_input; }
+ }
+ evaluate truth(clause_d_inalienabilite_valable(entity_ref("urn:cc07:g03:l")));
+ expect truth_status == TRUE_ONLY; expect applied(InalienabiliteValable);
+}
+
+test "CC07-G04-revision-dix-ans-dernier-jour" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+  assert "m": mort_du_disposant_le(entity_ref("urn:cc07:g04:l"), @2016-09-16) { origin case_input; }
+  assert "d": demande_de_revision_le(entity_ref("urn:cc07:g04:l"), @2026-09-16) { origin case_input; }
+ }
+ evaluate truth(demande_de_revision_recevable(entity_ref("urn:cc07:g04:l")));
+ expect truth_status == TRUE_ONLY; expect applied(RevisionDixAnsApresLeDeces);
+}
+
+test "CC07-G05-revision-veille" {
+ given { context { legal_time @2026-09-15; decision_time @2026-09-15T09:00:00Z; knowledge_time @2026-09-15T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+  assert "m": mort_du_disposant_le(entity_ref("urn:cc07:g05:l"), @2016-09-16) { origin case_input; }
+  assert "d": demande_de_revision_le(entity_ref("urn:cc07:g05:l"), @2026-09-15) { origin case_input; }
+ }
+ evaluate truth(demande_de_revision_recevable(entity_ref("urn:cc07:g05:l")));
+ expect truth_status == NEITHER;
+}
+
+test "CC07-G06-vice-consentement" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "v": consentement_vicie(entity_ref("urn:cc07:g06:l")) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g06:l")));
+ expect truth_status == TRUE_ONLY; expect applied(NullitePourViceDuConsentement);
+}
+
+test "CC07-G07-mineur-quinze-ans" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "a": age_du_disposant(entity_ref("urn:cc07:g07:l"), 15) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g07:l")));
+ expect truth_status == TRUE_ONLY; expect applied(MineurMoinsDeSeizeAnsIncapable);
+}
+
+test "CC07-G08-enfant-concu-ne-viable" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "c": beneficiaire_concu_au_jour_requis(entity_ref("urn:cc07:g08:l")) { origin case_input; }
+  assert "v": beneficiaire_ne_viable(entity_ref("urn:cc07:g08:l")) { origin case_input; }
+ }
+ evaluate truth(beneficiaire_capable_de_recevoir(entity_ref("urn:cc07:g08:l")));
+ expect truth_status == TRUE_ONLY; expect applied(EnfantConcuNeViableCapable);
+}
+
+test "CC07-G09-tuteur-non-ascendant" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "t": liberalite_au_profit_du_tuteur(entity_ref("urn:cc07:g09:l")) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g09:l")));
+ expect truth_status == TRUE_ONLY; expect applied(LiberaliteAuTuteurNulle);
+}
+
+test "CC07-G10-professionnel-sante" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "p": beneficiaire_professionnel_de_sante_ayant_soigne_la_maladie_mortelle(entity_ref("urn:cc07:g10:l")) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g10:l")));
+ expect truth_status == TRUE_ONLY; expect applied(IncapaciteProfessionnelDeSante);
+}
+
+test "CC07-G11-exception-remuneratoire" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "p": beneficiaire_professionnel_de_sante_ayant_soigne_la_maladie_mortelle(entity_ref("urn:cc07:g11:l")) { origin case_input; }
+  assert "e": exception_remuneratoire_ou_parentale_909(entity_ref("urn:cc07:g11:l")) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g11:l")));
+ expect truth_status == NEITHER;
+ evaluate truth(beneficiaire_capable_de_recevoir(entity_ref("urn:cc07:g11:l")));
+ expect truth_status == TRUE_ONLY; expect applied(ExceptionArticle909);
+}
+
+test "CC07-G12-incapacite-deguisee" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "i": beneficiaire_incapable_de_recevoir(entity_ref("urn:cc07:g12:l")) { origin case_input; }
+  assert "d": liberalite_deguisee_ou_interposee(entity_ref("urn:cc07:g12:l")) { origin case_input; }
+ }
+ evaluate truth(liberalite_nulle(entity_ref("urn:cc07:g12:l")));
+ expect truth_status == TRUE_ONLY; expect applied(NulliteIncapaciteMemeDeguisee);
+}
+
+test "CC07-G13-substitution-autorisee" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "c": charge_de_conserver_et_rendre_a_un_tiers(entity_ref("urn:cc07:g13:l")) { origin case_input; }
+  assert "a": substitution_autorisee_par_la_loi(entity_ref("urn:cc07:g13:l")) { origin case_input; }
+ }
+ evaluate truth(disposition_produit_effet(entity_ref("urn:cc07:g13:l")));
+ expect truth_status == TRUE_ONLY; expect applied(SubstitutionAutoriseeProduitEffet);
+}
+
+test "CC07-G14-demembrement-valable" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "d": usufruit_et_nue_propriete_attribues_separement(entity_ref("urn:cc07:g14:l")) { origin case_input; }
+ }
+ evaluate truth(disposition_valable(entity_ref("urn:cc07:g14:l")));
+ expect truth_status == TRUE_ONLY; expect applied(DemembrementValable);
+}
+
+test "CC07-G15-mineur-sous-les-drapeaux" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "a": age_du_disposant(entity_ref("urn:cc07:g15:l"), 16) { origin case_input; }
+  assert "s": mineur_appele_sous_les_drapeaux(entity_ref("urn:cc07:g15:l")) { origin case_input; }
+  assert "p": beneficiaire_parent_jusqu_au_sixieme_degre_ou_conjoint(entity_ref("urn:cc07:g15:l")) { origin case_input; }
+ }
+ evaluate truth(disposant_capable(entity_ref("urn:cc07:g15:l")));
+ expect truth_status == TRUE_ONLY; expect applied(MineurSousLesDrapeauxAuProfitDeLaFamille);
+}
+
+test "CC07-G16-personne-interposee-presumee" {
+ given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+  assert "p": proche_de_l_incapable_au_sens_de_911(entity_ref("urn:cc07:g16:l")) { origin case_input; }
+ }
+ evaluate truth(personne_interposee_presumee(entity_ref("urn:cc07:g16:l")));
+ expect truth_status == TRUE_ONLY; expect applied(PresomptionDePersonneInterposee);
+}

@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1315, troisième phrase : lorsque l'exception personnelle à un autre codébiteur
+// ÉTEINT sa part divise — compensation, remise de dette — le débiteur poursuivi peut
+// s'en prévaloir pour la faire déduire du total de la dette.
+test "urn:query:fr-code-civil-obligations-s11-deduction-de-la-part-eteinte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": obligation_solidaire_entre_debiteurs(entity_ref("urn:fr:cc:obligations:sol:c")) { origin case_input; }
+        assert "f2": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obligations:sol:c"), 9000 EUR) { origin case_input; }
+        assert "f3": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:CR")) { origin case_input; }
+        assert "f4": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:A")) { origin case_input; }
+        assert "f5": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:B")) { origin case_input; }
+        assert "f6": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:C")) { origin case_input; }
+        assert "f7": codebiteur_poursuivi(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:A")) { origin case_input; }
+        assert "f8": exception_eteignant_la_part_divise(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:B")) { origin case_input; }
+    }
+    evaluate truth(deduction_de_la_part_eteinte(entity_ref("urn:fr:cc:obligations:sol:c"), entity_ref("urn:fr:cc:obligations:sol:A"), entity_ref("urn:fr:cc:obligations:sol:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DeductionDeLaPartEteinte);
+}

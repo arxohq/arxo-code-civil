@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2232, alinéa 2 : le délai butoir ne joue pas pour l'article 2226.
+test "urn:query:fr-code-civil-p19-butoir-exclu-pour-le-dommage-corporel" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": naissance_du_droit_le(entity_ref("urn:fr:cc:presc:p19"), @2000-01-01) { origin case_input; }
+        assert "f2": nature_de_l_action(entity_ref("urn:fr:cc:presc:p19"), DommageCorporel) { origin case_input; }
+        assert "f3": action_introduite_le(entity_ref("urn:fr:cc:presc:p19"), @2021-01-01) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_par_le_delai_butoir(entity_ref("urn:fr:cc:presc:p19")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

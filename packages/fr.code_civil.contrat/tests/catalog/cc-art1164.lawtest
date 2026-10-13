@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ABUSDANSLAFIXATIONDUPRIXDUCONTRATCADRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:abusdanslafixationduprixducontratcadre:v0")) { origin case_input; }
+        assert "cat-1": qualification_du_contrat(entity_ref("urn:law:catalog:abusdanslafixationduprixducontratcadre:v0"), Cadre) { origin case_input; }
+        assert "cat-2": abus_dans_la_fixation_du_prix(entity_ref("urn:law:catalog:abusdanslafixationduprixducontratcadre:v0")) { origin case_input; }
+        assert "cat-3": prix_fixe_unilateralement_convenu(entity_ref("urn:law:catalog:abusdanslafixationduprixducontratcadre:v0")) { origin case_input; }
+    }
+    evaluate truth(dommages_et_interets_pour_abus_de_prix(entity_ref("urn:law:catalog:abusdanslafixationduprixducontratcadre:v0")));
+    expect truth_status == TRUE_ONLY;
+}

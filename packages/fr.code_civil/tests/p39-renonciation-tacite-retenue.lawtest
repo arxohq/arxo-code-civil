@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2251, alinéa 2 : le juge retient des circonstances non équivoques.
+test "urn:query:fr-code-civil-p39-renonciation-tacite-retenue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": volonte_non_equivoque_de_renoncer(entity_ref("urn:fr:cc:presc:p39")) { origin adjudicated; }
+    }
+    evaluate truth(renonciation_tacite(entity_ref("urn:fr:cc:presc:p39")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RenonciationTacite);
+}

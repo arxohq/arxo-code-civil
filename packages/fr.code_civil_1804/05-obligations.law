@@ -1,0 +1,96 @@
+// LIVRE III TITRES III, VI, X, XI — contracts and obligations: a contract is
+// an agreement by which a person binds himself to give, to do or not to do
+// (1101); lawfully formed agreements are the law of the parties (1134); the
+// duty to deliver a thing is perfected by consent alone and makes the
+// creditor owner (1138); obligations are extinguished including by voluntary
+// release (1234); what was paid on a natural obligation cannot be recovered
+// (1235); return of the original instrument proves the release (1282);
+// authority of res judicata (1350–1351); sale is perfected by agreement on
+// the thing and the price, ownership acquired by the buyer (1582–1583); sale
+// of another’s thing is void (1599); loan of consumables is a contract by
+// which one party DELIVERS to the other (1892), the borrower becomes owner
+// (1893) and must restore (1902); deposit is perfected by delivery (1915,
+// 1919), the depositary restores the same thing (1932) on first demand
+// (1944).
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART1101,
+    CC_ART1108,
+    CC_ART1134,
+    CC_ART1138,
+    CC_ART1234,
+    CC_ART1235,
+    CC_ART1282,
+    CC_ART1350,
+    CC_ART1351,
+    CC_ART1582,
+    CC_ART1583,
+    CC_ART1599,
+    CC_ART1892,
+    CC_ART1893,
+    CC_ART1902,
+    CC_ART1915,
+    CC_ART1919,
+    CC_ART1932,
+    CC_ART1944,
+    Causa,
+    Persona,
+    Res,
+    action_prescrite,
+    proprietaire,
+    proprietaire_alienavit,
+};
+
+relation obligation(debiteur: Persona, creancier: Persona, causa: Causa) kind institutional { label fr official "obligation"; label en unofficial "the debtor is bound toward the creditor (1101, 1134)"; }
+relation obligation_naturelle(debiteur: Persona, creancier: Persona, causa: Causa) kind institutional { label fr official "obligation naturelle"; label en unofficial "natural obligation: what was paid voluntarily cannot be recovered (1235)"; }
+relation remise_de_dette(causa: Causa) kind institutional { label fr official "remise volontaire"; label en unofficial "the creditor voluntarily released the debtor — the obligation is extinguished (1234, 1282)"; }
+relation chose_jugee(causa: Causa) kind institutional { label fr official "autorité de la chose jugée"; label en unofficial "there is a judgment on the same claim between the same parties on the same ground (1351)"; }
+relation vente_parfaite(vendeur: Persona, acheteur: Persona, res: Res) kind institutional { label fr official "vente parfaite"; label en unofficial "sale is perfected: agreement on the thing and the price (1582–1583)"; }
+relation vente_chose_autrui(vendeur: Persona, acheteur: Persona, res: Res) kind institutional { label fr official "vente de la chose d’autrui"; label en unofficial "sale of another’s thing is void (1599)"; }
+relation pret_de_consommation(preteur: Persona, emprunteur: Persona, causa: Causa) kind institutional { label fr official "prêt de consommation"; label en unofficial "loan of consumable things: the things have been delivered to the borrower (1892)"; }
+relation emprunteur_tenu_de_rendre(emprunteur: Persona, preteur: Persona, causa: Causa) kind institutional { label fr official "l’emprunteur est tenu de rendre"; label en unofficial "the borrower must return the same quantity of the same kind (1902)"; }
+relation depot_parfait(deposant: Persona, depositaire: Persona, res: Res) kind institutional { label fr official "dépôt parfait par la tradition"; label en unofficial "deposit is perfected by delivery of the thing (1915, 1919)"; }
+relation depositaire_doit_rendre(depositaire: Persona, deposant: Persona, res: Res) kind institutional { label fr official "le dépositaire doit rendre la chose même"; label en unofficial "the depositary must restore the same thing on first demand (1932, 1944)"; }
+relation consentement_et_capacite(causa: Causa) kind empirical { label fr official "consentement, capacité, objet certain, cause licite"; label en unofficial "the four conditions of validity of an agreement are met (1108)"; }
+relation convention_valide(causa: Causa) kind institutional { label fr official "convention légalement formée"; label en unofficial "the agreement is lawfully formed (1108)"; }
+relation titre_remis(causa: Causa) kind empirical { label fr official "remise volontaire du titre original"; label en unofficial "the creditor voluntarily returned the original instrument to the debtor (1282)"; }
+
+@source(CC_ART1101, CC_ART1134)
+rule ContratOblige(x: Persona, y: Persona, c: Causa) strict { label fr official "Le contrat est une convention par laquelle une ou plusieurs personnes s’obligent envers une ou plusieurs autres"; label en unofficial "A debtor bound by contract is bound toward the creditor; the agreement is the law of the parties (1101, 1134)"; when doctrine.ius_privatum::contractus(x, y, c) and not_known(remise_de_dette(c)); then obligation(y, x, c); }
+@source(CC_ART1108)
+rule ConventionValide(x: Persona, y: Persona, c: Causa) strict { label fr official "Quatre conditions sont essentielles pour la validité d’une convention"; label en unofficial "An agreement with consent, capacity, an object and a lawful cause is lawfully formed (1108)"; when doctrine.ius_privatum::contractus(x, y, c) and consentement_et_capacite(c); then convention_valide(c); }
+@source(CC_ART1234, CC_ART1282)
+rule RemiseDeDette(c: Causa) strict { label fr official "Les obligations s’éteignent … par la remise volontaire"; label en unofficial "The creditor’s agreement not to sue is a voluntary release: the obligation is extinguished (1234; 1282)"; when doctrine.ius_privatum::pactum_de_non_petendo(c); then remise_de_dette(c); }
+@source(CC_ART1282)
+rule TitreRemisProuveLiberation(c: Causa) strict { label fr official "La remise volontaire du titre original … fait preuve de la libération"; label en unofficial "Voluntary return of the original instrument proves the release (1282)"; when titre_remis(c); then remise_de_dette(c); }
+@source(CC_ART1235)
+rule ObligationNaturelle(x: Persona, y: Persona, c: Causa) strict { label fr official "La répétition n’est pas admise à l’égard des obligations naturelles qui ont été volontairement acquittées"; label en unofficial "An obligation whose action is prescribed remains natural: what was paid cannot be recovered (1235; 2262)"; when obligation(y, x, c) and action_prescrite(c); then obligation_naturelle(y, x, c); }
+@source(CC_ART1351, CC_ART1350)
+rule ChoseJugee(c: Causa) strict { label fr official "L’autorité de la chose jugée n’a lieu qu’à l’égard de ce qui a fait l’objet du jugement"; label en unofficial "A judgment on the same claim between the same parties on the same ground — authority of res judicata (1350–1351)"; when doctrine.ius_privatum::res_iudicata_de_eadem_re(c); then chose_jugee(c); }
+@source(CC_ART1582, CC_ART1583)
+rule VenteParfaite(v: Persona, e: Persona, r: Res) strict { label fr official "Elle est parfaite entre les parties, et la propriété est acquise de droit à l’acheteur"; label en unofficial "Sale is perfected by agreement on the thing and the price; ownership is acquired by the buyer if the seller is owner (1582–1583)"; when doctrine.ius_privatum::venditio(v, e, r) and doctrine.ius_privatum::dominus_originarius(v, r); then vente_parfaite(v, e, r); }
+@source(CC_ART1583, CC_ART1138)
+rule ProprieteAcquiseALAcheteur(v: Persona, e: Persona, r: Res) strict { label fr official "la propriété est acquise de droit à l’acheteur"; label en unofficial "The buyer from the owner is owner from the agreement, even before delivery (1583; 1138)"; when vente_parfaite(v, e, r); then proprietaire(e, r); }
+@source(CC_ART1583)
+rule VendeurAliene(v: Persona, e: Persona, r: Res) strict { label fr official "la propriété est acquise … à l’égard du vendeur"; label en unofficial "The owner who sold the thing has alienated it (1583)"; when vente_parfaite(v, e, r); then proprietaire_alienavit(v, r); }
+@source(CC_ART1599)
+rule VenteChoseAutruiNulle(v: Persona, e: Persona, r: Res) strict { label fr official "La vente de la chose d’autrui est nulle"; label en unofficial "The sale of another’s thing is void (1599)"; when doctrine.ius_privatum::venditio(v, e, r) and not_known(doctrine.ius_privatum::dominus_originarius(v, r)); then vente_chose_autrui(v, e, r); }
+@source(CC_ART1892)
+rule PretDeConsommation(x: Persona, y: Persona, c: Causa) strict { label fr official "Le prêt de consommation est un contrat par lequel l’une des parties livre à l’autre"; label en unofficial "Loan is a contract by which the lender DELIVERS the things: without delivery there is no loan (1892)"; when doctrine.ius_privatum::stipulatio_de_mutuo(x, y, c) and not_known(doctrine.ius_privatum::pecunia_non_numerata(c)); then pret_de_consommation(x, y, c); }
+@source(CC_ART1893)
+rule EmprunteurProprietaire(x: Persona, y: Persona, c: Causa) strict { label fr official "l’emprunteur devient le propriétaire de la chose prêtée"; label en unofficial "By the loan the borrower becomes owner of what was delivered (1893)"; when pret_de_consommation(x, y, c); then emprunteur_proprietaire(y, c); }
+relation emprunteur_proprietaire(emprunteur: Persona, causa: Causa) kind institutional { label fr official "l’emprunteur devient le propriétaire"; label en unofficial "the borrower is owner of what was delivered on loan (1893)"; }
+@source(CC_ART1902)
+rule EmprunteurTenuDeRendre(x: Persona, y: Persona, c: Causa) strict { label fr official "L’emprunteur est tenu de rendre les choses prêtées"; label en unofficial "The borrower must return the same quantity of the same kind at term (1902)"; when pret_de_consommation(x, y, c); then emprunteur_tenu_de_rendre(y, x, c); }
+@source(CC_ART1902, CC_ART1101)
+rule PretObligation(x: Persona, y: Persona, c: Causa) strict { label fr official "obligation de l’emprunteur"; label en unofficial "The borrower’s duty to return is an obligation toward the lender (1902; 1101)"; when emprunteur_tenu_de_rendre(y, x, c); then obligation(y, x, c); }
+@source(CC_ART1915, CC_ART1919)
+rule DepotParfait(d: Persona, s: Persona, r: Res) strict { label fr official "Il n’est parfait que par la tradition réelle ou feinte de la chose déposée"; label en unofficial "A thing given in deposit is a perfected deposit (1915, 1919)"; when doctrine.ius_privatum::depositum(d, s, r); then depot_parfait(d, s, r); }
+@source(CC_ART1932, CC_ART1944)
+rule DepositaireDoitRendre(d: Persona, s: Persona, r: Res) strict { label fr official "Le dépôt doit être remis au déposant aussitôt qu’il le réclame"; label en unofficial "The depositary must restore the same thing on first demand (1932, 1944)"; when depot_parfait(d, s, r) and doctrine.ius_privatum::res_non_reddita(s, r); then depositaire_doit_rendre(s, d, r); }
+@source(CC_ART1944, CC_ART1101)
+rule DepotObligation(d: Persona, s: Persona, r: Res, c: Causa) strict { label fr official "obligation du dépositaire"; label en unofficial "The depositary’s duty to restore is an obligation toward the depositor under the contract of deposit (1944; 1101)"; when depositaire_doit_rendre(s, d, r) and doctrine.ius_privatum::contractus(d, s, c); then obligation(s, d, c); }

@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 706 et 707. La servitude discontinue s'éteint par le non-usage
+// pendant trente ans, comptés du jour où l'on a cessé d'en jouir : au
+// lendemain du trentième anniversaire, elle est éteinte.
+test "urn:query:fr-code-civil-biens-s19-servitude-eteinte-non-usage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": servitude_grevant(entity_ref("urn:fr:cc:biens:s19:S"), entity_ref("urn:fr:cc:biens:s19:SERV"), entity_ref("urn:fr:cc:biens:s19:DOM")) { origin case_input; }
+        assert "f2": usage_exigeant_le_fait_actuel_de_l_homme(entity_ref("urn:fr:cc:biens:s19:S")) { origin case_input; }
+        assert "f3": cessation_de_la_jouissance_le(entity_ref("urn:fr:cc:biens:s19:S"), @1990-05-10) { origin case_input; }
+        assert "f4": jour_de_reference_de_la_servitude(entity_ref("urn:fr:cc:biens:s19:S"), @2020-05-11) { origin case_input; }
+    }
+    evaluate truth(servitude_eteinte(entity_ref("urn:fr:cc:biens:s19:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

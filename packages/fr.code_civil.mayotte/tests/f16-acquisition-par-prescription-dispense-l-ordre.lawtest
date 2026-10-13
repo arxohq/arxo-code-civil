@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2523, alinéa 2 : la règle ne joue pas si l'immeuble a été acquis par prescription ou accession.
+test "urn:query:fr-code-civil-mayotte-f16-acquisition-par-prescription-dispense-l-ordre" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:ad:dr"), Usufruit) { origin case_input; }
+        assert "f2": droit_sur(entity_ref("urn:fr:cc:may:ad:dr"), entity_ref("urn:fr:cc:may:ad:imm")) { origin case_input; }
+        assert "f3": acquis_par_prescription_ou_accession(entity_ref("urn:fr:cc:may:ad:dr")) { origin case_input; }
+    }
+    evaluate truth(inscription_recevable(entity_ref("urn:fr:cc:may:ad:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PrescriptionEtAccessionDispensentDeLOrdre);
+}

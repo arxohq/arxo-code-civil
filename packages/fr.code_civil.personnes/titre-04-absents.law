@@ -1,0 +1,195 @@
+// TITRE IV — DES ABSENTS (articles 112 à 132).
+//
+// Deux états successifs et deux délais, tous deux dans le texte : la
+// PRÉSOMPTION d'absence, constatée par le juge des tutelles (112), puis la
+// DÉCLARATION d'absence, qui ne peut être demandée qu'après DIX ANS depuis le
+// jugement de présomption ou, à défaut d'un tel jugement, VINGT ANS depuis
+// que la personne a cessé de paraître (122). La requête est recevable dès
+// l'année précédant l'expiration de ces délais, et le jugement ne peut être
+// rendu qu'un an au moins après la publication des extraits (125).
+//
+// L'EFFET est daté : le jugement déclaratif emporte, À PARTIR DE LA
+// TRANSCRIPTION, tous les effets qu'aurait eus le décès établi (128). Ce que
+// le juge fait — désigner un représentant (113), fixer les sommes (114),
+// mettre fin à la mission (115), autoriser un partage (116) — n'est pas un
+// calcul et reste au cas.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART112,
+    CC_ART120,
+    CC_ART121,
+    CC_ART122,
+    CC_ART125,
+    CC_ART126,
+    CC_ART128,
+    CC_ART131,
+    CC_ART132,
+    Personne,
+    a_cesse_de_paraitre_le,
+    deces_etabli_le,
+    declaration_d_absence_obtenue_par_fraude,
+    extraits_publies_le,
+    hors_d_etat_de_manifester_sa_volonte_par_eloignement,
+    jugement_declaratif_transcrit_le,
+    presomption_d_absence_constatee_le,
+    procuration_suffisante,
+    reparu_le,
+};
+
+pub relation jugement_de_presomption_rendu(p: Personne) kind derived {
+    label fr official "un jugement constatant la présomption d'absence a été rendu (article 112) — lu par l'alinéa 2 de l'article 122, qui vise le cas contraire";
+    label en unofficial "a judgment recording the presumption of absence has been delivered (Article 112) — read by Article 122, paragraph 2, which covers the opposite case";
+}
+pub relation presomption_d_absence(p: Personne) kind derived {
+    label fr official "la présomption d'absence est constatée (article 112)";
+    label en unofficial "the presumption of absence is recorded (Article 112)";
+}
+pub relation mesures_de_representation_applicables(p: Personne) kind derived {
+    label fr official "les règles de représentation et d'administration des biens du titre IV s'appliquent (articles 112, 120, 121)";
+    label en unofficial "the Title IV rules on representation and administration of property apply (Articles 112, 120, 121)";
+}
+pub relation declaration_d_absence_recevable_le(p: Personne, jour: Date) kind derived {
+    label fr official "jour à partir duquel la requête en déclaration d'absence est recevable : une année avant l'expiration du délai de l'article 122 (article 125)";
+    label en unofficial "day from which the application for a declaration of absence is admissible: one year before the Article 122 period expires (Article 125)";
+}
+pub relation declaration_d_absence_possible_le(p: Personne, jour: Date) kind derived {
+    label fr official "jour de l'expiration du délai de l'article 122 : dix ans depuis le jugement de présomption, ou vingt ans depuis la disparition";
+    label en unofficial "day the Article 122 period expires: ten years from the presumption judgment, or twenty years from the disappearance";
+}
+pub relation jugement_declaratif_possible_le(p: Personne, jour: Date) kind derived {
+    label fr official "jour à partir duquel le jugement déclaratif peut être rendu : un an au moins après la publication des extraits (article 125)";
+    label en unofficial "day from which the declaratory judgment may be rendered: at least one year after publication of the extracts (Article 125)";
+}
+pub relation requete_non_avenue(p: Personne) kind derived {
+    label fr official "la requête aux fins de déclaration d'absence est non avenue : l'absent a reparu ou la date de son décès est établie (article 126)";
+    label en unofficial "the application for a declaration of absence lapses: the absentee reappeared or his death was established (Article 126)";
+}
+pub relation effets_du_deces(p: Personne, depuis: Date) kind derived {
+    label fr official "le jugement déclaratif emporte, à partir de la transcription, tous les effets que le décès établi aurait eus (article 128)";
+    label en unofficial "the declaratory judgment produces, from transcription, all the effects an established death would have had (Article 128)";
+}
+pub relation mariage_dissous(p: Personne) kind derived {
+    label fr official "le mariage de l'absent est dissous et le reste, même si le jugement déclaratif est annulé (articles 128, 132)";
+    label en unofficial "the absentee's marriage is dissolved and remains so, even if the declaratory judgment is annulled (Articles 128, 132)";
+}
+pub relation restitution_des_revenus_due(p: Personne, auteur: Personne) kind derived {
+    label fr official "la partie qui a provoqué la déclaration d'absence par fraude doit restituer les revenus et verser les intérêts légaux (article 131)";
+    label en unofficial "the party that procured the declaration of absence by fraud must return the income and pay statutory interest (Article 131)";
+}
+
+@source(CC_ART112) {
+    rule JugementDePresomptionRendu(p: Personne, jour: Date) strict {
+        label fr official "Article 112. Un jugement constatant la présomption d'absence a été rendu ce jour";
+        label en unofficial "Article 112. A judgment recording the presumption of absence was delivered on that day";
+        when presomption_d_absence_constatee_le(p, jour);
+        then jugement_de_presomption_rendu(p);
+    }
+    rule PresomptionDAbsence(p: Personne, jour: Date) defeasible {
+        label fr official "Article 112. Lorsqu'une personne a cessé de paraître au lieu de son domicile ou de sa résidence sans que l'on en ait eu de nouvelles, le juge des tutelles peut constater qu'il y a présomption d'absence";
+        label en unofficial "Article 112. Where a person has ceased to appear at his domicile or residence without news, the guardianship judge may record a presumption of absence";
+        when presomption_d_absence_constatee_le(p, jour);
+        then presomption_d_absence(p);
+    }
+    rule FinDeLaPresomptionParLeRetour(p: Personne, jour: Date) defeater {
+        label fr official "Article 118. Si un présumé absent reparaît ou donne de ses nouvelles, il est mis fin aux mesures prises pour sa représentation et l'administration de ses biens";
+        label en unofficial "Article 118. If a presumed absentee reappears or sends news, the measures taken for his representation and the administration of his property end";
+        when reparu_le(p, jour);
+        defeat presomption_d_absence(p);
+    }
+}
+
+@source(CC_ART120, CC_ART121) {
+    rule MesuresApplicablesAuPresumeAbsent(p: Personne) defeasible {
+        label fr official "Articles 112 et 121. Les règles de représentation du présumé absent s'appliquent, sauf procuration suffisante laissée par lui";
+        label en unofficial "Articles 112 and 121. The rules on representing a presumed absentee apply, unless he left a sufficient power of attorney";
+        when presomption_d_absence(p) and not_known(procuration_suffisante(p));
+        then mesures_de_representation_applicables(p);
+    }
+    rule MesuresApplicablesALEloigne(p: Personne) defeasible {
+        label fr official "Article 120. Ces dispositions sont aussi applicables aux personnes qui, par suite d'éloignement, se trouvent malgré elles hors d'état de manifester leur volonté";
+        label en unofficial "Article 120. These provisions also apply to persons who, through remoteness, are unable to express their will";
+        when hors_d_etat_de_manifester_sa_volonte_par_eloignement(p) and not_known(procuration_suffisante(p));
+        then mesures_de_representation_applicables(p);
+    }
+}
+
+@source(CC_ART122, CC_ART125) {
+    rule DixAnsDepuisLeJugementDePresomption(p: Personne, jour: Date) defeasible {
+        label fr official "Article 122, alinéa 1. L'absence peut être déclarée lorsqu'il s'est écoulé dix ans depuis le jugement qui a constaté la présomption d'absence";
+        label en unofficial "Article 122, paragraph 1. Absence may be declared once ten years have passed since the judgment recording the presumption of absence";
+        when presomption_d_absence_constatee_le(p, jour);
+        then declaration_d_absence_possible_le(p, add_calendar_period(jour, 10 calendar_year));
+    }
+    rule VingtAnsSansJugementDePresomption(p: Personne, jour: Date) defeasible {
+        label fr official "Article 122, alinéa 2. Il en est de même quand, à défaut d'un tel jugement, la personne a cessé de paraître depuis plus de vingt ans";
+        label en unofficial "Article 122, paragraph 2. The same applies where, absent such a judgment, the person has not appeared for more than twenty years";
+        when a_cesse_de_paraitre_le(p, jour) and not_known(jugement_de_presomption_rendu(p));
+        then declaration_d_absence_possible_le(p, add_calendar_period(jour, 20 calendar_year));
+    }
+    // COMPTÉ EN AVANT, JAMAIS EN ARRIÈRE. « Dès l'année précédant l'expiration »
+    // se lit naturellement comme un retrait d'un an sur le terme ; §86 refuse
+    // un décompte négatif (DEADLINE_POLICY_INVALID, count < 0), et le
+    // document entier deviendrait non exécutable. Le même jour se calcule
+    // depuis l'événement de départ : neuf ans après le jugement de
+    // présomption, dix-neuf ans après la disparition.
+    rule RequeteRecevableNeufAnsApresLePresomption(p: Personne, jour: Date) defeasible {
+        label fr official "Articles 122, alinéa 1, et 125, première phrase. La requête peut être présentée dès l'année précédant l'expiration du délai de dix ans, soit neuf ans après le jugement de présomption";
+        label en unofficial "Articles 122, paragraph 1, and 125, first sentence. The application may be brought from the year before the ten-year period expires, that is nine years after the presumption judgment";
+        when presomption_d_absence_constatee_le(p, jour);
+        then declaration_d_absence_recevable_le(p, add_calendar_period(jour, 9 calendar_year));
+    }
+    rule RequeteRecevableDixNeufAnsApresLaDisparition(p: Personne, jour: Date) defeasible {
+        label fr official "Articles 122, alinéa 2, et 125, première phrase. À défaut de jugement de présomption, la requête peut être présentée dix-neuf ans après que la personne a cessé de paraître";
+        label en unofficial "Articles 122, paragraph 2, and 125, first sentence. Absent a presumption judgment, the application may be brought nineteen years after the person ceased to appear";
+        when a_cesse_de_paraitre_le(p, jour) and not_known(jugement_de_presomption_rendu(p));
+        then declaration_d_absence_recevable_le(p, add_calendar_period(jour, 19 calendar_year));
+    }
+    rule JugementUnAnApresLaPublication(p: Personne, jour: Date) defeasible {
+        label fr official "Article 125, deuxième phrase. Le jugement déclaratif d'absence est rendu un an au moins après la publication des extraits de la requête";
+        label en unofficial "Article 125, second sentence. The declaratory judgment is rendered at least one year after the extracts of the application are published";
+        when extraits_publies_le(p, jour);
+        then jugement_declaratif_possible_le(p, add_calendar_period(jour, 1 calendar_year));
+    }
+}
+
+@source(CC_ART126) {
+    rule RequeteNonAvenueParLeRetour(p: Personne, jour: Date) defeasible {
+        label fr official "Article 126. La requête aux fins de déclaration d'absence est considérée comme non avenue lorsque l'absent reparaît avant le prononcé du jugement";
+        label en unofficial "Article 126. The application lapses where the absentee reappears before the judgment is delivered";
+        when reparu_le(p, jour);
+        then requete_non_avenue(p);
+    }
+    rule RequeteNonAvenueParLeDeces(p: Personne, jour: Date) defeasible {
+        label fr official "Article 126. La requête est également non avenue lorsque la date du décès de l'absent vient à être établie avant le prononcé du jugement";
+        label en unofficial "Article 126. The application likewise lapses where the date of the absentee's death is established before the judgment";
+        when deces_etabli_le(p, jour);
+        then requete_non_avenue(p);
+    }
+}
+
+@source(CC_ART128, CC_ART132) {
+    rule EffetsDuDecesDepuisLaTranscription(p: Personne, jour: Date) defeasible {
+        label fr official "Article 128, alinéa 1. Le jugement déclaratif d'absence emporte, à partir de la transcription, tous les effets que le décès établi de l'absent aurait eus";
+        label en unofficial "Article 128, paragraph 1. The declaratory judgment produces, from transcription, all the effects that the absentee's established death would have had";
+        when jugement_declaratif_transcrit_le(p, jour);
+        then effets_du_deces(p, jour);
+    }
+    rule MariageDissous(p: Personne, jour: Date) defeasible {
+        label fr official "Articles 128, alinéa 3, et 132. Le conjoint de l'absent peut contracter un nouveau mariage ; le mariage de l'absent reste dissous même si le jugement déclaratif est annulé";
+        label en unofficial "Articles 128, paragraph 3, and 132. The absentee's spouse may remarry; the absentee's marriage remains dissolved even if the declaratory judgment is annulled";
+        when effets_du_deces(p, jour);
+        then mariage_dissous(p);
+    }
+}
+
+@source(CC_ART131)
+rule RestitutionApresFraude(p: Personne, auteur: Personne) defeasible {
+    label fr official "Article 131, alinéa 1. Toute partie intéressée qui a provoqué par fraude une déclaration d'absence est tenue de restituer à l'absent les revenus des biens dont elle a eu la jouissance et de lui en verser les intérêts légaux";
+    label en unofficial "Article 131, paragraph 1. Any interested party who procured a declaration of absence by fraud must return to the absentee the income from the property he enjoyed and pay statutory interest";
+    when declaration_d_absence_obtenue_par_fraude(p, auteur);
+    then restitution_des_revenus_due(p, auteur);
+}

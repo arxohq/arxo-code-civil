@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 515-2 1° : cousins germains, quatrième degré — hors de l empêchement.
+test "urn:query:fr-code-civil-famille-s03-pacs-cousins-germains-permis" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": graphe_familial(entity_ref("urn:fr:cc:fam:aa:F")) { origin case_input; }
+        assert "f2": filiation_etablie(entity_ref("urn:fr:cc:fam:aa:F"), entity_ref("urn:fr:cc:fam:aa:g"), entity_ref("urn:fr:cc:fam:aa:p1")) { origin case_input; }
+        assert "f3": filiation_etablie(entity_ref("urn:fr:cc:fam:aa:F"), entity_ref("urn:fr:cc:fam:aa:g"), entity_ref("urn:fr:cc:fam:aa:p2")) { origin case_input; }
+        assert "f4": filiation_etablie(entity_ref("urn:fr:cc:fam:aa:F"), entity_ref("urn:fr:cc:fam:aa:p1"), entity_ref("urn:fr:cc:fam:aa:c1")) { origin case_input; }
+        assert "f5": filiation_etablie(entity_ref("urn:fr:cc:fam:aa:F"), entity_ref("urn:fr:cc:fam:aa:p2"), entity_ref("urn:fr:cc:fam:aa:c2")) { origin case_input; }
+        assert "f6": partenaires(entity_ref("urn:fr:cc:fam:aa:pacs"), entity_ref("urn:fr:cc:fam:aa:c1"), entity_ref("urn:fr:cc:fam:aa:c2")) { origin case_input; }
+    }
+    evaluate truth(empechement_au_pacs(entity_ref("urn:fr:cc:fam:aa:pacs")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

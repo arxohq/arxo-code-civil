@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1127-2 al. 1 et 2 : vérification de la commande et accusé de réception — le contrat électronique est valablement conclu.
+test "urn:query:fr-code-civil-contrat-f20-contrat-electronique-valablement-conclu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f20"), @2019-03-01) { origin case_input; }
+        assert "f2": offre_du_contrat(entity_ref("urn:fr:cc:contrat:f20:offre"), entity_ref("urn:fr:cc:contrat:f20")) { origin case_input; }
+        assert "f3": offre_par_voie_electronique(entity_ref("urn:fr:cc:contrat:f20:offre")) { origin case_input; }
+        assert "f4": accuse_de_reception_de_la_commande(entity_ref("urn:fr:cc:contrat:f20:offre")) { origin case_input; }
+        assert "f5": possibilite_de_verifier_la_commande(entity_ref("urn:fr:cc:contrat:f20:offre")) { origin case_input; }
+    }
+    evaluate truth(contrat_electronique_valablement_conclu(entity_ref("urn:fr:cc:contrat:f20")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ContratElectroniqueValablementConclu);
+}

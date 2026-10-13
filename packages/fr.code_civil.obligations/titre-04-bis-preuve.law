@@ -1,0 +1,1652 @@
+// TITRE IV BIS — DE LA PREUVE DES OBLIGATIONS (articles 1353 à 1386-1).
+//
+// Chapitre I : dispositions générales — charge de la preuve (1353), présomptions
+// légales (1354), autorité de la chose jugée (1355), contrats sur la preuve
+// (1356), renvoi au code de procédure civile (1357). Chapitre II : l'admissibilité
+// des modes de preuve (1358 à 1362). Chapitre III : les différents modes de
+// preuve — écrit (1363 à 1380), témoignage (1381), présomptions judiciaires
+// (1382), aveu (1383 à 1383-2), serment (1384 à 1386-1).
+//
+// LE SEUIL DE L'ARTICLE 1359 N'EST PAS DANS LE CODE : « un montant fixé par
+// décret ». Le paquet ne l'invente pas — c'est une entrée du cas
+// (`seuil_de_la_preuve_par_ecrit`), et les trois autres alinéas de l'article,
+// qui ne dépendent d'aucun chiffre, sont exécutables : l'interdiction de
+// prouver outre ou contre un écrit, et l'impossibilité de se dispenser de
+// l'écrit en restreignant sa demande ou en la divisant.
+//
+// LA PRÉSOMPTION LÉGALE (1354) EST DÉFAISABLE et son ESPÈCE vient de la loi qui
+// l'établit, jamais d'une supposition : une présomption simple se renverse par
+// tout moyen, une présomption mixte par les seuls moyens que la loi laisse,
+// une présomption irréfragable ne se renverse pas. Le cas nomme l'espèce.
+//
+// LES CONDITIONS « FIXÉES PAR DÉCRET » de l'écrit électronique (1367, alinéa 2),
+// de l'acte authentique électronique (1369, alinéa 2) et de la copie fiable
+// (1379, alinéa 2) ne sont pas non plus dans le Code : frontières déclarées.
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    ActeJuridique,
+    Aveu,
+    CC_ART1353,
+    CC_ART1354,
+    CC_ART1355,
+    CC_ART1356,
+    CC_ART1357,
+    CC_ART1358,
+    CC_ART1359,
+    CC_ART1360,
+    CC_ART1361,
+    CC_ART1362,
+    CC_ART1363,
+    CC_ART1364,
+    CC_ART1365,
+    CC_ART1366,
+    CC_ART1367,
+    CC_ART1368,
+    CC_ART1369,
+    CC_ART1370,
+    CC_ART1371,
+    CC_ART1372,
+    CC_ART1373,
+    CC_ART1374,
+    CC_ART1375,
+    CC_ART1376,
+    CC_ART1377,
+    CC_ART1378,
+    CC_ART1378_1,
+    CC_ART1378_2,
+    CC_ART1379,
+    CC_ART1380,
+    CC_ART1381,
+    CC_ART1382,
+    CC_ART1383,
+    CC_ART1383_1,
+    CC_ART1383_2,
+    CC_ART1384,
+    CC_ART1385,
+    CC_ART1385_1,
+    CC_ART1385_2,
+    CC_ART1385_3,
+    CC_ART1385_4,
+    CC_ART1386,
+    CC_ART1386_1,
+    Creance,
+    Ecrit,
+    EspeceDePresomption,
+    FormeDeLEcrit,
+    Personne,
+    Presomption,
+    Serment,
+    SupplementALEcrit,
+    caution_de_la_creance,
+    impossibilite_de_se_procurer_un_ecrit,
+    obligation_solidaire_entre_creanciers,
+};
+
+// --- Entrées du cas : dispositions générales et admissibilité --------------------------------
+
+pub relation reclame_l_execution(a: ActeJuridique, p: Personne, c: Creance) kind empirical {
+    label fr official "cette personne réclame l'exécution de l'obligation (article 1353, alinéa 1)";
+    label en unofficial "this person claims performance of the obligation (Article 1353, paragraph 1)";
+}
+pub relation se_pretend_libere(a: ActeJuridique, p: Personne, c: Creance) kind empirical {
+    label fr official "cette personne se prétend libérée (article 1353, alinéa 2)";
+    label en unofficial "this person claims to be discharged (Article 1353, paragraph 2)";
+}
+pub relation presomption_legale_attachee(pr: Presomption, a: ActeJuridique) kind empirical {
+    label fr official "présomption que la loi attache à cet acte ou à ce fait en le tenant pour certain (article 1354, alinéa 1)";
+    label en unofficial "presumption the law attaches to this act or fact by holding it certain (Article 1354, paragraph 1)";
+}
+pub relation espece_de_la_presomption(pr: Presomption, e: EspeceDePresomption) kind empirical {
+    key(pr);
+    label fr official "espèce de la présomption, telle que la qualifie la loi qui l'établit : simple, mixte ou irréfragable (article 1354, alinéa 2)";
+    label en unofficial "kind of presumption, as qualified by the law establishing it: rebuttable, mixed or irrebuttable (Article 1354, paragraph 2)";
+}
+pub relation beneficiaire_de_la_presomption(pr: Presomption, p: Personne) kind empirical {
+    label fr official "celui au profit duquel la présomption existe (article 1354, alinéa 1)";
+    label en unofficial "the person for whose benefit the presumption exists (Article 1354, paragraph 1)";
+}
+pub relation preuve_contraire_rapportee(pr: Presomption) kind empirical {
+    label fr official "la preuve contraire a été rapportée (article 1354, alinéa 2)";
+    label en unofficial "evidence to the contrary has been adduced (Article 1354, paragraph 2)";
+}
+pub relation preuve_contraire_par_un_moyen_admis(pr: Presomption) kind empirical {
+    label fr official "la preuve contraire a été rapportée par l'un des moyens que la loi laisse ouverts à l'encontre d'une présomption mixte (article 1354, alinéa 2)";
+    label en unofficial "evidence to the contrary was adduced by one of the means the law leaves open against a mixed presumption (Article 1354, paragraph 2)";
+}
+pub relation objet_du_jugement(a: ActeJuridique) kind empirical {
+    label fr official "ce qui a fait l'objet du jugement (article 1355)";
+    label en unofficial "what formed the object of the judgment (Article 1355)";
+}
+pub relation meme_chose_demandee(a: ActeJuridique, autre: ActeJuridique) kind empirical {
+    label fr official "la chose demandée est la même (article 1355)";
+    label en unofficial "the thing claimed is the same (Article 1355)";
+}
+pub relation meme_cause(a: ActeJuridique, autre: ActeJuridique) kind empirical {
+    label fr official "la demande est fondée sur la même cause (article 1355)";
+    label en unofficial "the claim is founded on the same cause (Article 1355)";
+}
+pub relation memes_parties_en_la_meme_qualite(a: ActeJuridique, autre: ActeJuridique) kind empirical {
+    label fr official "la demande est entre les mêmes parties, formée par elles et contre elles en la même qualité (article 1355)";
+    label en unofficial "the claim is between the same parties, brought by and against them in the same capacity (Article 1355)";
+}
+pub relation contrat_sur_la_preuve(a: ActeJuridique) kind empirical {
+    label fr official "contrat sur la preuve (article 1356)";
+    label en unofficial "contract on evidence (Article 1356)";
+}
+pub relation droits_dont_les_parties_ont_la_libre_disposition(a: ActeJuridique) kind empirical {
+    label fr official "le contrat porte sur des droits dont les parties ont la libre disposition (article 1356, alinéa 1)";
+    label en unofficial "the contract bears on rights the parties may freely dispose of (Article 1356, paragraph 1)";
+}
+pub relation contredit_une_presomption_irrefragable(a: ActeJuridique) kind empirical {
+    label fr official "le contrat contredit une présomption irréfragable établie par la loi, modifie la foi attachée à l'aveu ou au serment, ou établit une présomption irréfragable au profit d'une partie (article 1356, alinéa 2)";
+    label en unofficial "the contract contradicts an irrebuttable legal presumption, alters the weight attached to an admission or an oath, or establishes an irrebuttable presumption in a party's favour (Article 1356, paragraph 2)";
+}
+pub relation loi_imposant_un_mode_de_preuve(a: ActeJuridique) kind empirical {
+    label fr official "la loi dispose autrement du mode de preuve (article 1358)";
+    label en unofficial "the law provides otherwise as to the mode of proof (Article 1358)";
+}
+pub relation somme_ou_valeur_de_l_acte(a: ActeJuridique, v: Money) kind empirical {
+    key(a);
+    label fr official "somme ou valeur sur laquelle porte l'acte juridique (article 1359, alinéa 1)";
+    label en unofficial "sum or value on which the legal act bears (Article 1359, paragraph 1)";
+}
+pub relation seuil_de_la_preuve_par_ecrit(a: ActeJuridique, v: Money) kind empirical {
+    key(a);
+    label fr official "montant fixé par décret au-delà duquel l'acte juridique doit être prouvé par écrit (article 1359, alinéa 1) — le Code ne le nomme pas : entrée du cas, jamais un chiffre inventé";
+    label en unofficial "amount set by decree above which a legal act must be proved in writing (Article 1359, paragraph 1) — the Code does not name it: a case input, never an invented figure";
+}
+pub relation ecrit_etablissant_l_acte(a: ActeJuridique, e: Ecrit) kind empirical {
+    label fr official "écrit sous signature privée ou authentique établissant l'acte juridique (articles 1359, alinéa 2, et 1364)";
+    label en unofficial "private or authentic writing establishing the legal act (Articles 1359, paragraph 2, and 1364)";
+}
+pub relation preuve_offerte_outre_ou_contre_l_ecrit(a: ActeJuridique) kind empirical {
+    label fr official "une preuve est offerte outre ou contre l'écrit établissant l'acte (article 1359, alinéa 2)";
+    label en unofficial "evidence is offered beyond or against the writing establishing the act (Article 1359, paragraph 2)";
+}
+pub relation preuve_offerte_par_ecrit(a: ActeJuridique) kind empirical {
+    label fr official "la preuve offerte outre ou contre l'écrit est elle-même un écrit sous signature privée ou authentique (article 1359, alinéa 2)";
+    label en unofficial "the evidence offered beyond or against the writing is itself a private or authentic writing (Article 1359, paragraph 2)";
+}
+pub relation demande_restreinte(a: ActeJuridique, v: Money) kind empirical {
+    key(a);
+    label fr official "montant auquel le demandeur restreint sa demande, sa créance excédant le seuil (article 1359, alinéa 3)";
+    label en unofficial "amount to which the claimant restricts his claim, his debt exceeding the threshold (Article 1359, paragraph 3)";
+}
+pub relation demande_portant_sur_le_solde_d_une_creance(a: ActeJuridique, creance_totale: Money) kind empirical {
+    key(a);
+    label fr official "la demande, même inférieure au montant, porte sur le solde ou sur une partie d'une créance supérieure à ce montant (article 1359, alinéa 4)";
+    label en unofficial "the claim, even below the amount, bears on the balance or part of a debt exceeding that amount (Article 1359, paragraph 4)";
+}
+pub relation usage_de_ne_pas_etablir_un_ecrit(a: ActeJuridique) kind empirical {
+    label fr official "il est d'usage de ne pas établir un écrit (article 1360)";
+    label en unofficial "it is customary not to draw up a writing (Article 1360)";
+}
+pub relation ecrit_perdu_par_force_majeure(a: ActeJuridique) kind empirical {
+    label fr official "l'écrit a été perdu par force majeure (article 1360)";
+    label en unofficial "the writing was lost through force majeure (Article 1360)";
+}
+pub relation supplement_produit(a: ActeJuridique, s: SupplementALEcrit) kind empirical {
+    label fr official "ce qui est produit pour suppléer l'écrit : aveu judiciaire, serment décisoire ou commencement de preuve par écrit (article 1361)";
+    label en unofficial "what is produced to stand in for the writing: judicial admission, decisive oath or beginning of proof in writing (Article 1361)";
+}
+pub relation commencement_corrobore(a: ActeJuridique) kind empirical {
+    label fr official "le commencement de preuve par écrit est corroboré par un autre moyen de preuve (article 1361)";
+    label en unofficial "the beginning of proof in writing is corroborated by another means of evidence (Article 1361)";
+}
+pub relation ecrit_emanant_de_celui_qui_conteste(e: Ecrit, a: ActeJuridique) kind empirical {
+    label fr official "écrit émanant de celui qui conteste un acte ou de celui qu'il représente (article 1362, alinéa 1)";
+    label en unofficial "writing emanating from the person who disputes an act or from the person he represents (Article 1362, paragraph 1)";
+}
+pub relation rend_vraisemblable_ce_qui_est_allegue(e: Ecrit) kind empirical {
+    label fr official "l'écrit rend vraisemblable ce qui est allégué (article 1362, alinéa 1)";
+    label en unofficial "the writing makes what is alleged plausible (Article 1362, paragraph 1)";
+}
+pub relation mention_sur_un_registre_public(e: Ecrit) kind empirical {
+    label fr official "mention d'un écrit authentique ou sous signature privée sur un registre public (article 1362, alinéa 3)";
+    label en unofficial "mention of an authentic or private writing in a public register (Article 1362, paragraph 3)";
+}
+pub relation titre_constitue_par_celui_qui_s_en_prevaut(e: Ecrit, p: Personne) kind empirical {
+    label fr official "titre que celui qui s'en prévaut s'est constitué à lui-même (article 1363)";
+    label en unofficial "instrument the person relying on it created for himself (Article 1363)";
+}
+
+// --- Chapitre I : dispositions générales (1353 à 1357) --------------------------------------
+
+pub relation charge_de_la_preuve(a: ActeJuridique, p: Personne, c: Creance) kind derived {
+    label fr official "celui qui réclame l'exécution d'une obligation doit la prouver ; celui qui se prétend libéré doit justifier le paiement ou le fait qui a produit l'extinction (article 1353)";
+    label en unofficial "one who claims performance of an obligation must prove it; one who claims to be discharged must justify the payment or the fact that extinguished it (Article 1353)";
+}
+pub relation dispense_de_preuve(pr: Presomption, p: Personne) kind derived {
+    label fr official "la présomption que la loi attache à certains actes ou à certains faits en les tenant pour certains dispense celui au profit duquel elle existe d'en rapporter la preuve (article 1354, alinéa 1)";
+    label en unofficial "the presumption the law attaches to certain acts or facts by holding them certain dispenses the person benefiting from it from proving them (Article 1354, paragraph 1)";
+}
+pub relation dispense_ecartee_contre(pr: Presomption, p: Personne) kind derived {
+    label fr official "la preuve contraire admise contre cette présomption prive son bénéficiaire de la dispense (article 1354, alinéa 2) — défaiteur portant toutes les variables de la tête";
+    label en unofficial "evidence to the contrary admitted against this presumption deprives its beneficiary of the dispensation (Article 1354, paragraph 2) — defeater carrying every head variable";
+}
+pub relation presomption_renversee(pr: Presomption) kind derived {
+    label fr official "la présomption a été renversée (article 1354, alinéa 2)";
+    label en unofficial "the presumption has been rebutted (Article 1354, paragraph 2)";
+}
+pub relation presomption_irrenversable(pr: Presomption) kind derived {
+    label fr official "la présomption est dite irréfragable lorsqu'elle ne peut être renversée (article 1354, alinéa 2, in fine)";
+    label en unofficial "a presumption is irrebuttable where it may not be rebutted (Article 1354, paragraph 2, in fine)";
+}
+pub relation autorite_de_la_chose_jugee(a: ActeJuridique, autre: ActeJuridique) kind derived {
+    label fr official "l'autorité de la chose jugée n'a lieu qu'à l'égard de ce qui a fait l'objet du jugement (article 1355)";
+    label en unofficial "res judicata applies only to what formed the object of the judgment (Article 1355)";
+}
+pub relation contrat_sur_la_preuve_valable(a: ActeJuridique) kind derived {
+    label fr official "les contrats sur la preuve sont valables lorsqu'ils portent sur des droits dont les parties ont la libre disposition (article 1356, alinéa 1)";
+    label en unofficial "contracts on evidence are valid where they bear on rights the parties may freely dispose of (Article 1356, paragraph 1)";
+}
+pub relation contrat_sur_la_preuve_sans_effet(a: ActeJuridique) kind derived {
+    label fr official "ils ne peuvent contredire les présomptions irréfragables établies par la loi, ni modifier la foi attachée à l'aveu ou au serment, ni établir au profit de l'une des parties une présomption irréfragable (article 1356, alinéa 2)";
+    label en unofficial "they may not contradict irrebuttable legal presumptions, alter the weight attached to an admission or an oath, or establish an irrebuttable presumption in favour of one party (Article 1356, paragraph 2)";
+}
+pub relation administration_judiciaire_regie_par_le_cpc(a: ActeJuridique) kind derived {
+    label fr official "l'administration judiciaire de la preuve et les contestations qui s'y rapportent sont régies par le code de procédure civile (article 1357) — texte extérieur au paquet";
+    label en unofficial "the judicial administration of evidence and related disputes are governed by the Code of Civil Procedure (Article 1357) — a text outside this package";
+}
+
+@source(CC_ART1353) {
+    rule ChargeDeLaPreuveSurLeDemandeur(a: ActeJuridique, p: Personne, c: Creance) strict {
+        label fr official "Article 1353, alinéa 1. Celui qui réclame l'exécution d'une obligation doit la prouver";
+        label en unofficial "Article 1353, paragraph 1. One who claims performance of an obligation must prove it";
+        when reclame_l_execution(a, p, c);
+        then charge_de_la_preuve(a, p, c);
+    }
+    rule ChargeDeLaPreuveSurCeluiQuiSePretendLibere(a: ActeJuridique, p: Personne, c: Creance) strict {
+        label fr official "Article 1353, alinéa 2. Réciproquement, celui qui se prétend libéré doit justifier le paiement ou le fait qui a produit l'extinction de son obligation";
+        label en unofficial "Article 1353, paragraph 2. Conversely, one who claims to be discharged must justify the payment or the fact that extinguished his obligation";
+        when se_pretend_libere(a, p, c);
+        then charge_de_la_preuve(a, p, c);
+    }
+}
+
+@source(CC_ART1354) {
+    rule DispenseDePreuveParPresomptionSimple(pr: Presomption, a: ActeJuridique, p: Personne) defeasible {
+        label fr official "Article 1354, alinéas 1 et 2. La présomption simple dispense de la preuve celui au profit duquel elle existe ; la loi réserve la preuve contraire, qui peut être rapportée par tout moyen";
+        label en unofficial "Article 1354, paragraphs 1 and 2. A rebuttable presumption dispenses the beneficiary from proof; the law reserves evidence to the contrary, which may be adduced by any means";
+        when presomption_legale_attachee(pr, a) and espece_de_la_presomption(pr, Simple)
+            and beneficiaire_de_la_presomption(pr, p);
+        unless dispense_ecartee_contre(pr, p);
+        then dispense_de_preuve(pr, p);
+    }
+    rule DispenseDePreuveParPresomptionMixte(pr: Presomption, a: ActeJuridique, p: Personne) defeasible {
+        label fr official "Article 1354, alinéa 2. La présomption est dite mixte lorsque la loi limite les moyens par lesquels elle peut être renversée ou l'objet sur lequel elle peut être renversée : seul un moyen admis la renverse";
+        label en unofficial "Article 1354, paragraph 2. A presumption is mixed where the law limits the means by which, or the object on which, it may be rebutted: only an admitted means rebuts it";
+        when presomption_legale_attachee(pr, a) and espece_de_la_presomption(pr, Mixte)
+            and beneficiaire_de_la_presomption(pr, p);
+        unless dispense_ecartee_contre(pr, p);
+        then dispense_de_preuve(pr, p);
+    }
+    rule DispenseDePreuveParPresomptionIrrefragable(pr: Presomption, a: ActeJuridique, p: Personne) strict {
+        label fr official "Article 1354, alinéa 2, in fine. Elle est dite irréfragable lorsqu'elle ne peut être renversée : aucune preuve contraire ne l'atteint";
+        label en unofficial "Article 1354, paragraph 2, in fine. It is irrebuttable where it may not be rebutted: no evidence to the contrary reaches it";
+        when presomption_legale_attachee(pr, a) and espece_de_la_presomption(pr, Irrefragable)
+            and beneficiaire_de_la_presomption(pr, p);
+        then dispense_de_preuve(pr, p);
+    }
+    rule PresomptionIrrenversable(pr: Presomption, a: ActeJuridique) strict {
+        label fr official "Article 1354, alinéa 2, in fine. La présomption irréfragable ne peut être renversée";
+        label en unofficial "Article 1354, paragraph 2, in fine. An irrebuttable presumption may not be rebutted";
+        when presomption_legale_attachee(pr, a) and espece_de_la_presomption(pr, Irrefragable);
+        then presomption_irrenversable(pr);
+    }
+    rule DispenseEcarteeParPreuveContraire(pr: Presomption, p: Personne) strict {
+        label fr official "Article 1354, alinéa 2. La preuve contraire, admise contre la présomption simple, écarte la dispense au profit de son bénéficiaire";
+        label en unofficial "Article 1354, paragraph 2. Evidence to the contrary, admitted against a rebuttable presumption, removes the dispensation for its beneficiary";
+        when espece_de_la_presomption(pr, Simple) and beneficiaire_de_la_presomption(pr, p)
+            and preuve_contraire_rapportee(pr);
+        then dispense_ecartee_contre(pr, p);
+    }
+    rule DispenseEcarteeParMoyenAdmis(pr: Presomption, p: Personne) strict {
+        label fr official "Article 1354, alinéa 2. Contre la présomption mixte, seul un moyen que la loi laisse ouvert écarte la dispense";
+        label en unofficial "Article 1354, paragraph 2. Against a mixed presumption, only a means the law leaves open removes the dispensation";
+        when espece_de_la_presomption(pr, Mixte) and beneficiaire_de_la_presomption(pr, p)
+            and preuve_contraire_par_un_moyen_admis(pr);
+        then dispense_ecartee_contre(pr, p);
+    }
+    rule PresomptionSimpleRenversee(pr: Presomption) strict {
+        label fr official "Article 1354, alinéa 2. La présomption simple peut être renversée par tout moyen de preuve";
+        label en unofficial "Article 1354, paragraph 2. A rebuttable presumption may be rebutted by any means of evidence";
+        when espece_de_la_presomption(pr, Simple) and preuve_contraire_rapportee(pr);
+        then presomption_renversee(pr);
+    }
+    rule PresomptionMixteRenversee(pr: Presomption) strict {
+        label fr official "Article 1354, alinéa 2. La présomption mixte n'est renversée que par les moyens que la loi laisse ouverts";
+        label en unofficial "Article 1354, paragraph 2. A mixed presumption is rebutted only by the means the law leaves open";
+        when espece_de_la_presomption(pr, Mixte) and preuve_contraire_par_un_moyen_admis(pr);
+        then presomption_renversee(pr);
+    }
+}
+
+@source(CC_ART1355)
+rule AutoriteDeLaChoseJugee(a: ActeJuridique, autre: ActeJuridique) strict {
+    label fr official "Article 1355. L'autorité de la chose jugée n'a lieu qu'à l'égard de ce qui a fait l'objet du jugement. Il faut que la chose demandée soit la même ; que la demande soit fondée sur la même cause ; que la demande soit entre les mêmes parties, et formée par elles et contre elles en la même qualité";
+    label en unofficial "Article 1355. Res judicata applies only to what formed the object of the judgment. The thing claimed must be the same; the claim founded on the same cause; the claim between the same parties, brought by and against them in the same capacity";
+    when objet_du_jugement(autre) and meme_chose_demandee(a, autre) and meme_cause(a, autre)
+        and memes_parties_en_la_meme_qualite(a, autre);
+    then autorite_de_la_chose_jugee(a, autre);
+}
+
+@source(CC_ART1356) {
+    rule ContratSurLaPreuveValable(a: ActeJuridique) strict {
+        label fr official "Article 1356, alinéa 1. Les contrats sur la preuve sont valables lorsqu'ils portent sur des droits dont les parties ont la libre disposition";
+        label en unofficial "Article 1356, paragraph 1. Contracts on evidence are valid where they bear on rights the parties may freely dispose of";
+        when contrat_sur_la_preuve(a) and droits_dont_les_parties_ont_la_libre_disposition(a)
+            and not_known(contredit_une_presomption_irrefragable(a));
+        then contrat_sur_la_preuve_valable(a);
+    }
+    rule ContratSurLaPreuveSansEffet(a: ActeJuridique) strict {
+        label fr official "Article 1356, alinéa 2. Néanmoins, ils ne peuvent contredire les présomptions irréfragables établies par la loi, ni modifier la foi attachée à l'aveu ou au serment ; ils ne peuvent davantage établir au profit de l'une des parties une présomption irréfragable";
+        label en unofficial "Article 1356, paragraph 2. Nonetheless, they may not contradict irrebuttable legal presumptions, or alter the weight attached to an admission or an oath; nor may they establish an irrebuttable presumption in favour of one party";
+        when contrat_sur_la_preuve(a) and contredit_une_presomption_irrefragable(a);
+        then contrat_sur_la_preuve_sans_effet(a);
+    }
+}
+
+@source(CC_ART1357)
+rule AdministrationJudiciaireRegieParLeCpc(a: ActeJuridique) strict {
+    label fr official "Article 1357. L'administration judiciaire de la preuve et les contestations qui s'y rapportent sont régies par le code de procédure civile : renvoi à un texte extérieur au Code civil, non formalisé ici";
+    label en unofficial "Article 1357. The judicial administration of evidence and related disputes are governed by the Code of Civil Procedure: a reference to a text outside the Civil Code, not formalized here";
+    when objet_du_jugement(a);
+    then administration_judiciaire_regie_par_le_cpc(a);
+}
+
+// --- Chapitre II : l'admissibilité des modes de preuve (1358 à 1362) ------------------------
+
+pub relation preuve_par_tout_moyen(a: ActeJuridique) kind derived {
+    label fr official "hors les cas où la loi en dispose autrement, la preuve peut être apportée par tout moyen (article 1358)";
+    label en unofficial "save where the law provides otherwise, proof may be adduced by any means (Article 1358)";
+}
+pub relation preuve_par_ecrit_exigee(a: ActeJuridique) kind derived {
+    label fr official "l'acte juridique portant sur une somme ou une valeur excédant le montant fixé par décret doit être prouvé par écrit sous signature privée ou authentique (article 1359, alinéa 1)";
+    label en unofficial "a legal act bearing on a sum or value exceeding the amount set by decree must be proved by a private or authentic writing (Article 1359, paragraph 1)";
+}
+pub relation preuve_par_ecrit_non_exigee(a: ActeJuridique) kind derived {
+    label fr official "l'acte ne dépasse pas le montant fixé par décret : l'écrit n'est pas exigé par l'article 1359, alinéa 1";
+    label en unofficial "the act does not exceed the amount set by decree: a writing is not required by Article 1359, paragraph 1";
+}
+pub relation preuve_outre_ou_contre_l_ecrit_irrecevable(a: ActeJuridique) kind derived {
+    label fr official "il ne peut être prouvé outre ou contre un écrit établissant un acte juridique, même si la somme ou la valeur n'excède pas ce montant, que par un autre écrit sous signature privée ou authentique (article 1359, alinéa 2)";
+    label en unofficial "a legal act established by a writing may be proved beyond or against that writing, even below the amount, only by another private or authentic writing (Article 1359, paragraph 2)";
+}
+pub relation dispense_par_restriction_de_la_demande_refusee(a: ActeJuridique) kind derived {
+    label fr official "celui dont la créance excède le seuil ne peut pas être dispensé de la preuve par écrit en restreignant sa demande (article 1359, alinéa 3)";
+    label en unofficial "a claimant whose debt exceeds the threshold may not escape written proof by restricting his claim (Article 1359, paragraph 3)";
+}
+pub relation dispense_par_division_de_la_creance_refusee(a: ActeJuridique) kind derived {
+    label fr official "il en est de même de celui dont la demande, même inférieure à ce montant, porte sur le solde ou sur une partie d'une créance supérieure à ce montant (article 1359, alinéa 4)";
+    label en unofficial "the same applies to a claimant whose claim, even below that amount, bears on the balance or part of a debt exceeding it (Article 1359, paragraph 4)";
+}
+pub relation exception_a_l_exigence_d_ecrit(a: ActeJuridique) kind derived {
+    label fr official "les règles de l'article 1359 reçoivent exception en cas d'impossibilité matérielle ou morale de se procurer un écrit, s'il est d'usage de ne pas en établir, ou lorsque l'écrit a été perdu par force majeure (article 1360)";
+    label en unofficial "Article 1359 admits exceptions in case of material or moral impossibility of obtaining a writing, where it is customary not to draw one up, or where the writing was lost through force majeure (Article 1360)";
+}
+pub relation ecrit_supplee(a: ActeJuridique) kind derived {
+    label fr official "il peut être suppléé à l'écrit par l'aveu judiciaire, le serment décisoire ou un commencement de preuve par écrit corroboré par un autre moyen de preuve (article 1361)";
+    label en unofficial "the writing may be supplied by a judicial admission, a decisive oath or a beginning of proof in writing corroborated by another means of evidence (Article 1361)";
+}
+pub relation commencement_de_preuve_par_ecrit(e: Ecrit) kind derived {
+    label fr official "constitue un commencement de preuve par écrit tout écrit qui, émanant de celui qui conteste un acte ou de celui qu'il représente, rend vraisemblable ce qui est allégué (article 1362, alinéa 1)";
+    label en unofficial "any writing emanating from the person disputing an act, or from the person he represents, which makes what is alleged plausible, constitutes a beginning of proof in writing (Article 1362, paragraph 1)";
+}
+pub relation titre_a_soi_meme_sans_valeur(e: Ecrit, p: Personne) kind derived {
+    label fr official "nul ne peut se constituer de titre à soi-même (article 1363)";
+    label en unofficial "no one may create an instrument for himself (Article 1363)";
+}
+
+@source(CC_ART1358)
+rule PreuveParToutMoyen(a: ActeJuridique) strict {
+    label fr official "Article 1358. Hors les cas où la loi en dispose autrement, la preuve peut être apportée par tout moyen";
+    label en unofficial "Article 1358. Save where the law provides otherwise, proof may be adduced by any means";
+    when objet_du_jugement(a) and not_known(loi_imposant_un_mode_de_preuve(a));
+    then preuve_par_tout_moyen(a);
+}
+
+@source(CC_ART1359) {
+    rule PreuveParEcritExigee(a: ActeJuridique, v: Money, seuil: Money) strict {
+        label fr official "Article 1359, alinéa 1. L'acte juridique portant sur une somme ou une valeur excédant un montant fixé par décret doit être prouvé par écrit sous signature privée ou authentique";
+        label en unofficial "Article 1359, paragraph 1. A legal act bearing on a sum or value exceeding an amount set by decree must be proved by a private or authentic writing";
+        when somme_ou_valeur_de_l_acte(a, v) and seuil_de_la_preuve_par_ecrit(a, seuil) and v > seuil;
+        then preuve_par_ecrit_exigee(a);
+    }
+    rule PreuveParEcritNonExigee(a: ActeJuridique, v: Money, seuil: Money) strict {
+        label fr official "Article 1359, alinéa 1, a contrario. L'acte dont la somme ou la valeur n'excède pas le montant fixé par décret n'a pas à être prouvé par écrit";
+        label en unofficial "Article 1359, paragraph 1, a contrario. An act whose sum or value does not exceed the amount set by decree need not be proved in writing";
+        when somme_ou_valeur_de_l_acte(a, v) and seuil_de_la_preuve_par_ecrit(a, seuil) and v <= seuil;
+        then preuve_par_ecrit_non_exigee(a);
+    }
+    rule PreuveOutreOuContreLEcritIrrecevable(a: ActeJuridique, e: Ecrit) strict {
+        label fr official "Article 1359, alinéa 2. Il ne peut être prouvé outre ou contre un écrit établissant un acte juridique, même si la somme ou la valeur n'excède pas ce montant, que par un autre écrit sous signature privée ou authentique";
+        label en unofficial "Article 1359, paragraph 2. A legal act established by a writing may be proved beyond or against that writing, even below the amount, only by another private or authentic writing";
+        when ecrit_etablissant_l_acte(a, e) and preuve_offerte_outre_ou_contre_l_ecrit(a)
+            and not_known(preuve_offerte_par_ecrit(a));
+        then preuve_outre_ou_contre_l_ecrit_irrecevable(a);
+    }
+    rule DispenseParRestrictionRefusee(a: ActeJuridique, v: Money, seuil: Money, restreinte: Money) strict {
+        label fr official "Article 1359, alinéa 3. Celui dont la créance excède le seuil mentionné au premier alinéa ne peut pas être dispensé de la preuve par écrit en restreignant sa demande";
+        label en unofficial "Article 1359, paragraph 3. A claimant whose debt exceeds the threshold in the first paragraph may not escape written proof by restricting his claim";
+        when somme_ou_valeur_de_l_acte(a, v) and seuil_de_la_preuve_par_ecrit(a, seuil) and v > seuil
+            and demande_restreinte(a, restreinte);
+        then dispense_par_restriction_de_la_demande_refusee(a);
+    }
+    rule DispenseParDivisionRefusee(a: ActeJuridique, totale: Money, seuil: Money) strict {
+        label fr official "Article 1359, alinéa 4. Il en est de même de celui dont la demande, même inférieure à ce montant, porte sur le solde ou sur une partie d'une créance supérieure à ce montant";
+        label en unofficial "Article 1359, paragraph 4. The same applies to a claimant whose claim, even below that amount, bears on the balance or part of a debt exceeding it";
+        when demande_portant_sur_le_solde_d_une_creance(a, totale)
+            and seuil_de_la_preuve_par_ecrit(a, seuil) and totale > seuil;
+        then dispense_par_division_de_la_creance_refusee(a);
+    }
+}
+
+@source(CC_ART1360) {
+    rule ExceptionParImpossibilite(a: ActeJuridique) strict {
+        label fr official "Article 1360. Les règles prévues à l'article précédent reçoivent exception en cas d'impossibilité matérielle ou morale de se procurer un écrit";
+        label en unofficial "Article 1360. The rules of the preceding article admit an exception in case of material or moral impossibility of obtaining a writing";
+        when preuve_par_ecrit_exigee(a) and impossibilite_de_se_procurer_un_ecrit(a);
+        then exception_a_l_exigence_d_ecrit(a);
+    }
+    rule ExceptionParUsage(a: ActeJuridique) strict {
+        label fr official "Article 1360. Les règles reçoivent exception s'il est d'usage de ne pas établir un écrit";
+        label en unofficial "Article 1360. The rules admit an exception where it is customary not to draw up a writing";
+        when preuve_par_ecrit_exigee(a) and usage_de_ne_pas_etablir_un_ecrit(a);
+        then exception_a_l_exigence_d_ecrit(a);
+    }
+    rule ExceptionParPerteForceMajeure(a: ActeJuridique) strict {
+        label fr official "Article 1360. Les règles reçoivent exception lorsque l'écrit a été perdu par force majeure";
+        label en unofficial "Article 1360. The rules admit an exception where the writing was lost through force majeure";
+        when preuve_par_ecrit_exigee(a) and ecrit_perdu_par_force_majeure(a);
+        then exception_a_l_exigence_d_ecrit(a);
+    }
+}
+
+@source(CC_ART1361) {
+    rule EcritSuppleeParAveuJudiciaire(a: ActeJuridique) strict {
+        label fr official "Article 1361. Il peut être suppléé à l'écrit par l'aveu judiciaire";
+        label en unofficial "Article 1361. The writing may be supplied by a judicial admission";
+        when supplement_produit(a, AveuJudiciaire);
+        then ecrit_supplee(a);
+    }
+    rule EcritSuppleeParSermentDecisoire(a: ActeJuridique) strict {
+        label fr official "Article 1361. Il peut être suppléé à l'écrit par le serment décisoire";
+        label en unofficial "Article 1361. The writing may be supplied by a decisive oath";
+        when supplement_produit(a, SermentDecisoire);
+        then ecrit_supplee(a);
+    }
+    rule EcritSuppleeParCommencementCorrobore(a: ActeJuridique) strict {
+        label fr official "Article 1361. Il peut être suppléé à l'écrit par un commencement de preuve par écrit corroboré par un autre moyen de preuve : la corroboration est exigée par le texte";
+        label en unofficial "Article 1361. The writing may be supplied by a beginning of proof in writing corroborated by another means of evidence: corroboration is required by the text";
+        when supplement_produit(a, CommencementDePreuveParEcrit) and commencement_corrobore(a);
+        then ecrit_supplee(a);
+    }
+}
+
+@source(CC_ART1362) {
+    rule CommencementDePreuveParEcrit(e: Ecrit, a: ActeJuridique) strict {
+        label fr official "Article 1362, alinéa 1. Constitue un commencement de preuve par écrit tout écrit qui, émanant de celui qui conteste un acte ou de celui qu'il représente, rend vraisemblable ce qui est allégué";
+        label en unofficial "Article 1362, paragraph 1. Any writing emanating from the person disputing an act, or from the person he represents, which makes what is alleged plausible, constitutes a beginning of proof in writing";
+        when ecrit_emanant_de_celui_qui_conteste(e, a) and rend_vraisemblable_ce_qui_est_allegue(e);
+        then commencement_de_preuve_par_ecrit(e);
+    }
+    rule MentionSurRegistrePublicVautCommencement(e: Ecrit) strict {
+        label fr official "Article 1362, alinéa 3. La mention d'un écrit authentique ou sous signature privée sur un registre public vaut commencement de preuve par écrit";
+        label en unofficial "Article 1362, paragraph 3. The mention of an authentic or private writing in a public register amounts to a beginning of proof in writing";
+        when mention_sur_un_registre_public(e);
+        then commencement_de_preuve_par_ecrit(e);
+    }
+}
+
+@source(CC_ART1363)
+rule NulNePeutSeConstituerDeTitreASoiMeme(e: Ecrit, p: Personne) strict {
+    label fr official "Article 1363. Nul ne peut se constituer de titre à soi-même";
+    label en unofficial "Article 1363. No one may create an instrument for himself";
+    when titre_constitue_par_celui_qui_s_en_prevaut(e, p);
+    then titre_a_soi_meme_sans_valeur(e, p);
+}
+
+// --- Chapitre III, section 1 : la preuve par écrit (1364 à 1380) -----------------------------
+
+pub relation forme_de_l_ecrit(e: Ecrit, f: FormeDeLEcrit) kind empirical {
+    key(e);
+    label fr official "forme authentique ou sous signature privée (article 1364)";
+    label en unofficial "authentic or private-signature form (Article 1364)";
+}
+pub relation ecrit_de_l_acte(a: ActeJuridique, e: Ecrit) kind empirical {
+    label fr official "écrit préconstituant la preuve de l'acte juridique (article 1364)";
+    label en unofficial "writing pre-establishing proof of the legal act (Article 1364)";
+}
+pub relation suite_de_signes_intelligibles(e: Ecrit) kind empirical {
+    label fr official "suite de lettres, de caractères, de chiffres ou de tous autres signes ou symboles dotés d'une signification intelligible, quel que soit leur support (article 1365)";
+    label en unofficial "sequence of letters, characters, figures or any other signs or symbols with an intelligible meaning, whatever the medium (Article 1365)";
+}
+pub relation ecrit_electronique(e: Ecrit) kind empirical {
+    label fr official "l'écrit est établi sous forme électronique (article 1366)";
+    label en unofficial "the writing is made in electronic form (Article 1366)";
+}
+pub relation auteur_dument_identifie(e: Ecrit) kind empirical {
+    label fr official "la personne dont l'écrit émane peut être dûment identifiée (article 1366)";
+    label en unofficial "the person from whom the writing emanates can be duly identified (Article 1366)";
+}
+pub relation integrite_garantie(e: Ecrit) kind empirical {
+    label fr official "l'écrit est établi et conservé dans des conditions de nature à en garantir l'intégrité (article 1366)";
+    label en unofficial "the writing is made and kept in conditions ensuring its integrity (Article 1366)";
+}
+pub relation signature_apposee(e: Ecrit, p: Personne) kind empirical {
+    label fr official "signature apposée par cette personne (article 1367, alinéa 1)";
+    label en unofficial "signature affixed by this person (Article 1367, paragraph 1)";
+}
+pub relation signature_apposee_par_un_officier_public(e: Ecrit) kind empirical {
+    label fr official "la signature est apposée par un officier public (article 1367, alinéa 1, dernière phrase)";
+    label en unofficial "the signature is affixed by a public officer (Article 1367, paragraph 1, last sentence)";
+}
+pub relation signature_electronique(e: Ecrit) kind empirical {
+    label fr official "la signature est électronique : usage d'un procédé fiable d'identification garantissant son lien avec l'acte (article 1367, alinéa 2)";
+    label en unofficial "the signature is electronic: use of a reliable identification process ensuring its link with the act (Article 1367, paragraph 2)";
+}
+pub relation conditions_du_decret_sur_la_signature_electronique_remplies(e: Ecrit) kind empirical {
+    label fr official "la signature électronique est créée, l'identité du signataire assurée et l'intégrité de l'acte garantie dans les conditions fixées par décret en Conseil d'État (article 1367, alinéa 2) — le décret n'est pas dans le Code : entrée du cas";
+    label en unofficial "the electronic signature is created, the signatory's identity ensured and the act's integrity guaranteed under conditions set by decree (Article 1367, paragraph 2) — the decree is not in the Code: case input";
+}
+pub relation fiabilite_du_procede_contestee(e: Ecrit) kind empirical {
+    label fr official "la preuve contraire est rapportée contre la présomption de fiabilité du procédé (article 1367, alinéa 2)";
+    label en unofficial "evidence to the contrary is adduced against the presumption of reliability of the process (Article 1367, paragraph 2)";
+}
+pub relation conflit_de_preuve_par_ecrit(a: ActeJuridique, e: Ecrit, autre: Ecrit) kind empirical {
+    label fr official "conflit entre deux écrits, que le juge règle en déterminant le titre le plus vraisemblable (article 1368)";
+    label en unofficial "conflict between two writings, which the court settles by determining the most plausible instrument (Article 1368)";
+}
+pub relation disposition_ou_convention_reglant_le_conflit(a: ActeJuridique) kind empirical {
+    label fr official "des dispositions ou des conventions règlent le conflit de preuve (article 1368)";
+    label en unofficial "provisions or agreements settle the conflict of evidence (Article 1368)";
+}
+pub relation acte_recu_par_un_officier_public_competent(e: Ecrit) kind empirical {
+    label fr official "l'acte a été reçu, avec les solennités requises, par un officier public ayant compétence et qualité pour instrumenter (article 1369, alinéa 1)";
+    label en unofficial "the act was received, with the required formalities, by a public officer having competence and capacity to act (Article 1369, paragraph 1)";
+}
+pub relation acte_recu_par_un_notaire(e: Ecrit) kind empirical {
+    label fr official "l'acte authentique est reçu par un notaire (article 1369, alinéa 3)";
+    label en unofficial "the authentic instrument is received by a notary (Article 1369, paragraph 3)";
+}
+pub relation incompetence_ou_incapacite_de_l_officier(e: Ecrit) kind empirical {
+    label fr official "incompétence ou incapacité de l'officier, ou défaut de forme (article 1370)";
+    label en unofficial "incompetence or incapacity of the officer, or defect of form (Article 1370)";
+}
+pub relation acte_signe_des_parties(e: Ecrit) kind empirical {
+    label fr official "l'acte a été signé des parties (article 1370)";
+    label en unofficial "the act was signed by the parties (Article 1370)";
+}
+pub relation fait_personnellement_accompli_ou_constate(e: Ecrit) kind empirical {
+    label fr official "ce que l'officier public dit avoir personnellement accompli ou constaté (article 1371, alinéa 1)";
+    label en unofficial "what the public officer states he personally did or observed (Article 1371, paragraph 1)";
+}
+pub relation inscription_de_faux(e: Ecrit) kind empirical {
+    label fr official "inscription de faux contre l'acte authentique (article 1371)";
+    label en unofficial "forgery proceedings against the authentic instrument (Article 1371)";
+}
+pub relation acte_reconnu_ou_tenu_pour_reconnu(e: Ecrit, p: Personne) kind empirical {
+    label fr official "l'acte sous signature privée est reconnu par la partie à laquelle on l'oppose, ou légalement tenu pour reconnu à son égard (article 1372)";
+    label en unofficial "the private-signature act is acknowledged by the party against whom it is set up, or legally held acknowledged as regards him (Article 1372)";
+}
+pub relation desaveu_de_l_ecriture_ou_de_la_signature(e: Ecrit, p: Personne) kind empirical {
+    label fr official "la partie désavoue son écriture ou sa signature, ou ses héritiers déclarent ne pas les connaître (article 1373)";
+    label en unofficial "the party disavows his handwriting or signature, or his heirs declare they do not know them (Article 1373)";
+}
+pub relation acte_contresigne_par_avocat(e: Ecrit) kind empirical {
+    label fr official "acte sous signature privée contresigné par les avocats de chacune des parties ou par l'avocat de toutes les parties (article 1374, alinéa 1)";
+    label en unofficial "private-signature act countersigned by the lawyers of each party or by the lawyer of all parties (Article 1374, paragraph 1)";
+}
+pub relation contrat_synallagmatique(a: ActeJuridique) kind empirical {
+    label fr official "l'écrit constate un contrat synallagmatique (article 1375, alinéa 1)";
+    label en unofficial "the writing evidences a synallagmatic contract (Article 1375, paragraph 1)";
+}
+pub relation nombre_d_originaux(e: Ecrit, n: Integer) kind empirical {
+    key(e);
+    label fr official "nombre d'originaux effectivement dressés (article 1375, alinéas 1 et 2)";
+    label en unofficial "number of originals actually drawn up (Article 1375, paragraphs 1 and 2)";
+}
+pub relation nombre_de_parties_d_interet_distinct(a: ActeJuridique, n: Integer) kind empirical {
+    key(a);
+    label fr official "nombre de parties ayant un intérêt distinct (article 1375, alinéa 1)";
+    label en unofficial "number of parties having a distinct interest (Article 1375, paragraph 1)";
+}
+pub relation mention_du_nombre_des_originaux(e: Ecrit) kind empirical {
+    label fr official "chaque original mentionne le nombre des originaux qui en ont été faits (article 1375, alinéa 2)";
+    label en unofficial "each original states the number of originals made (Article 1375, paragraph 2)";
+}
+pub relation exemplaire_unique_remis_a_un_tiers(e: Ecrit) kind empirical {
+    label fr official "les parties sont convenues de remettre à un tiers l'unique exemplaire dressé (article 1375, alinéa 1, in fine)";
+    label en unofficial "the parties agreed to hand the single copy drawn up to a third party (Article 1375, paragraph 1, in fine)";
+}
+pub relation contrat_execute_meme_partiellement(a: ActeJuridique, p: Personne) kind empirical {
+    label fr official "cette partie a exécuté le contrat, même partiellement (article 1375, alinéa 3)";
+    label en unofficial "this party performed the contract, even partly (Article 1375, paragraph 3)";
+}
+pub relation engagement_unilateral_de_payer_ou_de_livrer(e: Ecrit, a: ActeJuridique) kind empirical {
+    label fr official "acte sous signature privée par lequel une seule partie s'engage envers une autre à lui payer une somme d'argent ou à lui livrer un bien fongible (article 1376)";
+    label en unofficial "private-signature act by which one party alone undertakes to pay a sum of money or deliver a fungible asset (Article 1376)";
+}
+pub relation mention_en_toutes_lettres(e: Ecrit, v: Money) kind empirical {
+    key(e);
+    label fr official "mention de la somme ou de la quantité écrite par le souscripteur lui-même en toutes lettres (article 1376)";
+    label en unofficial "statement of the sum or quantity written by the undertaker himself in words (Article 1376)";
+}
+pub relation mention_en_chiffres(e: Ecrit, v: Money) kind empirical {
+    key(e);
+    label fr official "mention de la somme ou de la quantité écrite par le souscripteur lui-même en chiffres (article 1376)";
+    label en unofficial "statement of the sum or quantity written by the undertaker himself in figures (Article 1376)";
+}
+pub relation signature_du_souscripteur(e: Ecrit) kind empirical {
+    label fr official "l'acte comporte la signature de celui qui souscrit l'engagement (article 1376)";
+    label en unofficial "the act bears the signature of the person undertaking (Article 1376)";
+}
+pub relation acte_enregistre_le(e: Ecrit, jour: Date) kind empirical {
+    label fr official "jour où l'acte sous signature privée a été enregistré (article 1377)";
+    label en unofficial "day the private-signature act was registered (Article 1377)";
+}
+pub relation mort_d_un_signataire_le(e: Ecrit, jour: Date) kind empirical {
+    label fr official "jour de la mort d'un signataire (article 1377)";
+    label en unofficial "day of the death of a signatory (Article 1377)";
+}
+pub relation substance_constatee_dans_un_acte_authentique_le(e: Ecrit, jour: Date) kind empirical {
+    label fr official "jour où la substance de l'acte est constatée dans un acte authentique (article 1377)";
+    label en unofficial "day the substance of the act is recorded in an authentic instrument (Article 1377)";
+}
+pub relation registre_professionnel(e: Ecrit, p: Personne) kind empirical {
+    label fr official "registre ou document que ce professionnel doit tenir ou établir (article 1378)";
+    label en unofficial "register or document this professional must keep or draw up (Article 1378)";
+}
+pub relation mentions_divisees_par_celui_qui_s_en_prevaut(e: Ecrit) kind empirical {
+    label fr official "celui qui s'en prévaut divise les mentions du registre pour n'en retenir que celles qui lui sont favorables (article 1378)";
+    label en unofficial "the person relying on it divides the register's entries to keep only those favourable to him (Article 1378)";
+}
+pub relation registre_domestique(e: Ecrit, p: Personne) kind empirical {
+    label fr official "registre ou papier domestique écrit par cette personne (article 1378-1)";
+    label en unofficial "domestic register or paper written by this person (Article 1378-1)";
+}
+pub relation enonce_formellement_un_paiement_recu(e: Ecrit) kind empirical {
+    label fr official "le registre domestique énonce formellement un paiement reçu (article 1378-1, 1°)";
+    label en unofficial "the domestic register formally states a payment received (Article 1378-1, 1°)";
+}
+pub relation mention_expresse_de_suppleer_le_defaut_de_titre(e: Ecrit) kind empirical {
+    label fr official "le registre contient la mention expresse que l'écrit a été fait pour suppléer le défaut du titre en faveur de qui il énonce une obligation (article 1378-1, 2°)";
+    label en unofficial "the register expressly states that the writing was made to make up for the lack of an instrument in favour of the person for whom it states an obligation (Article 1378-1, 2°)";
+}
+pub relation mention_de_liberation_portee_par_le_creancier(c: Creance, d: Personne) kind empirical {
+    label fr official "mention d'un paiement ou d'une autre cause de libération portée par le créancier sur un titre original resté en sa possession, ou sur le double d'un titre ou d'une quittance entre les mains du débiteur (article 1378-2)";
+    label en unofficial "note of a payment or other ground of discharge written by the creditor on an original instrument still in his possession, or on the duplicate of an instrument or receipt held by the debtor (Article 1378-2)";
+}
+pub relation preuve_contraire_de_la_mention(c: Creance, d: Personne) kind empirical {
+    label fr official "preuve contraire renversant la présomption simple tirée de la mention (articles 1378-2 et 1354, alinéa 2)";
+    label en unofficial "evidence to the contrary rebutting the rebuttable presumption drawn from the note (Articles 1378-2 and 1354, paragraph 2)";
+}
+pub relation copie_d_un_ecrit(e: Ecrit, original: Ecrit) kind empirical {
+    label fr official "copie d'un écrit (article 1379)";
+    label en unofficial "copy of a writing (Article 1379)";
+}
+pub relation copie_executoire_ou_authentique(e: Ecrit) kind empirical {
+    label fr official "copie exécutoire ou authentique d'un écrit authentique, réputée fiable (article 1379, alinéa 1)";
+    label en unofficial "enforceable or authentic copy of an authentic writing, deemed reliable (Article 1379, paragraph 1)";
+}
+pub relation reproduction_a_l_identique_avec_integrite_garantie(e: Ecrit) kind empirical {
+    label fr official "copie résultant d'une reproduction à l'identique de la forme et du contenu de l'acte, dont l'intégrité est garantie dans le temps par un procédé conforme à des conditions fixées par décret en Conseil d'État (article 1379, alinéa 2) — le décret n'est pas dans le Code : entrée du cas";
+    label en unofficial "copy resulting from an identical reproduction of the form and content of the act, whose integrity is guaranteed over time by a process complying with conditions set by decree (Article 1379, paragraph 2) — the decree is not in the Code: case input";
+}
+pub relation preuve_de_l_infidelite_de_la_copie(e: Ecrit) kind empirical {
+    label fr official "la preuve du contraire, renversant la fiabilité présumée de la copie (article 1379, alinéa 2)";
+    label en unofficial "evidence to the contrary rebutting the presumed reliability of the copy (Article 1379, paragraph 2)";
+}
+pub relation original_subsistant(e: Ecrit) kind empirical {
+    label fr official "l'original subsiste : sa présentation peut toujours être exigée (article 1379, alinéa 3)";
+    label en unofficial "the original survives: its production may always be required (Article 1379, paragraph 3)";
+}
+pub relation acte_recognitif(e: Ecrit, original: Ecrit) kind empirical {
+    label fr official "acte récognitif se rapportant à un titre original (article 1380)";
+    label en unofficial "instrument of acknowledgement relating to an original instrument (Article 1380)";
+}
+pub relation teneur_specialement_relatee(e: Ecrit) kind empirical {
+    label fr official "la teneur du titre original est spécialement relatée dans l'acte récognitif (article 1380, alinéa 1)";
+    label en unofficial "the content of the original instrument is specially set out in the instrument of acknowledgement (Article 1380, paragraph 1)";
+}
+pub relation contenu_de_plus_ou_de_different(e: Ecrit) kind empirical {
+    label fr official "ce que l'acte récognitif contient de plus ou de différent par rapport au titre original (article 1380, alinéa 2)";
+    label en unofficial "what the instrument of acknowledgement contains beyond or differing from the original (Article 1380, paragraph 2)";
+}
+pub relation declaration_d_un_tiers(a: ActeJuridique, tiers: Personne) kind empirical {
+    label fr official "déclaration faite par un tiers dans les conditions du code de procédure civile (article 1381)";
+    label en unofficial "statement made by a third party under the conditions of the Code of Civil Procedure (Article 1381)";
+}
+pub relation presomption_judiciaire(pr: Presomption, a: ActeJuridique) kind empirical {
+    label fr official "présomption qui n'est pas établie par la loi, laissée à l'appréciation du juge (article 1382)";
+    label en unofficial "presumption not established by law, left to the court's assessment (Article 1382)";
+}
+pub relation presomption_grave_precise_et_concordante(pr: Presomption) kind empirical {
+    label fr official "la présomption judiciaire est grave, précise et concordante (article 1382)";
+    label en unofficial "the judicial presumption is serious, precise and consistent (Article 1382)";
+}
+
+pub relation preuve_preconstituee(a: ActeJuridique, e: Ecrit) kind derived {
+    label fr official "la preuve d'un acte juridique peut être préconstituée par un écrit en la forme authentique ou sous signature privée (article 1364)";
+    label en unofficial "proof of a legal act may be pre-established by a writing in authentic or private-signature form (Article 1364)";
+}
+pub relation ecrit_constitue(e: Ecrit) kind derived {
+    label fr official "l'écrit consiste en une suite de lettres, de caractères, de chiffres ou de tous autres signes ou symboles dotés d'une signification intelligible, quel que soit leur support (article 1365)";
+    label en unofficial "a writing consists of a sequence of letters, characters, figures or any other signs or symbols with an intelligible meaning, whatever the medium (Article 1365)";
+}
+pub relation meme_force_probante_que_le_papier(e: Ecrit) kind derived {
+    label fr official "l'écrit électronique a la même force probante que l'écrit sur support papier, sous réserve de l'identification de son auteur et de la garantie de son intégrité (article 1366)";
+    label en unofficial "an electronic writing has the same probative force as one on paper, subject to identification of its author and the guarantee of its integrity (Article 1366)";
+}
+pub relation signature_identifiant_l_auteur(e: Ecrit, p: Personne) kind derived {
+    label fr official "la signature nécessaire à la perfection d'un acte juridique identifie son auteur et manifeste son consentement aux obligations qui en découlent (article 1367, alinéa 1)";
+    label en unofficial "the signature needed to perfect a legal act identifies its author and expresses his consent to the resulting obligations (Article 1367, paragraph 1)";
+}
+pub relation authenticite_conferee_par_l_officier_public(e: Ecrit) kind derived {
+    label fr official "quand la signature est apposée par un officier public, elle confère l'authenticité à l'acte (article 1367, alinéa 1, dernière phrase)";
+    label en unofficial "where the signature is affixed by a public officer, it confers authenticity on the act (Article 1367, paragraph 1, last sentence)";
+}
+pub relation fiabilite_du_procede_presumee(e: Ecrit) kind derived {
+    label fr official "la fiabilité du procédé de signature électronique est présumée, jusqu'à preuve contraire, lorsque les conditions fixées par décret sont remplies (article 1367, alinéa 2)";
+    label en unofficial "the reliability of the electronic signature process is presumed, until proof to the contrary, where the conditions set by decree are met (Article 1367, paragraph 2)";
+}
+pub relation conflit_regle_par_le_juge(a: ActeJuridique) kind derived {
+    label fr official "à défaut de dispositions ou de conventions contraires, le juge règle les conflits de preuve par écrit en déterminant par tout moyen le titre le plus vraisemblable (article 1368)";
+    label en unofficial "absent contrary provisions or agreements, the court settles conflicts of written evidence by determining by any means the most plausible instrument (Article 1368)";
+}
+pub relation acte_authentique(e: Ecrit) kind derived {
+    label fr official "l'acte authentique est celui qui a été reçu, avec les solennités requises, par un officier public ayant compétence et qualité pour instrumenter (article 1369, alinéa 1)";
+    label en unofficial "an authentic instrument is one received, with the required formalities, by a public officer having competence and capacity to act (Article 1369, paragraph 1)";
+}
+pub relation dispense_de_mention_manuscrite(e: Ecrit) kind derived {
+    label fr official "lorsqu'il est reçu par un notaire, ou contresigné par avocat, l'acte est dispensé de toute mention manuscrite exigée par la loi (articles 1369, alinéa 3, et 1374, alinéa 3)";
+    label en unofficial "where received by a notary, or countersigned by a lawyer, the act is exempt from any handwritten statement required by law (Articles 1369, paragraph 3, and 1374, paragraph 3)";
+}
+pub relation vaut_ecrit_sous_signature_privee(e: Ecrit) kind derived {
+    label fr official "l'acte qui n'est pas authentique du fait de l'incompétence ou de l'incapacité de l'officier, ou par un défaut de forme, vaut comme écrit sous signature privée, s'il a été signé des parties (article 1370)";
+    label en unofficial "an act not authentic because of the officer's incompetence or incapacity, or a defect of form, is valid as a private-signature writing if signed by the parties (Article 1370)";
+}
+pub relation foi_jusqu_a_inscription_de_faux(e: Ecrit) kind derived {
+    label fr official "l'acte authentique fait foi jusqu'à inscription de faux de ce que l'officier public dit avoir personnellement accompli ou constaté (article 1371, alinéa 1)";
+    label en unofficial "an authentic instrument is conclusive, until forgery proceedings, as to what the public officer states he personally did or observed (Article 1371, paragraph 1)";
+}
+pub relation execution_suspendable_par_le_juge(e: Ecrit) kind derived {
+    label fr official "en cas d'inscription de faux, le juge peut suspendre l'exécution de l'acte (article 1371, alinéa 2)";
+    label en unofficial "in case of forgery proceedings, the court may suspend enforcement of the act (Article 1371, paragraph 2)";
+}
+pub relation foi_entre_les_souscripteurs(e: Ecrit, p: Personne) kind derived {
+    label fr official "l'acte sous signature privée, reconnu ou légalement tenu pour reconnu, fait foi entre ceux qui l'ont souscrit et à l'égard de leurs héritiers et ayants cause (article 1372)";
+    label en unofficial "a private-signature act, acknowledged or legally held acknowledged, is conclusive between the signatories and as regards their heirs and assigns (Article 1372)";
+}
+pub relation verification_d_ecriture_ouverte(e: Ecrit, p: Personne) kind derived {
+    label fr official "en cas de désaveu de l'écriture ou de la signature, il y a lieu à vérification d'écriture (article 1373)";
+    label en unofficial "where the handwriting or signature is disavowed, there is ground for handwriting verification (Article 1373)";
+}
+pub relation foi_de_l_ecriture_et_de_la_signature(e: Ecrit) kind derived {
+    label fr official "l'acte sous signature privée contresigné par avocat fait foi de l'écriture et de la signature des parties, tant à leur égard qu'à celui de leurs héritiers ou ayants cause (article 1374, alinéa 1)";
+    label en unofficial "a private-signature act countersigned by a lawyer is conclusive as to the parties' handwriting and signature, both as regards them and their heirs or assigns (Article 1374, paragraph 1)";
+}
+pub relation pluralite_d_originaux_satisfaite(e: Ecrit) kind derived {
+    label fr official "l'exigence d'autant d'originaux qu'il y a de parties ayant un intérêt distinct est satisfaite (article 1375, alinéas 1 et 2)";
+    label en unofficial "the requirement of as many originals as there are parties with a distinct interest is satisfied (Article 1375, paragraphs 1 and 2)";
+}
+pub relation pluralite_d_originaux_non_satisfaite(e: Ecrit) kind derived {
+    label fr official "l'écrit ne fait pas preuve du contrat synallagmatique : les originaux sont en nombre insuffisant, ou leur nombre n'est pas mentionné (article 1375, alinéas 1 et 2)";
+    label en unofficial "the writing does not prove the synallagmatic contract: the originals are too few, or their number is not stated (Article 1375, paragraphs 1 and 2)";
+}
+pub relation defaut_de_pluralite_non_opposable(a: ActeJuridique, p: Personne) kind derived {
+    label fr official "celui qui a exécuté le contrat, même partiellement, ne peut opposer le défaut de la pluralité d'originaux ou de la mention de leur nombre (article 1375, alinéa 3)";
+    label en unofficial "a party who performed the contract, even partly, may not rely on the lack of a plurality of originals or of the statement of their number (Article 1375, paragraph 3)";
+}
+pub relation engagement_unilateral_prouve(e: Ecrit) kind derived {
+    label fr official "l'acte sous signature privée par lequel une seule partie s'engage ne fait preuve que s'il comporte la signature du souscripteur et la mention, écrite par lui-même, de la somme en toutes lettres et en chiffres (article 1376)";
+    label en unofficial "a private-signature act by which one party alone undertakes is proof only if it bears the undertaker's signature and his own handwritten statement of the sum in words and in figures (Article 1376)";
+}
+pub relation somme_retenue_en_cas_de_difference(e: Ecrit, v: Money) kind derived {
+    key(e);
+    label fr official "en cas de différence entre les deux mentions, l'acte sous signature privée vaut preuve pour la somme écrite en toutes lettres (article 1376, dernière phrase)";
+    label en unofficial "where the two statements differ, the private-signature act is proof for the sum written in words (Article 1376, last sentence)";
+}
+pub relation date_certaine_a_l_egard_des_tiers(e: Ecrit, jour: Date) kind derived {
+    key(e);
+    label fr official "l'acte sous signature privée n'acquiert date certaine à l'égard des tiers que du jour de son enregistrement, de la mort d'un signataire, ou du jour où sa substance est constatée dans un acte authentique (article 1377)";
+    label en unofficial "a private-signature act acquires a certain date as regards third parties only from its registration, the death of a signatory, or the day its substance is recorded in an authentic instrument (Article 1377)";
+}
+pub relation force_probante_du_registre_professionnel(e: Ecrit, p: Personne) kind derived {
+    label fr official "les registres et documents que les professionnels doivent tenir ou établir ont, contre leur auteur, la même force probante que les écrits sous signature privée (article 1378)";
+    label en unofficial "registers and documents professionals must keep or draw up have, against their author, the same probative force as private-signature writings (Article 1378)";
+}
+pub relation division_des_mentions_refusee(e: Ecrit) kind derived {
+    label fr official "celui qui s'en prévaut ne peut en diviser les mentions pour n'en retenir que celles qui lui sont favorables (article 1378, in fine)";
+    label en unofficial "the person relying on it may not divide its entries to keep only those favourable to him (Article 1378, in fine)";
+}
+pub relation registre_domestique_sans_preuve_au_profit_de_l_auteur(e: Ecrit, p: Personne) kind derived {
+    label fr official "les registres et papiers domestiques ne font pas preuve au profit de celui qui les a écrits (article 1378-1, alinéa 1)";
+    label en unofficial "domestic registers and papers are not proof in favour of the person who wrote them (Article 1378-1, paragraph 1)";
+}
+pub relation registre_domestique_faisant_preuve_contre_l_auteur(e: Ecrit, p: Personne) kind derived {
+    label fr official "ils font preuve contre lui dans les cas où ils énoncent formellement un paiement reçu, ou contiennent la mention expresse que l'écrit a été fait pour suppléer le défaut du titre (article 1378-1, alinéa 2)";
+    label en unofficial "they are proof against him where they formally state a payment received, or expressly state that the writing was made to make up for the lack of an instrument (Article 1378-1, paragraph 2)";
+}
+pub relation liberation_presumee_par_la_mention(c: Creance, d: Personne) kind derived {
+    label fr official "la mention d'un paiement ou d'une autre cause de libération portée par le créancier vaut présomption simple de libération du débiteur (article 1378-2)";
+    label en unofficial "a note of a payment or other ground of discharge written by the creditor amounts to a rebuttable presumption of the debtor's discharge (Article 1378-2)";
+}
+pub relation copie_fiable(e: Ecrit) kind derived {
+    label fr official "la copie fiable a la même force probante que l'original (article 1379, alinéa 1)";
+    label en unofficial "a reliable copy has the same probative force as the original (Article 1379, paragraph 1)";
+}
+pub relation presentation_de_l_original_exigible(e: Ecrit) kind derived {
+    label fr official "si l'original subsiste, sa présentation peut toujours être exigée (article 1379, alinéa 3)";
+    label en unofficial "if the original survives, its production may always be required (Article 1379, paragraph 3)";
+}
+pub relation presentation_du_titre_original_exigee(e: Ecrit) kind derived {
+    label fr official "l'acte récognitif ne dispense pas de la présentation du titre original sauf si sa teneur y est spécialement relatée (article 1380, alinéa 1)";
+    label en unofficial "an instrument of acknowledgement does not dispense with production of the original unless its content is specially set out in it (Article 1380, paragraph 1)";
+}
+pub relation contenu_additionnel_sans_effet(e: Ecrit) kind derived {
+    label fr official "ce que l'acte récognitif contient de plus ou de différent par rapport au titre original n'a pas d'effet (article 1380, alinéa 2)";
+    label en unofficial "what an instrument of acknowledgement contains beyond or differing from the original has no effect (Article 1380, paragraph 2)";
+}
+pub relation valeur_probante_laissee_au_juge(a: ActeJuridique) kind derived {
+    label fr official "la valeur probante des déclarations faites par un tiers est laissée à l'appréciation du juge (article 1381)";
+    label en unofficial "the probative value of a third party's statements is left to the court's assessment (Article 1381)";
+}
+pub relation presomption_judiciaire_admissible(pr: Presomption) kind derived {
+    label fr official "les présomptions qui ne sont pas établies par la loi ne sont admises que si elles sont graves, précises et concordantes, et dans les cas seulement où la loi admet la preuve par tout moyen (article 1382)";
+    label en unofficial "presumptions not established by law are admitted only if serious, precise and consistent, and only where the law admits proof by any means (Article 1382)";
+}
+
+@source(CC_ART1364)
+rule PreuvePreconstituee(a: ActeJuridique, e: Ecrit, f: FormeDeLEcrit) strict {
+    label fr official "Article 1364. La preuve d'un acte juridique peut être préconstituée par un écrit en la forme authentique ou sous signature privée";
+    label en unofficial "Article 1364. Proof of a legal act may be pre-established by a writing in authentic or private-signature form";
+    when ecrit_de_l_acte(a, e) and forme_de_l_ecrit(e, f);
+    then preuve_preconstituee(a, e);
+}
+
+@source(CC_ART1365)
+rule EcritConstitue(e: Ecrit) strict {
+    label fr official "Article 1365. L'écrit consiste en une suite de lettres, de caractères, de chiffres ou de tous autres signes ou symboles dotés d'une signification intelligible, quel que soit leur support";
+    label en unofficial "Article 1365. A writing consists of a sequence of letters, characters, figures or any other signs or symbols with an intelligible meaning, whatever the medium";
+    when suite_de_signes_intelligibles(e);
+    then ecrit_constitue(e);
+}
+
+@source(CC_ART1366)
+rule EcritElectroniqueMemeForceProbante(e: Ecrit) strict {
+    label fr official "Article 1366. L'écrit électronique a la même force probante que l'écrit sur support papier, sous réserve que puisse être dûment identifiée la personne dont il émane et qu'il soit établi et conservé dans des conditions de nature à en garantir l'intégrité";
+    label en unofficial "Article 1366. An electronic writing has the same probative force as one on paper, provided the person from whom it emanates can be duly identified and it is made and kept in conditions ensuring its integrity";
+    when ecrit_electronique(e) and auteur_dument_identifie(e) and integrite_garantie(e);
+    then meme_force_probante_que_le_papier(e);
+}
+
+@source(CC_ART1367) {
+    rule SignatureIdentifieLAuteur(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1367, alinéa 1. La signature nécessaire à la perfection d'un acte juridique identifie son auteur ; elle manifeste son consentement aux obligations qui découlent de cet acte";
+        label en unofficial "Article 1367, paragraph 1. The signature needed to perfect a legal act identifies its author; it expresses his consent to the obligations arising from the act";
+        when signature_apposee(e, p);
+        then signature_identifiant_l_auteur(e, p);
+    }
+    rule AuthenticiteParLOfficierPublic(e: Ecrit) strict {
+        label fr official "Article 1367, alinéa 1, dernière phrase. Quand elle est apposée par un officier public, elle confère l'authenticité à l'acte";
+        label en unofficial "Article 1367, paragraph 1, last sentence. Where affixed by a public officer, it confers authenticity on the act";
+        when signature_apposee_par_un_officier_public(e);
+        then authenticite_conferee_par_l_officier_public(e);
+    }
+    rule FiabiliteDuProcedePresumee(e: Ecrit) defeasible {
+        label fr official "Article 1367, alinéa 2. La fiabilité du procédé de signature électronique est présumée, jusqu'à preuve contraire, lorsque la signature est créée, l'identité du signataire assurée et l'intégrité de l'acte garantie, dans des conditions fixées par décret en Conseil d'État";
+        label en unofficial "Article 1367, paragraph 2. The reliability of the electronic signature process is presumed, until proof to the contrary, where the signature is created, the signatory's identity ensured and the act's integrity guaranteed, under conditions set by decree";
+        when signature_electronique(e) and conditions_du_decret_sur_la_signature_electronique_remplies(e);
+        unless fiabilite_du_procede_contestee(e);
+        then fiabilite_du_procede_presumee(e);
+    }
+}
+
+@source(CC_ART1368)
+rule ConflitReglerParLeJuge(a: ActeJuridique, e: Ecrit, autre: Ecrit) strict {
+    label fr official "Article 1368. A défaut de dispositions ou de conventions contraires, le juge règle les conflits de preuve par écrit en déterminant par tout moyen le titre le plus vraisemblable";
+    label en unofficial "Article 1368. Absent contrary provisions or agreements, the court settles conflicts of written evidence by determining by any means the most plausible instrument";
+    when conflit_de_preuve_par_ecrit(a, e, autre)
+        and not_known(disposition_ou_convention_reglant_le_conflit(a));
+    then conflit_regle_par_le_juge(a);
+}
+
+@source(CC_ART1369) {
+    rule ActeAuthentique(e: Ecrit) strict {
+        label fr official "Article 1369, alinéa 1. L'acte authentique est celui qui a été reçu, avec les solennités requises, par un officier public ayant compétence et qualité pour instrumenter";
+        label en unofficial "Article 1369, paragraph 1. An authentic instrument is one received, with the required formalities, by a public officer having competence and capacity to act";
+        when acte_recu_par_un_officier_public_competent(e);
+        then acte_authentique(e);
+    }
+    rule DispenseDeMentionManuscriteParLeNotaire(e: Ecrit) strict {
+        label fr official "Article 1369, alinéa 3. Lorsqu'il est reçu par un notaire, il est dispensé de toute mention manuscrite exigée par la loi";
+        label en unofficial "Article 1369, paragraph 3. Where received by a notary, it is exempt from any handwritten statement required by law";
+        when acte_authentique(e) and acte_recu_par_un_notaire(e);
+        then dispense_de_mention_manuscrite(e);
+    }
+}
+
+@source(CC_ART1370)
+rule ActeNonAuthentiqueVautEcritPrive(e: Ecrit) strict {
+    label fr official "Article 1370. L'acte qui n'est pas authentique du fait de l'incompétence ou de l'incapacité de l'officier, ou par un défaut de forme, vaut comme écrit sous signature privée, s'il a été signé des parties";
+    label en unofficial "Article 1370. An act not authentic because of the officer's incompetence or incapacity, or a defect of form, is valid as a private-signature writing if signed by the parties";
+    when incompetence_ou_incapacite_de_l_officier(e) and acte_signe_des_parties(e);
+    then vaut_ecrit_sous_signature_privee(e);
+}
+
+@source(CC_ART1371) {
+    rule FoiJusquALInscriptionDeFaux(e: Ecrit) strict {
+        label fr official "Article 1371, alinéa 1. L'acte authentique fait foi jusqu'à inscription de faux de ce que l'officier public dit avoir personnellement accompli ou constaté";
+        label en unofficial "Article 1371, paragraph 1. An authentic instrument is conclusive, until forgery proceedings, as to what the public officer states he personally did or observed";
+        when acte_authentique(e) and fait_personnellement_accompli_ou_constate(e);
+        then foi_jusqu_a_inscription_de_faux(e);
+    }
+    rule ExecutionSuspendableEnCasDeFaux(e: Ecrit) strict {
+        label fr official "Article 1371, alinéa 2. En cas d'inscription de faux, le juge peut suspendre l'exécution de l'acte";
+        label en unofficial "Article 1371, paragraph 2. In case of forgery proceedings, the court may suspend enforcement of the act";
+        when acte_authentique(e) and inscription_de_faux(e);
+        then execution_suspendable_par_le_juge(e);
+    }
+}
+
+@source(CC_ART1372)
+rule FoiDeLActeSousSignaturePrivee(e: Ecrit, p: Personne) strict {
+    label fr official "Article 1372. L'acte sous signature privée, reconnu par la partie à laquelle on l'oppose ou légalement tenu pour reconnu à son égard, fait foi entre ceux qui l'ont souscrit et à l'égard de leurs héritiers et ayants cause";
+    label en unofficial "Article 1372. A private-signature act, acknowledged by the party against whom it is set up or legally held acknowledged as regards him, is conclusive between the signatories and as regards their heirs and assigns";
+    when acte_reconnu_ou_tenu_pour_reconnu(e, p);
+    then foi_entre_les_souscripteurs(e, p);
+}
+
+@source(CC_ART1373)
+rule VerificationDEcriture(e: Ecrit, p: Personne) strict {
+    label fr official "Article 1373. La partie à laquelle on l'oppose peut désavouer son écriture ou sa signature ; dans ces cas, il y a lieu à vérification d'écriture";
+    label en unofficial "Article 1373. The party against whom it is set up may disavow his handwriting or signature; in such cases, there is ground for handwriting verification";
+    when desaveu_de_l_ecriture_ou_de_la_signature(e, p);
+    then verification_d_ecriture_ouverte(e, p);
+}
+
+@source(CC_ART1374) {
+    rule FoiDeLEcritureParContreseingDAvocat(e: Ecrit) strict {
+        label fr official "Article 1374, alinéa 1. L'acte sous signature privée contresigné par les avocats de chacune des parties ou par l'avocat de toutes les parties fait foi de l'écriture et de la signature des parties, tant à leur égard qu'à celui de leurs héritiers ou ayants cause";
+        label en unofficial "Article 1374, paragraph 1. A private-signature act countersigned by the lawyers of each party or by the lawyer of all parties is conclusive as to the parties' handwriting and signature, both as regards them and their heirs or assigns";
+        when acte_contresigne_par_avocat(e);
+        then foi_de_l_ecriture_et_de_la_signature(e);
+    }
+    rule DispenseDeMentionManuscriteParContreseing(e: Ecrit) strict {
+        label fr official "Article 1374, alinéa 3. Cet acte est dispensé de toute mention manuscrite exigée par la loi";
+        label en unofficial "Article 1374, paragraph 3. Such an act is exempt from any handwritten statement required by law";
+        when acte_contresigne_par_avocat(e);
+        then dispense_de_mention_manuscrite(e);
+    }
+}
+
+@source(CC_ART1375) {
+    rule PluraliteDOriginauxSatisfaite(a: ActeJuridique, e: Ecrit, n: Integer, parties: Integer) strict {
+        label fr official "Article 1375, alinéas 1 et 2. L'acte sous signature privée qui constate un contrat synallagmatique ne fait preuve que s'il a été fait en autant d'originaux qu'il y a de parties ayant un intérêt distinct, chaque original mentionnant leur nombre";
+        label en unofficial "Article 1375, paragraphs 1 and 2. A private-signature act evidencing a synallagmatic contract is proof only if made in as many originals as there are parties with a distinct interest, each original stating their number";
+        when contrat_synallagmatique(a) and ecrit_de_l_acte(a, e)
+            and nombre_d_originaux(e, n) and nombre_de_parties_d_interet_distinct(a, parties)
+            and n >= parties and mention_du_nombre_des_originaux(e);
+        then pluralite_d_originaux_satisfaite(e);
+    }
+    rule ExemplaireUniqueRemisAUnTiers(a: ActeJuridique, e: Ecrit) strict {
+        label fr official "Article 1375, alinéa 1, in fine. A moins que les parties ne soient convenues de remettre à un tiers l'unique exemplaire dressé";
+        label en unofficial "Article 1375, paragraph 1, in fine. Unless the parties agreed to hand the single copy drawn up to a third party";
+        when contrat_synallagmatique(a) and ecrit_de_l_acte(a, e)
+            and exemplaire_unique_remis_a_un_tiers(e);
+        then pluralite_d_originaux_satisfaite(e);
+    }
+    rule PluraliteDOriginauxNonSatisfaite(a: ActeJuridique, e: Ecrit, n: Integer, parties: Integer) strict {
+        label fr official "Article 1375, alinéas 1 et 2. Les originaux en nombre insuffisant, ou dont le nombre n'est pas mentionné, privent l'écrit de force probante";
+        label en unofficial "Article 1375, paragraphs 1 and 2. Originals too few in number, or whose number is not stated, deprive the writing of probative force";
+        when contrat_synallagmatique(a) and ecrit_de_l_acte(a, e)
+            and nombre_d_originaux(e, n) and nombre_de_parties_d_interet_distinct(a, parties)
+            and n < parties
+            and not_known(exemplaire_unique_remis_a_un_tiers(e));
+        then pluralite_d_originaux_non_satisfaite(e);
+    }
+    rule DefautDePluraliteNonOpposable(a: ActeJuridique, p: Personne) strict {
+        label fr official "Article 1375, alinéa 3. Celui qui a exécuté le contrat, même partiellement, ne peut opposer le défaut de la pluralité d'originaux ou de la mention de leur nombre";
+        label en unofficial "Article 1375, paragraph 3. A party who performed the contract, even partly, may not rely on the lack of a plurality of originals or of the statement of their number";
+        when contrat_synallagmatique(a) and contrat_execute_meme_partiellement(a, p);
+        then defaut_de_pluralite_non_opposable(a, p);
+    }
+}
+
+@source(CC_ART1376) {
+    rule EngagementUnilateralProuve(e: Ecrit, a: ActeJuridique, lettres: Money, chiffres: Money) strict {
+        label fr official "Article 1376. L'acte sous signature privée par lequel une seule partie s'engage envers une autre à lui payer une somme d'argent ou à lui livrer un bien fongible ne fait preuve que s'il comporte la signature de celui qui souscrit cet engagement ainsi que la mention, écrite par lui-même, de la somme ou de la quantité en toutes lettres et en chiffres";
+        label en unofficial "Article 1376. A private-signature act by which one party alone undertakes to pay a sum of money or deliver a fungible asset is proof only if it bears the signature of the undertaker and his own handwritten statement of the sum or quantity in words and in figures";
+        when engagement_unilateral_de_payer_ou_de_livrer(e, a) and signature_du_souscripteur(e)
+            and mention_en_toutes_lettres(e, lettres) and mention_en_chiffres(e, chiffres);
+        then engagement_unilateral_prouve(e);
+    }
+    rule SommeEnToutesLettresRetenue(e: Ecrit, a: ActeJuridique, lettres: Money, chiffres: Money) strict {
+        label fr official "Article 1376, dernière phrase. En cas de différence, l'acte sous signature privée vaut preuve pour la somme écrite en toutes lettres";
+        label en unofficial "Article 1376, last sentence. Where they differ, the private-signature act is proof for the sum written in words";
+        when engagement_unilateral_prouve(e) and engagement_unilateral_de_payer_ou_de_livrer(e, a)
+            and mention_en_toutes_lettres(e, lettres) and mention_en_chiffres(e, chiffres)
+            and lettres != chiffres;
+        then somme_retenue_en_cas_de_difference(e, lettres);
+    }
+    rule SommeConcordanteRetenue(e: Ecrit, a: ActeJuridique, lettres: Money, chiffres: Money) strict {
+        label fr official "Article 1376. Lorsque les deux mentions concordent, la somme portée par l'acte est celle qu'elles expriment";
+        label en unofficial "Article 1376. Where the two statements agree, the sum borne by the act is the one they express";
+        when engagement_unilateral_prouve(e) and engagement_unilateral_de_payer_ou_de_livrer(e, a)
+            and mention_en_toutes_lettres(e, lettres) and mention_en_chiffres(e, chiffres)
+            and lettres == chiffres;
+        then somme_retenue_en_cas_de_difference(e, lettres);
+    }
+}
+
+@source(CC_ART1377) {
+    rule DateCertaineParEnregistrement(e: Ecrit, jour: Date) strict {
+        label fr official "Article 1377. L'acte sous signature privée n'acquiert date certaine à l'égard des tiers que du jour où il a été enregistré";
+        label en unofficial "Article 1377. A private-signature act acquires a certain date as regards third parties only from the day it was registered";
+        when acte_enregistre_le(e, jour);
+        then date_certaine_a_l_egard_des_tiers(e, jour);
+    }
+    rule DateCertaineParLaMortDUnSignataire(e: Ecrit, jour: Date) strict {
+        label fr official "Article 1377. Ou du jour de la mort d'un signataire";
+        label en unofficial "Article 1377. Or from the day of the death of a signatory";
+        when mort_d_un_signataire_le(e, jour) and not_known(acte_enregistre(e));
+        then date_certaine_a_l_egard_des_tiers(e, jour);
+    }
+    rule DateCertaineParConstatationAuthentique(e: Ecrit, jour: Date) strict {
+        label fr official "Article 1377. Ou du jour où sa substance est constatée dans un acte authentique";
+        label en unofficial "Article 1377. Or from the day its substance is recorded in an authentic instrument";
+        when substance_constatee_dans_un_acte_authentique_le(e, jour)
+            and not_known(acte_enregistre(e));
+        then date_certaine_a_l_egard_des_tiers(e, jour);
+    }
+}
+
+pub relation acte_enregistre(e: Ecrit) kind derived {
+    label fr official "l'acte sous signature privée a été enregistré (article 1377)";
+    label en unofficial "the private-signature act was registered (Article 1377)";
+}
+
+@source(CC_ART1377)
+rule ActeEnregistre(e: Ecrit, jour: Date) strict {
+    label fr official "Article 1377. Présence d'un enregistrement de l'acte";
+    label en unofficial "Article 1377. Presence of a registration of the act";
+    when acte_enregistre_le(e, jour);
+    then acte_enregistre(e);
+}
+
+@source(CC_ART1378) {
+    rule ForceProbanteDuRegistreProfessionnel(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1378. Les registres et documents que les professionnels doivent tenir ou établir ont, contre leur auteur, la même force probante que les écrits sous signature privée";
+        label en unofficial "Article 1378. Registers and documents professionals must keep or draw up have, against their author, the same probative force as private-signature writings";
+        when registre_professionnel(e, p);
+        then force_probante_du_registre_professionnel(e, p);
+    }
+    rule DivisionDesMentionsRefusee(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1378, in fine. Mais celui qui s'en prévaut ne peut en diviser les mentions pour n'en retenir que celles qui lui sont favorables";
+        label en unofficial "Article 1378, in fine. But the person relying on it may not divide its entries to keep only those favourable to him";
+        when registre_professionnel(e, p) and mentions_divisees_par_celui_qui_s_en_prevaut(e);
+        then division_des_mentions_refusee(e);
+    }
+}
+
+@source(CC_ART1378_1) {
+    rule RegistreDomestiqueSansPreuveAuProfitDeLAuteur(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1378-1, alinéa 1. Les registres et papiers domestiques ne font pas preuve au profit de celui qui les a écrits";
+        label en unofficial "Article 1378-1, paragraph 1. Domestic registers and papers are not proof in favour of the person who wrote them";
+        when registre_domestique(e, p);
+        then registre_domestique_sans_preuve_au_profit_de_l_auteur(e, p);
+    }
+    rule RegistreDomestiqueEnoncantUnPaiementRecu(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1378-1, 1°. Ils font preuve contre lui dans tous les cas où ils énoncent formellement un paiement reçu";
+        label en unofficial "Article 1378-1, 1°. They are proof against him in all cases where they formally state a payment received";
+        when registre_domestique(e, p) and enonce_formellement_un_paiement_recu(e);
+        then registre_domestique_faisant_preuve_contre_l_auteur(e, p);
+    }
+    rule RegistreDomestiqueSuppleantLeDefautDeTitre(e: Ecrit, p: Personne) strict {
+        label fr official "Article 1378-1, 2°. Ils font preuve contre lui lorsqu'ils contiennent la mention expresse que l'écrit a été fait pour suppléer le défaut du titre en faveur de qui ils énoncent une obligation";
+        label en unofficial "Article 1378-1, 2°. They are proof against him where they expressly state that the writing was made to make up for the lack of an instrument in favour of the person for whom they state an obligation";
+        when registre_domestique(e, p) and mention_expresse_de_suppleer_le_defaut_de_titre(e);
+        then registre_domestique_faisant_preuve_contre_l_auteur(e, p);
+    }
+}
+
+// PRÉSOMPTION SIMPLE (1378-2), lue avec 1354, alinéa 2 : défaisable.
+@source(CC_ART1378_2)
+rule LiberationPresumeeParLaMention(c: Creance, d: Personne) defeasible {
+    label fr official "Article 1378-2. La mention d'un paiement ou d'une autre cause de libération portée par le créancier sur un titre original resté en sa possession vaut présomption simple de libération du débiteur ; il en est de même de la mention portée sur le double d'un titre ou d'une quittance entre les mains du débiteur";
+    label en unofficial "Article 1378-2. A note of a payment or other ground of discharge written by the creditor on an original instrument still in his possession amounts to a rebuttable presumption of the debtor's discharge; the same applies to a note on the duplicate of an instrument or receipt held by the debtor";
+    when mention_de_liberation_portee_par_le_creancier(c, d);
+    unless preuve_contraire_de_la_mention(c, d);
+    then liberation_presumee_par_la_mention(c, d);
+}
+
+@source(CC_ART1379) {
+    rule CopieExecutoireReputeeFiable(e: Ecrit, original: Ecrit) strict {
+        label fr official "Article 1379, alinéa 1. Est réputée fiable la copie exécutoire ou authentique d'un écrit authentique ; la copie fiable a la même force probante que l'original";
+        label en unofficial "Article 1379, paragraph 1. An enforceable or authentic copy of an authentic writing is deemed reliable; a reliable copy has the same probative force as the original";
+        when copie_d_un_ecrit(e, original) and copie_executoire_ou_authentique(e);
+        then copie_fiable(e);
+    }
+    rule CopiePresumeeFiable(e: Ecrit, original: Ecrit) defeasible {
+        label fr official "Article 1379, alinéa 2. Est présumée fiable jusqu'à preuve du contraire toute copie résultant d'une reproduction à l'identique de la forme et du contenu de l'acte, et dont l'intégrité est garantie dans le temps par un procédé conforme à des conditions fixées par décret en Conseil d'État";
+        label en unofficial "Article 1379, paragraph 2. Any copy resulting from an identical reproduction of the form and content of the act, whose integrity is guaranteed over time by a process complying with conditions set by decree, is presumed reliable until proof to the contrary";
+        when copie_d_un_ecrit(e, original) and reproduction_a_l_identique_avec_integrite_garantie(e);
+        unless preuve_de_l_infidelite_de_la_copie(e);
+        then copie_fiable(e);
+    }
+    rule PresentationDeLOriginalExigible(e: Ecrit, original: Ecrit) strict {
+        label fr official "Article 1379, alinéa 3. Si l'original subsiste, sa présentation peut toujours être exigée";
+        label en unofficial "Article 1379, paragraph 3. If the original survives, its production may always be required";
+        when copie_d_un_ecrit(e, original) and original_subsistant(original);
+        then presentation_de_l_original_exigible(original);
+    }
+}
+
+@source(CC_ART1380) {
+    rule PresentationDuTitreOriginalExigee(e: Ecrit, original: Ecrit) strict {
+        label fr official "Article 1380, alinéa 1. L'acte récognitif ne dispense pas de la présentation du titre original sauf si sa teneur y est spécialement relatée";
+        label en unofficial "Article 1380, paragraph 1. An instrument of acknowledgement does not dispense with production of the original unless its content is specially set out in it";
+        when acte_recognitif(e, original) and not_known(teneur_specialement_relatee(e));
+        then presentation_du_titre_original_exigee(original);
+    }
+    rule ContenuAdditionnelSansEffet(e: Ecrit, original: Ecrit) strict {
+        label fr official "Article 1380, alinéa 2. Ce qu'il contient de plus ou de différent par rapport au titre original n'a pas d'effet";
+        label en unofficial "Article 1380, paragraph 2. What it contains beyond or differing from the original has no effect";
+        when acte_recognitif(e, original) and contenu_de_plus_ou_de_different(e);
+        then contenu_additionnel_sans_effet(e);
+    }
+}
+
+// --- Chapitre III, sections 2 et 3 : témoignage (1381) et présomptions judiciaires (1382) ----
+
+@source(CC_ART1381)
+rule ValeurProbanteDesDeclarationsDUnTiers(a: ActeJuridique, tiers: Personne) strict {
+    label fr official "Article 1381. La valeur probante des déclarations faites par un tiers dans les conditions du code de procédure civile est laissée à l'appréciation du juge";
+    label en unofficial "Article 1381. The probative value of statements made by a third party under the conditions of the Code of Civil Procedure is left to the court's assessment";
+    when declaration_d_un_tiers(a, tiers);
+    then valeur_probante_laissee_au_juge(a);
+}
+
+@source(CC_ART1382)
+rule PresomptionJudiciaireAdmissible(pr: Presomption, a: ActeJuridique) strict {
+    label fr official "Article 1382. Les présomptions qui ne sont pas établies par la loi sont laissées à l'appréciation du juge, qui ne doit les admettre que si elles sont graves, précises et concordantes, et dans les cas seulement où la loi admet la preuve par tout moyen";
+    label en unofficial "Article 1382. Presumptions not established by law are left to the court's assessment, which must admit them only if they are serious, precise and consistent, and only where the law admits proof by any means";
+    when presomption_judiciaire(pr, a) and presomption_grave_precise_et_concordante(pr)
+        and preuve_par_tout_moyen(a);
+    then presomption_judiciaire_admissible(pr);
+}
+
+// --- Chapitre III, section 4 : l'aveu (1383 à 1383-2) ---------------------------------------
+
+pub relation aveu_fait(av: Aveu, p: Personne, a: ActeJuridique) kind empirical {
+    label fr official "déclaration par laquelle une personne reconnaît pour vrai un fait de nature à produire contre elle des conséquences juridiques (article 1383, alinéa 1)";
+    label en unofficial "statement by which a person acknowledges as true a fact apt to produce legal consequences against him (Article 1383, paragraph 1)";
+}
+pub relation aveu_judiciaire(av: Aveu) kind empirical {
+    label fr official "l'aveu est judiciaire : déclaration faite en justice par la partie ou son représentant spécialement mandaté (article 1383-2, alinéa 1)";
+    label en unofficial "the admission is judicial: a statement made in court by the party or his specially appointed representative (Article 1383-2, paragraph 1)";
+}
+pub relation aveu_extrajudiciaire_purement_verbal(av: Aveu) kind empirical {
+    label fr official "l'aveu extrajudiciaire est purement verbal (article 1383-1, alinéa 1)";
+    label en unofficial "the extrajudicial admission is purely oral (Article 1383-1, paragraph 1)";
+}
+pub relation erreur_de_fait_invoquee(av: Aveu) kind empirical {
+    label fr official "une erreur de fait est invoquée contre l'aveu judiciaire (article 1383-2, dernier alinéa)";
+    label en unofficial "an error of fact is invoked against the judicial admission (Article 1383-2, last paragraph)";
+}
+pub relation division_de_l_aveu_tentee(av: Aveu) kind empirical {
+    label fr official "l'aveu judiciaire est divisé contre son auteur (article 1383-2, alinéa 3)";
+    label en unofficial "the judicial admission is divided against its maker (Article 1383-2, paragraph 3)";
+}
+
+pub relation aveu_recevable(av: Aveu) kind derived {
+    label fr official "l'aveu extrajudiciaire purement verbal n'est reçu que dans les cas où la loi permet la preuve par tout moyen (article 1383-1, alinéa 1)";
+    label en unofficial "a purely oral extrajudicial admission is admitted only where the law allows proof by any means (Article 1383-1, paragraph 1)";
+}
+pub relation valeur_de_l_aveu_laissee_au_juge(av: Aveu) kind derived {
+    label fr official "la valeur probante de l'aveu extrajudiciaire est laissée à l'appréciation du juge (article 1383-1, alinéa 2)";
+    label en unofficial "the probative value of an extrajudicial admission is left to the court's assessment (Article 1383-1, paragraph 2)";
+}
+pub relation aveu_faisant_foi_contre_son_auteur(av: Aveu, p: Personne) kind derived {
+    label fr official "l'aveu judiciaire fait foi contre celui qui l'a fait (article 1383-2, alinéa 2)";
+    label en unofficial "a judicial admission is conclusive against the person who made it (Article 1383-2, paragraph 2)";
+}
+pub relation aveu_indivisible(av: Aveu) kind derived {
+    label fr official "l'aveu judiciaire ne peut être divisé contre son auteur (article 1383-2, alinéa 3)";
+    label en unofficial "a judicial admission may not be divided against its maker (Article 1383-2, paragraph 3)";
+}
+pub relation aveu_revocable_pour_erreur_de_fait(av: Aveu) kind derived {
+    label fr official "l'aveu judiciaire est irrévocable, sauf en cas d'erreur de fait (article 1383-2, alinéa 4)";
+    label en unofficial "a judicial admission is irrevocable, save in case of an error of fact (Article 1383-2, paragraph 4)";
+}
+pub relation aveu_irrevocable(av: Aveu) kind derived {
+    label fr official "l'aveu judiciaire est irrévocable (article 1383-2, alinéa 4)";
+    label en unofficial "a judicial admission is irrevocable (Article 1383-2, paragraph 4)";
+}
+
+@source(CC_ART1383_1) {
+    rule AveuExtrajudiciaireVerbalRecevable(av: Aveu, p: Personne, a: ActeJuridique) strict {
+        label fr official "Article 1383-1, alinéa 1. L'aveu extrajudiciaire purement verbal n'est reçu que dans les cas où la loi permet la preuve par tout moyen";
+        label en unofficial "Article 1383-1, paragraph 1. A purely oral extrajudicial admission is admitted only where the law allows proof by any means";
+        when aveu_fait(av, p, a) and aveu_extrajudiciaire_purement_verbal(av)
+            and preuve_par_tout_moyen(a);
+        then aveu_recevable(av);
+    }
+    rule ValeurDeLAveuLaisseeAuJuge(av: Aveu) strict {
+        label fr official "Article 1383-1, alinéa 2. Sa valeur probante est laissée à l'appréciation du juge";
+        label en unofficial "Article 1383-1, paragraph 2. Its probative value is left to the court's assessment";
+        when aveu_extrajudiciaire_purement_verbal(av);
+        then valeur_de_l_aveu_laissee_au_juge(av);
+    }
+}
+
+@source(CC_ART1383_2) {
+    rule AveuJudiciaireFaitFoi(av: Aveu, p: Personne, a: ActeJuridique) strict {
+        label fr official "Article 1383-2, alinéas 1 et 2. L'aveu judiciaire est la déclaration que fait en justice la partie ou son représentant spécialement mandaté ; il fait foi contre celui qui l'a fait";
+        label en unofficial "Article 1383-2, paragraphs 1 and 2. A judicial admission is a statement made in court by the party or his specially appointed representative; it is conclusive against the person who made it";
+        when aveu_fait(av, p, a) and aveu_judiciaire(av);
+        then aveu_faisant_foi_contre_son_auteur(av, p);
+    }
+    rule AveuIndivisible(av: Aveu) strict {
+        label fr official "Article 1383-2, alinéa 3. Il ne peut être divisé contre son auteur";
+        label en unofficial "Article 1383-2, paragraph 3. It may not be divided against its maker";
+        when aveu_judiciaire(av) and division_de_l_aveu_tentee(av);
+        then aveu_indivisible(av);
+    }
+    rule AveuIrrevocable(av: Aveu) strict {
+        label fr official "Article 1383-2, alinéa 4. Il est irrévocable, sauf en cas d'erreur de fait";
+        label en unofficial "Article 1383-2, paragraph 4. It is irrevocable, save in case of an error of fact";
+        when aveu_judiciaire(av) and not_known(erreur_de_fait_invoquee(av));
+        then aveu_irrevocable(av);
+    }
+    rule AveuRevocablePourErreurDeFait(av: Aveu) strict {
+        label fr official "Article 1383-2, alinéa 4, in fine. Sauf en cas d'erreur de fait";
+        label en unofficial "Article 1383-2, paragraph 4, in fine. Save in case of an error of fact";
+        when aveu_judiciaire(av) and erreur_de_fait_invoquee(av);
+        then aveu_revocable_pour_erreur_de_fait(av);
+    }
+}
+
+// --- Chapitre III, section 5 : le serment (1384 à 1386-1) -----------------------------------
+
+pub relation serment_defere_par_une_partie(sm: Serment, deferant: Personne, adversaire: Personne) kind empirical {
+    label fr official "serment déféré, à titre décisoire, par une partie à l'autre pour en faire dépendre le jugement de la cause (article 1384)";
+    label en unofficial "oath administered, as decisive, by one party to the other so that the judgment depends on it (Article 1384)";
+}
+pub relation serment_defere_d_office(sm: Serment, p: Personne) kind empirical {
+    label fr official "serment déféré d'office par le juge à l'une des parties (articles 1384 et 1386)";
+    label en unofficial "oath administered by the court of its own motion to one of the parties (Articles 1384 and 1386)";
+}
+pub relation fait_personnel_a_la_partie(sm: Serment, p: Personne) kind empirical {
+    label fr official "le fait objet du serment est personnel à la partie à laquelle on le défère (article 1385-1, alinéa 1)";
+    label en unofficial "the fact the oath concerns is personal to the party to whom it is administered (Article 1385-1, paragraph 1)";
+}
+pub relation fait_purement_personnel(sm: Serment) kind empirical {
+    label fr official "le fait objet du serment est purement personnel à celui à qui il est déféré : il ne peut alors être référé (article 1385-1, alinéa 2)";
+    label en unofficial "the fact the oath concerns is purely personal to the person to whom it is administered: it may then not be referred back (Article 1385-1, paragraph 2)";
+}
+pub relation refus_de_preter_ou_de_referer(sm: Serment, p: Personne) kind empirical {
+    label fr official "celui à qui le serment est déféré le refuse et ne veut pas le référer, ou celui à qui il a été référé le refuse (article 1385-2)";
+    label en unofficial "the person to whom the oath is administered refuses it and will not refer it back, or the person to whom it was referred refuses (Article 1385-2)";
+}
+pub relation partie_prete_a_faire_le_serment(sm: Serment, p: Personne) kind empirical {
+    label fr official "l'autre partie a déclaré qu'elle est prête à faire ce serment (article 1385-3, alinéa 1)";
+    label en unofficial "the other party declared he is ready to take the oath (Article 1385-3, paragraph 1)";
+}
+pub relation retractation_tentee(sm: Serment, p: Personne) kind empirical {
+    label fr official "la partie qui a déféré ou référé le serment tente de se rétracter (article 1385-3, alinéa 1)";
+    label en unofficial "the party who administered or referred the oath attempts to retract (Article 1385-3, paragraph 1)";
+}
+pub relation serment_fait(sm: Serment, p: Personne) kind empirical {
+    label fr official "le serment déféré ou référé a été fait (article 1385-3, alinéa 2)";
+    label en unofficial "the oath administered or referred was taken (Article 1385-3, paragraph 2)";
+}
+pub relation serment_defere_au_debiteur_principal(sm: Serment, c: Creance) kind empirical {
+    label fr official "le serment a été déféré au débiteur principal (article 1385-4, alinéa 3)";
+    label en unofficial "the oath was administered to the principal debtor (Article 1385-4, paragraph 3)";
+}
+pub relation serment_defere_a_un_codebiteur_solidaire(sm: Serment, c: Creance, d: Personne) kind empirical {
+    label fr official "le serment a été déféré à l'un des débiteurs solidaires (article 1385-4, alinéa 4)";
+    label en unofficial "the oath was administered to one of the joint debtors (Article 1385-4, paragraph 4)";
+}
+pub relation serment_defere_a_une_caution(sm: Serment, c: Creance, caution_p: Personne) kind empirical {
+    label fr official "le serment a été déféré à la caution (article 1385-4, alinéa 5)";
+    label en unofficial "the oath was administered to the surety (Article 1385-4, paragraph 5)";
+}
+pub relation serment_defere_par_un_creancier_solidaire(sm: Serment, c: Creance, cr: Personne) kind empirical {
+    label fr official "le serment a été déféré par l'un des créanciers solidaires au débiteur (article 1385-4, alinéa 2)";
+    label en unofficial "the oath was administered by one of the joint creditors to the debtor (Article 1385-4, paragraph 2)";
+}
+pub relation serment_defere_sur_la_dette(sm: Serment) kind empirical {
+    label fr official "le serment a été déféré sur la dette, et non sur le fait de la solidarité ou du cautionnement (article 1385-4, dernier alinéa)";
+    label en unofficial "the oath was administered on the debt, and not on the fact of solidarity or of suretyship (Article 1385-4, last paragraph)";
+}
+pub relation demande_pleinement_justifiee_ou_denuee_de_preuves(a: ActeJuridique) kind empirical {
+    label fr official "la demande, ou l'exception qui y est opposée, est pleinement justifiée ou totalement dénuée de preuves (article 1386-1)";
+    label en unofficial "the claim, or the defence opposed to it, is fully justified or wholly devoid of evidence (Article 1386-1)";
+}
+
+pub relation serment_deferable(sm: Serment) kind derived {
+    label fr official "le serment décisoire peut être déféré sur quelque espèce de contestation que ce soit et en tout état de cause (article 1385)";
+    label en unofficial "a decisive oath may be administered on any kind of dispute and at any stage (Article 1385)";
+}
+pub relation serment_referable(sm: Serment) kind derived {
+    label fr official "il peut être référé par celle à qui il est déféré, à moins que le fait qui en est l'objet ne lui soit purement personnel (article 1385-1, alinéa 2)";
+    label en unofficial "it may be referred back by the person to whom it is administered, unless the fact is purely personal to him (Article 1385-1, paragraph 2)";
+}
+pub relation serment_non_referable(sm: Serment) kind derived {
+    label fr official "le serment portant sur un fait purement personnel ne peut être référé (article 1385-1, alinéa 2) ; le serment déféré d'office ne le peut pas davantage (article 1386, alinéa 2)";
+    label en unofficial "an oath bearing on a purely personal fact may not be referred back (Article 1385-1, paragraph 2); nor may an oath administered by the court (Article 1386, paragraph 2)";
+}
+pub relation succombe_dans_sa_pretention(sm: Serment, p: Personne) kind derived {
+    label fr official "celui à qui le serment est déféré et qui le refuse ou ne veut pas le référer, ou celui à qui il a été référé et qui le refuse, succombe dans sa prétention (article 1385-2)";
+    label en unofficial "a person to whom the oath is administered who refuses it and will not refer it back, or to whom it was referred and who refuses, fails in his claim (Article 1385-2)";
+}
+pub relation retractation_impossible(sm: Serment, p: Personne) kind derived {
+    label fr official "la partie qui a déféré ou référé le serment ne peut plus se rétracter lorsque l'autre partie a déclaré qu'elle est prête à faire ce serment (article 1385-3, alinéa 1)";
+    label en unofficial "the party who administered or referred the oath may no longer retract once the other party declared he is ready to take it (Article 1385-3, paragraph 1)";
+}
+pub relation faussete_non_prouvable(sm: Serment) kind derived {
+    label fr official "lorsque le serment déféré ou référé a été fait, l'autre partie n'est pas admise à en prouver la fausseté (article 1385-3, alinéa 2)";
+    label en unofficial "where the oath administered or referred was taken, the other party may not prove its falsity (Article 1385-3, paragraph 2)";
+}
+pub relation debiteur_libere_pour_la_part_du_creancier_ayant_defere(sm: Serment, c: Creance, cr: Personne) kind derived {
+    label fr official "le serment déféré par l'un des créanciers solidaires au débiteur ne libère celui-ci que pour la part de ce créancier (article 1385-4, alinéa 2)";
+    label en unofficial "an oath administered by one of the joint creditors to the debtor discharges him only for that creditor's share (Article 1385-4, paragraph 2)";
+}
+pub relation cautions_liberees_par_le_serment(sm: Serment, c: Creance, caution_p: Personne) kind derived {
+    label fr official "le serment déféré au débiteur principal libère également les cautions (article 1385-4, alinéa 3)";
+    label en unofficial "an oath administered to the principal debtor also discharges the sureties (Article 1385-4, paragraph 3)";
+}
+pub relation codebiteurs_profitant_du_serment(sm: Serment, c: Creance, autre: Personne) kind derived {
+    label fr official "celui déféré à l'un des débiteurs solidaires profite aux codébiteurs, lorsqu'il a été déféré sur la dette et non sur le fait de la solidarité (article 1385-4, alinéas 4 et 6)";
+    label en unofficial "an oath administered to one joint debtor benefits the co-debtors where it was administered on the debt and not on the fact of solidarity (Article 1385-4, paragraphs 4 and 6)";
+}
+pub relation debiteur_principal_profitant_du_serment_de_la_caution(sm: Serment, c: Creance) kind derived {
+    label fr official "celui déféré à la caution profite au débiteur principal, lorsqu'il a été déféré sur la dette et non sur le fait du cautionnement (article 1385-4, alinéas 5 et 6)";
+    label en unofficial "an oath administered to the surety benefits the principal debtor where it was administered on the debt and not on the fact of suretyship (Article 1385-4, paragraphs 5 and 6)";
+}
+pub relation serment_d_office_admissible(sm: Serment, a: ActeJuridique) kind derived {
+    label fr official "le juge ne peut déférer d'office le serment que si la demande, ou l'exception qui y est opposée, n'est pas pleinement justifiée ni totalement dénuée de preuves (article 1386-1)";
+    label en unofficial "the court may administer an oath of its own motion only if the claim, or the defence opposed to it, is neither fully justified nor wholly devoid of evidence (Article 1386-1)";
+}
+pub relation valeur_du_serment_d_office_laissee_au_juge(sm: Serment) kind derived {
+    label fr official "la valeur probante du serment déféré d'office est laissée à l'appréciation du juge (article 1386, alinéa 3)";
+    label en unofficial "the probative value of an oath administered by the court is left to its assessment (Article 1386, paragraph 3)";
+}
+
+@source(CC_ART1385)
+rule SermentDeferable(sm: Serment, deferant: Personne, adversaire: Personne) strict {
+    label fr official "Article 1385. Le serment décisoire peut être déféré sur quelque espèce de contestation que ce soit et en tout état de cause";
+    label en unofficial "Article 1385. A decisive oath may be administered on any kind of dispute and at any stage";
+    when serment_defere_par_une_partie(sm, deferant, adversaire);
+    then serment_deferable(sm);
+}
+
+@source(CC_ART1385_1) {
+    rule SermentReferable(sm: Serment, p: Personne) strict {
+        label fr official "Article 1385-1, alinéas 1 et 2. Il ne peut être déféré que sur un fait personnel à la partie à laquelle on le défère ; il peut être référé par celle-ci, à moins que le fait qui en est l'objet ne lui soit purement personnel";
+        label en unofficial "Article 1385-1, paragraphs 1 and 2. It may be administered only on a fact personal to the party to whom it is administered; that party may refer it back, unless the fact is purely personal to him";
+        when fait_personnel_a_la_partie(sm, p) and not_known(fait_purement_personnel(sm));
+        then serment_referable(sm);
+    }
+    rule SermentNonReferablePourFaitPurementPersonnel(sm: Serment) strict {
+        label fr official "Article 1385-1, alinéa 2, in fine. A moins que le fait qui en est l'objet ne lui soit purement personnel";
+        label en unofficial "Article 1385-1, paragraph 2, in fine. Unless the fact is purely personal to him";
+        when fait_purement_personnel(sm);
+        then serment_non_referable(sm);
+    }
+}
+
+@source(CC_ART1385_2)
+rule RefusFaitSuccomber(sm: Serment, p: Personne) strict {
+    label fr official "Article 1385-2. Celui à qui le serment est déféré et qui le refuse ou ne veut pas le référer, ou celui à qui il a été référé et qui le refuse, succombe dans sa prétention";
+    label en unofficial "Article 1385-2. A person to whom the oath is administered who refuses it and will not refer it back, or to whom it was referred and who refuses, fails in his claim";
+    when refus_de_preter_ou_de_referer(sm, p);
+    then succombe_dans_sa_pretention(sm, p);
+}
+
+@source(CC_ART1385_3) {
+    rule RetractationImpossible(sm: Serment, deferant: Personne, adversaire: Personne) strict {
+        label fr official "Article 1385-3, alinéa 1. La partie qui a déféré ou référé le serment ne peut plus se rétracter lorsque l'autre partie a déclaré qu'elle est prête à faire ce serment";
+        label en unofficial "Article 1385-3, paragraph 1. The party who administered or referred the oath may no longer retract once the other party declared he is ready to take it";
+        when serment_defere_par_une_partie(sm, deferant, adversaire)
+            and partie_prete_a_faire_le_serment(sm, adversaire)
+            and retractation_tentee(sm, deferant);
+        then retractation_impossible(sm, deferant);
+    }
+    rule FaussetNonProuvable(sm: Serment, p: Personne) strict {
+        label fr official "Article 1385-3, alinéa 2. Lorsque le serment déféré ou référé a été fait, l'autre partie n'est pas admise à en prouver la fausseté";
+        label en unofficial "Article 1385-3, paragraph 2. Where the oath administered or referred was taken, the other party may not prove its falsity";
+        when serment_fait(sm, p);
+        then faussete_non_prouvable(sm);
+    }
+}
+
+@source(CC_ART1385_4) {
+    rule LiberationPourLaPartDuCreancierAyantDefere(sm: Serment, c: Creance, cr: Personne) strict {
+        label fr official "Article 1385-4, alinéa 2. Le serment déféré par l'un des créanciers solidaires au débiteur ne libère celui-ci que pour la part de ce créancier";
+        label en unofficial "Article 1385-4, paragraph 2. An oath administered by one of the joint creditors to the debtor discharges him only for that creditor's share";
+        when serment_defere_par_un_creancier_solidaire(sm, c, cr)
+            and obligation_solidaire_entre_creanciers(c);
+        then debiteur_libere_pour_la_part_du_creancier_ayant_defere(sm, c, cr);
+    }
+    rule CautionsLibereesParLeSerment(sm: Serment, c: Creance, caution_p: Personne) strict {
+        label fr official "Article 1385-4, alinéa 3. Le serment déféré au débiteur principal libère également les cautions";
+        label en unofficial "Article 1385-4, paragraph 3. An oath administered to the principal debtor also discharges the sureties";
+        when serment_defere_au_debiteur_principal(sm, c) and caution_de_la_creance(c, caution_p);
+        then cautions_liberees_par_le_serment(sm, c, caution_p);
+    }
+    rule CodebiteursProfitantDuSerment(sm: Serment, c: Creance, d: Personne, autre: Personne) strict {
+        label fr official "Article 1385-4, alinéas 4 et 6. Celui déféré à l'un des débiteurs solidaires profite aux codébiteurs, mais seulement lorsqu'il a été déféré sur la dette, et non sur le fait de la solidarité";
+        label en unofficial "Article 1385-4, paragraphs 4 and 6. An oath administered to one joint debtor benefits the co-debtors, but only where administered on the debt, and not on the fact of solidarity";
+        when serment_defere_a_un_codebiteur_solidaire(sm, c, d) and serment_defere_sur_la_dette(sm)
+            and fr.code_civil.core::debiteur(c, autre) and autre != d;
+        then codebiteurs_profitant_du_serment(sm, c, autre);
+    }
+    rule DebiteurPrincipalProfitantDuSermentDeLaCaution(sm: Serment, c: Creance, caution_p: Personne) strict {
+        label fr official "Article 1385-4, alinéas 5 et 6. Celui déféré à la caution profite au débiteur principal, mais seulement lorsqu'il a été déféré sur la dette, et non sur le fait du cautionnement";
+        label en unofficial "Article 1385-4, paragraphs 5 and 6. An oath administered to the surety benefits the principal debtor, but only where administered on the debt, and not on the fact of suretyship";
+        when serment_defere_a_une_caution(sm, c, caution_p) and serment_defere_sur_la_dette(sm);
+        then debiteur_principal_profitant_du_serment_de_la_caution(sm, c);
+    }
+}
+
+@source(CC_ART1386) {
+    rule SermentDOfficeNonReferable(sm: Serment, p: Personne) strict {
+        label fr official "Article 1386, alinéas 1 et 2. Le juge peut d'office déférer le serment à l'une des parties ; ce serment ne peut être référé à l'autre partie";
+        label en unofficial "Article 1386, paragraphs 1 and 2. The court may of its own motion administer the oath to one of the parties; that oath may not be referred to the other party";
+        when serment_defere_d_office(sm, p);
+        then serment_non_referable(sm);
+    }
+    rule ValeurDuSermentDOfficeLaisseeAuJuge(sm: Serment, p: Personne) strict {
+        label fr official "Article 1386, alinéa 3. Sa valeur probante est laissée à l'appréciation du juge";
+        label en unofficial "Article 1386, paragraph 3. Its probative value is left to the court's assessment";
+        when serment_defere_d_office(sm, p);
+        then valeur_du_serment_d_office_laissee_au_juge(sm);
+    }
+}
+
+@source(CC_ART1386_1)
+rule SermentDOfficeAdmissible(sm: Serment, p: Personne, a: ActeJuridique) strict {
+    label fr official "Article 1386-1. Le juge ne peut déférer d'office le serment, soit sur la demande, soit sur l'exception qui y est opposée, que si elle n'est pas pleinement justifiée ou totalement dénuée de preuves";
+    label en unofficial "Article 1386-1. The court may administer an oath of its own motion, on the claim or on the defence opposed to it, only if it is neither fully justified nor wholly devoid of evidence";
+    when serment_defere_d_office(sm, p) and objet_du_jugement(a)
+        and not_known(demande_pleinement_justifiee_ou_denuee_de_preuves(a));
+    then serment_d_office_admissible(sm, a);
+}
+
+// --- Définitions que le titre pose avant d'en régler les effets (1383, 1384) -----------------
+
+pub relation aveu_constitue(av: Aveu, p: Personne) kind derived {
+    label fr official "l'aveu est la déclaration par laquelle une personne reconnaît pour vrai un fait de nature à produire contre elle des conséquences juridiques (article 1383, alinéa 1)";
+    label en unofficial "an admission is the statement by which a person acknowledges as true a fact apt to produce legal consequences against him (Article 1383, paragraph 1)";
+}
+pub relation aveu_extrajudiciaire(av: Aveu) kind derived {
+    label fr official "l'aveu qui n'est pas judiciaire est extrajudiciaire (article 1383, alinéa 2)";
+    label en unofficial "an admission that is not judicial is extrajudicial (Article 1383, paragraph 2)";
+}
+pub relation serment_decisoire(sm: Serment) kind derived {
+    label fr official "le serment peut être déféré, à titre décisoire, par une partie à l'autre pour en faire dépendre le jugement de la cause (article 1384, première phrase)";
+    label en unofficial "an oath may be administered, as decisive, by one party to the other so that the judgment of the case depends on it (Article 1384, first sentence)";
+}
+pub relation serment_judiciairement_defere(sm: Serment) kind derived {
+    label fr official "le serment peut aussi être déféré d'office par le juge à l'une des parties (article 1384, seconde phrase)";
+    label en unofficial "an oath may also be administered by the court of its own motion to one of the parties (Article 1384, second sentence)";
+}
+
+@source(CC_ART1383) {
+    rule AveuConstitue(av: Aveu, p: Personne, a: ActeJuridique) strict {
+        label fr official "Article 1383, alinéa 1. L'aveu est la déclaration par laquelle une personne reconnaît pour vrai un fait de nature à produire contre elle des conséquences juridiques";
+        label en unofficial "Article 1383, paragraph 1. An admission is the statement by which a person acknowledges as true a fact apt to produce legal consequences against him";
+        when aveu_fait(av, p, a);
+        then aveu_constitue(av, p);
+    }
+    rule AveuExtrajudiciaire(av: Aveu, p: Personne, a: ActeJuridique) strict {
+        label fr official "Article 1383, alinéa 2. Il peut être judiciaire ou extrajudiciaire : l'aveu qui n'est pas fait en justice est extrajudiciaire";
+        label en unofficial "Article 1383, paragraph 2. It may be judicial or extrajudicial: an admission not made in court is extrajudicial";
+        when aveu_fait(av, p, a) and not_known(aveu_judiciaire(av));
+        then aveu_extrajudiciaire(av);
+    }
+}
+
+@source(CC_ART1384) {
+    rule SermentDecisoire(sm: Serment, deferant: Personne, adversaire: Personne) strict {
+        label fr official "Article 1384, première phrase. Le serment peut être déféré, à titre décisoire, par une partie à l'autre pour en faire dépendre le jugement de la cause";
+        label en unofficial "Article 1384, first sentence. An oath may be administered, as decisive, by one party to the other so that the judgment of the case depends on it";
+        when serment_defere_par_une_partie(sm, deferant, adversaire);
+        then serment_decisoire(sm);
+    }
+    rule SermentDefereDOfficeParLeJuge(sm: Serment, p: Personne) strict {
+        label fr official "Article 1384, seconde phrase. Il peut aussi être déféré d'office par le juge à l'une des parties";
+        label en unofficial "Article 1384, second sentence. It may also be administered by the court of its own motion to one of the parties";
+        when serment_defere_d_office(sm, p);
+        then serment_judiciairement_defere(sm);
+    }
+}
+
+// --- Alinéas que les sections précédentes n'avaient pas portés ------------------------------
+
+pub relation declaration_a_la_comparution_personnelle(e: Ecrit, p: Personne) kind empirical {
+    label fr official "déclarations faites par une partie lors de sa comparution personnelle, son refus de répondre ou son absence à la comparution (article 1362, alinéa 2)";
+    label en unofficial "statements made by a party at his personal appearance, his refusal to answer or his absence from the appearance (Article 1362, paragraph 2)";
+}
+pub relation acte_authentique_sur_support_electronique(e: Ecrit) kind empirical {
+    label fr official "l'acte authentique est dressé sur support électronique (article 1369, alinéa 2)";
+    label en unofficial "the authentic instrument is drawn up on an electronic medium (Article 1369, paragraph 2)";
+}
+pub relation conditions_du_decret_sur_l_acte_electronique_remplies(e: Ecrit) kind empirical {
+    label fr official "l'acte électronique est établi et conservé dans des conditions fixées par décret en Conseil d'État (article 1369, alinéa 2) — le décret n'est pas dans le Code : entrée du cas";
+    label en unofficial "the electronic instrument is made and kept under conditions set by decree (Article 1369, paragraph 2) — the decree is not in the Code: case input";
+}
+pub relation procedure_de_faux_engagee(e: Ecrit) kind empirical {
+    label fr official "la procédure de faux prévue par le code de procédure civile est engagée contre l'acte contresigné par avocat (article 1374, alinéa 2)";
+    label en unofficial "the forgery procedure provided by the Code of Civil Procedure is brought against the lawyer-countersigned act (Article 1374, paragraph 2)";
+}
+pub relation contrat_sous_forme_electronique(a: ActeJuridique) kind empirical {
+    label fr official "le contrat synallagmatique est conclu sous forme électronique (article 1375, alinéa 4)";
+    label en unofficial "the synallagmatic contract is concluded in electronic form (Article 1375, paragraph 4)";
+}
+pub relation exemplaire_durable_pour_chaque_partie(e: Ecrit) kind empirical {
+    label fr official "le procédé permet à chaque partie de disposer d'un exemplaire sur support durable ou d'y avoir accès (article 1375, alinéa 4)";
+    label en unofficial "the process allows each party to have, or have access to, a copy on a durable medium (Article 1375, paragraph 4)";
+}
+pub relation mention_portee_sur_le_double_du_titre(c: Creance, d: Personne) kind empirical {
+    label fr official "mention portée sur le double d'un titre ou d'une quittance entre les mains du débiteur (article 1378-2, alinéa 2)";
+    label en unofficial "note written on the duplicate of an instrument or receipt held by the debtor (Article 1378-2, paragraph 2)";
+}
+pub relation heritier_ou_ayant_cause(p: Personne, successeur: Personne) kind empirical {
+    label fr official "héritier ou ayant cause de celui qui a déféré le serment (article 1385-4, alinéa 1)";
+    label en unofficial "heir or assign of the person who administered the oath (Article 1385-4, paragraph 1)";
+}
+
+pub relation equivalent_au_commencement_de_preuve(e: Ecrit) kind derived {
+    label fr official "peuvent être considérés PAR LE JUGE comme équivalant à un commencement de preuve par écrit les déclarations faites par une partie lors de sa comparution personnelle, son refus de répondre ou son absence (article 1362, alinéa 2)";
+    label en unofficial "statements made by a party at his personal appearance, his refusal to answer or his absence may be treated BY THE COURT as equivalent to a beginning of proof in writing (Article 1362, paragraph 2)";
+}
+pub relation acte_authentique_electronique_admis(e: Ecrit) kind derived {
+    label fr official "l'acte authentique peut être dressé sur support électronique s'il est établi et conservé dans des conditions fixées par décret en Conseil d'État (article 1369, alinéa 2)";
+    label en unofficial "an authentic instrument may be drawn up on an electronic medium if made and kept under conditions set by decree (Article 1369, paragraph 2)";
+}
+pub relation procedure_de_faux_applicable(e: Ecrit) kind derived {
+    label fr official "la procédure de faux prévue par le CODE DE PROCÉDURE CIVILE est applicable à l'acte contresigné par avocat (article 1374, alinéa 2) — renvoi à un texte extérieur au Code civil, dont ce paquet n'exécute pas les règles";
+    label en unofficial "the forgery procedure provided by the CODE OF CIVIL PROCEDURE applies to the lawyer-countersigned act (Article 1374, paragraph 2) — a reference to a text outside the Civil Code, whose rules this package does not execute";
+}
+pub relation serment_faisant_preuve_au_profit_du_deferant(sm: Serment, p: Personne) kind derived {
+    label fr official "le serment ne fait preuve qu'au profit de celui qui l'a déféré et de ses héritiers et ayants cause, ou contre eux (article 1385-4, alinéa 1)";
+    label en unofficial "the oath is proof only for the benefit of the person who administered it and his heirs and assigns, or against them (Article 1385-4, paragraph 1)";
+}
+
+// « Peuvent être considérés PAR LE JUGE » (1362, al. 2) : le texte confie
+// l'équivalence à son appréciation — canal DECISION-0194.
+@source(CC_ART1362)
+pub external judgment relation equivalence_retenue_par_le_juge(e: Ecrit) {
+    authority Court;
+    label fr official "le juge considère ces déclarations comme équivalant à un commencement de preuve par écrit (article 1362, alinéa 2)";
+    label en unofficial "the court treats those statements as equivalent to a beginning of proof in writing (Article 1362, paragraph 2)";
+}
+
+@source(CC_ART1362)
+rule EquivalentAuCommencementDePreuve(e: Ecrit, p: Personne) strict {
+    label fr official "Article 1362, alinéa 2. Peuvent être considérés par le juge comme équivalant à un commencement de preuve par écrit les déclarations faites par une partie lors de sa comparution personnelle, son refus de répondre ou son absence à la comparution";
+    label en unofficial "Article 1362, paragraph 2. Statements made by a party at his personal appearance, his refusal to answer or his absence may be treated by the court as equivalent to a beginning of proof in writing";
+    when declaration_a_la_comparution_personnelle(e, p) and equivalence_retenue_par_le_juge(e);
+    then equivalent_au_commencement_de_preuve(e);
+}
+
+@source(CC_ART1369)
+rule ActeAuthentiqueElectroniqueAdmis(e: Ecrit) strict {
+    label fr official "Article 1369, alinéa 2. Il peut être dressé sur support électronique s'il est établi et conservé dans des conditions fixées par décret en Conseil d'État";
+    label en unofficial "Article 1369, paragraph 2. It may be drawn up on an electronic medium if made and kept under conditions set by decree";
+    when acte_authentique(e) and acte_authentique_sur_support_electronique(e)
+        and conditions_du_decret_sur_l_acte_electronique_remplies(e);
+    then acte_authentique_electronique_admis(e);
+}
+
+@source(CC_ART1374)
+rule ProcedureDeFauxApplicable(e: Ecrit) strict {
+    label fr official "Article 1374, alinéa 2. La procédure de faux prévue par le code de procédure civile lui est applicable : le renvoi est exécuté comme tel, ses règles restant hors du Code civil";
+    label en unofficial "Article 1374, paragraph 2. The forgery procedure provided by the Code of Civil Procedure applies to it: the reference is executed as such, its rules remaining outside the Civil Code";
+    when acte_contresigne_par_avocat(e) and procedure_de_faux_engagee(e);
+    then procedure_de_faux_applicable(e);
+}
+
+@source(CC_ART1375)
+rule PluraliteSatisfaitePourLeContratElectronique(a: ActeJuridique, e: Ecrit) strict {
+    label fr official "Article 1375, alinéa 4. L'exigence d'une pluralité d'originaux est réputée satisfaite pour les contrats sous forme électronique lorsque l'acte est établi et conservé conformément aux articles 1366 et 1367, et que le procédé permet à chaque partie de disposer d'un exemplaire sur support durable ou d'y avoir accès";
+    label en unofficial "Article 1375, paragraph 4. The requirement of a plurality of originals is deemed satisfied for contracts in electronic form where the act is made and kept in accordance with Articles 1366 and 1367, and the process allows each party to have, or have access to, a copy on a durable medium";
+    when contrat_synallagmatique(a) and ecrit_de_l_acte(a, e) and contrat_sous_forme_electronique(a)
+        and meme_force_probante_que_le_papier(e) and exemplaire_durable_pour_chaque_partie(e);
+    then pluralite_d_originaux_satisfaite(e);
+}
+
+@source(CC_ART1378_2)
+rule LiberationPresumeeParLaMentionSurLeDouble(c: Creance, d: Personne) defeasible {
+    label fr official "Article 1378-2, alinéa 2. Il en est de même de la mention portée sur le double d'un titre ou d'une quittance, pourvu que ce double soit entre les mains du débiteur";
+    label en unofficial "Article 1378-2, paragraph 2. The same applies to a note written on the duplicate of an instrument or receipt, provided that duplicate is held by the debtor";
+    when mention_portee_sur_le_double_du_titre(c, d);
+    unless preuve_contraire_de_la_mention(c, d);
+    then liberation_presumee_par_la_mention(c, d);
+}
+
+@source(CC_ART1385_4) {
+    rule SermentFaitPreuveAuProfitDuDeferant(sm: Serment, deferant: Personne, adversaire: Personne) strict {
+        label fr official "Article 1385-4, alinéa 1. Le serment ne fait preuve qu'au profit de celui qui l'a déféré et de ses héritiers et ayants cause, ou contre eux";
+        label en unofficial "Article 1385-4, paragraph 1. The oath is proof only for the benefit of the person who administered it and his heirs and assigns, or against them";
+        when serment_defere_par_une_partie(sm, deferant, adversaire);
+        then serment_faisant_preuve_au_profit_du_deferant(sm, deferant);
+    }
+    rule SermentFaitPreuveAuProfitDesHeritiers(sm: Serment, deferant: Personne, adversaire: Personne, successeur: Personne) strict {
+        label fr official "Article 1385-4, alinéa 1. Et de ses héritiers et ayants cause, ou contre eux";
+        label en unofficial "Article 1385-4, paragraph 1. And his heirs and assigns, or against them";
+        when serment_defere_par_une_partie(sm, deferant, adversaire)
+            and heritier_ou_ayant_cause(deferant, successeur);
+        then serment_faisant_preuve_au_profit_du_deferant(sm, successeur);
+    }
+}

@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2429, al. 5 : créance à échéance 2030 (2031) et créance indéterminée (2070) — inscription unique jusqu'au 15 mai 2070.
+test "urn:query:fr-code-civil-suretes-d11-inscription-unique-date-la-plus-eloignee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": inscription_de(entity_ref("urn:fr:cc:suretes:d11:I"), entity_ref("urn:fr:cc:suretes:d11:S")) { origin case_input; }
+        assert "f2": inscription_prise_le(entity_ref("urn:fr:cc:suretes:d11:I"), @2020-05-15) { origin case_input; }
+        assert "f3": derniere_echeance_de_la_creance(entity_ref("urn:fr:cc:suretes:d11:I"), entity_ref("urn:fr:cc:suretes:d11:C1"), @2030-05-15) { origin case_input; }
+        assert "f4": echeance_indeterminee(entity_ref("urn:fr:cc:suretes:d11:I"), entity_ref("urn:fr:cc:suretes:d11:C2")) { origin case_input; }
+    }
+    evaluate truth(date_extreme_d_effet(entity_ref("urn:fr:cc:suretes:d11:I"), @2070-05-15));
+    expect truth_status == TRUE_ONLY;
+    expect applied(DateExtremeDEffet);
+}

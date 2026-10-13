@@ -1,0 +1,27 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 765, alinéa 2 : droit viager 50 000 EUR, droits successoraux 80 000 EUR.
+test "urn:query:fr-code-civil-successions-c16-complement-sur-les-biens-existants" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:cj:c16:S"), @2026-03-31) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:cj:c16:F"), entity_ref("urn:fr:cc:successions:cj:c16:D"), entity_ref("urn:fr:cc:successions:cj:c16:C1")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:cj:c16:F"), entity_ref("urn:fr:cc:successions:cj:c16:E"), entity_ref("urn:fr:cc:successions:cj:c16:C1")) { origin case_input; }
+        assert "f6": filiation(entity_ref("urn:fr:cc:successions:cj:c16:F"), entity_ref("urn:fr:cc:successions:cj:c16:D"), entity_ref("urn:fr:cc:successions:cj:c16:C2")) { origin case_input; }
+        assert "f7": filiation(entity_ref("urn:fr:cc:successions:cj:c16:F"), entity_ref("urn:fr:cc:successions:cj:c16:E"), entity_ref("urn:fr:cc:successions:cj:c16:C2")) { origin case_input; }
+        assert "f8": mariage(entity_ref("urn:fr:cc:successions:cj:c16:F"), entity_ref("urn:fr:cc:successions:cj:c16:D"), entity_ref("urn:fr:cc:successions:cj:c16:E")) { origin case_input; }
+        assert "f9": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:E")) { origin case_input; }
+        assert "f10": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:C1")) { origin case_input; }
+        assert "f11": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:C2")) { origin case_input; }
+        assert "f12": valeur_du_droit_viager(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:E"), 50000 EUR) { origin case_input; }
+        assert "f13": valeur_des_droits_successoraux(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:E"), 80000 EUR) { origin case_input; }
+    }
+    evaluate truth(complement_sur_les_biens_existants(entity_ref("urn:fr:cc:successions:cj:c16:S"), entity_ref("urn:fr:cc:successions:cj:c16:E")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ComplementSurLesBiensExistants);
+}

@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ADAPTATIONDEMANDEEDUNCOMMUNACCORD" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": demande_conjointe_d_adaptation_au_juge(entity_ref("urn:law:catalog:adaptationdemandeeduncommunaccord:v0")) { origin case_input; }
+        assert "cat-1": renegociation_ouverte(entity_ref("urn:law:catalog:adaptationdemandeeduncommunaccord:v0"), entity_ref("urn:law:catalog:adaptationdemandeeduncommunaccord:v1")) { origin case_input; }
+        assert "cat-2": renegociation_refusee_ou_echouee(entity_ref("urn:law:catalog:adaptationdemandeeduncommunaccord:v0")) { origin case_input; }
+    }
+    evaluate truth(adaptation_par_le_juge_ouverte(entity_ref("urn:law:catalog:adaptationdemandeeduncommunaccord:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-RESOLUTIONCONVENTIONNELLEAPRESECHEC" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": renegociation_ouverte(entity_ref("urn:law:catalog:resolutionconventionnelleapresechec:v0"), entity_ref("urn:law:catalog:resolutionconventionnelleapresechec:v1")) { origin case_input; }
+        assert "cat-1": renegociation_refusee_ou_echouee(entity_ref("urn:law:catalog:resolutionconventionnelleapresechec:v0")) { origin case_input; }
+        assert "cat-2": accord_de_resolution(entity_ref("urn:law:catalog:resolutionconventionnelleapresechec:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(resolution_conventionnelle_apres_echec(entity_ref("urn:law:catalog:resolutionconventionnelleapresechec:v0"), @2026-01-15));
+    expect truth_status == TRUE_ONLY;
+}

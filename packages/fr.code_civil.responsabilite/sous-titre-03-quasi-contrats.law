@@ -1,0 +1,341 @@
+// SOUS-TITRE III — LES AUTRES SOURCES D'OBLIGATIONS (articles 1300 à 1303-4).
+//
+// Trois quasi-contrats nommés par l'article 1300 : la gestion d'affaires, le
+// paiement de l'indu, l'enrichissement injustifié. C'est ici que le texte DIT
+// lui-même le contenu et que le calcul est exact : l'indemnité de
+// l'enrichissement injustifié vaut la MOINDRE des deux valeurs (1303), la
+// PLUS FORTE en cas de mauvaise foi de l'enrichi (1303-4).
+//
+// FRONTIÈRES DÉCLARÉES : la modération de l'indemnité par le juge (1301-1
+// alinéa 2, 1303-2 alinéa 2) est une mesure, non un calcul ; les intérêts des
+// sommes avancées (1301-2 alinéa 3) demandent le taux légal, texte extérieur
+// (Code monétaire et financier) ; les restitutions des articles 1352 à 1352-9
+// (renvoi de 1302-3) appartiennent au paquet du régime général des obligations.
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1301,
+    CC_ART1301_2,
+    CC_ART1301_3,
+    CC_ART1301_5,
+    CC_ART1302,
+    CC_ART1302_1,
+    CC_ART1303,
+    CC_ART1303_1,
+    CC_ART1303_2,
+    CC_ART1303_3,
+    CC_ART1303_4,
+    Enrichissement,
+    Gestion,
+    Paiement,
+    Personne,
+    acte_en_vue_d_un_profit_personnel,
+    autre_action_ouverte,
+    depenses_du_gerant,
+    dette_existante,
+    execution_d_une_obligation,
+    gerant,
+    gestion_sans_y_etre_tenu,
+    gestion_utile,
+    intention_liberale,
+    maitre_de_l_affaire,
+    mauvaise_foi_de_l_enrichi,
+    montant_paye,
+    obligation_naturelle_volontairement_acquittee,
+    paiement_fait_par,
+    paiement_recu_par,
+    ratification_par_le_maitre,
+    valeur_de_l_appauvrissement,
+    valeur_de_l_enrichissement,
+};
+
+// --- Chapitre Ier : la gestion d'affaires ---------------------------------------------------
+
+pub relation gestion_d_affaires(g: Gestion) kind derived {
+    label fr official "les conditions de la gestion d'affaires sont réunies (article 1301)";
+    label en unofficial "the conditions of management of another's affair are met (Article 1301)";
+}
+pub relation remboursement_du_gerant(g: Gestion, montant: Money) kind derived {
+    key(g);
+    label fr official "dépenses à rembourser au gérant (article 1301-2, alinéa 2)";
+    label en unofficial "expenses to be reimbursed to the manager (Article 1301-2, paragraph 2)";
+}
+pub relation rembourse(g: Gestion, maitre: Personne) kind empirical {
+    label fr official "le maître de l'affaire a remboursé le gérant";
+    label en unofficial "the principal has reimbursed the manager";
+}
+pub relation vaut_mandat(g: Gestion) kind derived {
+    label fr official "la ratification de la gestion par le maître vaut mandat (article 1301-3)";
+    label en unofficial "the principal's ratification of the management amounts to a mandate (Article 1301-3)";
+}
+pub relation indemnisation_selon_enrichissement_injustifie(g: Gestion) kind derived {
+    label fr official "l'action du gérant ne remplit pas les conditions de la gestion d'affaires mais profite au maître : indemnisation selon les règles de l'enrichissement injustifié (article 1301-5)";
+    label en unofficial "the manager's action does not meet the conditions of management but benefits the principal: compensation under the rules of unjustified enrichment (Article 1301-5)";
+}
+
+@source(CC_ART1301) {
+    rule GestionDAffaires(g: Gestion) defeasible {
+        label fr official "Article 1301. Celui qui, sans y être tenu, gère sciemment et utilement l'affaire d'autrui, à l'insu ou sans opposition du maître, est soumis aux obligations d'un mandataire";
+        label en unofficial "Article 1301. Whoever, without being bound, knowingly and usefully manages another's affair, unknown to or unopposed by the principal, is subject to the obligations of an agent";
+        when gestion_sans_y_etre_tenu(g) and gestion_utile(g);
+        then gestion_d_affaires(g);
+    }
+}
+
+@source(CC_ART1301_5)
+rule GestionInutileRenvoyeeALEnrichissement(g: Gestion) defeasible {
+    label fr official "Article 1301-5. Si l'action du gérant ne répond pas aux conditions de la gestion d'affaires mais profite néanmoins au maître, celui-ci doit indemniser le gérant selon les règles de l'enrichissement injustifié";
+    label en unofficial "Article 1301-5. If the manager's action does not meet the conditions of management but nonetheless benefits the principal, the latter must compensate him under the rules of unjustified enrichment";
+    when gestion_sans_y_etre_tenu(g) and not_known(gestion_utile(g));
+    then indemnisation_selon_enrichissement_injustifie(g);
+}
+pub relation indemniser_gerant_1301_5(g: Gestion) kind empirical {
+    label fr official "le maître indemnise le gérant selon l'enrichissement injustifié";
+    label en unofficial "the principal compensates the manager under unjustified enrichment";
+}
+@source(CC_ART1301_5)
+rule PositionDevoirIndemniserGerantEnrichissement(g: Gestion) strict {
+    label fr official "Article 1301-5. Le maître doit indemniser le gérant lorsque la gestion lui profite";
+    label en unofficial "Article 1301-5. The principal must compensate the manager where the management benefits him";
+    when indemnisation_selon_enrichissement_injustifie(g);
+    then duty DevoirIndemniserGerantEnrichissement {
+        bearer entity_ref("urn:fr:cc:responsabilite:maitre-affaire");
+        goal achievement {
+            condition indemniser_gerant_1301_5(g);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1301_2) {
+    rule RemboursementDesDepenses(g: Gestion, montant: Money) defeasible {
+        label fr official "Article 1301-2, alinéa 2. Celui dont l'affaire a été utilement gérée rembourse au gérant les dépenses faites dans son intérêt";
+        label en unofficial "Article 1301-2, paragraph 2. The person whose affair was usefully managed reimburses the manager the expenses made in his interest";
+        when gestion_d_affaires(g) and depenses_du_gerant(g, montant);
+        then remboursement_du_gerant(g, montant);
+    }
+    rule ObligationDeRembourserLeGerant(g: Gestion, maitre: Personne, gestionnaire: Personne,
+                                        montant: Money) defeasible {
+        label fr official "Article 1301-2. Le maître de l'affaire doit rembourser au gérant les dépenses faites dans son intérêt";
+        label en unofficial "Article 1301-2. The principal must reimburse the manager the expenses made in his interest";
+        when remboursement_du_gerant(g, montant) and maitre_de_l_affaire(g, maitre) and gerant(g, gestionnaire);
+        then duty RembourserLeGerant {
+            bearer maitre;
+            beneficiary gestionnaire;
+            achieve rembourse(g, maitre) during [@2016-10-01, infinity);
+        };
+    }
+}
+pub relation rembourser_depenses_gerant_1301_2(g: Gestion, maitre: Personne) kind empirical {
+    label fr official "le maître rembourse les dépenses du gérant";
+    label en unofficial "the principal reimburses the manager's expenses";
+}
+@source(CC_ART1301_2)
+rule PositionDevoirRembourserDepensesGerant(g: Gestion, maitre: Personne) strict {
+    label fr official "Article 1301-2. Le maître doit rembourser les dépenses faites dans son intérêt";
+    label en unofficial "Article 1301-2. The principal must reimburse expenses made in his interest";
+    when remboursement_du_gerant(g, _) and maitre_de_l_affaire(g, maitre);
+    then duty DevoirRembourserDepensesGerant {
+        bearer maitre;
+        goal achievement {
+            condition rembourser_depenses_gerant_1301_2(g, maitre);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1301_3)
+rule RatificationVautMandat(g: Gestion) strict {
+    label fr official "Article 1301-3. La ratification de la gestion par le maître vaut mandat";
+    label en unofficial "Article 1301-3. Ratification of the management by the principal amounts to a mandate";
+    when ratification_par_le_maitre(g);
+    then vaut_mandat(g);
+}
+pub relation ratifier_gestion_1301_3(g: Gestion) kind empirical {
+    label fr official "le maître ratifie la gestion";
+    label en unofficial "the principal ratifies the management";
+}
+@source(CC_ART1301_3)
+rule PositionPouvoirRatifierGestion(g: Gestion) strict {
+    label fr official "Article 1301-3. Le maître peut ratifier la gestion";
+    label en unofficial "Article 1301-3. The principal may ratify the management";
+    when ratification_par_le_maitre(g) and ratifier_gestion_1301_3(g);
+    then liberty PouvoirRatifierGestion {
+        holder entity_ref("urn:fr:cc:responsabilite:maitre-affaire");
+        action ratifier_gestion_1301_3(g);
+        window [@2016-10-01, infinity);
+    };
+}
+
+// --- Chapitre II : le paiement de l'indu ----------------------------------------------------
+
+pub relation sujet_a_restitution(pa: Paiement) kind derived {
+    label fr official "ce qui a été reçu sans être dû est sujet à restitution (article 1302, alinéa 1)";
+    label en unofficial "what was received without being owed is subject to restitution (Article 1302, paragraph 1)";
+}
+pub relation restitue(pa: Paiement, personne: Personne) kind empirical {
+    label fr official "celui qui a reçu l'indu l'a restitué";
+    label en unofficial "the person who received the undue payment has restored it";
+}
+
+@source(CC_ART1302, CC_ART1302_1) {
+    rule PaiementIndu(pa: Paiement) defeasible {
+        label fr official "Article 1302, alinéa 1, et article 1302-1. Tout paiement suppose une dette ; ce qui a été reçu sans être dû est sujet à restitution, et celui qui le reçoit par erreur ou sciemment doit le restituer";
+        label en unofficial "Article 1302, paragraph 1, and Article 1302-1. Every payment presupposes a debt; what was received without being owed is subject to restitution, and whoever receives it by mistake or knowingly must restore it";
+        when montant_paye(pa, _) and not_known(dette_existante(pa));
+        then sujet_a_restitution(pa);
+    }
+    rule ObligationNaturelleAcquittee(pa: Paiement) defeater {
+        label fr official "Article 1302, alinéa 2. La restitution n'est pas admise à l'égard des obligations naturelles qui ont été volontairement acquittées";
+        label en unofficial "Article 1302, paragraph 2. Restitution is not allowed for natural obligations voluntarily discharged";
+        when obligation_naturelle_volontairement_acquittee(pa);
+        defeat sujet_a_restitution(pa);
+    }
+    rule ObligationDeRestituerLIndu(pa: Paiement, recu_par: Personne, paye_par: Personne) defeasible {
+        label fr official "Article 1302-1. Celui qui reçoit par erreur ou sciemment ce qui ne lui est pas dû doit le restituer à celui de qui il l'a indûment reçu";
+        label en unofficial "Article 1302-1. Whoever receives by mistake or knowingly what is not owed to him must restore it to the person from whom he unduly received it";
+        when sujet_a_restitution(pa) and paiement_recu_par(pa, recu_par) and paiement_fait_par(pa, paye_par);
+        then duty RestituerLIndu {
+            bearer recu_par;
+            beneficiary paye_par;
+            achieve restitue(pa, recu_par) during [@2016-10-01, infinity);
+        };
+    }
+}
+pub relation restituer_indu_1302_1(pa: Paiement, recu_par: Personne) kind empirical {
+    label fr official "le receveur restitue le paiement indu";
+    label en unofficial "the recipient restores the undue payment";
+}
+@source(CC_ART1302_1)
+rule PositionDevoirRestituerIndu1302_1(pa: Paiement, recu_par: Personne) strict {
+    label fr official "Article 1302-1. Le receveur doit restituer ce qui n'est pas dû";
+    label en unofficial "Article 1302-1. The recipient must restore what was not owed";
+    when sujet_a_restitution(pa) and paiement_recu_par(pa, recu_par);
+    then duty DevoirRestituerIndu1302_1 {
+        bearer recu_par;
+        goal achievement {
+            condition restituer_indu_1302_1(pa, recu_par);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Chapitre III : l'enrichissement injustifié ---------------------------------------------
+
+pub relation enrichissement_injustifie(e: Enrichissement) kind derived {
+    label fr official "l'enrichissement est injustifié : il ne procède ni de l'accomplissement d'une obligation par l'appauvri ni de son intention libérale (article 1303-1)";
+    label en unofficial "the enrichment is unjustified: it arises neither from the performance of an obligation by the impoverished person nor from his liberal intent (Article 1303-1)";
+}
+pub relation indemnite_d_enrichissement(e: Enrichissement, montant: Money) kind derived {
+    key(e);
+    label fr official "indemnité due à l'appauvri : la moindre des deux valeurs, la plus forte en cas de mauvaise foi de l'enrichi (articles 1303, 1303-4)";
+    label en unofficial "compensation owed to the impoverished person: the lesser of the two values, the greater in case of the enriched person's bad faith (Articles 1303, 1303-4)";
+}
+pub relation agir_sur_fondement_enrichissement_1303_3(e: Enrichissement) kind empirical {
+    label fr official "l'appauvri agit sur le fondement de l'enrichissement malgré l'ouverture d'une autre action";
+    label en unofficial "the impoverished person proceeds on unjust-enrichment grounds despite another available action";
+}
+@source(CC_ART1303_3)
+rule PositionInterdictionAgirMalgreAutreAction(e: Enrichissement) strict {
+    label fr official "Article 1303-3. L'appauvri ne peut agir sur ce fondement lorsqu'une autre action est ouverte";
+    label en unofficial "Article 1303-3. The impoverished person may not proceed on this ground when another action is available";
+    when autre_action_ouverte(e)
+        and agir_sur_fondement_enrichissement_1303_3(e);
+    then prohibition InterdictionAgirMalgreAutreAction {
+        bearer entity_ref("urn:fr:cc:responsabilite:appauvri");
+        action agir_sur_fondement_enrichissement_1303_3(e);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1303_3)
+rule MaintenanceInterdictionAgirMalgreAutreAction(e: Enrichissement) strict {
+    label fr official "Article 1303-3. L'appauvri doit maintenir l'absence d'action sur ce fondement lorsqu'une autre action est ouverte";
+    label en unofficial "Article 1303-3. The impoverished person must maintain the absence of proceeding on this ground when another action is available";
+    when autre_action_ouverte(e);
+    then duty MaintenanceInterdictionAgirMalgreAutreActionDuty {
+        bearer entity_ref("urn:fr:cc:responsabilite:appauvri");
+        goal maintenance {
+            condition not agir_sur_fondement_enrichissement_1303_3(e);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART1303_1)
+rule EnrichissementInjustifie(e: Enrichissement) defeasible {
+    label fr official "Article 1303-1. L'enrichissement est injustifié lorsqu'il ne procède ni de l'accomplissement d'une obligation par l'appauvri ni de son intention libérale";
+    label en unofficial "Article 1303-1. Enrichment is unjustified where it arises neither from the performance of an obligation by the impoverished person nor from his liberal intent";
+    when valeur_de_l_enrichissement(e, _) and not_known(execution_d_une_obligation(e))
+        and not_known(intention_liberale(e));
+    then enrichissement_injustifie(e);
+}
+pub relation verser_indemnite_enrichissement_1303(e: Enrichissement) kind empirical {
+    label fr official "l'enrichi verse l'indemnité due à l'appauvri";
+    label en unofficial "the enriched person pays the compensation due to the impoverished person";
+}
+@source(CC_ART1303)
+rule PositionDevoirVerserIndemniteEnrichissement(e: Enrichissement) strict {
+    label fr official "Article 1303. L'enrichi doit verser l'indemnité due à l'appauvri";
+    label en unofficial "Article 1303. The enriched person must pay the compensation due to the impoverished person";
+    when enrichissement_injustifie(e);
+    then duty DevoirVerserIndemniteEnrichissement {
+        bearer entity_ref("urn:fr:cc:responsabilite:enrichi");
+        goal achievement {
+            condition verser_indemnite_enrichissement_1303(e);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1303_2, CC_ART1303_3) {
+    rule ProfitPersonnelDeLAppauvri(e: Enrichissement) defeater {
+        label fr official "Article 1303-2, alinéa 1. Il n'y a pas lieu à indemnisation si l'appauvrissement procède d'un acte accompli par l'appauvri en vue d'un profit personnel";
+        label en unofficial "Article 1303-2, paragraph 1. No compensation is due if the impoverishment arises from an act done by the impoverished person for personal profit";
+        when acte_en_vue_d_un_profit_personnel(e);
+        defeat enrichissement_injustifie(e);
+    }
+    rule SubsidiariteDeLAction(e: Enrichissement) defeater {
+        label fr official "Article 1303-3. L'appauvri n'a pas d'action sur ce fondement lorsqu'une autre action lui est ouverte ou se heurte à un obstacle de droit, telle la prescription";
+        label en unofficial "Article 1303-3. The impoverished person has no action on this ground where another action is open to him or meets a legal obstacle, such as prescription";
+        when autre_action_ouverte(e);
+        defeat enrichissement_injustifie(e);
+    }
+}
+
+@source(CC_ART1303, CC_ART1303_4) {
+    rule IndemniteEgaleALaMoindreDesValeurs(e: Enrichissement, gain: Money, perte: Money) defeasible {
+        label fr official "Article 1303. Celui qui bénéficie d'un enrichissement injustifié au détriment d'autrui doit à l'appauvri une indemnité égale à la moindre des deux valeurs de l'enrichissement et de l'appauvrissement";
+        label en unofficial "Article 1303. Whoever benefits from an unjustified enrichment at another's expense owes the impoverished person compensation equal to the lesser of the two values";
+        when enrichissement_injustifie(e) and valeur_de_l_enrichissement(e, gain)
+            and valeur_de_l_appauvrissement(e, perte) and not_known(mauvaise_foi_de_l_enrichi(e));
+        then indemnite_d_enrichissement(e, min(gain, perte));
+    }
+    rule IndemniteEgaleALaPlusForteEnCasDeMauvaiseFoi(e: Enrichissement, gain: Money, perte: Money) defeasible {
+        label fr official "Article 1303-4, seconde phrase. En cas de mauvaise foi de l'enrichi, l'indemnité due est égale à la plus forte de ces deux valeurs";
+        label en unofficial "Article 1303-4, second sentence. In case of the enriched person's bad faith, the compensation owed equals the greater of the two values";
+        when enrichissement_injustifie(e) and valeur_de_l_enrichissement(e, gain)
+            and valeur_de_l_appauvrissement(e, perte) and mauvaise_foi_de_l_enrichi(e);
+        then indemnite_d_enrichissement(e, max(gain, perte));
+    }
+}
+pub relation verser_indemnite_mauvaise_foi_1303_4(e: Enrichissement) kind empirical {
+    label fr official "l'enrichi de mauvaise foi verse l'indemnité due";
+    label en unofficial "the enriched person in bad faith pays the compensation due";
+}
+@source(CC_ART1303_4)
+rule PositionDevoirVerserIndemniteMauvaiseFoi(e: Enrichissement) strict {
+    label fr official "Article 1303-4. L'enrichi de mauvaise foi doit verser l'indemnité";
+    label en unofficial "Article 1303-4. The enriched person in bad faith must pay the compensation";
+    when enrichissement_injustifie(e)
+        and mauvaise_foi_de_l_enrichi(e);
+    then duty DevoirVerserIndemniteMauvaiseFoi {
+        bearer entity_ref("urn:fr:cc:responsabilite:enrichi");
+        goal achievement {
+            condition verser_indemnite_mauvaise_foi_1303_4(e);
+            window [@2016-10-01, infinity];
+        };
+    };
+}

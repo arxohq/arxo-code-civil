@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1305-4 et 1305-5 : le débiteur qui ne fournit pas les sûretés promises est déchu
+// du terme, mais cette déchéance est INOPPOSABLE à ses coobligés, même solidaires,
+// et à ses cautions.
+test "urn:query:fr-code-civil-obligations-m08-decheance-du-terme-inopposable-aux-coobliges" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": suretes_promises_non_fournies(entity_ref("urn:fr:cc:obligations:dec:c"), entity_ref("urn:fr:cc:obligations:dec:D")) { origin case_input; }
+        assert "f2": coobligation_du_debiteur(entity_ref("urn:fr:cc:obligations:dec:c"), entity_ref("urn:fr:cc:obligations:dec:D"), entity_ref("urn:fr:cc:obligations:dec:B")) { origin case_input; }
+    }
+    evaluate truth(decheance_inopposable_aux_coobliges(entity_ref("urn:fr:cc:obligations:dec:c"), entity_ref("urn:fr:cc:obligations:dec:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DecheanceParDefautDeSuretes);
+    expect applied(DecheanceInopposableAuxCoobliges);
+}

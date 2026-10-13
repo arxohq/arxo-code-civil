@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1223, rédaction de 2018 : prix de 1 000 EUR, quart de réduction — 1 000 × 1/4 = 250,00 EUR, prix réduit 750,00 EUR (arrondi au centime : politique du paquet, non norme).
+test "urn:query:fr-code-civil-contrat-positions-1223-notify-active" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:i14"), @2019-05-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:i14"), @2019-05-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:i14"), "1223") { origin case_input; }
+        assert "f4": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i14:o"), entity_ref("urn:fr:cc:contrat:i14")) { origin case_input; }
+        assert "f4b": creancier_de_l_obligation(entity_ref("urn:fr:cc:contrat:i14:o"), entity_ref("urn:fr:cc:contrat:i14:creancier")) { origin case_input; }
+        assert "f5": engagement_imparfaitement_execute(entity_ref("urn:fr:cc:contrat:i14:o")) { origin case_input; }
+        assert "f6": mise_en_demeure_de_satisfaire_le(entity_ref("urn:fr:cc:contrat:i14:o"), @2020-02-01) { origin case_input; }
+        assert "f7": prix_du_contrat(entity_ref("urn:fr:cc:contrat:i14"), 1000 EUR) { origin case_input; }
+        assert "f8": termes_de_la_reduction_de_prix(entity_ref("urn:fr:cc:contrat:i14"), 1, 4.0) { origin case_input; }
+        assert "f9": prix_non_encore_paye(entity_ref("urn:fr:cc:contrat:i14")) { origin case_input; }
+        assert "f10": decision_de_reduction_notifiee(entity_ref("urn:fr:cc:contrat:i14")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P3PositionPouvoirNotifierReduction, ACTIVE);
+}

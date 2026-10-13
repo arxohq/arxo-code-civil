@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 619. « ne dure que trente ans » : au trentième anniversaire de
+// l'ouverture, le dernier jour du terme n'est pas passé et l'usufruit dure.
+test "urn:query:fr-code-civil-biens-u01-personne-morale-au-terme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": usufruit_sur(entity_ref("urn:fr:cc:biens:u01:U"), entity_ref("urn:fr:cc:biens:u01:B")) { origin case_input; }
+        assert "f2": usufruitier(entity_ref("urn:fr:cc:biens:u01:U"), entity_ref("urn:fr:cc:biens:u01:S")) { origin case_input; }
+        assert "f3": personne_morale(entity_ref("urn:fr:cc:biens:u01:S")) { origin case_input; }
+        assert "f4": ouverture_de_l_usufruit_le(entity_ref("urn:fr:cc:biens:u01:U"), @1990-01-01) { origin case_input; }
+        assert "f5": jour_de_reference(entity_ref("urn:fr:cc:biens:u01:U"), @2020-01-01) { origin case_input; }
+    }
+    evaluate truth(usufruit_eteint(entity_ref("urn:fr:cc:biens:u01:U")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == FALSE_ONLY;
+}

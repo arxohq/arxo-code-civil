@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1345-1, frontière : le 10 mai 2025 est le jour même des deux mois —
+// l'obstruction n'a pas duré PLUS de deux mois, la consignation n'est pas ouverte.
+test "urn:query:fr-code-civil-obligations-p15-consignation-le-jour-des-deux-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": mise_en_demeure_du_creancier(entity_ref("urn:fr:cc:obl:md"), entity_ref("urn:fr:cc:obl"), entity_ref("urn:fr:cc:obl:CR")) { origin case_input; }
+        assert "f2": refus_ou_empechement_du_creancier(entity_ref("urn:fr:cc:obl")) { origin case_input; }
+        assert "f3": date_de_la_mise_en_demeure(entity_ref("urn:fr:cc:obl:md"), @2025-03-10) { origin case_input; }
+        assert "f4": refus_sans_motif_legitime(entity_ref("urn:fr:cc:obl:md")) { origin adjudicated; }
+        assert "f5": obstruction_persistante_au(entity_ref("urn:fr:cc:obl:md"), @2025-05-10) { origin case_input; }
+        assert "f6": objet_de_l_obligation_obstruee(entity_ref("urn:fr:cc:obl"), SommeDArgent) { origin case_input; }
+    }
+    evaluate truth(consignation_ouverte(entity_ref("urn:fr:cc:obl")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect not applied(ConsignationApresDeuxMois);
+}

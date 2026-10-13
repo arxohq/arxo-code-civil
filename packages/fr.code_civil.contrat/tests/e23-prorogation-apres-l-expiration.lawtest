@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1213 : la volonté manifestée le 5 janvier, après le terme du 31 décembre, ne proroge pas le contrat.
+test "urn:query:fr-code-civil-contrat-e23-prorogation-apres-l-expiration" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e23"), @2019-03-01) { origin case_input; }
+        assert "f2": terme_du_contrat(entity_ref("urn:fr:cc:contrat:e23"), @2020-12-31) { origin case_input; }
+        assert "f3": volonte_de_proroger_manifestee_le(entity_ref("urn:fr:cc:contrat:e23"), @2021-01-05) { origin case_input; }
+    }
+    evaluate truth(contrat_proroge(entity_ref("urn:fr:cc:contrat:e23")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

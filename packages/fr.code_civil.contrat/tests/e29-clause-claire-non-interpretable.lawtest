@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1192 : on ne peut interpréter les clauses claires et précises à peine de dénaturation.
+test "urn:query:fr-code-civil-contrat-e29-clause-claire-non-interpretable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e29"), @2019-03-01) { origin case_input; }
+        assert "f2": clause_du_contrat(entity_ref("urn:fr:cc:contrat:e29:clause"), entity_ref("urn:fr:cc:contrat:e29")) { origin case_input; }
+        assert "f3": clause_claire_et_precise(entity_ref("urn:fr:cc:contrat:e29:clause")) { origin case_input; }
+    }
+    evaluate truth(clause_non_interpretable(entity_ref("urn:fr:cc:contrat:e29:clause")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ClauseClaireNonInterpretable);
+}

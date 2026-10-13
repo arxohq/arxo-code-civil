@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 716, al. 1 et 2. Le trésor trouvé dans son propre fonds appartient
+// entier à celui qui le trouve.
+test "urn:query:fr-code-civil-biens-q01-tresor-propre-fonds" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": chose_cachee_ou_enfouie(entity_ref("urn:fr:cc:biens:q01:T")) { origin case_input; }
+        assert "f2": personne_ne_peut_justifier_sa_propriete(entity_ref("urn:fr:cc:biens:q01:T")) { origin case_input; }
+        assert "f3": decouverte_par_le_pur_effet_du_hasard(entity_ref("urn:fr:cc:biens:q01:T")) { origin case_input; }
+        assert "f4": decouvert_dans_le_fonds(entity_ref("urn:fr:cc:biens:q01:T"), entity_ref("urn:fr:cc:biens:q01:F")) { origin case_input; }
+        assert "f5": inventeur_du_tresor(entity_ref("urn:fr:cc:biens:q01:T"), entity_ref("urn:fr:cc:biens:q01:P")) { origin case_input; }
+        assert "f6": proprietaire_du_bien(entity_ref("urn:fr:cc:biens:q01:F"), entity_ref("urn:fr:cc:biens:q01:P")) { origin case_input; }
+    }
+    evaluate truth(part_du_tresor(entity_ref("urn:fr:cc:biens:q01:T"), entity_ref("urn:fr:cc:biens:q01:P"), 1 / 1));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

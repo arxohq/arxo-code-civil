@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1307-2 : l'impossibilité d'exécuter la prestation choisie libère le débiteur si
+// elle procède d'un cas de force majeure — appréciation du juge, ici donnée.
+test "urn:query:fr-code-civil-obligations-m10-prestation-choisie-impossible-par-force-majeure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": espece_de_l_obligation_plurale(entity_ref("urn:fr:cc:obligations:fmj:c"), Alternative) { origin case_input; }
+        assert "f2": prestation_de_l_obligation(entity_ref("urn:fr:cc:obligations:fmj:c"), entity_ref("urn:fr:cc:obligations:fmj:p1")) { origin case_input; }
+        assert "f3": prestation_choisie(entity_ref("urn:fr:cc:obligations:fmj:c"), entity_ref("urn:fr:cc:obligations:fmj:p1")) { origin case_input; }
+        assert "f4": prestation_devenue_impossible(entity_ref("urn:fr:cc:obligations:fmj:p1")) { origin case_input; }
+        assert "f5": force_majeure_sur_la_prestation(entity_ref("urn:fr:cc:obligations:fmj:p1")) { origin adjudicated; }
+    }
+    evaluate truth(debiteur_libere_par_l_impossibilite_de_la_prestation_choisie(entity_ref("urn:fr:cc:obligations:fmj:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ImpossibiliteDeLaPrestationChoisie);
+}

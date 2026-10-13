@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 780, alinéa 3 : le conjoint laissé en jouissance meurt, sa succession s'ouvre le 1er mars 2018 — dix ans jusqu'au 1er mars 2028.
+test "urn:query:fr-code-civil-successions-o14-conjoint-laisse-en-jouissance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o14:S"), @2010-05-20) { origin case_input; }
+        assert "f2": date_d_appreciation_de_l_option(entity_ref("urn:fr:cc:successions:opt:o14:S"), entity_ref("urn:fr:cc:successions:opt:o14:H"), @2021-01-01) { origin case_input; }
+        assert "f3": conjoint_laisse_en_jouissance(entity_ref("urn:fr:cc:successions:opt:o14:S"), entity_ref("urn:fr:cc:successions:opt:o14:H"), entity_ref("urn:fr:cc:successions:opt:o14:SC")) { origin case_input; }
+        assert "f4": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o14:SC"), @2018-03-01) { origin case_input; }
+    }
+    evaluate truth(fin_de_la_faculte_d_option(entity_ref("urn:fr:cc:successions:opt:o14:S"), entity_ref("urn:fr:cc:successions:opt:o14:H"), @2028-03-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DixAnsDepuisLaSuccessionDuConjoint);
+}

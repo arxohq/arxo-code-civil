@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1354, al. 2 : la présomption simple PEUT ÊTRE RENVERSÉE PAR TOUT MOYEN — la
+// preuve contraire rapportée, la dispense tombe.
+test "urn:query:fr-code-civil-obligations-e04-presomption-simple-renversee-par-tout-moyen" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": presomption_legale_attachee(entity_ref("urn:fr:cc:obligations:prn:pr"), entity_ref("urn:fr:cc:obligations:prn:a")) { origin case_input; }
+        assert "f2": espece_de_la_presomption(entity_ref("urn:fr:cc:obligations:prn:pr"), Simple) { origin case_input; }
+        assert "f3": beneficiaire_de_la_presomption(entity_ref("urn:fr:cc:obligations:prn:pr"), entity_ref("urn:fr:cc:obligations:prn:P")) { origin case_input; }
+        assert "f4": preuve_contraire_rapportee(entity_ref("urn:fr:cc:obligations:prn:pr")) { origin case_input; }
+    }
+    evaluate truth(dispense_de_preuve(entity_ref("urn:fr:cc:obligations:prn:pr"), entity_ref("urn:fr:cc:obligations:prn:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(PresomptionSimpleRenversee);
+}

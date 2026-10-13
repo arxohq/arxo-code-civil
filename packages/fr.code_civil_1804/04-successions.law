@@ -1,0 +1,307 @@
+// LIVRE III TITRE I — succession: opened by death (718); the law lays down
+// the order among legitimate heirs (723); legitimate heirs are seised by
+// operation of law of the deceased’s goods, rights and actions (724);
+// succession devolves on children and descendants (731), who inherit without
+// distinction of sex or primogeniture, by head or by stirpes (739–740, 743–745);
+// natural children are not heirs but take a third of a legitimate share when
+// they compete with legitimate descendants (756–757); the surviving spouse
+// takes only if there is no successible kin and no natural child (767).
+// LIVRE III TITRE II — réserve: dispositions may not exceed 1/2, 1/3 or 1/4
+// according to the number of legitimate children, descendants counting as the
+// child they represent (913–914).
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART718,
+    CC_ART723,
+    CC_ART724,
+    CC_ART731,
+    CC_ART739,
+    CC_ART740,
+    CC_ART743,
+    CC_ART744,
+    CC_ART745,
+    CC_ART756,
+    CC_ART757,
+    CC_ART767,
+    CC_ART913,
+    CC_ART914,
+    Causa,
+    Persona,
+};
+
+relation succession_ouverte(defunt: Persona) kind institutional { label fr official "succession ouverte"; label en unofficial "the succession is opened by death (718)"; }
+pub relation heritier_legitime(heritier: Persona, defunt: Persona) kind institutional { label fr official "héritier légitime"; label en unofficial "legitimate heir of the deceased (723, 731, 745)"; }
+relation saisi_de_plein_droit(heritier: Persona, defunt: Persona) kind institutional { label fr official "saisi de plein droit des biens, droits et actions du défunt"; label en unofficial "the heir is seised by operation of law of the deceased’s goods, rights and actions (724)"; }
+relation action_du_defunt(defunt: Persona, causa: Causa) kind institutional { label fr official "action du défunt"; label en unofficial "the action belonged to the deceased by contract (724)"; }
+
+pub relation existe_a_l_ouverture(persona: Persona, defunt: Persona) kind empirical {
+    label fr official "existe à l’instant de l’ouverture de la succession";
+    label en unofficial "exists at the opening of the succession (725, 744, 767)";
+}
+pub relation prededece(enfant: Persona, defunt: Persona) kind empirical {
+    label fr official "prédécédé à l’ouverture de la succession du défunt";
+    label en unofficial "predeceased at the opening of the deceased’s succession (740, 744)";
+}
+pub relation enfant_naturel_reconnu(enfant: Persona, defunt: Persona) kind empirical {
+    label fr official "enfant naturel légalement reconnu du défunt";
+    label en unofficial "natural child legally acknowledged by the deceased (756)";
+}
+
+relation enfant_au_premier_degre(enfant: Persona, defunt: Persona) kind derived {
+    label fr official "enfant légitime au premier degré";
+    label en unofficial "legitimate child in the first degree (731, 745)";
+}
+pub relation souche(tete: Persona, defunt: Persona) kind institutional {
+    label fr official "souche successorale";
+    label en unofficial "stirps taking in its own right or represented (743, 745)";
+}
+relation representant(heritier: Persona, represente: Persona, defunt: Persona) kind derived {
+    label fr official "représentant du prédécédé";
+    label en unofficial "representative who takes the place of the predeceased (739)";
+}
+relation conjoint_survivant(conjoint: Persona, defunt: Persona) kind derived {
+    label fr official "conjoint non divorcé qui survit";
+    label en unofficial "non-divorced spouse who survives the deceased (767)";
+}
+relation presence_d_heritier_legitime(defunt: Persona) kind derived {
+    label fr official "présence d’un héritier légitime";
+    label en unofficial "there is a legitimate heir";
+}
+relation presence_d_enfant_naturel(defunt: Persona) kind derived {
+    label fr official "présence d’un enfant naturel reconnu";
+    label en unofficial "there is an acknowledged natural child";
+}
+pub relation conjoint_sans_part(conjoint: Persona, defunt: Persona) kind derived {
+    label fr official "le conjoint survivant n’a point de part ab intestat";
+    label en unofficial "the surviving spouse takes nothing ab intestato when kin succeed (767)";
+}
+relation deux_souches(a: Persona, b: Persona, defunt: Persona) kind derived {
+    label fr official "deux souches distinctes";
+    label en unofficial "two distinct stirpes";
+}
+relation trois_souches(a: Persona, b: Persona, c: Persona, defunt: Persona) kind derived {
+    label fr official "trois souches distinctes";
+    label en unofficial "three distinct stirpes";
+}
+pub relation concourt(a: Persona, b: Persona, defunt: Persona) kind empirical {
+    label fr official "concourt à la succession avec un autre appelé";
+    label en unofficial "takes concurrently with another called to the succession (745)";
+}
+pub relation presence_de_deux_souches(defunt: Persona) kind derived {
+    label fr official "le défunt laisse deux souches";
+    label en unofficial "the deceased leaves two stirpes";
+}
+relation presence_de_trois_souches(defunt: Persona) kind derived {
+    label fr official "le défunt laisse trois souches ou plus";
+    label en unofficial "the deceased leaves three or more stirpes";
+}
+relation nombre_de_souches(defunt: Persona, n: Integer) kind derived {
+    key(defunt);
+    label fr official "nombre de souches";
+    label en unofficial "number of stirpes (743, 745, 914)";
+}
+relation nombre_de_representans(represente: Persona, defunt: Persona, n: Integer) kind derived {
+    key(represente, defunt);
+    label fr official "nombre de représentants d’une souche";
+    label en unofficial "number of representatives of a stirps (743)";
+}
+relation masse_des_souches(defunt: Persona, m: Rational) kind derived {
+    key(defunt);
+    label fr official "masse dévolue aux souches légitimes";
+    label en unofficial "mass devolved on legitimate stirpes after the natural child’s right";
+}
+pub relation part_successorale(heritier: Persona, defunt: Persona, x: Rational) kind derived {
+    key(heritier, defunt);
+    label fr official "part successorale";
+    label en unofficial "intestate share as a rational fraction of the succession (745, 757, 767)";
+}
+relation nombre_d_enfants_laisses(defunt: Persona, n: Integer) kind derived {
+    key(defunt);
+    label fr official "nombre d’enfants laissés au sens des articles 913 et 914";
+    label en unofficial "number of children left, descendants counting as the child they represent (913–914)";
+}
+pub relation reserve_hereditaire(defunt: Persona, x: Rational) kind derived {
+    key(defunt);
+    label fr official "réserve héréditaire";
+    label en unofficial "forced heirship fraction reserved to legitimate children (913)";
+}
+pub relation quotite_disponible(defunt: Persona, x: Rational) kind derived {
+    key(defunt);
+    label fr official "quotité disponible";
+    label en unofficial "disposable portion of liberalities (913)";
+}
+
+@source(CC_ART718)
+rule SuccessionOuverte(d: Persona) strict { label fr official "Les successions s’ouvrent par la mort naturelle"; label en unofficial "Successions are opened by death (718)"; when doctrine.ius_privatum::mortuus(d); then succession_ouverte(d); }
+
+@source(CC_ART731, CC_ART723)
+rule EnfantAuPremierDegre(h: Persona, d: Persona) strict {
+    label fr official "Les successions sont déférées aux enfans et descendans du défunt";
+    label en unofficial "A legitimate child of the deceased is a child in the first degree (723, 731)";
+    when succession_ouverte(d) and doctrine.ius_privatum::sine_testamento(d) and doctrine.ius_privatum::filius(h, d);
+    then enfant_au_premier_degre(h, d);
+}
+
+@source(CC_ART745, CC_ART744)
+rule HeritierDeSonChef(h: Persona, d: Persona) strict {
+    label fr official "ils succèdent par égales portions et par tête, quand ils sont tous au premier degré et appelés de leur chef";
+    label en unofficial "A living first-degree child takes in his own right (744, 745)";
+    when enfant_au_premier_degre(h, d) and existe_a_l_ouverture(h, d);
+    then heritier_legitime(h, d);
+}
+@source(CC_ART745, CC_ART743)
+rule SoucheDeSonChef(h: Persona, d: Persona) strict {
+    label fr official "le partage s’opère par souche";
+    label en unofficial "A living first-degree child is a stirps (743, 745)";
+    when enfant_au_premier_degre(h, d) and existe_a_l_ouverture(h, d);
+    then souche(h, d);
+}
+
+@source(CC_ART739, CC_ART740, CC_ART744)
+rule RepresentantDuPredecede(h: Persona, pred: Persona, d: Persona) strict {
+    label fr official "La représentation est une fiction de la loi, dont l’effet est de faire entrer les représentans dans la place, dans le degré et dans les droits du représenté";
+    label en unofficial "The child of a predeceased child takes the place of the represented (739, 740, 744)";
+    when enfant_au_premier_degre(pred, d) and prededece(pred, d) and doctrine.ius_privatum::filius(h, pred) and existe_a_l_ouverture(h, d);
+    then representant(h, pred, d);
+}
+@source(CC_ART739, CC_ART731)
+rule HeritierParRepresentation(h: Persona, pred: Persona, d: Persona) strict {
+    label fr official "faire entrer les représentans dans la place … du représenté";
+    label en unofficial "The representative is a legitimate heir (731, 739)";
+    when representant(h, pred, d);
+    then heritier_legitime(h, d);
+}
+@source(CC_ART743, CC_ART740)
+rule SoucheDuPredecede(h: Persona, pred: Persona, d: Persona) strict {
+    label fr official "le partage s’opère par souche";
+    label en unofficial "The predeceased child who is represented is a stirps (740, 743)";
+    when representant(h, pred, d);
+    then souche(pred, d);
+}
+
+@source(CC_ART743, CC_ART745)
+rule DeuxSouches(a: Persona, b: Persona, d: Persona) strict {
+    label fr official "le partage s’opère par souche";
+    label en unofficial "Two distinct stirpes are present (743, 745)";
+    when souche(a, d) and souche(b, d);
+    then deux_souches(a, b, d);
+}
+@source(CC_ART743, CC_ART745)
+rule PresenceDeDeuxSouches(a: Persona, b: Persona, d: Persona) strict {
+    label fr official "deux souches";
+    label en unofficial "Two stirpes are present";
+    when deux_souches(a, b, d);
+    then presence_de_deux_souches(d);
+}
+@source(CC_ART743)
+rule UnRepresentant(h: Persona, pred: Persona, d: Persona) strict {
+    label fr official "les membres de la même branche partagent entre eux par tête";
+    label en unofficial "A single representative takes the whole stirps share (743)";
+    when representant(h, pred, d);
+    then nombre_de_representans(pred, d, 1);
+}
+
+@source(CC_ART756, CC_ART757)
+rule PresenceDEnfantNaturel(n: Persona, d: Persona) strict {
+    label fr official "Les enfans naturels ne sont point héritiers ; la loi ne leur accorde de droits … que lorsqu’ils ont été légalement reconnus";
+    label en unofficial "An acknowledged natural child is present (756)";
+    when enfant_naturel_reconnu(n, d) and succession_ouverte(d) and doctrine.ius_privatum::sine_testamento(d);
+    then presence_d_enfant_naturel(d);
+}
+
+@source(CC_ART731)
+rule PresenceDHeritierLegitime(h: Persona, d: Persona) strict {
+    label fr official "héritier légitime";
+    label en unofficial "A legitimate heir is present";
+    when heritier_legitime(h, d);
+    then presence_d_heritier_legitime(d);
+}
+
+@source(CC_ART757)
+rule DroitDeLEnfantNaturelAvecDeuxDescendans(n: Persona, h: Persona, o: Persona, d: Persona) strict {
+    label fr official "Si le père ou la mère a laissé des descendans légitimes, ce droit est d’un tiers de la portion héréditaire que l’enfant naturel aurait eue s’il eût été légitime";
+    label en unofficial "With two legitimate descendants, the natural child takes one ninth (757)";
+    when enfant_naturel_reconnu(n, d) and succession_ouverte(d) and doctrine.ius_privatum::sine_testamento(d)
+        and concourt(h, o, d) and existe_a_l_ouverture(n, d);
+    then part_successorale(n, d, 1 / 9);
+}
+
+@source(CC_ART745)
+rule PartDeuxEnfantsDeLeurChef(h: Persona, o: Persona, d: Persona) strict {
+    label fr official "ils succèdent par égales portions et par tête, quand ils sont tous au premier degré et appelés de leur chef";
+    label en unofficial "Two concurrent heirs take one half each (745)";
+    when concourt(h, o, d) and existe_a_l_ouverture(h, d) and existe_a_l_ouverture(o, d)
+        and not_known(presence_d_enfant_naturel(d));
+    then part_successorale(h, d, 1 / 2);
+}
+@source(CC_ART745)
+rule PartConcurrentSymetrique(h: Persona, o: Persona, d: Persona) strict {
+    label fr official "ils succèdent par égales portions et par tête";
+    label en unofficial "The other concurrent heir also takes one half (745)";
+    when concourt(h, o, d) and existe_a_l_ouverture(h, d) and existe_a_l_ouverture(o, d)
+        and not_known(presence_d_enfant_naturel(d));
+    then part_successorale(o, d, 1 / 2);
+}
+
+@source(CC_ART757)
+rule PartLegitimeApresEnfantNaturel(h: Persona, o: Persona, n: Persona, d: Persona) strict {
+    label fr official "un tiers de la portion héréditaire que l’enfant naturel aurait eue s’il eût été légitime";
+    label en unofficial "After the natural child’s ninth, each of two legitimate stirpes takes four ninths (757)";
+    when enfant_naturel_reconnu(n, d) and heritier_legitime(h, d) and heritier_legitime(o, d) and existe_a_l_ouverture(h, d);
+    then part_successorale(h, d, 4 / 9);
+}
+
+@source(CC_ART767)
+rule ConjointSurvivantMari(e: Persona, d: Persona) strict {
+    label fr official "conjoint non divorcé qui lui survit";
+    label en unofficial "The wife who survives her husband is the surviving spouse (767)";
+    when succession_ouverte(d) and doctrine.ius_privatum::coniuges(d, e) and existe_a_l_ouverture(e, d);
+    then conjoint_survivant(e, d);
+}
+@source(CC_ART767)
+rule ConjointSurvivantFemme(e: Persona, d: Persona) strict {
+    label fr official "conjoint non divorcé qui lui survit";
+    label en unofficial "The husband who survives his wife is the surviving spouse (767)";
+    when succession_ouverte(d) and doctrine.ius_privatum::coniuges(e, d) and existe_a_l_ouverture(e, d);
+    then conjoint_survivant(e, d);
+}
+
+@source(CC_ART767)
+rule ConjointSansPart(e: Persona, d: Persona) strict {
+    label fr official "Lorsque le défunt ne laisse ni parens au degré successible, ni enfans naturels";
+    label en unofficial "The surviving spouse takes nothing when a legitimate heir is present (767)";
+    when conjoint_survivant(e, d) and presence_d_heritier_legitime(d);
+    then conjoint_sans_part(e, d);
+}
+
+@source(CC_ART767)
+rule ConjointSeul(e: Persona, d: Persona) strict {
+    label fr official "les biens de sa succession appartiennent au conjoint non divorcé qui lui survit";
+    label en unofficial "Without successible kin and without a natural child, the surviving spouse takes the whole (767)";
+    when conjoint_survivant(e, d) and not_known(presence_d_heritier_legitime(d)) and not_known(presence_d_enfant_naturel(d));
+    then part_successorale(e, d, 1 / 1);
+}
+
+@source(CC_ART913, CC_ART914)
+rule ReserveDeuxHeritiers(h: Persona, o: Persona, d: Persona) strict {
+    label fr official "le tiers, s’il laisse deux enfans";
+    label en unofficial "With two children (or a child and a represented stirps), the reserve is two thirds (913–914)";
+    when concourt(h, o, d) and existe_a_l_ouverture(h, d) and existe_a_l_ouverture(o, d);
+    then reserve_hereditaire(d, 2 / 3);
+}
+@source(CC_ART913)
+rule QuotiteDeuxHeritiers(h: Persona, o: Persona, d: Persona) strict {
+    label fr official "le tiers, s’il laisse deux enfans";
+    label en unofficial "With two children, liberalities may not exceed one third (913)";
+    when concourt(h, o, d) and existe_a_l_ouverture(h, d) and existe_a_l_ouverture(o, d);
+    then quotite_disponible(d, 1 / 3);
+}
+
+@source(CC_ART724)
+rule SaisineDePleinDroit(h: Persona, d: Persona) strict { label fr official "Les héritiers légitimes sont saisis de plein droit des biens, droits et actions du défunt"; label en unofficial "The legitimate heir is seised by operation of law of the deceased’s rights and actions (724)"; when heritier_legitime(h, d); then saisi_de_plein_droit(h, d); }
+@source(CC_ART724)
+rule ActionDuDefunt(d: Persona, y: Persona, c: Causa) strict { label fr official "droits et actions du défunt"; label en unofficial "The deceased creditor’s contractual action is the deceased’s action, which passes to the heirs (724)"; when doctrine.ius_privatum::contractus(d, y, c) and succession_ouverte(d); then action_du_defunt(d, c); }

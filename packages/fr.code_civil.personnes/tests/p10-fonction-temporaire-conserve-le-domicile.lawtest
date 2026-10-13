@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 106 : la fonction publique temporaire ne déplace pas le domicile, faute d intention contraire.
+test "urn:query:fr-code-civil-personnes-p10-fonction-temporaire-conserve-le-domicile" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:pers:f:p"), @1980-01-01) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:pers:f:p"), @2026-03-15) { origin case_input; }
+        assert "f3": principal_etablissement(entity_ref("urn:fr:cc:pers:f:p"), entity_ref("urn:fr:cc:pers:f:lyon")) { origin case_input; }
+        assert "f4": fonction_a_vie_exercee_a(entity_ref("urn:fr:cc:pers:f:p"), entity_ref("urn:fr:cc:pers:f:paris")) { origin case_input; }
+        assert "f5": fonction_temporaire_ou_revocable(entity_ref("urn:fr:cc:pers:f:p")) { origin case_input; }
+    }
+    evaluate truth(domicile(entity_ref("urn:fr:cc:pers:f:p"), entity_ref("urn:fr:cc:pers:f:paris")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

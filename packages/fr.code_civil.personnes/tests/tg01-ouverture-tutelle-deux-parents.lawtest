@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 390: guardianship opens where both parents are deceased or deprived of parental authority.
+test "urn:query:fr-code-civil-personnes-tg01-ouverture-tutelle-deux-parents" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:personnes:tg01:p"), @2012-09-17) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:personnes:tg01:p"), @2026-09-16) { origin case_input; }
+        assert "f3": pere_et_mere_decedes_ou_prives_de_l_autorite(entity_ref("urn:fr:cc:personnes:tg01:p")) { origin adjudicated; }
+    }
+    evaluate truth(tutelle_ouverte(entity_ref("urn:fr:cc:personnes:tg01:p")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(TutelleDuMineur);
+}

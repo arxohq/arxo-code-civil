@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-6 : désignation le 16 avril 2026, trop tard — le fournisseur répond comme le producteur.
+test "urn:query:fr-code-civil-responsabilite-r45-designation-le-lendemain" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": producteur_non_identifie(entity_ref("urn:fr:cc:resp:v2g:p")) { origin case_input; }
+        assert "f2": fournisseur_professionnel(entity_ref("urn:fr:cc:resp:v2g:p"), entity_ref("urn:fr:cc:resp:v2g:v")) { origin case_input; }
+        assert "f3": demande_de_la_victime_notifiee_le(entity_ref("urn:fr:cc:resp:v2g:p"), entity_ref("urn:fr:cc:resp:v2g:v"), @2026-01-15) { origin case_input; }
+        assert "f4": designation_faite_le(entity_ref("urn:fr:cc:resp:v2g:p"), entity_ref("urn:fr:cc:resp:v2g:v"), @2026-04-16) { origin case_input; }
+    }
+    evaluate truth(fournisseur_responsable_comme_producteur(entity_ref("urn:fr:cc:resp:v2g:p"), entity_ref("urn:fr:cc:resp:v2g:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(FournisseurTenuFauteDeDesignation);
+}

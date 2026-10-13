@@ -1,0 +1,644 @@
+// CHAPITRE III, SECTION 2 — DES DROITS DU CONJOINT SUCCESSIBLE, SECONDE VAGUE
+// (articles 758 à 767).
+//
+// La première vague calculait les fractions du conjoint (757 à 757-2). Cette
+// vague exécute ce qui les entoure et que le texte chiffre :
+//
+//   — l'option réputée faite pour l'usufruit : trois mois après l'invitation
+//     écrite d'un héritier (758-3), ou décès sans avoir pris parti (758-4) ;
+//     les droits sont incessibles tant que l'option n'est pas exercée (758-1) ;
+//   — le logement : une année de jouissance gratuite de plein droit (763),
+//     le droit viager d'habitation sauf volonté contraire exprimée par
+//     testament authentique (764), réclamé dans l'année du décès (765-1),
+//     l'imputation de sa valeur sur les droits successoraux (765), le droit
+//     d'usage du mobilier quand le logement était loué (765-2) ;
+//   — la conversion de l'usufruit en rente viagère : demandable jusqu'au
+//     partage définitif, jamais contre la volonté du conjoint pour le
+//     logement principal (760) ;
+//   — les créances alimentaires : des ascendants quand le conjoint recueille
+//     tout ou les trois quarts (758), du conjoint dans le besoin (767) — un an
+//     depuis le décès, prolongé jusqu'à l'achèvement du partage en cas
+//     d'indivision.
+//
+// « Dans le besoin » est une appréciation (jugement §47.3) ; l'occupation
+// effective du logement à titre d'habitation principale est un fait du cas.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART757,
+    CC_ART758,
+    CC_ART758_1,
+    CC_ART758_3,
+    CC_ART758_4,
+    CC_ART760,
+    CC_ART763,
+    CC_ART764,
+    CC_ART765,
+    CC_ART765_1,
+    CC_ART765_2,
+    CC_ART767,
+    DroitDuConjoint,
+    OptionDuConjoint,
+    Personne,
+    Succession,
+    conjoint_successible,
+    droits_du_conjoint,
+    option_du_conjoint,
+    ordre_appele,
+    ouverte_le,
+    presence_d_enfant_non_commun,
+    usufruit_du_conjoint,
+};
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation invitation_ecrite_a_opter_le(s: Succession, c: Personne, jour: Date) kind empirical {
+    key(s, c);
+    label fr official "jour où un héritier a invité par écrit le conjoint à exercer son option (article 758-3)";
+    label en unofficial "day an heir invited the spouse in writing to exercise the option (Article 758-3)";
+}
+pub relation invitation_option_exercee(s: Succession, e: Personne, c: Personne) kind empirical {
+    label fr official "invitation écrite du conjoint à exercer son option exercée";
+    label en unofficial "written invitation for the spouse to exercise the option exercised";
+}
+pub relation conjoint_invite_a_opter(s: Succession, e: Personne, c: Personne) kind institutional {
+    label fr official "le conjoint est invité par écrit à exercer son option (article 758-3)";
+    label en unofficial "the spouse is invited in writing to exercise the option (Article 758-3)";
+}
+pub relation heritier_inviteur(s: Succession, e: Personne) kind empirical {
+    label fr official "héritier invitant le conjoint à opter";
+    label en unofficial "heir inviting the spouse to choose";
+}
+pub relation option_conjoint_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "option du conjoint exercée par écrit";
+    label en unofficial "spouse's option exercised in writing";
+}
+pub relation option_du_conjoint_prise(s: Succession, c: Personne) kind institutional {
+    label fr official "le conjoint a pris parti par écrit (article 758-3)";
+    label en unofficial "the spouse has decided in writing (Article 758-3)";
+}
+
+@source(CC_ART760)
+rule P3InterdictionConversionLogementContreVolonte(s: Succession, c: Personne) strict {
+    label fr official "Article 760. Le juge ne peut ordonner contre la volonté du conjoint la conversion de l'usufruit du logement principal";
+    label en unofficial "Article 760. The court may not order conversion against the spouse's will";
+    when conversion_du_logement_exclue(s, c);
+    then prohibition P3PositionInterdictionConversionLogementContreVolonte {
+        bearer c;
+        action conversion_logement_exercee(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758, CC_ART767)
+rule P3PouvoirDemanderPensionSuccession(s: Succession, p: Personne) strict {
+    label fr official "Articles 758 et 767. La succession doit une pension alimentaire à cette personne";
+    label en unofficial "Articles 758 and 767. The estate owes maintenance to this person";
+    when creance_d_aliments_contre_la_succession(s, p);
+    then power P3PositionPouvoirDemanderPensionSuccession {
+        holder p;
+        over s;
+        exercise demande_pension_exercee(s, p);
+        effect pension_demandee_a_la_succession(s, p);
+        valid_when creance_d_aliments_contre_la_succession(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART763)
+rule P3PouvoirJouissanceGratuiteLogement(s: Succession, c: Personne, fin: Date) strict {
+    label fr official "Article 763. Le conjoint bénéficie pendant une année de la jouissance gratuite du logement";
+    label en unofficial "Article 763. The spouse enjoys the dwelling free of charge for one year";
+    when jouissance_gratuite_du_logement_jusqu_au(s, c, fin);
+    then power P3PositionPouvoirJouissanceGratuiteLogement {
+        holder c;
+        over s;
+        exercise jouissance_logement_exercee(s, c);
+        effect jouissance_gratuite_du_logement_exercee(s, c, fin);
+        valid_when jouissance_gratuite_du_logement_jusqu_au(s, c, fin);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART764)
+rule P3PouvoirDroitHabitationConjoint(s: Succession, c: Personne) strict {
+    label fr official "Article 764. Le conjoint a un droit d'habitation et un droit d'usage sur le mobilier";
+    label en unofficial "Article 764. The spouse has habitation and use rights";
+    when droit_viager_d_habitation(s, c);
+    then power P3PositionPouvoirDroitHabitationConjoint {
+        holder c;
+        over s;
+        exercise droit_habitation_exerce(s, c);
+        effect droit_d_habitation_mis_en_oeuvre(s, c);
+        valid_when droit_viager_d_habitation(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART765_1)
+rule P3PouvoirReclamerDroitViager(s: Succession, c: Personne) strict {
+    label fr official "Article 765-1. Le conjoint peut manifester sa volonté de bénéficier du droit viager";
+    label en unofficial "Article 765-1. The spouse may express the wish to benefit from the life right";
+    when droit_viager_reclame_a_temps(s, c);
+    then power P3PositionPouvoirReclamerDroitViager {
+        holder c;
+        over s;
+        exercise reclamation_droit_viager_exercee(s, c);
+        effect benefice_du_droit_viager_reclame(s, c);
+        valid_when droit_viager_reclame_a_temps(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART765)
+rule P3PouvoirDemanderComplementDroitViager(s: Succession, c: Personne) strict {
+    label fr official "Article 765. Le conjoint prend le complément sur les biens existants";
+    label en unofficial "Article 765. The spouse takes the balance from existing assets";
+    when complement_sur_les_biens_existants(s, c);
+    then power P3PositionPouvoirDemanderComplementDroitViager {
+        holder c;
+        over s;
+        exercise complement_droit_viager_exerce(s, c);
+        effect complement_pris_sur_les_biens_existants(s, c);
+        valid_when complement_sur_les_biens_existants(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART765_2)
+rule P3PouvoirUsageMobilierConjoint(s: Succession, c: Personne) strict {
+    label fr official "Article 765-2. Le conjoint bénéficie du droit d'usage sur le mobilier";
+    label en unofficial "Article 765-2. The spouse benefits from the furniture use right";
+    when droit_d_usage_du_mobilier(s, c);
+    then power P3PositionPouvoirUsageMobilierConjoint {
+        holder c;
+        over s;
+        exercise usage_mobilier_exerce(s, c);
+        effect usage_du_mobilier_mis_en_oeuvre(s, c);
+        valid_when droit_d_usage_du_mobilier(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758_3)
+rule P3PouvoirInviterConjointOption(s: Succession, e: Personne, c: Personne, jour: Date) strict {
+    label fr official "Article 758-3. Tout héritier peut inviter par écrit le conjoint à exercer son option";
+    label en unofficial "Article 758-3. Any heir may invite the spouse in writing to exercise the option";
+    when invitation_ecrite_a_opter_le(s, c, jour) and heritier_inviteur(s, e);
+    then power P3PositionPouvoirInviterConjointOption {
+        holder e;
+        over s;
+        exercise invitation_option_exercee(s, e, c);
+        effect conjoint_invite_a_opter(s, e, c);
+        valid_when invitation_ecrite_a_opter_le(s, c, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758_3)
+rule P3PouvoirExercerOptionConjoint(s: Succession, c: Personne, jour: Date) strict {
+    label fr official "Article 758-3. Le conjoint peut prendre parti par écrit dans les trois mois";
+    label en unofficial "Article 758-3. The spouse may decide in writing within three months";
+    when option_ecrite_du_conjoint_le(s, c, jour);
+    then power P3PositionPouvoirExercerOptionConjoint {
+        holder c;
+        over s;
+        exercise option_conjoint_exercee(s, c);
+        effect option_du_conjoint_prise(s, c);
+        valid_when option_ecrite_du_conjoint_le(s, c, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART765)
+rule P3InterdictionRecompenserExcedentDroitViager(s: Succession, c: Personne) strict {
+    label fr official "Article 765. Le conjoint ne récompense pas la succession lorsque le droit viager excède ses droits";
+    label en unofficial "Article 765. The spouse does not compensate the estate when the life right exceeds inheritance rights";
+    when pas_de_recompense_pour_l_excedent(s, c);
+    then prohibition P3PositionInterdictionRecompenserExcedentDroitViager {
+        bearer c;
+        action recompense_excedent_exercee(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758_1)
+rule P3InterdictionCederDroitsConjointAvantOption(s: Succession, c: Personne) strict {
+    label fr official "Article 758-1. Les droits du conjoint qui a le choix sont incessibles tant qu'il n'a pas opté";
+    label en unofficial "Article 758-1. The spouse's elective rights cannot be assigned before opting";
+    when droits_incessibles(s, c);
+    then prohibition P3PositionInterdictionCederDroitsConjointAvantOption {
+        bearer c;
+        action cession_droits_conjoint_exercee(s, c);
+        window [@2016-10-01, infinity];
+    };
+}
+pub relation option_ecrite_du_conjoint_le(s: Succession, c: Personne, jour: Date) kind empirical {
+    key(s, c);
+    label fr official "jour où le conjoint a pris parti par écrit (article 758-3)";
+    label en unofficial "day the spouse decided in writing (Article 758-3)";
+}
+pub relation aucune_option_ecrite_constatee(s: Succession, c: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté que le conjoint n'a pas pris parti par écrit (article 758-3)";
+    label en unofficial "it is established that the spouse did not decide in writing (Article 758-3)";
+}
+pub relation conjoint_decede_sans_opter(s: Succession, c: Personne) kind empirical {
+    label fr official "le conjoint est décédé sans avoir pris parti (article 758-4)";
+    label en unofficial "the spouse died without having decided (Article 758-4)";
+}
+pub relation date_d_appreciation_du_conjoint(s: Succession, c: Personne, jour: Date) kind empirical {
+    key(s, c);
+    label fr official "jour auquel la situation du conjoint est appréciée";
+    label en unofficial "day on which the spouse's situation is assessed";
+}
+pub relation occupait_le_logement_a_titre_principal(s: Succession, c: Personne) kind empirical {
+    label fr official "à l'époque du décès, le conjoint occupait effectivement le logement à titre d'habitation principale (articles 763, 764)";
+    label en unofficial "at death, the spouse actually occupied the dwelling as main residence (Articles 763, 764)";
+}
+pub relation logement_des_epoux_ou_de_la_succession(s: Succession) kind empirical {
+    label fr official "le logement appartenait aux époux ou dépendait totalement de la succession (articles 763, 764)";
+    label en unofficial "the dwelling belonged to the spouses or wholly to the estate (Articles 763, 764)";
+}
+pub relation logement_loue_ou_indivis(s: Succession) kind empirical {
+    label fr official "l'habitation était assurée par un bail à loyer ou un logement appartenant pour partie indivise au défunt (articles 763, 765-2)";
+    label en unofficial "housing was provided by a residential lease or a dwelling partly jointly owned by the deceased (Articles 763, 765-2)";
+}
+pub relation privation_par_testament_authentique(s: Succession, c: Personne) kind empirical {
+    label fr official "le défunt a privé le conjoint du droit viager par testament authentique (articles 764, 971)";
+    label en unofficial "the deceased deprived the spouse of the life right by authentic will (Articles 764, 971)";
+}
+pub relation volonte_de_beneficier_du_droit_viager_le(s: Succession, c: Personne, jour: Date) kind empirical {
+    key(s, c);
+    label fr official "jour où le conjoint a manifesté sa volonté de bénéficier des droits d'habitation et d'usage (article 765-1)";
+    label en unofficial "day the spouse expressed the wish to benefit from the rights of habitation and use (Article 765-1)";
+}
+pub relation valeur_du_droit_viager(s: Succession, c: Personne, montant: Money) kind empirical {
+    key(s, c);
+    label fr official "valeur des droits d'habitation et d'usage (article 765)";
+    label en unofficial "value of the rights of habitation and use (Article 765)";
+}
+pub relation valeur_des_droits_successoraux(s: Succession, c: Personne, montant: Money) kind empirical {
+    key(s, c);
+    label fr official "valeur des droits successoraux recueillis par le conjoint (article 765)";
+    label en unofficial "value of the inheritance rights taken by the spouse (Article 765)";
+}
+pub relation demande_de_conversion_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la demande de conversion de l'usufruit en rente viagère (article 760)";
+    label en unofficial "day conversion of the usufruct into a life annuity was requested (Article 760)";
+}
+pub relation partage_definitif_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour du partage définitif, ou de l'achèvement du partage (articles 758, 760, 767)";
+    label en unofficial "day of the final partition, or of its completion (Articles 758, 760, 767)";
+}
+pub relation conversion_du_logement_refusee_par_le_conjoint(s: Succession, c: Personne) kind empirical {
+    label fr official "le conjoint refuse la conversion de l'usufruit du logement qu'il occupe à titre de résidence principale et du mobilier (article 760, alinéa 3)";
+    label en unofficial "the spouse refuses conversion of the usufruct of the main-residence dwelling and furniture (Article 760, paragraph 3)";
+}
+pub relation indivision_jusqu_au_partage(s: Succession) kind empirical {
+    label fr official "les héritiers sont en indivision jusqu'au partage (articles 758, 767)";
+    label en unofficial "the heirs remain in joint ownership until partition (Articles 758, 767)";
+}
+pub relation ascendant_autre_que_pere_et_mere(s: Succession, a: Personne) kind empirical {
+    label fr official "ascendant du défunt autre que les père et mère (article 758)";
+    label en unofficial "ascendant of the deceased other than the father and mother (Article 758)";
+}
+
+@source(CC_ART767)
+pub external judgment relation dans_le_besoin(s: Succession, p: Personne) {
+    authority Court;
+    label fr official "la personne est dans le besoin (articles 758, 767)";
+    label en unofficial "the person is in need (Articles 758, 767)";
+}
+
+// --- Résultats -------------------------------------------------------------------------------
+
+pub relation fin_du_delai_d_option_du_conjoint(s: Succession, c: Personne, jour: Date) kind derived {
+    key(s, c);
+    label fr official "dernier jour des trois mois suivant l'invitation écrite à opter (article 758-3)";
+    label en unofficial "last day of the three months following the written invitation to opt (Article 758-3)";
+}
+pub relation option_reputee_pour_l_usufruit(s: Succession, c: Personne) kind derived {
+    label fr official "le conjoint est réputé avoir opté pour l'usufruit (articles 758-3, 758-4)";
+    label en unofficial "the spouse is deemed to have chosen the usufruct (Articles 758-3, 758-4)";
+}
+pub relation droits_incessibles(s: Succession, c: Personne) kind derived {
+    label fr official "les droits du conjoint qui a le choix sont incessibles tant qu'il n'a pas opté (article 758-1)";
+    label en unofficial "the rights of a spouse with a choice cannot be assigned until he has opted (Article 758-1)";
+}
+pub relation jouissance_gratuite_du_logement_jusqu_au(s: Succession, c: Personne, jour: Date) kind derived {
+    key(s, c);
+    label fr official "le conjoint a de plein droit, pendant une année, la jouissance gratuite du logement et du mobilier (article 763)";
+    label en unofficial "the spouse has, by operation of law and for one year, free enjoyment of the dwelling and furniture (Article 763)";
+}
+pub relation jouissance_gratuite_du_logement_exercee(s: Succession, c: Personne, jour: Date) kind institutional {
+    label fr official "le conjoint jouit gratuitement du logement jusqu'au terme de l'année (article 763)";
+    label en unofficial "the spouse enjoys the dwelling free of charge until the end of the year (Article 763)";
+}
+pub relation loyers_rembourses_jusqu_au(s: Succession, c: Personne, jour: Date) kind derived {
+    key(s, c);
+    label fr official "les loyers ou l'indemnité d'occupation sont remboursés par la succession pendant l'année (article 763, alinéa 2)";
+    label en unofficial "rent or occupation indemnity is reimbursed by the estate during the year (Article 763, paragraph 2)";
+}
+pub relation droit_viager_d_habitation(s: Succession, c: Personne) kind derived {
+    label fr official "le conjoint a sur le logement, jusqu'à son décès, un droit d'habitation et un droit d'usage sur le mobilier (article 764)";
+    label en unofficial "the spouse has, until death, a right of habitation in the dwelling and a right of use of the furniture (Article 764)";
+}
+pub relation droit_d_habitation_mis_en_oeuvre(s: Succession, c: Personne) kind institutional {
+    label fr official "le conjoint a mis en œuvre son droit d'habitation et son droit d'usage sur le mobilier (article 764)";
+    label en unofficial "the spouse has put into effect the rights of habitation and use of the furniture (Article 764)";
+}
+pub relation fin_du_delai_pour_le_droit_viager(s: Succession, c: Personne, jour: Date) kind derived {
+    key(s, c);
+    label fr official "dernier jour de l'année pour manifester la volonté de bénéficier du droit viager (article 765-1)";
+    label en unofficial "last day of the year to express the wish to benefit from the life right (Article 765-1)";
+}
+pub relation droit_viager_reclame_a_temps(s: Succession, c: Personne) kind derived {
+    label fr official "le conjoint a manifesté sa volonté dans l'année du décès (article 765-1)";
+    label en unofficial "the spouse expressed the wish within a year of death (Article 765-1)";
+}
+pub relation benefice_du_droit_viager_reclame(s: Succession, c: Personne) kind institutional {
+    label fr official "le conjoint a manifesté sa volonté de bénéficier du droit viager (article 765-1)";
+    label en unofficial "the spouse has expressed the wish to benefit from the life right (Article 765-1)";
+}
+pub relation complement_sur_les_biens_existants(s: Succession, c: Personne) kind derived {
+    label fr official "la valeur du droit viager est inférieure aux droits successoraux : le conjoint prend le complément sur les biens existants (article 765, alinéa 2)";
+    label en unofficial "the life right is worth less than the inheritance rights: the spouse takes the balance from existing assets (Article 765, paragraph 2)";
+}
+pub relation complement_pris_sur_les_biens_existants(s: Succession, c: Personne) kind institutional {
+    label fr official "le conjoint a pris le complément sur les biens existants (article 765, alinéa 2)";
+    label en unofficial "the spouse has taken the balance from the existing assets (Article 765, paragraph 2)";
+}
+pub relation pas_de_recompense_pour_l_excedent(s: Succession, c: Personne) kind derived {
+    label fr official "la valeur du droit viager excède les droits successoraux : le conjoint ne récompense pas la succession (article 765, alinéa 3)";
+    label en unofficial "the life right is worth more than the inheritance rights: the spouse owes no compensation to the estate (Article 765, paragraph 3)";
+}
+pub relation droit_d_usage_du_mobilier(s: Succession, c: Personne) kind derived {
+    label fr official "le logement était loué : le conjoint bénéficie du droit d'usage sur le mobilier compris dans la succession (article 765-2)";
+    label en unofficial "the dwelling was rented: the spouse has a right of use of the furniture in the estate (Article 765-2)";
+}
+pub relation usage_du_mobilier_mis_en_oeuvre(s: Succession, c: Personne) kind institutional {
+    label fr official "le conjoint a mis en œuvre son droit d'usage sur le mobilier (article 765-2)";
+    label en unofficial "the spouse has put into effect the right of use of the furniture (Article 765-2)";
+}
+pub relation demande_de_conversion_recevable(s: Succession) kind derived {
+    label fr official "la demande de conversion de l'usufruit est introduite avant le partage définitif (article 760, alinéa 1)";
+    label en unofficial "the request to convert the usufruct is brought before the final partition (Article 760, paragraph 1)";
+}
+pub relation conversion_du_logement_exclue(s: Succession, c: Personne) kind derived {
+    label fr official "le juge ne peut ordonner contre la volonté du conjoint la conversion de l'usufruit du logement principal et du mobilier (article 760, alinéa 3)";
+    label en unofficial "the court may not order conversion of the usufruct of the main dwelling and furniture against the spouse's will (Article 760, paragraph 3)";
+}
+pub relation demande_pension_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "demande de pension alimentaire exercée";
+    label en unofficial "maintenance claim exercised";
+}
+pub relation jouissance_logement_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "jouissance gratuite du logement exercée";
+    label en unofficial "free enjoyment of the dwelling exercised";
+}
+pub relation droit_habitation_exerce(s: Succession, c: Personne) kind empirical {
+    label fr official "droit viager d'habitation exercé";
+    label en unofficial "life habitation right exercised";
+}
+pub relation reclamation_droit_viager_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "réclamation du droit viager exercée";
+    label en unofficial "life right claim exercised";
+}
+pub relation conversion_logement_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "conversion du logement exercée contre la volonté du conjoint";
+    label en unofficial "dwelling conversion exercised against the spouse's will";
+}
+pub relation complement_droit_viager_exerce(s: Succession, c: Personne) kind empirical {
+    label fr official "complément sur les biens existants exercé";
+    label en unofficial "balance from existing assets exercised";
+}
+pub relation usage_mobilier_exerce(s: Succession, c: Personne) kind empirical {
+    label fr official "droit d'usage du mobilier exercé";
+    label en unofficial "furniture use right exercised";
+}
+pub relation cession_droits_conjoint_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "cession des droits du conjoint exercée";
+    label en unofficial "assignment of spouse rights exercised";
+}
+pub relation recompense_excedent_exercee(s: Succession, c: Personne) kind empirical {
+    label fr official "récompense de l'excédent du droit viager exercée";
+    label en unofficial "compensation for excess life right exercised";
+}
+pub relation fin_du_delai_de_la_pension(s: Succession, p: Personne, jour: Date) kind derived {
+    label fr official "dernier jour pour réclamer la pension alimentaire : un an depuis le décès, prolongé jusqu'à l'achèvement du partage en cas d'indivision (articles 758, 767)";
+    label en unofficial "last day to claim maintenance: one year from death, extended until partition is complete where there is joint ownership (Articles 758, 767)";
+}
+pub relation creance_d_aliments_contre_la_succession(s: Succession, p: Personne) kind derived {
+    label fr official "la succession doit une pension alimentaire à cette personne (articles 758, 767)";
+    label en unofficial "the estate owes maintenance to this person (Articles 758, 767)";
+}
+pub relation pension_demandee_a_la_succession(s: Succession, p: Personne) kind institutional {
+    label fr official "la pension alimentaire est réclamée à la succession (articles 758 et 767)";
+    label en unofficial "maintenance is claimed from the estate (Articles 758 and 767)";
+}
+
+// --- Articles 758-1, 758-3, 758-4 : l'option réputée --------------------------------------------
+
+@source(CC_ART758_3) {
+    rule TroisMoisApresLInvitation(s: Succession, c: Personne, invitation: Date) strict {
+        label fr official "Article 758-3. Tout héritier peut inviter par écrit le conjoint à exercer son option ; le conjoint dispose de trois mois";
+        label en unofficial "Article 758-3. Any heir may invite the spouse in writing to exercise the option; the spouse has three months";
+        when invitation_ecrite_a_opter_le(s, c, invitation);
+        then fin_du_delai_d_option_du_conjoint(s, c, add_calendar_period(invitation, 3 calendar_month));
+    }
+    rule OptionEcriteTardive(s: Succession, c: Personne, fin: Date, option: Date) strict {
+        label fr official "Article 758-3. Faute d'avoir pris parti par écrit dans les trois mois, le conjoint est réputé avoir opté pour l'usufruit";
+        label en unofficial "Article 758-3. Failing a written decision within three months, the spouse is deemed to have chosen the usufruct";
+        when fin_du_delai_d_option_du_conjoint(s, c, fin) and option_ecrite_du_conjoint_le(s, c, option) and option > fin;
+        then option_reputee_pour_l_usufruit(s, c);
+    }
+    rule AucuneOptionEcrite(s: Succession, c: Personne, fin: Date, examen: Date) strict {
+        label fr official "Article 758-3. L'absence constatée de toute option écrite à l'expiration des trois mois emporte la même présomption";
+        label en unofficial "Article 758-3. An established absence of any written option when the three months expire has the same effect";
+        when fin_du_delai_d_option_du_conjoint(s, c, fin) and aucune_option_ecrite_constatee(s, c)
+            and date_d_appreciation_du_conjoint(s, c, examen) and examen > fin;
+        then option_reputee_pour_l_usufruit(s, c);
+    }
+}
+
+@source(CC_ART758_4)
+rule DecesSansOpter(s: Succession, c: Personne) strict {
+    label fr official "Article 758-4. Le conjoint est réputé avoir opté pour l'usufruit s'il décède sans avoir pris parti";
+    label en unofficial "Article 758-4. The spouse is deemed to have chosen the usufruct if he dies without having decided";
+    when conjoint_decede_sans_opter(s, c);
+    then option_reputee_pour_l_usufruit(s, c);
+}
+
+@source(CC_ART757, CC_ART758_3, CC_ART758_4)
+rule UsufruitParOptionReputee(s: Succession, c: Personne) strict {
+    label fr official "Articles 757, 758-3 et 758-4. L'option réputée pour l'usufruit donne au conjoint l'usufruit de la totalité des biens existants";
+    label en unofficial "Articles 757, 758-3 and 758-4. The deemed choice of usufruct gives the spouse the usufruct of all existing property";
+    when conjoint_successible(s, c) and ordre_appele(s, 1) and not_known(presence_d_enfant_non_commun(s))
+        and option_reputee_pour_l_usufruit(s, c) and not_known(option_du_conjoint(s, c, QuartEnPropriete));
+    then droits_du_conjoint(s, c, UsufruitDeLaTotalite);
+}
+
+@source(CC_ART758_1)
+rule DroitsIncessiblesAvantLOption(s: Succession, c: Personne) strict {
+    label fr official "Article 758-1. Lorsque le conjoint a le choix de la propriété ou de l'usufruit, ses droits sont incessibles tant qu'il n'a pas exercé son option";
+    label en unofficial "Article 758-1. Where the spouse may choose ownership or usufruct, his rights cannot be assigned until he exercises the option";
+    when conjoint_successible(s, c) and ordre_appele(s, 1) and not_known(presence_d_enfant_non_commun(s))
+        and not_known(option_exercee_par_le_conjoint(s, c))
+        and not_known(option_reputee_pour_l_usufruit(s, c));
+    then droits_incessibles(s, c);
+}
+
+pub relation option_exercee_par_le_conjoint(s: Succession, c: Personne) kind derived {
+    label fr official "le conjoint a exercé son option (article 757)";
+    label en unofficial "the spouse exercised the option (Article 757)";
+}
+
+@source(CC_ART757)
+rule LeConjointAOpte(s: Succession, c: Personne, choix: OptionDuConjoint) strict {
+    label fr official "Article 757. Le conjoint a choisi entre le quart en propriété et l'usufruit de la totalité";
+    label en unofficial "Article 757. The spouse chose between a quarter in ownership and the usufruct of the whole";
+    when option_du_conjoint(s, c, choix);
+    then option_exercee_par_le_conjoint(s, c);
+}
+
+// --- Article 760 : conversion de l'usufruit --------------------------------------------------------
+
+@source(CC_ART760) {
+    rule ConversionDemandeeAvantLePartage(s: Succession, demande: Date, partage: Date) strict {
+        label fr official "Article 760, alinéa 1. La demande de conversion peut être introduite jusqu'au partage définitif";
+        label en unofficial "Article 760, paragraph 1. The conversion request may be brought until the final partition";
+        when demande_de_conversion_le(s, demande) and partage_definitif_le(s, partage) and demande <= partage;
+        then demande_de_conversion_recevable(s);
+    }
+    rule ConversionDemandeeSansPartage(s: Succession, demande: Date) strict {
+        label fr official "Article 760, alinéa 1. Tant qu'aucun partage définitif n'est intervenu, la demande est recevable";
+        label en unofficial "Article 760, paragraph 1. While no final partition has occurred, the request is admissible";
+        when demande_de_conversion_le(s, demande) and not_known(partage_intervenu(s));
+        then demande_de_conversion_recevable(s);
+    }
+    rule LogementPrincipalHorsConversionForcee(s: Succession, c: Personne) strict {
+        label fr official "Article 760, alinéa 3. Le juge ne peut ordonner contre la volonté du conjoint la conversion de l'usufruit portant sur le logement qu'il occupe à titre de résidence principale, ni sur le mobilier";
+        label en unofficial "Article 760, paragraph 3. The court may not order, against the spouse's will, conversion of the usufruct of the dwelling he occupies as main residence, nor of the furniture";
+        when usufruit_du_conjoint(s, c) and occupait_le_logement_a_titre_principal(s, c)
+            and conversion_du_logement_refusee_par_le_conjoint(s, c);
+        then conversion_du_logement_exclue(s, c);
+    }
+    rule PartageIntervenu(s: Succession, partage: Date) strict {
+        label fr official "Article 760. Un partage définitif est intervenu";
+        label en unofficial "Article 760. A final partition has taken place";
+        when partage_definitif_le(s, partage);
+        then partage_intervenu(s);
+    }
+}
+
+pub relation partage_intervenu(s: Succession) kind derived {
+    label fr official "un partage définitif est intervenu (article 760)";
+    label en unofficial "a final partition has taken place (Article 760)";
+}
+
+// --- Articles 763 à 765-2 : le logement -------------------------------------------------------------
+
+@source(CC_ART763) {
+    rule UneAnneeDeJouissanceGratuite(s: Succession, c: Personne, ouverture: Date) strict {
+        label fr official "Article 763, alinéa 1. Le conjoint qui occupait effectivement, à titre d'habitation principale, un logement des époux ou de la succession en a de plein droit, pendant une année, la jouissance gratuite";
+        label en unofficial "Article 763, paragraph 1. A spouse who actually occupied, as main residence, a dwelling of the spouses or the estate has, by operation of law, free enjoyment of it for one year";
+        when conjoint_successible(s, c) and occupait_le_logement_a_titre_principal(s, c)
+            and logement_des_epoux_ou_de_la_succession(s) and ouverte_le(s, ouverture);
+        then jouissance_gratuite_du_logement_jusqu_au(s, c, add_calendar_period(ouverture, 1 calendar_year));
+    }
+    rule LoyersRemboursesPendantLAnnee(s: Succession, c: Personne, ouverture: Date) strict {
+        label fr official "Article 763, alinéa 2. Si l'habitation était assurée par un bail ou un logement partiellement indivis, les loyers ou l'indemnité d'occupation sont remboursés par la succession pendant l'année";
+        label en unofficial "Article 763, paragraph 2. If housing was provided by a lease or a partly joint dwelling, the rent or occupation indemnity is reimbursed by the estate during the year";
+        when conjoint_successible(s, c) and occupait_le_logement_a_titre_principal(s, c)
+            and logement_loue_ou_indivis(s) and ouverte_le(s, ouverture);
+        then loyers_rembourses_jusqu_au(s, c, add_calendar_period(ouverture, 1 calendar_year));
+    }
+}
+
+@source(CC_ART764)
+rule DroitViagerDHabitation(s: Succession, c: Personne) strict {
+    label fr official "Article 764. Sauf volonté contraire exprimée par testament authentique, le conjoint qui occupait le logement des époux ou de la succession a sur ce logement, jusqu'à son décès, un droit d'habitation et un droit d'usage sur le mobilier";
+    label en unofficial "Article 764. Save contrary will expressed by authentic will, the spouse who occupied the dwelling of the spouses or the estate has, until death, a right of habitation and a right of use of the furniture";
+    when conjoint_successible(s, c) and occupait_le_logement_a_titre_principal(s, c)
+        and logement_des_epoux_ou_de_la_succession(s)
+        and not_known(privation_par_testament_authentique(s, c));
+    then droit_viager_d_habitation(s, c);
+}
+
+@source(CC_ART765_1) {
+    rule UnAnPourReclamerLeDroitViager(s: Succession, c: Personne, ouverture: Date) strict {
+        label fr official "Article 765-1. Le conjoint dispose d'un an à partir du décès pour manifester sa volonté de bénéficier de ces droits";
+        label en unofficial "Article 765-1. The spouse has one year from death to express the wish to benefit from these rights";
+        when droit_viager_d_habitation(s, c) and ouverte_le(s, ouverture);
+        then fin_du_delai_pour_le_droit_viager(s, c, add_calendar_period(ouverture, 1 calendar_year));
+    }
+    rule DroitViagerReclameATemps(s: Succession, c: Personne, fin: Date, volonte: Date) strict {
+        label fr official "Article 765-1. La volonté manifestée dans l'année conserve le droit viager";
+        label en unofficial "Article 765-1. A wish expressed within the year keeps the life right";
+        when fin_du_delai_pour_le_droit_viager(s, c, fin) and volonte_de_beneficier_du_droit_viager_le(s, c, volonte)
+            and volonte <= fin;
+        then droit_viager_reclame_a_temps(s, c);
+    }
+}
+
+@source(CC_ART765) {
+    rule ComplementSurLesBiensExistants(s: Succession, c: Personne, viager: Money, droits: Money) strict {
+        label fr official "Article 765, alinéa 2. Si la valeur des droits d'habitation et d'usage est inférieure à celle des droits successoraux, le conjoint peut prendre le complément sur les biens existants";
+        label en unofficial "Article 765, paragraph 2. If the rights of habitation and use are worth less than the inheritance rights, the spouse may take the balance from existing assets";
+        when valeur_du_droit_viager(s, c, viager) and valeur_des_droits_successoraux(s, c, droits) and viager < droits;
+        then complement_sur_les_biens_existants(s, c);
+    }
+    rule PasDeRecompensePourLExcedent(s: Succession, c: Personne, viager: Money, droits: Money) strict {
+        label fr official "Article 765, alinéa 3. Si la valeur des droits d'habitation et d'usage est supérieure, le conjoint n'est pas tenu de récompenser la succession à raison de l'excédent";
+        label en unofficial "Article 765, paragraph 3. If the rights of habitation and use are worth more, the spouse need not compensate the estate for the excess";
+        when valeur_du_droit_viager(s, c, viager) and valeur_des_droits_successoraux(s, c, droits) and viager > droits;
+        then pas_de_recompense_pour_l_excedent(s, c);
+    }
+}
+
+@source(CC_ART765_2)
+rule UsageDuMobilierQuandLeLogementEtaitLoue(s: Succession, c: Personne) strict {
+    label fr official "Article 765-2. Lorsque le logement faisait l'objet d'un bail à loyer, le conjoint qui l'occupait à titre d'habitation principale bénéficie du droit d'usage sur le mobilier compris dans la succession";
+    label en unofficial "Article 765-2. Where the dwelling was let, the spouse who occupied it as main residence has a right of use of the furniture in the estate";
+    when conjoint_successible(s, c) and occupait_le_logement_a_titre_principal(s, c) and logement_loue_ou_indivis(s);
+    then droit_d_usage_du_mobilier(s, c);
+}
+
+// --- Articles 758 et 767 : les pensions alimentaires --------------------------------------------------
+
+@source(CC_ART767) {
+    rule PensionDuConjointDansLeBesoin(s: Succession, c: Personne) defeasible {
+        label fr official "Article 767, alinéa 1. La succession de l'époux prédécédé doit une pension au conjoint successible qui est dans le besoin";
+        label en unofficial "Article 767, paragraph 1. The predeceased spouse's estate owes maintenance to the surviving spouse in need";
+        when conjoint_successible(s, c) and dans_le_besoin(s, c);
+        then creance_d_aliments_contre_la_succession(s, c);
+    }
+    rule UnAnPourLaPensionDuConjoint(s: Succession, c: Personne, ouverture: Date) strict {
+        label fr official "Article 767, alinéa 1. Le délai pour la réclamer est d'un an à partir du décès";
+        label en unofficial "Article 767, paragraph 1. The period to claim it is one year from death";
+        when conjoint_successible(s, c) and ouverte_le(s, ouverture) and not_known(indivision_jusqu_au_partage(s));
+        then fin_du_delai_de_la_pension(s, c, add_calendar_period(ouverture, 1 calendar_year));
+    }
+    rule PensionDuConjointProlongeeJusquAuPartage(s: Succession, c: Personne, ouverture: Date, partage: Date) strict {
+        label fr official "Article 767, alinéa 1. Le délai se prolonge, en cas d'indivision, jusqu'à l'achèvement du partage";
+        label en unofficial "Article 767, paragraph 1. Where there is joint ownership, the period runs until partition is complete";
+        when conjoint_successible(s, c) and ouverte_le(s, ouverture) and indivision_jusqu_au_partage(s)
+            and partage_definitif_le(s, partage) and partage > add_calendar_period(ouverture, 1 calendar_year);
+        then fin_du_delai_de_la_pension(s, c, partage);
+    }
+}
+
+@source(CC_ART758)
+rule PensionDesAscendants(s: Succession, c: Personne, a: Personne) defeasible {
+    label fr official "Article 758, alinéa 1. Lorsque le conjoint recueille la totalité ou les trois quarts des biens, les ascendants autres que les père et mère, dans le besoin, ont une créance d'aliments contre la succession";
+    label en unofficial "Article 758, paragraph 1. Where the spouse takes all or three quarters of the property, ascendants other than the father and mother who are in need have a maintenance claim against the estate";
+    when droits_du_conjoint(s, c, TotaliteEnPropriete)
+        and ascendant_autre_que_pere_et_mere(s, a) and dans_le_besoin(s, a);
+    then creance_d_aliments_contre_la_succession(s, a);
+}

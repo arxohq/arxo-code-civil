@@ -1,0 +1,194 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+test "urn:positions:personnes:137:0:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": acte_disposition_interdit_pendant_demande(entity_ref("urn:fr:cc:personnes:p"), entity_ref("urn:fr:cc:personnes:administrateur")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionActeDispositionDemande, ACTIVE);
+    expect position(MaintenanceInterdictionActeDispositionDemandeDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:0:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": acte_disposition_interdit_pendant_demande(entity_ref("urn:fr:cc:personnes:p"), entity_ref("urn:fr:cc:personnes:administrateur")) { origin case_input; }
+        assert "action": acte_disposition_pendant_demande(entity_ref("urn:fr:cc:personnes:p"), entity_ref("urn:fr:cc:personnes:administrateur")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionActeDispositionDemande, VIOLATED);
+    expect position(MaintenanceInterdictionActeDispositionDemandeDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:1:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": charge_tutelaire_interdite(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionExercerChargeTutelaire, ACTIVE);
+    expect position(MaintenanceInterdictionExercerChargeTutelaireDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:1:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": charge_tutelaire_interdite(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": exercer_charge_tutelaire_interdite(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionExercerChargeTutelaire, VIOLATED);
+    expect position(MaintenanceInterdictionExercerChargeTutelaireDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:2:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": titulaire_charge(entity_ref("urn:fr:cc:personnes:c"), entity_ref("urn:fr:cc:personnes:titulaire")) { origin case_input; }
+        assert "condition1": charge_tutelaire_intransmissible(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionTransmettreChargeTutelaire, ACTIVE);
+    expect position(MaintenanceInterdictionTransmettreChargeTutelaireDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:2:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": titulaire_charge(entity_ref("urn:fr:cc:personnes:c"), entity_ref("urn:fr:cc:personnes:titulaire")) { origin case_input; }
+        assert "condition1": charge_tutelaire_intransmissible(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+        assert "action": transmettre_charge_tutelaire(entity_ref("urn:fr:cc:personnes:c"), entity_ref("urn:fr:cc:personnes:titulaire")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionTransmettreChargeTutelaire, VIOLATED);
+    expect position(MaintenanceInterdictionTransmettreChargeTutelaireDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:3:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": tuteur_de(entity_ref("urn:fr:cc:personnes:tuteur"), entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "condition1": mineur_non_emancipe(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(TransfererBiensMineurEnFiducie, ACTIVE);
+    expect position(MaintenanceTransfererBiensMineurEnFiducieDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:3:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": tuteur_de(entity_ref("urn:fr:cc:personnes:tuteur"), entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "condition1": mineur_non_emancipe(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": autorisation_administration_entreprise(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(TransfererBiensMineurEnFiducie, VIOLATED);
+    expect position(MaintenanceTransfererBiensMineurEnFiducieDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:4:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": acte_interdit_par_tuteur(entity_ref("urn:fr:cc:personnes:a"), entity_ref("urn:fr:cc:personnes:tuteur")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionActeTuteur, ACTIVE);
+    expect position(MaintenanceInterdictionActeTuteurDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:4:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": acte_interdit_par_tuteur(entity_ref("urn:fr:cc:personnes:a"), entity_ref("urn:fr:cc:personnes:tuteur")) { origin case_input; }
+        assert "action": accomplir_acte_interdit_tuteur(entity_ref("urn:fr:cc:personnes:a"), entity_ref("urn:fr:cc:personnes:tuteur")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionActeTuteur, VIOLATED);
+    expect position(MaintenanceInterdictionActeTuteurDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:5:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": decheance_rendrait_apatride(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionDecheanceApatridie, ACTIVE);
+    expect position(MaintenanceInterdictionDecheanceApatridieDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:5:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": decheance_rendrait_apatride(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": prononcer_decheance(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionDecheanceApatridie, VIOLATED);
+    expect position(MaintenanceInterdictionDecheanceApatridieDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:6:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": decheance_hors_fenetres_legales(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionDecheanceHorsDelai, ACTIVE);
+    expect position(MaintenanceInterdictionDecheanceHorsDelaiDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:6:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": decheance_hors_fenetres_legales(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": prononcer_decheance(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionDecheanceHorsDelai, VIOLATED);
+    expect position(MaintenanceInterdictionDecheanceHorsDelaiDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:7:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": intervention_sur(entity_ref("urn:fr:cc:personnes:i"), entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(PorterAtteinteAuCorps, ACTIVE);
+    expect position(MaintenancePorterAtteinteAuCorpsDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:7:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": intervention_sur(entity_ref("urn:fr:cc:personnes:i"), entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": porter_atteinte_corps_exercee(entity_ref("urn:fr:cc:personnes:i"), entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(PorterAtteinteAuCorps, VIOLATED);
+    expect position(MaintenancePorterAtteinteAuCorpsDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:8:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": convention_donne_valeur_patrimoniale_au_corps(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionValeurPatrimoniale, ACTIVE);
+    expect position(MaintenanceInterdictionValeurPatrimonialeDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:8:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": convention_donne_valeur_patrimoniale_au_corps(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+        assert "action": conclure_convention_valeur_patrimoniale(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionValeurPatrimoniale, VIOLATED);
+    expect position(MaintenanceInterdictionValeurPatrimonialeDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:9:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": convention_gestation_pour_autrui(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionGestationPourAutrui, ACTIVE);
+    expect position(MaintenanceInterdictionGestationPourAutruiDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:9:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": convention_gestation_pour_autrui(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+        assert "action": conclure_convention_gestation(entity_ref("urn:fr:cc:personnes:c")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionGestationPourAutrui, VIOLATED);
+    expect position(MaintenanceInterdictionGestationPourAutruiDuty, VIOLATED);
+}
+
+test "urn:positions:personnes:137:10:a" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": examen_genetique_hors_finalite(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionExamenGenetiqueHorsFinalite, ACTIVE);
+    expect position(MaintenanceInterdictionExamenGenetiqueHorsFinaliteDuty, ACTIVE);
+}
+
+test "urn:positions:personnes:137:10:v" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "condition0": examen_genetique_hors_finalite(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+        assert "action": examiner_caracteristiques_genetiques(entity_ref("urn:fr:cc:personnes:p")) { origin case_input; }
+    }
+    evaluate positions(); expect position(InterdictionExamenGenetiqueHorsFinalite, VIOLATED);
+    expect position(MaintenanceInterdictionExamenGenetiqueHorsFinaliteDuty, VIOLATED);
+}

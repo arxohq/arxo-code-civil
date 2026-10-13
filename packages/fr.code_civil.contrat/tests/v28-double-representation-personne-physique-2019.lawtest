@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1161, rédaction de 2018 : le représenté étant une personne physique, l'opposition d'intérêts rend l'acte de 2019 nul.
+test "urn:query:fr-code-civil-contrat-v28-double-representation-personne-physique-2019" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v28"), @2019-08-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:v28"), @2019-08-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:v28"), "1161") { origin case_input; }
+        assert "f4": representation_pour_le_contrat(entity_ref("urn:fr:cc:contrat:v28:r"), entity_ref("urn:fr:cc:contrat:v28")) { origin case_input; }
+        assert "f5": representant(entity_ref("urn:fr:cc:contrat:v28:r"), entity_ref("urn:fr:cc:contrat:v28:p1")) { origin case_input; }
+        assert "f6": represente(entity_ref("urn:fr:cc:contrat:v28:r"), entity_ref("urn:fr:cc:contrat:v28:p2")) { origin case_input; }
+        assert "f7": agit_pour_les_deux_parties(entity_ref("urn:fr:cc:contrat:v28:r"), entity_ref("urn:fr:cc:contrat:v28")) { origin case_input; }
+        assert "f8": agit_pour_plusieurs_parties_en_opposition_d_interets(entity_ref("urn:fr:cc:contrat:v28:r"), entity_ref("urn:fr:cc:contrat:v28")) { origin case_input; }
+        assert "f9": personne_physique(entity_ref("urn:fr:cc:contrat:v28:p2")) { origin case_input; }
+    }
+    evaluate truth(cause_de_nullite(entity_ref("urn:fr:cc:contrat:v28"), Relative));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConflitDInteretsPersonnePhysique2018);
+}

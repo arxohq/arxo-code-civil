@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2524, alinéa 2 : aucune régularisation constatée ; situation appréciée le 11 juillet 2026, au lendemain du terme.
+test "urn:query:fr-code-civil-mayotte-f19-acte-caduc-faute-de-regularisation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": acte_translatif_ou_declaratif(entity_ref("urn:fr:cc:may:ag:acte")) { origin case_input; }
+        assert "f2": acte_sous_une_autre_forme_le(entity_ref("urn:fr:cc:may:ag:acte"), @2026-01-10) { origin case_input; }
+        assert "f3": aucune_regularisation_constatee(entity_ref("urn:fr:cc:may:ag:acte")) { origin adjudicated; }
+        assert "f4": date_d_appreciation(entity_ref("urn:fr:cc:may:ag:acte"), @2026-07-11) { origin case_input; }
+    }
+    evaluate truth(acte_caduc(entity_ref("urn:fr:cc:may:ag:acte")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CaduciteFauteDeRegularisation);
+}

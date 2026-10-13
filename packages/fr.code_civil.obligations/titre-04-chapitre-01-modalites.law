@@ -1,0 +1,1152 @@
+// CHAPITRE I — LES MODALITÉS DE L'OBLIGATION (articles 1304 à 1320).
+//
+// Section 1 : l'obligation conditionnelle (1304 à 1304-7) et l'obligation à
+// terme (1305 à 1305-5). Section 2 : la pluralité d'objets — obligations
+// cumulative, alternative et facultative (1306 à 1308). Section 3 : la
+// pluralité de sujets — division de plein droit (1309), solidarité entre
+// créanciers (1311, 1312) et entre débiteurs (1310, 1313 à 1319), obligation
+// à prestation indivisible (1320).
+//
+// LES PARTS SONT DES FRACTIONS EXACTES (`Rational`), jamais des sommes : la
+// contribution de l'article 1317 se calcule en parts, et la conversion en
+// argent n'intervient qu'à la fin. La répartition de la part de l'insolvable
+// (1317, alinéa 3) est calculée en forme close : la part de chaque solvable
+// croît de sa propre part multipliée par le rapport entre le total insolvable
+// et le total solvable.
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    CC_ART1304,
+    CC_ART1304_1,
+    CC_ART1304_2,
+    CC_ART1304_3,
+    CC_ART1304_4,
+    CC_ART1304_5,
+    CC_ART1304_6,
+    CC_ART1304_7,
+    CC_ART1305,
+    CC_ART1305_1,
+    CC_ART1305_2,
+    CC_ART1305_3,
+    CC_ART1305_4,
+    CC_ART1305_5,
+    CC_ART1306,
+    CC_ART1307,
+    CC_ART1307_1,
+    CC_ART1307_2,
+    CC_ART1307_3,
+    CC_ART1307_4,
+    CC_ART1307_5,
+    CC_ART1308,
+    CC_ART1309,
+    CC_ART1310,
+    CC_ART1311,
+    CC_ART1312,
+    CC_ART1313,
+    CC_ART1314,
+    CC_ART1315,
+    CC_ART1316,
+    CC_ART1317,
+    CC_ART1318,
+    CC_ART1319,
+    CC_ART1320,
+    Condition,
+    Creance,
+    EspeceDObligationPlurale,
+    EspeceDeCondition,
+    Personne,
+    Prestation,
+    Terme,
+    a_paye_la_dette,
+    accomplissement_empeche_par_l_interesse,
+    accomplissement_provoque_par_l_interesse,
+    affaire_ne_concernant_qu_un_codebiteur,
+    choix_appartenant_au_creancier,
+    codebiteur_insolvable,
+    condition_accomplie,
+    condition_de_l_obligation,
+    condition_defaillie,
+    condition_illicite,
+    condition_stipulee_dans_l_interet_exclusif,
+    coobligation_du_debiteur,
+    echeance_du_terme,
+    espece_de_l_obligation_plurale,
+    espece_de_la_condition,
+    force_majeure_sur_la_prestation,
+    obligation_executee_en_connaissance_de_cause,
+    obligation_solidaire_entre_creanciers,
+    obligation_solidaire_entre_debiteurs,
+    part_contributive_convenue,
+    prestation_choisie,
+    prestation_de_l_obligation,
+    prestation_devenue_impossible,
+    prestation_indivisible,
+    prestation_initialement_convenue,
+    prestations_utiles_au_fur_et_a_mesure,
+    realisation_dependant_de_la_seule_volonte_du_debiteur,
+    remise_de_solidarite,
+    renonciation_a_la_condition,
+    retroactivite_convenue,
+    retroactivite_ecartee_par_convention,
+    suretes_diminuees,
+    suretes_promises_non_fournies,
+    terme_de_l_obligation,
+    terme_fixe_par_le_juge,
+    terme_stipule_en_faveur,
+};
+
+// --- Section 1 : l'obligation conditionnelle (1304 à 1304-7) --------------------------------
+
+pub relation obligation_conditionnelle(c: Creance) kind derived {
+    label fr official "l'obligation est conditionnelle : elle dépend d'un événement futur et incertain (article 1304, alinéa 1)";
+    label en unofficial "the obligation is conditional: it depends on a future and uncertain event (Article 1304, paragraph 1)";
+}
+pub relation obligation_nulle_pour_condition_illicite(c: Creance) kind derived {
+    label fr official "la condition doit être licite ; à défaut, l'obligation est nulle (article 1304-1)";
+    label en unofficial "the condition must be lawful; failing that, the obligation is void (Article 1304-1)";
+}
+pub relation obligation_nulle_pour_condition_potestative(c: Creance) kind derived {
+    label fr official "est nulle l'obligation contractée sous une condition dont la réalisation dépend de la seule volonté du débiteur (article 1304-2, première phrase)";
+    label en unofficial "an obligation contracted under a condition whose fulfilment depends on the debtor's will alone is void (Article 1304-2, first sentence)";
+}
+pub relation nullite_potestative_non_invocable(c: Creance) kind derived {
+    label fr official "cette nullité ne peut être invoquée lorsque l'obligation a été exécutée en connaissance de cause (article 1304-2, seconde phrase)";
+    label en unofficial "that nullity may not be invoked where the obligation was performed with full knowledge (Article 1304-2, second sentence)";
+}
+pub relation condition_reputee_accomplie(k: Condition) kind derived {
+    label fr official "la condition suspensive est réputée accomplie si celui qui y avait intérêt en a empêché l'accomplissement (article 1304-3, alinéa 1)";
+    label en unofficial "the suspensive condition is deemed fulfilled if the party interested prevented its fulfilment (Article 1304-3, paragraph 1)";
+}
+pub relation condition_reputee_defaillie(k: Condition) kind derived {
+    label fr official "la condition résolutoire est réputée défaillie si son accomplissement a été provoqué par la partie qui y avait intérêt (article 1304-3, alinéa 2)";
+    label en unofficial "the resolutory condition is deemed to have failed if its fulfilment was brought about by the interested party (Article 1304-3, paragraph 2)";
+}
+pub relation renonciation_valable(k: Condition, p: Personne) kind derived {
+    label fr official "une partie est libre de renoncer à la condition stipulée dans son intérêt exclusif, tant qu'elle n'est pas accomplie ou n'a pas défailli (article 1304-4)";
+    label en unofficial "a party may waive a condition stipulated in his exclusive interest so long as it is neither fulfilled nor failed (Article 1304-4)";
+}
+pub relation devoir_de_ne_pas_empecher_l_execution(c: Creance, d: Personne) kind derived {
+    label fr official "avant l'accomplissement de la condition suspensive, le débiteur doit s'abstenir de tout acte qui empêcherait la bonne exécution de l'obligation (article 1304-5, alinéa 1)";
+    label en unofficial "before the suspensive condition is fulfilled, the debtor must abstain from any act preventing due performance (Article 1304-5, paragraph 1)";
+}
+pub relation acte_conservatoire_ouvert_au_creancier(c: Creance, cr: Personne) kind derived {
+    label fr official "le créancier peut accomplir tout acte conservatoire et attaquer les actes du débiteur accomplis en fraude de ses droits (article 1304-5, alinéa 1)";
+    label en unofficial "the creditor may take any protective measure and challenge the debtor's acts done in fraud of his rights (Article 1304-5, paragraph 1)";
+}
+pub relation repetition_ouverte(c: Creance) kind derived {
+    label fr official "ce qui a été payé peut être répété tant que la condition suspensive ne s'est pas accomplie (article 1304-5, alinéa 2)";
+    label en unofficial "what has been paid may be recovered so long as the suspensive condition has not been fulfilled (Article 1304-5, paragraph 2)";
+}
+pub relation obligation_pure_et_simple(c: Creance) kind derived {
+    label fr official "l'obligation devient pure et simple à compter de l'accomplissement de la condition suspensive (article 1304-6, alinéa 1)";
+    label en unofficial "the obligation becomes unconditional from the fulfilment of the suspensive condition (Article 1304-6, paragraph 1)";
+}
+pub relation retroactivite_au_jour_du_contrat(k: Condition) kind derived {
+    label fr official "les parties peuvent prévoir que l'accomplissement de la condition rétroagira au jour du contrat (article 1304-6, alinéa 2)";
+    label en unofficial "the parties may provide that fulfilment of the condition shall relate back to the day of the contract (Article 1304-6, paragraph 2)";
+}
+pub relation chose_aux_risques_du_debiteur(c: Creance) kind derived {
+    label fr official "la chose, objet de l'obligation, demeure aux risques du débiteur, qui en conserve l'administration et a droit aux fruits jusqu'à l'accomplissement de la condition (article 1304-6, alinéa 2)";
+    label en unofficial "the thing remains at the debtor's risk; he keeps its administration and is entitled to its fruits until the condition is fulfilled (Article 1304-6, paragraph 2)";
+}
+pub relation obligation_reputee_n_avoir_jamais_existe(c: Creance) kind derived {
+    label fr official "en cas de défaillance de la condition suspensive, l'obligation est réputée n'avoir jamais existé (article 1304-6, alinéa 3)";
+    label en unofficial "if the suspensive condition fails, the obligation is deemed never to have existed (Article 1304-6, paragraph 3)";
+}
+pub relation extinction_retroactive_de_l_obligation(c: Creance) kind derived {
+    label fr official "l'accomplissement de la condition résolutoire éteint rétroactivement l'obligation, sans remettre en cause les actes conservatoires et d'administration (article 1304-7, alinéa 1)";
+    label en unofficial "fulfilment of the resolutory condition extinguishes the obligation retroactively, without calling into question protective and administrative acts (Article 1304-7, paragraph 1)";
+}
+pub relation extinction_sans_retroactivite(c: Creance) kind derived {
+    label fr official "la rétroactivité n'a pas lieu si telle est la convention des parties ou si les prestations échangées ont trouvé leur utilité au fur et à mesure de l'exécution réciproque du contrat (article 1304-7, alinéa 2)";
+    label en unofficial "retroactivity does not occur if the parties so agreed or if the exchanged performances found their use as the contract was reciprocally performed (Article 1304-7, paragraph 2)";
+}
+
+@source(CC_ART1304)
+rule ObligationConditionnelle(c: Creance, k: Condition) strict {
+    label fr official "Article 1304, alinéa 1. L'obligation est conditionnelle lorsqu'elle dépend d'un événement futur et incertain";
+    label en unofficial "Article 1304, paragraph 1. An obligation is conditional where it depends on a future and uncertain event";
+    when condition_de_l_obligation(c, k);
+    then obligation_conditionnelle(c);
+}
+
+@source(CC_ART1304_1)
+rule NulliteDeLaConditionIllicite(c: Creance, k: Condition) strict {
+    label fr official "Article 1304-1. La condition doit être licite. A défaut, l'obligation est nulle";
+    label en unofficial "Article 1304-1. The condition must be lawful. Failing that, the obligation is void";
+    when condition_de_l_obligation(c, k) and condition_illicite(k);
+    then obligation_nulle_pour_condition_illicite(c);
+}
+
+@source(CC_ART1304_2) {
+    rule NulliteDeLaConditionPotestative(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-2, première phrase. Est nulle l'obligation contractée sous une condition dont la réalisation dépend de la seule volonté du débiteur";
+        label en unofficial "Article 1304-2, first sentence. An obligation contracted under a condition whose fulfilment depends on the debtor's will alone is void";
+        when condition_de_l_obligation(c, k)
+            and realisation_dependant_de_la_seule_volonte_du_debiteur(k)
+            and not_known(obligation_executee_en_connaissance_de_cause(c));
+        then obligation_nulle_pour_condition_potestative(c);
+    }
+    rule NulliteNonInvocableApresExecution(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-2, seconde phrase. Cette nullité ne peut être invoquée lorsque l'obligation a été exécutée en connaissance de cause";
+        label en unofficial "Article 1304-2, second sentence. That nullity may not be invoked where the obligation was performed with full knowledge";
+        when condition_de_l_obligation(c, k)
+            and realisation_dependant_de_la_seule_volonte_du_debiteur(k)
+            and obligation_executee_en_connaissance_de_cause(c);
+        then nullite_potestative_non_invocable(c);
+    }
+}
+
+@source(CC_ART1304_3) {
+    rule ConditionSuspensiveReputeeAccomplie(k: Condition) strict {
+        label fr official "Article 1304-3, alinéa 1. La condition suspensive est réputée accomplie si celui qui y avait intérêt en a empêché l'accomplissement";
+        label en unofficial "Article 1304-3, paragraph 1. The suspensive condition is deemed fulfilled if the party who had an interest prevented its fulfilment";
+        when espece_de_la_condition(k, Suspensive) and accomplissement_empeche_par_l_interesse(k);
+        then condition_reputee_accomplie(k);
+    }
+    rule ConditionResolutoireReputeeDefaillie(k: Condition) strict {
+        label fr official "Article 1304-3, alinéa 2. La condition résolutoire est réputée défaillie si son accomplissement a été provoqué par la partie qui y avait intérêt";
+        label en unofficial "Article 1304-3, paragraph 2. The resolutory condition is deemed to have failed if its fulfilment was brought about by the interested party";
+        when espece_de_la_condition(k, Resolutoire) and accomplissement_provoque_par_l_interesse(k);
+        then condition_reputee_defaillie(k);
+    }
+}
+
+// L'article 1304-4 a reçu de la loi n° 2018-287 une modification de caractère
+// INTERPRÉTATIF : elle vaut depuis le 1er octobre 2016 (loi 2018-287, art. 16,
+// I, troisième phrase ; corridor `fr.code_civil.transitions`).
+@source(CC_ART1304_4)
+rule RenonciationALaCondition(k: Condition, p: Personne) strict {
+    label fr official "Article 1304-4. Une partie est libre de renoncer à la condition stipulée dans son intérêt exclusif, tant que celle-ci n'est pas accomplie ou n'a pas défailli";
+    label en unofficial "Article 1304-4. A party is free to waive a condition stipulated in his exclusive interest so long as it is neither fulfilled nor failed";
+    when condition_stipulee_dans_l_interet_exclusif(k, p) and renonciation_a_la_condition(k, p)
+        and not_known(condition_accomplie(k)) and not_known(condition_defaillie(k));
+    then renonciation_valable(k, p);
+}
+
+@source(CC_ART1304_5) {
+    rule DevoirDuDebiteurPendantLaCondition(c: Creance, k: Condition, d: Personne) strict {
+        label fr official "Article 1304-5, alinéa 1. Avant que la condition suspensive ne soit accomplie, le débiteur doit s'abstenir de tout acte qui empêcherait la bonne exécution de l'obligation";
+        label en unofficial "Article 1304-5, paragraph 1. Before the suspensive condition is fulfilled, the debtor must abstain from any act preventing due performance";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and fr.code_civil.core::debiteur(c, d) and not_known(condition_accomplie(k));
+        then devoir_de_ne_pas_empecher_l_execution(c, d);
+    }
+    rule ActesConservatoiresDuCreancier(c: Creance, k: Condition, cr: Personne) strict {
+        label fr official "Article 1304-5, alinéa 1. Le créancier peut accomplir tout acte conservatoire et attaquer les actes du débiteur accomplis en fraude de ses droits";
+        label en unofficial "Article 1304-5, paragraph 1. The creditor may take any protective measure and challenge the debtor's acts done in fraud of his rights";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and fr.code_civil.core::creancier(c, cr) and not_known(condition_accomplie(k));
+        then acte_conservatoire_ouvert_au_creancier(c, cr);
+    }
+    rule RepetitionAvantAccomplissement(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-5, alinéa 2. Ce qui a été payé peut être répété tant que la condition suspensive ne s'est pas accomplie";
+        label en unofficial "Article 1304-5, paragraph 2. What has been paid may be recovered so long as the suspensive condition has not been fulfilled";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and not_known(condition_accomplie(k));
+        then repetition_ouverte(c);
+    }
+}
+
+@source(CC_ART1304_6) {
+    rule ObligationDevenuePureEtSimple(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-6, alinéa 1. L'obligation devient pure et simple à compter de l'accomplissement de la condition suspensive";
+        label en unofficial "Article 1304-6, paragraph 1. The obligation becomes unconditional from the fulfilment of the suspensive condition";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and condition_accomplie(k);
+        then obligation_pure_et_simple(c);
+    }
+    rule ObligationPureEtSimpleParConditionReputeeAccomplie(c: Creance, k: Condition) strict {
+        label fr official "Articles 1304-3, alinéa 1, et 1304-6, alinéa 1. La condition réputée accomplie produit le même effet que la condition accomplie";
+        label en unofficial "Articles 1304-3, paragraph 1, and 1304-6, paragraph 1. A condition deemed fulfilled produces the same effect as one actually fulfilled";
+        when condition_de_l_obligation(c, k) and condition_reputee_accomplie(k);
+        then obligation_pure_et_simple(c);
+    }
+    rule RetroactiviteConvenue(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-6, alinéa 2. Les parties peuvent prévoir que l'accomplissement de la condition rétroagira au jour du contrat";
+        label en unofficial "Article 1304-6, paragraph 2. The parties may provide that fulfilment of the condition shall relate back to the day of the contract";
+        when condition_de_l_obligation(c, k) and condition_accomplie(k) and retroactivite_convenue(k);
+        then retroactivite_au_jour_du_contrat(k);
+    }
+    rule ChoseAuxRisquesDuDebiteurPendantLaCondition(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-6, alinéa 2, seconde phrase. La chose, objet de l'obligation, n'en demeure pas moins aux risques du débiteur, qui en conserve l'administration et a droit aux fruits jusqu'à l'accomplissement de la condition";
+        label en unofficial "Article 1304-6, paragraph 2, second sentence. The thing nonetheless remains at the debtor's risk; he keeps its administration and is entitled to its fruits until the condition is fulfilled";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and not_known(condition_accomplie(k));
+        then chose_aux_risques_du_debiteur(c);
+    }
+    rule ObligationReputeeNAvoirJamaisExiste(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-6, alinéa 3. En cas de défaillance de la condition suspensive, l'obligation est réputée n'avoir jamais existé";
+        label en unofficial "Article 1304-6, paragraph 3. If the suspensive condition fails, the obligation is deemed never to have existed";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Suspensive)
+            and condition_defaillie(k);
+        then obligation_reputee_n_avoir_jamais_existe(c);
+    }
+}
+
+@source(CC_ART1304_7) {
+    rule ExtinctionRetroactiveParLaConditionResolutoire(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-7, alinéa 1. L'accomplissement de la condition résolutoire éteint rétroactivement l'obligation, sans remettre en cause les actes conservatoires et d'administration";
+        label en unofficial "Article 1304-7, paragraph 1. Fulfilment of the resolutory condition extinguishes the obligation retroactively, without calling protective and administrative acts into question";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Resolutoire)
+            and condition_accomplie(k)
+            and not_known(retroactivite_ecartee_par_convention(k))
+            and not_known(prestations_utiles_au_fur_et_a_mesure(k));
+        then extinction_retroactive_de_l_obligation(c);
+    }
+    rule ExtinctionSansRetroactiviteParConvention(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-7, alinéa 2. La rétroactivité n'a pas lieu si telle est la convention des parties";
+        label en unofficial "Article 1304-7, paragraph 2. Retroactivity does not occur if the parties so agreed";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Resolutoire)
+            and condition_accomplie(k) and retroactivite_ecartee_par_convention(k);
+        then extinction_sans_retroactivite(c);
+    }
+    rule ExtinctionSansRetroactivitePourPrestationsUtiles(c: Creance, k: Condition) strict {
+        label fr official "Article 1304-7, alinéa 2. La rétroactivité n'a pas lieu si les prestations échangées ont trouvé leur utilité au fur et à mesure de l'exécution réciproque du contrat";
+        label en unofficial "Article 1304-7, paragraph 2. Retroactivity does not occur if the exchanged performances found their use as the contract was reciprocally performed";
+        when condition_de_l_obligation(c, k) and espece_de_la_condition(k, Resolutoire)
+            and condition_accomplie(k) and prestations_utiles_au_fur_et_a_mesure(k);
+        then extinction_sans_retroactivite(c);
+    }
+}
+
+// --- Section 1, sous-section 2 : l'obligation à terme (1305 à 1305-5) -----------------------
+
+pub relation obligation_a_terme(c: Creance) kind derived {
+    label fr official "l'obligation est à terme lorsque son exigibilité est différée jusqu'à la survenance d'un événement futur et certain (article 1305)";
+    label en unofficial "an obligation is subject to a term where its enforceability is deferred until a future and certain event (Article 1305)";
+}
+pub relation exigibilite_differee_jusqu_au(c: Creance, jour: Date) kind derived {
+    key(c);
+    label fr official "ce qui n'est dû qu'à terme ne peut être exigé avant l'échéance (article 1305-2)";
+    label en unofficial "what is owed only at term may not be demanded before maturity (Article 1305-2)";
+}
+pub relation repetition_du_paiement_anticipe_exclue(c: Creance) kind derived {
+    label fr official "ce qui a été payé d'avance ne peut être répété (article 1305-2)";
+    label en unofficial "what has been paid in advance may not be recovered (Article 1305-2)";
+}
+pub relation terme_profitant_au_debiteur(c: Creance, d: Personne) kind derived {
+    label fr official "le terme profite au débiteur, s'il ne résulte de la loi, de la volonté des parties ou des circonstances qu'il a été établi en faveur du créancier ou des deux parties (article 1305-3, alinéa 1)";
+    label en unofficial "the term benefits the debtor, unless law, the parties' will or circumstances show it was set in favour of the creditor or of both (Article 1305-3, paragraph 1)";
+}
+pub relation renonciation_au_terme_sans_consentement(t: Terme, p: Personne) kind derived {
+    label fr official "la partie au bénéfice exclusif de qui le terme a été fixé peut y renoncer sans le consentement de l'autre (article 1305-3, alinéa 2)";
+    label en unofficial "the party for whose exclusive benefit the term was set may waive it without the other's consent (Article 1305-3, paragraph 2)";
+}
+pub relation decheance_du_terme(c: Creance, d: Personne) kind derived {
+    label fr official "le débiteur ne peut réclamer le bénéfice du terme s'il ne fournit pas les sûretés promises ou s'il diminue celles qui garantissent l'obligation (article 1305-4)";
+    label en unofficial "the debtor may not claim the benefit of the term if he fails to provide the promised security or reduces the security guaranteeing the obligation (Article 1305-4)";
+}
+pub relation decheance_inopposable_aux_coobliges(c: Creance, tenu_avec_lui: Personne) kind derived {
+    label fr official "la déchéance du terme encourue par un débiteur est inopposable à ses coobligés, même solidaires, et à ses cautions (article 1305-5)";
+    label en unofficial "the forfeiture of the term incurred by one debtor may not be set up against his co-obligors, even joint ones, or his sureties (Article 1305-5)";
+}
+pub relation terme_stipule_en_faveur_d_une_autre_partie(c: Creance, t: Terme, d: Personne) kind derived {
+    label fr official "il résulte de la loi, de la volonté des parties ou des circonstances que le terme a été établi en faveur d'une partie autre que ce débiteur (article 1305-3, alinéa 1)";
+    label en unofficial "law, the parties' will or circumstances show the term was set in favour of a party other than this debtor (Article 1305-3, paragraph 1)";
+}
+
+@source(CC_ART1305)
+rule ObligationATerme(c: Creance, t: Terme) strict {
+    label fr official "Article 1305. L'obligation est à terme lorsque son exigibilité est différée jusqu'à la survenance d'un événement futur et certain, encore que la date en soit incertaine";
+    label en unofficial "Article 1305. An obligation is subject to a term where its enforceability is deferred until a future and certain event, even if its date is uncertain";
+    when terme_de_l_obligation(c, t);
+    then obligation_a_terme(c);
+}
+
+@source(CC_ART1305_2) {
+    rule ExigibiliteDiffereeJusquALEcheance(c: Creance, t: Terme, jour: Date) strict {
+        label fr official "Article 1305-2. Ce qui n'est dû qu'à terme ne peut être exigé avant l'échéance";
+        label en unofficial "Article 1305-2. What is owed only at term may not be demanded before maturity";
+        when terme_de_l_obligation(c, t) and echeance_du_terme(t, jour);
+        then exigibilite_differee_jusqu_au(c, jour);
+    }
+    rule PasDeRepetitionDuPaiementAnticipe(c: Creance, t: Terme) strict {
+        label fr official "Article 1305-2. Mais ce qui a été payé d'avance ne peut être répété";
+        label en unofficial "Article 1305-2. But what has been paid in advance may not be recovered";
+        when terme_de_l_obligation(c, t);
+        then repetition_du_paiement_anticipe_exclue(c);
+    }
+}
+
+@source(CC_ART1305_3) {
+    rule TermeEtabliEnFaveurDUnAutre(c: Creance, t: Terme, d: Personne, autre: Personne) strict {
+        label fr official "Article 1305-3, alinéa 1. Le terme a été établi en faveur d'une autre partie que ce débiteur";
+        label en unofficial "Article 1305-3, paragraph 1. The term was set in favour of a party other than this debtor";
+        when terme_de_l_obligation(c, t) and fr.code_civil.core::debiteur(c, d)
+            and terme_stipule_en_faveur(t, autre) and autre != d;
+        then terme_stipule_en_faveur_d_une_autre_partie(c, t, d);
+    }
+    rule TermeProfiteAuDebiteur(c: Creance, t: Terme, d: Personne) strict {
+        label fr official "Article 1305-3, alinéa 1. Le terme profite au débiteur, s'il ne résulte de la loi, de la volonté des parties ou des circonstances qu'il a été établi en faveur du créancier ou des deux parties";
+        label en unofficial "Article 1305-3, paragraph 1. The term benefits the debtor, unless law, the parties' will or circumstances show it was set in favour of the creditor or of both";
+        when terme_de_l_obligation(c, t) and fr.code_civil.core::debiteur(c, d)
+            and not_known(terme_stipule_en_faveur_d_une_autre_partie(c, t, d));
+        then terme_profitant_au_debiteur(c, d);
+    }
+    rule RenonciationAuTermeParSonBeneficiaireExclusif(c: Creance, t: Terme, p: Personne) strict {
+        label fr official "Article 1305-3, alinéa 2. La partie au bénéfice exclusif de qui le terme a été fixé peut y renoncer sans le consentement de l'autre";
+        label en unofficial "Article 1305-3, paragraph 2. The party for whose exclusive benefit the term was set may waive it without the other's consent";
+        when terme_de_l_obligation(c, t) and terme_stipule_en_faveur(t, p)
+            and (count distinct x: Personne where terme_stipule_en_faveur(t, x)) == 1;
+        then renonciation_au_terme_sans_consentement(t, p);
+    }
+}
+
+@source(CC_ART1305_4) {
+    rule DecheanceParDefautDeSuretes(c: Creance, d: Personne) strict {
+        label fr official "Article 1305-4. Le débiteur ne peut réclamer le bénéfice du terme s'il ne fournit pas les sûretés promises au créancier";
+        label en unofficial "Article 1305-4. The debtor may not claim the benefit of the term if he fails to provide the security promised to the creditor";
+        when suretes_promises_non_fournies(c, d);
+        then decheance_du_terme(c, d);
+    }
+    rule DecheanceParDiminutionDesSuretes(c: Creance, d: Personne) strict {
+        label fr official "Article 1305-4. Le débiteur ne peut réclamer le bénéfice du terme s'il diminue les sûretés qui garantissent l'obligation";
+        label en unofficial "Article 1305-4. The debtor may not claim the benefit of the term if he reduces the security guaranteeing the obligation";
+        when suretes_diminuees(c, d);
+        then decheance_du_terme(c, d);
+    }
+}
+
+// L'article 1305-5 a reçu de la loi n° 2018-287 une modification de caractère
+// INTERPRÉTATIF (loi 2018-287, art. 16, I, troisième phrase).
+@source(CC_ART1305_5)
+rule DecheanceInopposableAuxCoobliges(c: Creance, d: Personne, tenu_avec_lui: Personne) strict {
+    label fr official "Article 1305-5. La déchéance du terme encourue par un débiteur est inopposable à ses coobligés, même solidaires, et à ses cautions";
+    label en unofficial "Article 1305-5. The forfeiture of the term incurred by one debtor may not be set up against his co-obligors, even joint ones, or his sureties";
+    when decheance_du_terme(c, d) and coobligation_du_debiteur(c, d, tenu_avec_lui);
+    then decheance_inopposable_aux_coobliges(c, tenu_avec_lui);
+}
+
+// --- Section 2 : la pluralité d'objets (1306 à 1308) ----------------------------------------
+
+pub relation liberation_par_l_execution_de_la_totalite(c: Creance) kind derived {
+    label fr official "l'obligation est cumulative : seule l'exécution de la totalité des prestations libère le débiteur (article 1306)";
+    label en unofficial "the obligation is cumulative: only performance of all the prestations discharges the debtor (Article 1306)";
+}
+pub relation liberation_par_l_execution_de_l_une(c: Creance) kind derived {
+    label fr official "l'obligation est alternative : l'exécution de l'une des prestations libère le débiteur (article 1307)";
+    label en unofficial "the obligation is alternative: performance of one of the prestations discharges the debtor (Article 1307)";
+}
+pub relation choix_appartenant_au_debiteur(c: Creance) kind derived {
+    label fr official "le choix entre les prestations appartient au débiteur (article 1307-1, alinéa 1)";
+    label en unofficial "the choice between the prestations belongs to the debtor (Article 1307-1, paragraph 1)";
+}
+pub relation choix_definitif(c: Creance, p: Prestation) kind derived {
+    label fr official "le choix exercé est définitif et fait perdre à l'obligation son caractère alternatif (article 1307-1, alinéa 3)";
+    label en unofficial "the choice made is final and causes the obligation to lose its alternative character (Article 1307-1, paragraph 3)";
+}
+pub relation debiteur_libere_par_l_impossibilite_de_la_prestation_choisie(c: Creance) kind derived {
+    label fr official "si elle procède d'un cas de force majeure, l'impossibilité d'exécuter la prestation choisie libère le débiteur (article 1307-2)";
+    label en unofficial "if it arises from force majeure, the impossibility of performing the chosen prestation discharges the debtor (Article 1307-2)";
+}
+pub relation obligation_d_executer_une_autre_prestation(c: Creance, p: Prestation) kind derived {
+    label fr official "le débiteur qui n'a pas fait connaître son choix doit, si l'une des prestations devient impossible, exécuter l'une des autres (article 1307-3)";
+    label en unofficial "a debtor who has not made his choice known must, if one prestation becomes impossible, perform one of the others (Article 1307-3)";
+}
+pub relation creancier_tenu_de_se_contenter_d_une_autre(c: Creance, p: Prestation) kind derived {
+    label fr official "le créancier qui n'a pas fait connaître son choix doit, si l'une des prestations devient impossible par force majeure, se contenter de l'une des autres (article 1307-4)";
+    label en unofficial "a creditor who has not made his choice known must, if one prestation becomes impossible by force majeure, content himself with one of the others (Article 1307-4)";
+}
+pub relation liberation_par_l_impossibilite_de_toutes_les_prestations(c: Creance) kind derived {
+    label fr official "lorsque les prestations deviennent impossibles, le débiteur n'est libéré que si l'impossibilité procède, pour chacune, d'un cas de force majeure (article 1307-5)";
+    label en unofficial "where the prestations become impossible, the debtor is discharged only if the impossibility arises, for each of them, from force majeure (Article 1307-5)";
+}
+pub relation obligation_facultative(c: Creance) kind derived {
+    label fr official "l'obligation est facultative : elle a pour objet une certaine prestation mais le débiteur a la faculté, pour se libérer, d'en fournir une autre (article 1308, alinéa 1)";
+    label en unofficial "the obligation is optional: it has a certain prestation as its object but the debtor may, to be discharged, provide another (Article 1308, paragraph 1)";
+}
+pub relation obligation_facultative_eteinte(c: Creance) kind derived {
+    label fr official "l'obligation facultative est éteinte si l'exécution de la prestation initialement convenue devient impossible pour cause de force majeure (article 1308, alinéa 2)";
+    label en unofficial "the optional obligation is extinguished if performance of the initially agreed prestation becomes impossible through force majeure (Article 1308, paragraph 2)";
+}
+pub relation prestation_impossible_sans_force_majeure(c: Creance) kind derived {
+    label fr official "l'une au moins des prestations est devenue impossible sans que la force majeure en soit la cause (article 1307-5)";
+    label en unofficial "at least one prestation became impossible without force majeure being its cause (Article 1307-5)";
+}
+
+@source(CC_ART1306)
+rule ObligationCumulative(c: Creance) strict {
+    label fr official "Article 1306. L'obligation est cumulative lorsqu'elle a pour objet plusieurs prestations et que seule l'exécution de la totalité de celles-ci libère le débiteur";
+    label en unofficial "Article 1306. An obligation is cumulative where it has several prestations as its object and only performance of all of them discharges the debtor";
+    when espece_de_l_obligation_plurale(c, Cumulative);
+    then liberation_par_l_execution_de_la_totalite(c);
+}
+
+@source(CC_ART1307)
+rule ObligationAlternative(c: Creance) strict {
+    label fr official "Article 1307. L'obligation est alternative lorsqu'elle a pour objet plusieurs prestations et que l'exécution de l'une d'elles libère le débiteur";
+    label en unofficial "Article 1307. An obligation is alternative where it has several prestations as its object and performance of one of them discharges the debtor";
+    when espece_de_l_obligation_plurale(c, Alternative);
+    then liberation_par_l_execution_de_l_une(c);
+}
+
+@source(CC_ART1307_1) {
+    rule ChoixAuDebiteur(c: Creance) strict {
+        label fr official "Article 1307-1, alinéa 1. Le choix entre les prestations appartient au débiteur";
+        label en unofficial "Article 1307-1, paragraph 1. The choice between the prestations belongs to the debtor";
+        when espece_de_l_obligation_plurale(c, Alternative)
+            and not_known(choix_appartenant_au_creancier(c));
+        then choix_appartenant_au_debiteur(c);
+    }
+    rule ChoixDefinitif(c: Creance, p: Prestation) strict {
+        label fr official "Article 1307-1, alinéa 3. Le choix exercé est définitif et fait perdre à l'obligation son caractère alternatif";
+        label en unofficial "Article 1307-1, paragraph 3. The choice made is final and causes the obligation to lose its alternative character";
+        when espece_de_l_obligation_plurale(c, Alternative) and prestation_choisie(c, p);
+        then choix_definitif(c, p);
+    }
+}
+
+@source(CC_ART1307_2)
+rule ImpossibiliteDeLaPrestationChoisie(c: Creance, p: Prestation) strict {
+    label fr official "Article 1307-2. Si elle procède d'un cas de force majeure, l'impossibilité d'exécuter la prestation choisie libère le débiteur";
+    label en unofficial "Article 1307-2. If it arises from force majeure, the impossibility of performing the chosen prestation discharges the debtor";
+    when prestation_choisie(c, p) and prestation_devenue_impossible(p)
+        and force_majeure_sur_la_prestation(p);
+    then debiteur_libere_par_l_impossibilite_de_la_prestation_choisie(c);
+}
+
+@source(CC_ART1307_3)
+rule DebiteurSansChoixExecuteUneAutre(c: Creance, impossible: Prestation, autre: Prestation) strict {
+    label fr official "Article 1307-3. Le débiteur qui n'a pas fait connaître son choix doit, si l'une des prestations devient impossible, exécuter l'une des autres";
+    label en unofficial "Article 1307-3. A debtor who has not made his choice known must, if one prestation becomes impossible, perform one of the others";
+    when espece_de_l_obligation_plurale(c, Alternative) and choix_appartenant_au_debiteur(c)
+        and prestation_de_l_obligation(c, impossible) and prestation_devenue_impossible(impossible)
+        and prestation_de_l_obligation(c, autre) and autre != impossible
+        and not_known(prestation_devenue_impossible(autre));
+    then obligation_d_executer_une_autre_prestation(c, autre);
+}
+
+@source(CC_ART1307_4)
+rule CreancierSansChoixSeContenteDUneAutre(c: Creance, impossible: Prestation, autre: Prestation) strict {
+    label fr official "Article 1307-4. Le créancier qui n'a pas fait connaître son choix doit, si l'une des prestations devient impossible à exécuter par suite d'un cas de force majeure, se contenter de l'une des autres";
+    label en unofficial "Article 1307-4. A creditor who has not made his choice known must, if one prestation becomes impossible through force majeure, content himself with one of the others";
+    when choix_appartenant_au_creancier(c) and not_known(prestation_choisie(c, impossible))
+        and prestation_de_l_obligation(c, impossible) and prestation_devenue_impossible(impossible)
+        and force_majeure_sur_la_prestation(impossible)
+        and prestation_de_l_obligation(c, autre) and autre != impossible
+        and not_known(prestation_devenue_impossible(autre));
+    then creancier_tenu_de_se_contenter_d_une_autre(c, autre);
+}
+
+@source(CC_ART1307_5) {
+    rule PrestationImpossibleSansForceMajeure(c: Creance, p: Prestation) strict {
+        label fr official "Article 1307-5. Une prestation est devenue impossible sans que la force majeure en soit la cause : le débiteur n'est pas libéré";
+        label en unofficial "Article 1307-5. A prestation became impossible without force majeure being its cause: the debtor is not discharged";
+        when prestation_de_l_obligation(c, p) and prestation_devenue_impossible(p)
+            and not force_majeure_sur_la_prestation(p);
+        then prestation_impossible_sans_force_majeure(c);
+    }
+    rule LiberationParLImpossibiliteDeToutesLesPrestations(c: Creance, p: Prestation) strict {
+        label fr official "Article 1307-5. Lorsque les prestations deviennent impossibles, le débiteur n'est libéré que si l'impossibilité procède, pour chacune, d'un cas de force majeure";
+        label en unofficial "Article 1307-5. Where the prestations become impossible, the debtor is discharged only if the impossibility arises, for each of them, from force majeure";
+        when espece_de_l_obligation_plurale(c, Alternative)
+            and prestation_de_l_obligation(c, p) and prestation_devenue_impossible(p)
+            and (count distinct x: Prestation where prestation_de_l_obligation(c, x))
+                == (count distinct y: Prestation where prestation_de_l_obligation(c, y) and prestation_devenue_impossible(y))
+            and not_known(prestation_impossible_sans_force_majeure(c));
+        then liberation_par_l_impossibilite_de_toutes_les_prestations(c);
+    }
+}
+
+@source(CC_ART1308) {
+    rule ObligationFacultative(c: Creance) strict {
+        label fr official "Article 1308, alinéa 1. L'obligation est facultative lorsqu'elle a pour objet une certaine prestation mais que le débiteur a la faculté, pour se libérer, d'en fournir une autre";
+        label en unofficial "Article 1308, paragraph 1. An obligation is optional where it has a certain prestation as its object but the debtor may, to be discharged, provide another";
+        when espece_de_l_obligation_plurale(c, Facultative);
+        then obligation_facultative(c);
+    }
+    rule ExtinctionDeLObligationFacultative(c: Creance, p: Prestation) strict {
+        label fr official "Article 1308, alinéa 2. L'obligation facultative est éteinte si l'exécution de la prestation initialement convenue devient impossible pour cause de force majeure";
+        label en unofficial "Article 1308, paragraph 2. The optional obligation is extinguished if performance of the initially agreed prestation becomes impossible through force majeure";
+        when espece_de_l_obligation_plurale(c, Facultative) and prestation_initialement_convenue(c, p)
+            and prestation_devenue_impossible(p) and force_majeure_sur_la_prestation(p);
+        then obligation_facultative_eteinte(c);
+    }
+}
+
+// --- Section 3 : la pluralité de sujets (1309 à 1320) ---------------------------------------
+//
+// LA CONTRIBUTION EN PARTS. L'article 1317 raisonne en parts, pas en sommes :
+// « les codébiteurs ne contribuent à la dette que chacun pour sa part », et la
+// part de l'insolvable « se répartit, par contribution, entre les codébiteurs
+// solvables, y compris celui qui a fait le paiement et celui qui a bénéficié
+// d'une remise de solidarité ». Le calcul est donc :
+//   part_initiale          = part convenue, ou 1/n à défaut (1309, alinéa 1)
+//   part_apres_repartition = part_initiale + part_initiale × (Σ insolvables / Σ solvables)
+// La part reste une FRACTION EXACTE ; sa conversion en euros est le produit
+// exact `montant × part`. Le Code ne nomme aucun arrondi de la contribution :
+// sur une dette dont le produit ne tombe pas sur le centime, la réponse est
+// INEXACT_DIVISION (E-0085) — frontière assumée, non arrondi inventé.
+
+pub relation division_de_plein_droit(c: Creance) kind derived {
+    label fr official "l'obligation qui lie plusieurs créanciers ou débiteurs se divise de plein droit entre eux (article 1309, alinéa 1)";
+    label en unofficial "an obligation binding several creditors or debtors is divided among them by operation of law (Article 1309, paragraph 1)";
+}
+pub relation nombre_de_codebiteurs(c: Creance, n: Integer) kind derived {
+    key(c);
+    label fr official "nombre de débiteurs tenus de l'obligation (article 1309)";
+    label en unofficial "number of debtors bound by the obligation (Article 1309)";
+}
+pub relation part_de_la_dette(c: Creance, d: Personne, part: Rational) kind derived {
+    key(c, d);
+    label fr official "part du codébiteur dans la dette : celle que la loi ou le contrat règle, ou, à défaut, une part égale (article 1309, alinéa 1)";
+    label en unofficial "the co-debtor's share of the debt: as settled by law or contract, or, failing that, an equal share (Article 1309, paragraph 1)";
+}
+pub relation tenu_pour_sa_part_seulement(c: Creance, d: Personne, part: Rational) kind derived {
+    key(c, d);
+    label fr official "chacun des débiteurs n'est tenu que de sa part de la dette commune (article 1309, alinéa 2)";
+    label en unofficial "each debtor is bound only for his share of the common debt (Article 1309, paragraph 2)";
+}
+pub relation solidarite_non_presumee(c: Creance) kind derived {
+    label fr official "la solidarité est légale ou conventionnelle ; elle ne se présume pas (article 1310) : sans loi ni contrat, l'obligation se divise";
+    label en unofficial "solidarity is statutory or contractual; it is not presumed (Article 1310): absent law or contract, the obligation is divided";
+}
+pub relation part_convenue_pour_ce_debiteur(c: Creance, d: Personne) kind derived {
+    label fr official "la loi ou le contrat règle la part de ce codébiteur autrement que par parts égales (article 1309, alinéa 1)";
+    label en unofficial "law or contract settles this co-debtor's share otherwise than in equal shares (Article 1309, paragraph 1)";
+}
+
+@source(CC_ART1309) {
+    rule NombreDeCodebiteurs(c: Creance, d: Personne) strict {
+        label fr official "Article 1309. Nombre de débiteurs que lie l'obligation";
+        label en unofficial "Article 1309. Number of debtors bound by the obligation";
+        when fr.code_civil.core::debiteur(c, d);
+        then nombre_de_codebiteurs(c, (count distinct x: Personne where fr.code_civil.core::debiteur(c, x)));
+    }
+    rule DivisionDePleinDroit(c: Creance, n: Integer) strict {
+        label fr official "Article 1309, alinéas 1 et 3. L'obligation qui lie plusieurs créanciers ou débiteurs se divise de plein droit entre eux ; il n'en va autrement que si l'obligation est solidaire ou si la prestation due est indivisible";
+        label en unofficial "Article 1309, paragraphs 1 and 3. An obligation binding several creditors or debtors is divided among them by operation of law; it is otherwise only if the obligation is joint or the performance indivisible";
+        when nombre_de_codebiteurs(c, n) and n >= 2
+            and not_known(obligation_solidaire_entre_debiteurs(c))
+            and not_known(prestation_indivisible(c));
+        then division_de_plein_droit(c);
+    }
+    rule PartConvenuePourCeDebiteur(c: Creance, d: Personne, part: Rational) strict {
+        label fr official "Article 1309, alinéa 1. Présence d'une part réglée autrement que par parts égales";
+        label en unofficial "Article 1309, paragraph 1. Presence of a share settled otherwise than in equal shares";
+        when part_contributive_convenue(c, d, part);
+        then part_convenue_pour_ce_debiteur(c, d);
+    }
+    rule PartConvenue(c: Creance, d: Personne, part: Rational) strict {
+        label fr official "Article 1309, alinéa 1. La division a lieu par parts égales si elle n'est pas réglée autrement par la loi ou par le contrat : ici, elle l'est";
+        label en unofficial "Article 1309, paragraph 1. Division is in equal shares unless settled otherwise by law or contract: here, it is so settled";
+        when part_contributive_convenue(c, d, part);
+        then part_de_la_dette(c, d, part);
+    }
+    rule PartsEgales(c: Creance, d: Personne, n: Integer) strict {
+        label fr official "Article 1309, alinéa 1. Si elle n'est pas réglée autrement par la loi ou par le contrat, la division a lieu par parts égales";
+        label en unofficial "Article 1309, paragraph 1. If not settled otherwise by law or contract, division is in equal shares";
+        when fr.code_civil.core::debiteur(c, d) and nombre_de_codebiteurs(c, n)
+            and not_known(part_convenue_pour_ce_debiteur(c, d));
+        then part_de_la_dette(c, d, 1 / n);
+    }
+    rule TenuPourSaPartSeulement(c: Creance, d: Personne, part: Rational) strict {
+        label fr official "Article 1309, alinéa 2. Chacun des créanciers n'a droit qu'à sa part de la créance commune ; chacun des débiteurs n'est tenu que de sa part de la dette commune";
+        label en unofficial "Article 1309, paragraph 2. Each creditor is entitled only to his share of the common claim; each debtor is bound only for his share of the common debt";
+        when division_de_plein_droit(c) and part_de_la_dette(c, d, part);
+        then tenu_pour_sa_part_seulement(c, d, part);
+    }
+}
+
+@source(CC_ART1310)
+rule SolidariteNonPresumee(c: Creance, n: Integer) strict {
+    label fr official "Article 1310. La solidarité est légale ou conventionnelle ; elle ne se présume pas";
+    label en unofficial "Article 1310. Solidarity is statutory or contractual; it is not presumed";
+    when nombre_de_codebiteurs(c, n) and n >= 2
+        and not_known(obligation_solidaire_entre_debiteurs(c));
+    then solidarite_non_presumee(c);
+}
+
+// --- Solidarité entre créanciers (1311, 1312) -----------------------------------------------
+
+pub relation poursuite_par_un_creancier_solidaire(c: Creance, cr: Personne) kind empirical {
+    label fr official "le débiteur est poursuivi par ce créancier solidaire (article 1311, alinéa 2)";
+    label en unofficial "the debtor is sued by this joint creditor (Article 1311, paragraph 2)";
+}
+pub relation acte_interruptif_de_prescription(c: Creance, cr: Personne) kind empirical {
+    label fr official "acte qui interrompt ou suspend la prescription à l'égard de ce créancier solidaire (article 1312)";
+    label en unofficial "act interrupting or suspending prescription as regards this joint creditor (Article 1312)";
+}
+pub relation paiement_fait_a_un_creancier_solidaire(c: Creance, cr: Personne) kind empirical {
+    label fr official "le paiement a été fait à ce créancier solidaire (article 1311, alinéa 1)";
+    label en unofficial "payment was made to this joint creditor (Article 1311, paragraph 1)";
+}
+
+pub relation droit_d_exiger_toute_la_creance(c: Creance, cr: Personne) kind derived {
+    label fr official "la solidarité entre créanciers permet à chacun d'eux d'exiger et de recevoir le paiement de toute la créance (article 1311, alinéa 1)";
+    label en unofficial "solidarity among creditors allows each to demand and receive payment of the whole claim (Article 1311, paragraph 1)";
+}
+pub relation paiement_liberatoire_envers_tous_les_creanciers(c: Creance) kind derived {
+    label fr official "le paiement fait à l'un d'eux, qui en doit compte aux autres, libère le débiteur à l'égard de tous (article 1311, alinéa 1)";
+    label en unofficial "payment made to one of them, who must account to the others, discharges the debtor towards all (Article 1311, paragraph 1)";
+}
+pub relation choix_du_creancier_payable(c: Creance, cr: Personne) kind derived {
+    label fr official "le débiteur peut payer l'un ou l'autre des créanciers solidaires tant qu'il n'est pas poursuivi par l'un d'eux (article 1311, alinéa 2)";
+    label en unofficial "the debtor may pay either of the joint creditors so long as he is not sued by one of them (Article 1311, paragraph 2)";
+}
+pub relation poursuite_engagee(c: Creance) kind derived {
+    label fr official "l'un des créanciers solidaires a engagé des poursuites (article 1311, alinéa 2)";
+    label en unofficial "one of the joint creditors has brought proceedings (Article 1311, paragraph 2)";
+}
+pub relation interruption_profitant_aux_autres_creanciers(c: Creance, autre: Personne) kind derived {
+    label fr official "tout acte qui interrompt ou suspend la prescription à l'égard de l'un des créanciers solidaires profite aux autres créanciers (article 1312)";
+    label en unofficial "any act interrupting or suspending prescription as regards one joint creditor benefits the others (Article 1312)";
+}
+
+@source(CC_ART1311) {
+    rule DroitDExigerTouteLaCreance(c: Creance, cr: Personne) strict {
+        label fr official "Article 1311, alinéa 1. La solidarité entre créanciers permet à chacun d'eux d'exiger et de recevoir le paiement de toute la créance";
+        label en unofficial "Article 1311, paragraph 1. Solidarity among creditors allows each of them to demand and receive payment of the whole claim";
+        when obligation_solidaire_entre_creanciers(c) and fr.code_civil.core::creancier(c, cr);
+        then droit_d_exiger_toute_la_creance(c, cr);
+    }
+    rule PaiementALUnLibereEnversTous(c: Creance, cr: Personne) strict {
+        label fr official "Article 1311, alinéa 1. Le paiement fait à l'un d'eux, qui en doit compte aux autres, libère le débiteur à l'égard de tous";
+        label en unofficial "Article 1311, paragraph 1. Payment made to one of them, who must account to the others, discharges the debtor towards all";
+        when obligation_solidaire_entre_creanciers(c) and paiement_fait_a_un_creancier_solidaire(c, cr);
+        then paiement_liberatoire_envers_tous_les_creanciers(c);
+    }
+    rule PoursuiteEngagee(c: Creance, cr: Personne) strict {
+        label fr official "Article 1311, alinéa 2. Présence de poursuites engagées par un créancier solidaire";
+        label en unofficial "Article 1311, paragraph 2. Presence of proceedings brought by a joint creditor";
+        when poursuite_par_un_creancier_solidaire(c, cr);
+        then poursuite_engagee(c);
+    }
+    rule ChoixDuCreancierTantQuIlNEstPasPoursuivi(c: Creance, cr: Personne) strict {
+        label fr official "Article 1311, alinéa 2. Le débiteur peut payer l'un ou l'autre des créanciers solidaires tant qu'il n'est pas poursuivi par l'un d'eux";
+        label en unofficial "Article 1311, paragraph 2. The debtor may pay either of the joint creditors so long as he is not sued by one of them";
+        when obligation_solidaire_entre_creanciers(c) and fr.code_civil.core::creancier(c, cr)
+            and not_known(poursuite_engagee(c));
+        then choix_du_creancier_payable(c, cr);
+    }
+}
+
+@source(CC_ART1312)
+rule InterruptionProfiteAuxAutresCreanciers(c: Creance, cr: Personne, autre: Personne) strict {
+    label fr official "Article 1312. Tout acte qui interrompt ou suspend la prescription à l'égard de l'un des créanciers solidaires, profite aux autres créanciers";
+    label en unofficial "Article 1312. Any act interrupting or suspending prescription as regards one joint creditor benefits the other creditors";
+    when obligation_solidaire_entre_creanciers(c) and acte_interruptif_de_prescription(c, cr)
+        and fr.code_civil.core::creancier(c, autre) and autre != cr;
+    then interruption_profitant_aux_autres_creanciers(c, autre);
+}
+
+// --- Solidarité entre débiteurs (1313 à 1319) -----------------------------------------------
+
+pub relation exception_commune(c: Creance) kind empirical {
+    label fr official "exception commune à tous les codébiteurs, telle que la nullité ou la résolution (article 1315, première phrase)";
+    label en unofficial "defence common to all co-debtors, such as nullity or rescission (Article 1315, first sentence)";
+}
+pub relation exception_personnelle(c: Creance, d: Personne) kind empirical {
+    label fr official "exception personnelle à ce codébiteur, telle que l'octroi d'un terme (article 1315)";
+    label en unofficial "defence personal to this co-debtor, such as the granting of a term (Article 1315)";
+}
+pub relation exception_eteignant_la_part_divise(c: Creance, d: Personne) kind empirical {
+    label fr official "exception personnelle à ce codébiteur qui éteint sa part divise, notamment compensation ou remise de dette (article 1315, troisième phrase)";
+    label en unofficial "defence personal to this co-debtor extinguishing his divided share, notably set-off or release (Article 1315, third sentence)";
+}
+pub relation codebiteur_poursuivi(c: Creance, d: Personne) kind empirical {
+    label fr official "codébiteur solidaire poursuivi par le créancier (articles 1313, alinéa 2, et 1315)";
+    label en unofficial "joint debtor sued by the creditor (Articles 1313, paragraph 2, and 1315)";
+}
+pub relation demande_d_interets_formee_contre(c: Creance, d: Personne) kind empirical {
+    label fr official "demande d'intérêts formée contre ce débiteur solidaire (article 1314)";
+    label en unofficial "claim for interest brought against this joint debtor (Article 1314)";
+}
+pub relation inexecution_imputable_a(c: Creance, d: Personne) kind empirical {
+    label fr official "l'inexécution de l'obligation est imputable à ce codébiteur (article 1319, seconde phrase)";
+    label en unofficial "non-performance of the obligation is attributable to this co-debtor (Article 1319, second sentence)";
+}
+pub relation inexecution_de_l_obligation(c: Creance) kind empirical {
+    label fr official "l'obligation solidaire n'a pas été exécutée (article 1319, première phrase)";
+    label en unofficial "the joint obligation was not performed (Article 1319, first sentence)";
+}
+
+pub relation tenu_de_toute_la_dette(c: Creance, d: Personne) kind derived {
+    label fr official "la solidarité entre les débiteurs oblige chacun d'eux à toute la dette (article 1313, alinéa 1)";
+    label en unofficial "solidarity among debtors binds each of them for the whole debt (Article 1313, paragraph 1)";
+}
+pub relation paiement_par_un_codebiteur_libere_tous(c: Creance) kind derived {
+    label fr official "le paiement fait par l'un d'eux les libère tous envers le créancier (article 1313, alinéa 1)";
+    label en unofficial "payment made by one of them discharges them all towards the creditor (Article 1313, paragraph 1)";
+}
+pub relation paiement_exigible_du_debiteur_choisi(c: Creance, d: Personne) kind derived {
+    label fr official "le créancier peut demander le paiement au débiteur solidaire de son choix ; les poursuites contre l'un n'empêchent pas celles contre les autres (article 1313, alinéa 2)";
+    label en unofficial "the creditor may claim payment from the joint debtor of his choice; proceedings against one do not bar proceedings against the others (Article 1313, paragraph 2)";
+}
+pub relation interets_courant_a_l_egard_de_tous(c: Creance, autre: Personne) kind derived {
+    label fr official "la demande d'intérêts formée contre l'un des débiteurs solidaires fait courir les intérêts à l'égard de tous (article 1314)";
+    label en unofficial "a claim for interest brought against one joint debtor causes interest to run as regards all (Article 1314)";
+}
+pub relation exception_opposable(c: Creance, d: Personne) kind derived {
+    label fr official "le débiteur solidaire poursuivi peut opposer les exceptions communes à tous les codébiteurs et celles qui lui sont personnelles (article 1315, première phrase)";
+    label en unofficial "the joint debtor sued may raise defences common to all co-debtors and those personal to him (Article 1315, first sentence)";
+}
+pub relation exception_personnelle_a_autrui_non_opposable(c: Creance, d: Personne, autre: Personne) kind derived {
+    label fr official "il ne peut opposer les exceptions qui sont personnelles à d'autres codébiteurs, telle que l'octroi d'un terme (article 1315, deuxième phrase)";
+    label en unofficial "he may not raise defences personal to other co-debtors, such as the granting of a term (Article 1315, second sentence)";
+}
+pub relation deduction_de_la_part_eteinte(c: Creance, d: Personne, autre: Personne) kind derived {
+    label fr official "lorsqu'une exception personnelle à un autre codébiteur éteint la part divise de celui-ci, notamment en cas de compensation ou de remise de dette, le débiteur poursuivi peut s'en prévaloir pour la faire déduire du total (article 1315, troisième phrase)";
+    label en unofficial "where a defence personal to another co-debtor extinguishes his divided share, notably by set-off or release, the debtor sued may rely on it to have it deducted from the total (Article 1315, third sentence)";
+}
+pub relation creance_conservee_deduction_faite_de_la_part(c: Creance, decharge: Personne) kind derived {
+    label fr official "le créancier qui reçoit paiement de l'un des codébiteurs et lui consent une remise de solidarité conserve sa créance contre les autres, déduction faite de la part du débiteur déchargé (article 1316)";
+    label en unofficial "a creditor who receives payment from one co-debtor and grants him a release from solidarity keeps his claim against the others, less the discharged debtor's share (Article 1316)";
+}
+
+@source(CC_ART1313) {
+    rule TenuDeTouteLaDette(c: Creance, d: Personne) strict {
+        label fr official "Article 1313, alinéa 1. La solidarité entre les débiteurs oblige chacun d'eux à toute la dette";
+        label en unofficial "Article 1313, paragraph 1. Solidarity among debtors binds each of them for the whole debt";
+        when obligation_solidaire_entre_debiteurs(c) and fr.code_civil.core::debiteur(c, d);
+        then tenu_de_toute_la_dette(c, d);
+    }
+    rule PaiementParLUnLibereTous(c: Creance, d: Personne, m: Money) strict {
+        label fr official "Article 1313, alinéa 1. Le paiement fait par l'un d'eux les libère tous envers le créancier";
+        label en unofficial "Article 1313, paragraph 1. Payment made by one of them discharges them all towards the creditor";
+        when obligation_solidaire_entre_debiteurs(c) and a_paye_la_dette(c, d, m)
+            and fr.code_civil.core::objet_monetaire(c, m);
+        then paiement_par_un_codebiteur_libere_tous(c);
+    }
+    rule CreancierChoisitLeDebiteurPoursuivi(c: Creance, d: Personne) strict {
+        label fr official "Article 1313, alinéa 2. Le créancier peut demander le paiement au débiteur solidaire de son choix ; les poursuites exercées contre l'un des débiteurs solidaires n'empêchent pas le créancier d'en exercer de pareilles contre les autres";
+        label en unofficial "Article 1313, paragraph 2. The creditor may claim payment from the joint debtor of his choice; proceedings against one joint debtor do not prevent the creditor from bringing the like against the others";
+        when obligation_solidaire_entre_debiteurs(c) and fr.code_civil.core::debiteur(c, d);
+        then paiement_exigible_du_debiteur_choisi(c, d);
+    }
+}
+
+@source(CC_ART1314)
+rule InteretsCourentALEgardDeTous(c: Creance, d: Personne, autre: Personne) strict {
+    label fr official "Article 1314. La demande d'intérêts formée contre l'un des débiteurs solidaires fait courir les intérêts à l'égard de tous";
+    label en unofficial "Article 1314. A claim for interest brought against one joint debtor causes interest to run as regards all";
+    when obligation_solidaire_entre_debiteurs(c) and demande_d_interets_formee_contre(c, d)
+        and fr.code_civil.core::debiteur(c, autre);
+    then interets_courant_a_l_egard_de_tous(c, autre);
+}
+
+@source(CC_ART1315) {
+    rule ExceptionCommuneOpposable(c: Creance, d: Personne) strict {
+        label fr official "Article 1315, première phrase. Le débiteur solidaire poursuivi par le créancier peut opposer les exceptions qui sont communes à tous les codébiteurs, telles que la nullité ou la résolution";
+        label en unofficial "Article 1315, first sentence. The joint debtor sued by the creditor may raise defences common to all co-debtors, such as nullity or rescission";
+        when codebiteur_poursuivi(c, d) and exception_commune(c);
+        then exception_opposable(c, d);
+    }
+    rule ExceptionPersonnelleOpposable(c: Creance, d: Personne) strict {
+        label fr official "Article 1315, première phrase. Il peut opposer celles qui lui sont personnelles";
+        label en unofficial "Article 1315, first sentence. He may raise those personal to him";
+        when codebiteur_poursuivi(c, d) and exception_personnelle(c, d);
+        then exception_opposable(c, d);
+    }
+    rule ExceptionPersonnelleAAutruiNonOpposable(c: Creance, d: Personne, autre: Personne) strict {
+        label fr official "Article 1315, deuxième phrase. Il ne peut opposer les exceptions qui sont personnelles à d'autres codébiteurs, telle que l'octroi d'un terme";
+        label en unofficial "Article 1315, second sentence. He may not raise defences personal to other co-debtors, such as the granting of a term";
+        when codebiteur_poursuivi(c, d) and exception_personnelle(c, autre) and autre != d
+            and not_known(exception_eteignant_la_part_divise(c, autre));
+        then exception_personnelle_a_autrui_non_opposable(c, d, autre);
+    }
+    rule DeductionDeLaPartEteinte(c: Creance, d: Personne, autre: Personne) strict {
+        label fr official "Article 1315, troisième phrase. Lorsqu'une exception personnelle à un autre codébiteur éteint la part divise de celui-ci, notamment en cas de compensation ou de remise de dette, il peut s'en prévaloir pour la faire déduire du total de la dette";
+        label en unofficial "Article 1315, third sentence. Where a defence personal to another co-debtor extinguishes his divided share, notably by set-off or release, he may rely on it to have it deducted from the total debt";
+        when codebiteur_poursuivi(c, d) and exception_eteignant_la_part_divise(c, autre) and autre != d;
+        then deduction_de_la_part_eteinte(c, d, autre);
+    }
+}
+
+@source(CC_ART1316)
+rule CreanceConserveeApresRemiseDeSolidarite(c: Creance, decharge: Personne, m: Money) strict {
+    label fr official "Article 1316. Le créancier qui reçoit paiement de l'un des codébiteurs solidaires et lui consent une remise de solidarité conserve sa créance contre les autres, déduction faite de la part du débiteur qu'il a déchargé";
+    label en unofficial "Article 1316. A creditor who receives payment from one joint debtor and grants him a release from solidarity keeps his claim against the others, less the share of the debtor he discharged";
+    when obligation_solidaire_entre_debiteurs(c) and remise_de_solidarite(c, decharge)
+        and a_paye_la_dette(c, decharge, m);
+    then creance_conservee_deduction_faite_de_la_part(c, decharge);
+}
+
+// --- Contribution à la dette et insolvabilité (1317) ----------------------------------------
+
+pub relation codebiteur_solvable(c: Creance, d: Personne) kind derived {
+    label fr official "codébiteur solidaire qui n'est pas insolvable : il supporte la répartition de la part de l'insolvable, y compris s'il a payé ou bénéficié d'une remise de solidarité (article 1317, alinéa 3)";
+    label en unofficial "joint debtor who is not insolvent: he bears the spreading of the insolvent's share, including if he paid or received a release from solidarity (Article 1317, paragraph 3)";
+}
+pub relation presence_de_codebiteur_insolvable(c: Creance) kind derived {
+    label fr official "au moins un codébiteur solidaire est insolvable (article 1317, alinéa 3)";
+    label en unofficial "at least one joint debtor is insolvent (Article 1317, paragraph 3)";
+}
+pub relation total_des_parts_insolvables(c: Creance, t: Rational) kind derived {
+    key(c);
+    label fr official "somme des parts des codébiteurs insolvables, à répartir entre les solvables (article 1317, alinéa 3)";
+    label en unofficial "sum of the insolvent co-debtors' shares, to be spread among the solvent ones (Article 1317, paragraph 3)";
+}
+pub relation total_des_parts_solvables(c: Creance, t: Rational) kind derived {
+    key(c);
+    label fr official "somme des parts des codébiteurs solvables, dénominateur de la répartition par contribution (article 1317, alinéa 3)";
+    label en unofficial "sum of the solvent co-debtors' shares, denominator of the contributive spreading (Article 1317, paragraph 3)";
+}
+pub relation part_contributive(c: Creance, d: Personne, part: Rational) kind derived {
+    key(c, d);
+    label fr official "part à laquelle ce codébiteur contribue définitivement à la dette, après répartition éventuelle de la part des insolvables (article 1317)";
+    label en unofficial "share to which this co-debtor finally contributes to the debt, after any spreading of the insolvent ones' share (Article 1317)";
+}
+pub relation recours_contre_un_codebiteur(c: Creance, payeur: Personne, autre: Personne, montant: Money) kind derived {
+    key(c, payeur, autre);
+    label fr official "recours de celui qui a payé au-delà de sa part contre les autres, à proportion de leur propre part (article 1317, alinéa 2)";
+    label en unofficial "recourse of the one who paid beyond his share against the others, in proportion to their own share (Article 1317, paragraph 2)";
+}
+
+@source(CC_ART1317) {
+    rule CodebiteurSolvable(c: Creance, d: Personne) strict {
+        label fr official "Article 1317, alinéa 3. Est solvable le codébiteur solidaire que le cas ne déclare pas insolvable : celui qui a fait le paiement et celui qui a bénéficié d'une remise de solidarité y sont compris";
+        label en unofficial "Article 1317, paragraph 3. A joint debtor not declared insolvent by the case is solvent: the one who made the payment and the one who received a release from solidarity are included";
+        when obligation_solidaire_entre_debiteurs(c) and fr.code_civil.core::debiteur(c, d)
+            and not_known(codebiteur_insolvable(c, d));
+        then codebiteur_solvable(c, d);
+    }
+    rule PresenceDeCodebiteurInsolvable(c: Creance, d: Personne) strict {
+        label fr official "Article 1317, alinéa 3. Présence d'un codébiteur insolvable";
+        label en unofficial "Article 1317, paragraph 3. Presence of an insolvent co-debtor";
+        when codebiteur_insolvable(c, d);
+        then presence_de_codebiteur_insolvable(c);
+    }
+    rule TotalDesPartsInsolvables(c: Creance) strict {
+        label fr official "Article 1317, alinéa 3. Somme des parts des insolvables";
+        label en unofficial "Article 1317, paragraph 3. Sum of the insolvent debtors' shares";
+        when presence_de_codebiteur_insolvable(c);
+        then total_des_parts_insolvables(c,
+            (sum all p: Rational for x: Personne where codebiteur_insolvable(c, x) and part_de_la_dette(c, x, p)));
+    }
+    rule TotalDesPartsSolvables(c: Creance, d: Personne) strict {
+        label fr official "Article 1317, alinéa 3. Somme des parts des solvables, entre lesquels la part de l'insolvable se répartit par contribution";
+        label en unofficial "Article 1317, paragraph 3. Sum of the solvent debtors' shares, among whom the insolvent's share is spread by contribution";
+        when presence_de_codebiteur_insolvable(c) and codebiteur_solvable(c, d);
+        then total_des_parts_solvables(c,
+            (sum all p: Rational for x: Personne where codebiteur_solvable(c, x) and part_de_la_dette(c, x, p)));
+    }
+    rule ContributionSansInsolvable(c: Creance, d: Personne, part: Rational) strict {
+        label fr official "Article 1317, alinéa 1. Entre eux, les codébiteurs solidaires ne contribuent à la dette que chacun pour sa part";
+        label en unofficial "Article 1317, paragraph 1. Among themselves, joint debtors contribute to the debt each for his share only";
+        when obligation_solidaire_entre_debiteurs(c) and part_de_la_dette(c, d, part)
+            and not_known(presence_de_codebiteur_insolvable(c));
+        then part_contributive(c, d, part);
+    }
+    rule ContributionApresRepartitionDeLInsolvable(c: Creance, d: Personne, part: Rational, ins: Rational, solv: Rational) strict {
+        label fr official "Article 1317, alinéa 3. Si l'un d'eux est insolvable, sa part se répartit, par contribution, entre les codébiteurs solvables : chacun supporte sa propre part, augmentée de cette part multipliée par le rapport du total insolvable au total solvable";
+        label en unofficial "Article 1317, paragraph 3. If one of them is insolvent, his share is spread by contribution among the solvent co-debtors: each bears his own share, increased by that share times the ratio of the insolvent total to the solvent total";
+        when codebiteur_solvable(c, d) and part_de_la_dette(c, d, part)
+            and total_des_parts_insolvables(c, ins) and total_des_parts_solvables(c, solv);
+        then part_contributive(c, d, part + (part * ins) / solv);
+    }
+    rule ContributionNulleDeLInsolvable(c: Creance, d: Personne) strict {
+        label fr official "Article 1317, alinéa 3. La part de l'insolvable étant répartie entre les solvables, il n'y contribue plus";
+        label en unofficial "Article 1317, paragraph 3. The insolvent's share being spread among the solvent ones, he no longer contributes to it";
+        when codebiteur_insolvable(c, d);
+        then part_contributive(c, d, 0 / 1);
+    }
+    rule RecoursDeCeluiQuiAPayeAuDelaDeSaPart(c: Creance, payeur: Personne, autre: Personne, paye: Money, montant: Money, part: Rational) strict {
+        label fr official "Article 1317, alinéa 2. Celui qui a payé au-delà de sa part dispose d'un recours contre les autres à proportion de leur propre part";
+        label en unofficial "Article 1317, paragraph 2. The one who paid beyond his share has recourse against the others in proportion to their own share";
+        when obligation_solidaire_entre_debiteurs(c) and a_paye_la_dette(c, payeur, paye)
+            and fr.code_civil.core::objet_monetaire(c, montant)
+            and part_contributive(c, autre, part) and autre != payeur;
+        then recours_contre_un_codebiteur(c, payeur, autre, montant * part);
+    }
+}
+
+// --- Affaire ne concernant qu'un codébiteur (1318) et inexécution (1319) --------------------
+
+pub relation seul_tenu_de_la_dette(c: Creance, d: Personne) kind derived {
+    label fr official "si la dette procède d'une affaire qui ne concerne que l'un des codébiteurs solidaires, celui-ci est seul tenu de la dette à l'égard des autres (article 1318, première phrase)";
+    label en unofficial "if the debt arises from a matter concerning only one joint debtor, he alone is bound for the debt as regards the others (Article 1318, first sentence)";
+}
+pub relation aucun_recours_du_seul_interesse(c: Creance, d: Personne) kind derived {
+    label fr official "s'il l'a payée, il ne dispose d'aucun recours contre ses codébiteurs (article 1318, deuxième phrase)";
+    label en unofficial "if he paid it, he has no recourse against his co-debtors (Article 1318, second sentence)";
+}
+pub relation recours_contre_le_seul_interesse(c: Creance, payeur: Personne, interesse: Personne) kind derived {
+    label fr official "si les autres l'ont payée, ils disposent d'un recours contre lui (article 1318, troisième phrase)";
+    label en unofficial "if the others paid it, they have recourse against him (Article 1318, third sentence)";
+}
+pub relation responsabilite_solidaire_de_l_inexecution(c: Creance, d: Personne) kind derived {
+    label fr official "les codébiteurs solidaires répondent solidairement de l'inexécution de l'obligation (article 1319, première phrase)";
+    label en unofficial "joint debtors are jointly liable for non-performance of the obligation (Article 1319, first sentence)";
+}
+pub relation charge_definitive_de_l_inexecution(c: Creance, d: Personne) kind derived {
+    label fr official "la charge de l'inexécution incombe à titre définitif à ceux auxquels elle est imputable (article 1319, seconde phrase)";
+    label en unofficial "the burden of non-performance falls definitively on those to whom it is attributable (Article 1319, second sentence)";
+}
+
+@source(CC_ART1318) {
+    rule SeulTenuDeLaDette(c: Creance, d: Personne) strict {
+        label fr official "Article 1318, première phrase. Si la dette procède d'une affaire qui ne concerne que l'un des codébiteurs solidaires, celui-ci est seul tenu de la dette à l'égard des autres";
+        label en unofficial "Article 1318, first sentence. If the debt arises from a matter concerning only one joint debtor, he alone is bound for the debt as regards the others";
+        when obligation_solidaire_entre_debiteurs(c) and affaire_ne_concernant_qu_un_codebiteur(c, d);
+        then seul_tenu_de_la_dette(c, d);
+    }
+    rule AucunRecoursDuSeulInteresse(c: Creance, d: Personne, m: Money) strict {
+        label fr official "Article 1318, deuxième phrase. S'il l'a payée, il ne dispose d'aucun recours contre ses codébiteurs";
+        label en unofficial "Article 1318, second sentence. If he paid it, he has no recourse against his co-debtors";
+        when seul_tenu_de_la_dette(c, d) and a_paye_la_dette(c, d, m);
+        then aucun_recours_du_seul_interesse(c, d);
+    }
+    rule RecoursContreLeSeulInteresse(c: Creance, payeur: Personne, interesse: Personne, m: Money) strict {
+        label fr official "Article 1318, troisième phrase. Si ceux-ci l'ont payée, ils disposent d'un recours contre lui";
+        label en unofficial "Article 1318, third sentence. If they paid it, they have recourse against him";
+        when seul_tenu_de_la_dette(c, interesse) and a_paye_la_dette(c, payeur, m) and payeur != interesse;
+        then recours_contre_le_seul_interesse(c, payeur, interesse);
+    }
+}
+
+@source(CC_ART1319) {
+    rule ResponsabiliteSolidaireDeLInexecution(c: Creance, d: Personne) strict {
+        label fr official "Article 1319, première phrase. Les codébiteurs solidaires répondent solidairement de l'inexécution de l'obligation";
+        label en unofficial "Article 1319, first sentence. Joint debtors are jointly liable for non-performance of the obligation";
+        when obligation_solidaire_entre_debiteurs(c) and inexecution_de_l_obligation(c)
+            and fr.code_civil.core::debiteur(c, d);
+        then responsabilite_solidaire_de_l_inexecution(c, d);
+    }
+    rule ChargeDefinitiveDeLInexecution(c: Creance, d: Personne) strict {
+        label fr official "Article 1319, seconde phrase. La charge en incombe à titre définitif à ceux auxquels l'inexécution est imputable";
+        label en unofficial "Article 1319, second sentence. The burden falls definitively on those to whom the non-performance is attributable";
+        when inexecution_de_l_obligation(c) and inexecution_imputable_a(c, d);
+        then charge_definitive_de_l_inexecution(c, d);
+    }
+}
+
+// --- Obligation à prestation indivisible (1320) ---------------------------------------------
+
+pub relation droit_d_exiger_le_paiement_integral(c: Creance, cr: Personne) kind derived {
+    label fr official "chacun des créanciers d'une obligation à prestation indivisible peut en exiger et en recevoir le paiement intégral, sauf à rendre compte aux autres (article 1320, alinéa 1)";
+    label en unofficial "each creditor of an indivisible obligation may demand and receive payment in full, subject to accounting to the others (Article 1320, paragraph 1)";
+}
+pub relation pouvoir_de_disposer_exclu(c: Creance, cr: Personne) kind derived {
+    label fr official "mais il ne peut seul disposer de la créance ni recevoir le prix au lieu de la chose (article 1320, alinéa 1)";
+    label en unofficial "but he may not alone dispose of the claim or receive the price instead of the thing (Article 1320, paragraph 1)";
+}
+pub relation tenu_pour_le_tout_par_indivisibilite(c: Creance, d: Personne) kind derived {
+    label fr official "chacun des débiteurs d'une obligation à prestation indivisible en est tenu pour le tout, mais a ses recours en contribution contre les autres (article 1320, alinéa 2)";
+    label en unofficial "each debtor of an indivisible obligation is bound for the whole, but has contributive recourse against the others (Article 1320, paragraph 2)";
+}
+
+@source(CC_ART1320) {
+    rule PaiementIntegralAuCreancierIndivisible(c: Creance, cr: Personne) strict {
+        label fr official "Article 1320, alinéa 1. Chacun des créanciers d'une obligation à prestation indivisible, par nature ou par contrat, peut en exiger et en recevoir le paiement intégral, sauf à rendre compte aux autres";
+        label en unofficial "Article 1320, paragraph 1. Each creditor of an obligation with an indivisible performance, by nature or by contract, may demand and receive payment in full, subject to accounting to the others";
+        when prestation_indivisible(c) and fr.code_civil.core::creancier(c, cr);
+        then droit_d_exiger_le_paiement_integral(c, cr);
+    }
+    rule PouvoirDeDisposerExclu(c: Creance, cr: Personne) strict {
+        label fr official "Article 1320, alinéa 1, in fine. Mais il ne peut seul disposer de la créance ni recevoir le prix au lieu de la chose";
+        label en unofficial "Article 1320, paragraph 1, in fine. But he may not alone dispose of the claim or receive the price instead of the thing";
+        when prestation_indivisible(c) and fr.code_civil.core::creancier(c, cr);
+        then pouvoir_de_disposer_exclu(c, cr);
+    }
+    rule DebiteurTenuPourLeToutParIndivisibilite(c: Creance, d: Personne) strict {
+        label fr official "Article 1320, alinéa 2. Chacun des débiteurs d'une telle obligation en est tenu pour le tout ; mais il a ses recours en contribution contre les autres";
+        label en unofficial "Article 1320, paragraph 2. Each debtor of such an obligation is bound for the whole; but he has contributive recourse against the others";
+        when prestation_indivisible(c) and fr.code_civil.core::debiteur(c, d);
+        then tenu_pour_le_tout_par_indivisibilite(c, d);
+    }
+}
+
+// --- Alinéas que les sections précédentes n'avaient pas portés ------------------------------
+
+pub relation terme_expres_ou_tacite(t: Terme) kind empirical {
+    label fr official "le terme est exprès ou tacite (article 1305-1, alinéa 1)";
+    label en unofficial "the term is express or implied (Article 1305-1, paragraph 1)";
+}
+pub relation accord_des_parties_sur_le_terme(t: Terme) kind empirical {
+    label fr official "les parties se sont accordées sur le terme (article 1305-1, alinéa 2, a contrario)";
+    label en unofficial "the parties agreed on the term (Article 1305-1, paragraph 2, a contrario)";
+}
+pub relation choix_non_exerce_dans_le_delai(c: Creance) kind empirical {
+    label fr official "le choix n'a pas été exercé dans le temps convenu (article 1307-1, alinéa 2)";
+    label en unofficial "the choice was not made within the agreed time (Article 1307-1, paragraph 2)";
+}
+pub relation mise_en_demeure_d_exercer_le_choix(c: Creance) kind empirical {
+    label fr official "l'autre partie a mis en demeure celui à qui le choix appartient (article 1307-1, alinéa 2)";
+    label en unofficial "the other party gave formal notice to the one entitled to choose (Article 1307-1, paragraph 2)";
+}
+pub relation successeur_d_une_partie(p: Personne, successeur: Personne) kind empirical {
+    label fr official "successeur d'un créancier ou d'un débiteur de l'obligation indivisible (article 1320, alinéa 3)";
+    label en unofficial "successor of a creditor or debtor of the indivisible obligation (Article 1320, paragraph 3)";
+}
+
+// « Dans un délai raisonnable » (1307-1, al. 2) est une appréciation que le
+// texte confie au juge : canal DECISION-0194, jamais un nombre inventé.
+@source(CC_ART1307_1)
+pub external judgment relation delai_raisonnable_expire(c: Creance) {
+    authority Court;
+    label fr official "le choix n'a pas été exercé dans un délai raisonnable (article 1307-1, alinéa 2)";
+    label en unofficial "the choice was not made within a reasonable time (Article 1307-1, paragraph 2)";
+}
+
+pub relation terme_judiciairement_fixe(c: Creance, jour: Date) kind derived {
+    key(c);
+    label fr official "à défaut d'accord, le juge fixe le terme en considération de la nature de l'obligation et de la situation des parties (article 1305-1, alinéa 2)";
+    label en unofficial "absent agreement, the court sets the term having regard to the nature of the obligation and the parties' situation (Article 1305-1, paragraph 2)";
+}
+pub relation qualification_du_terme_sans_effet_propre(t: Terme) kind derived {
+    label fr official "frontière : l'article 1305-1, alinéa 1, énonce que le terme peut être exprès ou tacite sans attacher d'effet distinct à cette qualification — il n'y a rien à exécuter au-delà de l'existence du terme (article 1305)";
+    label en unofficial "boundary: Article 1305-1, paragraph 1, states that a term may be express or implied without attaching any distinct effect to that qualification — nothing to execute beyond the term's existence (Article 1305)";
+}
+pub relation choix_transfere_a_l_autre_partie(c: Creance) kind derived {
+    label fr official "le choix n'ayant pas été exercé dans le temps convenu ou dans un délai raisonnable, l'autre partie peut, après mise en demeure, exercer ce choix ou résoudre le contrat (article 1307-1, alinéa 2)";
+    label en unofficial "the choice not having been made within the agreed or a reasonable time, the other party may, after formal notice, make that choice or terminate the contract (Article 1307-1, paragraph 2)";
+}
+pub relation successeur_tenu_comme_son_auteur(c: Creance, successeur: Personne) kind derived {
+    label fr official "il en va de même pour chacun des successeurs de ces créanciers et débiteurs (article 1320, alinéa 3)";
+    label en unofficial "the same applies to each of the successors of those creditors and debtors (Article 1320, paragraph 3)";
+}
+
+@source(CC_ART1305_1) {
+    rule QualificationDuTermeSansEffetPropre(t: Terme) strict {
+        label fr official "Article 1305-1, alinéa 1. Le terme peut être exprès ou tacite : le texte n'attache aucun effet propre à cette qualification — frontière déclarée";
+        label en unofficial "Article 1305-1, paragraph 1. A term may be express or implied: the text attaches no distinct effect to that qualification — declared boundary";
+        when terme_expres_ou_tacite(t);
+        then qualification_du_terme_sans_effet_propre(t);
+    }
+    rule TermeFixeParLeJugeADefautDAccord(c: Creance, t: Terme, jour: Date) strict {
+        label fr official "Article 1305-1, alinéa 2. A défaut d'accord, le juge peut le fixer en considération de la nature de l'obligation et de la situation des parties";
+        label en unofficial "Article 1305-1, paragraph 2. Absent agreement, the court may set it having regard to the nature of the obligation and the parties' situation";
+        when terme_de_l_obligation(c, t) and not_known(accord_des_parties_sur_le_terme(t))
+            and terme_fixe_par_le_juge(t, jour);
+        then terme_judiciairement_fixe(c, jour);
+    }
+}
+
+@source(CC_ART1307_1) {
+    rule ChoixTransfereApresLeTempsConvenu(c: Creance) strict {
+        label fr official "Article 1307-1, alinéa 2. Le choix n'ayant pas été exercé dans le temps convenu, l'autre partie peut, après mise en demeure, exercer ce choix ou résoudre le contrat";
+        label en unofficial "Article 1307-1, paragraph 2. The choice not having been made within the agreed time, the other party may, after formal notice, make that choice or terminate the contract";
+        when espece_de_l_obligation_plurale(c, Alternative) and choix_non_exerce_dans_le_delai(c)
+            and mise_en_demeure_d_exercer_le_choix(c);
+        then choix_transfere_a_l_autre_partie(c);
+    }
+    rule ChoixTransfereApresUnDelaiRaisonnable(c: Creance) strict {
+        label fr official "Article 1307-1, alinéa 2. Le délai raisonnable étant expiré selon le juge, l'autre partie peut, après mise en demeure, exercer le choix ou résoudre le contrat";
+        label en unofficial "Article 1307-1, paragraph 2. The reasonable time having expired in the court's view, the other party may, after formal notice, make the choice or terminate the contract";
+        when espece_de_l_obligation_plurale(c, Alternative) and delai_raisonnable_expire(c)
+            and mise_en_demeure_d_exercer_le_choix(c);
+        then choix_transfere_a_l_autre_partie(c);
+    }
+}
+
+@source(CC_ART1320) {
+    rule SuccesseurDuCreancierIndivisible(c: Creance, cr: Personne, successeur: Personne) strict {
+        label fr official "Article 1320, alinéa 3. Il en va de même pour chacun des successeurs de ces créanciers : le successeur exerce le droit de son auteur";
+        label en unofficial "Article 1320, paragraph 3. The same applies to each of those creditors' successors: the successor exercises his predecessor's right";
+        when prestation_indivisible(c) and fr.code_civil.core::creancier(c, cr)
+            and successeur_d_une_partie(cr, successeur);
+        then successeur_tenu_comme_son_auteur(c, successeur);
+    }
+    rule SuccesseurDuDebiteurIndivisible(c: Creance, d: Personne, successeur: Personne) strict {
+        label fr official "Article 1320, alinéa 3. Il en va de même pour chacun des successeurs de ces débiteurs : le successeur est tenu comme son auteur";
+        label en unofficial "Article 1320, paragraph 3. The same applies to each of those debtors' successors: the successor is bound as his predecessor was";
+        when prestation_indivisible(c) and fr.code_civil.core::debiteur(c, d)
+            and successeur_d_une_partie(d, successeur);
+        then successeur_tenu_comme_son_auteur(c, successeur);
+    }
+}

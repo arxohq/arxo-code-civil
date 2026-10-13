@@ -1,0 +1,29 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-REMISEAUNCODEBITEURSOLIDAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": remise_consentie(entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v0"), entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v1"), entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v2")) { origin case_input; }
+        assert "cat-1": obligation_solidaire_entre_debiteurs(entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v1")) { origin case_input; }
+    }
+    evaluate truth(codebiteurs_liberes_a_concurrence_de_la_part(entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v1"), entity_ref("urn:kz:catalog:remiseauncodebiteursolidaire:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-REMISEPARUNCREANCIERSOLIDAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": obligation_solidaire_entre_creanciers(entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v1")) { origin case_input; }
+        assert "cat-1": remise_faite_par_un_creancier_solidaire(entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v0"), entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v1"), entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v2")) { origin case_input; }
+    }
+    evaluate truth(debiteur_libere_pour_la_part_du_creancier(entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v1"), entity_ref("urn:kz:catalog:remiseparuncreanciersolidaire:v2")));
+    expect truth_status == TRUE_ONLY;
+}

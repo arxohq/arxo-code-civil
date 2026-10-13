@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 654. La sommité droite et à plomb d'un seul côté est marque de
+// non-mitoyenneté : la présomption de l'article 653 tombe et le mur est
+// censé appartenir exclusivement au propriétaire de ce côté.
+test "urn:query:fr-code-civil-biens-s16-marque-de-non-mitoyennete" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": cloture_separant(entity_ref("urn:fr:cc:biens:s16:M"), entity_ref("urn:fr:cc:biens:s16:F"), entity_ref("urn:fr:cc:biens:s16:V"), MurEntreCoursEtJardins) { origin case_input; }
+        assert "f2": sommite_droite_et_a_plomb_d_un_cote(entity_ref("urn:fr:cc:biens:s16:M"), entity_ref("urn:fr:cc:biens:s16:F")) { origin case_input; }
+    }
+    evaluate truth(appartient_exclusivement_a(entity_ref("urn:fr:cc:biens:s16:M"), entity_ref("urn:fr:cc:biens:s16:F")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

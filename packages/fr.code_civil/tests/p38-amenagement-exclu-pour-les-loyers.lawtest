@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2254, alinéa 3 : pas d'aménagement pour une action en paiement de loyers.
+test "urn:query:fr-code-civil-p38-amenagement-exclu-pour-les-loyers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": duree_conventionnelle_en_mois(entity_ref("urn:fr:cc:presc:p38"), 24) { origin case_input; }
+        assert "f2": action_en_paiement_periodique(entity_ref("urn:fr:cc:presc:p38")) { origin case_input; }
+    }
+    evaluate truth(amenagement_conventionnel_sans_effet(entity_ref("urn:fr:cc:presc:p38")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(AmenagementExcluPourLesPaiementsPeriodiques);
+}

@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2346, al. 2 : vente le 9 mars 2024, dernier jour du délai — prématurée.
+test "urn:query:fr-code-civil-suretes-d29-vente-publique-le-huitieme-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_JOUR; }
+        assert "f1": nature_de_la_surete(entity_ref("urn:fr:cc:suretes:d29:S"), GageDeMeublesCorporels) { origin case_input; }
+        assert "f2": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:d29:S")) { origin case_input; }
+        assert "f3": dette_professionnelle(entity_ref("urn:fr:cc:suretes:d29:S")) { origin case_input; }
+        assert "f4": signification_au_debiteur_le(entity_ref("urn:fr:cc:suretes:d29:S"), @2024-03-01) { origin case_input; }
+        assert "f5": vente_publique_projetee_le(entity_ref("urn:fr:cc:suretes:d29:S"), @2024-03-09) { origin case_input; }
+    }
+    evaluate truth(vente_publique_prematuree(entity_ref("urn:fr:cc:suretes:d29:S")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,87 @@
+// CODE CIVIL — LIVRE III, TITRE V (CC-11).
+// Common vocabulary and case inputs for the statutory matrimonial regimes.
+
+language "law.core" version "0.2";
+package fr.code_civil.regimes_matrimoniaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-regimes-matrimoniaux";
+import fr.code_civil.core version "0.1.0";
+
+use self::{
+    CC_ART1413,
+};
+
+type Personne = fr.code_civil.core::Personne;
+type Bien = fr.code_civil.core::Bien;
+
+pub entity Union {
+    label fr official "union matrimoniale à laquelle un régime matrimonial est applicable";
+    label en unofficial "marital union governed by a matrimonial property regime";
+}
+pub entity ActePatrimonial {
+    label fr official "acte portant sur un bien des époux";
+    label en unofficial "transaction concerning spouses' property";
+}
+pub entity OperationDeRecompense {
+    label fr official "opération donnant lieu à récompense lors de la liquidation";
+    label en unofficial "transaction giving rise to an equalisation payment on liquidation";
+}
+
+pub enum RegimeMatrimonial { label fr official "Élément déclaré CC-11 : RegimeMatrimonial"; label en unofficial "CC-11 declared element: RegimeMatrimonial"; CommunauteLegale, CommunauteConventionnelle, SeparationDeBiens, ParticipationAuxAcquets }
+pub enum NatureDeBien { label fr official "Élément déclaré CC-11 : NatureDeBien"; label en unofficial "CC-11 declared element: NatureDeBien"; ArgentComptant, Meuble, Immeuble }
+pub enum NatureDActe { label fr official "Élément déclaré CC-11 : NatureDActe"; label en unofficial "CC-11 declared element: NatureDActe"; Administration, Disposition, DonationEntreVifs, SureteDetteTiers, AlienationOuDroitReel, PerceptionCapital, TransfertFiduciaire, BailRuralCommercialIndustrielArtisanal }
+pub enum CauseDeDissolution { label fr official "Élément déclaré CC-11 : CauseDeDissolution"; label en unofficial "CC-11 declared element: CauseDeDissolution"; Mort, AbsenceDeclaree, Divorce, SeparationDeCorps, SeparationDeBiens, ChangementDeRegime }
+pub enum MethodeDeRecompense { label fr official "Élément déclaré CC-11 : MethodeDeRecompense"; label en unofficial "CC-11 declared element: MethodeDeRecompense"; RegleGenerale, DepenseNecessaire, AcquisitionConservationAmelioration, DepenseNecessaireEtInvestissement }
+
+pub relation epoux(u: Union, p: Personne) kind empirical { label fr official "personne ayant la qualité d'époux dans l'union"; label en unofficial "person who is a spouse in the union"; }
+pub relation regime_applicable(u: Union, r: RegimeMatrimonial) kind empirical { key(u); label fr official "régime matrimonial applicable à l'union"; label en unofficial "matrimonial property regime applicable to the union"; }
+pub relation bien_de_l_union(u: Union, b: Bien) kind empirical { label fr official "bien examiné dans la liquidation de l'union"; label en unofficial "property examined in the liquidation of the union"; }
+
+// Inputs used to qualify assets under Articles 1401–1408.
+pub relation acquis_pendant_le_mariage(u: Union, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : acquis_pendant_le_mariage"; label en unofficial "CC-11 declared element: acquis_pendant_le_mariage"; }
+pub relation provient_de_l_industrie_ou_des_economies(u: Union, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : provient_de_l_industrie_ou_des_economies"; label en unofficial "CC-11 declared element: provient_de_l_industrie_ou_des_economies"; }
+pub relation propre_par_nature(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : propre_par_nature"; label en unofficial "CC-11 declared element: propre_par_nature"; }
+pub relation propre_au_jour_du_mariage(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : propre_au_jour_du_mariage"; label en unofficial "CC-11 declared element: propre_au_jour_du_mariage"; }
+pub relation acquis_par_succession_donation_ou_legs(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : acquis_par_succession_donation_ou_legs"; label en unofficial "CC-11 declared element: acquis_par_succession_donation_ou_legs"; }
+pub relation accessoire_ou_accroissement_d_un_propre(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : accessoire_ou_accroissement_d_un_propre"; label en unofficial "CC-11 declared element: accessoire_ou_accroissement_d_un_propre"; }
+pub relation subroge_a_un_propre(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : subroge_a_un_propre"; label en unofficial "CC-11 declared element: subroge_a_un_propre"; }
+pub relation acquis_en_echange_d_un_propre(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : acquis_en_echange_d_un_propre"; label en unofficial "CC-11 declared element: acquis_en_echange_d_un_propre"; }
+pub relation soulte_commune_superieure_au_bien_cede(u: Union, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : soulte_commune_superieure_au_bien_cede"; label en unofficial "CC-11 declared element: soulte_commune_superieure_au_bien_cede"; }
+pub relation portion_indivise_propre_acquise(u: Union, p: Personne, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : portion_indivise_propre_acquise"; label en unofficial "CC-11 declared element: portion_indivise_propre_acquise"; }
+pub relation preuve_du_caractere_propre(u: Union, p: Personne, b: Bien) kind institutional { label fr official "Élément déclaré CC-11 : preuve_du_caractere_propre"; label en unofficial "CC-11 declared element: preuve_du_caractere_propre"; }
+
+// Debt and judicial-assessment inputs.
+pub relation dette_d_un_epoux(u: Union, p: Personne, d: fr.code_civil.core::Creance) kind empirical { label fr official "Élément déclaré CC-11 : dette_d_un_epoux"; label en unofficial "CC-11 declared element: dette_d_un_epoux"; }
+pub relation dette_nee_pendant_la_communaute(u: Union, d: fr.code_civil.core::Creance) kind empirical { label fr official "Élément déclaré CC-11 : dette_nee_pendant_la_communaute"; label en unofficial "CC-11 declared element: dette_nee_pendant_la_communaute"; }
+pub relation dette_personnelle_payee_par_la_communaute(u: Union, p: Personne, d: fr.code_civil.core::Creance) kind empirical { label fr official "Élément déclaré CC-11 : dette_personnelle_payee_par_la_communaute"; label en unofficial "CC-11 declared element: dette_personnelle_payee_par_la_communaute"; }
+@source(CC_ART1413) pub external judgment relation fraude_de_l_epoux_debiteur(u: Union, p: Personne, d: fr.code_civil.core::Creance) { authority Court; label fr official "fraude de l'époux débiteur constatée pour l'article 1413"; label en unofficial "debtor spouse's fraud established for Article 1413"; }
+@source(CC_ART1413) pub external judgment relation mauvaise_foi_du_creancier(u: Union, d: fr.code_civil.core::Creance) { authority Court; label fr official "mauvaise foi du créancier constatée pour l'article 1413"; label en unofficial "creditor's bad faith established for Article 1413"; }
+
+// Management inputs.
+pub relation acte_de_l_union(u: Union, a: ActePatrimonial) kind empirical { label fr official "Élément déclaré CC-11 : acte_de_l_union"; label en unofficial "CC-11 declared element: acte_de_l_union"; }
+pub relation auteur_de_l_acte(a: ActePatrimonial, p: Personne) kind empirical { label fr official "Élément déclaré CC-11 : auteur_de_l_acte"; label en unofficial "CC-11 declared element: auteur_de_l_acte"; }
+pub relation bien_objet_de_l_acte(a: ActePatrimonial, b: Bien) kind empirical { label fr official "Élément déclaré CC-11 : bien_objet_de_l_acte"; label en unofficial "CC-11 declared element: bien_objet_de_l_acte"; }
+pub relation nature_de_l_acte(a: ActePatrimonial, n: NatureDActe) kind empirical { label fr official "Élément déclaré CC-11 : nature_de_l_acte"; label en unofficial "CC-11 declared element: nature_de_l_acte"; }
+pub relation consentement_du_conjoint(a: ActePatrimonial) kind empirical { label fr official "Élément déclaré CC-11 : consentement_du_conjoint"; label en unofficial "CC-11 declared element: consentement_du_conjoint"; }
+pub relation ratification_du_conjoint(a: ActePatrimonial) kind empirical { label fr official "Élément déclaré CC-11 : ratification_du_conjoint"; label en unofficial "CC-11 declared element: ratification_du_conjoint"; }
+pub relation connaissance_de_l_acte_le(a: ActePatrimonial, d: Date) kind empirical { label fr official "Élément déclaré CC-11 : connaissance_de_l_acte_le"; label en unofficial "CC-11 declared element: connaissance_de_l_acte_le"; }
+pub relation action_en_nullite_introduite_le(a: ActePatrimonial, d: Date) kind empirical { label fr official "Élément déclaré CC-11 : action_en_nullite_introduite_le"; label en unofficial "CC-11 declared element: action_en_nullite_introduite_le"; }
+
+// Dissolution and liquidation inputs.
+pub relation evenement_de_dissolution(u: Union, c: CauseDeDissolution, d: Date) kind empirical { label fr official "Élément déclaré CC-11 : evenement_de_dissolution"; label en unofficial "CC-11 declared element: evenement_de_dissolution"; }
+pub relation masse_commune_avant_comptes(u: Union, m: Money) kind empirical { label fr official "Élément déclaré CC-11 : masse_commune_avant_comptes"; label en unofficial "CC-11 declared element: masse_commune_avant_comptes"; key(u); }
+pub relation operation_de_l_union(u: Union, o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : operation_de_l_union"; label en unofficial "CC-11 declared element: operation_de_l_union"; }
+pub relation depense_faite(o: OperationDeRecompense, m: Money) kind empirical { label fr official "Élément déclaré CC-11 : depense_faite"; label en unofficial "CC-11 declared element: depense_faite"; key(o); }
+pub relation profit_subsistant(o: OperationDeRecompense, m: Money) kind empirical { label fr official "Élément déclaré CC-11 : profit_subsistant"; label en unofficial "CC-11 declared element: profit_subsistant"; key(o); }
+pub relation depense_necessaire(o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : depense_necessaire"; label en unofficial "CC-11 declared element: depense_necessaire"; }
+pub relation valeur_employee_a_acquerir_conserver_ou_ameliorer(o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : valeur_employee_a_acquerir_conserver_ou_ameliorer"; label en unofficial "CC-11 declared element: valeur_employee_a_acquerir_conserver_ou_ameliorer"; }
+pub relation bien_retrouve_dans_le_patrimoine_emprunteur(o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : bien_retrouve_dans_le_patrimoine_emprunteur"; label en unofficial "CC-11 declared element: bien_retrouve_dans_le_patrimoine_emprunteur"; }
+pub relation recompense_due_a_l_epoux(u: Union, p: Personne, o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : recompense_due_a_l_epoux"; label en unofficial "CC-11 declared element: recompense_due_a_l_epoux"; }
+pub relation recompense_due_a_la_communaute(u: Union, p: Personne, o: OperationDeRecompense) kind empirical { label fr official "Élément déclaré CC-11 : recompense_due_a_la_communaute"; label en unofficial "CC-11 declared element: recompense_due_a_la_communaute"; }
+pub relation bien_disponible_pour_prelevement(u: Union, b: Bien, n: NatureDeBien) kind empirical { label fr official "Élément déclaré CC-11 : bien_disponible_pour_prelevement"; label en unofficial "CC-11 declared element: bien_disponible_pour_prelevement"; }
+
+deadline policy CC_REGIMES_AN {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}

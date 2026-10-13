@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-EXEMPLAIREUNIQUEREMISAUNTIERS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": exemplaire_unique_remis_a_un_tiers(entity_ref("urn:kz:catalog:exemplaireuniqueremisauntiers:v1")) { origin case_input; }
+        assert "cat-1": ecrit_de_l_acte(entity_ref("urn:kz:catalog:exemplaireuniqueremisauntiers:v0"), entity_ref("urn:kz:catalog:exemplaireuniqueremisauntiers:v1")) { origin case_input; }
+        assert "cat-2": contrat_synallagmatique(entity_ref("urn:kz:catalog:exemplaireuniqueremisauntiers:v0")) { origin case_input; }
+    }
+    evaluate truth(pluralite_d_originaux_satisfaite(entity_ref("urn:kz:catalog:exemplaireuniqueremisauntiers:v1")));
+    expect truth_status == TRUE_ONLY;
+}

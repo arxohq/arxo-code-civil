@@ -1,0 +1,249 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1602,
+    CC_ART1603,
+    CC_ART1608,
+    CC_ART1609,
+    CC_ART1610,
+    CC_ART1611,
+    CC_ART1612,
+    CC_ART1613,
+    CC_ART1614,
+    CC_ART1615,
+    Lieu,
+    Personne,
+    Vente,
+    absence_de_lieu_de_delivrance_convenu,
+    absence_de_stipulation_contraire_sur_frais,
+    accessoires_et_usage_perpetuel_delivres,
+    acheteur,
+    acheteur_en_faillite_ou_deconfiture,
+    acheteur_n_a_pas_paye_le_prix,
+    acheteur_peut_demander_mise_en_possession,
+    acheteur_peut_demander_resolution,
+    aucun_delai_de_paiement_accorde,
+    aucune_caution_de_paiement_au_terme,
+    danger_imminent_de_perdre_le_prix,
+    delivrance_non_faite_au_terme_convenu,
+    demande_mise_en_possession_pour_retard,
+    demande_resolution_pour_retard,
+    dommages_interets_dus_pour_defaut_de_delivrance,
+    dommages_interets_payes_pour_defaut_de_delivrance,
+    frais_d_enlevement_payes_par_acheteur,
+    frais_d_enlevement_supportes_par_acheteur,
+    frais_de_delivrance_payes_par_vendeur,
+    frais_de_delivrance_supportes_par_vendeur,
+    fruits_appartiennent_a_l_acheteur,
+    garantie_de_la_chose_assuree,
+    lieu_de_delivrance_applicable,
+    lieu_de_la_chose_au_jour_de_la_vente,
+    obligations_du_vendeur_clairement_expliquees,
+    prejudice_du_defaut_de_delivrance,
+    retard_imputable_au_vendeur,
+    vendeur,
+    vendeur_a_suspendu_delivrance,
+    vendeur_peut_suspendre_delivrance,
+    vente_en_vigueur,
+};
+
+@source(CC_ART1602)
+rule ExpliquerClairementLesObligationsDuVendeur(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1602, alinéa 1. Le vendeur est tenu d'expliquer clairement ce à quoi il s'oblige";
+    label en unofficial "Article 1602, paragraph 1. The seller must clearly explain what the seller undertakes";
+    when vente_en_vigueur(v) and vendeur(v, s) and acheteur(v, a);
+    then duty ExpliquerClairementLesObligations {
+        bearer s; beneficiary a;
+        achieve obligations_du_vendeur_clairement_expliquees(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1603)
+rule PositionGarantirLaChoseVendue(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1603. Le vendeur a l'obligation principale de garantir la chose vendue";
+    label en unofficial "Article 1603. The seller has the principal obligation to warrant the thing sold";
+    when vente_en_vigueur(v) and vendeur(v, s) and acheteur(v, a);
+    then duty GarantirLaChoseVendue {
+        bearer s; beneficiary a;
+        achieve garantie_de_la_chose_assuree(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1608)
+rule FraisDeDelivranceAuVendeur(v: Vente) strict {
+    label fr official "Article 1608. À défaut de stipulation contraire, les frais de délivrance sont à la charge du vendeur";
+    label en unofficial "Article 1608. Unless otherwise agreed, delivery costs are borne by the seller";
+    when vente_en_vigueur(v) and absence_de_stipulation_contraire_sur_frais(v);
+    then frais_de_delivrance_supportes_par_vendeur(v);
+}
+
+@source(CC_ART1608)
+rule FraisDEnlevementALAcheteur(v: Vente) strict {
+    label fr official "Article 1608. À défaut de stipulation contraire, les frais d'enlèvement sont à la charge de l'acheteur";
+    label en unofficial "Article 1608. Unless otherwise agreed, removal costs are borne by the buyer";
+    when vente_en_vigueur(v) and absence_de_stipulation_contraire_sur_frais(v);
+    then frais_d_enlevement_supportes_par_acheteur(v);
+}
+
+@source(CC_ART1608)
+rule PositionDevoirVendeurPayerFraisDelivrance(v: Vente, s: Personne) strict {
+    label fr official "Article 1608. Devoir du vendeur de payer les frais de délivrance";
+    label en unofficial "Article 1608. Seller's duty to pay delivery costs";
+    when vente_en_vigueur(v) and vendeur(v, s)
+        and absence_de_stipulation_contraire_sur_frais(v);
+    then duty PayerFraisDelivrance {
+        bearer s;
+        achieve frais_de_delivrance_payes_par_vendeur(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1608)
+rule PositionDevoirAcheteurPayerFraisEnlevement(v: Vente, a: Personne) strict {
+    label fr official "Article 1608. Devoir de l'acheteur de payer les frais d'enlèvement";
+    label en unofficial "Article 1608. Buyer's duty to pay removal costs";
+    when vente_en_vigueur(v) and acheteur(v, a)
+        and absence_de_stipulation_contraire_sur_frais(v);
+    then duty PayerFraisEnlevement {
+        bearer a;
+        achieve frais_d_enlevement_payes_par_acheteur(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1609)
+rule LieuDeDelivranceParDefaut(v: Vente, l: Lieu) strict {
+    label fr official "Article 1609. À défaut de convention contraire, la délivrance se fait au lieu où la chose se trouvait au temps de la vente";
+    label en unofficial "Article 1609. Unless otherwise agreed, delivery occurs where the thing was located at the time of sale";
+    when lieu_de_la_chose_au_jour_de_la_vente(v, l) and absence_de_lieu_de_delivrance_convenu(v);
+    then lieu_de_delivrance_applicable(v, l);
+}
+
+@source(CC_ART1610)
+rule ChoixResolutionPourRetardDuVendeur(v: Vente) strict {
+    label fr official "Article 1610. Si la délivrance n'intervient pas au temps convenu par le seul fait du vendeur, l'acquéreur peut demander la résolution";
+    label en unofficial "Article 1610. If delivery is not made at the agreed time solely through the seller's act, the buyer may seek termination";
+    when delivrance_non_faite_au_terme_convenu(v) and retard_imputable_au_vendeur(v);
+    then acheteur_peut_demander_resolution(v);
+}
+
+@source(CC_ART1610)
+rule ChoixMiseEnPossessionPourRetardDuVendeur(v: Vente) strict {
+    label fr official "Article 1610. Si la délivrance n'intervient pas au temps convenu par le seul fait du vendeur, l'acquéreur peut demander sa mise en possession";
+    label en unofficial "Article 1610. If delivery is not made at the agreed time solely through the seller's act, the buyer may seek possession";
+    when delivrance_non_faite_au_terme_convenu(v) and retard_imputable_au_vendeur(v);
+    then acheteur_peut_demander_mise_en_possession(v);
+}
+
+@source(CC_ART1610)
+rule PositionPouvoirResolutionPourRetard(v: Vente, a: Personne) strict {
+    label fr official "Article 1610. Pouvoir de l'acquéreur de demander la résolution pour retard";
+    label en unofficial "Article 1610. Buyer's power to seek termination for delay";
+    when acheteur(v, a) and delivrance_non_faite_au_terme_convenu(v)
+        and retard_imputable_au_vendeur(v);
+    then power PouvoirResolutionPourRetard {
+        holder a;
+        exercise demande_resolution_pour_retard(v);
+        valid_when retard_imputable_au_vendeur(v);
+        effect acheteur_peut_demander_resolution(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1610)
+rule PositionPouvoirMiseEnPossessionPourRetard(v: Vente, a: Personne) strict {
+    label fr official "Article 1610. Pouvoir de l'acquéreur de demander sa mise en possession";
+    label en unofficial "Article 1610. Buyer's power to seek possession";
+    when acheteur(v, a) and delivrance_non_faite_au_terme_convenu(v)
+        and retard_imputable_au_vendeur(v);
+    then power PouvoirMiseEnPossessionPourRetard {
+        holder a;
+        exercise demande_mise_en_possession_pour_retard(v);
+        valid_when retard_imputable_au_vendeur(v);
+        effect acheteur_peut_demander_mise_en_possession(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1611)
+rule DommagesInteretsPourDefautDeDelivrance(v: Vente) strict {
+    label fr official "Article 1611. Le préjudice causé par le défaut de délivrance au terme convenu ouvre droit aux dommages et intérêts";
+    label en unofficial "Article 1611. Loss caused by failure to deliver at the agreed time gives rise to damages";
+    when delivrance_non_faite_au_terme_convenu(v) and prejudice_du_defaut_de_delivrance(v);
+    then dommages_interets_dus_pour_defaut_de_delivrance(v);
+}
+
+@source(CC_ART1611)
+rule PositionDevoirPayerDommagesPourRetard(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1611. Devoir du vendeur de payer les dommages-intérêts pour retard";
+    label en unofficial "Article 1611. Seller's duty to pay damages for delay";
+    when vendeur(v, s) and acheteur(v, a) and delivrance_non_faite_au_terme_convenu(v)
+        and prejudice_du_defaut_de_delivrance(v);
+    then duty PayerDommagesPourRetard {
+        bearer s; beneficiary a;
+        achieve dommages_interets_payes_pour_defaut_de_delivrance(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1612)
+rule SuspensionDelivrancePourPrixImpaye(v: Vente) strict {
+    label fr official "Article 1612. Le vendeur n'est pas tenu de délivrer si le prix n'est pas payé et si aucun délai de paiement n'a été accordé";
+    label en unofficial "Article 1612. The seller need not deliver where the price is unpaid and no payment period was granted";
+    when acheteur_n_a_pas_paye_le_prix(v) and aucun_delai_de_paiement_accorde(v);
+    then vendeur_peut_suspendre_delivrance(v);
+}
+
+@source(CC_ART1612)
+rule PositionLiberteSuspendreDelivrancePrixImpaye(v: Vente, s: Personne) strict {
+    label fr official "Article 1612. Liberté du vendeur de suspendre la délivrance pour prix impayé";
+    label en unofficial "Article 1612. Seller's liberty to suspend delivery for unpaid price";
+    when vendeur(v, s) and acheteur_n_a_pas_paye_le_prix(v)
+        and aucun_delai_de_paiement_accorde(v);
+    then liberty SuspendreDelivrancePrixImpaye {
+        holder s;
+        action vendeur_a_suspendu_delivrance(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1613)
+rule SuspensionDelivrancePourInsolvabilite(v: Vente) strict {
+    label fr official "Article 1613. Le vendeur peut suspendre la délivrance si l'insolvabilité postérieure expose au danger imminent de perdre le prix et si aucune caution n'est donnée";
+    label en unofficial "Article 1613. The seller may withhold delivery where later insolvency creates imminent danger of losing the price and no security is given";
+    when acheteur_en_faillite_ou_deconfiture(v) and danger_imminent_de_perdre_le_prix(v)
+        and aucune_caution_de_paiement_au_terme(v);
+    then vendeur_peut_suspendre_delivrance(v);
+}
+
+@source(CC_ART1613)
+rule PositionLiberteSuspendreDelivranceInsolvabilite(v: Vente, s: Personne) strict {
+    label fr official "Article 1613. Liberté du vendeur de suspendre la délivrance en cas d'insolvabilité";
+    label en unofficial "Article 1613. Seller's liberty to suspend delivery for insolvency";
+    when vendeur(v, s) and acheteur_en_faillite_ou_deconfiture(v)
+        and danger_imminent_de_perdre_le_prix(v)
+        and aucune_caution_de_paiement_au_terme(v);
+    then liberty SuspendreDelivranceInsolvabilite {
+        holder s;
+        action vendeur_a_suspendu_delivrance(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1614)
+rule FruitsALAcheteurDepuisLaVente(v: Vente) strict {
+    label fr official "Article 1614, alinéa 2. Depuis le jour de la vente, les fruits appartiennent à l'acquéreur";
+    label en unofficial "Article 1614, paragraph 2. From the sale date, fruits belong to the buyer";
+    when vente_en_vigueur(v);
+    then fruits_appartiennent_a_l_acheteur(v);
+}
+
+@source(CC_ART1615)
+rule PositionDelivrerAccessoiresEtUsagePerpetuel(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1615. L'obligation de délivrance comprend les accessoires et ce qui est destiné à l'usage perpétuel de la chose";
+    label en unofficial "Article 1615. The delivery obligation includes accessories and everything intended for the thing's permanent use";
+    when vente_en_vigueur(v) and vendeur(v, s) and acheteur(v, a);
+    then duty DelivrerAccessoiresEtUsagePerpetuel {
+        bearer s; beneficiary a;
+        achieve accessoires_et_usage_perpetuel_delivres(v) during [@1804-03-21, infinity);
+    };
+}

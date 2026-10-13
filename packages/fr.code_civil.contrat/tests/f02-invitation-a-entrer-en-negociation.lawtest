@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1114 : sans les éléments essentiels du contrat envisagé, il y a seulement invitation à entrer en négociation.
+test "urn:query:fr-code-civil-contrat-f02-invitation-a-entrer-en-negociation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f02"), @2019-03-01) { origin case_input; }
+        assert "f2": offre_du_contrat(entity_ref("urn:fr:cc:contrat:f02:offre"), entity_ref("urn:fr:cc:contrat:f02")) { origin case_input; }
+        assert "f3": volonte_d_etre_lie(entity_ref("urn:fr:cc:contrat:f02:offre")) { origin case_input; }
+    }
+    evaluate truth(simple_invitation_a_entrer_en_negociation(entity_ref("urn:fr:cc:contrat:f02:offre")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InvitationAEntrerEnNegociation);
+}

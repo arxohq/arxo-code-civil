@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1305-3, al. 1, a contrario : le terme ayant été établi en faveur du créancier,
+// il ne profite pas au débiteur.
+test "urn:query:fr-code-civil-obligations-m07-terme-stipule-en-faveur-du-creancier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": terme_de_l_obligation(entity_ref("urn:fr:cc:obligations:tec:c"), entity_ref("urn:fr:cc:obligations:tec:t")) { origin case_input; }
+        assert "f2": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:tec:c"), entity_ref("urn:fr:cc:obligations:tec:D")) { origin case_input; }
+        assert "f3": terme_stipule_en_faveur(entity_ref("urn:fr:cc:obligations:tec:t"), entity_ref("urn:fr:cc:obligations:tec:CR")) { origin case_input; }
+    }
+    evaluate truth(terme_profitant_au_debiteur(entity_ref("urn:fr:cc:obligations:tec:c"), entity_ref("urn:fr:cc:obligations:tec:D")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(TermeEtabliEnFaveurDUnAutre);
+}

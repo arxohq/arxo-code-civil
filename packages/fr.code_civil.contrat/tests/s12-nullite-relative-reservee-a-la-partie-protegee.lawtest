@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1181 al. 1 : la nullité relative ne peut être demandée que par la partie que la loi entend protéger.
+test "urn:query:fr-code-civil-contrat-s12-nullite-relative-reservee-a-la-partie-protegee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s12"), @2019-03-01) { origin case_input; }
+        assert "f2": regle_violee_protege_un_interet_prive(entity_ref("urn:fr:cc:contrat:s12")) { origin case_input; }
+        assert "f3": partie_que_la_loi_entend_proteger(entity_ref("urn:fr:cc:contrat:s12"), entity_ref("urn:fr:cc:contrat:s12:p1")) { origin case_input; }
+    }
+    evaluate truth(nullite_demandable_par(entity_ref("urn:fr:cc:contrat:s12"), entity_ref("urn:fr:cc:contrat:s12:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NulliteRelativeReserveeALaPartieProtegee);
+}

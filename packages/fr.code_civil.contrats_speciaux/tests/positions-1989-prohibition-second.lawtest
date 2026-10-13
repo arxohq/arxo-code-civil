@@ -1,0 +1,27 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+test "CC13-positions-1989-prohibition-second" {
+    given {
+        context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "f1": acte_au_dela_du_mandat(entity_ref("urn:cc13:p2:m")) { origin case_input; }
+        assert "f2": mandataire(entity_ref("urn:cc13:p2:m"), entity_ref("urn:cc13:p2:agent")) { origin case_input; }
+        assert "f3": acte_hors_pouvoir_exerce(entity_ref("urn:cc13:p2:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P3PositionInterdictionAgirAuDelaDuMandat, VIOLATED);
+    expect position(P3PositionMaintenanceInterdictionAgirAuDelaDuMandat, VIOLATED);
+}
+
+test "CC13-positions-1989-prohibition-second-b" {
+    given {
+        context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "f1": acte_au_dela_du_mandat(entity_ref("urn:cc13:p3:m")) { origin case_input; }
+        assert "f2": mandataire(entity_ref("urn:cc13:p3:m"), entity_ref("urn:cc13:p3:agent")) { origin case_input; }
+        assert "f3": acte_hors_pouvoir_exerce(entity_ref("urn:cc13:p3:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P3PositionInterdictionAgirAuDelaDuMandat, VIOLATED);
+    expect position(P3PositionMaintenanceInterdictionAgirAuDelaDuMandat, VIOLATED);
+}

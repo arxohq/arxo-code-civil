@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1323, al. 1 et 2 : entre les parties, le transfert s'opère À LA DATE DE L'ACTE,
+// et il est opposable aux tiers dès ce moment — ici le 15 avril 2025.
+test "urn:query:fr-code-civil-obligations-o02-transfert-a-la-date-de-l-acte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": cession_de_creance(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:c")) { origin case_input; }
+        assert "f2": cedant(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CED")) { origin case_input; }
+        assert "f3": cessionnaire(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CESS")) { origin case_input; }
+        assert "f4": date_de_l_acte_de_cession(entity_ref("urn:fr:cc:obligations:ces:x"), @2025-04-15) { origin case_input; }
+        assert "f5": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:obligations:ces:x")) { origin case_input; }
+    }
+    evaluate truth(cession_opposable_aux_tiers_le(entity_ref("urn:fr:cc:obligations:ces:x"), @2025-04-15));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TransfertALaDateDeLActe);
+    expect applied(OpposabiliteAuxTiersDesLActe);
+}

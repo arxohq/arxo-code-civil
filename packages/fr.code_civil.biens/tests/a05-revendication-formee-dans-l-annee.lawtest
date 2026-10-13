@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 559. « il est tenu de former sa demande dans l'année » : la demande
+// formée à l'anniversaire même de l'enlèvement est recevable.
+test "urn:query:fr-code-civil-biens-a05-revendication-dans-l-annee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": partie_emportee_par_force_subite(entity_ref("urn:fr:cc:biens:a05:A"), entity_ref("urn:fr:cc:biens:a05:ORIG"), entity_ref("urn:fr:cc:biens:a05:ARR")) { origin case_input; }
+        assert "f2": jour_de_l_enlevement(entity_ref("urn:fr:cc:biens:a05:A"), @2024-03-15) { origin case_input; }
+        assert "f3": demande_formee_le(entity_ref("urn:fr:cc:biens:a05:A"), @2025-03-15) { origin case_input; }
+        assert "j1": partie_considerable_et_reconnaissable(entity_ref("urn:fr:cc:biens:a05:A")) { origin adjudicated; }
+    }
+    evaluate truth(revendication_recevable(entity_ref("urn:fr:cc:biens:a05:A")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

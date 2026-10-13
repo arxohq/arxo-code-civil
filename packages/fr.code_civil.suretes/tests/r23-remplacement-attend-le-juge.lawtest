@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-11, canal §47.3 : le manquement de l'agent n'est pas encore apprécié.
+test "urn:query:fr-code-civil-suretes-r23-remplacement-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": agent_des_suretes(entity_ref("urn:fr:cc:suretes:r23:M"), entity_ref("urn:fr:cc:suretes:r23:A")) { origin case_input; }
+        assert "f2": convention_de_designation_ecrite(entity_ref("urn:fr:cc:suretes:r23:M")) { origin case_input; }
+        assert "f3": ecrit_mentionne_qualite_objet_duree_pouvoirs(entity_ref("urn:fr:cc:suretes:r23:M")) { origin case_input; }
+    }
+    evaluate truth(remplacement_judiciaire_demandable(entity_ref("urn:fr:cc:suretes:r23:M")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(agent_manque_a_ses_devoirs, Court);
+}

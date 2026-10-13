@@ -1,0 +1,693 @@
+// LIVRE IV, TITRE Ier, CHAPITRE Ier, SECTIONS 1 ET 2 : DISPOSITIONS GÉNÉRALES
+// ET FORMATION ET ÉTENDUE DU CAUTIONNEMENT (articles 2288 à 2301).
+//
+// CORRIDOR 2021. Toutes les règles de ce chapitre sont issues de l'ordonnance
+// n° 2021-1192 et ne s'appliquent qu'au cautionnement que le corridor de
+// l'article 37, II rattache à la loi nouvelle (`regi_par_la_loi_nouvelle`).
+// Le cautionnement conclu avant le 1er janvier 2022 reçoit une seule réponse :
+// la rédaction antérieure est applicable ; elle n'est pas épinglée ici et le
+// paquet ne calcule rien de plus (frontière, README).
+//
+// TROIS APPRÉCIATIONS DU JUGE. « Inadapté aux capacités financières » (2299),
+// « manifestement disproportionné » (2300) et « solvabilité suffisante »
+// (2301) sont des relations de jugement §47.3 ; le montant du préjudice
+// (2299) et celui auquel la caution pouvait s'engager (2300) sont des faits
+// établis par le juge (origine `adjudicated`).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2288,
+    CC_ART2289,
+    CC_ART2290,
+    CC_ART2291,
+    CC_ART2291_1,
+    CC_ART2292,
+    CC_ART2293,
+    CC_ART2294,
+    CC_ART2295,
+    CC_ART2296,
+    CC_ART2297,
+    CC_ART2298,
+    CC_ART2299,
+    CC_ART2300,
+    CC_ART2301,
+    Cautionnement,
+    Creance,
+    NatureDuCautionnement,
+    Personne,
+    Solidarite,
+    creancier_professionnel,
+    est_personne_morale,
+    est_personne_physique,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation caution(k: Cautionnement, p: Personne) kind empirical {
+    key(k);
+    label fr official "caution : personne qui s'oblige par le cautionnement";
+    label en unofficial "surety: person bound by the suretyship";
+}
+pub relation creancier_du_cautionnement(k: Cautionnement, p: Personne) kind empirical {
+    key(k);
+    label fr official "créancier envers lequel la caution s'oblige";
+    label en unofficial "creditor to whom the surety is bound";
+}
+pub relation debiteur_principal(k: Cautionnement, p: Personne) kind empirical {
+    label fr official "débiteur principal dont la dette est garantie (plusieurs en cas de solidarité, article 2310)";
+    label en unofficial "principal debtor whose debt is guaranteed (several where jointly liable, Article 2310)";
+}
+pub relation dette_garantie(k: Cautionnement, c: Creance) kind empirical {
+    label fr official "obligation garantie, présente ou future, déterminée ou déterminable (article 2292)";
+    label en unofficial "guaranteed obligation, present or future, determined or determinable (Article 2292)";
+}
+pub relation nature_du_cautionnement(k: Cautionnement, n: NatureDuCautionnement) kind empirical {
+    key(k);
+    label fr official "cautionnement conventionnel, légal ou judiciaire (article 2289)";
+    label en unofficial "contractual, statutory or court-ordered suretyship (Article 2289)";
+}
+pub relation solidarite_stipulee(k: Cautionnement, s: Solidarite) kind empirical {
+    label fr official "solidarité stipulée par l'acte (article 2290)";
+    label en unofficial "joint and several liability stipulated by the deed (Article 2290)";
+}
+pub relation caution_du_certificateur(s: Cautionnement, k: Cautionnement) kind empirical {
+    key(s);
+    label fr official "le cautionnement s garantit, envers le créancier, la caution du cautionnement k (article 2291)";
+    label en unofficial "suretyship s guarantees, to the creditor, the surety of suretyship k (Article 2291)";
+}
+pub relation sous_cautionnement(s: Cautionnement, k: Cautionnement) kind empirical {
+    key(s);
+    label fr official "le cautionnement s est un sous-cautionnement : la sous-caution s'oblige envers la caution du cautionnement k (article 2291-1)";
+    label en unofficial "suretyship s is a sub-suretyship: the sub-surety is bound to the surety of suretyship k (Article 2291-1)";
+}
+pub relation engagement_expres(k: Cautionnement) kind empirical {
+    label fr official "la volonté de se porter caution est exprimée expressément (article 2294)";
+    label en unofficial "the intention to stand surety is expressly stated (Article 2294)";
+}
+pub relation clause_excluant_les_accessoires(k: Cautionnement) kind empirical {
+    label fr official "clause contraire : le cautionnement ne s'étend pas aux intérêts et accessoires (article 2295)";
+    label en unofficial "contrary clause: the suretyship does not extend to interest and accessories (Article 2295)";
+}
+pub relation montant_de_la_dette_garantie(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "montant dû par le débiteur au titre de l'obligation garantie (article 2296)";
+    label en unofficial "amount owed by the debtor under the guaranteed obligation (Article 2296)";
+}
+pub relation obligation_garantie_nulle(k: Cautionnement) kind empirical {
+    label fr official "l'obligation garantie n'est pas valable (article 2293) — fait établi";
+    label en unofficial "the guaranteed obligation is not valid (Article 2293) — established fact";
+}
+pub relation nullite_pour_incapacite_connue_de_la_caution(k: Cautionnement) kind empirical {
+    label fr official "l'obligation garantie est nulle pour incapacité d'une personne physique que la caution connaissait (article 2293, seconde phrase)";
+    label en unofficial "the guaranteed obligation is void for the incapacity of a natural person, known to the surety (Article 2293, second sentence)";
+}
+pub relation mention_manuscrite_apposee(k: Cautionnement) kind empirical {
+    label fr official "la caution a apposé elle-même la mention de l'article 2297";
+    label en unofficial "the surety personally wrote the statement required by Article 2297";
+}
+pub relation montant_en_toutes_lettres(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "limite du cautionnement exprimée en toutes lettres dans la mention (article 2297)";
+    label en unofficial "limit of the suretyship written out in words in the statement (Article 2297)";
+}
+pub relation montant_en_chiffres(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "limite du cautionnement exprimée en chiffres dans la mention (article 2297)";
+    label en unofficial "limit of the suretyship written in figures in the statement (Article 2297)";
+}
+pub relation mention_reconnait_la_privation_des_benefices(k: Cautionnement) kind empirical {
+    label fr official "la mention reconnaît que la caution ne peut exiger du créancier qu'il poursuive d'abord le débiteur ou divise ses poursuites (article 2297)";
+    label en unofficial "the statement acknowledges that the surety cannot require the creditor first to pursue the debtor or to divide its claims (Article 2297)";
+}
+pub relation mandat_de_se_porter_caution(k: Cautionnement) kind empirical {
+    label fr official "la caution personne physique a donné mandat à autrui de se porter caution (article 2297, dernière phrase)";
+    label en unofficial "the natural-person surety instructed another to stand surety (Article 2297, last sentence)";
+}
+pub relation exception_du_debiteur(k: Cautionnement, x: Text) kind empirical {
+    label fr official "exception, personnelle ou inhérente à la dette, appartenant au débiteur (article 2298)";
+    label en unofficial "defence, personal or inherent in the debt, belonging to the debtor (Article 2298)";
+}
+pub relation mesure_consecutive_a_la_defaillance(k: Cautionnement, x: Text) kind empirical {
+    label fr official "l'exception est une mesure légale ou judiciaire dont le débiteur bénéficie en conséquence de sa défaillance (article 2298)";
+    label en unofficial "the defence is a statutory or judicial measure the debtor enjoys as a consequence of its default (Article 2298)";
+}
+pub relation disposition_speciale_contraire_2298(k: Cautionnement, x: Text) kind empirical {
+    label fr official "une disposition spéciale permet à la caution de se prévaloir de cette mesure (article 2298, sauf disposition spéciale contraire)";
+    label en unofficial "a special provision allows the surety to rely on that measure (Article 2298, save contrary special provision)";
+}
+pub relation mise_en_garde_effectuee(k: Cautionnement) kind empirical {
+    label fr official "le créancier a mis en garde la caution (article 2299)";
+    label en unofficial "the creditor warned the surety (Article 2299)";
+}
+pub relation prejudice_de_la_caution_2299(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "préjudice subi par la caution faute de mise en garde, fixé par le juge (article 2299)";
+    label en unofficial "loss suffered by the surety for want of a warning, set by the court (Article 2299)";
+}
+pub relation montant_a_hauteur_duquel_la_caution_pouvait_s_engager(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "montant à hauteur duquel la caution pouvait s'engager à la date de conclusion, fixé par le juge (article 2300)";
+    label en unofficial "amount up to which the surety could commit on the date of conclusion, set by the court (Article 2300)";
+}
+pub relation caution_devenue_insolvable(k: Cautionnement) kind empirical {
+    label fr official "la caution légale ou judiciaire est devenue insolvable (article 2301)";
+    label en unofficial "the statutory or court-ordered surety has become insolvent (Article 2301)";
+}
+pub relation autre_caution_substituee(k: Cautionnement) kind empirical {
+    label fr official "le débiteur a substitué une autre caution ou une sûreté réelle suffisante (article 2301)";
+    label en unofficial "the debtor has substituted another surety or sufficient real security (Article 2301)";
+}
+
+// --- Appréciations du juge (§47.3) --------------------------------------------------------------
+
+@source(CC_ART2299)
+pub external judgment relation engagement_inadapte_aux_capacites_du_debiteur(k: Cautionnement) {
+    authority Court;
+    label fr official "l'engagement du débiteur principal est inadapté aux capacités financières de ce dernier (article 2299)";
+    label en unofficial "the principal debtor's commitment is unsuited to its financial capacity (Article 2299)";
+}
+@source(CC_ART2300)
+pub external judgment relation cautionnement_manifestement_disproportionne(k: Cautionnement) {
+    authority Court;
+    label fr official "le cautionnement était, lors de sa conclusion, manifestement disproportionné aux revenus et au patrimoine de la caution (article 2300)";
+    label en unofficial "the suretyship was, when concluded, manifestly disproportionate to the surety's income and assets (Article 2300)";
+}
+@source(CC_ART2301)
+pub external judgment relation solvabilite_suffisante(k: Cautionnement) {
+    authority Court;
+    label fr official "la caution légale ou judiciaire a une solvabilité suffisante pour répondre de l'obligation (article 2301)";
+    label en unofficial "the statutory or court-ordered surety is solvent enough to answer for the obligation (Article 2301)";
+}
+
+// --- Corridor de l'ordonnance n° 2021-1192 -----------------------------------------------------
+
+pub relation regi_par_la_loi_nouvelle(k: Cautionnement) kind derived {
+    label fr official "le cautionnement relève des articles 2288 à 2320 dans leur rédaction issue de l'ordonnance n° 2021-1192";
+    label en unofficial "the suretyship falls under Articles 2288 to 2320 as worded by Ordinance No. 2021-1192";
+}
+pub relation redaction_anterieure_applicable(k: Cautionnement) kind derived {
+    label fr official "frontière : le cautionnement conclu avant le 1er janvier 2022 demeure soumis à la loi ancienne (ordonnance n° 2021-1192, article 37, II), non épinglée dans ce paquet";
+    label en unofficial "boundary: a suretyship concluded before 1 January 2022 remains governed by the former law (Ordinance No. 2021-1192, Article 37, II), not pinned in this package";
+}
+
+@source(CC_ART2288) {
+    rule CautionnementDeLaLoiNouvelle(k: Cautionnement) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, I et II. Le cautionnement conclu à compter du 1er janvier 2022 relève du chapitre dans sa rédaction nouvelle";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, I and II. A suretyship concluded from 1 January 2022 falls under the chapter as newly worded";
+        when fr.code_civil.transitions::loi_applicable_au_cautionnement(k, fr.code_civil.transitions::LoiNouvelle);
+        then regi_par_la_loi_nouvelle(k);
+    }
+    rule CautionnementDeLaLoiAncienne(k: Cautionnement) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, II. Les cautionnements conclus avant le 1er janvier 2022 demeurent soumis à la loi ancienne, y compris pour leurs effets légaux et pour les dispositions d'ordre public : le paquet s'arrête là";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, II. Suretyships concluded before 1 January 2022 remain governed by the former law, including as to their legal effects and public-policy provisions: the package stops there";
+        when fr.code_civil.transitions::loi_applicable_au_cautionnement(k, fr.code_civil.transitions::LoiAncienne);
+        then redaction_anterieure_applicable(k);
+    }
+}
+
+// --- 2288–2292 : définitions -----------------------------------------------------------------
+
+pub relation caution_obligee_envers(k: Cautionnement, caution_p: Personne, creancier_p: Personne) kind derived {
+    label fr official "la caution est obligée envers le créancier à payer la dette du débiteur en cas de défaillance de celui-ci (article 2288)";
+    label en unofficial "the surety is bound to the creditor to pay the debtor's debt if the debtor defaults (Article 2288)";
+}
+pub relation caution_personne_physique(k: Cautionnement) kind derived {
+    label fr official "la caution est une personne physique";
+    label en unofficial "the surety is a natural person";
+}
+pub relation caution_personne_morale(k: Cautionnement) kind derived {
+    label fr official "la caution est une personne morale";
+    label en unofficial "the surety is a legal person";
+}
+pub relation creancier_professionnel_du_cautionnement(k: Cautionnement) kind derived {
+    label fr official "le créancier du cautionnement est un créancier professionnel";
+    label en unofficial "the creditor under the suretyship is a professional creditor";
+}
+pub relation cautionnement_legal(k: Cautionnement) kind derived {
+    label fr official "cautionnement légal : la loi subordonne l'exercice d'un droit à sa fourniture (article 2289)";
+    label en unofficial "statutory suretyship: the law makes the exercise of a right subject to providing it (Article 2289)";
+}
+pub relation cautionnement_judiciaire(k: Cautionnement) kind derived {
+    label fr official "cautionnement judiciaire : le juge subordonne la satisfaction d'une demande à sa fourniture (article 2289)";
+    label en unofficial "court-ordered suretyship: the court makes granting a claim subject to providing it (Article 2289)";
+}
+pub relation solidaire_avec_le_debiteur(k: Cautionnement) kind derived {
+    label fr official "la caution est tenue solidairement avec le débiteur principal (article 2290)";
+    label en unofficial "the surety is jointly and severally liable with the principal debtor (Article 2290)";
+}
+pub relation solidaire_entre_cautions(k: Cautionnement) kind derived {
+    label fr official "la caution est solidaire des autres cautions (article 2290)";
+    label en unofficial "the surety is jointly and severally liable with the other sureties (Article 2290)";
+}
+pub relation cautionnement_simple(k: Cautionnement) kind derived {
+    label fr official "cautionnement simple : aucune solidarité stipulée (article 2290)";
+    label en unofficial "simple suretyship: no joint liability stipulated (Article 2290)";
+}
+pub relation certificateur_de_caution(s: Cautionnement, k: Cautionnement) kind derived {
+    label fr official "caution de la caution, obligée envers le créancier (article 2291)";
+    label en unofficial "surety of the surety, bound to the creditor (Article 2291)";
+}
+pub relation sous_caution_obligee_envers_la_caution(s: Cautionnement, p: Personne) kind derived {
+    label fr official "la sous-caution s'oblige envers la caution à lui payer ce que peut lui devoir le débiteur à raison du cautionnement (article 2291-1)";
+    label en unofficial "the sub-surety is bound to the surety to pay what the debtor may owe it by reason of the suretyship (Article 2291-1)";
+}
+pub relation obligation_couverte(k: Cautionnement, c: Creance) kind derived {
+    label fr official "obligation couverte par le cautionnement (article 2292)";
+    label en unofficial "obligation covered by the suretyship (Article 2292)";
+}
+
+@source(CC_ART2288) {
+    rule CautionObligeeEnversLeCreancier(k: Cautionnement, a: Personne, b: Personne) strict {
+        label fr official "Article 2288. Le cautionnement est le contrat par lequel une caution s'oblige envers le créancier à payer la dette du débiteur en cas de défaillance de celui-ci";
+        label en unofficial "Article 2288. A suretyship is the contract by which a surety undertakes to the creditor to pay the debtor's debt if the debtor defaults";
+        when regi_par_la_loi_nouvelle(k) and caution(k, a) and creancier_du_cautionnement(k, b);
+        then caution_obligee_envers(k, a, b);
+    }
+    rule CautionPersonnePhysique(k: Cautionnement, a: Personne) strict {
+        label fr official "Articles 2297 à 2304. Qualité de la caution : personne physique";
+        label en unofficial "Articles 2297 to 2304. Status of the surety: natural person";
+        when caution(k, a) and est_personne_physique(a);
+        then caution_personne_physique(k);
+    }
+    rule CautionPersonneMorale(k: Cautionnement, a: Personne) strict {
+        label fr official "Articles 2302 et 2318. Qualité de la caution : personne morale";
+        label en unofficial "Articles 2302 and 2318. Status of the surety: legal person";
+        when caution(k, a) and est_personne_morale(a);
+        then caution_personne_morale(k);
+    }
+    rule CreancierProfessionnelDuCautionnement(k: Cautionnement, b: Personne) strict {
+        label fr official "Articles 2299 à 2303. Le créancier du cautionnement est un créancier professionnel";
+        label en unofficial "Articles 2299 to 2303. The creditor under the suretyship is a professional creditor";
+        when creancier_du_cautionnement(k, b) and creancier_professionnel(b);
+        then creancier_professionnel_du_cautionnement(k);
+    }
+}
+
+@source(CC_ART2289) {
+    rule CautionnementLegalQualifie(k: Cautionnement) strict {
+        label fr official "Article 2289. Lorsque la loi subordonne l'exercice d'un droit à la fourniture d'un cautionnement, il est dit légal";
+        label en unofficial "Article 2289. Where the law makes the exercise of a right subject to providing a suretyship, it is called statutory";
+        when regi_par_la_loi_nouvelle(k) and nature_du_cautionnement(k, CautionnementLegal);
+        then cautionnement_legal(k);
+    }
+    rule CautionnementJudiciaireQualifie(k: Cautionnement) strict {
+        label fr official "Article 2289. Lorsque la loi confère au juge le pouvoir de subordonner la satisfaction d'une demande à la fourniture d'un cautionnement, il est dit judiciaire";
+        label en unofficial "Article 2289. Where the law empowers the court to make granting a claim subject to providing a suretyship, it is called court-ordered";
+        when regi_par_la_loi_nouvelle(k) and nature_du_cautionnement(k, CautionnementJudiciaire);
+        then cautionnement_judiciaire(k);
+    }
+}
+
+@source(CC_ART2290) {
+    rule SolidariteAvecLeDebiteur(k: Cautionnement) strict {
+        label fr official "Article 2290. La solidarité peut être stipulée entre la caution et le débiteur principal";
+        label en unofficial "Article 2290. Joint liability may be stipulated between the surety and the principal debtor";
+        when regi_par_la_loi_nouvelle(k) and solidarite_stipulee(k, EntreCautionEtDebiteur);
+        then solidaire_avec_le_debiteur(k);
+    }
+    rule SolidariteEntreCautions(k: Cautionnement) strict {
+        label fr official "Article 2290. La solidarité peut être stipulée entre les cautions";
+        label en unofficial "Article 2290. Joint liability may be stipulated between the sureties";
+        when regi_par_la_loi_nouvelle(k) and solidarite_stipulee(k, EntreCautions);
+        then solidaire_entre_cautions(k);
+    }
+    rule SolidariteEntreTousAvecLeDebiteur(k: Cautionnement) strict {
+        label fr official "Article 2290. La solidarité stipulée entre eux tous lie la caution au débiteur principal";
+        label en unofficial "Article 2290. Joint liability stipulated among all binds the surety to the principal debtor";
+        when regi_par_la_loi_nouvelle(k) and solidarite_stipulee(k, EntreTous);
+        then solidaire_avec_le_debiteur(k);
+    }
+    rule SolidariteEntreTousEntreCautions(k: Cautionnement) strict {
+        label fr official "Article 2290. La solidarité stipulée entre eux tous lie les cautions entre elles";
+        label en unofficial "Article 2290. Joint liability stipulated among all binds the sureties to each other";
+        when regi_par_la_loi_nouvelle(k) and solidarite_stipulee(k, EntreTous);
+        then solidaire_entre_cautions(k);
+    }
+    rule CautionnementSimple(k: Cautionnement, a: Personne) strict {
+        label fr official "Article 2290. Le cautionnement est simple lorsqu'aucune solidarité n'est stipulée";
+        label en unofficial "Article 2290. The suretyship is simple where no joint liability is stipulated";
+        when regi_par_la_loi_nouvelle(k) and caution(k, a)
+            and not_known(solidaire_avec_le_debiteur(k)) and not_known(solidaire_entre_cautions(k));
+        then cautionnement_simple(k);
+    }
+}
+
+@source(CC_ART2291)
+rule CertificateurDeCaution(s: Cautionnement, k: Cautionnement) strict {
+    label fr official "Article 2291. On peut se porter caution, envers le créancier, de la personne qui a cautionné le débiteur principal";
+    label en unofficial "Article 2291. One may stand surety, towards the creditor, for the person who guaranteed the principal debtor";
+    when regi_par_la_loi_nouvelle(s) and caution_du_certificateur(s, k);
+    then certificateur_de_caution(s, k);
+}
+
+@source(CC_ART2291_1)
+rule SousCautionnement(s: Cautionnement, k: Cautionnement, a: Personne) strict {
+    label fr official "Article 2291-1. Le sous-cautionnement est le contrat par lequel une personne s'oblige envers la caution à lui payer ce que peut lui devoir le débiteur à raison du cautionnement";
+    label en unofficial "Article 2291-1. A sub-suretyship is the contract by which a person undertakes to the surety to pay what the debtor may owe it by reason of the suretyship";
+    when regi_par_la_loi_nouvelle(s) and sous_cautionnement(s, k) and caution(k, a);
+    then sous_caution_obligee_envers_la_caution(s, a);
+}
+
+@source(CC_ART2292)
+rule ObligationsCouvertes(k: Cautionnement, c: Creance) strict {
+    label fr official "Article 2292. Le cautionnement peut garantir une ou plusieurs obligations, présentes ou futures, déterminées ou déterminables";
+    label en unofficial "Article 2292. A suretyship may guarantee one or more obligations, present or future, determined or determinable";
+    when regi_par_la_loi_nouvelle(k) and dette_garantie(k, c);
+    then obligation_couverte(k, c);
+}
+
+// --- 2293–2296 : validité et étendue ----------------------------------------------------------
+
+pub relation cautionnement_sans_objet_valable(k: Cautionnement) kind derived {
+    label fr official "le cautionnement ne peut exister faute d'obligation valable (article 2293, première phrase)";
+    label en unofficial "the suretyship cannot exist for want of a valid obligation (Article 2293, first sentence)";
+}
+pub relation caution_tenue_malgre_l_incapacite(k: Cautionnement) kind derived {
+    label fr official "la caution qui savait le débiteur incapable reste tenue de son engagement (article 2293, seconde phrase)";
+    label en unofficial "the surety who knew the debtor lacked capacity remains bound by its undertaking (Article 2293, second sentence)";
+}
+pub relation cautionnement_non_etabli_faute_d_engagement_expres(k: Cautionnement) kind derived {
+    label fr official "le cautionnement ne se présume pas : il doit être exprès (article 2294)";
+    label en unofficial "a suretyship is not presumed: it must be express (Article 2294)";
+}
+pub relation garantie_etendue_aux_accessoires(k: Cautionnement) kind derived {
+    label fr official "le cautionnement s'étend aux intérêts et accessoires, aux frais de la première demande et à ceux postérieurs à sa dénonciation à la caution (article 2295)";
+    label en unofficial "the suretyship extends to interest and accessories, to the costs of the first demand and to those after it is notified to the surety (Article 2295)";
+}
+pub relation engagement_de_la_caution(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "mesure de l'engagement de la caution : jamais au-delà de ce qui est dû par le débiteur (article 2296)";
+    label en unofficial "extent of the surety's commitment: never beyond what the debtor owes (Article 2296)";
+}
+
+@source(CC_ART2293) {
+    rule PasDeCautionnementSansObligationValable(k: Cautionnement) strict {
+        label fr official "Article 2293. Le cautionnement ne peut exister que sur une obligation valable";
+        label en unofficial "Article 2293. A suretyship can exist only on a valid obligation";
+        when regi_par_la_loi_nouvelle(k) and obligation_garantie_nulle(k)
+            and not_known(nullite_pour_incapacite_connue_de_la_caution(k));
+        then cautionnement_sans_objet_valable(k);
+    }
+    rule IncapaciteConnueDeLaCaution(k: Cautionnement) strict {
+        label fr official "Article 2293. Celui qui se porte caution d'une personne physique dont il savait qu'elle n'avait pas la capacité de contracter est tenu de son engagement";
+        label en unofficial "Article 2293. Whoever stands surety for a natural person whom he knew to lack capacity to contract is bound by the undertaking";
+        when regi_par_la_loi_nouvelle(k) and nullite_pour_incapacite_connue_de_la_caution(k);
+        then caution_tenue_malgre_l_incapacite(k);
+    }
+}
+
+@source(CC_ART2294)
+rule CautionnementExpres(k: Cautionnement, a: Personne) strict {
+    label fr official "Article 2294. Le cautionnement doit être exprès ; il ne peut être étendu au-delà des limites dans lesquelles il a été contracté";
+    label en unofficial "Article 2294. A suretyship must be express; it cannot be extended beyond the limits within which it was contracted";
+    when regi_par_la_loi_nouvelle(k) and caution(k, a) and not_known(engagement_expres(k));
+    then cautionnement_non_etabli_faute_d_engagement_expres(k);
+}
+
+@source(CC_ART2295)
+rule ExtensionAuxAccessoires(k: Cautionnement, a: Personne) defeasible {
+    label fr official "Article 2295. Sauf clause contraire, le cautionnement s'étend aux intérêts et autres accessoires de l'obligation garantie";
+    label en unofficial "Article 2295. Unless otherwise agreed, the suretyship extends to interest and other accessories of the guaranteed obligation";
+    when regi_par_la_loi_nouvelle(k) and caution(k, a);
+    then garantie_etendue_aux_accessoires(k);
+    unless clause_excluant_les_accessoires(k);
+}
+
+// 2296 et 2297 : l'engagement est la plus petite des deux mesures — la dette
+// et la limite écrite en toutes lettres ; sans limite écrite (personne
+// morale), la dette seule.
+@source(CC_ART2296) {
+    rule EngagementReduitALaDette(k: Cautionnement, d: Money, l: Money) strict {
+        label fr official "Articles 2296 et 2297. Le cautionnement ne peut excéder ce qui est dû par le débiteur, sous peine d'être réduit à la mesure de l'obligation garantie ; il vaut dans la limite écrite en toutes lettres";
+        label en unofficial "Articles 2296 and 2297. The suretyship cannot exceed what the debtor owes, failing which it is reduced to the extent of the guaranteed obligation; it applies within the limit written in words";
+        when regi_par_la_loi_nouvelle(k) and montant_de_la_dette_garantie(k, d)
+            and plafond_du_cautionnement(k, l) and not_known(cautionnement_nul_faute_de_mention(k));
+        then engagement_de_la_caution(k, min(d, l));
+    }
+    rule EngagementSansLimiteEcrite(k: Cautionnement, d: Money) strict {
+        label fr official "Article 2296. Sans limite écrite, l'engagement se mesure à ce qui est dû par le débiteur";
+        label en unofficial "Article 2296. Without a written limit, the commitment is measured by what the debtor owes";
+        when regi_par_la_loi_nouvelle(k) and montant_de_la_dette_garantie(k, d)
+            and caution_personne_morale(k) and not_known(limite_ecrite(k));
+        then engagement_de_la_caution(k, d);
+    }
+}
+
+// --- 2297 : la mention manuscrite ------------------------------------------------------------
+
+pub relation cautionnement_nul_faute_de_mention(k: Cautionnement) kind derived {
+    label fr official "nullité de l'engagement de la caution personne physique faute de mention apposée par elle-même (article 2297)";
+    label en unofficial "nullity of the natural-person surety's undertaking for want of a statement written by the surety (Article 2297)";
+}
+pub relation plafond_du_cautionnement(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "somme pour laquelle le cautionnement vaut : celle écrite en toutes lettres (article 2297)";
+    label en unofficial "amount for which the suretyship applies: the one written in words (Article 2297)";
+}
+pub relation limite_ecrite(k: Cautionnement) kind derived {
+    label fr official "une limite du cautionnement est écrite dans la mention (article 2297)";
+    label en unofficial "a limit of the suretyship is written in the statement (Article 2297)";
+}
+pub relation montants_discordants(k: Cautionnement) kind derived {
+    label fr official "la somme en toutes lettres et la somme en chiffres diffèrent : la première prévaut (article 2297)";
+    label en unofficial "the amount in words and the amount in figures differ: the former prevails (Article 2297)";
+}
+pub relation privation_stipulee_du_benefice_de_discussion(k: Cautionnement) kind derived {
+    label fr official "l'acte prive la caution du bénéfice de discussion : solidarité avec le débiteur ou renonciation (articles 2297, 2305)";
+    label en unofficial "the deed deprives the surety of the benefit of discussion: joint liability with the debtor or waiver (Articles 2297, 2305)";
+}
+pub relation privation_stipulee_du_benefice_de_division(k: Cautionnement) kind derived {
+    label fr official "l'acte prive la caution du bénéfice de division : solidarité entre cautions ou renonciation (articles 2297, 2306)";
+    label en unofficial "the deed deprives the surety of the benefit of division: joint liability between sureties or waiver (Articles 2297, 2306)";
+}
+pub relation privation_de_discussion_opposable(k: Cautionnement) kind derived {
+    label fr official "la privation du bénéfice de discussion est opposable à la caution (article 2297)";
+    label en unofficial "the deprivation of the benefit of discussion can be relied on against the surety (Article 2297)";
+}
+pub relation privation_de_division_opposable(k: Cautionnement) kind derived {
+    label fr official "la privation du bénéfice de division est opposable à la caution (article 2297)";
+    label en unofficial "the deprivation of the benefit of division can be relied on against the surety (Article 2297)";
+}
+pub relation benefices_conserves_faute_de_reconnaissance(k: Cautionnement) kind derived {
+    label fr official "à défaut de reconnaissance dans la mention, la caution conserve le droit de se prévaloir des bénéfices de discussion et de division (article 2297)";
+    label en unofficial "absent acknowledgment in the statement, the surety keeps the right to rely on the benefits of discussion and division (Article 2297)";
+}
+pub relation mandat_soumis_a_la_mention(k: Cautionnement) kind derived {
+    label fr official "le mandat de se porter caution donné par une personne physique respecte l'article 2297";
+    label en unofficial "an instruction to stand surety given by a natural person must comply with Article 2297";
+}
+
+@source(CC_ART2297) {
+    rule NulliteFauteDeMention(k: Cautionnement) strict {
+        label fr official "Article 2297. A peine de nullité de son engagement, la caution personne physique appose elle-même la mention";
+        label en unofficial "Article 2297. On pain of nullity of its undertaking, the natural-person surety personally writes the statement";
+        when regi_par_la_loi_nouvelle(k) and caution_personne_physique(k) and not_known(mention_manuscrite_apposee(k));
+        then cautionnement_nul_faute_de_mention(k);
+    }
+    rule PlafondEnToutesLettres(k: Cautionnement, m: Money) strict {
+        label fr official "Article 2297. En cas de différence, le cautionnement vaut pour la somme écrite en toutes lettres";
+        label en unofficial "Article 2297. In case of discrepancy, the suretyship applies for the amount written in words";
+        when regi_par_la_loi_nouvelle(k) and mention_manuscrite_apposee(k) and montant_en_toutes_lettres(k, m);
+        then plafond_du_cautionnement(k, m);
+    }
+    rule LimiteEcrite(k: Cautionnement, m: Money) strict {
+        label fr official "Article 2297. La mention exprime une limite en principal et accessoires";
+        label en unofficial "Article 2297. The statement expresses a limit in principal and accessories";
+        when plafond_du_cautionnement(k, m);
+        then limite_ecrite(k);
+    }
+    rule MontantsDiscordants(k: Cautionnement, l: Money, c: Money) strict {
+        label fr official "Article 2297. La somme en toutes lettres et la somme en chiffres diffèrent";
+        label en unofficial "Article 2297. The amount in words and the amount in figures differ";
+        when regi_par_la_loi_nouvelle(k) and montant_en_toutes_lettres(k, l) and montant_en_chiffres(k, c) and l != c;
+        then montants_discordants(k);
+    }
+    rule PrivationParSolidariteAvecLeDebiteur(k: Cautionnement) strict {
+        label fr official "Articles 2297 et 2305. La caution tenue solidairement avec le débiteur est privée du bénéfice de discussion";
+        label en unofficial "Articles 2297 and 2305. A surety jointly liable with the debtor is deprived of the benefit of discussion";
+        when solidaire_avec_le_debiteur(k);
+        then privation_stipulee_du_benefice_de_discussion(k);
+    }
+    rule PrivationParRenonciationADiscussion(k: Cautionnement) strict {
+        label fr official "Articles 2297 et 2305. La caution qui a renoncé au bénéfice de discussion en est privée";
+        label en unofficial "Articles 2297 and 2305. A surety that waived the benefit of discussion is deprived of it";
+        when regi_par_la_loi_nouvelle(k) and renonciation_au_benefice_de_discussion(k);
+        then privation_stipulee_du_benefice_de_discussion(k);
+    }
+    rule PrivationParSolidariteEntreCautions(k: Cautionnement) strict {
+        label fr official "Articles 2297 et 2306. Les cautions solidaires entre elles sont privées du bénéfice de division";
+        label en unofficial "Articles 2297 and 2306. Sureties jointly liable with each other are deprived of the benefit of division";
+        when solidaire_entre_cautions(k);
+        then privation_stipulee_du_benefice_de_division(k);
+    }
+    rule PrivationParRenonciationADivision(k: Cautionnement) strict {
+        label fr official "Articles 2297 et 2306. La caution qui a renoncé au bénéfice de division en est privée";
+        label en unofficial "Articles 2297 and 2306. A surety that waived the benefit of division is deprived of it";
+        when regi_par_la_loi_nouvelle(k) and renonciation_au_benefice_de_division(k);
+        then privation_stipulee_du_benefice_de_division(k);
+    }
+    rule DiscussionPriveeCautionPersonneMorale(k: Cautionnement) strict {
+        label fr official "Article 2305. La privation stipulée est opposable à la caution qui n'est pas une personne physique";
+        label en unofficial "Article 2305. The stipulated deprivation can be relied on against a surety that is not a natural person";
+        when privation_stipulee_du_benefice_de_discussion(k) and caution_personne_morale(k);
+        then privation_de_discussion_opposable(k);
+    }
+    rule DiscussionPriveeAvecReconnaissance(k: Cautionnement) strict {
+        label fr official "Article 2297. La caution personne physique privée du bénéfice de discussion le reconnaît dans la mention";
+        label en unofficial "Article 2297. A natural-person surety deprived of the benefit of discussion acknowledges it in the statement";
+        when privation_stipulee_du_benefice_de_discussion(k) and caution_personne_physique(k)
+            and mention_reconnait_la_privation_des_benefices(k);
+        then privation_de_discussion_opposable(k);
+    }
+    rule DivisionPriveeCautionPersonneMorale(k: Cautionnement) strict {
+        label fr official "Article 2306. La privation stipulée est opposable à la caution qui n'est pas une personne physique";
+        label en unofficial "Article 2306. The stipulated deprivation can be relied on against a surety that is not a natural person";
+        when privation_stipulee_du_benefice_de_division(k) and caution_personne_morale(k);
+        then privation_de_division_opposable(k);
+    }
+    rule DivisionPriveeAvecReconnaissance(k: Cautionnement) strict {
+        label fr official "Article 2297. La caution personne physique privée du bénéfice de division le reconnaît dans la mention";
+        label en unofficial "Article 2297. A natural-person surety deprived of the benefit of division acknowledges it in the statement";
+        when privation_stipulee_du_benefice_de_division(k) and caution_personne_physique(k)
+            and mention_reconnait_la_privation_des_benefices(k);
+        then privation_de_division_opposable(k);
+    }
+    rule BeneficesConservesDiscussion(k: Cautionnement) strict {
+        label fr official "Article 2297. A défaut de reconnaissance, la caution conserve le droit de se prévaloir du bénéfice de discussion";
+        label en unofficial "Article 2297. Absent acknowledgment, the surety keeps the right to rely on the benefit of discussion";
+        when privation_stipulee_du_benefice_de_discussion(k) and caution_personne_physique(k)
+            and not_known(mention_reconnait_la_privation_des_benefices(k));
+        then benefices_conserves_faute_de_reconnaissance(k);
+    }
+    rule BeneficesConservesDivision(k: Cautionnement) strict {
+        label fr official "Article 2297. A défaut de reconnaissance, la caution conserve le droit de se prévaloir du bénéfice de division";
+        label en unofficial "Article 2297. Absent acknowledgment, the surety keeps the right to rely on the benefit of division";
+        when privation_stipulee_du_benefice_de_division(k) and caution_personne_physique(k)
+            and not_known(mention_reconnait_la_privation_des_benefices(k));
+        then benefices_conserves_faute_de_reconnaissance(k);
+    }
+    rule MandatSoumisALaMention(k: Cautionnement) strict {
+        label fr official "Article 2297. La personne physique qui donne mandat à autrui de se porter caution doit respecter les dispositions du présent article";
+        label en unofficial "Article 2297. A natural person who instructs another to stand surety must comply with this article";
+        when regi_par_la_loi_nouvelle(k) and caution_personne_physique(k) and mandat_de_se_porter_caution(k);
+        then mandat_soumis_a_la_mention(k);
+    }
+}
+
+pub relation renonciation_au_benefice_de_discussion(k: Cautionnement) kind empirical {
+    label fr official "la caution a renoncé au bénéfice de discussion (article 2305)";
+    label en unofficial "the surety waived the benefit of discussion (Article 2305)";
+}
+pub relation renonciation_au_benefice_de_division(k: Cautionnement) kind empirical {
+    label fr official "la caution a renoncé au bénéfice de division (article 2306)";
+    label en unofficial "the surety waived the benefit of division (Article 2306)";
+}
+
+// --- 2298 : exceptions ----------------------------------------------------------------------
+
+pub relation exception_opposable_par_la_caution(k: Cautionnement, x: Text) kind derived {
+    label fr official "exception du débiteur que la caution peut opposer au créancier (article 2298)";
+    label en unofficial "debtor's defence the surety can raise against the creditor (Article 2298)";
+}
+
+@source(CC_ART2298) {
+    rule ExceptionsDuDebiteur(k: Cautionnement, x: Text) defeasible {
+        label fr official "Article 2298. La caution peut opposer au créancier toutes les exceptions, personnelles ou inhérentes à la dette, qui appartiennent au débiteur";
+        label en unofficial "Article 2298. The surety may raise against the creditor all defences, personal or inherent in the debt, belonging to the debtor";
+        when regi_par_la_loi_nouvelle(k) and exception_du_debiteur(k, x);
+        then exception_opposable_par_la_caution(k, x);
+        unless mesure_consecutive_a_la_defaillance(k, x);
+    }
+    rule MesureConsecutiveEtDispositionSpeciale(k: Cautionnement, x: Text) strict {
+        label fr official "Article 2298. La caution se prévaut de la mesure légale ou judiciaire consécutive à la défaillance lorsqu'une disposition spéciale le permet";
+        label en unofficial "Article 2298. The surety relies on a statutory or judicial measure following default where a special provision so allows";
+        when regi_par_la_loi_nouvelle(k) and exception_du_debiteur(k, x)
+            and mesure_consecutive_a_la_defaillance(k, x) and disposition_speciale_contraire_2298(k, x);
+        then exception_opposable_par_la_caution(k, x);
+    }
+}
+
+// --- 2299–2301 : protection de la caution --------------------------------------------------------
+
+pub relation decheance_faute_de_mise_en_garde(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "le créancier est déchu de son droit contre la caution à hauteur du préjudice subi par celle-ci (article 2299)";
+    label en unofficial "the creditor loses its right against the surety up to the loss the surety suffered (Article 2299)";
+}
+pub relation cautionnement_reduit_pour_disproportion(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "le cautionnement est réduit au montant à hauteur duquel la caution pouvait s'engager à la date de sa conclusion (article 2300)";
+    label en unofficial "the suretyship is reduced to the amount up to which the surety could commit on the date it was concluded (Article 2300)";
+}
+pub relation substitution_de_caution_requise(k: Cautionnement) kind derived {
+    label fr official "le débiteur doit substituer une autre caution, sous peine d'être déchu du terme ou de perdre l'avantage (article 2301)";
+    label en unofficial "the debtor must substitute another surety, failing which it loses the benefit of the term or the advantage (Article 2301)";
+}
+pub relation decheance_du_terme_ou_perte_de_l_avantage(k: Cautionnement) kind derived {
+    label fr official "faute de substitution, le débiteur est déchu du terme ou perd l'avantage subordonné à la fourniture du cautionnement (article 2301)";
+    label en unofficial "failing substitution, the debtor loses the benefit of the term or the advantage conditional on the suretyship (Article 2301)";
+}
+pub relation solvabilite_de_la_caution_legale_requise(k: Cautionnement) kind derived {
+    label fr official "la caution légale ou judiciaire doit avoir une solvabilité suffisante (article 2301)";
+    label en unofficial "the statutory or court-ordered surety must be sufficiently solvent (Article 2301)";
+}
+pub relation caution_legale_agreee(k: Cautionnement) kind derived {
+    label fr official "la caution légale ou judiciaire satisfait à l'exigence de solvabilité (article 2301)";
+    label en unofficial "the statutory or court-ordered surety meets the solvency requirement (Article 2301)";
+}
+
+@source(CC_ART2299)
+rule DecheanceFauteDeMiseEnGarde(k: Cautionnement, m: Money) strict {
+    label fr official "Article 2299. Le créancier professionnel est tenu de mettre en garde la caution personne physique lorsque l'engagement du débiteur principal est inadapté ; à défaut, il est déchu de son droit contre la caution à hauteur du préjudice subi";
+    label en unofficial "Article 2299. A professional creditor must warn a natural-person surety where the principal debtor's commitment is unsuitable; failing that, it loses its right against the surety up to the loss suffered";
+    when regi_par_la_loi_nouvelle(k) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k)
+        and engagement_inadapte_aux_capacites_du_debiteur(k) and not_known(mise_en_garde_effectuee(k))
+        and prejudice_de_la_caution_2299(k, m);
+    then decheance_faute_de_mise_en_garde(k, m);
+}
+
+@source(CC_ART2300)
+rule ReductionPourDisproportion(k: Cautionnement, m: Money) strict {
+    label fr official "Article 2300. Le cautionnement manifestement disproportionné souscrit par une personne physique envers un créancier professionnel est réduit au montant à hauteur duquel elle pouvait s'engager à cette date";
+    label en unofficial "Article 2300. A manifestly disproportionate suretyship given by a natural person to a professional creditor is reduced to the amount up to which the person could commit at that date";
+    when regi_par_la_loi_nouvelle(k) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k)
+        and cautionnement_manifestement_disproportionne(k)
+        and montant_a_hauteur_duquel_la_caution_pouvait_s_engager(k, m);
+    then cautionnement_reduit_pour_disproportion(k, m);
+}
+
+@source(CC_ART2301) {
+    rule SolvabiliteRequise(k: Cautionnement) strict {
+        label fr official "Article 2301. La personne qui s'oblige au titre d'un cautionnement légal doit avoir une solvabilité suffisante";
+        label en unofficial "Article 2301. A person bound under a statutory suretyship must be sufficiently solvent";
+        when cautionnement_legal(k);
+        then solvabilite_de_la_caution_legale_requise(k);
+    }
+    rule SolvabiliteRequiseJudiciaire(k: Cautionnement) strict {
+        label fr official "Article 2301. La personne qui s'oblige au titre d'un cautionnement judiciaire doit avoir une solvabilité suffisante";
+        label en unofficial "Article 2301. A person bound under a court-ordered suretyship must be sufficiently solvent";
+        when cautionnement_judiciaire(k);
+        then solvabilite_de_la_caution_legale_requise(k);
+    }
+    rule CautionLegaleAgreee(k: Cautionnement) strict {
+        label fr official "Article 2301. La caution dont la solvabilité est suffisante répond de l'obligation";
+        label en unofficial "Article 2301. A sufficiently solvent surety answers for the obligation";
+        when solvabilite_de_la_caution_legale_requise(k) and solvabilite_suffisante(k);
+        then caution_legale_agreee(k);
+    }
+    rule SubstitutionRequise(k: Cautionnement) strict {
+        label fr official "Article 2301. Si cette caution devient insolvable, le débiteur doit lui substituer une autre caution";
+        label en unofficial "Article 2301. If that surety becomes insolvent, the debtor must substitute another surety";
+        when solvabilite_de_la_caution_legale_requise(k) and caution_devenue_insolvable(k);
+        then substitution_de_caution_requise(k);
+    }
+    rule DecheanceFauteDeSubstitution(k: Cautionnement) strict {
+        label fr official "Article 2301. A défaut de substitution d'une caution ou d'une sûreté réelle suffisante, le débiteur est déchu du terme ou perd l'avantage subordonné à la fourniture du cautionnement";
+        label en unofficial "Article 2301. Failing substitution of a surety or sufficient real security, the debtor loses the benefit of the term or the advantage conditional on the suretyship";
+        when substitution_de_caution_requise(k) and not_known(autre_caution_substituee(k));
+        then decheance_du_terme_ou_perte_de_l_avantage(k);
+    }
+}

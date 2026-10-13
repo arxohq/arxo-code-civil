@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2285 : prix 90, deux chirographaires de 100 et 200 — par contribution, 30 et 60 EUR.
+test "urn:query:fr-code-civil-suretes-h23-chirographaires-par-contribution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:h23:D"), 90 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:h23:A"), entity_ref("urn:fr:cc:suretes:h23:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:h23:A"), Chirographaire) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:h23:A"), 100 EUR) { origin case_input; }
+        assert "f5": collocation_dans(entity_ref("urn:fr:cc:suretes:h23:B"), entity_ref("urn:fr:cc:suretes:h23:D")) { origin case_input; }
+        assert "f6": cause_de_preference(entity_ref("urn:fr:cc:suretes:h23:B"), Chirographaire) { origin case_input; }
+        assert "f7": creance_en_principal(entity_ref("urn:fr:cc:suretes:h23:B"), 200 EUR) { origin case_input; }
+    }
+    evaluate truth(somme_attribuee(entity_ref("urn:fr:cc:suretes:h23:B"), 60 EUR));
+    expect truth_status == TRUE_ONLY;
+}

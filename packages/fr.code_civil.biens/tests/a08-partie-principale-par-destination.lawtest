@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 566 et 567. La chose unie seulement pour l'ornement de l'autre fait
+// de celle-ci la partie principale, et le tout appartient à son maître.
+test "urn:query:fr-code-civil-biens-a08-partie-principale" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": choses_unies_separables(entity_ref("urn:fr:cc:biens:a08:PRINC"), entity_ref("urn:fr:cc:biens:a08:UNIE")) { origin case_input; }
+        assert "f2": unie_pour_l_usage_l_ornement_ou_le_complement(entity_ref("urn:fr:cc:biens:a08:UNIE"), entity_ref("urn:fr:cc:biens:a08:PRINC")) { origin case_input; }
+        assert "f3": proprietaire_du_bien(entity_ref("urn:fr:cc:biens:a08:PRINC"), entity_ref("urn:fr:cc:biens:a08:MAITRE")) { origin case_input; }
+    }
+    evaluate truth(le_tout_appartient_au_maitre_de_la_principale(entity_ref("urn:fr:cc:biens:a08:PRINC"), entity_ref("urn:fr:cc:biens:a08:MAITRE")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

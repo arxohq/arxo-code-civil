@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 428: medical impairment alone does not decide necessity, subsidiarity and proportionality.
+test "urn:query:fr-code-civil-personnes-mp01-necessite-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:personnes:mp01:p"), @1980-01-01) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:personnes:mp01:p"), @2026-09-16) { origin case_input; }
+        assert "f3": alteration_medicalement_constatee(entity_ref("urn:fr:cc:personnes:mp01:p")) { origin adjudicated; }
+    }
+    evaluate truth(mesure_judiciaire_admissible(entity_ref("urn:fr:cc:personnes:mp01:p")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(necessite_et_subsidiarite_de_la_mesure, Court);
+}

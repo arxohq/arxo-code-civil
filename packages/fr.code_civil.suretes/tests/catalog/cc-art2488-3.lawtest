@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-REMISEEXIGIBLEIMMOBILIERE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": dette_garantie_impayee(entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v0")) { origin case_input; }
+        assert "cat-1": fiducie_surete(entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v0"), entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v1"), entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v2")) { origin case_input; }
+        assert "cat-2": fiducie_immobiliere(entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v0")) { origin case_input; }
+    }
+    evaluate truth(creancier_peut_exiger_la_remise(entity_ref("urn:law:catalog:remiseexigibleimmobiliere:v0")));
+    expect truth_status == TRUE_ONLY;
+}

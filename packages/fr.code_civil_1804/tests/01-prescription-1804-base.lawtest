@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+// Même cas que dans l'édition actuelle: dette exigible le 1er janvier 2000,
+// action le 1er janvier 2015. Sous l'article 2262 de 1804, trente ans ne sont
+// pas accomplis: la réponse à «prescrite?» est FALSE_ONLY.
+test "urn:query:oecd-code-civil-1804-prescription-base" {
+    given {
+        context { decision_time @2015-01-01T12:00:00Z; knowledge_time @2015-01-01T12:00:00Z; legal_time @1804-03-21; timezone "UTC"; deadline_policy OECD_CODE_CIVIL_1804_PRESCRIPTION; }
+        assert "cc1804-base-1": creance_exigible_depuis(entity_ref("urn:fr:oecd:creance:base"), @2000-01-01) { origin case_input; }
+        assert "cc1804-base-2": action_introduite_le(entity_ref("urn:fr:oecd:creance:base"), @2015-01-01) { origin case_input; }
+        assert "cc1804-base-3": prescription_non_interrompue(entity_ref("urn:fr:oecd:creance:base")) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:oecd:creance:base"), @2015-01-01));
+    expect result_kind == PROPOSITION;
+    expect truth_status == FALSE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

@@ -1,0 +1,51 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CAUTIONSLIBEREESPARLESERMENT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": caution_de_la_creance(entity_ref("urn:kz:catalog:cautionslibereesparleserment:v1"), entity_ref("urn:kz:catalog:cautionslibereesparleserment:v2")) { origin case_input; }
+        assert "cat-1": serment_defere_au_debiteur_principal(entity_ref("urn:kz:catalog:cautionslibereesparleserment:v0"), entity_ref("urn:kz:catalog:cautionslibereesparleserment:v1")) { origin case_input; }
+    }
+    evaluate truth(cautions_liberees_par_le_serment(entity_ref("urn:kz:catalog:cautionslibereesparleserment:v0"), entity_ref("urn:kz:catalog:cautionslibereesparleserment:v1"), entity_ref("urn:kz:catalog:cautionslibereesparleserment:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DEBITEURPRINCIPALPROFITANTDUSERMENTDELACAUTION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": serment_defere_sur_la_dette(entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v0")) { origin case_input; }
+        assert "cat-1": serment_defere_a_une_caution(entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v0"), entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v1"), entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v2")) { origin case_input; }
+    }
+    evaluate truth(debiteur_principal_profitant_du_serment_de_la_caution(entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v0"), entity_ref("urn:kz:catalog:debiteurprincipalprofitantdusermentdelacaution:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-LIBERATIONPOURLAPARTDUCREANCIERAYANTDEFERE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": serment_defere_par_un_creancier_solidaire(entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v0"), entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v1"), entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v2")) { origin case_input; }
+        assert "cat-1": obligation_solidaire_entre_creanciers(entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v1")) { origin case_input; }
+    }
+    evaluate truth(debiteur_libere_pour_la_part_du_creancier_ayant_defere(entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v0"), entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v1"), entity_ref("urn:kz:catalog:liberationpourlapartducreancierayantdefere:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SERMENTFAITPREUVEAUPROFITDESHERITIERS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": serment_defere_par_une_partie(entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v0"), entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v1"), entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v2")) { origin case_input; }
+        assert "cat-1": heritier_ou_ayant_cause(entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v1"), entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v3")) { origin case_input; }
+    }
+    evaluate truth(serment_faisant_preuve_au_profit_du_deferant(entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v0"), entity_ref("urn:kz:catalog:sermentfaitpreuveauprofitdesheritiers:v3")));
+    expect truth_status == TRUE_ONLY;
+}

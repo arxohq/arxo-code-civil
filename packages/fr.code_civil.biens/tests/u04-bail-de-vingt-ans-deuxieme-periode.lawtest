@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 595, al. 2. « et ainsi de suite » : bail de vingt ans commencé le
+// 1er janvier 2000, usufruit cessant le 1er mars 2011 — le preneur est dans
+// la DEUXIÈME période de neuf ans, qui finit le 1er janvier 2018.
+test "urn:query:fr-code-civil-biens-u04-bail-vingt-ans-deuxieme-periode" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": bail_de_l_usufruitier(entity_ref("urn:fr:cc:biens:u04:BAIL"), entity_ref("urn:fr:cc:biens:u04:U")) { origin case_input; }
+        assert "f2": duree_du_bail_en_annees(entity_ref("urn:fr:cc:biens:u04:BAIL"), 20) { origin case_input; }
+        assert "f3": debut_du_bail(entity_ref("urn:fr:cc:biens:u04:BAIL"), @2000-01-01) { origin case_input; }
+        assert "f4": cessation_de_l_usufruit_le(entity_ref("urn:fr:cc:biens:u04:U"), @2011-03-01) { origin case_input; }
+    }
+    evaluate truth(bail_opposable_au_nu_proprietaire_jusqu_au(entity_ref("urn:fr:cc:biens:u04:BAIL"), @2018-01-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

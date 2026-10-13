@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1325 : le concours entre cessionnaires successifs se résout en faveur du
+// PREMIER EN DATE — la cession du 15 avril l'emporte sur celle du 20 avril.
+test "urn:query:fr-code-civil-obligations-o05-concours-de-cessionnaires-premier-en-date" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": cession_de_creance(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:c")) { origin case_input; }
+        assert "f2": cedant(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CED")) { origin case_input; }
+        assert "f3": cessionnaire(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CESS")) { origin case_input; }
+        assert "f4": date_de_l_acte_de_cession(entity_ref("urn:fr:cc:obligations:ces:x"), @2025-04-15) { origin case_input; }
+        assert "f5": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:obligations:ces:x")) { origin case_input; }
+        assert "f6": cession_de_creance(entity_ref("urn:fr:cc:obligations:ces:x2"), entity_ref("urn:fr:cc:obligations:ces:c")) { origin case_input; }
+        assert "f7": date_de_l_acte_de_cession(entity_ref("urn:fr:cc:obligations:ces:x2"), @2025-04-20) { origin case_input; }
+        assert "f8": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:obligations:ces:x2")) { origin case_input; }
+    }
+    evaluate truth(concours_resolu_en_faveur_du_premier_en_date(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:x2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConcoursEntreCessionnairesSuccessifs);
+}

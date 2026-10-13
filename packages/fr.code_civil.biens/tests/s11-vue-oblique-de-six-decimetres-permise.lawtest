@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 679. La vue par côté ou oblique se contente de six décimètres ; la
+// même mesure serait prohibée pour une vue droite (témoin s10).
+test "urn:query:fr-code-civil-biens-s11-vue-oblique-six-decimetres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": ouverture_dans(entity_ref("urn:fr:cc:biens:s11:O"), entity_ref("urn:fr:cc:biens:s11:M")) { origin case_input; }
+        assert "f2": ouverture_sur_l_heritage(entity_ref("urn:fr:cc:biens:s11:O"), entity_ref("urn:fr:cc:biens:s11:V")) { origin case_input; }
+        assert "f3": espece_de_l_ouverture(entity_ref("urn:fr:cc:biens:s11:O"), VueParCoteOuOblique) { origin case_input; }
+        assert "f4": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:fr:cc:biens:s11:O"), 6 dm) { origin case_input; }
+    }
+    evaluate truth(vue_permise(entity_ref("urn:fr:cc:biens:s11:O")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

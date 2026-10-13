@@ -1,0 +1,515 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART729,
+    CC_ART729_1,
+    CC_ART738_2,
+    CC_ART758_5,
+    CC_ART758_6,
+    CC_ART759_1,
+    CC_ART761,
+    CC_ART781,
+    CC_ART785,
+    CC_ART787,
+    CC_ART800,
+    CC_ART810_5,
+    CC_ART810_7,
+    CC_ART810_8,
+    CC_ART813_8,
+    CC_ART815,
+    CC_ART815_1,
+    CC_ART815_2,
+    Indivision,
+    Personne,
+    Succession,
+    contestation_du_projet_recevable,
+    creancier_non_integralement_desinteresse,
+    curateur_succession,
+    exclu_pour_indignite,
+    mandataire_successoral,
+    opposition_a_la_realisation_formee,
+    opposition_a_la_realisation_recevable,
+    projet_de_reglement_conteste,
+};
+
+// Positions ajoutées après l'audit source-level des articles 729, 729-1,
+// 738-2, 758-5, 758-6, 759-1 et 761.
+
+@source(CC_ART729)
+pub relation fruits_revenus_rendus(s: Succession, p: Personne) kind empirical {
+    label fr official "fruits et revenus rendus par l'héritier exclu (article 729)";
+    label en unofficial "fruits and income returned by the excluded heir (Article 729)";
+}
+
+@source(CC_ART729_1)
+pub relation jouissance_parentale_reclamee(s: Succession, p: Personne) kind empirical {
+    label fr official "jouissance réclamée par l'indigne sur les biens de la succession (article 729-1)";
+    label en unofficial "enjoyment claimed by the unworthy heir over estate property (Article 729-1)";
+}
+
+@source(CC_ART729)
+rule P3DevoirRendreFruitsIndigne(s: Succession, p: Personne) strict {
+    label fr official "Article 729. L'héritier exclu pour indignité est tenu de rendre les fruits et revenus";
+    label en unofficial "Article 729. An heir excluded for unworthiness must return fruits and income";
+    when exclu_pour_indignite(s, p);
+    then duty P3PositionDevoirRendreFruitsIndigne {
+        bearer p;
+        goal achievement {
+            condition fruits_revenus_rendus(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART729_1)
+rule P3InterdictionJouissanceIndigne(s: Succession, p: Personne) strict {
+    label fr official "Article 729-1. L'indigne ne peut réclamer la jouissance des biens de la succession";
+    label en unofficial "Article 729-1. The unworthy heir cannot claim enjoyment of estate property";
+    when exclu_pour_indignite(s, p);
+    then prohibition P3PositionInterdictionJouissanceIndigne {
+        bearer p;
+        action jouissance_parentale_reclamee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART738_2)
+pub relation droit_retour_parent_possible(s: Succession, p: Personne) kind empirical {
+    label fr official "droit de retour légal du père ou de la mère ouvert (article 738-2)";
+    label en unofficial "statutory right of return of a parent available (Article 738-2)";
+}
+pub relation droit_retour_parent_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "exercice du droit de retour légal par le père ou la mère";
+    label en unofficial "parent exercised the statutory right of return";
+}
+pub relation droit_de_retour_du_parent_mis_en_oeuvre(s: Succession, p: Personne) kind institutional {
+    label fr official "le père ou la mère a exercé son droit de retour (article 738-2)";
+    label en unofficial "the father or mother has exercised the right of return (Article 738-2)";
+}
+
+@source(CC_ART738_2)
+rule P3PouvoirDroitRetourParent(s: Succession, p: Personne) strict {
+    label fr official "Article 738-2. Le père ou la mère peut exercer un droit de retour";
+    label en unofficial "Article 738-2. The father or mother may exercise a right of return";
+    when droit_retour_parent_possible(s, p);
+    then power P3PositionPouvoirDroitRetourParent {
+        holder p;
+        over s;
+        exercise droit_retour_parent_exerce(s, p);
+        effect droit_de_retour_du_parent_mis_en_oeuvre(s, p);
+        valid_when droit_retour_parent_possible(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758_5)
+pub relation droit_conjoint_biens_existants_possible(s: Succession, p: Personne) kind empirical {
+    label fr official "droit du conjoint sur les biens existants ouvert (article 758-5)";
+    label en unofficial "spouse's right over existing property available (Article 758-5)";
+}
+pub relation droit_conjoint_biens_existants_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "exercice du droit du conjoint sur les biens existants";
+    label en unofficial "spouse exercised the right over existing property";
+}
+pub relation droit_du_conjoint_sur_les_biens_existants_mis_en_oeuvre(s: Succession, p: Personne) kind institutional {
+    label fr official "le conjoint a exercé son droit sur les biens existants (article 758-5)";
+    label en unofficial "the spouse has exercised his or her right over the existing assets (Article 758-5)";
+}
+
+@source(CC_ART758_5)
+rule P3PouvoirDroitConjointBiensExistants(s: Succession, p: Personne) strict {
+    label fr official "Article 758-5. Le conjoint peut exercer son droit sur les biens existants";
+    label en unofficial "Article 758-5. The spouse may exercise the right over existing property";
+    when droit_conjoint_biens_existants_possible(s, p);
+    then power P3PositionPouvoirDroitConjointBiensExistants {
+        holder p;
+        over s;
+        exercise droit_conjoint_biens_existants_exerce(s, p);
+        effect droit_du_conjoint_sur_les_biens_existants_mis_en_oeuvre(s, p);
+        valid_when droit_conjoint_biens_existants_possible(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART758_6)
+pub relation complement_liberalites_conjoint_possible(s: Succession, p: Personne) kind empirical {
+    label fr official "complément des droits du conjoint ouvert (article 758-6)";
+    label en unofficial "top-up of the spouse's rights available (Article 758-6)";
+}
+pub relation complement_liberalites_conjoint_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "exercice du complément des droits du conjoint";
+    label en unofficial "spouse exercised the top-up of rights";
+}
+pub relation complement_des_droits_du_conjoint_reclame(s: Succession, p: Personne) kind institutional {
+    label fr official "le conjoint a réclamé le complément de ses droits (article 758-6)";
+    label en unofficial "the spouse has claimed the balance of his or her rights (Article 758-6)";
+}
+
+@source(CC_ART758_6)
+rule P3PouvoirComplementLiberalitesConjoint(s: Succession, p: Personne) strict {
+    label fr official "Article 758-6. Le conjoint peut réclamer le complément de ses droits";
+    label en unofficial "Article 758-6. The spouse may claim the top-up of the statutory rights";
+    when complement_liberalites_conjoint_possible(s, p);
+    then power P3PositionPouvoirComplementLiberalitesConjoint {
+        holder p;
+        over s;
+        exercise complement_liberalites_conjoint_exerce(s, p);
+        effect complement_des_droits_du_conjoint_reclame(s, p);
+        valid_when complement_liberalites_conjoint_possible(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART759_1)
+pub relation faculte_conversion_ouverte(s: Succession, p: Personne) kind empirical {
+    label fr official "faculté de conversion de l'usufruit ouverte (article 759-1)";
+    label en unofficial "usufruct conversion facility available (Article 759-1)";
+}
+pub relation renonciation_conversion_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "renonciation à la faculté de conversion exercée";
+    label en unofficial "waiver of the conversion facility exercised";
+}
+pub relation conversion_faculte_protegee(s: Succession, p: Personne) kind empirical {
+    label fr official "conversion protégée contre la renonciation (article 759-1)";
+    label en unofficial "conversion protected against waiver (Article 759-1)";
+}
+
+@source(CC_ART759_1)
+rule P3ImmuniteConversionNonRenoncable(s: Succession, p: Personne) strict {
+    label fr official "Article 759-1. La faculté de conversion n'est pas susceptible de renonciation";
+    label en unofficial "Article 759-1. The conversion facility cannot be waived";
+    when faculte_conversion_ouverte(s, p);
+    then immunity P3PositionImmuniteConversionNonRenoncable {
+        holder p;
+        against s;
+        protected_effect conversion_faculte_protegee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART761)
+pub relation conversion_capital_convenue(s: Succession, p: Personne) kind empirical {
+    label fr official "conversion de l'usufruit en capital convenue (article 761)";
+    label en unofficial "usufruct converted into capital by agreement (Article 761)";
+}
+pub relation conversion_capital_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "exercice de la conversion de l'usufruit en capital";
+    label en unofficial "exercise of conversion of usufruct into capital";
+}
+pub relation usufruit_du_conjoint_converti_en_capital(s: Succession, p: Personne) kind institutional {
+    label fr official "l'usufruit du conjoint est converti en capital (article 761)";
+    label en unofficial "the spouse's usufruct is converted into capital (Article 761)";
+}
+
+@source(CC_ART761)
+rule P3PouvoirConversionCapital(s: Succession, p: Personne) strict {
+    label fr official "Article 761. Les parties peuvent convertir l'usufruit du conjoint en capital";
+    label en unofficial "Article 761. The parties may convert the spouse's usufruct into capital";
+    when conversion_capital_convenue(s, p);
+    then power P3PositionPouvoirConversionCapital {
+        holder p;
+        over s;
+        exercise conversion_capital_exercee(s, p);
+        effect usufruit_du_conjoint_converti_en_capital(s, p);
+        valid_when conversion_capital_convenue(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART781)
+pub relation heritier_se_prevaut_qualite(s: Succession, p: Personne) kind empirical {
+    label fr official "personne se prévalant de sa qualité d'héritier après expiration du délai d'option (article 781)";
+    label en unofficial "person relying on heir status after expiry of the option period (Article 781)";
+}
+pub relation acceptation_justifiee(s: Succession, p: Personne) kind empirical {
+    label fr official "acceptation de la succession justifiée";
+    label en unofficial "acceptance of the estate justified";
+}
+
+@source(CC_ART781)
+rule P3DevoirJustifierAcceptation(s: Succession, p: Personne) strict {
+    label fr official "Article 781. Celui qui se prévaut de sa qualité d'héritier doit justifier l'acceptation";
+    label en unofficial "Article 781. A person relying on heir status must prove acceptance";
+    when heritier_se_prevaut_qualite(s, p);
+    then duty P3PositionDevoirJustifierAcceptation {
+        bearer p;
+        goal achievement {
+            condition acceptation_justifiee(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART785)
+pub relation heritier_acceptant_pur_et_simple(s: Succession, p: Personne) kind empirical {
+    label fr official "héritier acceptant purement et simplement (article 785)";
+    label en unofficial "heir accepting outright (Article 785)";
+}
+pub relation dettes_charges_acquittees(s: Succession, p: Personne) kind empirical {
+    label fr official "dettes et charges successorales acquittées";
+    label en unofficial "estate debts and charges paid";
+}
+
+@source(CC_ART785)
+rule P3DevoirAcquitterDettesSuccession(s: Succession, p: Personne) strict {
+    label fr official "Article 785. L'héritier acceptant répond des dettes et charges de la succession";
+    label en unofficial "Article 785. An outright heir is liable for the estate debts and charges";
+    when heritier_acceptant_pur_et_simple(s, p);
+    then duty P3PositionDevoirAcquitterDettesSuccession {
+        bearer p;
+        goal achievement {
+            condition dettes_charges_acquittees(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART787)
+pub relation declaration_actif_net_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "déclaration d'acceptation à concurrence de l'actif net exercée (article 787)";
+    label en unofficial "declaration of net-assets acceptance exercised (Article 787)";
+}
+pub relation acceptation_a_concurrence_de_l_actif_net_declaree(s: Succession, p: Personne) kind institutional {
+    label fr official "l'héritier a accepté la succession à concurrence de l'actif net par déclaration (article 787)";
+    label en unofficial "the heir has accepted the estate up to the net assets by declaration (Article 787)";
+}
+
+@source(CC_ART787)
+rule P3PouvoirDeclarerActifNet(s: Succession, p: Personne) strict {
+    label fr official "Article 787. Un héritier peut déclarer accepter à concurrence de l'actif net";
+    label en unofficial "Article 787. An heir may declare acceptance up to net assets";
+    when declaration_actif_net_exercee(s, p);
+    then power P3PositionPouvoirDeclarerActifNet {
+        holder p;
+        over s;
+        exercise declaration_actif_net_exercee(s, p);
+        effect acceptation_a_concurrence_de_l_actif_net_declaree(s, p);
+        valid_when declaration_actif_net_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART800)
+pub relation heritier_administrateur(s: Succession, p: Personne) kind empirical {
+    label fr official "héritier chargé d'administrer les biens recueillis (article 800)";
+    label en unofficial "heir charged with administering the inherited assets (Article 800)";
+}
+pub relation compte_administration_rendu(s: Succession, p: Personne) kind empirical {
+    label fr official "compte de l'administration successorale présenté";
+    label en unofficial "estate administration account presented";
+}
+
+@source(CC_ART800)
+rule P3DevoirRendreCompteAdministration(s: Succession, p: Personne) strict {
+    label fr official "Article 800. L'héritier doit présenter le compte de son administration";
+    label en unofficial "Article 800. The heir must present the administration account";
+    when heritier_administrateur(s, p);
+    then duty P3PositionDevoirRendreCompteAdministration {
+        bearer p;
+        goal achievement {
+            condition compte_administration_rendu(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART810_7)
+pub relation compte_operations_rendu(s: Succession, p: Personne) kind empirical {
+    label fr official "compte des opérations du curateur rendu";
+    label en unofficial "curator's operations account delivered";
+}
+
+@source(CC_ART810_7)
+rule P3DevoirRendreCompteCurateur(s: Succession, p: Personne) strict {
+    label fr official "Article 810-7. Le curateur rend compte au juge des opérations effectuées";
+    label en unofficial "Article 810-7. The curator accounts to the judge for operations performed";
+    when curateur_succession(s, p);
+    then duty P3PositionDevoirRendreCompteCurateur {
+        bearer p;
+        goal achievement {
+            condition compte_operations_rendu(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART810_5)
+pub relation contestation_projet_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "contestation du projet de règlement exercée par le créancier";
+    label en unofficial "creditor's challenge to the settlement plan exercised";
+}
+
+@source(CC_ART810_5)
+rule P3PouvoirContesterProjetReglement(s: Succession, p: Personne) strict {
+    label fr official "Article 810-5. Le créancier non désintéressé peut contester le projet";
+    label en unofficial "Article 810-5. An unpaid creditor may challenge the settlement plan";
+    when creancier_non_integralement_desinteresse(s, p)
+        and contestation_du_projet_recevable(s, p);
+    then power P3PositionPouvoirContesterProjetReglement {
+        holder p;
+        over s;
+        exercise contestation_projet_exercee(s, p);
+        effect projet_de_reglement_conteste(s, p);
+        valid_when contestation_du_projet_recevable(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_8)
+pub relation reclamation_succession_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "réclamation de la succession exercée par l'héritier";
+    label en unofficial "heir's claim to the estate exercised";
+}
+
+@source(CC_ART810_8)
+rule P3PouvoirSopposerRealisation(s: Succession, p: Personne) strict {
+    label fr official "Article 810-8. L'héritier peut s'opposer à la réalisation en réclamant la succession";
+    label en unofficial "Article 810-8. An heir may object to realisation by claiming the estate";
+    when opposition_a_la_realisation_recevable(s, p);
+    then power P3PositionPouvoirSopposerRealisation {
+        holder p;
+        over s;
+        exercise reclamation_succession_exercee(s, p);
+        effect opposition_a_la_realisation_formee(s, p);
+        valid_when opposition_a_la_realisation_recevable(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_8)
+pub relation heritier_du_mandataire(s: Succession, p: Personne) kind empirical {
+    label fr official "héritier concerné par le mandat successoral";
+    label en unofficial "heir concerned by the estate administrator's mandate";
+}
+pub relation consultation_documents_mandat_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "consultation des documents d'exécution du mandat exercée";
+    label en unofficial "consultation of mandate-performance documents exercised";
+}
+pub relation documents_de_la_mission_consultes(s: Succession, p: Personne) kind institutional {
+    label fr official "l'héritier a consulté les documents relatifs à l'exécution de la mission (article 813-8)";
+    label en unofficial "the heir has consulted the documents on the performance of the mission (Article 813-8)";
+}
+
+@source(CC_ART813_8)
+rule P3PouvoirConsulterDocumentsMandat(s: Succession, p: Personne) strict {
+    label fr official "Article 813-8. Chaque héritier peut exiger la consultation des documents de la mission";
+    label en unofficial "Article 813-8. Each heir may require access to the mission documents";
+    when heritier_du_mandataire(s, p);
+    then power P3PositionPouvoirConsulterDocumentsMandat {
+        holder p;
+        over s;
+        exercise consultation_documents_mandat_exercee(s, p);
+        effect documents_de_la_mission_consultes(s, p);
+        valid_when heritier_du_mandataire(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_8)
+pub relation rapport_mission_mandataire_rendu(s: Succession, p: Personne) kind empirical {
+    label fr official "rapport annuel ou final du mandataire remis";
+    label en unofficial "estate administrator's annual or final report delivered";
+}
+
+@source(CC_ART813_8)
+rule P3DevoirRendreRapportMandat(s: Succession, p: Personne) strict {
+    label fr official "Article 813-8. Le mandataire remet un rapport au juge et aux héritiers";
+    label en unofficial "Article 813-8. The estate administrator delivers a report to the judge and heirs";
+    when mandataire_successoral(s, p);
+    then duty P3PositionDevoirRendreRapportMandat {
+        bearer p;
+        goal achievement {
+            condition rapport_mission_mandataire_rendu(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART815)
+pub relation indivision_existante(i: Indivision) kind empirical {
+    label fr official "indivision existante pouvant être partagée";
+    label en unofficial "existing co-ownership capable of partition";
+}
+pub relation indivisaire_dans_indivision(i: Indivision, p: Personne) kind empirical {
+    label fr official "personne ayant la qualité d'indivisaire";
+    label en unofficial "person holding co-owner status";
+}
+pub relation demande_partage_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de partage de l'indivision exercée";
+    label en unofficial "partition request exercised";
+}
+pub relation partage_provoque_par_l_indivisaire(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a provoqué le partage (article 815)";
+    label en unofficial "the co-owner has called for partition (Article 815)";
+}
+
+@source(CC_ART815)
+rule P3PouvoirProvoquerPartage(i: Indivision, p: Personne) strict {
+    label fr official "Article 815. Le partage peut toujours être provoqué";
+    label en unofficial "Article 815. Partition may always be compelled";
+    when indivision_existante(i) and indivisaire_dans_indivision(i, p);
+    then power P3PositionPouvoirProvoquerPartage {
+        holder p;
+        over i;
+        exercise demande_partage_exercee(i, p);
+        effect partage_provoque_par_l_indivisaire(i, p);
+        valid_when indivision_existante(i);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_1)
+pub relation convention_exercice_droits_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "convention relative à l'exercice des droits indivis conclue";
+    label en unofficial "agreement on exercising co-ownership rights concluded";
+}
+pub relation convention_sur_l_exercice_des_droits_indivis_conclue(i: Indivision, p: Personne) kind institutional {
+    label fr official "les indivisaires ont conclu une convention relative à l'exercice de leurs droits indivis (article 815-1)";
+    label en unofficial "the co-owners have concluded an agreement on the exercise of their undivided rights (Article 815-1)";
+}
+
+@source(CC_ART815_1)
+rule P3PouvoirConvenirExerciceDroits(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-1. Les indivisaires peuvent convenir de l'exercice de leurs droits";
+    label en unofficial "Article 815-1. Co-owners may agree on exercising their rights";
+    when indivision_existante(i) and indivisaire_dans_indivision(i, p);
+    then power P3PositionPouvoirConvenirExerciceDroits {
+        holder p;
+        over i;
+        exercise convention_exercice_droits_exercee(i, p);
+        effect convention_sur_l_exercice_des_droits_indivis_conclue(i, p);
+        valid_when indivision_existante(i);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_2)
+pub relation conservation_biens_indivis_necessaire(i: Indivision, p: Personne) kind empirical {
+    label fr official "mesure nécessaire à la conservation des biens indivis identifiée";
+    label en unofficial "necessary measure to preserve co-owned assets identified";
+}
+pub relation mesure_conservation_indivis_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "mesure de conservation des biens indivis exercée";
+    label en unofficial "co-owned asset preservation measure exercised";
+}
+pub relation mesure_de_conservation_des_biens_indivis_prise(i: Indivision, p: Personne) kind institutional {
+    label fr official "la mesure nécessaire à la conservation des biens indivis est prise (article 815-2)";
+    label en unofficial "the measure necessary to preserve the undivided assets is taken (Article 815-2)";
+}
+
+@source(CC_ART815_2)
+rule P3PouvoirConserverBiensIndivis(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-2. Tout indivisaire peut prendre les mesures nécessaires à la conservation";
+    label en unofficial "Article 815-2. Any co-owner may take necessary preservation measures";
+    when conservation_biens_indivis_necessaire(i, p);
+    then power P3PositionPouvoirConserverBiensIndivis {
+        holder p;
+        over i;
+        exercise mesure_conservation_indivis_exercee(i, p);
+        effect mesure_de_conservation_des_biens_indivis_prise(i, p);
+        valid_when conservation_biens_indivis_necessaire(i, p);
+        window [@2007-01-01, infinity];
+    };
+}

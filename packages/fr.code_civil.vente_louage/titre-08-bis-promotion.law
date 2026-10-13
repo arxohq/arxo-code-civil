@@ -1,0 +1,202 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1831_1,
+    CC_ART1831_2,
+    CC_ART1831_3,
+    CC_ART1831_4,
+    CC_ART1831_5,
+    Personne,
+    PromotionImmobiliere,
+    actes_de_realisation_dans_prix_global,
+    cedant_garant_des_obligations_du_maitre,
+    cession_avant_achevement,
+    cessionnaire_substitue_activement_et_passivement,
+    clause_promotion_reputee_non_ecrite,
+    clause_resiliation_automatique_insolvabilite,
+    comptes_de_construction_definitivement_arretes,
+    contrat_de_promotion_en_vigueur,
+    contrat_non_resilie_de_plein_droit,
+    contrat_promotion_opposable_aux_tiers_le,
+    emprunt_ou_acte_de_disposition,
+    engagement_execute_par_maitre,
+    engagement_valablement_contracte_au_nom_du_maitre,
+    maitre_de_promotion,
+    mandat_special_donne_au_promoteur,
+    mention_au_fichier_immobilier_le,
+    mission_du_promoteur_achevee,
+    pouvoir_general_du_promoteur,
+    programme_de_construction_realise,
+    promoteur,
+    promoteur_garant_des_locateurs,
+    promoteur_peut_engager_maitre_par_acte_special,
+    reglement_ou_liquidation_du_promoteur,
+    substitution_du_promoteur_interdite,
+    substitution_du_promoteur_sans_accord_du_maitre,
+};
+
+@source(CC_ART1831_1)
+rule PromoteurGarantDesLocateurs(p: PromotionImmobiliere, promoteur_personne: Personne, maitre: Personne) strict {
+    label fr official "Article 1831-1, alinéa 1. Le promoteur garantit l'exécution des obligations des personnes avec lesquelles il traite au nom du maître de l'ouvrage";
+    label en unofficial "Article 1831-1, paragraph 1. The promoter guarantees performance by persons contracted in the owner's name";
+    when contrat_de_promotion_en_vigueur(p) and promoteur(p, promoteur_personne)
+        and maitre_de_promotion(p, maitre);
+    then promoteur_garant_des_locateurs(p);
+}
+
+@source(CC_ART1831_2)
+rule PouvoirGeneralDuPromoteurDansPrixGlobal(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-2, alinéa 1. Dans la limite du prix global, le promoteur peut conclure les contrats, recevoir les travaux et accomplir les actes nécessaires";
+    label en unofficial "Article 1831-2, paragraph 1. Within the global price, the promoter may contract, accept works and perform necessary acts";
+    when contrat_de_promotion_en_vigueur(p) and actes_de_realisation_dans_prix_global(p);
+    then pouvoir_general_du_promoteur(p);
+}
+pub relation actes_de_realisation_exerces(p: PromotionImmobiliere) kind empirical {
+    label fr official "actes nécessaires de réalisation exercés par le promoteur";
+    label en unofficial "necessary realization acts exercised by the promoter";
+}
+pub relation maitre_engage_par_les_actes_du_promoteur(p: PromotionImmobiliere) kind institutional {
+    label fr official "le maître de l'ouvrage est engagé par les actes de réalisation accomplis par le promoteur dans la limite du prix global (article 1831-2)";
+    label en unofficial "the owner is bound by the realization acts performed by the promoter within the global price (Article 1831-2)";
+}
+@source(CC_ART1831_2)
+rule P4PouvoirGeneralPromoteur1831_2(p: PromotionImmobiliere, pr: Personne, m: Personne) strict {
+    label fr official "Article 1831-2. Pouvoir du promoteur dans la limite du prix global";
+    label en unofficial "Article 1831-2. Promoter's power within the global price";
+    when contrat_de_promotion_en_vigueur(p) and promoteur(p, pr)
+        and maitre_de_promotion(p, m) and actes_de_realisation_dans_prix_global(p);
+    then power P4PouvoirGeneralPromoteur1831_2Actif {
+        holder pr;
+        exercise actes_de_realisation_exerces(p);
+        valid_when actes_de_realisation_dans_prix_global(p);
+        effect maitre_engage_par_les_actes_du_promoteur(p);
+        window [@1972-12-31, infinity);
+    };
+}
+
+@source(CC_ART1831_2)
+rule MandatSpecialPourEmpruntOuDisposition(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-2, alinéa 2. Un emprunt ou acte de disposition n'engage le maître qu'en vertu d'un mandat spécial";
+    label en unofficial "Article 1831-2, paragraph 2. A loan or act of disposition binds the owner only under a special mandate";
+    when emprunt_ou_acte_de_disposition(p) and mandat_special_donne_au_promoteur(p);
+    then promoteur_peut_engager_maitre_par_acte_special(p);
+}
+
+@source(CC_ART1831_2)
+rule ExecuterEngagementValablementContracte(p: PromotionImmobiliere, promoteur_personne: Personne, maitre: Personne) strict {
+    label fr official "Article 1831-2, alinéa 3. Le maître doit exécuter les engagements valablement contractés en son nom par le promoteur";
+    label en unofficial "Article 1831-2, paragraph 3. The owner must perform undertakings validly entered in the owner's name by the promoter";
+    when promoteur(p, promoteur_personne) and maitre_de_promotion(p, maitre)
+        and engagement_valablement_contracte_au_nom_du_maitre(p);
+    then duty ExecuterEngagementDuPromoteur {
+        bearer maitre; beneficiary promoteur_personne;
+        achieve engagement_execute_par_maitre(p) during [@1972-12-31, infinity);
+    };
+}
+@source(CC_ART1831_2)
+rule P4DevoirExecuterEngagement1831_2(p: PromotionImmobiliere, pr: Personne, m: Personne) strict {
+    label fr official "Article 1831-2. Devoir du maître d'exécuter l'engagement valablement contracté";
+    label en unofficial "Article 1831-2. Owner's duty to perform a validly contracted undertaking";
+    when promoteur(p, pr) and maitre_de_promotion(p, m)
+        and engagement_valablement_contracte_au_nom_du_maitre(p);
+    then duty P4DevoirExecuterEngagement1831_2Actif {
+        bearer m;
+        beneficiary pr;
+        achieve engagement_execute_par_maitre(p) during [@1972-12-31, infinity);
+    };
+}
+
+@source(CC_ART1831_3)
+rule SubstitutionDuCessionnaireAvantAchevement(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-3, alinéa 1. La cession avant achèvement substitue de plein droit le cessionnaire activement et passivement";
+    label en unofficial "Article 1831-3, paragraph 1. A transfer before completion substitutes the transferee by operation of law on both sides of the contract";
+    when cession_avant_achevement(p);
+    then cessionnaire_substitue_activement_et_passivement(p);
+}
+
+@source(CC_ART1831_3)
+rule GarantieDuCedantAvantAchevement(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-3, alinéa 1. Le cédant garantit l'exécution des obligations du maître mises à la charge du cessionnaire";
+    label en unofficial "Article 1831-3, paragraph 1. The transferor guarantees performance of the owner's obligations imposed on the transferee";
+    when cession_avant_achevement(p);
+    then cedant_garant_des_obligations_du_maitre(p);
+}
+
+@source(CC_ART1831_3)
+rule SubstitutionDuPromoteurSansAccordInterdite(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-3, alinéa 3. Le promoteur ne peut se substituer un tiers sans l'accord du maître";
+    label en unofficial "Article 1831-3, paragraph 3. The promoter may not substitute a third party without the owner's consent";
+    when substitution_du_promoteur_sans_accord_du_maitre(p);
+    then substitution_du_promoteur_interdite(p);
+}
+pub relation substitution_promoteur_exercee(p: PromotionImmobiliere) kind empirical {
+    label fr official "substitution du promoteur exercée sans accord";
+    label en unofficial "promoter substitution exercised without consent";
+}
+@source(CC_ART1831_3)
+rule P4InterdictionSubstitutionPromoteur1831_3(p: PromotionImmobiliere, pr: Personne, m: Personne) strict {
+    label fr official "Article 1831-3. Le promoteur ne peut se substituer un tiers sans accord du maître";
+    label en unofficial "Article 1831-3. The promoter may not substitute a third party without the owner's consent";
+    when promoteur(p, pr) and maitre_de_promotion(p, m)
+        and substitution_du_promoteur_sans_accord_du_maitre(p);
+    then prohibition P4InterdictionSubstitutionPromoteur1831_3Actif {
+        bearer pr;
+        beneficiary m;
+        action substitution_promoteur_exercee(p);
+        window [@1972-12-31, infinity);
+    };
+}
+
+@source(CC_ART1831_3)
+rule P4MaintenanceInterdictionSubstitutionPromoteur1831_3(
+    p: PromotionImmobiliere,
+    pr: Personne,
+    m: Personne
+) strict {
+    label fr official "Article 1831-3. Le promoteur doit maintenir l'interdiction de se substituer un tiers sans accord du maître";
+    label en unofficial "Article 1831-3. The promoter must maintain the prohibition on substituting a third party without the owner's consent";
+    when promoteur(p, pr) and maitre_de_promotion(p, m)
+        and substitution_du_promoteur_sans_accord_du_maitre(p);
+    then duty P4MaintenanceInterdictionSubstitutionPromoteur1831_3Duty {
+        bearer pr;
+        beneficiary m;
+        goal maintenance {
+            condition not substitution_promoteur_exercee(p);
+            window [@1972-12-31, infinity);
+        };
+    };
+}
+
+@source(CC_ART1831_3)
+rule OpposabiliteApresMentionFichierImmobilier(p: PromotionImmobiliere, mention: Date) strict {
+    label fr official "Article 1831-3, alinéa 4. Le contrat est opposable aux tiers à partir de sa mention au fichier immobilier";
+    label en unofficial "Article 1831-3, paragraph 4. The contract is enforceable against third parties from its entry in the land register";
+    when mention_au_fichier_immobilier_le(p, mention);
+    then contrat_promotion_opposable_aux_tiers_le(p, mention);
+}
+
+@source(CC_ART1831_4)
+rule MissionPromoteurAcheveeApresComptes(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-4. La mission du promoteur s'achève à la livraison seulement si les comptes sont définitivement arrêtés";
+    label en unofficial "Article 1831-4. The promoter's mission ends on delivery only if the construction accounts are finally settled";
+    when programme_de_construction_realise(p) and comptes_de_construction_definitivement_arretes(p);
+    then mission_du_promoteur_achevee(p);
+}
+
+@source(CC_ART1831_5)
+rule InsolvabiliteNeResiliePasDePleinDroit(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-5. Le règlement judiciaire ou la liquidation n'entraîne pas de plein droit la résiliation du contrat de promotion";
+    label en unofficial "Article 1831-5. Judicial reorganisation or liquidation does not terminate the promotion contract by operation of law";
+    when reglement_ou_liquidation_du_promoteur(p);
+    then contrat_non_resilie_de_plein_droit(p);
+}
+
+@source(CC_ART1831_5)
+rule ClauseContrairePromotionNonEcrite(p: PromotionImmobiliere) strict {
+    label fr official "Article 1831-5. Toute clause de résiliation automatique contraire est réputée non écrite";
+    label en unofficial "Article 1831-5. Any contrary automatic-termination clause is deemed unwritten";
+    when clause_resiliation_automatique_insolvabilite(p);
+    then clause_promotion_reputee_non_ecrite(p);
+}

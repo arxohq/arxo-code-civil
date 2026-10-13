@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2247 et 2248 : la prescription opposée fait rejeter la demande.
+test "urn:query:fr-code-civil-p29-prescription-invoquee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": nature_de_l_action(entity_ref("urn:fr:cc:presc:p29"), ActionContreAuxiliaireDeJustice) { origin case_input; }
+        assert "f2": fin_de_mission_le(entity_ref("urn:fr:cc:presc:p29"), @2015-01-10) { origin case_input; }
+        assert "f3": action_introduite_le(entity_ref("urn:fr:cc:presc:p29"), @2020-06-01) { origin case_input; }
+        assert "f4": prescription_invoquee(entity_ref("urn:fr:cc:presc:p29")) { origin case_input; }
+    }
+    evaluate truth(demande_rejetee_pour_prescription(entity_ref("urn:fr:cc:presc:p29")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PrescriptionOpposeeParLaPartie);
+}

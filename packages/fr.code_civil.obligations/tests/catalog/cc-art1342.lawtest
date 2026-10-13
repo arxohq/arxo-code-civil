@@ -1,0 +1,39 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-PAIEMENTAVECSUBROGATION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": paiement_de_la_dette(entity_ref("urn:kz:catalog:paiementavecsubrogation:v0"), entity_ref("urn:kz:catalog:paiementavecsubrogation:v1")) { origin case_input; }
+        assert "cat-1": subrogation_prevue_par_la_loi_ou_le_contrat(entity_ref("urn:kz:catalog:paiementavecsubrogation:v1")) { origin case_input; }
+    }
+    evaluate truth(creance_transmise_au_solvens(entity_ref("urn:kz:catalog:paiementavecsubrogation:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-PAIEMENTCONSTITUE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": paiement_de_la_dette(entity_ref("urn:kz:catalog:paiementconstitue:v0"), entity_ref("urn:kz:catalog:paiementconstitue:v1")) { origin case_input; }
+        assert "cat-1": prestation_due_executee_volontairement(entity_ref("urn:kz:catalog:paiementconstitue:v0")) { origin case_input; }
+    }
+    evaluate truth(paiement_constitue(entity_ref("urn:kz:catalog:paiementconstitue:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-PAIEMENTDUDESLEXIGIBILITE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": date_d_exigibilite(entity_ref("urn:kz:catalog:paiementdudeslexigibilite:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(paiement_du_des(entity_ref("urn:kz:catalog:paiementdudeslexigibilite:v0"), @2026-01-15));
+    expect truth_status == TRUE_ONLY;
+}

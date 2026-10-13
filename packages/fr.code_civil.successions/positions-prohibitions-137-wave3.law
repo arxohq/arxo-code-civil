@@ -1,0 +1,366 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART729_1,
+    CC_ART758_1,
+    CC_ART760,
+    CC_ART765,
+    CC_ART770,
+    CC_ART771,
+    CC_ART778,
+    CC_ART792_1,
+    CC_ART801,
+    CC_ART813_2,
+    CC_ART813_9,
+    CC_ART886,
+    ModaliteDeLOption,
+    Personne,
+    Succession,
+    acte_apres_fin_mission_exerce,
+    action_en_garantie_prescrite,
+    administration_confiee_d_un_commun_accord,
+    cession_droits_conjoint_exercee,
+    conversion_du_logement_exclue,
+    conversion_logement_exercee,
+    creancier_successoral,
+    designation_conventionnelle_exercee,
+    designation_judiciaire_obligatoire,
+    droits_incessibles,
+    exclu_pour_indignite,
+    garantie_eviction_exercee,
+    jouissance_parentale_reclamee,
+    mandataire_successoral,
+    mission_du_mandataire_successoral_terminee,
+    option_exercee_le,
+    option_prematuree_exercee,
+    ouverte_le,
+    pas_de_recompense_pour_l_excedent,
+    publicite_de_la_declaration_le,
+    recel_ou_dissimulation_constate,
+    reclamation_part_biens_receles_exercee,
+    recompense_excedent_exercee,
+    renonciation_exercee,
+    sommation_prematuree,
+    sommation_prematuree_exercee,
+    voie_execution_ou_surete_exercee,
+};
+
+// §137 : maintenance и нарушение для оставшихся двенадцати запретов.
+
+@source(CC_ART813_2)
+pub relation violation_designation_conventionnelle_mandataire(s: Succession, p: Personne) kind derived {
+    label fr official "Article 813-2. désignation conventionnelle du mandataire exercée";
+    label en unofficial "Article 813-2. conventional appointment of the representative exercised";
+}
+@source(CC_ART813_2)
+rule P3Wave3ViolationDesignationConventionnelleMandataire(s: Succession, p: Personne) strict {
+    label fr official "Article 813-2. interdiction de la désignation conventionnelle exercée";
+    label en unofficial "Article 813-2. prohibition on exercising the conventional appointment";
+    when designation_conventionnelle_exercee(s, p);
+    then violation_designation_conventionnelle_mandataire(s, p);
+}
+@source(CC_ART813_2)
+rule DeriveP3Wave3MaintenanceDesignationConventionnelleMandataire(s: Succession, p: Personne) strict {
+    label fr official "Article 813-2. devoir de maintenir l'interdiction de la désignation conventionnelle";
+    label en unofficial "Article 813-2. duty to maintain the prohibition on the conventional appointment";
+    when designation_judiciaire_obligatoire(s) and administration_confiee_d_un_commun_accord(s, p);
+    then duty P3Wave3MaintenanceDesignationConventionnelleMandataire {
+        bearer p;
+        goal maintenance {
+            condition not designation_conventionnelle_exercee(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART813_9)
+pub relation violation_acte_apres_fin_mission(s: Succession, p: Personne) kind derived {
+    label fr official "Article 813-9. acte accompli après la fin de la mission";
+    label en unofficial "Article 813-9. act performed after the end of the mission";
+}
+@source(CC_ART813_9)
+rule P3Wave3ViolationActeApresFinMission(s: Succession, p: Personne) strict {
+    label fr official "Article 813-9. interdiction de l'acte après la fin de la mission";
+    label en unofficial "Article 813-9. prohibition on the act after the end of the mission";
+    when acte_apres_fin_mission_exerce(s, p);
+    then violation_acte_apres_fin_mission(s, p);
+}
+@source(CC_ART813_9)
+rule DeriveP3Wave3MaintenanceActeApresFinMission(s: Succession, p: Personne) strict {
+    label fr official "Article 813-9. devoir de maintenir l'interdiction de l'acte après la mission";
+    label en unofficial "Article 813-9. duty to maintain the prohibition on the act after the mission";
+    when mission_du_mandataire_successoral_terminee(s) and mandataire_successoral(s, p);
+    then duty P3Wave3MaintenanceActeApresFinMission {
+        bearer p;
+        goal maintenance {
+            condition not acte_apres_fin_mission_exerce(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART729_1)
+pub relation violation_jouissance_indigne(s: Succession, p: Personne) kind derived {
+    label fr official "Article 729-1. jouissance parentale réclamée par l'indigne";
+    label en unofficial "Article 729-1. parental enjoyment claimed by the unworthy heir";
+}
+@source(CC_ART729_1)
+rule P3Wave3ViolationJouissanceIndigne(s: Succession, p: Personne) strict {
+    label fr official "Article 729-1. interdiction de la jouissance parentale de l'indigne";
+    label en unofficial "Article 729-1. prohibition on the unworthy heir's parental enjoyment";
+    when jouissance_parentale_reclamee(s, p);
+    then violation_jouissance_indigne(s, p);
+}
+@source(CC_ART729_1)
+rule DeriveP3Wave3MaintenanceJouissanceIndigne(s: Succession, p: Personne) strict {
+    label fr official "Article 729-1. devoir de maintenir l'interdiction de la jouissance de l'indigne";
+    label en unofficial "Article 729-1. duty to maintain the prohibition on the unworthy heir's enjoyment";
+    when exclu_pour_indignite(s, p);
+    then duty P3Wave3MaintenanceJouissanceIndigne {
+        bearer p;
+        goal maintenance {
+            condition not jouissance_parentale_reclamee(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART886)
+pub relation violation_action_garantie_prescrite(s: Succession, h: Personne) kind derived {
+    label fr official "Article 886. action en garantie exercée après prescription";
+    label en unofficial "Article 886. warranty action exercised after limitation";
+}
+@source(CC_ART886)
+rule P3Wave3ViolationActionGarantiePrescrite(s: Succession, h: Personne) strict {
+    label fr official "Article 886. interdiction de l'action en garantie prescrite";
+    label en unofficial "Article 886. prohibition on the time-barred warranty action";
+    when garantie_eviction_exercee(s, h);
+    then violation_action_garantie_prescrite(s, h);
+}
+@source(CC_ART886)
+rule DeriveP3Wave3MaintenanceActionGarantiePrescrite(s: Succession, h: Personne) strict {
+    label fr official "Article 886. devoir de maintenir l'interdiction de l'action prescrite";
+    label en unofficial "Article 886. duty to maintain the prohibition on the time-barred action";
+    when action_en_garantie_prescrite(s, h);
+    then duty P3Wave3MaintenanceActionGarantiePrescrite {
+        bearer h;
+        goal maintenance {
+            condition not garantie_eviction_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART760)
+pub relation violation_conversion_logement_contre_volonte(s: Succession, c: Personne) kind derived {
+    label fr official "Article 760. conversion du logement contre la volonté exercée";
+    label en unofficial "Article 760. conversion of the dwelling against the will exercised";
+}
+@source(CC_ART760)
+rule P3Wave3ViolationConversionLogementContreVolonte(s: Succession, c: Personne) strict {
+    label fr official "Article 760. interdiction de convertir le logement contre la volonté";
+    label en unofficial "Article 760. prohibition on converting the dwelling against the will";
+    when conversion_logement_exercee(s, c);
+    then violation_conversion_logement_contre_volonte(s, c);
+}
+@source(CC_ART760)
+rule DeriveP3Wave3MaintenanceConversionLogementContreVolonte(s: Succession, c: Personne) strict {
+    label fr official "Article 760. devoir de maintenir l'interdiction de convertir le logement";
+    label en unofficial "Article 760. duty to maintain the prohibition on converting the dwelling";
+    when conversion_du_logement_exclue(s, c);
+    then duty P3Wave3MaintenanceConversionLogementContreVolonte {
+        bearer c;
+        goal maintenance {
+            condition not conversion_logement_exercee(s, c);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART765)
+pub relation violation_recompenser_excedent_droit_viager(s: Succession, c: Personne) kind derived {
+    label fr official "Article 765. récompense excédant le droit viager exercée";
+    label en unofficial "Article 765. reward exceeding the life interest exercised";
+}
+@source(CC_ART765)
+rule P3Wave3ViolationRecompenserExcedentDroitViager(s: Succession, c: Personne) strict {
+    label fr official "Article 765. interdiction de récompenser au-delà du droit viager";
+    label en unofficial "Article 765. prohibition on rewarding beyond the life interest";
+    when recompense_excedent_exercee(s, c);
+    then violation_recompenser_excedent_droit_viager(s, c);
+}
+@source(CC_ART765)
+rule DeriveP3Wave3MaintenanceRecompenserExcedentDroitViager(s: Succession, c: Personne) strict {
+    label fr official "Article 765. devoir de maintenir l'interdiction de dépasser le droit viager";
+    label en unofficial "Article 765. duty to maintain the prohibition on exceeding the life interest";
+    when pas_de_recompense_pour_l_excedent(s, c);
+    then duty P3Wave3MaintenanceRecompenserExcedentDroitViager {
+        bearer c;
+        goal maintenance {
+            condition not recompense_excedent_exercee(s, c);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART758_1)
+pub relation violation_ceder_droits_conjoint_avant_option(s: Succession, c: Personne) kind derived {
+    label fr official "Article 758-1. cession des droits du conjoint avant l'option";
+    label en unofficial "Article 758-1. assignment of the spouse's rights before election";
+}
+@source(CC_ART758_1)
+rule P3Wave3ViolationCederDroitsConjointAvantOption(s: Succession, c: Personne) strict {
+    label fr official "Article 758-1. interdiction de céder les droits du conjoint avant l'option";
+    label en unofficial "Article 758-1. prohibition on assigning the spouse's rights before election";
+    when cession_droits_conjoint_exercee(s, c);
+    then violation_ceder_droits_conjoint_avant_option(s, c);
+}
+@source(CC_ART758_1)
+rule DeriveP3Wave3MaintenanceCederDroitsConjointAvantOption(s: Succession, c: Personne) strict {
+    label fr official "Article 758-1. devoir de maintenir l'interdiction de céder avant l'option";
+    label en unofficial "Article 758-1. duty to maintain the prohibition on assignment before election";
+    when droits_incessibles(s, c);
+    then duty P3Wave3MaintenanceCederDroitsConjointAvantOption {
+        bearer c;
+        goal maintenance {
+            condition not cession_droits_conjoint_exercee(s, c);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART770)
+pub relation violation_option_avant_ouverture(s: Succession, h: Personne) kind derived {
+    label fr official "Article 770. option exercée avant l'ouverture";
+    label en unofficial "Article 770. election exercised before opening";
+}
+@source(CC_ART770)
+rule P3Wave3ViolationOptionAvantOuverture(s: Succession, h: Personne) strict {
+    label fr official "Article 770. interdiction de l'option avant l'ouverture";
+    label en unofficial "Article 770. prohibition on election before opening";
+    when option_prematuree_exercee(s, h);
+    then violation_option_avant_ouverture(s, h);
+}
+@source(CC_ART770)
+rule DeriveP3Wave3MaintenanceOptionAvantOuverture(
+    s: Succession, h: Personne, m: ModaliteDeLOption, jour: Date, ouverture: Date
+) strict {
+    label fr official "Article 770. devoir de maintenir l'interdiction de l'option prématurée";
+    label en unofficial "Article 770. duty to maintain the prohibition on premature election";
+    when option_exercee_le(s, h, m, jour) and ouverte_le(s, ouverture) and jour < ouverture;
+    then duty P3Wave3MaintenanceOptionAvantOuverture {
+        bearer h;
+        goal maintenance {
+            condition not option_prematuree_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART771)
+pub relation violation_sommation_avant_quatre_mois(s: Succession, h: Personne) kind derived {
+    label fr official "Article 771. sommation avant l'expiration de quatre mois";
+    label en unofficial "Article 771. summons before four months have elapsed";
+}
+@source(CC_ART771)
+rule P3Wave3ViolationSommationAvantQuatreMois(s: Succession, h: Personne) strict {
+    label fr official "Article 771. interdiction de la sommation avant quatre mois";
+    label en unofficial "Article 771. prohibition on summons before four months";
+    when sommation_prematuree_exercee(s, h);
+    then violation_sommation_avant_quatre_mois(s, h);
+}
+@source(CC_ART771)
+rule DeriveP3Wave3MaintenanceSommationAvantQuatreMois(s: Succession, h: Personne) strict {
+    label fr official "Article 771. devoir de maintenir l'interdiction de la sommation prématurée";
+    label en unofficial "Article 771. duty to maintain the prohibition on premature summons";
+    when sommation_prematuree(s, h);
+    then duty P3Wave3MaintenanceSommationAvantQuatreMois {
+        bearer h;
+        goal maintenance {
+            condition not sommation_prematuree_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART778)
+pub relation violation_reclamer_biens_receles(s: Succession, h: Personne) kind derived {
+    label fr official "Article 778. réclamation des biens recelés";
+    label en unofficial "Article 778. claim for concealed assets";
+}
+@source(CC_ART778)
+rule P3Wave3ViolationReclamerBiensReceles(s: Succession, h: Personne) strict {
+    label fr official "Article 778. interdiction de réclamer les biens recelés";
+    label en unofficial "Article 778. prohibition on claiming concealed assets";
+    when reclamation_part_biens_receles_exercee(s, h);
+    then violation_reclamer_biens_receles(s, h);
+}
+@source(CC_ART778)
+rule DeriveP3Wave3MaintenanceReclamerBiensReceles(s: Succession, h: Personne) strict {
+    label fr official "Article 778. devoir de maintenir l'interdiction de réclamer les biens recelés";
+    label en unofficial "Article 778. duty to maintain the prohibition on claiming concealed assets";
+    when recel_ou_dissimulation_constate(s, h);
+    then duty P3Wave3MaintenanceReclamerBiensReceles {
+        bearer h;
+        goal maintenance {
+            condition not reclamation_part_biens_receles_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART792_1)
+pub relation violation_voie_execution_pendant_declaration(s: Succession, h: Personne) kind derived {
+    label fr official "Article 792-1. voie d'exécution pendant la déclaration";
+    label en unofficial "Article 792-1. enforcement during the declaration";
+}
+@source(CC_ART792_1)
+rule P3Wave3ViolationVoieExecutionPendantDeclaration(s: Succession, h: Personne) strict {
+    label fr official "Article 792-1. interdiction de la voie d'exécution pendant la déclaration";
+    label en unofficial "Article 792-1. prohibition on enforcement during the declaration";
+    when voie_execution_ou_surete_exercee(s, h);
+    then violation_voie_execution_pendant_declaration(s, h);
+}
+@source(CC_ART792_1)
+rule DeriveP3Wave3MaintenanceVoieExecutionPendantDeclaration(
+    s: Succession, h: Personne, publicite: Date
+) strict {
+    label fr official "Article 792-1. devoir de maintenir l'interdiction de l'exécution pendant la déclaration";
+    label en unofficial "Article 792-1. duty to maintain the prohibition on enforcement during the declaration";
+    when publicite_de_la_declaration_le(s, publicite) and creancier_successoral(s, h);
+    then duty P3Wave3MaintenanceVoieExecutionPendantDeclaration {
+        bearer h;
+        goal maintenance {
+            condition not voie_execution_ou_surete_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART801)
+pub relation violation_renoncer_apres_actif_net(s: Succession, h: Personne) kind derived {
+    label fr official "Article 801. renonciation après l'acceptation à concurrence de l'actif net";
+    label en unofficial "Article 801. renunciation after acceptance up to net assets";
+}
+@source(CC_ART801)
+rule P3Wave3ViolationRenoncerApresActifNet(s: Succession, h: Personne) strict {
+    label fr official "Article 801. interdiction de renoncer après l'acceptation à concurrence de l'actif net";
+    label en unofficial "Article 801. prohibition on renouncing after acceptance up to net assets";
+    when renonciation_exercee(s, h);
+    then violation_renoncer_apres_actif_net(s, h);
+}
+@source(CC_ART801)
+rule DeriveP3Wave3MaintenanceRenoncerApresActifNet(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 801. devoir de maintenir l'interdiction de renoncer après acceptation";
+    label en unofficial "Article 801. duty to maintain the prohibition on renouncing after acceptance";
+    when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+    then duty P3Wave3MaintenanceRenoncerApresActifNet {
+        bearer h;
+        goal maintenance {
+            condition not renonciation_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}

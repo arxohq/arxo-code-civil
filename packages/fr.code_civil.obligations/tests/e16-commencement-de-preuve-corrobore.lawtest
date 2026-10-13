@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1361 : le même commencement, CORROBORÉ par un autre moyen de preuve, supplée
+// l'écrit — la paire e15/e16 garde la condition que le texte ajoute.
+test "urn:query:fr-code-civil-obligations-e16-commencement-de-preuve-corrobore" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": supplement_produit(entity_ref("urn:fr:cc:obligations:cpc:a"), CommencementDePreuveParEcrit) { origin case_input; }
+        assert "f2": commencement_corrobore(entity_ref("urn:fr:cc:obligations:cpc:a")) { origin case_input; }
+    }
+    evaluate truth(ecrit_supplee(entity_ref("urn:fr:cc:obligations:cpc:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcritSuppleeParCommencementCorrobore);
+}

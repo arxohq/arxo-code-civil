@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-GARANTIEDUCEDANTAVANTACHEVEMENT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cession_avant_achevement(entity_ref("urn:law:catalog:garantieducedantavantachevement:v0")) { origin case_input; }
+    }
+    evaluate truth(cedant_garant_des_obligations_du_maitre(entity_ref("urn:law:catalog:garantieducedantavantachevement:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SUBSTITUTIONDUPROMOTEURSANSACCORDINTERDITE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": substitution_du_promoteur_sans_accord_du_maitre(entity_ref("urn:law:catalog:substitutiondupromoteursansaccordinterdite:v0")) { origin case_input; }
+    }
+    evaluate truth(substitution_du_promoteur_interdite(entity_ref("urn:law:catalog:substitutiondupromoteursansaccordinterdite:v0")));
+    expect truth_status == TRUE_ONLY;
+}

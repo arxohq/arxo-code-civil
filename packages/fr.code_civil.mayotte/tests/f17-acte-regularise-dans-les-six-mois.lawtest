@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2524, alinéa 2 : acte du 10 janvier 2026, acte authentique le 1er mai 2026 — dans les six mois.
+test "urn:query:fr-code-civil-mayotte-f17-acte-regularise-dans-les-six-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": acte_translatif_ou_declaratif(entity_ref("urn:fr:cc:may:ae:acte")) { origin case_input; }
+        assert "f2": acte_sous_une_autre_forme_le(entity_ref("urn:fr:cc:may:ae:acte"), @2026-01-10) { origin case_input; }
+        assert "f3": regularise_le(entity_ref("urn:fr:cc:may:ae:acte"), @2026-05-01) { origin case_input; }
+    }
+    evaluate truth(acte_regularise_en_temps_utile(entity_ref("urn:fr:cc:may:ae:acte")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RegularisationDansLeDelai);
+}

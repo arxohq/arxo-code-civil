@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2318 : le consentement par avance ne vaut que pour l'opération affectant la société créancière.
+test "urn:query:fr-code-civil-suretes-c48-fusion-debiteur-consentement-par-avance-inoperant" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c48:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c48:K"), entity_ref("urn:fr:cc:suretes:c48:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c48:K"), entity_ref("urn:fr:cc:suretes:c48:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c48:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c48:B")) { origin case_input; }
+        assert "f6": dissolution_par_fusion_ou_scission_d_une_partie(entity_ref("urn:fr:cc:suretes:c48:K"), @2024-04-01) { origin case_input; }
+        assert "f7": dette_garantie(entity_ref("urn:fr:cc:suretes:c48:K"), entity_ref("urn:fr:cc:suretes:c48:D")) { origin case_input; }
+        assert "f8": nee_le(entity_ref("urn:fr:cc:suretes:c48:D"), @2024-04-02) { origin case_input; }
+        assert "f9": consentement_par_avance(entity_ref("urn:fr:cc:suretes:c48:K")) { origin case_input; }
+    }
+    evaluate truth(caution_tenue_apres_l_operation(entity_ref("urn:fr:cc:suretes:c48:K"), entity_ref("urn:fr:cc:suretes:c48:D")));
+    expect truth_status == NEITHER;
+}

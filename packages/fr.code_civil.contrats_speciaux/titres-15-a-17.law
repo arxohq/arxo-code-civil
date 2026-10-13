@@ -1,0 +1,286 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    Arbitrage,
+    CC_ART2044,
+    CC_ART2045,
+    CC_ART2046,
+    CC_ART2048,
+    CC_ART2049,
+    CC_ART2050,
+    CC_ART2051,
+    CC_ART2052,
+    CC_ART2059,
+    CC_ART2060,
+    CC_ART2061,
+    CC_ART2062,
+    CC_ART2063,
+    CC_ART2064,
+    CC_ART2065,
+    CC_ART2066,
+    CC_ART2067,
+    Personne,
+    ProcedureParticipative,
+    Transaction,
+    accord_procedure_participative,
+    action_en_justice_irrecevable,
+    arbitrage_admis,
+    arbitrage_etablissement_public_admis,
+    arbitrage_interdit,
+    autres_interesses_non_lies,
+    bonne_foi_procedure_participative,
+    capacite_disposer_objet_transaction,
+    capacite_transiger_reconnue,
+    clause_compromissoire,
+    clause_compromissoire_non_opposable,
+    clause_compromissoire_opposable,
+    compromis_etablissement_public_conclu,
+    concessions_reciproques,
+    conclusion_procedure_exercee,
+    conclusion_procedure_participative_admise,
+    convention_procedure_a_duree_determinee,
+    differend_compris_dans_transaction,
+    droit_nouveau_acquis_autre_chef,
+    droit_nouveau_non_lie_transaction_anterieure,
+    droits_librement_disponibles,
+    droits_librement_disponibles_procedure,
+    effet_transaction_sur_differend,
+    epoux_procedure,
+    etablissement_arbitrage,
+    etablissement_public_autorise_par_decret,
+    etablissement_public_autorise_premier_ministre,
+    etablissement_transaction,
+    homologation_article_2066_exclue_divorce,
+    homologation_judiciaire_demandable,
+    inexecution_partie_adverse,
+    interesse_transaction,
+    interet_civil_resultant_delit,
+    matiere_etat_capacite_divorce_ou_ordre_public,
+    meme_objet_entre_memes_parties,
+    mentions_obligatoires_procedure,
+    partie_a_accepte_clause,
+    partie_agit_professionnellement,
+    partie_assistee_avocat,
+    partie_n_agit_pas_professionnellement,
+    poursuite_ministere_public_non_affectee,
+    procedure_divorce_consensuelle_admise,
+    procedure_participative_active,
+    procedure_participative_conforme,
+    procedure_participative_ecrite,
+    procedure_participative_entre_epoux_divorce,
+    procedure_participative_valide,
+    renonciation_limitee_objet_transaction,
+    renonciation_relative_au_differend,
+    saisine_juridiction_irrecevable,
+    saisine_juridiction_recevable,
+    transaction_ecrite,
+    transaction_etablissement_public_admise,
+    transaction_interet_civil_admise,
+    transaction_interet_exercee,
+    transaction_par_un_seul_interesse,
+    transaction_tuteur_admise,
+    transaction_tuteur_exercee,
+    transaction_valide,
+    tuteur_autorise_selon_regime_protection,
+    tuteur_transaction,
+    urgence,
+};
+
+@source(CC_ART2044)
+rule TransactionEcriteAvecConcessions(t: Transaction) strict {
+    label fr official "Article 2044. La transaction repose sur des concessions réciproques et doit être rédigée par écrit";
+    label en unofficial "Article 2044. A settlement rests on reciprocal concessions and must be in writing";
+    when concessions_reciproques(t) and transaction_ecrite(t); then transaction_valide(t);
+}
+
+@source(CC_ART2052)
+rule TransactionFaitObstacleMemeObjet(t: Transaction) strict {
+    label fr official "Article 2052. La transaction fait obstacle à une action entre les mêmes parties ayant le même objet";
+    label en unofficial "Article 2052. A settlement bars proceedings between the same parties concerning the same subject";
+    when transaction_valide(t) and meme_objet_entre_memes_parties(t); then action_en_justice_irrecevable(t);
+}
+
+@source(CC_ART2061) {
+    rule ClauseCompromissoireOpposableProfessionnel(a: Arbitrage, p: Personne) strict {
+        label fr official "Article 2061. La clause compromissoire acceptée est opposable à la partie agissant professionnellement";
+        label en unofficial "Article 2061. An accepted arbitration clause binds a party acting professionally";
+        when clause_compromissoire(a) and partie_a_accepte_clause(a, p) and partie_agit_professionnellement(a, p); then clause_compromissoire_opposable(a, p);
+    }
+    rule ClauseCompromissoireNonOpposableNonProfessionnel(a: Arbitrage, p: Personne) strict {
+        label fr official "Article 2061. La clause n'est pas opposable à la partie qui n'agit pas professionnellement";
+        label en unofficial "Article 2061. An arbitration clause does not bind a party not acting professionally";
+        when clause_compromissoire(a) and partie_a_accepte_clause(a, p) and partie_n_agit_pas_professionnellement(a, p); then clause_compromissoire_non_opposable(a, p);
+    }
+}
+
+@source(CC_ART2062)
+rule ProcedureParticipativeDeBonneFoi(p: ProcedureParticipative) strict {
+    label fr official "Article 2062. Les parties s'engagent pour une durée déterminée à œuvrer de bonne foi";
+    label en unofficial "Article 2062. The parties undertake for a fixed period to work in good faith";
+    when convention_procedure_a_duree_determinee(p) and bonne_foi_procedure_participative(p); then procedure_participative_conforme(p);
+}
+
+@source(CC_ART2065) {
+    rule SaisineIrrecevablePendantProcedure(p: ProcedureParticipative) strict {
+        label fr official "Article 2065. Tant que la convention produit effet, la saisine du juge est irrecevable";
+        label en unofficial "Article 2065. While the agreement is effective, commencing court proceedings is inadmissible";
+        when procedure_participative_active(p); then saisine_juridiction_irrecevable(p);
+    }
+    rule SaisineRecevablePourInexecution(p: ProcedureParticipative) strict {
+        label fr official "Article 2065. L'inexécution par une partie permet à l'autre de saisir le juge";
+        label en unofficial "Article 2065. Non-performance by one party permits the other to commence proceedings";
+        when procedure_participative_active(p) and inexecution_partie_adverse(p); then saisine_juridiction_recevable(p);
+    }
+    rule SaisineRecevablePourUrgence(p: ProcedureParticipative) strict {
+        label fr official "Article 2065. L'urgence permet des mesures provisoires ou conservatoires";
+        label en unofficial "Article 2065. Urgency permits interim or protective measures";
+        when procedure_participative_active(p) and urgence(p); then saisine_juridiction_recevable(p);
+    }
+}
+
+@source(CC_ART2066)
+rule HomologationAccordParticipatif(p: ProcedureParticipative) strict {
+    label fr official "Article 2066. L'accord issu de la procédure participative peut être soumis au juge pour homologation";
+    label en unofficial "Article 2066. An agreement reached through the participatory procedure may be submitted for court approval";
+    when accord_procedure_participative(p); then homologation_judiciaire_demandable(p);
+}
+
+@source(CC_ART2045)
+rule CapaciteDisposerPermetTransaction(t: Transaction) strict { label fr official "Article 2045. La capacité de disposer des objets permet de transiger"; label en unofficial "Article 2045. Capacity to dispose of the subject matter permits settlement"; when capacite_disposer_objet_transaction(t); then capacite_transiger_reconnue(t); }
+
+@source(CC_ART2045)
+rule TuteurAutorisePeutTransiger(t: Transaction) strict { label fr official "Article 2045. Le tuteur autorisé selon le régime de protection peut transiger"; label en unofficial "Article 2045. A guardian authorised under the protection regime may settle"; when tuteur_autorise_selon_regime_protection(t); then transaction_tuteur_admise(t); }
+
+@source(CC_ART2045)
+rule P3PouvoirTransactionTuteur(t: Transaction, p: Personne) strict {
+    label fr official "Article 2045. Le tuteur autorisé selon le régime de protection peut transiger";
+    label en unofficial "Article 2045. An authorised guardian may settle";
+    when tuteur_autorise_selon_regime_protection(t) and tuteur_transaction(t, p);
+    then power P3PositionPouvoirTransactionTuteur {
+        holder p;
+        over t;
+        exercise transaction_tuteur_exercee(t, p);
+        effect transaction_tuteur_admise(t);
+        valid_when tuteur_autorise_selon_regime_protection(t);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2045)
+rule EtablissementPublicAutorisePeutTransiger(t: Transaction) strict { label fr official "Article 2045. L'établissement public autorisé expressément peut transiger"; label en unofficial "Article 2045. An expressly authorised public establishment may settle"; when etablissement_public_autorise_premier_ministre(t); then transaction_etablissement_public_admise(t); }
+
+@source(CC_ART2045)
+rule P3PouvoirTransactionEtablissement(t: Transaction, p: Personne) strict {
+    label fr official "Article 2045. L'établissement public autorisé expressément peut transiger";
+    label en unofficial "Article 2045. An expressly authorised public establishment may settle";
+    when etablissement_public_autorise_premier_ministre(t) and etablissement_transaction(t, p);
+    then power P3PositionPouvoirTransactionEtablissement {
+        holder p;
+        over t;
+        exercise transaction_tuteur_exercee(t, p);
+        effect transaction_etablissement_public_admise(t);
+        valid_when etablissement_public_autorise_premier_ministre(t);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2046)
+rule TransactionSurInteretCivilDuDelit(t: Transaction) strict { label fr official "Article 2046. L'intérêt civil résultant d'un délit peut faire l'objet d'une transaction"; label en unofficial "Article 2046. The civil interest arising from an offence may be settled"; when interet_civil_resultant_delit(t); then transaction_interet_civil_admise(t); }
+
+@source(CC_ART2046)
+rule P3PouvoirTransactionInteretCivil(t: Transaction, p: Personne) strict {
+    label fr official "Article 2046. L'intérêt civil résultant d'un délit peut faire l'objet d'une transaction";
+    label en unofficial "Article 2046. The civil interest arising from an offence may be settled";
+    when interet_civil_resultant_delit(t) and interesse_transaction(t, p);
+    then power P3PositionPouvoirTransactionInteretCivil {
+        holder p;
+        over t;
+        exercise transaction_interet_exercee(t, p);
+        effect transaction_interet_civil_admise(t);
+        valid_when interet_civil_resultant_delit(t);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2046)
+rule TransactionNEmpechePasPoursuitePublique(t: Transaction) strict { label fr official "Article 2046. La transaction civile n'empêche pas la poursuite du ministère public"; label en unofficial "Article 2046. Civil settlement does not prevent public prosecution"; when interet_civil_resultant_delit(t); then poursuite_ministere_public_non_affectee(t); }
+
+@source(CC_ART2048)
+rule RenonciationTransactionLimiteeAuDifferend(t: Transaction) strict { label fr official "Article 2048. La renonciation transactionnelle est limitée à ce qui se rapporte au différend"; label en unofficial "Article 2048. A settlement waiver is limited to matters related to the dispute"; when renonciation_relative_au_differend(t); then renonciation_limitee_objet_transaction(t); }
+
+@source(CC_ART2049)
+rule TransactionRegleDifferendsCompris(t: Transaction) strict { label fr official "Article 2049. La transaction ne règle que les différends qui y sont compris"; label en unofficial "Article 2049. A settlement resolves only disputes included within it"; when differend_compris_dans_transaction(t); then effet_transaction_sur_differend(t); }
+
+@source(CC_ART2050)
+rule DroitNouveauNonLieTransactionAnterieure(t: Transaction) strict { label fr official "Article 2050. Le droit semblable acquis d'un autre chef n'est pas lié par la transaction antérieure"; label en unofficial "Article 2050. A similar right later acquired from another source is not bound by the earlier settlement"; when droit_nouveau_acquis_autre_chef(t); then droit_nouveau_non_lie_transaction_anterieure(t); }
+
+@source(CC_ART2051)
+rule TransactionUnInteresseNeLiePasAutres(t: Transaction) strict { label fr official "Article 2051. La transaction d'un intéressé ne lie pas les autres"; label en unofficial "Article 2051. A settlement by one interested person does not bind the others"; when transaction_par_un_seul_interesse(t); then autres_interesses_non_lies(t); }
+
+@source(CC_ART2059)
+rule ArbitrageSurDroitsDisponibles(a: Arbitrage) strict { label fr official "Article 2059. Les droits librement disponibles peuvent être soumis à arbitrage"; label en unofficial "Article 2059. Freely disposable rights may be submitted to arbitration"; when droits_librement_disponibles(a); then arbitrage_admis(a); }
+
+@source(CC_ART2060)
+rule ArbitrageInterditMatiereOrdrePublic(a: Arbitrage) strict { label fr official "Article 2060. L'arbitrage est interdit en matière d'état, capacité, divorce ou ordre public"; label en unofficial "Article 2060. Arbitration is prohibited for status, capacity, divorce or public-policy matters"; when matiere_etat_capacite_divorce_ou_ordre_public(a); then arbitrage_interdit(a); }
+
+@source(CC_ART2060)
+rule ArbitrageEtablissementPublicAutorise(a: Arbitrage) strict { label fr official "Article 2060. L'établissement public autorisé par décret peut compromettre"; label en unofficial "Article 2060. A public establishment authorised by decree may arbitrate"; when etablissement_public_autorise_par_decret(a); then arbitrage_etablissement_public_admis(a); }
+
+@source(CC_ART2060)
+rule P3PouvoirArbitrageEtablissement(a: Arbitrage, p: Personne) strict {
+    label fr official "Article 2060. L'établissement public autorisé par décret peut compromettre";
+    label en unofficial "Article 2060. A public establishment authorised by decree may arbitrate";
+    when etablissement_public_autorise_par_decret(a) and etablissement_arbitrage(a, p);
+    then power P3PositionPouvoirArbitrageEtablissement {
+        holder p;
+        over a;
+        exercise arbitrage_etablissement_public_admis(a);
+        effect compromis_etablissement_public_conclu(a);
+        valid_when etablissement_public_autorise_par_decret(a);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2063)
+rule ProcedureParticipativeEcriteAvecMentions(p: ProcedureParticipative) strict { label fr official "Article 2063. La convention écrite comportant les mentions obligatoires satisfait la forme exigée à peine de nullité"; label en unofficial "Article 2063. A written agreement containing mandatory terms satisfies the form required on pain of nullity"; when procedure_participative_ecrite(p) and mentions_obligatoires_procedure(p); then procedure_participative_valide(p); }
+
+@source(CC_ART2064)
+rule ProcedureSurDroitsDisponiblesAvecAvocat(p: ProcedureParticipative) strict { label fr official "Article 2064. La personne assistée de son avocat peut conclure sur ses droits librement disponibles"; label en unofficial "Article 2064. A person assisted by counsel may conclude the procedure over freely disposable rights"; when partie_assistee_avocat(p) and droits_librement_disponibles_procedure(p); then conclusion_procedure_participative_admise(p); }
+
+@source(CC_ART2064)
+rule P3PouvoirConclureProcedureParticipative(p: ProcedureParticipative, q: Personne) strict {
+    label fr official "Article 2064. La personne assistée de son avocat peut conclure sur ses droits librement disponibles";
+    label en unofficial "Article 2064. A person assisted by counsel may conclude the procedure";
+    when partie_assistee_avocat(p) and droits_librement_disponibles_procedure(p) and conclusion_procedure_exercee(p, q);
+    then power P3PositionPouvoirConclureProcedureParticipative {
+        holder q;
+        over p;
+        exercise conclusion_procedure_exercee(p, q);
+        effect conclusion_procedure_participative_admise(p);
+        valid_when droits_librement_disponibles_procedure(p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2067)
+rule ProcedureParticipativeDivorceAdmise(p: ProcedureParticipative) strict { label fr official "Article 2067. Les époux peuvent conclure une procédure participative pour rechercher une solution consensuelle au divorce"; label en unofficial "Article 2067. Spouses may use a participatory procedure to seek a consensual divorce solution"; when procedure_participative_entre_epoux_divorce(p); then procedure_divorce_consensuelle_admise(p); }
+
+@source(CC_ART2067)
+rule P3PouvoirProcedureParticipativeDivorce(p: ProcedureParticipative, q: Personne) strict {
+    label fr official "Article 2067. Les époux peuvent conclure une procédure participative pour rechercher une solution consensuelle au divorce";
+    label en unofficial "Article 2067. Spouses may use a participatory procedure";
+    when procedure_participative_entre_epoux_divorce(p) and epoux_procedure(p, q);
+    then power P3PositionPouvoirProcedureParticipativeDivorce {
+        holder q;
+        over p;
+        exercise conclusion_procedure_exercee(p, q);
+        effect procedure_divorce_consensuelle_admise(p);
+        valid_when procedure_participative_entre_epoux_divorce(p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2067)
+rule Homologation2066ExclueEnDivorce(p: ProcedureParticipative) strict { label fr official "Article 2067. L'article 2066 n'est pas applicable à la procédure participative en matière de divorce"; label en unofficial "Article 2067. Article 2066 does not apply to participatory proceedings concerning divorce"; when procedure_participative_entre_epoux_divorce(p); then homologation_article_2066_exclue_divorce(p); }

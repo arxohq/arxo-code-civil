@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2528, alinéa 2 : droit inscrit le 3 mars 2026, concurrent inscrit le 1er mars 2026.
+test "urn:query:fr-code-civil-mayotte-f12-inscription-anterieure-du-tiers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:z:dr"), ProprieteImmobiliere) { origin case_input; }
+        assert "f2": nature_du_droit(entity_ref("urn:fr:cc:may:z:conc"), ProprieteImmobiliere) { origin case_input; }
+        assert "f3": droit_inscrit_le(entity_ref("urn:fr:cc:may:z:dr"), @2026-03-03) { origin case_input; }
+        assert "f4": droit_concurrent_du_meme_auteur(entity_ref("urn:fr:cc:may:z:dr"), entity_ref("urn:fr:cc:may:z:conc")) { origin case_input; }
+        assert "f5": droit_inscrit_le(entity_ref("urn:fr:cc:may:z:conc"), @2026-03-01) { origin case_input; }
+    }
+    evaluate truth(inopposable_au_tiers(entity_ref("urn:fr:cc:may:z:dr"), entity_ref("urn:fr:cc:may:z:conc")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InopposabiliteParInscriptionAnterieureDuTiers);
+}

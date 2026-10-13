@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 860-1 : la somme a servi à acquérir un bien — le nominal ne vaut plus.
+test "urn:query:fr-code-civil-successions-q17-somme-employee-a-acquerir-un-bien" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": liberalite_recue(entity_ref("urn:fr:cc:successions:par:q17:S"), entity_ref("urn:fr:cc:successions:par:q17:H"), entity_ref("urn:fr:cc:successions:par:q17:L"), DonationEnAvancementDePartSuccessorale) { origin case_input; }
+        assert "f2": somme_d_argent_donnee(entity_ref("urn:fr:cc:successions:par:q17:S"), entity_ref("urn:fr:cc:successions:par:q17:L"), 30000 EUR) { origin case_input; }
+        assert "f3": somme_employee_a_acquerir_un_bien(entity_ref("urn:fr:cc:successions:par:q17:S"), entity_ref("urn:fr:cc:successions:par:q17:L")) { origin case_input; }
+    }
+    evaluate truth(valeur_rapportable(entity_ref("urn:fr:cc:successions:par:q17:S"), entity_ref("urn:fr:cc:successions:par:q17:H"), 30000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

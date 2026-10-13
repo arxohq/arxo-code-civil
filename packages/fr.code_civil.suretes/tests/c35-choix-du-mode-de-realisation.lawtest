@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2314, dernière phrase : le seul choix du mode de réalisation ne décharge pas la caution.
+test "urn:query:fr-code-civil-suretes-c35-choix-du-mode-de-realisation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c35:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c35:K"), entity_ref("urn:fr:cc:suretes:c35:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c35:K"), entity_ref("urn:fr:cc:suretes:c35:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c35:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c35:B")) { origin case_input; }
+        assert "f6": subrogation_devenue_impossible(entity_ref("urn:fr:cc:suretes:c35:K")) { origin case_input; }
+        assert "f7": prejudice_de_la_perte_de_subrogation(entity_ref("urn:fr:cc:suretes:c35:K"), 3000 EUR) { origin adjudicated; }
+        assert "f8": faute_du_creancier_2314(entity_ref("urn:fr:cc:suretes:c35:K")) { origin adjudicated; }
+        assert "f9": grief_limite_au_choix_du_mode_de_realisation(entity_ref("urn:fr:cc:suretes:c35:K")) { origin case_input; }
+    }
+    evaluate truth(caution_dechargee(entity_ref("urn:fr:cc:suretes:c35:K"), 3000 EUR));
+    expect truth_status == NEITHER;
+}

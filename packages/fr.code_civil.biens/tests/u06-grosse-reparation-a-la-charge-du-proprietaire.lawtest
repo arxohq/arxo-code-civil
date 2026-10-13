@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 605 et 606. Les gros murs sont une grosse réparation nommée par
+// l'article 606 ; elle demeure à la charge du propriétaire.
+test "urn:query:fr-code-civil-biens-u06-grosse-reparation-au-proprietaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": reparation_sur(entity_ref("urn:fr:cc:biens:u06:R"), entity_ref("urn:fr:cc:biens:u06:U")) { origin case_input; }
+        assert "f2": objet_de_la_reparation(entity_ref("urn:fr:cc:biens:u06:R"), GrosMurs) { origin case_input; }
+    }
+    evaluate truth(a_la_charge_du_proprietaire(entity_ref("urn:fr:cc:biens:u06:R")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

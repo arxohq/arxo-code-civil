@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1185 : le contrat ayant reçu exécution, l'exception de nullité n'échappe pas à la prescription.
+test "urn:query:fr-code-civil-contrat-s17-exception-de-nullite-contrat-execute" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s17"), @2019-03-01) { origin case_input; }
+        assert "f2": exception_de_nullite_opposee(entity_ref("urn:fr:cc:contrat:s17")) { origin case_input; }
+        assert "f3": prestation_executee(entity_ref("urn:fr:cc:contrat:s17")) { origin case_input; }
+    }
+    evaluate truth(exception_de_nullite_imprescriptible(entity_ref("urn:fr:cc:contrat:s17")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

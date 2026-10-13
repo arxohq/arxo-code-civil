@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 411: an adjudicated finding makes the vacancy consequence executable.
+test "urn:query:fr-code-civil-personnes-tg04-vacance-retenue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": impossibilite_d_organiser_la_tutelle(entity_ref("urn:fr:cc:personnes:tg04:p")) { origin adjudicated; }
+    }
+    evaluate truth(tutelle_vacante(entity_ref("urn:fr:cc:personnes:tg04:p")));
+    expect truth_status == TRUE_ONLY;
+    expect judgment_requests(0);
+    expect applied(TutelleVacante);
+}

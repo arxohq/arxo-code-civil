@@ -1,0 +1,281 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1704,
+    CC_ART1705,
+    CC_ART1706,
+    CC_ART1780,
+    CC_ART1783,
+    CC_ART1784,
+    CC_ART1791,
+    CC_ART1792_1,
+    CC_ART1792_2,
+    CC_ART1792_4,
+    CC_ART1792_4_2,
+    CC_ART1792_4_3,
+    CC_ART1792_7,
+    CC_ART1796,
+    CC_ART1798,
+    Echange,
+    Marche,
+    Personne,
+    action_contre_constructeur_introduite_le,
+    action_contre_constructeur_recevable,
+    action_contre_sous_traitant_introduite_le,
+    action_contre_sous_traitant_recevable,
+    action_directe_de_l_ouvrier_limitee,
+    autre_contractant_non_proprietaire_prouve,
+    choix_entre_dommages_interets_et_repetition,
+    chose_confiee_au_voiturier,
+    chose_recue_en_echange,
+    chose_remise_sur_le_port_ou_dans_l_entrepot,
+    consentement_reciproque_a_l_echange,
+    copermutant_evince,
+    copermutant_non_force_de_livrer,
+    copermutant_protege_par_article_1704,
+    dommage_affecte_la_solidite_d_un_element_d_equipement,
+    element_a_fonction_exclusivement_professionnelle,
+    element_hors_du_champ_des_garanties,
+    element_indissociablement_incorpore,
+    element_mis_en_oeuvre_sans_modification,
+    fabricant_de_l_element_d_equipement,
+    fabricant_solidairement_responsable,
+    lie_au_maitre_par_un_contrat_de_louage_d_ouvrage,
+    livraison_refusee_pour_non_propriete,
+    louage_de_service_peut_cesser_par_volonte_unilaterale,
+    louage_de_service_sans_determination_de_duree,
+    maitre_debiteur_envers_l_entrepreneur,
+    maitre_paye_en_proportion_de_l_ouvrage_fait,
+    mandataire_accomplissant_mission_de_locateur,
+    marche_dissous_par_deces,
+    ouvrage_a_plusieurs_pieces_ou_a_la_mesure,
+    ouvrages_faits_et_materiaux_prepares,
+    ouvrier_employe_a_la_construction,
+    paiement_a_la_succession_du,
+    perte_ou_avarie_de_la_chose_transportee,
+    presomption_de_responsabilite_etendue_a_l_element,
+    reception_ouvrage_le,
+    renonciation_anticipee_aux_dommages_interets,
+    renonciation_anticipee_sans_effet,
+    repute_constructeur_de_l_ouvrage,
+    rescision_pour_lesion_exclue_dans_l_echange,
+    sous_traitant_du_marche,
+    suite_d_eviction_choisie_par_le_copermutant,
+    travaux_ou_materiaux_utiles_au_proprietaire,
+    vend_apres_achevement_un_ouvrage_construit,
+    verification_censee_faite_pour_les_parties_payees,
+    voiturier_du_marche,
+    voiturier_prouve_cas_fortuit_ou_force_majeure,
+    voiturier_repond_des_choses_remises_avant_chargement,
+    voiturier_responsable_de_la_perte_ou_de_l_avarie,
+};
+
+// Échange, suite (1704 à 1706) et louage d'ouvrage, suite (1780 à 1799).
+//
+// Deux prescriptions décennales s'ajoutent à la décharge de l'article 1792-4-1
+// déjà exécutée : celle du sous-traitant (1792-4-2) et celle de droit commun
+// de la construction (1792-4-3). Elles courent l'une et l'autre de la réception
+// des travaux, et sont gardées par le jour d'échéance et le jour suivant.
+//
+// L'article 1707 renvoie à la vente toutes les autres règles de l'échange :
+// c'est un renvoi, non une norme propre — sa frontière est déclarée.
+// Les articles 1782, 1785 et 1786 renvoient au dépôt et à des règlements
+// particuliers, hors du présent paquet ; leurs frontières sont déclarées.
+
+// --- Échange ------------------------------------------------------------------
+
+@source(CC_ART1704)
+rule CopermutantNonForceDeLivrerContreUnNonProprietaire(e: Echange) strict {
+    label fr official "Article 1704. Le copermutant qui prouve que l'autre n'est pas propriétaire ne peut être forcé à livrer, mais seulement à rendre ce qu'il a reçu";
+    label en unofficial "Article 1704. An exchanger who proves the other is not the owner may not be forced to deliver, but only to return what he received";
+    when chose_recue_en_echange(e) and autre_contractant_non_proprietaire_prouve(e);
+    then copermutant_non_force_de_livrer(e);
+}
+
+@source(CC_ART1704)
+rule PositionLiberteRefuserLivraisonNonProprietaire(e: Echange, p: Personne) strict {
+    label fr official "Article 1704. Liberté du copermutant de refuser la livraison à un non-propriétaire";
+    label en unofficial "Article 1704. Exchanger's liberty to refuse delivery to a non-owner";
+    when copermutant_protege_par_article_1704(e, p)
+        and chose_recue_en_echange(e)
+        and autre_contractant_non_proprietaire_prouve(e);
+    then liberty RefuserLivraisonNonProprietaire {
+        holder p;
+        action livraison_refusee_pour_non_propriete(e);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1705)
+rule ChoixDuCopermutantEvince(e: Echange) strict {
+    label fr official "Article 1705. Le copermutant évincé a le choix de conclure à des dommages et intérêts ou de répéter sa chose";
+    label en unofficial "Article 1705. An evicted exchanger has the choice of claiming damages or recovering his thing";
+    when copermutant_evince(e);
+    then choix_entre_dommages_interets_et_repetition(e);
+}
+pub relation copermutant_evince_identifie(e: Echange, p: Personne) kind empirical {
+    label fr official "copermutant évincé identifié";
+    label en unofficial "evicted exchanger identified";
+}
+@source(CC_ART1705)
+rule P4PouvoirChoisirSuiteEviction1705(e: Echange, p: Personne) strict {
+    label fr official "Article 1705. Le copermutant évincé peut choisir entre dommages et intérêts et répétition";
+    label en unofficial "Article 1705. An evicted exchanger may choose between damages and recovery";
+    when copermutant_evince(e) and copermutant_evince_identifie(e, p);
+    then power P4PouvoirChoisirSuiteEviction1705Actif {
+        holder p;
+        exercise choix_entre_dommages_interets_et_repetition(e);
+        valid_when copermutant_evince(e);
+        effect suite_d_eviction_choisie_par_le_copermutant(e);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1706)
+rule RescisionPourLesionExclueDansLEchange(e: Echange) strict {
+    label fr official "Article 1706. La rescision pour cause de lésion n'a pas lieu dans le contrat d'échange";
+    label en unofficial "Article 1706. Rescission for injury does not lie in a contract of exchange";
+    when consentement_reciproque_a_l_echange(e);
+    then rescision_pour_lesion_exclue_dans_l_echange(e);
+}
+
+// --- Louage de service et voituriers -----------------------------------------
+
+@source(CC_ART1780)
+rule LouageDeServiceSansDureePeutCesser(m: Marche) strict {
+    label fr official "Article 1780, alinéa 2. Le louage de service fait sans détermination de durée peut toujours cesser par la volonté d'une des parties";
+    label en unofficial "Article 1780, second paragraph. A hire of services without determined duration may always end by the will of one of the parties";
+    when louage_de_service_sans_determination_de_duree(m);
+    then louage_de_service_peut_cesser_par_volonte_unilaterale(m);
+}
+
+@source(CC_ART1780)
+rule RenonciationAnticipeeSansEffet(m: Marche) strict {
+    label fr official "Article 1780, alinéa 5. Les parties ne peuvent renoncer à l'avance au droit éventuel de demander des dommages-intérêts";
+    label en unofficial "Article 1780, fifth paragraph. The parties may not waive in advance the possible right to claim damages";
+    when renonciation_anticipee_aux_dommages_interets(m);
+    then renonciation_anticipee_sans_effet(m);
+}
+
+@source(CC_ART1783)
+rule VoiturierRepondDesChosesRemisesAvantChargement(m: Marche, p: Personne) strict {
+    label fr official "Article 1783. Le voiturier répond de ce qui lui a été remis sur le port ou dans l'entrepôt comme de ce qu'il a déjà reçu";
+    label en unofficial "Article 1783. The carrier answers for what was handed to him on the quay or in the warehouse as for what he has already received";
+    when voiturier_du_marche(m, p) and chose_remise_sur_le_port_ou_dans_l_entrepot(m);
+    then voiturier_repond_des_choses_remises_avant_chargement(m);
+}
+
+@source(CC_ART1784)
+rule VoiturierResponsableSaufCasFortuit(m: Marche, p: Personne) strict {
+    label fr official "Article 1784. Le voiturier est responsable de la perte et des avaries, à moins qu'il ne prouve le cas fortuit ou la force majeure";
+    label en unofficial "Article 1784. The carrier is liable for loss and damage, unless he proves fortuitous event or force majeure";
+    when voiturier_du_marche(m, p) and chose_confiee_au_voiturier(m)
+        and perte_ou_avarie_de_la_chose_transportee(m)
+        and not_known(voiturier_prouve_cas_fortuit_ou_force_majeure(m));
+    then voiturier_responsable_de_la_perte_ou_de_l_avarie(m);
+}
+
+// --- Vérification, constructeurs, prescriptions ------------------------------
+
+@source(CC_ART1791)
+rule VerificationCenseeFaitePourLesPartiesPayees(m: Marche) strict {
+    label fr official "Article 1791. La vérification est censée faite pour toutes les parties payées si le maître paye en proportion de l'ouvrage fait";
+    label en unofficial "Article 1791. The inspection is deemed made for all parts paid for if the owner pays in proportion to the work done";
+    when ouvrage_a_plusieurs_pieces_ou_a_la_mesure(m) and maitre_paye_en_proportion_de_l_ouvrage_fait(m);
+    then verification_censee_faite_pour_les_parties_payees(m);
+}
+
+@source(CC_ART1792_1)
+rule ConstructeurParContratDeLouageDOuvrage(m: Marche, p: Personne) strict {
+    label fr official "Article 1792-1, 1°. Est réputé constructeur tout architecte, entrepreneur, technicien ou autre personne liée au maître par un contrat de louage d'ouvrage";
+    label en unofficial "Article 1792-1, 1. Any architect, contractor, technician or other person bound to the owner by a contract for work is deemed a builder";
+    when lie_au_maitre_par_un_contrat_de_louage_d_ouvrage(m, p);
+    then repute_constructeur_de_l_ouvrage(m, p);
+}
+
+@source(CC_ART1792_1)
+rule ConstructeurParVenteApresAchevement(m: Marche, p: Personne) strict {
+    label fr official "Article 1792-1, 2°. Est réputé constructeur toute personne qui vend, après achèvement, un ouvrage qu'elle a construit ou fait construire";
+    label en unofficial "Article 1792-1, 2. Any person who sells, after completion, a work he built or had built is deemed a builder";
+    when vend_apres_achevement_un_ouvrage_construit(m, p);
+    then repute_constructeur_de_l_ouvrage(m, p);
+}
+
+@source(CC_ART1792_1)
+rule ConstructeurParMissionAssimilable(m: Marche, p: Personne) strict {
+    label fr official "Article 1792-1, 3°. Est réputé constructeur le mandataire du propriétaire qui accomplit une mission assimilable à celle d'un locateur d'ouvrage";
+    label en unofficial "Article 1792-1, 3. The owner's agent performing a mission comparable to a contractor's is deemed a builder";
+    when mandataire_accomplissant_mission_de_locateur(m, p);
+    then repute_constructeur_de_l_ouvrage(m, p);
+}
+
+// Article 1792-2 lu avec 1792-7 : l'extension suppose l'incorporation
+// indissociable, et l'élément purement professionnel en sort.
+@source(CC_ART1792_2, CC_ART1792_7)
+rule ExtensionAuxElementsIndissociables(m: Marche) strict {
+    label fr official "Article 1792-2. La présomption de l'article 1792 s'étend aux dommages affectant la solidité des éléments d'équipement indissociablement incorporés";
+    label en unofficial "Article 1792-2. The presumption of Article 1792 extends to damage affecting the solidity of indissociably incorporated equipment elements";
+    when dommage_affecte_la_solidite_d_un_element_d_equipement(m)
+        and element_indissociablement_incorpore(m)
+        and not_known(element_a_fonction_exclusivement_professionnelle(m));
+    then presomption_de_responsabilite_etendue_a_l_element(m);
+}
+
+@source(CC_ART1792_7)
+rule ElementProfessionnelHorsDuChampDesGaranties(m: Marche) strict {
+    label fr official "Article 1792-7. L'élément d'équipement dont la fonction exclusive est de permettre une activité professionnelle n'est pas un élément d'équipement au sens des articles 1792 à 1792-4";
+    label en unofficial "Article 1792-7. An equipment element whose exclusive function is to allow a professional activity is not an equipment element within Articles 1792 to 1792-4";
+    when element_a_fonction_exclusivement_professionnelle(m);
+    then element_hors_du_champ_des_garanties(m);
+}
+
+@source(CC_ART1792_4)
+rule FabricantSolidairementResponsable(m: Marche, p: Personne) strict {
+    label fr official "Article 1792-4. Le fabricant est solidairement responsable des obligations des articles 1792, 1792-2 et 1792-3 lorsque l'élément a été mis en oeuvre sans modification";
+    label en unofficial "Article 1792-4. The manufacturer is jointly liable for the obligations of Articles 1792, 1792-2 and 1792-3 where the element was implemented without modification";
+    when fabricant_de_l_element_d_equipement(m, p) and element_mis_en_oeuvre_sans_modification(m);
+    then fabricant_solidairement_responsable(m, p);
+}
+
+@source(CC_ART1792_4_2)
+rule PrescriptionDecennaleContreLeSousTraitant(m: Marche, p: Personne, reception: Date, demande: Date) strict {
+    label fr official "Article 1792-4-2. L'action contre le sous-traitant pour les dommages des articles 1792 et 1792-2 se prescrit par dix ans à compter de la réception des travaux";
+    label en unofficial "Article 1792-4-2. The action against the subcontractor for the damage of Articles 1792 and 1792-2 is prescribed by ten years from acceptance of the works";
+    when sous_traitant_du_marche(m, p) and reception_ouvrage_le(m, reception)
+        and action_contre_sous_traitant_introduite_le(m, demande)
+        and demande <= add_calendar_period(reception, 10 calendar_year);
+    then action_contre_sous_traitant_recevable(m);
+}
+
+@source(CC_ART1792_4_3)
+rule PrescriptionDecennaleDeDroitCommunDeLaConstruction(m: Marche, p: Personne, reception: Date, demande: Date) strict {
+    label fr official "Article 1792-4-3. L'action en responsabilité dirigée contre les constructeurs et leurs sous-traitants se prescrit par dix ans à compter de la réception des travaux";
+    label en unofficial "Article 1792-4-3. The liability action against builders and their subcontractors is prescribed by ten years from acceptance of the works";
+    when repute_constructeur_de_l_ouvrage(m, p) and reception_ouvrage_le(m, reception)
+        and action_contre_constructeur_introduite_le(m, demande)
+        and demande <= add_calendar_period(reception, 10 calendar_year);
+    then action_contre_constructeur_recevable(m);
+}
+
+// Article 1796 : la double condition est expresse — proportion du prix ET
+// utilité pour le propriétaire (« lors seulement que »).
+@source(CC_ART1796)
+rule PaiementALaSuccessionDesOuvragesUtiles(m: Marche) strict {
+    label fr official "Article 1796. Le propriétaire paie à la succession, en proportion du prix convenu, la valeur des ouvrages faits et des matériaux préparés, lors seulement qu'ils peuvent lui être utiles";
+    label en unofficial "Article 1796. The owner pays the estate, in proportion to the agreed price, the value of the works done and materials prepared, only where they may be useful to him";
+    when marche_dissous_par_deces(m) and ouvrages_faits_et_materiaux_prepares(m)
+        and travaux_ou_materiaux_utiles_au_proprietaire(m);
+    then paiement_a_la_succession_du(m);
+}
+
+// Article 1798 : l'action directe de l'ouvrier est plafonnée par la dette du
+// maître envers l'entrepreneur au jour de la demande, pas par sa créance propre.
+@source(CC_ART1798)
+rule ActionDirecteDeLOuvrierLimiteeALaDetteDuMaitre(m: Marche, p: Personne, du: Money) strict {
+    label fr official "Article 1798. L'ouvrier n'a d'action contre le maître que jusqu'à concurrence de ce dont celui-ci est débiteur envers l'entrepreneur au moment de l'action";
+    label en unofficial "Article 1798. The worker has an action against the owner only up to the amount the latter owes the contractor at the time of the action";
+    when ouvrier_employe_a_la_construction(m, p) and maitre_debiteur_envers_l_entrepreneur(m, du);
+    then action_directe_de_l_ouvrier_limitee(m, p, du);
+}

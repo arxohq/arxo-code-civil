@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 413-6: emancipation gives civil capacity but does not displace marriage or adoption rules.
+test "urn:query:fr-code-civil-personnes-tg05-capacite-emancipee-exception" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": marie(entity_ref("urn:fr:cc:personnes:tg05:p")) { origin adjudicated; }
+        assert "f2": ne_le(entity_ref("urn:fr:cc:personnes:tg05:p"), @2010-09-16) { origin case_input; }
+        assert "f3": date_d_appreciation(entity_ref("urn:fr:cc:personnes:tg05:p"), @2026-09-16) { origin case_input; }
+    }
+    evaluate truth(capacite_emancipee_limitee_pour_mariage_ou_adoption(entity_ref("urn:fr:cc:personnes:tg05:p")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ExceptionsALaCapaciteDuMineurEmancipe);
+}

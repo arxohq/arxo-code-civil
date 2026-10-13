@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1112-1 al. 5 : les parties ne peuvent ni limiter, ni exclure le devoir d'information.
+test "urn:query:fr-code-civil-contrat-f19-clause-limitant-le-devoir-sans-effet" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f19"), @2019-03-01) { origin case_input; }
+        assert "f2": clause_du_contrat(entity_ref("urn:fr:cc:contrat:f19:clause"), entity_ref("urn:fr:cc:contrat:f19")) { origin case_input; }
+        assert "f3": clause_limitant_le_devoir_d_information(entity_ref("urn:fr:cc:contrat:f19:clause")) { origin case_input; }
+    }
+    evaluate truth(clause_sur_le_devoir_d_information_sans_effet(entity_ref("urn:fr:cc:contrat:f19:clause")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ClauseSurLeDevoirDInformationSansEffet);
+}

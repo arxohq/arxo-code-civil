@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-3, alinéa 8 : gestion au su des autres et sans opposition.
+test "urn:query:fr-code-civil-successions-i09-mandat-tacite-d-administration" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": gestion_au_su_et_sans_opposition(entity_ref("urn:fr:cc:successions:ind:i09:I"), entity_ref("urn:fr:cc:successions:ind:i09:p")) { origin case_input; }
+    }
+    evaluate truth(mandat_tacite_d_administration(entity_ref("urn:fr:cc:successions:ind:i09:I"), entity_ref("urn:fr:cc:successions:ind:i09:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(MandatTacite);
+}

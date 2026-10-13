@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-LEGSSANSCOMPENSATIONPRESUMEE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": legs_fait_creancier_ou_domestique(entity_ref("urn:law:catalog:legssanscompensationpresumee:v0")) { origin case_input; }
+    }
+    evaluate truth(legs_non_compensatoire(entity_ref("urn:law:catalog:legssanscompensationpresumee:v0")));
+    expect truth_status == TRUE_ONLY;
+}

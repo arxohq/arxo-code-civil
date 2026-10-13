@@ -1,0 +1,38 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1217 al. 1 : l'engagement inexécuté ouvre au créancier les cinq sanctions énumérées ; le cumul avec des dommages et intérêts est toujours possible (al. 2).
+test "urn:query:fr-code-civil-contrat-i01-liste-des-sanctions-ouverte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:i01"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:i01"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:i01"), "1145") { origin case_input; }
+        assert "f4": accord_de_volontes(entity_ref("urn:fr:cc:contrat:i01")) { origin case_input; }
+        assert "f5": prestation_possible(entity_ref("urn:fr:cc:contrat:i01")) { origin case_input; }
+        assert "f6": prestation_determinee(entity_ref("urn:fr:cc:contrat:i01")) { origin case_input; }
+        assert "f7": partie_au_contrat(entity_ref("urn:fr:cc:contrat:i01"), entity_ref("urn:fr:cc:contrat:i01:creancier")) { origin case_input; }
+        assert "f8": personne_physique(entity_ref("urn:fr:cc:contrat:i01:creancier")) { origin case_input; }
+        assert "f9": consentement_donne_par(entity_ref("urn:fr:cc:contrat:i01"), entity_ref("urn:fr:cc:contrat:i01:creancier")) { origin case_input; }
+        assert "f10": sain_d_esprit(entity_ref("urn:fr:cc:contrat:i01"), entity_ref("urn:fr:cc:contrat:i01:creancier")) { origin case_input; }
+        assert "f11": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i01:o"), entity_ref("urn:fr:cc:contrat:i01")) { origin case_input; }
+        assert "f12": creancier_de_l_obligation(entity_ref("urn:fr:cc:contrat:i01:o"), entity_ref("urn:fr:cc:contrat:i01:creancier")) { origin case_input; }
+        assert "f13": debiteur_de_l_obligation(entity_ref("urn:fr:cc:contrat:i01:o"), entity_ref("urn:fr:cc:contrat:i01:debiteur")) { origin case_input; }
+        assert "f14": engagement_non_execute(entity_ref("urn:fr:cc:contrat:i01:o")) { origin case_input; }
+    }
+    evaluate truth(sanction_ouverte(entity_ref("urn:fr:cc:contrat:i01:o"), Resolution));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SanctionResolution);
+
+    evaluate truth(sanction_ouverte(entity_ref("urn:fr:cc:contrat:i01:o"), ReductionDuPrix));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SanctionReductionDuPrix);
+
+    evaluate truth(cumul_avec_dommages_et_interets(entity_ref("urn:fr:cc:contrat:i01:o")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CumulDesSanctions);
+}

@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1206 al. 3 : la stipulation devient irrévocable au moment où l'acceptation parvient au stipulant ou au promettant.
+test "urn:query:fr-code-civil-contrat-e13-stipulation-irrevocable-apres-acceptation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e13"), @2019-03-01) { origin case_input; }
+        assert "f2": stipulation_pour_autrui(entity_ref("urn:fr:cc:contrat:e13:s"), entity_ref("urn:fr:cc:contrat:e13"), entity_ref("urn:fr:cc:contrat:e13:p1"), entity_ref("urn:fr:cc:contrat:e13:p2"), entity_ref("urn:fr:cc:contrat:e13:beneficiaire")) { origin case_input; }
+        assert "f3": beneficiaire_precisement_designe_ou_determinable(entity_ref("urn:fr:cc:contrat:e13:s")) { origin case_input; }
+        assert "f4": acceptation_du_beneficiaire_parvenue_le(entity_ref("urn:fr:cc:contrat:e13:s"), @2019-06-01) { origin case_input; }
+    }
+    evaluate truth(stipulation_irrevocable(entity_ref("urn:fr:cc:contrat:e13:s")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(StipulationIrrevocableApresAcceptation);
+
+    evaluate truth(stipulation_revocable(entity_ref("urn:fr:cc:contrat:e13:s")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

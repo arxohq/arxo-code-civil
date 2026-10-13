@@ -1,0 +1,257 @@
+// CODE CIVIL — LIVRE Ier : DES PERSONNES (CC-03).
+//
+// Titres Ier à IV et X à XII : droits civils, nationalité, actes de l'état
+// civil, domicile, absents, minorité et tutelle, majeurs protégés, gestion du
+// patrimoine. Le mariage, le divorce, la filiation, l'adoption, l'autorité
+// parentale, le PACS et la protection des victimes appartiennent au paquet
+// `fr.code_civil.famille` (CC-04).
+//
+// PREMIÈRE VAGUE — ce qui se calcule : le domicile (titre III), la
+// présomption et la déclaration d'absence avec ses délais de dix et vingt ans
+// (titre IV), la minorité et l'émancipation (titre X), l'ouverture, la durée
+// et le renouvellement des mesures de protection des majeurs (titre XI).
+// Le reste du livre est épinglé et porte sa raison dans `analysis/alineas.json`
+// et le README : nationalité (titre Ier bis) et actes de l'état civil
+// (titre II) sont des procédures administratives dont le Code fixe la
+// compétence, non un calcul.
+//
+// LES ÂGES SONT DES NOMBRES DU TEXTE : dix-huit ans accomplis (388, 414),
+// seize ans révolus (413-2). Ils se comparent par la date de naissance et la
+// date légale du cas, jamais par un âge donné en fait.
+//
+// LES DÉLAIS de l'absence (dix ans depuis le jugement de présomption, vingt
+// ans sans nouvelles ; requête recevable dès l'année précédente ; jugement un
+// an au moins après la publication) suivent la politique §86 du paquet,
+// déclarée ici et inscrite dans `docs/foundations/fr-code-civil/DEADLINES.json`.
+//
+// Fichiers :
+//   package.law                     — types, entrées, politique des délais
+//   titre-03-domicile.law           — art. 102 à 111
+//   titre-04-absents.law            — art. 112 à 132
+//   titre-10-minorite.law           — art. 388, 390, 413-1 à 413-8
+//   titre-11-majeurs-proteges.law   — art. 414, 425 à 447 (noyau)
+//   sources.law                     — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+import fr.code_civil.core version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+
+// Politique §86 du paquet : les délais du titre IV sont calendaires et se
+// comptent du jour de l'acte qui les ouvre ; le Code ne prévoit ici aucun
+// report sur un jour ouvrable.
+deadline policy CC_PERSONNES_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+// Les délais exprimés en jours par le Code (notamment l'article 55) ne sont
+// pas des périodes calendaires en mois ou en années. Une affaire n'emploie
+// qu'une seule politique de délai.
+deadline policy CC_PERSONNES_JOUR {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub entity Lieu {
+    label fr official "Lieu : commune ou adresse où s'exercent les droits civils (article 102)";
+    label en unofficial "Place: municipality or address where civil rights are exercised (Article 102)";
+}
+pub entity MesureDeProtection {
+    label fr official "Mesure de protection juridique d'un majeur (articles 425 et suivants)";
+    label en unofficial "Legal protection measure for an adult (Articles 425 et seq.)";
+}
+
+pub enum RegimeDeProtection {
+    label fr official "Régimes de protection judiciaire des majeurs (articles 433, 440)";
+    label en unofficial "Judicial protection regimes for adults (Articles 433, 440)";
+    SauvegardeDeJustice,
+    Curatelle,
+    Tutelle
+}
+
+// --- Entrées du cas : personnes et dates ---------------------------------------------------
+
+pub relation ne_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "date de naissance de la personne";
+    label en unofficial "person's date of birth";
+}
+pub relation date_d_appreciation(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour auquel la situation de la personne est appréciée : l'âge se compte de la naissance à ce jour, jamais d'une horloge";
+    label en unofficial "day on which the person's situation is assessed: age runs from birth to this day, never from a clock";
+}
+pub relation principal_etablissement(p: Personne, lieu: Lieu) kind empirical {
+    label fr official "lieu du principal établissement de la personne (article 102)";
+    label en unofficial "place of the person's principal establishment (Article 102)";
+}
+pub relation reside_avec(p: Personne, autre: Personne) kind empirical {
+    label fr official "la personne réside avec cette autre personne";
+    label en unofficial "the person resides with this other person";
+}
+pub relation parent_de(parent: Personne, enfant: Personne) kind empirical {
+    label fr official "père ou mère de l'enfant, pour le domicile du mineur (article 108-2)";
+    label en unofficial "father or mother of the child, for the minor's domicile (Article 108-2)";
+}
+pub relation tuteur_de(tuteur: Personne, protege: Personne) kind empirical {
+    label fr official "tuteur de la personne protégée, mineure ou majeure (articles 108-3, 408 et 496)";
+    label en unofficial "guardian of the protected person, minor or adult (Articles 108-3, 408 and 496)";
+}
+pub relation fonction_a_vie_exercee_a(p: Personne, lieu: Lieu) kind empirical {
+    label fr official "fonctions conférées à vie, exercées en ce lieu (article 107)";
+    label en unofficial "functions conferred for life, exercised in this place (Article 107)";
+}
+pub relation fonction_temporaire_ou_revocable(p: Personne) kind empirical {
+    label fr official "fonction publique temporaire ou révocable (article 106)";
+    label en unofficial "temporary or revocable public office (Article 106)";
+}
+pub relation intention_contraire_manifestee(p: Personne) kind empirical {
+    label fr official "la personne a manifesté une intention contraire quant à son domicile (article 106)";
+    label en unofficial "the person expressed a contrary intention as to his domicile (Article 106)";
+}
+pub relation election_de_domicile(p: Personne, lieu: Lieu) kind empirical {
+    label fr official "élection de domicile pour l'exécution d'un acte (article 111)";
+    label en unofficial "election of domicile for the performance of an act (Article 111)";
+}
+pub relation residence_separee_en_procedure(p: Personne) kind empirical {
+    label fr official "résidence séparée des époux au cours de la procédure de divorce ou de séparation de corps (article 108-1)";
+    label en unofficial "separate residence of spouses during divorce or legal separation proceedings (Article 108-1)";
+}
+
+// --- Absents : faits du titre IV ------------------------------------------------------------
+
+pub relation a_cesse_de_paraitre_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où la personne a cessé de paraître au lieu de son domicile ou de sa résidence sans donner de nouvelles (articles 112, 122)";
+    label en unofficial "day the person ceased to appear at his domicile or residence without news (Articles 112, 122)";
+}
+pub relation presomption_d_absence_constatee_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jugement du juge des tutelles constatant la présomption d'absence (article 112)";
+    label en unofficial "judgment of the guardianship judge recording the presumption of absence (Article 112)";
+}
+pub relation reparu_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le présumé absent a reparu ou donné de ses nouvelles (articles 118, 126)";
+    label en unofficial "day the presumed absentee reappeared or sent news (Articles 118, 126)";
+}
+pub relation deces_etabli_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le décès de l'absent a été établi (articles 119, 126)";
+    label en unofficial "day the absentee's death was established (Articles 119, 126)";
+}
+pub relation requete_en_declaration_d_absence_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la requête introductive d'instance en déclaration d'absence (article 125)";
+    label en unofficial "day of the application for a declaration of absence (Article 125)";
+}
+pub relation extraits_publies_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la publication des extraits de la requête dans deux journaux (articles 123, 125)";
+    label en unofficial "day the extracts of the application were published in two newspapers (Articles 123, 125)";
+}
+pub relation jugement_declaratif_transcrit_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la transcription du jugement déclaratif d'absence sur les registres des décès (articles 127, 128)";
+    label en unofficial "day the declaratory judgment of absence was transcribed in the death registers (Articles 127, 128)";
+}
+pub relation procuration_suffisante(p: Personne) kind empirical {
+    label fr official "le présumé absent a laissé une procuration suffisante pour le représenter et administrer ses biens (article 121)";
+    label en unofficial "the presumed absentee left a sufficient power of attorney (Article 121)";
+}
+pub relation hors_d_etat_de_manifester_sa_volonte_par_eloignement(p: Personne) kind empirical {
+    label fr official "personne qui, par suite d'éloignement, se trouve malgré elle hors d'état de manifester sa volonté (article 120)";
+    label en unofficial "person who, through remoteness, is unable to express his will (Article 120)";
+}
+pub relation declaration_d_absence_obtenue_par_fraude(p: Personne, auteur: Personne) kind empirical {
+    label fr official "la déclaration d'absence a été provoquée par la fraude de cette partie intéressée (article 131)";
+    label en unofficial "the declaration of absence was procured by this interested party's fraud (Article 131)";
+}
+
+// --- Minorité, émancipation, protection des majeurs : faits des titres X et XI --------------
+
+pub relation marie(p: Personne) kind empirical {
+    label fr official "la personne est mariée (article 413-1)";
+    label en unofficial "the person is married (Article 413-1)";
+}
+pub relation emancipation_prononcee_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le juge des tutelles a prononcé l'émancipation (article 413-2)";
+    label en unofficial "day the guardianship judge granted emancipation (Article 413-2)";
+}
+pub relation pere_et_mere_decedes_ou_prives_de_l_autorite(p: Personne) kind empirical {
+    label fr official "le père et la mère sont tous deux décédés ou privés de l'exercice de l'autorité parentale (article 390)";
+    label en unofficial "both parents are deceased or deprived of parental authority (Article 390)";
+}
+pub relation filiation_non_etablie(p: Personne) kind empirical {
+    label fr official "la filiation de l'enfant n'est pas légalement établie (article 390, alinéa 2)";
+    label en unofficial "the child's filiation is not legally established (Article 390, paragraph 2)";
+}
+pub relation alteration_medicalement_constatee(p: Personne) kind empirical {
+    label fr official "altération, médicalement constatée, des facultés mentales ou corporelles empêchant l'expression de la volonté (article 425)";
+    label en unofficial "medically established impairment of mental or bodily faculties preventing the expression of will (Article 425)";
+}
+pub relation certificat_circonstancie_joint(m: MesureDeProtection) kind empirical {
+    label fr official "la demande est accompagnée du certificat circonstancié d'un médecin inscrit sur la liste du procureur (article 431)";
+    label en unofficial "the application carries the detailed certificate of a doctor on the prosecutor's list (Article 431)";
+}
+pub relation mesure_demandee_pour(m: MesureDeProtection, p: Personne) kind empirical {
+    key(m);
+    label fr official "personne qu'il y a lieu de protéger";
+    label en unofficial "person to be protected";
+}
+pub relation mesure_ouverte_le(m: MesureDeProtection, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour du jugement d'ouverture de la mesure";
+    label en unofficial "day of the judgment opening the measure";
+}
+pub relation duree_fixee_par_le_juge(m: MesureDeProtection, annees: Integer) kind empirical {
+    key(m);
+    label fr official "durée fixée par le juge, en années (articles 441, 442)";
+    label en unofficial "duration set by the judge, in years (Articles 441, 442)";
+}
+pub relation regime_prononce(m: MesureDeProtection, regime: RegimeDeProtection) kind empirical {
+    key(m);
+    label fr official "régime prononcé : sauvegarde de justice, curatelle ou tutelle (article 440)";
+    label en unofficial "regime ordered: judicial safeguard, curatorship or guardianship (Article 440)";
+}
+pub relation avis_conforme_du_medecin_sur_l_absence_d_amelioration(m: MesureDeProtection) kind empirical {
+    label fr official "avis conforme d'un médecin inscrit constatant que l'altération n'apparaît manifestement pas susceptible d'amélioration (articles 441, 442)";
+    label en unofficial "concurring opinion of a listed doctor that the impairment is manifestly not likely to improve (Articles 441, 442)";
+}
+pub relation expiration_fixee_le(m: MesureDeProtection, jour: Date) kind empirical {
+    key(m);
+    label fr official "terme fixé par le jugement lui-même : le juge fixe la durée, le paquet vérifie qu'elle n'excède pas le maximum légal (articles 441, 443)";
+    label en unofficial "term set by the judgment itself: the judge sets the duration, the package checks it against the statutory maximum (Articles 441, 443)";
+}
+pub relation mesure_renouvelee_le(m: MesureDeProtection, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour du renouvellement de la mesure (article 442)";
+    label en unofficial "day the measure was renewed (Article 442)";
+}
+pub relation mainlevee_le(m: MesureDeProtection, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour du jugement de mainlevée passé en force de chose jugée (article 443)";
+    label en unofficial "day of the discharge judgment having become final (Article 443)";
+}
+pub relation decede_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour du décès de la personne protégée (article 443)";
+    label en unofficial "day of the protected person's death (Article 443)";
+}
+pub relation mention_portee_en_marge_le(m: MesureDeProtection, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour où la mention du jugement a été portée en marge de l'acte de naissance (article 444)";
+    label en unofficial "day the judgment was noted in the margin of the birth certificate (Article 444)";
+}
+pub relation tiers_ayant_personnellement_connaissance(m: MesureDeProtection, tiers: Personne) kind empirical {
+    label fr official "tiers qui a personnellement connaissance du jugement (article 444, alinéa 2)";
+    label en unofficial "third party personally aware of the judgment (Article 444, paragraph 2)";
+}

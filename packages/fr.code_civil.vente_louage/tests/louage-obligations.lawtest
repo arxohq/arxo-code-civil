@@ -1,0 +1,1051 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Louage des choses : qualification, troubles, responsabilité du preneur, fin
+// du bail, vente de la chose louée, réparations. Montants 10-lisses :
+// l'indemnité du fermier de l'article 1746 est le tiers de 36 000 EUR, soit
+// 12 000 EUR — et 15 000 EUR est rejeté.
+
+test "urn:query:fr-code-civil-vente-louage-1709-qualification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:q1:b"), entity_ref("urn:fr:cc12:q1:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:q1:b"), entity_ref("urn:fr:cc12:q1:p")) { origin case_input; }
+        assert "c": chose_louee(entity_ref("urn:fr:cc12:q1:b"), entity_ref("urn:fr:cc12:q1:c")) { origin case_input; }
+        assert "j": obligation_de_faire_jouir_pendant_un_certain_temps(entity_ref("urn:fr:cc12:q1:b")) { origin case_input; }
+        assert "pr": prix_du_bail_convenu(entity_ref("urn:fr:cc12:q1:b"), 9000 EUR) { origin case_input; }
+    }
+    evaluate truth(louage_de_choses_qualifie(entity_ref("urn:fr:cc12:q1:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1709-sans-prix-pas-de-louage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:q2:b"), entity_ref("urn:fr:cc12:q2:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:q2:b"), entity_ref("urn:fr:cc12:q2:p")) { origin case_input; }
+        assert "c": chose_louee(entity_ref("urn:fr:cc12:q2:b"), entity_ref("urn:fr:cc12:q2:c")) { origin case_input; }
+        assert "j": obligation_de_faire_jouir_pendant_un_certain_temps(entity_ref("urn:fr:cc12:q2:b")) { origin case_input; }
+    }
+    evaluate truth(louage_de_choses_qualifie(entity_ref("urn:fr:cc12:q2:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1724-reduction-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1724:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1724:b"), entity_ref("urn:fr:cc12:pos1724:p")) { origin case_input; }
+        assert "repairs": reparations_urgentes_non_differables(entity_ref("urn:fr:cc12:pos1724:b")) { origin case_input; }
+        assert "days": jours_de_reparations(entity_ref("urn:fr:cc12:pos1724:b"), 22) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDiminutionPourReparations, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1724-reduction-power-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1724b:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1724b:b"), entity_ref("urn:fr:cc12:pos1724b:p")) { origin case_input; }
+        assert "repairs": reparations_urgentes_non_differables(entity_ref("urn:fr:cc12:pos1724b:b")) { origin case_input; }
+        assert "days": jours_de_reparations(entity_ref("urn:fr:cc12:pos1724b:b"), 22) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDiminutionPourReparations, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1727-warranty-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1727:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1727:b"), entity_ref("urn:fr:cc12:pos1727:p")) { origin case_input; }
+        assert "third": tiers_pretendent_un_droit_ou_preneur_cite_en_justice(entity_ref("urn:fr:cc12:pos1727:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(AppelerBailleurEnGarantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1729-unreasonable-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1729:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1729:b"), entity_ref("urn:fr:cc12:pos1729:l")) { origin case_input; }
+        assert "use": usage_deraisonnable_de_la_chose_louee(entity_ref("urn:fr:cc12:pos1729:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUsageDeraisonnable, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1729-destination-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1729b:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1729b:b"), entity_ref("urn:fr:cc12:pos1729b:l")) { origin case_input; }
+        assert "use": usage_autre_que_la_destination(entity_ref("urn:fr:cc12:pos1729b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUsageDestination, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1727-warranty-duty-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1727b:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1727b:b"), entity_ref("urn:fr:cc12:pos1727b:p")) { origin case_input; }
+        assert "third": tiers_pretendent_un_droit_ou_preneur_cite_en_justice(entity_ref("urn:fr:cc12:pos1727b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(AppelerBailleurEnGarantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1729-unreasonable-power-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1729c:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1729c:b"), entity_ref("urn:fr:cc12:pos1729c:l")) { origin case_input; }
+        assert "use": usage_deraisonnable_de_la_chose_louee(entity_ref("urn:fr:cc12:pos1729c:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUsageDeraisonnable, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1729-destination-power-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1729d:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1729d:b"), entity_ref("urn:fr:cc12:pos1729d:l")) { origin case_input; }
+        assert "use": usage_autre_que_la_destination(entity_ref("urn:fr:cc12:pos1729d:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUsageDestination, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1723-active-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:pos1723c:b"), entity_ref("urn:fr:cc12:pos1723c:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:pos1723c:b"), entity_ref("urn:fr:cc12:pos1723c:p")) { origin case_input; }
+        assert "v": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1723c:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasChangerLaFormeDeLaChoseLouee, ACTIVE);
+    expect position(MaintenirLaFormeDeLaChoseLouee, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1723-violated-wave" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:pos1723wave:b"), entity_ref("urn:fr:cc12:pos1723wave:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:pos1723wave:b"), entity_ref("urn:fr:cc12:pos1723wave:p")) { origin case_input; }
+        assert "v": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1723wave:b")) { origin case_input; }
+        assert "a": forme_de_la_chose_louee_changee_par_bailleur(entity_ref("urn:fr:cc12:pos1723wave:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasChangerLaFormeDeLaChoseLouee, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1752-furniture-prohibition" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1752:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1752:b"), entity_ref("urn:fr:cc12:pos1752:p")) { origin case_input; }
+        assert "empty": maison_non_garnie_de_meubles_suffisants(entity_ref("urn:fr:cc12:pos1752:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasExpulserFauteDeMeubles, ACTIVE);
+    expect position(MaintenanceInterdictionExpulsionSansSuretesDuty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1752-furniture-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1752b:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1752b:b"), entity_ref("urn:fr:cc12:pos1752b:p")) { origin case_input; }
+        assert "empty": maison_non_garnie_de_meubles_suffisants(entity_ref("urn:fr:cc12:pos1752b:b")) { origin case_input; }
+        assert "attempt": expulsion_tentee_faute_de_meubles(entity_ref("urn:fr:cc12:pos1752b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasExpulserFauteDeMeubles, VIOLATED);
+    expect position(MaintenanceInterdictionExpulsionSansSuretesDuty, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1754-repair-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1754:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1754:b"), entity_ref("urn:fr:cc12:pos1754:p")) { origin case_input; }
+        assert "repair": reparation_designee_locative_par_l_usage_des_lieux(entity_ref("urn:fr:cc12:pos1754:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(EffectuerReparationLocative, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1754-repair-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1754b:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1754b:b"), entity_ref("urn:fr:cc12:pos1754b:p")) { origin case_input; }
+        assert "repair": reparation_designee_locative_par_l_usage_des_lieux(entity_ref("urn:fr:cc12:pos1754b:b")) { origin case_input; }
+        assert "done": reparation_locative_effectuee(entity_ref("urn:fr:cc12:pos1754b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(EffectuerReparationLocative, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1761-occupancy-prohibition" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1761:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1761:b"), entity_ref("urn:fr:cc12:pos1761:l")) { origin case_input; }
+        assert "want": bailleur_declare_vouloir_occuper_lui_meme(entity_ref("urn:fr:cc12:pos1761:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasResoudrePourOccupation, ACTIVE);
+    expect position(MaintenanceInterdictionResolutionPourOccupationDuty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1761-occupancy-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1761b:b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:pos1761b:b"), entity_ref("urn:fr:cc12:pos1761b:l")) { origin case_input; }
+        assert "want": bailleur_declare_vouloir_occuper_lui_meme(entity_ref("urn:fr:cc12:pos1761b:b")) { origin case_input; }
+        assert "attempt": resolution_tentee_pour_occuper(entity_ref("urn:fr:cc12:pos1761b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasResoudrePourOccupation, VIOLATED);
+    expect position(MaintenanceInterdictionResolutionPourOccupationDuty, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1730-return-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1730:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1730:b"), entity_ref("urn:fr:cc12:pos1730:p")) { origin case_input; }
+        assert "inventory": etat_des_lieux_dresse(entity_ref("urn:fr:cc12:pos1730:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(RestituerSelonEtatDesLieux, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1730-return-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1730b:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1730b:b"), entity_ref("urn:fr:cc12:pos1730b:p")) { origin case_input; }
+        assert "inventory": etat_des_lieux_dresse(entity_ref("urn:fr:cc12:pos1730b:b")) { origin case_input; }
+        assert "return": restitution_conforme_a_l_etat_des_lieux_effectuee(entity_ref("urn:fr:cc12:pos1730b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(RestituerSelonEtatDesLieux, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1734-fire-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:pos1734:b")) { origin case_input; }
+        assert "many": plusieurs_locataires(entity_ref("urn:fr:cc12:pos1734:b")) { origin case_input; }
+        assert "tenant": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:pos1734:b"), entity_ref("urn:fr:cc12:pos1734:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(AssumerResponsabiliteProportionnelle, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1734-fire-exception" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:pos1734b:b")) { origin case_input; }
+        assert "many": plusieurs_locataires(entity_ref("urn:fr:cc12:pos1734b:b")) { origin case_input; }
+        assert "tenant": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:pos1734b:b"), entity_ref("urn:fr:cc12:pos1734b:p")) { origin case_input; }
+        assert "responsibility": responsabilite_proportionnelle_assumee(entity_ref("urn:fr:cc12:pos1734b:b"), entity_ref("urn:fr:cc12:pos1734b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(AssumerResponsabiliteProportionnelle, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1735-household-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1735:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1735:b"), entity_ref("urn:fr:cc12:pos1735:p")) { origin case_input; }
+        assert "damage": degradation_par_les_personnes_de_la_maison_du_preneur(entity_ref("urn:fr:cc12:pos1735:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ReparerDegradationsDeLaMaison, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1735-household-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1735b:b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:pos1735b:b"), entity_ref("urn:fr:cc12:pos1735b:p")) { origin case_input; }
+        assert "damage": degradation_par_les_personnes_de_la_maison_du_preneur(entity_ref("urn:fr:cc12:pos1735b:b")) { origin case_input; }
+        assert "repair": degradations_des_personnes_reparees(entity_ref("urn:fr:cc12:pos1735b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ReparerDegradationsDeLaMaison, SATISFIED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1725-trouble-de-fait-non-garanti" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": trouble_de_fait_par_des_tiers_sans_droit(entity_ref("urn:fr:cc12:q3:b")) { origin case_input; }
+    }
+    evaluate truth(bailleur_non_tenu_du_trouble_de_fait(entity_ref("urn:fr:cc12:q3:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_peut_poursuivre_en_son_nom_personnel(entity_ref("urn:fr:cc12:q3:b")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(diminution_proportionnee_du_prix_due(entity_ref("urn:fr:cc12:q3:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1726-trouble-de-droit-denonce" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": trouble_par_action_concernant_la_propriete(entity_ref("urn:fr:cc12:q4:b")) { origin case_input; }
+        assert "d": trouble_denonce_au_proprietaire(entity_ref("urn:fr:cc12:q4:b")) { origin case_input; }
+    }
+    evaluate truth(diminution_proportionnee_du_prix_due(entity_ref("urn:fr:cc12:q4:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1726-trouble-de-droit-non-denonce" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": trouble_par_action_concernant_la_propriete(entity_ref("urn:fr:cc12:q5:b")) { origin case_input; }
+    }
+    evaluate truth(diminution_proportionnee_du_prix_due(entity_ref("urn:fr:cc12:q5:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1723-active" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:pos1723:b"), entity_ref("urn:fr:cc12:pos1723:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:pos1723:b"), entity_ref("urn:fr:cc12:pos1723:p")) { origin case_input; }
+        assert "v": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1723:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasChangerLaFormeDeLaChoseLouee, ACTIVE);
+    expect position(MaintenirLaFormeDeLaChoseLouee, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1723-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": bailleur(entity_ref("urn:fr:cc12:pos1723b:b"), entity_ref("urn:fr:cc12:pos1723b:l")) { origin case_input; }
+        assert "p": preneur(entity_ref("urn:fr:cc12:pos1723b:b"), entity_ref("urn:fr:cc12:pos1723b:p")) { origin case_input; }
+        assert "v": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1723b:b")) { origin case_input; }
+        assert "x": forme_de_la_chose_louee_changee_par_bailleur(entity_ref("urn:fr:cc12:pos1723b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(MaintenirLaFormeDeLaChoseLouee, VIOLATED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1727-appel-en-garantie-et-mise-hors-d-instance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": tiers_pretendent_un_droit_ou_preneur_cite_en_justice(entity_ref("urn:fr:cc12:q6:b")) { origin case_input; }
+        assert "x": preneur_exige_d_etre_mis_hors_d_instance(entity_ref("urn:fr:cc12:q6:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_doit_appeler_le_bailleur_en_garantie(entity_ref("urn:fr:cc12:q6:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_mis_hors_d_instance(entity_ref("urn:fr:cc12:q6:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1727-sans-demande-de-mise-hors-d-instance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": tiers_pretendent_un_droit_ou_preneur_cite_en_justice(entity_ref("urn:fr:cc12:q7:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_mis_hors_d_instance(entity_ref("urn:fr:cc12:q7:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1729-usage-contraire-a-la-destination" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "u": usage_autre_que_la_destination(entity_ref("urn:fr:cc12:q8:b")) { origin adjudicated; }
+    }
+    evaluate truth(bailleur_peut_faire_resilier_le_bail(entity_ref("urn:fr:cc12:q8:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1729-usage-conforme-pas-de-resiliation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:q9:b")) { origin case_input; }
+        assert "u": usage_conforme_a_la_destination(entity_ref("urn:fr:cc12:q9:b")) { origin case_input; }
+    }
+    evaluate truth(bailleur_peut_faire_resilier_le_bail(entity_ref("urn:fr:cc12:q9:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1730-etat-des-lieux-restitution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "e": etat_des_lieux_dresse(entity_ref("urn:fr:cc12:q10:b")) { origin case_input; }
+    }
+    evaluate truth(restitution_conforme_a_l_etat_des_lieux_due(entity_ref("urn:fr:cc12:q10:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_presume_avoir_recu_en_bon_etat(entity_ref("urn:fr:cc12:q10:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1731-presomption-a-defaut-d-etat-des-lieux" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:q11:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_presume_avoir_recu_en_bon_etat(entity_ref("urn:fr:cc12:q11:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1731-presomption-renversee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:q12:b")) { origin case_input; }
+        assert "pr": preuve_contraire_du_mauvais_etat_initial(entity_ref("urn:fr:cc12:q12:b")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_presume_avoir_recu_en_bon_etat(entity_ref("urn:fr:cc12:q12:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1732-degradations-sans-preuve-d-absence-de-faute" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": degradations_ou_pertes_pendant_la_jouissance(entity_ref("urn:fr:cc12:q13:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_repond_des_degradations(entity_ref("urn:fr:cc12:q13:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1732-preuve-de-l-absence-de-faute" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": degradations_ou_pertes_pendant_la_jouissance(entity_ref("urn:fr:cc12:q14:b")) { origin case_input; }
+        assert "nf": preneur_prouve_l_absence_de_faute(entity_ref("urn:fr:cc12:q14:b")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_repond_des_degradations(entity_ref("urn:fr:cc12:q14:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1733-incendie-sans-cause-liberatoire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q15:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_repond_de_l_incendie(entity_ref("urn:fr:cc12:q15:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1733-incendie-par-vice-de-construction" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q16:b")) { origin case_input; }
+        assert "c": incendie_par_cas_fortuit_force_majeure_ou_vice_de_construction(entity_ref("urn:fr:cc12:q16:b")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_repond_de_l_incendie(entity_ref("urn:fr:cc12:q16:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1733-feu-communique-par-une-maison-voisine" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q17:b")) { origin case_input; }
+        assert "n": feu_communique_par_une_maison_voisine(entity_ref("urn:fr:cc12:q17:b")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_repond_de_l_incendie(entity_ref("urn:fr:cc12:q17:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1734-tous-tenus-proportionnellement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q18:b")) { origin case_input; }
+        assert "m": plusieurs_locataires(entity_ref("urn:fr:cc12:q18:b")) { origin case_input; }
+        assert "t1": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:q18:b"), entity_ref("urn:fr:cc12:q18:t1")) { origin case_input; }
+        assert "t2": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:q18:b"), entity_ref("urn:fr:cc12:q18:t2")) { origin case_input; }
+    }
+    evaluate truth(locataire_tenu_proportionnellement_a_la_valeur_locative(entity_ref("urn:fr:cc12:q18:b"), entity_ref("urn:fr:cc12:q18:t1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(locataire_tenu_proportionnellement_a_la_valeur_locative(entity_ref("urn:fr:cc12:q18:b"), entity_ref("urn:fr:cc12:q18:t2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1734-un-locataire-hors-de-cause" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q19:b")) { origin case_input; }
+        assert "m": plusieurs_locataires(entity_ref("urn:fr:cc12:q19:b")) { origin case_input; }
+        assert "t1": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t1")) { origin case_input; }
+        assert "t2": locataire_de_l_immeuble(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t2")) { origin case_input; }
+        assert "proof": locataire_prouve_que_le_feu_n_a_pu_commencer_chez_lui(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t2")) { origin adjudicated; }
+    }
+    evaluate truth(locataire_non_tenu_de_l_incendie(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(locataire_tenu_proportionnellement_a_la_valeur_locative(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t2")));
+    expect truth_status == NEITHER;
+    evaluate truth(locataire_tenu_proportionnellement_a_la_valeur_locative(entity_ref("urn:fr:cc12:q19:b"), entity_ref("urn:fr:cc12:q19:t1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1734-incendie-commence-chez-l-un-d-eux" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": incendie_survenu(entity_ref("urn:fr:cc12:q20:b")) { origin case_input; }
+        assert "m": plusieurs_locataires(entity_ref("urn:fr:cc12:q20:b")) { origin case_input; }
+        assert "src": incendie_commence_chez_un_locataire(entity_ref("urn:fr:cc12:q20:b"), entity_ref("urn:fr:cc12:q20:t1")) { origin adjudicated; }
+    }
+    evaluate truth(locataire_seul_tenu_de_l_incendie(entity_ref("urn:fr:cc12:q20:b"), entity_ref("urn:fr:cc12:q20:t1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1735-fait-des-personnes-de-la-maison" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": degradation_par_les_personnes_de_la_maison_du_preneur(entity_ref("urn:fr:cc12:q21:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_tenu_du_fait_de_sa_maison(entity_ref("urn:fr:cc12:q21:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1740-caution-non-etendue-a-la-reconduction" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "w": bail_ecrit(entity_ref("urn:fr:cc12:q22:b")) { origin case_input; }
+        assert "e": bail_expire(entity_ref("urn:fr:cc12:q22:b")) { origin case_input; }
+        assert "stay": preneur_laisse_en_jouissance(entity_ref("urn:fr:cc12:q22:b")) { origin case_input; }
+        assert "c": caution_donnee_pour_le_bail(entity_ref("urn:fr:cc12:q22:b")) { origin case_input; }
+    }
+    evaluate truth(bail_renouvele_par_tacite_reconduction(entity_ref("urn:fr:cc12:q22:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(caution_non_etendue_a_la_prolongation(entity_ref("urn:fr:cc12:q22:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1740-sans-reconduction-la-caution-n-est-pas-en-cause" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": caution_donnee_pour_le_bail(entity_ref("urn:fr:cc12:q23:b")) { origin case_input; }
+    }
+    evaluate truth(caution_non_etendue_a_la_prolongation(entity_ref("urn:fr:cc12:q23:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1741-resolution-par-la-perte-de-la-chose" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "l": perte_de_la_chose_louee(entity_ref("urn:fr:cc12:q24:b")) { origin case_input; }
+    }
+    evaluate truth(contrat_de_louage_resolu(entity_ref("urn:fr:cc12:q24:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1741-bail-en-cours-non-resolu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:q25:b")) { origin case_input; }
+    }
+    evaluate truth(contrat_de_louage_resolu(entity_ref("urn:fr:cc12:q25:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1745-indemnite-egale-au-loyer-du-delai" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q26:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q26:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q26:b")) { origin case_input; }
+        assert "house": bail_de_maison_appartement_ou_boutique(entity_ref("urn:fr:cc12:q26:b")) { origin case_input; }
+        assert "rent": loyer_du_temps_entre_conge_et_sortie(entity_ref("urn:fr:cc12:q26:b"), 3000 EUR) { origin case_input; }
+    }
+    evaluate truth(bailleur_tenu_d_indemniser_le_locataire(entity_ref("urn:fr:cc12:q26:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(indemnite_du_locataire_evince(entity_ref("urn:fr:cc12:q26:b"), 3000 EUR));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(indemnite_du_locataire_evince(entity_ref("urn:fr:cc12:q26:b"), 4000 EUR));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1746-indemnite-du-tiers-pour-bien-rural" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q27:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q27:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q27:b")) { origin case_input; }
+        assert "rural": bail_de_biens_ruraux(entity_ref("urn:fr:cc12:q27:b")) { origin case_input; }
+        assert "rest": prix_du_bail_pour_le_temps_restant(entity_ref("urn:fr:cc12:q27:b"), 36000 EUR) { origin case_input; }
+        assert "prop": loyer_du_temps_entre_conge_et_sortie(entity_ref("urn:fr:cc12:q27:b"), 12000 EUR) { origin case_input; }
+    }
+    evaluate truth(indemnite_du_fermier_evince(entity_ref("urn:fr:cc12:q27:b"), 12000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1746-indemnite-fausse-rejetee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q28:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q28:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q28:b")) { origin case_input; }
+        assert "rural": bail_de_biens_ruraux(entity_ref("urn:fr:cc12:q28:b")) { origin case_input; }
+        assert "rest": prix_du_bail_pour_le_temps_restant(entity_ref("urn:fr:cc12:q28:b"), 36000 EUR) { origin case_input; }
+        assert "prop": loyer_du_temps_entre_conge_et_sortie(entity_ref("urn:fr:cc12:q28:b"), 15000 EUR) { origin case_input; }
+    }
+    evaluate truth(indemnite_du_fermier_evince(entity_ref("urn:fr:cc12:q28:b"), 15000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1749-expulsion-interdite-avant-paiement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q29:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q29:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q29:b")) { origin case_input; }
+    }
+    evaluate truth(expulsion_interdite_avant_paiement(entity_ref("urn:fr:cc12:q29:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1749-expulsion-ouverte-apres-paiement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q30:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q30:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q30:b")) { origin case_input; }
+        assert "paid": dommages_interets_payes_au_locataire(entity_ref("urn:fr:cc12:q30:b")) { origin case_input; }
+    }
+    evaluate truth(expulsion_interdite_avant_paiement(entity_ref("urn:fr:cc12:q30:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1750-bail-sans-date-certaine" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q31:b")) { origin case_input; }
+    }
+    evaluate truth(acquereur_non_tenu_de_dommages_interets(entity_ref("urn:fr:cc12:q31:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1750-bail-authentique-acquereur-tenu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q32:b")) { origin case_input; }
+        assert "auth": bail_authentique_ou_a_date_certaine(entity_ref("urn:fr:cc12:q32:b")) { origin case_input; }
+    }
+    evaluate truth(acquereur_non_tenu_de_dommages_interets(entity_ref("urn:fr:cc12:q32:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1751-1-attribution-apres-dissolution-du-pacs" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "hab": bail_d_habitation_sans_caractere_professionnel_ou_commercial(entity_ref("urn:fr:cc12:q33:b")) { origin case_input; }
+        assert "dis": dissolution_du_pacs(entity_ref("urn:fr:cc12:q33:b")) { origin case_input; }
+        assert "ask": partenaire_demande_l_attribution_du_bail(entity_ref("urn:fr:cc12:q33:b"), entity_ref("urn:fr:cc12:q33:p")) { origin case_input; }
+    }
+    evaluate truth(attribution_du_bail_soumise_au_juge(entity_ref("urn:fr:cc12:q33:b"), entity_ref("urn:fr:cc12:q33:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1751-1-local-professionnel-exclu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "dis": dissolution_du_pacs(entity_ref("urn:fr:cc12:q34:b")) { origin case_input; }
+        assert "ask": partenaire_demande_l_attribution_du_bail(entity_ref("urn:fr:cc12:q34:b"), entity_ref("urn:fr:cc12:q34:p")) { origin case_input; }
+    }
+    evaluate truth(attribution_du_bail_soumise_au_juge(entity_ref("urn:fr:cc12:q34:b"), entity_ref("urn:fr:cc12:q34:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1752-expulsion-faute-de-meubles" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "empty": maison_non_garnie_de_meubles_suffisants(entity_ref("urn:fr:cc12:q35:b")) { origin case_input; }
+    }
+    evaluate truth(locataire_peut_etre_expulse_faute_de_meubles(entity_ref("urn:fr:cc12:q35:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1752-suretes-donnees" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "empty": maison_non_garnie_de_meubles_suffisants(entity_ref("urn:fr:cc12:q36:b")) { origin case_input; }
+        assert "sec": suretes_capables_de_repondre_du_loyer_donnees(entity_ref("urn:fr:cc12:q36:b")) { origin case_input; }
+    }
+    evaluate truth(locataire_peut_etre_expulse_faute_de_meubles(entity_ref("urn:fr:cc12:q36:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1754-reparation-locative-a-la-charge-du-locataire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "loc": reparation_designee_locative_par_l_usage_des_lieux(entity_ref("urn:fr:cc12:q37:b")) { origin case_input; }
+    }
+    evaluate truth(reparation_a_la_charge_du_locataire(entity_ref("urn:fr:cc12:q37:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(reparation_non_a_la_charge_du_locataire(entity_ref("urn:fr:cc12:q37:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1755-vetuste-hors-des-reparations-locatives" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "loc": reparation_designee_locative_par_l_usage_des_lieux(entity_ref("urn:fr:cc12:q38:b")) { origin case_input; }
+        assert "age": reparation_occasionnee_par_vetuste_ou_force_majeure(entity_ref("urn:fr:cc12:q38:b")) { origin case_input; }
+    }
+    evaluate truth(reparation_non_a_la_charge_du_locataire(entity_ref("urn:fr:cc12:q38:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(reparation_a_la_charge_du_locataire(entity_ref("urn:fr:cc12:q38:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1754-clause-contraire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "loc": reparation_designee_locative_par_l_usage_des_lieux(entity_ref("urn:fr:cc12:q39:b")) { origin case_input; }
+        assert "cl": clause_contraire_sur_les_reparations_locatives(entity_ref("urn:fr:cc12:q39:b")) { origin case_input; }
+    }
+    evaluate truth(reparation_a_la_charge_du_locataire(entity_ref("urn:fr:cc12:q39:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1756-curement-a-la-charge-du-bailleur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "w": curement_de_puits_ou_de_fosses(entity_ref("urn:fr:cc12:q40:b")) { origin case_input; }
+    }
+    evaluate truth(curement_a_la_charge_du_bailleur(entity_ref("urn:fr:cc12:q40:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1756-clause-contraire-sur-le-curement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "w": curement_de_puits_ou_de_fosses(entity_ref("urn:fr:cc12:q41:b")) { origin case_input; }
+        assert "cl": clause_contraire_sur_le_curement(entity_ref("urn:fr:cc12:q41:b")) { origin case_input; }
+    }
+    evaluate truth(curement_a_la_charge_du_bailleur(entity_ref("urn:fr:cc12:q41:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1760-loyer-pendant-la-relocation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": resiliation_par_la_faute_du_locataire(entity_ref("urn:fr:cc12:q42:b")) { origin adjudicated; }
+    }
+    evaluate truth(loyer_du_pendant_la_relocation(entity_ref("urn:fr:cc12:q42:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1761-bailleur-ne-peut-reprendre-pour-occuper" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "want": bailleur_declare_vouloir_occuper_lui_meme(entity_ref("urn:fr:cc12:q43:b")) { origin case_input; }
+    }
+    evaluate truth(bailleur_ne_peut_resoudre_pour_occuper(entity_ref("urn:fr:cc12:q43:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1749-prohibition" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1749:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1749:b"), entity_ref("urn:fr:cc12:pos1749:p")) { origin case_input; }
+        assert "indemnity": bailleur_tenu_d_indemniser_le_locataire(entity_ref("urn:fr:cc12:pos1749:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasExpulserAvantIndemnisation, ACTIVE);
+    expect position(MaintenanceInterdictionExpulsionAvantIndemnisationDuty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1749-prohibition-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:pos1749b:b")) { origin case_input; }
+        assert "tenant": preneur(entity_ref("urn:fr:cc12:pos1749b:b"), entity_ref("urn:fr:cc12:pos1749b:p")) { origin case_input; }
+        assert "indemnity": bailleur_tenu_d_indemniser_le_locataire(entity_ref("urn:fr:cc12:pos1749b:b")) { origin case_input; }
+        assert "attempt": expulsion_tentee_avant_paiement(entity_ref("urn:fr:cc12:pos1749b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasExpulserAvantIndemnisation, VIOLATED);
+    expect position(MaintenanceInterdictionExpulsionAvantIndemnisationDuty, VIOLATED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1761-convention-contraire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "want": bailleur_declare_vouloir_occuper_lui_meme(entity_ref("urn:fr:cc12:q44:b")) { origin case_input; }
+        assert "conv": convention_contraire_sur_la_reprise(entity_ref("urn:fr:cc12:q44:b")) { origin case_input; }
+    }
+    evaluate truth(bailleur_ne_peut_resoudre_pour_occuper(entity_ref("urn:fr:cc12:q44:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1723-forme-de-la-chose-inchangeable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:q45:b")) { origin case_input; }
+    }
+    evaluate truth(forme_de_la_chose_louee_inchangeable(entity_ref("urn:fr:cc12:q45:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1747-indemnite-reglee-par-experts" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q46:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q46:b")) { origin case_input; }
+        assert "nos": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q46:b")) { origin case_input; }
+        assert "fac": etablissement_exigeant_de_grandes_avances(entity_ref("urn:fr:cc12:q46:b")) { origin case_input; }
+    }
+    evaluate truth(indemnite_reglee_par_experts(entity_ref("urn:fr:cc12:q46:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1748-avertissement-au-temps-usite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q47:b")) { origin case_input; }
+        assert "buyer": acquereur_de_la_chose_louee(entity_ref("urn:fr:cc12:q47:b"), entity_ref("urn:fr:cc12:q47:a")) { origin case_input; }
+        assert "nonrural": bail_de_bien_non_rural(entity_ref("urn:fr:cc12:q47:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q47:b")) { origin case_input; }
+        assert "warn": acquereur_a_averti_au_temps_usite(entity_ref("urn:fr:cc12:q47:b")) { origin case_input; }
+    }
+    evaluate truth(acquereur_peut_expulser_le_preneur(entity_ref("urn:fr:cc12:q47:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(expulsion_subordonnee_a_l_avertissement(entity_ref("urn:fr:cc12:q47:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1748-sans-avertissement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q48:b")) { origin case_input; }
+        assert "buyer": acquereur_de_la_chose_louee(entity_ref("urn:fr:cc12:q48:b"), entity_ref("urn:fr:cc12:q48:a")) { origin case_input; }
+        assert "nonrural": bail_de_bien_non_rural(entity_ref("urn:fr:cc12:q48:b")) { origin case_input; }
+        assert "res": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q48:b")) { origin case_input; }
+    }
+    evaluate truth(expulsion_subordonnee_a_l_avertissement(entity_ref("urn:fr:cc12:q48:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1726-diminution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1726")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1726"), entity_ref("urn:fr:cc12:q:lessee1726")) { origin case_input; }
+        assert "trouble": trouble_par_action_concernant_la_propriete(entity_ref("urn:fr:cc12:q:pos1726")) { origin case_input; }
+        assert "notice": trouble_denonce_au_proprietaire(entity_ref("urn:fr:cc12:q:pos1726")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4PouvoirDemanderDiminutionTrouble1726Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1726-diminution-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1726b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1726b"), entity_ref("urn:fr:cc12:q:lessee1726b")) { origin case_input; }
+        assert "trouble": trouble_par_action_concernant_la_propriete(entity_ref("urn:fr:cc12:q:pos1726b")) { origin case_input; }
+        assert "notice": trouble_denonce_au_proprietaire(entity_ref("urn:fr:cc12:q:pos1726b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4PouvoirDemanderDiminutionTrouble1726Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1732-degradations" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1732")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1732"), entity_ref("urn:fr:cc12:q:lessee1732")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1732"), entity_ref("urn:fr:cc12:q:lessor1732")) { origin case_input; }
+        assert "damage": degradations_ou_pertes_pendant_la_jouissance(entity_ref("urn:fr:cc12:q:pos1732")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRepondreDegradations1732Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1732-degradations-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1732b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1732b"), entity_ref("urn:fr:cc12:q:lessee1732b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1732b"), entity_ref("urn:fr:cc12:q:lessor1732b")) { origin case_input; }
+        assert "damage": degradations_ou_pertes_pendant_la_jouissance(entity_ref("urn:fr:cc12:q:pos1732b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRepondreDegradations1732Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1733-incendie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1733")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1733"), entity_ref("urn:fr:cc12:q:lessee1733")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1733"), entity_ref("urn:fr:cc12:q:lessor1733")) { origin case_input; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:q:pos1733")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRepondreIncendie1733Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1733-incendie-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1733b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1733b"), entity_ref("urn:fr:cc12:q:lessee1733b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1733b"), entity_ref("urn:fr:cc12:q:lessor1733b")) { origin case_input; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:q:pos1733b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRepondreIncendie1733Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1734-incendie-seul" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1734")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1734"), entity_ref("urn:fr:cc12:q:lessee1734")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1734"), entity_ref("urn:fr:cc12:q:lessor1734")) { origin case_input; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:q:pos1734")) { origin case_input; }
+        assert "many": plusieurs_locataires(entity_ref("urn:fr:cc12:q:pos1734")) { origin case_input; }
+        assert "origin": incendie_commence_chez_un_locataire(entity_ref("urn:fr:cc12:q:pos1734"), entity_ref("urn:fr:cc12:q:lessee1734")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirAssumerIncendieSeul1734Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1734-incendie-seul-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lease": bail_en_vigueur(entity_ref("urn:fr:cc12:q:pos1734b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1734b"), entity_ref("urn:fr:cc12:q:lessee1734b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1734b"), entity_ref("urn:fr:cc12:q:lessor1734b")) { origin case_input; }
+        assert "fire": incendie_survenu(entity_ref("urn:fr:cc12:q:pos1734b")) { origin case_input; }
+        assert "many": plusieurs_locataires(entity_ref("urn:fr:cc12:q:pos1734b")) { origin case_input; }
+        assert "origin": incendie_commence_chez_un_locataire(entity_ref("urn:fr:cc12:q:pos1734b"), entity_ref("urn:fr:cc12:q:lessee1734b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirAssumerIncendieSeul1734Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1744-indemnisation-expulsion" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1744"), entity_ref("urn:fr:cc12:q:lessor1744")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1744"), entity_ref("urn:fr:cc12:q:lessee1744")) { origin case_input; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q:pos1744")) { origin case_input; }
+        assert "reserved": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q:pos1744")) { origin case_input; }
+        assert "none": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q:pos1744")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirIndemniserLocataireExpulse1744Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1744-indemnisation-expulsion-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1744b"), entity_ref("urn:fr:cc12:q:lessor1744b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1744b"), entity_ref("urn:fr:cc12:q:lessee1744b")) { origin case_input; }
+        assert "sold": chose_louee_vendue(entity_ref("urn:fr:cc12:q:pos1744b")) { origin case_input; }
+        assert "reserved": droit_d_expulser_reserve_par_le_bail(entity_ref("urn:fr:cc12:q:pos1744b")) { origin case_input; }
+        assert "none": aucune_stipulation_sur_les_dommages_interets(entity_ref("urn:fr:cc12:q:pos1744b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirIndemniserLocataireExpulse1744Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1756-curement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1756"), entity_ref("urn:fr:cc12:q:lessor1756")) { origin case_input; }
+        assert "cleaning": curement_de_puits_ou_de_fosses(entity_ref("urn:fr:cc12:q:pos1756")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirCurementBailleur1756Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1756-curement-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1756b"), entity_ref("urn:fr:cc12:q:lessor1756b")) { origin case_input; }
+        assert "cleaning": curement_de_puits_ou_de_fosses(entity_ref("urn:fr:cc12:q:pos1756b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirCurementBailleur1756Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1760-loyer-relocation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1760"), entity_ref("urn:fr:cc12:q:lessee1760")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1760"), entity_ref("urn:fr:cc12:q:lessor1760")) { origin case_input; }
+        assert "fault": resiliation_par_la_faute_du_locataire(entity_ref("urn:fr:cc12:q:pos1760")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirPayerLoyerRelocation1760Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1760-loyer-relocation-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:q:pos1760b"), entity_ref("urn:fr:cc12:q:lessee1760b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:q:pos1760b"), entity_ref("urn:fr:cc12:q:lessor1760b")) { origin case_input; }
+        assert "fault": resiliation_par_la_faute_du_locataire(entity_ref("urn:fr:cc12:q:pos1760b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirPayerLoyerRelocation1760Actif, ACTIVE);
+}

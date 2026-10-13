@@ -1,0 +1,504 @@
+// LIVRE IV, TITRE II, SOUS-TITRE II, CHAPITRE III : DU NANTISSEMENT DE MEUBLES
+// INCORPORELS (articles 2355 à 2366).
+//
+// RANG DES NANTISSEMENTS SUCCESSIFS (2361-1) : « par l'ordre des actes ». Le
+// rang est un de plus que le nombre de nantissements de la même créance dont
+// l'acte est antérieur ; deux actes de même date ne sont pas départagés par le
+// texte (frontière `nantissements_de_meme_date`).
+//
+// HUIT JOURS (2364). La défaillance du débiteur de la créance garantie ouvre,
+// huit jours après une mise en demeure restée sans effet, l'affectation des
+// fonds conservés : le délai expire à la fin du huitième jour (CPC 641),
+// l'affectation est possible le lendemain (D-CC14-08).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2355,
+    CC_ART2356,
+    CC_ART2358,
+    CC_ART2359,
+    CC_ART2360,
+    CC_ART2361,
+    CC_ART2361_1,
+    CC_ART2362,
+    CC_ART2363,
+    CC_ART2363_1,
+    CC_ART2364,
+    CC_ART2365,
+    CC_ART2366,
+    NatureDeSurete,
+    Personne,
+    SureteReelle,
+    ecrit_designe_la_dette_garantie,
+    ecrit_etabli,
+    montant_de_la_dette_reelle,
+    nature_de_la_surete,
+    surete_reelle_constituee,
+};
+
+pub entity CreanceNantie {
+    label fr official "Créance ou compte donné en nantissement";
+    label en unofficial "Claim or account charged";
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation nantissement_de(s: SureteReelle, n: CreanceNantie) kind empirical {
+    key(s);
+    label fr official "le nantissement porte sur cette créance (article 2355)";
+    label en unofficial "the charge bears on this claim (Article 2355)";
+}
+pub relation nantissement_judiciaire(s: SureteReelle) kind empirical {
+    label fr official "le nantissement est judiciaire (article 2355, al. 2 et 3)";
+    label en unofficial "the charge is court-ordered (Article 2355, paras. 2 and 3)";
+}
+pub relation nantissement_d_autres_meubles_incorporels(s: SureteReelle) kind empirical {
+    label fr official "le nantissement porte sur un meuble incorporel autre qu'une créance (article 2355, al. 5)";
+    label en unofficial "the charge bears on an intangible movable other than a claim (Article 2355, para. 5)";
+}
+pub relation ecrit_designe_les_creances_nanties(s: SureteReelle) kind empirical {
+    label fr official "l'acte désigne les créances nanties (article 2356, al. 2)";
+    label en unofficial "the deed identifies the charged claims (Article 2356, para. 2)";
+}
+pub relation creances_futures_non_individualisables(s: SureteReelle) kind empirical {
+    label fr official "l'acte ne permet pas l'individualisation des créances futures (articles 2356, al. 3, 2373-1, 2374-1)";
+    label en unofficial "the deed does not allow the future claims to be identified (Articles 2356, para. 3, 2373-1, 2374-1)";
+}
+pub relation creance_nantie_indivisible(n: CreanceNantie) kind empirical {
+    label fr official "la créance nantie est indivisible (article 2358)";
+    label en unofficial "the charged claim is indivisible (Article 2358)";
+}
+pub relation nantissement_d_une_fraction(s: SureteReelle) kind empirical {
+    label fr official "le nantissement porte sur une fraction de la créance (article 2358)";
+    label en unofficial "the charge bears on part of the claim (Article 2358)";
+}
+pub relation accessoires_exclus_par_les_parties(s: SureteReelle) kind empirical {
+    label fr official "les parties ont exclu les accessoires de la créance nantie (article 2359)";
+    label en unofficial "the parties excluded the accessories of the charged claim (Article 2359)";
+}
+pub relation nantissement_de_compte(s: SureteReelle) kind empirical {
+    label fr official "le nantissement porte sur un compte (article 2360)";
+    label en unofficial "the charge bears on an account (Article 2360)";
+}
+pub relation solde_du_compte_au(s: SureteReelle, jour: Date, m: Money) kind empirical {
+    label fr official "solde créditeur du compte à cette date (article 2360)";
+    label en unofficial "credit balance of the account on this date (Article 2360)";
+}
+pub relation realisation_de_la_surete_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de réalisation de la sûreté (article 2360, al. 1)";
+    label en unofficial "date the security is enforced (Article 2360, para. 1)";
+}
+pub relation jugement_d_ouverture_contre_le_constituant_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date du jugement d'ouverture d'une procédure collective ou de surendettement contre le constituant (article 2360, al. 2)";
+    label en unofficial "date of the judgment opening insolvency or over-indebtedness proceedings against the grantor (Article 2360, para. 2)";
+}
+pub relation date_de_l_acte(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de l'acte constitutif (articles 2361, 2361-1)";
+    label en unofficial "date of the constituting deed (Articles 2361, 2361-1)";
+}
+pub relation nantissement_notifie_au_debiteur(s: SureteReelle) kind empirical {
+    label fr official "le nantissement a été notifié au débiteur de la créance nantie, ou celui-ci est intervenu à l'acte (article 2362)";
+    label en unofficial "the charge was notified to the debtor of the charged claim, or that debtor joined the deed (Article 2362)";
+}
+pub relation paiement_de_la_creance_nantie(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "somme payée au titre de la créance nantie (articles 2364, 2366)";
+    label en unofficial "sum paid on the charged claim (Articles 2364, 2366)";
+}
+pub relation creance_garantie_echue(s: SureteReelle) kind empirical {
+    label fr official "la créance garantie est échue (articles 2364, 2373-2)";
+    label en unofficial "the secured claim is due (Articles 2364, 2373-2)";
+}
+pub relation mise_en_demeure_sans_effet_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la mise en demeure du débiteur défaillant restée sans effet (article 2364)";
+    label en unofficial "date of the unanswered formal notice to the defaulting debtor (Article 2364)";
+}
+pub relation affectation_des_fonds_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date à laquelle le créancier affecte les fonds conservés (article 2364)";
+    label en unofficial "date the creditor applies the retained funds (Article 2364)";
+}
+pub relation defaillance_du_debiteur_garanti(s: SureteReelle) kind empirical {
+    label fr official "le débiteur de la créance garantie est défaillant (articles 2364, 2365, 2374-5)";
+    label en unofficial "the debtor of the secured claim is in default (Articles 2364, 2365, 2374-5)";
+}
+pub relation exception_inherente_a_la_creance_nantie(s: SureteReelle, x: Text) kind empirical {
+    label fr official "exception inhérente à la dette nantie (article 2363-1)";
+    label en unofficial "defence inherent in the charged debt (Article 2363-1)";
+}
+pub relation exception_nee_avant_opposabilite(s: SureteReelle, x: Text) kind empirical {
+    label fr official "exception née des rapports avec le constituant avant que le nantissement ne soit devenu opposable (article 2363-1)";
+    label en unofficial "defence arising from dealings with the grantor before the charge became effective (Article 2363-1)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation nantissement_regi_par_les_procedures_civiles_d_execution(s: SureteReelle) kind derived {
+    label fr official "frontière : le nantissement judiciaire est régi par le code des procédures civiles d'exécution (article 2355, al. 3)";
+    label en unofficial "boundary: a court-ordered charge is governed by the Civil Enforcement Procedures Code (Article 2355, para. 3)";
+}
+pub relation regles_du_gage_applicables_sauf_retention(s: SureteReelle) kind derived {
+    label fr official "le nantissement d'autres meubles incorporels suit les règles du gage, à l'exclusion du 4° de l'article 2286 (article 2355, al. 5)";
+    label en unofficial "a charge over other intangibles follows the pledge rules, except Article 2286, 4° (Article 2355, para. 5)";
+}
+pub relation nantissement_de_creance_valable(s: SureteReelle) kind derived {
+    label fr official "le nantissement de créance est conclu par écrit et désigne les créances garanties et nanties (article 2356)";
+    label en unofficial "the charge over a claim is in writing and identifies the secured and charged claims (Article 2356)";
+}
+pub relation nantissement_de_creance_nul(s: SureteReelle) kind derived {
+    label fr official "nullité du nantissement de créance faute d'écrit (article 2356, al. 1)";
+    label en unofficial "nullity of the charge over a claim for want of writing (Article 2356, para. 1)";
+}
+pub relation fraction_non_nantissable(s: SureteReelle) kind derived {
+    label fr official "le nantissement ne peut porter sur une fraction d'une créance indivisible (article 2358)";
+    label en unofficial "a charge cannot bear on part of an indivisible claim (Article 2358)";
+}
+pub relation nantissement_etendu_aux_accessoires(s: SureteReelle) kind derived {
+    label fr official "le nantissement s'étend aux accessoires de la créance (article 2359)";
+    label en unofficial "the charge extends to the claim's accessories (Article 2359)";
+}
+pub relation creance_nantie_egale_au_solde(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "créance nantie : solde créditeur au jour de la réalisation, ou au jour du jugement d'ouverture (article 2360)";
+    label en unofficial "charged claim: credit balance on the enforcement date, or on the opening judgment date (Article 2360)";
+}
+pub relation nantissement_opposable_depuis(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "le nantissement prend effet entre les parties et devient opposable aux tiers à la date de l'acte (article 2361)";
+    label en unofficial "the charge takes effect between the parties and against third parties on the date of the deed (Article 2361)";
+}
+pub relation nantissement_anterieur(s: SureteReelle, t: SureteReelle) kind derived {
+    label fr official "le nantissement t de la même créance a un acte antérieur à celui de s (article 2361-1)";
+    label en unofficial "charge t over the same claim has a deed earlier than that of s (Article 2361-1)";
+}
+pub relation rang_du_nantissement(s: SureteReelle, n: Integer) kind derived {
+    key(s);
+    label fr official "rang du nantissement parmi les nantissements successifs de la même créance, par l'ordre des actes (article 2361-1)";
+    label en unofficial "rank of the charge among successive charges of the same claim, in order of the deeds (Article 2361-1)";
+}
+pub relation nantissements_de_meme_date(n: CreanceNantie, jour: Date) kind derived {
+    label fr official "frontière : plusieurs nantissements de la même créance portent un acte de même date ; l'article 2361-1 ne les départage pas";
+    label en unofficial "boundary: several charges of the same claim bear deeds of the same date; Article 2361-1 does not rank them";
+}
+pub relation seul_le_constituant_recoit_paiement(s: SureteReelle) kind derived {
+    label fr official "à défaut de notification, seul le constituant reçoit valablement paiement de la créance (article 2362)";
+    label en unofficial "absent notification, only the grantor can validly receive payment of the claim (Article 2362)";
+}
+pub relation creancier_nanti_seul_titulaire_du_paiement(s: SureteReelle) kind derived {
+    label fr official "après notification, le créancier nanti bénéficie d'un droit de rétention et a seul le droit au paiement (article 2363)";
+    label en unofficial "after notification, the chargee has a right of retention and alone is entitled to payment (Article 2363)";
+}
+pub relation exception_opposable_au_creancier_nanti(s: SureteReelle, x: Text) kind derived {
+    label fr official "exception que le débiteur de la créance nantie peut opposer au créancier nanti (article 2363-1)";
+    label en unofficial "defence the debtor of the charged claim may raise against the chargee (Article 2363-1)";
+}
+pub relation sommes_imputees_sur_la_creance_garantie(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "les sommes payées s'imputent sur la créance garantie échue (articles 2364, 2373-2)";
+    label en unofficial "the sums paid are charged to the due secured claim (Articles 2364, 2373-2)";
+}
+pub relation sommes_conservees_en_garantie(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "la créance garantie n'étant pas échue, les sommes sont conservées sur un compte spécialement affecté (article 2364, al. 2)";
+    label en unofficial "the secured claim not being due, the sums are kept in a dedicated account (Article 2364, para. 2)";
+}
+pub relation affectation_possible_a_partir_du(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour du délai de huit jours suivant la mise en demeure restée sans effet ; l'affectation des fonds est possible le lendemain (article 2364, al. 2 ; CPC 641)";
+    label en unofficial "last day of the eight-day period after the unanswered formal notice; the funds may be applied the next day (Article 2364, para. 2; CPC 641)";
+}
+pub relation affectation_des_fonds_reguliere(s: SureteReelle) kind derived {
+    label fr official "l'affectation des fonds intervient après les huit jours (article 2364)";
+    label en unofficial "the funds are applied after the eight days (Article 2364)";
+}
+pub relation affectation_des_fonds_prematuree(s: SureteReelle) kind derived {
+    label fr official "l'affectation des fonds intervient avant l'expiration des huit jours (article 2364)";
+    label en unofficial "the funds are applied before the eight days have run (Article 2364)";
+}
+pub relation attribution_de_la_creance_nantie_ouverte(s: SureteReelle) kind derived {
+    label fr official "en cas de défaillance, le créancier nanti peut se faire attribuer la créance nantie ou attendre son échéance (article 2365)";
+    label en unofficial "on default, the chargee may have the charged claim allocated to it or await its maturity (Article 2365)";
+}
+pub relation difference_due_au_constituant(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "somme payée au créancier nanti en excès de la dette garantie, due au constituant (article 2366)";
+    label en unofficial "amount paid to the chargee in excess of the secured debt, owed to the grantor (Article 2366)";
+}
+
+// --- Règles --------------------------------------------------------------------------------
+
+@source(CC_ART2355) {
+    rule NantissementJudiciaire(s: SureteReelle) strict {
+        label fr official "Article 2355, alinéas 2 et 3. Le nantissement judiciaire est régi par les dispositions applicables aux procédures civiles d'exécution";
+        label en unofficial "Article 2355, paragraphs 2 and 3. A court-ordered charge is governed by the civil enforcement procedure rules";
+        when nature_de_la_surete(s, NantissementDeMeublesIncorporels) and nantissement_judiciaire(s);
+        then nantissement_regi_par_les_procedures_civiles_d_execution(s);
+    }
+    rule NantissementDAutresMeubles(s: SureteReelle) strict {
+        label fr official "Article 2355, alinéa 5. Le nantissement d'autres meubles incorporels est soumis aux règles du gage, à l'exclusion du 4° de l'article 2286";
+        label en unofficial "Article 2355, paragraph 5. A charge over other intangibles is subject to the pledge rules, except Article 2286, 4°";
+        when nature_de_la_surete(s, NantissementDeMeublesIncorporels) and nantissement_d_autres_meubles_incorporels(s);
+        then regles_du_gage_applicables_sauf_retention(s);
+    }
+}
+
+@source(CC_ART2356) {
+    rule NantissementDeCreanceValable(s: SureteReelle, n: CreanceNantie) strict {
+        label fr official "Article 2356. Le nantissement de créance est conclu par écrit ; les créances garanties et nanties sont désignées dans l'acte et, si elles sont futures, individualisables";
+        label en unofficial "Article 2356. A charge over a claim is made in writing; the secured and charged claims are identified in the deed and, if future, identifiable";
+        when nantissement_de(s, n) and ecrit_etabli(s) and ecrit_designe_la_dette_garantie(s) and ecrit_designe_les_creances_nanties(s)
+            and not_known(creances_futures_non_individualisables(s));
+        then nantissement_de_creance_valable(s);
+    }
+    rule NantissementDeCreanceSansEcrit(s: SureteReelle, n: CreanceNantie) strict {
+        label fr official "Article 2356, alinéa 1. A peine de nullité, le nantissement de créance doit être conclu par écrit";
+        label en unofficial "Article 2356, paragraph 1. On pain of nullity, a charge over a claim must be made in writing";
+        when nantissement_de(s, n) and not_known(ecrit_etabli(s));
+        then nantissement_de_creance_nul(s);
+    }
+}
+
+@source(CC_ART2358)
+rule FractionDeCreanceIndivisible(s: SureteReelle, n: CreanceNantie) strict {
+    label fr official "Article 2358. Le nantissement peut porter sur une fraction de créance, sauf si celle-ci est indivisible";
+    label en unofficial "Article 2358. A charge may bear on part of a claim, unless the claim is indivisible";
+    when nantissement_de(s, n) and nantissement_d_une_fraction(s) and creance_nantie_indivisible(n);
+    then fraction_non_nantissable(s);
+}
+
+@source(CC_ART2359)
+rule ExtensionAuxAccessoiresDeLaCreance(s: SureteReelle, n: CreanceNantie) strict {
+    label fr official "Article 2359. Le nantissement s'étend aux accessoires de la créance à moins que les parties n'en conviennent autrement";
+    label en unofficial "Article 2359. A charge extends to the claim's accessories unless the parties agree otherwise";
+    when nantissement_de(s, n) and not_known(accessoires_exclus_par_les_parties(s));
+    then nantissement_etendu_aux_accessoires(s);
+}
+
+@source(CC_ART2360) {
+    rule SoldeAuJourDeLaRealisation(s: SureteReelle, d: Date, m: Money) strict {
+        label fr official "Article 2360, alinéa 1. La créance nantie s'entend du solde créditeur au jour de la réalisation de la sûreté";
+        label en unofficial "Article 2360, paragraph 1. The charged claim is the credit balance on the day the security is enforced";
+        when nantissement_de_compte(s) and realisation_de_la_surete_le(s, d) and solde_du_compte_au(s, d, m)
+            and not_known(procedure_ouverte_contre_le_constituant(s));
+        then creance_nantie_egale_au_solde(s, m);
+    }
+    rule SoldeAuJourDuJugementDOuverture(s: SureteReelle, d: Date, m: Money) strict {
+        label fr official "Article 2360, alinéa 2. En cas de procédure collective ou de surendettement, les droits du créancier nanti portent sur le solde à la date du jugement d'ouverture";
+        label en unofficial "Article 2360, paragraph 2. In insolvency or over-indebtedness proceedings, the chargee's rights bear on the balance at the opening judgment date";
+        when nantissement_de_compte(s) and jugement_d_ouverture_contre_le_constituant_le(s, d) and solde_du_compte_au(s, d, m);
+        then creance_nantie_egale_au_solde(s, m);
+    }
+    rule ProcedureOuverte(s: SureteReelle, d: Date) strict {
+        label fr official "Article 2360, alinéa 2. Procédure ouverte contre le constituant";
+        label en unofficial "Article 2360, paragraph 2. Proceedings opened against the grantor";
+        when jugement_d_ouverture_contre_le_constituant_le(s, d);
+        then procedure_ouverte_contre_le_constituant(s);
+    }
+}
+
+pub relation procedure_ouverte_contre_le_constituant(s: SureteReelle) kind derived {
+    label fr official "une procédure collective ou de surendettement est ouverte contre le constituant";
+    label en unofficial "insolvency or over-indebtedness proceedings are opened against the grantor";
+}
+
+@source(CC_ART2361)
+rule OpposabiliteALaDateDeLActe(s: SureteReelle, n: CreanceNantie, d: Date) strict {
+    label fr official "Article 2361. Le nantissement d'une créance prend effet entre les parties et devient opposable aux tiers à la date de l'acte";
+    label en unofficial "Article 2361. A charge over a claim takes effect between the parties and against third parties on the date of the deed";
+    when nantissement_de(s, n) and date_de_l_acte(s, d);
+    then nantissement_opposable_depuis(s, d);
+}
+
+@source(CC_ART2361_1) {
+    rule NantissementAnterieur(s: SureteReelle, t: SureteReelle, n: CreanceNantie, a: Date, b: Date) strict {
+        label fr official "Article 2361-1. Lorsqu'une même créance fait l'objet de nantissements successifs, le rang des créanciers est réglé par l'ordre des actes";
+        label en unofficial "Article 2361-1. Where the same claim is subject to successive charges, the creditors rank in order of the deeds";
+        when nantissement_de(s, n) and nantissement_de(t, n) and date_de_l_acte(s, a) and date_de_l_acte(t, b) and b < a;
+        then nantissement_anterieur(s, t);
+    }
+    rule RangDuNantissement(s: SureteReelle, n: CreanceNantie, a: Date) strict {
+        label fr official "Article 2361-1. Rang : un de plus que le nombre de nantissements antérieurs de la même créance";
+        label en unofficial "Article 2361-1. Rank: one more than the number of earlier charges over the same claim";
+        when nantissement_de(s, n) and date_de_l_acte(s, a);
+        then rang_du_nantissement(s, 1 + (count distinct t: SureteReelle where nantissement_anterieur(s, t)));
+    }
+    rule NantissementsDeMemeDate(s: SureteReelle, n: CreanceNantie, a: Date) strict {
+        label fr official "Article 2361-1. Deux actes de même date ne sont pas départagés par l'ordre des actes — frontière";
+        label en unofficial "Article 2361-1. Two deeds of the same date are not ranked by the order of the deeds — boundary";
+        when nantissement_de(s, n) and date_de_l_acte(s, a)
+            and (count distinct t: SureteReelle where nantissement_de(t, n) and date_de_l_acte(t, a)) >= 2;
+        then nantissements_de_meme_date(n, a);
+    }
+}
+
+@source(CC_ART2362)
+rule PaiementAuConstituant(s: SureteReelle, n: CreanceNantie) strict {
+    label fr official "Article 2362. Pour être opposable au débiteur de la créance nantie, le nantissement doit lui être notifié ; à défaut, seul le constituant reçoit valablement paiement";
+    label en unofficial "Article 2362. To be effective against the debtor of the charged claim, the charge must be notified to it; otherwise only the grantor validly receives payment";
+    when nantissement_de(s, n) and not_known(nantissement_notifie_au_debiteur(s));
+    then seul_le_constituant_recoit_paiement(s);
+}
+
+@source(CC_ART2362)
+rule PositionLiberteConstituantRecevoirPaiement(s: SureteReelle, n: CreanceNantie, creancier: Personne, constituant: Personne, b: Bien) strict {
+    label fr official "Article 2362. Liberté du constituant de recevoir seul le paiement avant notification";
+    label en unofficial "Article 2362. Grantor's liberty to receive payment alone before notification";
+    when surete_reelle_constituee(s, creancier, constituant, b)
+        and nantissement_de(s, n)
+        and not_known(nantissement_notifie_au_debiteur(s));
+    then liberty LiberteConstituantRecevoirPaiement {
+        holder constituant;
+        action seul_le_constituant_recoit_paiement(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2363)
+rule RetentionEtPaiementApresNotification(s: SureteReelle, n: CreanceNantie) strict {
+    label fr official "Article 2363. Après notification, le créancier nanti bénéficie d'un droit de rétention sur la créance et a seul le droit à son paiement en capital et intérêts";
+    label en unofficial "Article 2363. After notification, the chargee has a right of retention over the claim and alone is entitled to its payment of capital and interest";
+    when nantissement_de(s, n) and nantissement_notifie_au_debiteur(s);
+    then creancier_nanti_seul_titulaire_du_paiement(s);
+}
+
+@source(CC_ART2363)
+rule PositionDevoirCreancierPayerApresNotification(s: SureteReelle, n: CreanceNantie, creancier: Personne, constituant: Personne, b: Bien) strict {
+    label fr official "Article 2363. Devoir du créancier nanti de recevoir seul le paiement après notification";
+    label en unofficial "Article 2363. Chargee's duty to be sole recipient of payment after notification";
+    when surete_reelle_constituee(s, creancier, constituant, b)
+        and nantissement_de(s, n)
+        and nantissement_notifie_au_debiteur(s);
+    then duty DevoirCreancierPayerApresNotification {
+        bearer creancier;
+        achieve creancier_nanti_seul_titulaire_du_paiement(s) during [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2363_1) {
+    rule ExceptionsInherentes(s: SureteReelle, x: Text) strict {
+        label fr official "Article 2363-1. Le débiteur de la créance nantie peut opposer au créancier nanti les exceptions inhérentes à la dette";
+        label en unofficial "Article 2363-1. The debtor of the charged claim may raise defences inherent in the debt against the chargee";
+        when exception_inherente_a_la_creance_nantie(s, x);
+        then exception_opposable_au_creancier_nanti(s, x);
+    }
+    rule ExceptionsAnterieuresALOpposabilite(s: SureteReelle, x: Text) strict {
+        label fr official "Article 2363-1. Il peut également opposer les exceptions nées de ses rapports avec le constituant avant que le nantissement ne lui soit devenu opposable";
+        label en unofficial "Article 2363-1. It may also raise defences from its dealings with the grantor before the charge became effective against it";
+        when exception_nee_avant_opposabilite(s, x);
+        then exception_opposable_au_creancier_nanti(s, x);
+    }
+}
+
+@source(CC_ART2364) {
+    rule ImputationSurLaCreanceEchue(s: SureteReelle, n: CreanceNantie, m: Money) strict {
+        label fr official "Article 2364, alinéa 1. Les sommes payées au titre de la créance nantie s'imputent sur la créance garantie lorsqu'elle est échue";
+        label en unofficial "Article 2364, paragraph 1. Sums paid on the charged claim are charged to the secured claim when it is due";
+        when nantissement_de(s, n) and paiement_de_la_creance_nantie(s, m) and creance_garantie_echue(s);
+        then sommes_imputees_sur_la_creance_garantie(s, m);
+    }
+    rule ConservationDesSommes(s: SureteReelle, n: CreanceNantie, m: Money) strict {
+        label fr official "Article 2364, alinéa 2. Dans le cas contraire, le créancier nanti les conserve à titre de garantie sur un compte spécialement affecté";
+        label en unofficial "Article 2364, paragraph 2. Otherwise the chargee keeps them as security in a dedicated account";
+        when nantissement_de(s, n) and paiement_de_la_creance_nantie(s, m) and not_known(creance_garantie_echue(s));
+        then sommes_conservees_en_garantie(s, m);
+    }
+
+    rule PositionDevoirConserverSommes(s: SureteReelle, n: CreanceNantie, creancier: Personne, constituant: Personne, b: Bien, m: Money) strict {
+        label fr official "Article 2364. Devoir du créancier nanti de conserver les sommes en garantie";
+        label en unofficial "Article 2364. Chargee's duty to retain sums as security";
+        when surete_reelle_constituee(s, creancier, constituant, b)
+            and nantissement_de(s, n)
+            and paiement_de_la_creance_nantie(s, m)
+            and not_known(creance_garantie_echue(s));
+        then duty DevoirConserverSommes {
+            bearer creancier;
+            achieve sommes_conservees_en_garantie(s, m) during [@2022-01-01, infinity);
+        };
+    }
+    rule AffectationHuitJoursApresMiseEnDemeure(s: SureteReelle, m: Money, d: Date) strict {
+        label fr official "Article 2364, alinéa 2. En cas de défaillance du débiteur et huit jours après une mise en demeure restée sans effet, le créancier affecte les fonds au remboursement de sa créance";
+        label en unofficial "Article 2364, paragraph 2. On the debtor's default and eight days after an unanswered formal notice, the creditor applies the funds to repay its claim";
+        when sommes_conservees_en_garantie(s, m) and defaillance_du_debiteur_garanti(s) and mise_en_demeure_sans_effet_le(s, d);
+        then affectation_possible_a_partir_du(s, add_calendar_period(d, 8 calendar_day));
+    }
+    rule AffectationReguliere(s: SureteReelle, a: Date, x: Date) strict {
+        label fr official "Article 2364. Affectation des fonds après les huit jours";
+        label en unofficial "Article 2364. Funds applied after the eight days";
+        when affectation_possible_a_partir_du(s, a) and affectation_des_fonds_le(s, x) and x > a;
+        then affectation_des_fonds_reguliere(s);
+    }
+
+    rule PositionLiberteAffecterFondsApresDelai(s: SureteReelle, creancier: Personne, constituant: Personne, b: Bien, m: Money, d: Date, x: Date) strict {
+        label fr official "Article 2364. Liberté du créancier nanti d'affecter les fonds après le délai légal";
+        label en unofficial "Article 2364. Chargee's liberty to apply funds after the statutory delay";
+        when surete_reelle_constituee(s, creancier, constituant, b)
+            and paiement_de_la_creance_nantie(s, m)
+            and defaillance_du_debiteur_garanti(s)
+            and mise_en_demeure_sans_effet_le(s, d)
+            and affectation_des_fonds_le(s, x);
+        then liberty LiberteAffecterFondsApresDelai {
+            holder creancier;
+            action affectation_des_fonds_reguliere(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule AffectationPrematuree(s: SureteReelle, a: Date, x: Date) strict {
+        label fr official "Article 2364. Affectation des fonds avant les huit jours";
+        label en unofficial "Article 2364. Funds applied before the eight days";
+        when affectation_possible_a_partir_du(s, a) and affectation_des_fonds_le(s, x) and x <= a;
+        then affectation_des_fonds_prematuree(s);
+    }
+}
+
+@source(CC_ART2365)
+rule AttributionDeLaCreanceNantie(s: SureteReelle, n: CreanceNantie) strict {
+    label fr official "Article 2365. En cas de défaillance de son débiteur, le créancier nanti peut se faire attribuer la créance nantie, ou attendre son échéance";
+    label en unofficial "Article 2365. On its debtor's default, the chargee may have the charged claim allocated to it, or await its maturity";
+    when nantissement_de(s, n) and defaillance_du_debiteur_garanti(s);
+    then attribution_de_la_creance_nantie_ouverte(s);
+}
+
+@source(CC_ART2365)
+rule PositionLiberteAttribuerCreanceNantie(s: SureteReelle, n: CreanceNantie, creancier: Personne, constituant: Personne, b: Bien) strict {
+    label fr official "Article 2365. Liberté du créancier nanti de se faire attribuer la créance nantie";
+    label en unofficial "Article 2365. Chargee's liberty to have the charged claim allocated";
+    when surete_reelle_constituee(s, creancier, constituant, b)
+        and nantissement_de(s, n)
+        and defaillance_du_debiteur_garanti(s);
+    then liberty LiberteAttribuerCreanceNantie {
+        holder creancier;
+        action attribution_de_la_creance_nantie_ouverte(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2366)
+rule ExcedentDuAuConstituant(s: SureteReelle, n: CreanceNantie, m: Money, d: Money) strict {
+    label fr official "Article 2366. S'il a été payé au créancier nanti une somme supérieure à la dette garantie, celui-ci doit la différence au constituant";
+    label en unofficial "Article 2366. If the chargee was paid more than the secured debt, it owes the difference to the grantor";
+    when nantissement_de(s, n) and paiement_de_la_creance_nantie(s, m) and montant_de_la_dette_reelle(s, d) and m > d;
+    then difference_due_au_constituant(s, m - d);
+}
+
+@source(CC_ART2366)
+rule PositionDevoirRestituerExcedentNanti(s: SureteReelle, n: CreanceNantie, creancier: Personne, constituant: Personne, b: Bien, m: Money, d: Money) strict {
+    label fr official "Article 2366. Devoir du créancier nanti de restituer la différence au constituant";
+    label en unofficial "Article 2366. Chargee's duty to return the excess to the grantor";
+    when surete_reelle_constituee(s, creancier, constituant, b)
+        and nantissement_de(s, n)
+        and paiement_de_la_creance_nantie(s, m)
+        and montant_de_la_dette_reelle(s, d) and m > d;
+    then liberty DevoirRestituerExcedentNanti {
+        holder constituant;
+        action difference_due_au_constituant(s, m - d);
+        window [@2022-01-01, infinity);
+    };
+}

@@ -1,0 +1,238 @@
+// TITRE VII — DE LA FILIATION (noyau : articles 311 à 334).
+//
+// LA PÉRIODE LÉGALE DE CONCEPTION (311) va du trois centième au cent
+// quatre-vingtième jour, inclusivement, AVANT la naissance. §86 refuse un
+// décompte négatif ; la période se teste donc EN AVANT, depuis la date
+// examinée : un jour J appartient à la période si la naissance tombe entre
+// J + 180 jours et J + 300 jours. C'est la même période, lue depuis son autre
+// extrémité.
+//
+// LA PRÉSOMPTION DE PATERNITÉ (312) vise l'enfant conçu ou né pendant le
+// mariage ; elle est écartée si l'acte de naissance ne désigne pas le mari, ou
+// si l'enfant naît plus de trois cents jours après la demande en divorce
+// (313), et rétablie de plein droit par la possession d'état à l'égard du mari
+// sans filiation paternelle établie envers un tiers (314).
+//
+// LES DÉLAIS : dix ans pour les actions relatives à la filiation, suspendus
+// pendant la minorité de l'enfant (321) ; cinq ans quand la possession d'état
+// est conforme au titre, et contestation fermée à tous sauf au ministère
+// public après cinq ans de possession d'état conforme (333).
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART311,
+    CC_ART312,
+    CC_ART313,
+    CC_ART314,
+    CC_ART321,
+    CC_ART333,
+    Enfant,
+    Mariage,
+    Personne,
+    acte_de_naissance_designe_le_mari,
+    action_en_contestation_le,
+    action_filiation_exercee,
+    celebre_le,
+    contestation_dans_delai,
+    contestation_filiation_exercee,
+    date_de_conception_examinee,
+    demande_en_divorce_le,
+    demandeur_action_filiation,
+    demandeur_contestation_filiation,
+    filiation_paternelle_etablie_envers_un_tiers,
+    mariage_de_la_mere,
+    mariage_dissous_le,
+    mere_mariee_a,
+    naissance_le,
+    possession_d_etat_a_l_egard_du_mari,
+    possession_d_etat_cessee_le,
+    possession_d_etat_conforme_au_titre_depuis,
+    prive_de_l_etat_le,
+};
+
+pub relation conception_possible_le(e: Enfant, jour: Date) kind derived {
+    label fr official "ce jour appartient à la période légale de conception : du trois centième au cent quatre-vingtième jour avant la naissance (article 311)";
+    label en unofficial "this day falls within the legal period of conception: from the three-hundredth to the one-hundred-and-eightieth day before birth (Article 311)";
+}
+pub relation ne_pendant_le_mariage(e: Enfant) kind derived {
+    label fr official "l'enfant est né pendant le mariage de sa mère (article 312)";
+    label en unofficial "the child was born during the mother's marriage (Article 312)";
+}
+pub relation concu_pendant_le_mariage(e: Enfant) kind derived {
+    label fr official "l'enfant a pu être conçu pendant le mariage de sa mère : né après la dissolution, au plus tard le trois centième jour (articles 311, 312)";
+    label en unofficial "the child may have been conceived during the mother's marriage: born after dissolution, no later than the three-hundredth day (Articles 311, 312)";
+}
+pub relation dissous_avant_la_naissance(e: Enfant) kind derived {
+    label fr official "le mariage de la mère était dissous à la naissance";
+    label en unofficial "the mother's marriage had been dissolved at birth";
+}
+pub relation presomption_de_paternite(e: Enfant, mari: Personne) kind derived {
+    label fr official "l'enfant conçu ou né pendant le mariage a pour père le mari (article 312)";
+    label en unofficial "a child conceived or born during the marriage has the husband as father (Article 312)";
+}
+pub relation presomption_ecartee(e: Enfant) kind derived {
+    label fr official "la présomption de paternité est écartée (article 313)";
+    label en unofficial "the presumption of paternity is set aside (Article 313)";
+}
+pub relation action_en_filiation_prescrite_le(e: Enfant, jour: Date) kind derived {
+    key(e);
+    label fr official "dernier jour de l'action relative à la filiation : dix ans, suspendus pendant la minorité de l'enfant (article 321)";
+    label en unofficial "last day of the filiation action: ten years, suspended during the child's minority (Article 321)";
+}
+pub relation contestation_prescrite_le(e: Enfant, jour: Date) kind derived {
+    key(e);
+    label fr official "dernier jour de la contestation quand la possession d'état est conforme au titre : cinq ans depuis sa cessation (article 333, alinéa 1)";
+    label en unofficial "last day to contest where apparent status conforms to the title: five years from its cessation (Article 333, paragraph 1)";
+}
+pub relation contestation_fermee_sauf_ministere_public(e: Enfant) kind derived {
+    label fr official "nul, à l'exception du ministère public, ne peut contester la filiation : la possession d'état conforme au titre a duré au moins cinq ans (article 333, alinéa 2)";
+    label en unofficial "no one but the public prosecutor may contest the filiation: apparent status conforming to the title has lasted at least five years (Article 333, paragraph 2)";
+}
+
+@source(CC_ART311)
+rule PeriodeLegaleDeConception(e: Enfant, naissance: Date, jour: Date) defeasible {
+    label fr official "Article 311, alinéa 1. La loi présume que l'enfant a été conçu pendant la période qui s'étend du trois centième au cent quatre-vingtième jour, inclusivement, avant la date de la naissance";
+    label en unofficial "Article 311, paragraph 1. The law presumes the child was conceived between the three-hundredth and the one-hundred-and-eightieth day, inclusive, before birth";
+    when naissance_le(e, naissance) and date_de_conception_examinee(e, jour)
+        and naissance >= add_calendar_period(jour, 180 calendar_day)
+        and naissance <= add_calendar_period(jour, 300 calendar_day);
+    then conception_possible_le(e, jour);
+}
+
+@source(CC_ART312) {
+    rule NePendantLeMariage(e: Enfant, naissance: Date, m: Mariage, jour: Date) defeasible {
+        label fr official "Article 312. L'enfant né pendant le mariage : sa naissance suit la célébration et précède la dissolution";
+        label en unofficial "Article 312. A child born during the marriage: birth follows the celebration and precedes dissolution";
+        when naissance_le(e, naissance) and mariage_de_la_mere(e, m) and celebre_le(m, jour)
+            and naissance >= jour and not_known(dissous_avant_la_naissance(e));
+        then ne_pendant_le_mariage(e);
+    }
+    rule ConcuPendantLeMariageDissous(e: Enfant, naissance: Date, m: Mariage, celebration: Date,
+                                       dissolution: Date) defeasible {
+        label fr official "Articles 311 et 312. L'enfant né après la dissolution du mariage, mais au plus tard le trois centième jour, a pu être conçu pendant le mariage";
+        label en unofficial "Articles 311 and 312. A child born after the marriage was dissolved, but no later than the three-hundredth day, may have been conceived during the marriage";
+        when naissance_le(e, naissance) and mariage_de_la_mere(e, m) and celebre_le(m, celebration)
+            and mariage_dissous_le(m, dissolution) and naissance > dissolution
+            and naissance <= add_calendar_period(dissolution, 300 calendar_day)
+            and naissance >= add_calendar_period(celebration, 180 calendar_day);
+        then concu_pendant_le_mariage(e);
+    }
+    rule PresomptionDePaterniteParLaConception(e: Enfant, mari: Personne) defeasible {
+        label fr official "Article 312. L'enfant conçu pendant le mariage a pour père le mari, même s'il naît après sa dissolution";
+        label en unofficial "Article 312. A child conceived during the marriage has the husband as father, even if born after its dissolution";
+        when mere_mariee_a(e, mari) and concu_pendant_le_mariage(e);
+        then presomption_de_paternite(e, mari);
+    }
+    rule PresomptionDePaternite(e: Enfant, mari: Personne) defeasible {
+        label fr official "Article 312. L'enfant conçu ou né pendant le mariage a pour père le mari";
+        label en unofficial "Article 312. A child conceived or born during the marriage has the husband as father";
+        when mere_mariee_a(e, mari) and ne_pendant_le_mariage(e);
+        then presomption_de_paternite(e, mari);
+    }
+}
+
+@source(CC_ART312)
+rule DissousAvantLaNaissance(e: Enfant, naissance: Date, m: Mariage, dissolution: Date) defeasible {
+    label fr official "Article 312. Le mariage dissous avant la naissance : l'enfant n'est pas né pendant le mariage";
+    label en unofficial "Article 312. Marriage dissolved before birth: the child was not born during the marriage";
+    when naissance_le(e, naissance) and mariage_de_la_mere(e, m) and mariage_dissous_le(m, dissolution)
+        and naissance > dissolution;
+    then dissous_avant_la_naissance(e);
+}
+
+@source(CC_ART313, CC_ART314) {
+    rule EcartementFauteDeDesignation(e: Enfant, mari: Personne) defeasible {
+        label fr official "Article 313, première phrase. La présomption de paternité est écartée lorsque l'acte de naissance de l'enfant ne désigne pas le mari en qualité de père";
+        label en unofficial "Article 313, first sentence. The presumption of paternity is set aside where the birth certificate does not name the husband as father";
+        when mere_mariee_a(e, mari) and not_known(acte_de_naissance_designe_le_mari(e));
+        then presomption_ecartee(e);
+    }
+    rule EcartementTroisCentsJoursApresLaDemande(e: Enfant, naissance: Date, m: Mariage, demande: Date) defeasible {
+        label fr official "Article 313, deuxième phrase. La présomption est encore écartée lorsque l'enfant est né plus de trois cents jours après l'introduction de la demande en divorce ou en séparation de corps";
+        label en unofficial "Article 313, second sentence. The presumption is also set aside where the child is born more than three hundred days after the divorce or legal-separation petition";
+        when naissance_le(e, naissance) and mariage_de_la_mere(e, m) and demande_en_divorce_le(m, demande)
+            and naissance > add_calendar_period(demande, 300 calendar_day);
+        then presomption_ecartee(e);
+    }
+    rule PresomptionEcarteeLEmporte(e: Enfant, mari: Personne) defeater {
+        label fr official "Article 313. La présomption écartée ne désigne plus le mari comme père";
+        label en unofficial "Article 313. A presumption set aside no longer names the husband as father";
+        when presomption_ecartee(e) and mere_mariee_a(e, mari)
+            and not_known(retablissement_de_plein_droit(e));
+        defeat presomption_de_paternite(e, mari);
+    }
+}
+
+pub relation retablissement_de_plein_droit(e: Enfant) kind derived {
+    label fr official "la présomption écartée est rétablie de plein droit (article 314)";
+    label en unofficial "the presumption set aside is restored by operation of law (Article 314)";
+}
+
+@source(CC_ART314)
+rule RetablissementParLaPossessionDEtat(e: Enfant) defeasible {
+    label fr official "Article 314. La présomption écartée est rétablie de plein droit si l'enfant a la possession d'état à l'égard du mari et s'il n'a pas une filiation paternelle déjà établie à l'égard d'un tiers";
+    label en unofficial "Article 314. The presumption set aside is restored by operation of law if the child has apparent status with respect to the husband and no paternal filiation already established towards a third party";
+    when possession_d_etat_a_l_egard_du_mari(e) and not_known(filiation_paternelle_etablie_envers_un_tiers(e));
+    then retablissement_de_plein_droit(e);
+}
+
+@source(CC_ART321) {
+    rule PrescriptionDixAnsApresLaMajorite(e: Enfant, naissance: Date, privation: Date) defeasible {
+        label fr official "Article 321. Les actions relatives à la filiation se prescrivent par dix ans ; à l'égard de l'enfant, ce délai est suspendu pendant sa minorité : privé de l'état avant ses dix-huit ans, il agit jusqu'à ses vingt-huit ans";
+        label en unofficial "Article 321. Filiation actions are time-barred after ten years; for the child the period is suspended during minority: deprived of the status before eighteen, he may act until twenty-eight";
+        when naissance_le(e, naissance) and prive_de_l_etat_le(e, privation)
+            and privation < add_calendar_period(naissance, 18 calendar_year);
+        then action_en_filiation_prescrite_le(e, add_calendar_period(naissance, 28 calendar_year));
+    }
+    rule PrescriptionDixAnsDepuisLaPrivation(e: Enfant, naissance: Date, privation: Date) defeasible {
+        label fr official "Article 321. Privée de l'état après sa majorité, la personne agit dans les dix ans à compter du jour où elle a été privée de l'état qu'elle réclame";
+        label en unofficial "Article 321. Deprived of the status after majority, the person may act within ten years from the day of deprivation";
+        when naissance_le(e, naissance) and prive_de_l_etat_le(e, privation)
+            and privation >= add_calendar_period(naissance, 18 calendar_year);
+        then action_en_filiation_prescrite_le(e, add_calendar_period(privation, 10 calendar_year));
+    }
+}
+
+@source(CC_ART321)
+rule PositionPouvoirActionFiliation(e: Enfant, p: Personne) strict {
+    label fr official "Article 321. La personne peut exercer l'action relative à la filiation dans le délai";
+    label en unofficial "Article 321. A person may exercise a filiation action within the time limit";
+    when demandeur_action_filiation(e, p) and action_en_filiation_prescrite_le(e, _)
+        and action_filiation_exercee(e, p);
+    then liberty PouvoirActionFiliation {
+        holder p;
+        action action_filiation_exercee(e, p);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART333) {
+    rule PositionPouvoirContesterFiliation(e: Enfant, p: Personne) strict {
+        label fr official "Article 333. Une personne peut contester la filiation dans le délai de cinq ans";
+        label en unofficial "Article 333. A person may contest filiation within the five-year period";
+        when demandeur_contestation_filiation(e, p)
+            and contestation_filiation_exercee(e, p)
+            and contestation_dans_delai(e, p);
+        then liberty PouvoirContesterFiliation {
+            holder p;
+            action contestation_filiation_exercee(e, p);
+            window [@2022-01-01, infinity];
+        };
+    }
+    rule ContestationCinqAnsDepuisLaCessation(e: Enfant, jour: Date) defeasible {
+        label fr official "Article 333, alinéa 1. Lorsque la possession d'état est conforme au titre, l'action se prescrit par cinq ans à compter du jour où la possession d'état a cessé";
+        label en unofficial "Article 333, paragraph 1. Where apparent status conforms to the title, the action is time-barred five years after the apparent status ceased";
+        when possession_d_etat_cessee_le(e, jour);
+        then contestation_prescrite_le(e, add_calendar_period(jour, 5 calendar_year));
+    }
+    rule ContestationFermeeApresCinqAns(e: Enfant, depuis: Date, engagee: Date) defeasible {
+        label fr official "Article 333, alinéa 2. Nul, à l'exception du ministère public, ne peut contester la filiation lorsque la possession d'état conforme au titre a duré au moins cinq ans depuis la naissance ou la reconnaissance";
+        label en unofficial "Article 333, paragraph 2. No one but the public prosecutor may contest filiation where apparent status conforming to the title has lasted at least five years since birth or recognition";
+        when possession_d_etat_conforme_au_titre_depuis(e, depuis) and action_en_contestation_le(e, engagee)
+            and engagee >= add_calendar_period(depuis, 5 calendar_year);
+        then contestation_fermee_sauf_ministere_public(e);
+    }
+}

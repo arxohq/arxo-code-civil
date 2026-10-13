@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1179 al. 1 et 1180 al. 2 : la règle violée protégeant l'intérêt général, la nullité est absolue et ne peut être couverte par la confirmation.
+test "urn:query:fr-code-civil-contrat-s10-nullite-absolue-non-couvrable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s10"), @2019-03-01) { origin case_input; }
+        assert "f2": regle_violee_protege_l_interet_general(entity_ref("urn:fr:cc:contrat:s10")) { origin case_input; }
+    }
+    evaluate truth(nullite_non_couvrable_par_confirmation(entity_ref("urn:fr:cc:contrat:s10")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NulliteAbsolueNonCouvrable);
+}

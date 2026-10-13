@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-4, alinéa 1 : actif 120 000 EUR pour un passif de 100 000 EUR.
+test "urn:query:fr-code-civil-successions-m24-plafond-au-passif" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": actif_de_la_succession(entity_ref("urn:fr:cc:successions:adm:m24:S"), 120000.00 EUR) { origin case_input; }
+        assert "f2": passif_declare(entity_ref("urn:fr:cc:successions:adm:m24:S"), 100000.00 EUR) { origin case_input; }
+    }
+    evaluate truth(dettes_acquittees_jusqu_a_concurrence(entity_ref("urn:fr:cc:successions:adm:m24:S"), 100000.00 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PlafondAuPassif);
+}

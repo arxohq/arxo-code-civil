@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2348 : pacte commissoire, valeur 12 000, dette 10 000 — soulte de 2 000 EUR au constituant.
+test "urn:query:fr-code-civil-suretes-g04-soulte-au-constituant" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": gage_constitue(entity_ref("urn:fr:cc:suretes:g04:S"), entity_ref("urn:fr:cc:suretes:g04:B"), entity_ref("urn:fr:cc:suretes:g04:P")) { origin case_input; }
+        assert "f2": nature_de_la_surete(entity_ref("urn:fr:cc:suretes:g04:S"), GageDeMeublesCorporels) { origin case_input; }
+        assert "f3": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:g04:S")) { origin case_input; }
+        assert "f4": pacte_commissoire(entity_ref("urn:fr:cc:suretes:g04:S")) { origin case_input; }
+        assert "f5": valeur_au_jour_du_transfert(entity_ref("urn:fr:cc:suretes:g04:S"), 12000 EUR) { origin case_input; }
+        assert "f6": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:g04:S"), 10000 EUR) { origin case_input; }
+    }
+    evaluate truth(soulte_due_au_constituant(entity_ref("urn:fr:cc:suretes:g04:S"), 2000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(SoulteAuConstituant);
+}

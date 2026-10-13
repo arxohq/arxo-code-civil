@@ -1,0 +1,38 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ACHEVERAFFAIRECOMMENCEEENPERIL" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mandant(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0"), entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v1")) { origin case_input; }
+        assert "cat-1": mandat_forme(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0")) { origin case_input; }
+        assert "cat-2": affaire_commencee(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0")) { origin case_input; }
+        assert "cat-3": mandataire(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0"), entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v2")) { origin case_input; }
+        assert "cat-4": mandat_accepte_le(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0"), @2026-01-15) { origin case_input; }
+        assert "cat-5": peril_en_la_demeure(entity_ref("urn:law:catalog:acheveraffairecommenceeenperil:v0")) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(AcheverAffaireCommencee, ACTIVE);
+}
+
+// 
+test "CATALOG-EXECUTERLEMANDAT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mandant(entity_ref("urn:law:catalog:executerlemandat:v0"), entity_ref("urn:law:catalog:executerlemandat:v1")) { origin case_input; }
+        assert "cat-1": mandat_forme(entity_ref("urn:law:catalog:executerlemandat:v0")) { origin case_input; }
+        assert "cat-2": mandataire(entity_ref("urn:law:catalog:executerlemandat:v0"), entity_ref("urn:law:catalog:executerlemandat:v2")) { origin case_input; }
+        assert "cat-3": mandat_accepte_le(entity_ref("urn:law:catalog:executerlemandat:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(ExecuterMandat, ACTIVE);
+}

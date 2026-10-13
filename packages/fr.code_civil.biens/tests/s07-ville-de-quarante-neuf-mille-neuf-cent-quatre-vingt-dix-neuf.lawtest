@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 663. Une âme de moins que cinquante mille fait « les autres » villes,
+// donc vingt-six décimètres.
+test "urn:query:fr-code-civil-biens-s07-ville-de-quarante-neuf-mille-neuf-cent-quatre-vingt-dix-neuf" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": cloture_separant(entity_ref("urn:fr:cc:biens:s07:M"), entity_ref("urn:fr:cc:biens:s07:F"), entity_ref("urn:fr:cc:biens:s07:V"), MurEntreCoursEtJardins) { origin case_input; }
+        assert "f2": situe_en_ville_ou_faubourg(entity_ref("urn:fr:cc:biens:s07:M")) { origin case_input; }
+        assert "f3": construit_ou_retabli_a_l_avenir(entity_ref("urn:fr:cc:biens:s07:M")) { origin case_input; }
+        assert "f4": aucun_reglement_ni_usage_sur_la_hauteur(entity_ref("urn:fr:cc:biens:s07:M")) { origin case_input; }
+        assert "f5": habitants_de_la_ville(entity_ref("urn:fr:cc:biens:s07:M"), 49999) { origin case_input; }
+    }
+    evaluate truth(hauteur_legale_de_cloture(entity_ref("urn:fr:cc:biens:s07:M"), 26 dm));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

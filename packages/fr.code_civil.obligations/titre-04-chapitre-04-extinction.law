@@ -1,0 +1,2108 @@
+// CHAPITRE IV — L'EXTINCTION DE L'OBLIGATION (articles 1342 à 1351-1).
+//
+// Section 1 : le paiement (1342 à 1346-5) — dispositions générales,
+// dispositions particulières aux obligations de somme d'argent, mise en
+// demeure, paiement avec subrogation. Section 2 : la compensation (1347 à
+// 1348-2). Section 3 : la confusion (1349, 1349-1). Section 4 : la remise de
+// dette (1350 à 1350-2). Section 5 : l'impossibilité d'exécuter (1351, 1351-1).
+//
+// L'IMPUTATION DES PAIEMENTS (1342-10) EST CALCULÉE EN FORME CLOSE, sans
+// passe itérative : une dette est de premier rang lorsque aucune autre dette
+// imputable ne la précède dans l'ordre du texte — d'abord les dettes échues,
+// parmi elles celles que le débiteur avait le plus d'intérêt d'acquitter
+// (appréciation du juge), à égalité d'intérêt la plus ancienne. Lorsque
+// plusieurs dettes restent de premier rang, « toutes choses égales » le
+// paiement se répartit proportionnellement. Le même ordre régit l'imputation
+// entre plusieurs dettes compensables (1347-4).
+//
+// L'ARGENT. Le taux de l'intérêt légal n'est pas dans le Code (code monétaire
+// et financier, article L. 313-2) : le paquet calcule la DATE à laquelle les
+// intérêts commencent à courir et laisse le taux au cas. Le mode de compte
+// des jours d'intérêt n'est pas non plus dans le Code : frontière déclarée.
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    CC_ART1342,
+    CC_ART1342_1,
+    CC_ART1342_10,
+    CC_ART1342_2,
+    CC_ART1342_3,
+    CC_ART1342_4,
+    CC_ART1342_5,
+    CC_ART1342_6,
+    CC_ART1342_7,
+    CC_ART1342_8,
+    CC_ART1342_9,
+    CC_ART1343,
+    CC_ART1343_1,
+    CC_ART1343_2,
+    CC_ART1343_3,
+    CC_ART1343_4,
+    CC_ART1343_5,
+    CC_ART1344,
+    CC_ART1344_1,
+    CC_ART1344_2,
+    CC_ART1345,
+    CC_ART1345_1,
+    CC_ART1345_2,
+    CC_ART1345_3,
+    CC_ART1346,
+    CC_ART1346_1,
+    CC_ART1346_2,
+    CC_ART1346_3,
+    CC_ART1346_4,
+    CC_ART1346_5,
+    CC_ART1347,
+    CC_ART1347_1,
+    CC_ART1347_2,
+    CC_ART1347_3,
+    CC_ART1347_4,
+    CC_ART1347_5,
+    CC_ART1347_6,
+    CC_ART1347_7,
+    CC_ART1348,
+    CC_ART1348_1,
+    CC_ART1348_2,
+    CC_ART1349,
+    CC_ART1349_1,
+    CC_ART1350,
+    CC_ART1350_1,
+    CC_ART1350_2,
+    CC_ART1351,
+    CC_ART1351_1,
+    Creance,
+    MiseEnDemeure,
+    ModeDeMiseEnDemeure,
+    ObjetDeLObligationInexecutee,
+    Paiement,
+    Personne,
+    RemiseDeDette,
+    Subrogation,
+    anatocisme_ordonne_par_le_juge,
+    date_d_exigibilite,
+    date_de_naissance_de_la_dette,
+    delai_de_grace_accorde,
+    dette_du_debiteur,
+    egalite_d_interet_d_acquitter,
+    exception_inherente_a_la_dette,
+    force_majeure_definitive,
+    obligation_solidaire_entre_creanciers,
+    obligation_solidaire_entre_debiteurs,
+    plus_d_interet_d_acquitter,
+    refus_sans_motif_legitime,
+};
+
+// --- Entrées du cas propres au chapitre ----------------------------------------------------
+
+pub relation paiement_de_la_dette(pay: Paiement, c: Creance) kind empirical {
+    key(pay);
+    label fr official "paiement offert ou fait au titre de cette dette (article 1342)";
+    label en unofficial "payment offered or made under this debt (Article 1342)";
+}
+pub relation auteur_du_paiement(pay: Paiement, p: Personne) kind empirical {
+    key(pay);
+    label fr official "personne qui paie (article 1342-1)";
+    label en unofficial "person who pays (Article 1342-1)";
+}
+pub relation destinataire_du_paiement(pay: Paiement, p: Personne) kind empirical {
+    key(pay);
+    label fr official "personne qui reçoit le paiement (article 1342-2)";
+    label en unofficial "person who receives the payment (Article 1342-2)";
+}
+pub relation montant_paye(pay: Paiement, m: Money) kind empirical {
+    key(pay);
+    label fr official "montant versé (articles 1342-4 et 1342-10)";
+    label en unofficial "amount paid (Articles 1342-4 and 1342-10)";
+}
+pub relation date_du_paiement(pay: Paiement, jour: Date) kind empirical {
+    key(pay);
+    label fr official "date du paiement (articles 1342-10 et 1352-7)";
+    label en unofficial "date of the payment (Articles 1342-10 and 1352-7)";
+}
+pub relation paiement_du_debiteur(pay: Paiement, d: Personne) kind empirical {
+    key(pay);
+    label fr official "débiteur de plusieurs dettes qui paie (article 1342-10, alinéa 1)";
+    label en unofficial "debtor of several debts who pays (Article 1342-10, paragraph 1)";
+}
+pub relation dette_designee_par_le_debiteur(pay: Paiement, c: Creance) kind empirical {
+    label fr official "dette que le débiteur a indiquée, lorsqu'il paie, comme celle qu'il entend acquitter (article 1342-10, alinéa 1)";
+    label en unofficial "debt the debtor indicated, when paying, as the one he intends to discharge (Article 1342-10, paragraph 1)";
+}
+pub relation personne_designee_pour_recevoir(c: Creance, p: Personne) kind empirical {
+    label fr official "personne désignée pour recevoir le paiement (article 1342-2, alinéa 1)";
+    label en unofficial "person designated to receive the payment (Article 1342-2, paragraph 1)";
+}
+pub relation paiement_ratifie_par_le_creancier(pay: Paiement) kind empirical {
+    label fr official "le créancier ratifie le paiement fait à une personne sans qualité (article 1342-2, alinéa 2)";
+    label en unofficial "the creditor ratifies the payment made to an unqualified person (Article 1342-2, paragraph 2)";
+}
+pub relation creancier_a_profite_du_paiement(pay: Paiement) kind empirical {
+    label fr official "le créancier a profité du paiement (article 1342-2, alinéas 2 et 3)";
+    label en unofficial "the creditor benefited from the payment (Article 1342-2, paragraphs 2 and 3)";
+}
+pub relation creancier_incapable_de_contracter(c: Creance) kind empirical {
+    label fr official "le créancier est dans l'incapacité de contracter (article 1342-2, alinéa 3)";
+    label en unofficial "the creditor is incapable of contracting (Article 1342-2, paragraph 3)";
+}
+pub relation creancier_apparent(pay: Paiement, p: Personne) kind empirical {
+    label fr official "celui qui a reçu était créancier apparent (article 1342-3)";
+    label en unofficial "the recipient was an apparent creditor (Article 1342-3)";
+}
+pub relation paiement_fait_de_bonne_foi(pay: Paiement) kind empirical {
+    label fr official "le paiement a été fait de bonne foi (article 1342-3)";
+    label en unofficial "the payment was made in good faith (Article 1342-3)";
+}
+pub relation refus_legitime_du_creancier(pay: Paiement) kind empirical {
+    label fr official "le créancier refuse légitimement le paiement offert par un tiers (article 1342-1)";
+    label en unofficial "the creditor legitimately refuses payment offered by a third party (Article 1342-1)";
+}
+pub relation paiement_partiel(pay: Paiement) kind empirical {
+    label fr official "le paiement offert est partiel (article 1342-4, alinéa 1)";
+    label en unofficial "the payment offered is partial (Article 1342-4, paragraph 1)";
+}
+pub relation subrogation_prevue_par_la_loi_ou_le_contrat(c: Creance) kind empirical {
+    label fr official "la loi ou le contrat prévoit une subrogation dans les droits du créancier (article 1342, alinéa 3)";
+    label en unofficial "the law or the contract provides for subrogation into the creditor's rights (Article 1342, paragraph 3)";
+}
+pub relation lieu_du_paiement_designe(c: Creance) kind empirical {
+    label fr official "la loi, le contrat ou le juge ont désigné le lieu du paiement (articles 1342-6 et 1343-4)";
+    label en unofficial "the law, the contract or the court designated the place of payment (Articles 1342-6 and 1343-4)";
+}
+pub relation obligation_de_remettre_un_corps_certain(c: Creance) kind empirical {
+    label fr official "obligation de remettre un corps certain (article 1342-5)";
+    label en unofficial "obligation to deliver a specific thing (Article 1342-5)";
+}
+pub relation chose_remise_au_creancier(c: Creance) kind empirical {
+    label fr official "la chose a été remise au créancier en l'état (article 1342-5)";
+    label en unofficial "the thing was delivered to the creditor as it stood (Article 1342-5)";
+}
+pub relation deterioration_de_la_chose(c: Creance) kind empirical {
+    label fr official "la chose remise est détériorée (article 1342-5)";
+    label en unofficial "the thing delivered is damaged (Article 1342-5)";
+}
+pub relation deterioration_non_imputable_au_debiteur(c: Creance) kind empirical {
+    label fr official "le débiteur prouve que la détérioration n'est pas due à son fait ni à celui des personnes dont il doit répondre (article 1342-5)";
+    label en unofficial "the debtor proves the damage is not due to his act or to that of persons for whom he is answerable (Article 1342-5)";
+}
+pub relation remise_volontaire_du_titre(c: Creance, d: Personne) kind empirical {
+    label fr official "remise volontaire par le créancier au débiteur de l'original sous signature privée ou de la copie exécutoire du titre (article 1342-9)";
+    label en unofficial "voluntary handing over by the creditor to the debtor of the private original or of the enforceable copy of the instrument (Article 1342-9)";
+}
+pub relation preuve_contraire_de_la_liberation(c: Creance, d: Personne) kind empirical {
+    label fr official "preuve contraire renversant la présomption simple de libération (articles 1342-9 et 1354, alinéa 2)";
+    label en unofficial "evidence to the contrary rebutting the rebuttable presumption of discharge (Articles 1342-9 and 1354, paragraph 2)";
+}
+pub relation obligation_de_somme_d_argent(c: Creance) kind empirical {
+    label fr official "obligation de somme d'argent (article 1343)";
+    label en unofficial "monetary obligation (Article 1343)";
+}
+pub relation dette_de_valeur(c: Creance) kind empirical {
+    label fr official "dette de valeur, qui se liquide (article 1343, alinéa 3)";
+    label en unofficial "value debt, which is liquidated (Article 1343, paragraph 3)";
+}
+pub relation liquidation_de_la_dette_de_valeur(c: Creance, m: Money) kind empirical {
+    key(c);
+    label fr official "somme d'argent résultant de la liquidation de la dette de valeur (article 1343, alinéa 3)";
+    label en unofficial "sum of money resulting from the liquidation of the value debt (Article 1343, paragraph 3)";
+}
+pub relation indexation_stipulee(c: Creance, m: Money) kind empirical {
+    key(c);
+    label fr official "montant dû après le jeu de l'indexation (article 1343, alinéa 2)";
+    label en unofficial "amount owed after indexation has operated (Article 1343, paragraph 2)";
+}
+pub relation interet_stipule_au_contrat(c: Creance) kind empirical {
+    label fr official "l'intérêt est stipulé dans le contrat (article 1343-1, alinéa 2)";
+    label en unofficial "interest is stipulated in the contract (Article 1343-1, paragraph 2)";
+}
+pub relation interet_accorde_par_la_loi(c: Creance) kind empirical {
+    label fr official "l'intérêt est accordé par la loi (article 1343-1, alinéa 2)";
+    label en unofficial "interest is granted by law (Article 1343-1, paragraph 2)";
+}
+pub relation taux_conventionnel_fixe_par_ecrit(c: Creance) kind empirical {
+    label fr official "le taux de l'intérêt conventionnel est fixé par écrit (article 1343-1, alinéa 2)";
+    label en unofficial "the rate of contractual interest is set in writing (Article 1343-1, paragraph 2)";
+}
+pub relation periodicite_du_taux_stipulee(c: Creance) kind empirical {
+    label fr official "les parties ont stipulé la périodicité du taux autrement qu'annuelle (article 1343-1, alinéa 2, dernière phrase)";
+    label en unofficial "the parties stipulated a periodicity for the rate other than annual (Article 1343-1, paragraph 2, last sentence)";
+}
+pub relation interets_echus(c: Creance, depuis: Date, jusqu_a: Date) kind empirical {
+    key(c);
+    label fr official "période pour laquelle les intérêts sont échus et dus (article 1343-2)";
+    label en unofficial "period for which interest has matured and is owed (Article 1343-2)";
+}
+pub relation capitalisation_prevue_au_contrat(c: Creance) kind empirical {
+    label fr official "le contrat prévoit que les intérêts échus produiront intérêt (article 1343-2)";
+    label en unofficial "the contract provides that matured interest shall bear interest (Article 1343-2)";
+}
+pub relation paiement_effectue_en_france(pay: Paiement) kind empirical {
+    label fr official "le paiement de l'obligation de somme d'argent s'effectue en France (article 1343-3)";
+    label en unofficial "payment of the monetary obligation takes place in France (Article 1343-3)";
+}
+pub relation obligation_libellee_en_devise(c: Creance) kind empirical {
+    label fr official "l'obligation est libellée en une autre monnaie que l'euro (article 1343-3)";
+    label en unofficial "the obligation is denominated in a currency other than the euro (Article 1343-3)";
+}
+pub relation operation_a_caractere_international(c: Creance) kind empirical {
+    label fr official "l'obligation procède d'une opération à caractère international (article 1343-3)";
+    label en unofficial "the obligation arises from an international transaction (Article 1343-3)";
+}
+pub relation jugement_etranger(c: Creance) kind empirical {
+    label fr official "l'obligation procède d'un jugement étranger (article 1343-3)";
+    label en unofficial "the obligation arises from a foreign judgment (Article 1343-3)";
+}
+pub relation convention_de_paiement_en_devise_entre_professionnels(c: Creance) kind empirical {
+    label fr official "les parties, professionnelles, sont convenues d'un paiement en devise pour une opération où l'usage d'une monnaie étrangère est communément admis (article 1343-3, dernière phrase)";
+    label en unofficial "the parties, both professionals, agreed on payment in foreign currency for a transaction where such use is commonly accepted (Article 1343-3, last sentence)";
+}
+pub relation dette_d_aliment(c: Creance) kind empirical {
+    label fr official "dette d'aliment, à laquelle le délai de grâce ne s'applique pas (article 1343-5, dernier alinéa)";
+    label en unofficial "maintenance debt, to which the grace period does not apply (Article 1343-5, last paragraph)";
+}
+pub relation mise_en_demeure_du_debiteur(m: MiseEnDemeure, c: Creance, d: Personne) kind empirical {
+    label fr official "mise en demeure adressée au débiteur (article 1344)";
+    label en unofficial "formal notice given to the debtor (Article 1344)";
+}
+pub relation mode_de_la_mise_en_demeure(m: MiseEnDemeure, mode: ModeDeMiseEnDemeure) kind empirical {
+    key(m);
+    label fr official "mode employé : sommation, acte portant interpellation suffisante, ou seule exigibilité si le contrat le prévoit (article 1344)";
+    label en unofficial "manner used: summons, act amounting to sufficient demand, or mere enforceability if the contract so provides (Article 1344)";
+}
+pub relation date_de_la_mise_en_demeure(m: MiseEnDemeure, jour: Date) kind empirical {
+    key(m);
+    label fr official "date de la mise en demeure (articles 1344-1, 1345-1 et 1345-2)";
+    label en unofficial "date of the formal notice (Articles 1344-1, 1345-1 and 1345-2)";
+}
+pub relation mise_en_demeure_de_delivrer_une_chose(m: MiseEnDemeure, c: Creance) kind empirical {
+    label fr official "mise en demeure de délivrer une chose (article 1344-2)";
+    label en unofficial "formal notice to deliver a thing (Article 1344-2)";
+}
+pub relation mise_en_demeure_du_creancier(m: MiseEnDemeure, c: Creance, cr: Personne) kind empirical {
+    label fr official "mise en demeure adressée au créancier d'accepter le paiement ou d'en permettre l'exécution (article 1345, alinéa 1)";
+    label en unofficial "formal notice to the creditor to accept payment or allow performance (Article 1345, paragraph 1)";
+}
+pub relation mise_en_demeure_du_creancier_effectuee(c: Creance, d: Personne, cr: Personne) kind empirical {
+    key(c, d, cr);
+    label fr official "le débiteur a mis le créancier en demeure d'accepter le paiement ou d'en permettre l'exécution (article 1345, alinéa 1)";
+    label en unofficial "the debtor gave the creditor formal notice to accept payment or allow performance (Article 1345, paragraph 1)";
+}
+pub relation devoir_de_mettre_le_creancier_en_demeure(c: Creance, d: Personne, cr: Personne) kind derived {
+    key(c, d, cr);
+    label fr official "le débiteur doit mettre le créancier en demeure d'accepter le paiement ou d'en permettre l'exécution (article 1345, alinéa 1)";
+    label en unofficial "the debtor must give the creditor formal notice to accept payment or allow performance (Article 1345, paragraph 1)";
+}
+pub relation refus_ou_empechement_du_creancier(c: Creance) kind empirical {
+    label fr official "le créancier, à l'échéance, refuse de recevoir le paiement dû ou l'empêche par son fait (article 1345, alinéa 1)";
+    label en unofficial "at maturity the creditor refuses to receive the payment due or prevents it by his act (Article 1345, paragraph 1)";
+}
+pub relation obstruction_persistante_au(m: MiseEnDemeure, jour: Date) kind empirical {
+    label fr official "l'obstruction du créancier n'avait pas pris fin à cette date (articles 1345-1 et 1345-2)";
+    label en unofficial "the creditor's obstruction had not ended on this date (Articles 1345-1 and 1345-2)";
+}
+pub relation objet_de_l_obligation_obstruee(c: Creance, o: ObjetDeLObligationInexecutee) kind empirical {
+    key(c);
+    label fr official "objet de l'obligation dont l'exécution est empêchée : somme d'argent, livraison d'une chose, autre objet (articles 1345-1 et 1345-2)";
+    label en unofficial "object of the obstructed obligation: sum of money, delivery of a thing, other object (Articles 1345-1 and 1345-2)";
+}
+pub relation sequestre_impossible_ou_trop_onereux(c: Creance) kind empirical {
+    label fr official "le séquestre de la chose est impossible ou trop onéreux (article 1345-1, alinéa 2)";
+    label en unofficial "sequestration of the thing is impossible or too costly (Article 1345-1, paragraph 2)";
+}
+pub relation faute_lourde_ou_dolosive_du_debiteur(c: Creance) kind empirical {
+    label fr official "faute lourde ou dolosive du débiteur, qui écarte le transfert des risques (article 1345, alinéa 2)";
+    label en unofficial "gross or fraudulent fault of the debtor, which excludes the transfer of risks (Article 1345, paragraph 2)";
+}
+pub relation risques_deja_a_la_charge(c: Creance, p: Personne) kind empirical {
+    label fr official "les risques étaient déjà à la charge de cette partie (articles 1344-2 et 1345, alinéa 2)";
+    label en unofficial "the risks were already borne by this party (Articles 1344-2 and 1345, paragraph 2)";
+}
+
+// --- Section 1, sous-section 1 : dispositions générales (1342 à 1342-9) ---------------------
+
+pub relation paiement_du_des(c: Creance, jour: Date) kind derived {
+    key(c);
+    label fr official "le paiement doit être fait sitôt que la dette devient exigible (article 1342, alinéa 2)";
+    label en unofficial "payment must be made as soon as the debt becomes enforceable (Article 1342, paragraph 2)";
+}
+pub relation paiement_effectue(pay: Paiement, c: Creance) kind empirical {
+    key(pay);
+    label fr official "le paiement de la dette a été effectué (article 1342)";
+    label en unofficial "the debt payment was made (Article 1342)";
+}
+pub relation paiement_a_refuser(c: Creance, pay: Paiement) kind empirical {
+    key(c, pay);
+    label fr official "le créancier refuse le paiement partiel (article 1342-4)";
+    label en unofficial "the creditor refuses partial payment (Article 1342-4)";
+}
+pub relation devoir_de_payer(c: Creance, d: Personne, cr: Personne) kind derived {
+    key(c, d, cr);
+    label fr official "le débiteur doit payer la dette au créancier dès son exigibilité (article 1342)";
+    label en unofficial "the debtor must pay the debt to the creditor once enforceable (Article 1342)";
+}
+pub relation liberte_de_refuser_le_paiement_partiel(c: Creance, cr: Personne) kind derived {
+    key(c, cr);
+    label fr official "le créancier est libre de refuser le paiement partiel (article 1342-4)";
+    label en unofficial "the creditor is free to refuse partial payment (Article 1342-4)";
+}
+pub relation dette_eteinte_par_le_paiement(c: Creance) kind derived {
+    label fr official "le paiement libère le débiteur à l'égard du créancier et éteint la dette (article 1342, alinéa 3)";
+    label en unofficial "payment discharges the debtor towards the creditor and extinguishes the debt (Article 1342, paragraph 3)";
+}
+pub relation creance_transmise_au_solvens(c: Creance) kind derived {
+    label fr official "la dette n'est pas éteinte : la loi ou le contrat prévoit une subrogation dans les droits du créancier (article 1342, alinéa 3, in fine)";
+    label en unofficial "the debt is not extinguished: the law or the contract provides subrogation into the creditor's rights (Article 1342, paragraph 3, in fine)";
+}
+
+@source(CC_ART1342) {
+    rule DevoirDePayerLaDette(c: Creance, d: Personne, cr: Personne, jour: Date) strict {
+        label fr official "Article 1342, alinéa 2. Le débiteur doit payer la dette au créancier sitôt qu'elle devient exigible";
+        label en unofficial "Article 1342, paragraph 2. The debtor must pay the creditor as soon as the debt becomes enforceable";
+        when fr.code_civil.core::debiteur(c, d)
+            and fr.code_civil.core::creancier(c, cr)
+            and date_d_exigibilite(c, jour);
+        then duty P2DevoirDePayerLaDette {
+            bearer d;
+            beneficiary cr;
+            goal achievement {
+                condition dette_eteinte_par_le_paiement(c);
+                window [jour, infinity];
+            }
+        };
+    }
+
+    rule PaiementDuDesLExigibilite(c: Creance, jour: Date) strict {
+        label fr official "Article 1342, alinéa 2. Le paiement doit être fait sitôt que la dette devient exigible";
+        label en unofficial "Article 1342, paragraph 2. Payment must be made as soon as the debt becomes enforceable";
+        when date_d_exigibilite(c, jour);
+        then paiement_du_des(c, jour);
+    }
+    rule PaiementEteintLaDette(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342, alinéa 3. Il libère le débiteur à l'égard du créancier et éteint la dette, sauf lorsque la loi ou le contrat prévoit une subrogation dans les droits du créancier";
+        label en unofficial "Article 1342, paragraph 3. It discharges the debtor towards the creditor and extinguishes the debt, save where the law or the contract provides subrogation into the creditor's rights";
+        when paiement_de_la_dette(pay, c) and not_known(subrogation_prevue_par_la_loi_ou_le_contrat(c));
+        then dette_eteinte_par_le_paiement(c);
+    }
+    rule PaiementAvecSubrogation(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342, alinéa 3, in fine. Lorsque la loi ou le contrat prévoit une subrogation, le paiement n'éteint pas la dette : elle passe au solvens";
+        label en unofficial "Article 1342, paragraph 3, in fine. Where the law or the contract provides subrogation, payment does not extinguish the debt: it passes to the payer";
+        when paiement_de_la_dette(pay, c) and subrogation_prevue_par_la_loi_ou_le_contrat(c);
+        then creance_transmise_au_solvens(c);
+    }
+}
+
+pub relation paiement_par_un_tiers_valable(pay: Paiement) kind derived {
+    label fr official "le paiement peut être fait même par une personne qui n'y est pas tenue, sauf refus légitime du créancier (article 1342-1)";
+    label en unofficial "payment may be made even by a person not bound to do so, save legitimate refusal by the creditor (Article 1342-1)";
+}
+
+@source(CC_ART1342_1)
+rule PaiementParUnTiers(pay: Paiement, c: Creance) strict {
+    label fr official "Article 1342-1. Le paiement peut être fait même par une personne qui n'y est pas tenue, sauf refus légitime du créancier";
+    label en unofficial "Article 1342-1. Payment may be made even by a person not bound to do so, save legitimate refusal by the creditor";
+    when paiement_de_la_dette(pay, c) and not_known(refus_legitime_du_creancier(pay));
+    then paiement_par_un_tiers_valable(pay);
+}
+
+pub relation paiement_valable(pay: Paiement) kind derived {
+    label fr official "le paiement est valable au regard de la personne qui l'a reçu (articles 1342-2 et 1342-3)";
+    label en unofficial "the payment is valid as regards the person who received it (Articles 1342-2 and 1342-3)";
+}
+pub relation paiement_non_valable(pay: Paiement) kind derived {
+    label fr official "le paiement fait à un créancier dans l'incapacité de contracter n'est pas valable (article 1342-2, alinéa 3)";
+    label en unofficial "payment made to a creditor incapable of contracting is not valid (Article 1342-2, paragraph 3)";
+}
+
+@source(CC_ART1342_2, CC_ART1342_3) {
+    rule PaiementAuCreancier(pay: Paiement, c: Creance, p: Personne) strict {
+        label fr official "Article 1342-2, alinéa 1. Le paiement doit être fait au créancier ou à la personne désignée pour le recevoir";
+        label en unofficial "Article 1342-2, paragraph 1. Payment must be made to the creditor or to the person designated to receive it";
+        when paiement_de_la_dette(pay, c) and destinataire_du_paiement(pay, p)
+            and fr.code_civil.core::creancier(c, p)
+            and not_known(creancier_incapable_de_contracter(c));
+        then paiement_valable(pay);
+    }
+    rule PaiementALaPersonneDesignee(pay: Paiement, c: Creance, p: Personne) strict {
+        label fr official "Article 1342-2, alinéa 1. Le paiement fait à la personne désignée pour le recevoir est valable";
+        label en unofficial "Article 1342-2, paragraph 1. Payment made to the person designated to receive it is valid";
+        when paiement_de_la_dette(pay, c) and destinataire_du_paiement(pay, p)
+            and personne_designee_pour_recevoir(c, p);
+        then paiement_valable(pay);
+    }
+    rule PaiementRatifieParLeCreancier(pay: Paiement) strict {
+        label fr official "Article 1342-2, alinéa 2. Le paiement fait à une personne qui n'avait pas qualité pour le recevoir est néanmoins valable si le créancier le ratifie";
+        label en unofficial "Article 1342-2, paragraph 2. Payment made to a person not qualified to receive it is nonetheless valid if the creditor ratifies it";
+        when paiement_ratifie_par_le_creancier(pay);
+        then paiement_valable(pay);
+    }
+    rule PaiementProfitableAuCreancier(pay: Paiement) strict {
+        label fr official "Article 1342-2, alinéas 2 et 3. Le paiement dont le créancier a profité est valable";
+        label en unofficial "Article 1342-2, paragraphs 2 and 3. Payment from which the creditor benefited is valid";
+        when creancier_a_profite_du_paiement(pay);
+        then paiement_valable(pay);
+    }
+    rule PaiementAuCreancierIncapable(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342-2, alinéa 3. Le paiement fait à un créancier dans l'incapacité de contracter n'est pas valable, s'il n'en a tiré profit";
+        label en unofficial "Article 1342-2, paragraph 3. Payment to a creditor incapable of contracting is not valid unless he benefited from it";
+        when paiement_de_la_dette(pay, c) and creancier_incapable_de_contracter(c)
+            and not_known(creancier_a_profite_du_paiement(pay));
+        then paiement_non_valable(pay);
+    }
+    rule PaiementAuCreancierApparent(pay: Paiement, p: Personne) strict {
+        label fr official "Article 1342-3. Le paiement fait de bonne foi à un créancier apparent est valable";
+        label en unofficial "Article 1342-3. Payment made in good faith to an apparent creditor is valid";
+        when creancier_apparent(pay, p) and paiement_fait_de_bonne_foi(pay);
+        then paiement_valable(pay);
+    }
+}
+
+pub relation droit_de_refuser_le_paiement_partiel(c: Creance) kind derived {
+    label fr official "le créancier peut refuser un paiement partiel même si la prestation est divisible (article 1342-4, alinéa 1)";
+    label en unofficial "the creditor may refuse partial payment even if the performance is divisible (Article 1342-4, paragraph 1)";
+}
+pub relation debiteur_libere_par_la_remise_de_la_chose(c: Creance) kind derived {
+    label fr official "le débiteur d'une obligation de remettre un corps certain est libéré par sa remise au créancier en l'état (article 1342-5)";
+    label en unofficial "the debtor of an obligation to deliver a specific thing is discharged by delivering it as it stands (Article 1342-5)";
+}
+pub relation paiement_au_domicile_du_debiteur(c: Creance) kind derived {
+    label fr official "à défaut d'une autre désignation par la loi, le contrat ou le juge, le paiement doit être fait au domicile du débiteur (article 1342-6)";
+    label en unofficial "absent another designation by law, contract or court, payment must be made at the debtor's domicile (Article 1342-6)";
+}
+pub relation frais_du_paiement_a_la_charge(c: Creance, d: Personne) kind derived {
+    label fr official "les frais du paiement sont à la charge du débiteur (article 1342-7)";
+    label en unofficial "the costs of payment are borne by the debtor (Article 1342-7)";
+}
+pub relation paiement_prouve_par_tout_moyen(c: Creance) kind derived {
+    label fr official "le paiement se prouve par tout moyen (article 1342-8)";
+    label en unofficial "payment may be proved by any means (Article 1342-8)";
+}
+
+@source(CC_ART1342_4)
+rule RefusDuPaiementPartiel(c: Creance, pay: Paiement) strict {
+    label fr official "Article 1342-4, alinéa 1. Le créancier peut refuser un paiement partiel même si la prestation est divisible";
+    label en unofficial "Article 1342-4, paragraph 1. The creditor may refuse a partial payment even if the performance is divisible";
+    when paiement_de_la_dette(pay, c) and paiement_partiel(pay);
+    then droit_de_refuser_le_paiement_partiel(c);
+}
+
+@source(CC_ART1342_4)
+rule LiberteDeRefuserLePaiementPartiel(c: Creance, d: Personne, cr: Personne, pay: Paiement, jour: Date) strict {
+    label fr official "Article 1342-4, alinéa 1. Le créancier peut refuser un paiement partiel";
+    label en unofficial "Article 1342-4, paragraph 1. The creditor may refuse partial payment";
+    when fr.code_civil.core::debiteur(c, d)
+        and fr.code_civil.core::creancier(c, cr)
+        and paiement_de_la_dette(pay, c)
+        and paiement_partiel(pay)
+        and date_d_exigibilite(c, jour);
+    then liberty P2LiberteDeRefuserLePaiementPartiel {
+        holder cr;
+        against d;
+        action paiement_a_refuser(c, pay);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1342_5) {
+    rule LiberationParLaRemiseDuCorpsCertain(c: Creance) strict {
+        label fr official "Article 1342-5. Le débiteur d'une obligation de remettre un corps certain est libéré par sa remise au créancier en l'état";
+        label en unofficial "Article 1342-5. The debtor of an obligation to deliver a specific thing is discharged by delivering it to the creditor as it stands";
+        when obligation_de_remettre_un_corps_certain(c) and chose_remise_au_creancier(c)
+            and not_known(deterioration_de_la_chose(c));
+        then debiteur_libere_par_la_remise_de_la_chose(c);
+    }
+    rule LiberationMalgreLaDeterioration(c: Creance) strict {
+        label fr official "Article 1342-5, in fine. Sauf à prouver, en cas de détérioration, que celle-ci n'est pas due à son fait ou à celui de personnes dont il doit répondre";
+        label en unofficial "Article 1342-5, in fine. Subject to proving, in case of damage, that it is not due to his act or to that of persons for whom he is answerable";
+        when obligation_de_remettre_un_corps_certain(c) and chose_remise_au_creancier(c)
+            and deterioration_de_la_chose(c) and deterioration_non_imputable_au_debiteur(c);
+        then debiteur_libere_par_la_remise_de_la_chose(c);
+    }
+}
+
+@source(CC_ART1342_6)
+rule PaiementAuDomicileDuDebiteur(c: Creance, jour: Date) strict {
+    label fr official "Article 1342-6. A défaut d'une autre désignation par la loi, le contrat ou le juge, le paiement doit être fait au domicile du débiteur";
+    label en unofficial "Article 1342-6. Absent another designation by law, contract or court, payment must be made at the debtor's domicile";
+    when date_d_exigibilite(c, jour) and not_known(lieu_du_paiement_designe(c))
+        and not_known(obligation_de_somme_d_argent(c));
+    then paiement_au_domicile_du_debiteur(c);
+}
+
+@source(CC_ART1342_7)
+rule FraisDuPaiement(c: Creance, d: Personne) strict {
+    label fr official "Article 1342-7. Les frais du paiement sont à la charge du débiteur";
+    label en unofficial "Article 1342-7. The costs of payment are borne by the debtor";
+    when fr.code_civil.core::debiteur(c, d);
+    then frais_du_paiement_a_la_charge(c, d);
+}
+
+@source(CC_ART1342_8)
+rule PreuveDuPaiementParToutMoyen(c: Creance, d: Personne) strict {
+    label fr official "Article 1342-8. Le paiement se prouve par tout moyen";
+    label en unofficial "Article 1342-8. Payment may be proved by any means";
+    when fr.code_civil.core::debiteur(c, d);
+    then paiement_prouve_par_tout_moyen(c);
+}
+
+// PRÉSOMPTION SIMPLE (1342-9, lue avec 1354, alinéa 2) : la remise volontaire
+// du titre fait présumer la libération, et cette présomption se renverse par
+// la preuve contraire. Règle défaisable, défaiteur sur sa propre tête.
+pub relation liberation_presumee(c: Creance, d: Personne) kind derived {
+    label fr official "présomption simple de libération tirée de la remise volontaire du titre (article 1342-9)";
+    label en unofficial "rebuttable presumption of discharge drawn from the voluntary handing over of the instrument (Article 1342-9)";
+}
+
+@source(CC_ART1342_9) {
+    rule LiberationPresumeeParLaRemiseDuTitre(c: Creance, d: Personne) defeasible {
+        label fr official "Article 1342-9, alinéa 1. La remise volontaire par le créancier au débiteur de l'original sous signature privée ou de la copie exécutoire du titre de sa créance vaut présomption simple de libération";
+        label en unofficial "Article 1342-9, paragraph 1. The voluntary handing over by the creditor to the debtor of the private original or the enforceable copy of the instrument amounts to a rebuttable presumption of discharge";
+        when remise_volontaire_du_titre(c, d);
+        unless preuve_contraire_de_la_liberation(c, d);
+        then liberation_presumee(c, d);
+    }
+    rule LiberationPresumeeDeTousLesCodebiteurs(c: Creance, d: Personne, autre: Personne) defeasible {
+        label fr official "Article 1342-9, alinéa 2. La même remise à l'un des codébiteurs solidaires produit le même effet à l'égard de tous";
+        label en unofficial "Article 1342-9, paragraph 2. The same handing over to one of the joint debtors produces the same effect as regards all";
+        when remise_volontaire_du_titre(c, d) and obligation_solidaire_entre_debiteurs(c)
+            and fr.code_civil.core::debiteur(c, autre);
+        unless preuve_contraire_de_la_liberation(c, autre);
+        then liberation_presumee(c, autre);
+    }
+}
+
+// --- Imputation des paiements (1342-10) : forme close ---------------------------------------
+
+pub relation designation_faite_par_le_debiteur(pay: Paiement) kind derived {
+    label fr official "le débiteur a indiqué la dette qu'il entend acquitter : l'imputation légale ne joue pas (article 1342-10, alinéa 2, « à défaut d'indication »)";
+    label en unofficial "the debtor indicated the debt he intends to discharge: statutory appropriation does not operate (Article 1342-10, paragraph 2)";
+}
+pub relation dette_imputable(pay: Paiement, c: Creance) kind derived {
+    label fr official "dette échue du débiteur qui paie : candidate à l'imputation (article 1342-10, alinéa 2, première branche)";
+    label en unofficial "matured debt of the paying debtor: candidate for appropriation (Article 1342-10, paragraph 2, first limb)";
+}
+pub relation dette_prioritaire(pay: Paiement, avant: Creance, apres: Creance) kind derived {
+    label fr official "dans l'ordre de l'article 1342-10, cette dette s'impute avant l'autre : plus d'intérêt à l'acquitter, ou, à égalité d'intérêt, plus ancienne";
+    label en unofficial "in the order of Article 1342-10, this debt is appropriated before the other: more interest in discharging it, or, at equal interest, older";
+}
+pub relation presence_de_dette_prioritaire(pay: Paiement, c: Creance) kind derived {
+    label fr official "au moins une autre dette imputable précède celle-ci dans l'ordre légal";
+    label en unofficial "at least one other appropriable debt precedes this one in the statutory order";
+}
+pub relation dette_de_premier_rang(pay: Paiement, c: Creance) kind derived {
+    label fr official "dette qu'aucune autre ne précède dans l'ordre de l'article 1342-10 : c'est sur elle que l'imputation a lieu";
+    label en unofficial "debt preceded by no other in the order of Article 1342-10: appropriation takes place on it";
+}
+pub relation nombre_de_dettes_de_premier_rang(pay: Paiement, n: Integer) kind derived {
+    key(pay);
+    label fr official "nombre de dettes de premier rang : une seule concentre l'imputation, plusieurs la répartissent proportionnellement (article 1342-10, alinéa 2, in fine)";
+    label en unofficial "number of first-rank debts: one concentrates the appropriation, several share it proportionally (Article 1342-10, paragraph 2, in fine)";
+}
+pub relation total_des_dettes_de_premier_rang(pay: Paiement, t: Money) kind derived {
+    key(pay);
+    label fr official "montant cumulé des dettes de premier rang, dénominateur de la répartition proportionnelle";
+    label en unofficial "aggregate amount of the first-rank debts, denominator of the proportional allocation";
+}
+pub relation imputation_du_paiement(pay: Paiement, c: Creance, montant: Money) kind derived {
+    key(pay, c);
+    label fr official "montant du paiement imputé sur cette dette (article 1342-10)";
+    label en unofficial "amount of the payment appropriated to this debt (Article 1342-10)";
+}
+
+@source(CC_ART1342_10) {
+    rule DesignationFaiteParLeDebiteur(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2. Présence d'une indication du débiteur";
+        label en unofficial "Article 1342-10, paragraph 2. Presence of an indication by the debtor";
+        when dette_designee_par_le_debiteur(pay, c);
+        then designation_faite_par_le_debiteur(pay);
+    }
+    rule ImputationIndiqueeParLeDebiteur(pay: Paiement, c: Creance, m: Money, dette: Money) strict {
+        label fr official "Article 1342-10, alinéa 1. Le débiteur de plusieurs dettes peut indiquer, lorsqu'il paie, celle qu'il entend acquitter : l'imputation suit son indication, à concurrence du montant de la dette";
+        label en unofficial "Article 1342-10, paragraph 1. A debtor of several debts may indicate, when paying, the one he intends to discharge: appropriation follows his indication, up to the amount of the debt";
+        when dette_designee_par_le_debiteur(pay, c) and montant_paye(pay, m)
+            and fr.code_civil.core::objet_monetaire(c, dette);
+        then imputation_du_paiement(pay, c, min(m, dette));
+    }
+    rule DetteImputable(pay: Paiement, c: Creance, d: Personne, jour: Date, echeance: Date) strict {
+        label fr official "Article 1342-10, alinéa 2. A défaut d'indication par le débiteur, l'imputation a lieu d'abord sur les dettes échues";
+        label en unofficial "Article 1342-10, paragraph 2. Absent indication by the debtor, appropriation takes place first on the matured debts";
+        when paiement_du_debiteur(pay, d) and dette_du_debiteur(d, c)
+            and date_du_paiement(pay, jour) and date_d_exigibilite(c, echeance)
+            and echeance <= jour
+            and not_known(designation_faite_par_le_debiteur(pay));
+        then dette_imputable(pay, c);
+    }
+    rule DettePrioritaireParLInteret(pay: Paiement, d: Personne, avant: Creance, apres: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2. Parmi les dettes échues, l'imputation se fait sur les dettes que le débiteur avait le plus d'intérêt d'acquitter";
+        label en unofficial "Article 1342-10, paragraph 2. Among the matured debts, appropriation is made on those the debtor had most interest in discharging";
+        when paiement_du_debiteur(pay, d) and dette_imputable(pay, avant) and dette_imputable(pay, apres)
+            and plus_d_interet_d_acquitter(d, avant, apres);
+        then dette_prioritaire(pay, avant, apres);
+    }
+    rule DettePrioritaireParLAnciennete(pay: Paiement, d: Personne, avant: Creance, apres: Creance, na: Date, np: Date) strict {
+        label fr official "Article 1342-10, alinéa 2. A égalité d'intérêt, l'imputation se fait sur la plus ancienne";
+        label en unofficial "Article 1342-10, paragraph 2. At equal interest, appropriation is made on the oldest";
+        when paiement_du_debiteur(pay, d) and dette_imputable(pay, avant) and dette_imputable(pay, apres)
+            and date_de_naissance_de_la_dette(avant, na) and date_de_naissance_de_la_dette(apres, np)
+            and na < np
+            and egalite_d_interet_d_acquitter(d, avant, apres);
+        then dette_prioritaire(pay, avant, apres);
+    }
+    rule PresenceDeDettePrioritaire(pay: Paiement, c: Creance, avant: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2. Une autre dette précède celle-ci dans l'ordre légal";
+        label en unofficial "Article 1342-10, paragraph 2. Another debt precedes this one in the statutory order";
+        when dette_prioritaire(pay, avant, c);
+        then presence_de_dette_prioritaire(pay, c);
+    }
+    rule DetteDePremierRang(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2. Est de premier rang la dette échue qu'aucune autre ne précède : ni par l'intérêt du débiteur à l'acquitter, ni par l'ancienneté";
+        label en unofficial "Article 1342-10, paragraph 2. A matured debt preceded by no other — neither by the debtor's interest in discharging it nor by age — ranks first";
+        when dette_imputable(pay, c) and not_known(presence_de_dette_prioritaire(pay, c));
+        then dette_de_premier_rang(pay, c);
+    }
+    rule NombreDeDettesDePremierRang(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2. Nombre de dettes que rien ne départage";
+        label en unofficial "Article 1342-10, paragraph 2. Number of debts that nothing separates";
+        when dette_de_premier_rang(pay, c);
+        then nombre_de_dettes_de_premier_rang(pay, (count distinct x: Creance where dette_de_premier_rang(pay, x)));
+    }
+    rule TotalDesDettesDePremierRang(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1342-10, alinéa 2, in fine. Montant cumulé des dettes que rien ne départage";
+        label en unofficial "Article 1342-10, paragraph 2, in fine. Aggregate amount of the debts that nothing separates";
+        when dette_de_premier_rang(pay, c);
+        then total_des_dettes_de_premier_rang(pay,
+            (sum all v: Money for x: Creance where dette_de_premier_rang(pay, x) and fr.code_civil.core::objet_monetaire(x, v)));
+    }
+    rule ImputationSurLaSeuleDetteDePremierRang(pay: Paiement, c: Creance, m: Money, dette: Money) strict {
+        label fr official "Article 1342-10, alinéa 2. Lorsqu'une seule dette est de premier rang, le paiement s'impute sur elle, à concurrence de son montant";
+        label en unofficial "Article 1342-10, paragraph 2. Where a single debt ranks first, the payment is appropriated to it, up to its amount";
+        when dette_de_premier_rang(pay, c) and nombre_de_dettes_de_premier_rang(pay, 1)
+            and montant_paye(pay, m) and fr.code_civil.core::objet_monetaire(c, dette);
+        then imputation_du_paiement(pay, c, min(m, dette));
+    }
+    rule ImputationProportionnelle(pay: Paiement, c: Creance, n: Integer, m: Money, dette: Money, t: Money) strict {
+        label fr official "Article 1342-10, alinéa 2, in fine. Toutes choses égales, l'imputation se fait proportionnellement entre les dettes de premier rang ; le quotient exact est arrondi au centime, demi-supérieur, une seule fois (politique du paquet, non norme)";
+        label en unofficial "Article 1342-10, paragraph 2, in fine. All things being equal, appropriation is made proportionally among the first-rank debts; the exact quotient is rounded to the cent, half up, once (package policy, not a norm)";
+        when dette_de_premier_rang(pay, c) and nombre_de_dettes_de_premier_rang(pay, n) and n >= 2
+            and montant_paye(pay, m) and fr.code_civil.core::objet_monetaire(c, dette)
+            and total_des_dettes_de_premier_rang(pay, t);
+        then imputation_du_paiement(pay, c, div_round(m * (dette / 1 EUR), t / 1 EUR, 2, "HALF_UP"));
+    }
+}
+
+// --- Section 1, sous-section 2 : obligations de somme d'argent (1343 à 1343-5) ---------------
+
+pub relation liberation_par_le_montant_nominal(c: Creance, m: Money) kind derived {
+    key(c);
+    label fr official "le débiteur d'une obligation de somme d'argent se libère par le versement de son montant nominal (article 1343, alinéa 1) : nominalisme";
+    label en unofficial "the debtor of a monetary obligation is discharged by paying its nominal amount (Article 1343, paragraph 1): nominalism";
+}
+pub relation montant_du_apres_indexation(c: Creance, m: Money) kind derived {
+    key(c);
+    label fr official "le montant de la somme due varie par le jeu de l'indexation (article 1343, alinéa 2)";
+    label en unofficial "the amount owed varies through indexation (Article 1343, paragraph 2)";
+}
+pub relation liberation_de_la_dette_de_valeur(c: Creance, m: Money) kind derived {
+    key(c);
+    label fr official "le débiteur d'une dette de valeur se libère par le versement de la somme résultant de sa liquidation (article 1343, alinéa 3)";
+    label en unofficial "the debtor of a value debt is discharged by paying the sum resulting from its liquidation (Article 1343, paragraph 3)";
+}
+
+@source(CC_ART1343) {
+    rule Nominalisme(c: Creance, m: Money) strict {
+        label fr official "Article 1343, alinéa 1. Le débiteur d'une obligation de somme d'argent se libère par le versement de son montant nominal";
+        label en unofficial "Article 1343, paragraph 1. The debtor of a monetary obligation is discharged by paying its nominal amount";
+        when obligation_de_somme_d_argent(c) and fr.code_civil.core::objet_monetaire(c, m)
+            and not_known(indexation_stipulee(c, m));
+        then liberation_par_le_montant_nominal(c, m);
+    }
+    rule Indexation(c: Creance, m: Money) strict {
+        label fr official "Article 1343, alinéa 2. Le montant de la somme due peut varier par le jeu de l'indexation";
+        label en unofficial "Article 1343, paragraph 2. The amount owed may vary through indexation";
+        when obligation_de_somme_d_argent(c) and indexation_stipulee(c, m);
+        then montant_du_apres_indexation(c, m);
+    }
+    rule LiquidationDeLaDetteDeValeur(c: Creance, m: Money) strict {
+        label fr official "Article 1343, alinéa 3. Le débiteur d'une dette de valeur se libère par le versement de la somme d'argent résultant de sa liquidation";
+        label en unofficial "Article 1343, paragraph 3. The debtor of a value debt is discharged by paying the sum of money resulting from its liquidation";
+        when dette_de_valeur(c) and liquidation_de_la_dette_de_valeur(c, m);
+        then liberation_de_la_dette_de_valeur(c, m);
+    }
+}
+
+pub relation obligation_portant_interet(c: Creance) kind derived {
+    label fr official "l'obligation porte intérêt : l'intérêt est accordé par la loi ou stipulé dans le contrat (article 1343-1, alinéa 2)";
+    label en unofficial "the obligation bears interest: interest is granted by law or stipulated in the contract (Article 1343-1, paragraph 2)";
+}
+pub relation liberation_par_le_principal_et_les_interets(c: Creance) kind derived {
+    label fr official "lorsque l'obligation porte intérêt, le débiteur se libère en versant le principal et les intérêts (article 1343-1, alinéa 1)";
+    label en unofficial "where the obligation bears interest, the debtor is discharged by paying principal and interest (Article 1343-1, paragraph 1)";
+}
+pub relation paiement_partiel_impute_sur_les_interets(pay: Paiement, c: Creance) kind derived {
+    label fr official "le paiement partiel s'impute d'abord sur les intérêts (article 1343-1, alinéa 1, seconde phrase)";
+    label en unofficial "a partial payment is appropriated first to interest (Article 1343-1, paragraph 1, second sentence)";
+}
+pub relation taux_conventionnel_inopposable(c: Creance) kind derived {
+    label fr official "le taux de l'intérêt conventionnel doit être fixé par écrit (article 1343-1, alinéa 2) : sans écrit, l'exigence du texte n'est pas satisfaite";
+    label en unofficial "the rate of contractual interest must be set in writing (Article 1343-1, paragraph 2): without a writing, the requirement is unmet";
+}
+pub relation taux_repute_annuel(c: Creance) kind derived {
+    label fr official "le taux de l'intérêt conventionnel est réputé annuel par défaut (article 1343-1, alinéa 2, dernière phrase)";
+    label en unofficial "the rate of contractual interest is deemed annual by default (Article 1343-1, paragraph 2, last sentence)";
+}
+
+@source(CC_ART1343_1) {
+    rule ObligationPortantInteretParLaLoi(c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 2. L'intérêt est accordé par la loi";
+        label en unofficial "Article 1343-1, paragraph 2. Interest is granted by law";
+        when interet_accorde_par_la_loi(c);
+        then obligation_portant_interet(c);
+    }
+    rule ObligationPortantInteretParLeContrat(c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 2. L'intérêt est stipulé dans le contrat";
+        label en unofficial "Article 1343-1, paragraph 2. Interest is stipulated in the contract";
+        when interet_stipule_au_contrat(c);
+        then obligation_portant_interet(c);
+    }
+    rule LiberationPrincipalEtInterets(c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 1. Lorsque l'obligation de somme d'argent porte intérêt, le débiteur se libère en versant le principal et les intérêts";
+        label en unofficial "Article 1343-1, paragraph 1. Where the monetary obligation bears interest, the debtor is discharged by paying principal and interest";
+        when obligation_de_somme_d_argent(c) and obligation_portant_interet(c);
+        then liberation_par_le_principal_et_les_interets(c);
+    }
+    rule ImputationDuPaiementPartielSurLesInterets(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 1, seconde phrase. Le paiement partiel s'impute d'abord sur les intérêts";
+        label en unofficial "Article 1343-1, paragraph 1, second sentence. A partial payment is appropriated first to interest";
+        when paiement_de_la_dette(pay, c) and paiement_partiel(pay) and obligation_portant_interet(c);
+        then paiement_partiel_impute_sur_les_interets(pay, c);
+    }
+    rule TauxConventionnelSansEcrit(c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 2. Le taux de l'intérêt conventionnel doit être fixé par écrit : à défaut, l'exigence n'est pas remplie";
+        label en unofficial "Article 1343-1, paragraph 2. The contractual interest rate must be set in writing: absent that, the requirement is unmet";
+        when interet_stipule_au_contrat(c) and not_known(taux_conventionnel_fixe_par_ecrit(c));
+        then taux_conventionnel_inopposable(c);
+    }
+    rule TauxReputeAnnuel(c: Creance) strict {
+        label fr official "Article 1343-1, alinéa 2, dernière phrase. Il est réputé annuel par défaut";
+        label en unofficial "Article 1343-1, paragraph 2, last sentence. It is deemed annual by default";
+        when interet_stipule_au_contrat(c) and taux_conventionnel_fixe_par_ecrit(c)
+            and not_known(periodicite_du_taux_stipulee(c));
+        then taux_repute_annuel(c);
+    }
+}
+
+// ANATOCISME (1343-2) : deux conditions cumulatives — les intérêts doivent être
+// échus et dus pour AU MOINS UNE ANNÉE ENTIÈRE, et la capitalisation doit être
+// prévue par le contrat ou précisée par une décision de justice. L'année se
+// construit par un pas de délai §86, jamais par un compte de jours.
+pub relation interets_dus_pour_une_annee_entiere(c: Creance) kind derived {
+    label fr official "les intérêts échus sont dus au moins pour une année entière (article 1343-2)";
+    label en unofficial "the matured interest is owed for at least one full year (Article 1343-2)";
+}
+pub relation interets_producteurs(c: Creance) kind derived {
+    label fr official "les intérêts échus produisent intérêt (article 1343-2)";
+    label en unofficial "the matured interest bears interest (Article 1343-2)";
+}
+
+@source(CC_ART1343_2) {
+    rule InteretsDusPourUneAnneeEntiere(c: Creance, debut: Date, fin: Date) strict {
+        label fr official "Article 1343-2. Les intérêts échus doivent être dus au moins pour une année entière";
+        label en unofficial "Article 1343-2. The matured interest must be owed for at least one full year";
+        when interets_echus(c, debut, fin) and fin >= add_calendar_period(debut, 1 calendar_year);
+        then interets_dus_pour_une_annee_entiere(c);
+    }
+    rule AnatocismeParLeContrat(c: Creance) strict {
+        label fr official "Article 1343-2. Les intérêts échus, dus au moins pour une année entière, produisent intérêt si le contrat l'a prévu";
+        label en unofficial "Article 1343-2. Matured interest owed for at least one full year bears interest if the contract so provided";
+        when interets_dus_pour_une_annee_entiere(c) and capitalisation_prevue_au_contrat(c);
+        then interets_producteurs(c);
+    }
+    rule AnatocismeParDecisionDeJustice(c: Creance) strict {
+        label fr official "Article 1343-2. Les intérêts échus, dus au moins pour une année entière, produisent intérêt si une décision de justice le précise";
+        label en unofficial "Article 1343-2. Matured interest owed for at least one full year bears interest if a court decision so provides";
+        when interets_dus_pour_une_annee_entiere(c) and anatocisme_ordonne_par_le_juge(c);
+        then interets_producteurs(c);
+    }
+}
+
+pub relation paiement_en_euros(pay: Paiement) kind derived {
+    label fr official "le paiement, en France, d'une obligation de somme d'argent s'effectue en euros (article 1343-3, première phrase)";
+    label en unofficial "in France, payment of a monetary obligation is made in euros (Article 1343-3, first sentence)";
+}
+pub relation paiement_en_devise_admis(pay: Paiement) kind derived {
+    label fr official "le paiement peut avoir lieu en une autre monnaie (article 1343-3, deuxième et troisième phrases)";
+    label en unofficial "payment may take place in another currency (Article 1343-3, second and third sentences)";
+}
+pub relation paiement_au_domicile_du_creancier(c: Creance) kind derived {
+    label fr official "à défaut d'une autre désignation, le lieu du paiement de l'obligation de somme d'argent est le domicile du créancier (article 1343-4)";
+    label en unofficial "absent another designation, the place of payment of a monetary obligation is the creditor's domicile (Article 1343-4)";
+}
+
+// L'article 1343-3 est « nouveau » au sens de la loi n° 2018-287 : sa rédaction
+// ne s'applique qu'aux actes conclus ou établis à compter du 1er octobre 2018
+// (loi 2018-287, art. 16, I, deuxième phrase ; corridor 2018).
+@source(CC_ART1343_3) {
+    rule PaiementEnEuros(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1343-3, première phrase. Le paiement, en France, d'une obligation de somme d'argent s'effectue en euros";
+        label en unofficial "Article 1343-3, first sentence. In France, payment of a monetary obligation is made in euros";
+        when paiement_de_la_dette(pay, c) and obligation_de_somme_d_argent(c)
+            and paiement_effectue_en_france(pay)
+            and not_known(operation_a_caractere_international(c))
+            and not_known(jugement_etranger(c))
+            and not_known(convention_de_paiement_en_devise_entre_professionnels(c));
+        then paiement_en_euros(pay);
+    }
+    rule PaiementEnDeviseOperationInternationale(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1343-3, deuxième phrase. Le paiement peut avoir lieu en une autre monnaie si l'obligation ainsi libellée procède d'une opération à caractère international";
+        label en unofficial "Article 1343-3, second sentence. Payment may take place in another currency if the obligation so denominated arises from an international transaction";
+        when paiement_de_la_dette(pay, c) and obligation_libellee_en_devise(c)
+            and operation_a_caractere_international(c);
+        then paiement_en_devise_admis(pay);
+    }
+    rule PaiementEnDeviseJugementEtranger(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1343-3, deuxième phrase. Le paiement peut avoir lieu en une autre monnaie si l'obligation ainsi libellée procède d'un jugement étranger";
+        label en unofficial "Article 1343-3, second sentence. Payment may take place in another currency if the obligation so denominated arises from a foreign judgment";
+        when paiement_de_la_dette(pay, c) and obligation_libellee_en_devise(c)
+            and jugement_etranger(c);
+        then paiement_en_devise_admis(pay);
+    }
+    rule PaiementEnDeviseEntreProfessionnels(pay: Paiement, c: Creance) strict {
+        label fr official "Article 1343-3, troisième phrase. Les parties peuvent convenir que le paiement aura lieu en devise s'il intervient entre professionnels, lorsque l'usage d'une monnaie étrangère est communément admis pour l'opération concernée";
+        label en unofficial "Article 1343-3, third sentence. The parties may agree on payment in foreign currency between professionals, where the use of a foreign currency is commonly accepted for the transaction";
+        when paiement_de_la_dette(pay, c) and convention_de_paiement_en_devise_entre_professionnels(c);
+        then paiement_en_devise_admis(pay);
+    }
+}
+
+@source(CC_ART1343_4)
+rule PaiementAuDomicileDuCreancier(c: Creance) strict {
+    label fr official "Article 1343-4. A défaut d'une autre désignation par la loi, le contrat ou le juge, le lieu du paiement de l'obligation de somme d'argent est le domicile du créancier";
+    label en unofficial "Article 1343-4. Absent another designation by law, contract or court, the place of payment of a monetary obligation is the creditor's domicile";
+    when obligation_de_somme_d_argent(c) and not_known(lieu_du_paiement_designe(c));
+    then paiement_au_domicile_du_creancier(c);
+}
+
+// DÉLAI DE GRÂCE (1343-5) : la limite de deux années est un PLAFOND mesuré
+// depuis l'échéance, non un délai qui court d'un événement. Les dettes
+// d'aliment en sont exclues par le dernier alinéa.
+pub relation delai_de_grace_exclu(c: Creance) kind derived {
+    label fr official "les dispositions de l'article 1343-5 ne sont pas applicables aux dettes d'aliment (dernier alinéa)";
+    label en unofficial "Article 1343-5 does not apply to maintenance debts (last paragraph)";
+}
+pub relation report_dans_la_limite_de_deux_annees(c: Creance, echeance_reportee: Date) kind derived {
+    label fr official "report ou échelonnement dans la limite de deux années (article 1343-5, alinéa 1)";
+    label en unofficial "deferral or spreading within the limit of two years (Article 1343-5, paragraph 1)";
+}
+pub relation report_excedant_la_limite_legale(c: Creance, echeance_reportee: Date) kind derived {
+    label fr official "le report demandé excède la limite de deux années que le juge ne peut pas dépasser (article 1343-5, alinéa 1)";
+    label en unofficial "the requested deferral exceeds the two-year limit the court may not exceed (Article 1343-5, paragraph 1)";
+}
+pub relation procedures_d_execution_suspendues(c: Creance) kind derived {
+    label fr official "la décision du juge suspend les procédures d'exécution engagées par le créancier (article 1343-5, alinéa 4)";
+    label en unofficial "the court's decision suspends enforcement proceedings brought by the creditor (Article 1343-5, paragraph 4)";
+}
+pub relation majorations_et_penalites_non_encourues(c: Creance) kind derived {
+    label fr official "les majorations d'intérêts ou les pénalités prévues en cas de retard ne sont pas encourues pendant le délai fixé par le juge (article 1343-5, alinéa 4)";
+    label en unofficial "interest increases or late-payment penalties are not incurred during the period set by the court (Article 1343-5, paragraph 4)";
+}
+
+@source(CC_ART1343_5) {
+    rule DelaiDeGraceExcluPourLesAliments(c: Creance) strict {
+        label fr official "Article 1343-5, dernier alinéa. Les dispositions du présent article ne sont pas applicables aux dettes d'aliment";
+        label en unofficial "Article 1343-5, last paragraph. This article does not apply to maintenance debts";
+        when dette_d_aliment(c);
+        then delai_de_grace_exclu(c);
+    }
+    rule ReportDansLaLimiteDeDeuxAnnees(c: Creance, echeance: Date, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 1. Le juge peut, compte tenu de la situation du débiteur et en considération des besoins du créancier, reporter ou échelonner, dans la limite de deux années, le paiement des sommes dues";
+        label en unofficial "Article 1343-5, paragraph 1. The court may, having regard to the debtor's situation and the creditor's needs, defer or spread payment of the sums due within the limit of two years";
+        when delai_de_grace_accorde(c, reportee) and date_d_exigibilite(c, echeance)
+            and not_known(dette_d_aliment(c))
+            and reportee <= add_calendar_period(echeance, 2 calendar_year);
+        then report_dans_la_limite_de_deux_annees(c, reportee);
+    }
+    rule ReportExcedantLaLimiteLegale(c: Creance, echeance: Date, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 1. Au-delà de deux années à compter de l'échéance, le report excède le pouvoir que le texte donne au juge";
+        label en unofficial "Article 1343-5, paragraph 1. Beyond two years from maturity, the deferral exceeds the power the text gives the court";
+        when delai_de_grace_accorde(c, reportee) and date_d_exigibilite(c, echeance)
+            and reportee > add_calendar_period(echeance, 2 calendar_year);
+        then report_excedant_la_limite_legale(c, reportee);
+    }
+    rule EffetsDuDelaiDeGrace(c: Creance, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 4. La décision du juge suspend les procédures d'exécution qui auraient été engagées par le créancier";
+        label en unofficial "Article 1343-5, paragraph 4. The court's decision suspends enforcement proceedings brought by the creditor";
+        when report_dans_la_limite_de_deux_annees(c, reportee);
+        then procedures_d_execution_suspendues(c);
+    }
+    rule PenalitesNonEncouruesPendantLeDelai(c: Creance, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 4. Les majorations d'intérêts ou les pénalités prévues en cas de retard ne sont pas encourues pendant le délai fixé par le juge";
+        label en unofficial "Article 1343-5, paragraph 4. Interest increases or late-payment penalties are not incurred during the period set by the court";
+        when report_dans_la_limite_de_deux_annees(c, reportee);
+        then majorations_et_penalites_non_encourues(c);
+    }
+}
+
+// --- Section 1, sous-section 3 : la mise en demeure (1344 à 1345-3) -------------------------
+
+pub relation debiteur_mis_en_demeure(c: Creance, d: Personne, jour: Date) kind derived {
+    label fr official "le débiteur est mis en demeure de payer (article 1344)";
+    label en unofficial "the debtor is given formal notice to pay (Article 1344)";
+}
+pub relation interet_moratoire_court_depuis(c: Creance, jour: Date) kind derived {
+    key(c);
+    label fr official "la mise en demeure de payer une obligation de somme d'argent fait courir l'intérêt moratoire, au taux légal, sans que le créancier soit tenu de justifier d'un préjudice (article 1344-1)";
+    label en unofficial "formal notice to pay a monetary obligation causes default interest to run at the legal rate, without the creditor having to prove loss (Article 1344-1)";
+}
+pub relation risques_a_la_charge_du_debiteur(c: Creance) kind derived {
+    label fr official "la mise en demeure de délivrer une chose met les risques à la charge du débiteur, s'ils n'y sont déjà (article 1344-2)";
+    label en unofficial "formal notice to deliver a thing places the risks on the debtor, if not already borne by him (Article 1344-2)";
+}
+
+// PERCEUR DE LISTE FERMÉE (1344). Les trois modes du texte sont trois règles
+// distinctes ; un mode hors de la liste ne produit aucune mise en demeure.
+@source(CC_ART1344) {
+    rule MiseEnDemeureParSommation(m: MiseEnDemeure, c: Creance, d: Personne, jour: Date) strict {
+        label fr official "Article 1344. Le débiteur est mis en demeure de payer par une sommation";
+        label en unofficial "Article 1344. The debtor is given formal notice to pay by a summons";
+        when mise_en_demeure_du_debiteur(m, c, d) and mode_de_la_mise_en_demeure(m, Sommation)
+            and date_de_la_mise_en_demeure(m, jour);
+        then debiteur_mis_en_demeure(c, d, jour);
+    }
+    rule MiseEnDemeureParInterpellationSuffisante(m: MiseEnDemeure, c: Creance, d: Personne, jour: Date) strict {
+        label fr official "Article 1344. Le débiteur est mis en demeure de payer par un acte portant interpellation suffisante";
+        label en unofficial "Article 1344. The debtor is given formal notice to pay by an act amounting to sufficient demand";
+        when mise_en_demeure_du_debiteur(m, c, d)
+            and mode_de_la_mise_en_demeure(m, ActePortantInterpellationSuffisante)
+            and date_de_la_mise_en_demeure(m, jour);
+        then debiteur_mis_en_demeure(c, d, jour);
+    }
+    rule MiseEnDemeureParLaSeuleExigibilite(m: MiseEnDemeure, c: Creance, d: Personne, jour: Date) strict {
+        label fr official "Article 1344. Le débiteur est mis en demeure par la seule exigibilité de l'obligation, si le contrat le prévoit";
+        label en unofficial "Article 1344. The debtor is given formal notice by the mere enforceability of the obligation, if the contract so provides";
+        when mise_en_demeure_du_debiteur(m, c, d)
+            and mode_de_la_mise_en_demeure(m, SeuleExigibiliteStipulee)
+            and date_de_la_mise_en_demeure(m, jour);
+        then debiteur_mis_en_demeure(c, d, jour);
+    }
+}
+
+@source(CC_ART1344_1)
+rule InteretMoratoireDepuisLaMiseEnDemeure(c: Creance, d: Personne, jour: Date) strict {
+    label fr official "Article 1344-1. La mise en demeure de payer une obligation de somme d'argent fait courir l'intérêt moratoire, au taux légal, sans que le créancier soit tenu de justifier d'un préjudice ; le taux légal est fixé hors du Code (code monétaire et financier, article L. 313-2)";
+    label en unofficial "Article 1344-1. Formal notice to pay a monetary obligation causes default interest to run at the legal rate, without the creditor having to prove loss; the legal rate is set outside the Code (Monetary and Financial Code, Article L. 313-2)";
+    when obligation_de_somme_d_argent(c) and debiteur_mis_en_demeure(c, d, jour);
+    then interet_moratoire_court_depuis(c, jour);
+}
+
+@source(CC_ART1344_2)
+rule RisquesALaChargeDuDebiteur(m: MiseEnDemeure, c: Creance, d: Personne, jour: Date) strict {
+    label fr official "Article 1344-2. La mise en demeure de délivrer une chose met les risques à la charge du débiteur, s'ils n'y sont déjà";
+    label en unofficial "Article 1344-2. Formal notice to deliver a thing places the risks on the debtor, if not already borne by him";
+    when mise_en_demeure_de_delivrer_une_chose(m, c) and date_de_la_mise_en_demeure(m, jour)
+        and fr.code_civil.core::debiteur(c, d) and not_known(risques_deja_a_la_charge(c, d));
+    then risques_a_la_charge_du_debiteur(c);
+}
+
+// LE CRÉANCIER QUI REFUSE (1345 à 1345-3). Le « motif légitime » est une
+// appréciation du juge : sans réponse, la question reste REQUIRES_JUDGMENT.
+@source(CC_ART1345)
+rule P2DevoirDeMettreLeCreancierEnDemeure(c: Creance, d: Personne, cr: Personne, jour: Date) strict {
+    label fr official "Article 1345, alinéa 1. Le débiteur doit mettre le créancier en demeure d'accepter le paiement ou d'en permettre l'exécution";
+    label en unofficial "Article 1345, paragraph 1. The debtor must give the creditor formal notice to accept payment or allow performance";
+    when fr.code_civil.core::debiteur(c, d)
+        and fr.code_civil.core::creancier(c, cr)
+        and date_d_exigibilite(c, jour);
+    then duty P2PositionDevoirDeMettreLeCreancierEnDemeure {
+        bearer d;
+        beneficiary cr;
+        goal achievement {
+            condition mise_en_demeure_du_creancier_effectuee(c, d, cr);
+            window [jour, infinity];
+        }
+    };
+}
+
+pub relation creancier_mis_en_demeure(c: Creance, cr: Personne, jour: Date) kind derived {
+    label fr official "le débiteur met le créancier en demeure d'accepter le paiement ou d'en permettre l'exécution (article 1345, alinéa 1)";
+    label en unofficial "the debtor gives the creditor formal notice to accept payment or allow performance (Article 1345, paragraph 1)";
+}
+pub relation cours_des_interets_arrete(c: Creance) kind derived {
+    label fr official "la mise en demeure du créancier arrête le cours des intérêts dus par le débiteur (article 1345, alinéa 2)";
+    label en unofficial "formal notice to the creditor stops the running of interest owed by the debtor (Article 1345, paragraph 2)";
+}
+pub relation risques_a_la_charge_du_creancier(c: Creance) kind derived {
+    label fr official "la mise en demeure du créancier met les risques de la chose à sa charge, sauf faute lourde ou dolosive du débiteur (article 1345, alinéa 2)";
+    label en unofficial "formal notice to the creditor places the risks of the thing on him, save gross or fraudulent fault of the debtor (Article 1345, paragraph 2)";
+}
+pub relation prescription_non_interrompue(c: Creance) kind derived {
+    label fr official "la mise en demeure du créancier n'interrompt pas la prescription (article 1345, alinéa 3)";
+    label en unofficial "formal notice to the creditor does not interrupt prescription (Article 1345, paragraph 3)";
+}
+
+@source(CC_ART1345) {
+    rule MiseEnDemeureDuCreancierQuiRefuse(m: MiseEnDemeure, c: Creance, cr: Personne, jour: Date) strict {
+        label fr official "Article 1345, alinéa 1. Lorsque le créancier, à l'échéance et sans motif légitime, refuse de recevoir le paiement qui lui est dû ou l'empêche par son fait, le débiteur peut le mettre en demeure d'en accepter ou d'en permettre l'exécution";
+        label en unofficial "Article 1345, paragraph 1. Where at maturity and without legitimate reason the creditor refuses to receive the payment due or prevents it by his act, the debtor may give him formal notice to accept or allow performance";
+        when mise_en_demeure_du_creancier(m, c, cr) and refus_ou_empechement_du_creancier(c)
+            and date_de_la_mise_en_demeure(m, jour)
+            and refus_sans_motif_legitime(m);
+        then creancier_mis_en_demeure(c, cr, jour);
+    }
+    rule ArretDuCoursDesInterets(c: Creance, cr: Personne, jour: Date) strict {
+        label fr official "Article 1345, alinéa 2. La mise en demeure du créancier arrête le cours des intérêts dus par le débiteur";
+        label en unofficial "Article 1345, paragraph 2. Formal notice to the creditor stops the running of interest owed by the debtor";
+        when creancier_mis_en_demeure(c, cr, jour);
+        then cours_des_interets_arrete(c);
+    }
+    rule RisquesTransferesAuCreancier(c: Creance, cr: Personne, jour: Date) strict {
+        label fr official "Article 1345, alinéa 2. Elle met les risques de la chose à la charge du créancier, s'ils n'y sont déjà, sauf faute lourde ou dolosive du débiteur";
+        label en unofficial "Article 1345, paragraph 2. It places the risks of the thing on the creditor, if not already borne, save gross or fraudulent fault of the debtor";
+        when creancier_mis_en_demeure(c, cr, jour)
+            and not_known(faute_lourde_ou_dolosive_du_debiteur(c))
+            and not_known(risques_deja_a_la_charge(c, cr));
+        then risques_a_la_charge_du_creancier(c);
+    }
+    rule PrescriptionNonInterrompue(c: Creance, cr: Personne, jour: Date) strict {
+        label fr official "Article 1345, alinéa 3. Elle n'interrompt pas la prescription";
+        label en unofficial "Article 1345, paragraph 3. It does not interrupt prescription";
+        when creancier_mis_en_demeure(c, cr, jour);
+        then prescription_non_interrompue(c);
+    }
+}
+
+// DEUX MOIS (1345-1 et 1345-2) : le délai court de la mise en demeure du
+// créancier ; l'issue dépend de l'objet de l'obligation.
+pub relation consignation_ouverte(c: Creance) kind derived {
+    label fr official "l'obstruction n'ayant pas pris fin dans les deux mois, le débiteur peut consigner la somme d'argent à la Caisse des dépôts et consignations (article 1345-1, alinéa 1)";
+    label en unofficial "the obstruction not having ended within two months, the debtor may deposit the sum of money with the Caisse des dépôts et consignations (Article 1345-1, paragraph 1)";
+}
+pub relation sequestre_ouvert(c: Creance) kind derived {
+    label fr official "l'obstruction n'ayant pas pris fin dans les deux mois, le débiteur peut séquestrer la chose auprès d'un gardien professionnel (article 1345-1, alinéa 1)";
+    label en unofficial "the obstruction not having ended within two months, the debtor may sequester the thing with a professional custodian (Article 1345-1, paragraph 1)";
+}
+pub relation vente_autorisable_par_le_juge(c: Creance) kind derived {
+    label fr official "si le séquestre de la chose est impossible ou trop onéreux, le juge peut en autoriser la vente amiable ou aux enchères publiques (article 1345-1, alinéa 2)";
+    label en unofficial "if sequestration is impossible or too costly, the court may authorize an amicable sale or a public auction (Article 1345-1, paragraph 2)";
+}
+pub relation debiteur_libere_par_l_obstruction_persistante(c: Creance) kind derived {
+    label fr official "lorsque l'obligation porte sur un autre objet, le débiteur est libéré si l'obstruction n'a pas cessé dans les deux mois de la mise en demeure (article 1345-2)";
+    label en unofficial "where the obligation bears on another object, the debtor is discharged if the obstruction has not ceased within two months of the formal notice (Article 1345-2)";
+}
+pub relation frais_a_la_charge_du_creancier(c: Creance, cr: Personne) kind derived {
+    label fr official "les frais de la mise en demeure et de la consignation ou du séquestre sont à la charge du créancier (article 1345-3)";
+    label en unofficial "the costs of the formal notice and of the deposit or sequestration are borne by the creditor (Article 1345-3)";
+}
+
+@source(CC_ART1345_1) {
+    rule ConsignationApresDeuxMois(m: MiseEnDemeure, c: Creance, cr: Personne, jour: Date, constat: Date) strict {
+        label fr official "Article 1345-1, alinéa 1. Si l'obstruction n'a pas pris fin dans les deux mois de la mise en demeure, le débiteur peut, lorsque l'obligation porte sur une somme d'argent, la consigner à la Caisse des dépôts et consignations";
+        label en unofficial "Article 1345-1, paragraph 1. If the obstruction has not ended within two months of the formal notice, the debtor may, where the obligation bears on a sum of money, deposit it with the Caisse des dépôts et consignations";
+        when creancier_mis_en_demeure(c, cr, jour) and date_de_la_mise_en_demeure(m, jour)
+            and obstruction_persistante_au(m, constat)
+            and objet_de_l_obligation_obstruee(c, SommeDArgent)
+            and constat > add_calendar_period(jour, 2 calendar_month);
+        then consignation_ouverte(c);
+    }
+    rule SequestreApresDeuxMois(m: MiseEnDemeure, c: Creance, cr: Personne, jour: Date, constat: Date) strict {
+        label fr official "Article 1345-1, alinéa 1. Si l'obstruction n'a pas pris fin dans les deux mois, le débiteur peut, lorsque l'obligation porte sur la livraison d'une chose, séquestrer celle-ci auprès d'un gardien professionnel";
+        label en unofficial "Article 1345-1, paragraph 1. If the obstruction has not ended within two months, the debtor may, where the obligation bears on the delivery of a thing, sequester it with a professional custodian";
+        when creancier_mis_en_demeure(c, cr, jour) and date_de_la_mise_en_demeure(m, jour)
+            and obstruction_persistante_au(m, constat)
+            and objet_de_l_obligation_obstruee(c, LivraisonDUneChose)
+            and constat > add_calendar_period(jour, 2 calendar_month);
+        then sequestre_ouvert(c);
+    }
+    rule VenteAutorisableParLeJuge(c: Creance) strict {
+        label fr official "Article 1345-1, alinéa 2. Si le séquestre de la chose est impossible ou trop onéreux, le juge peut en autoriser la vente amiable ou aux enchères publiques ; déduction faite des frais de la vente, le prix en est consigné";
+        label en unofficial "Article 1345-1, paragraph 2. If sequestration is impossible or too costly, the court may authorize an amicable sale or public auction; net of the sale costs, the price is deposited";
+        when sequestre_ouvert(c) and sequestre_impossible_ou_trop_onereux(c);
+        then vente_autorisable_par_le_juge(c);
+    }
+}
+
+@source(CC_ART1345_2)
+rule LiberationPourUnAutreObjet(m: MiseEnDemeure, c: Creance, cr: Personne, jour: Date, constat: Date) strict {
+    label fr official "Article 1345-2. Lorsque l'obligation porte sur un autre objet, le débiteur est libéré si l'obstruction n'a pas cessé dans les deux mois de la mise en demeure";
+    label en unofficial "Article 1345-2. Where the obligation bears on another object, the debtor is discharged if the obstruction has not ceased within two months of the formal notice";
+    when creancier_mis_en_demeure(c, cr, jour) and date_de_la_mise_en_demeure(m, jour)
+        and obstruction_persistante_au(m, constat)
+        and objet_de_l_obligation_obstruee(c, AutreObjet)
+        and constat > add_calendar_period(jour, 2 calendar_month);
+    then debiteur_libere_par_l_obstruction_persistante(c);
+}
+
+@source(CC_ART1345_3)
+rule FraisALaChargeDuCreancier(c: Creance, cr: Personne, jour: Date) strict {
+    label fr official "Article 1345-3. Les frais de la mise en demeure et de la consignation ou du séquestre sont à la charge du créancier";
+    label en unofficial "Article 1345-3. The costs of the formal notice and of the deposit or sequestration are borne by the creditor";
+    when creancier_mis_en_demeure(c, cr, jour);
+    then frais_a_la_charge_du_creancier(c, cr);
+}
+
+// --- Section 1, sous-section 4 : le paiement avec subrogation (1346 à 1346-5) ---------------
+//
+// Les sorties de cette sous-section sont `pub` : le paquet des sûretés
+// (fr.code_civil.suretes, recours de la caution, article 2309) lit
+// `subrogation_acquise` et `etendue_de_la_subrogation`.
+
+pub relation subrogation_de_la_creance(s: Subrogation, c: Creance) kind empirical {
+    key(s);
+    label fr official "créance dans laquelle la subrogation est invoquée (articles 1346 à 1346-5)";
+    label en unofficial "claim in which subrogation is invoked (Articles 1346 to 1346-5)";
+}
+pub relation subroge(s: Subrogation, p: Personne) kind empirical {
+    key(s);
+    label fr official "bénéficiaire de la subrogation (article 1346-4)";
+    label en unofficial "beneficiary of the subrogation (Article 1346-4)";
+}
+pub relation interet_legitime_au_paiement(s: Subrogation, solvens: Personne) kind empirical {
+    label fr official "celui qui paie y avait un intérêt légitime (article 1346)";
+    label en unofficial "the person who pays had a legitimate interest in doing so (Article 1346)";
+}
+pub relation charge_definitive_pesant_sur(c: Creance, d: Personne) kind empirical {
+    label fr official "celui sur qui doit peser la charge définitive de tout ou partie de la dette (article 1346)";
+    label en unofficial "the person on whom the final burden of all or part of the debt must fall (Article 1346)";
+}
+pub relation montant_paye_par_le_subroge(s: Subrogation, m: Money) kind empirical {
+    key(s);
+    label fr official "montant que le subrogé a payé : limite de ce qui lui est transmis (article 1346-4, alinéa 1)";
+    label en unofficial "amount the subrogee paid: limit of what is transferred to him (Article 1346-4, paragraph 1)";
+}
+pub relation subrogation_expresse(s: Subrogation) kind empirical {
+    label fr official "la subrogation conventionnelle est expresse (article 1346-1, alinéa 2)";
+    label en unofficial "the contractual subrogation is express (Article 1346-1, paragraph 2)";
+}
+pub relation subrogation_consentie_par_le_creancier(s: Subrogation) kind empirical {
+    label fr official "le créancier, recevant son paiement d'une tierce personne, la subroge dans ses droits contre le débiteur (article 1346-1, alinéa 1)";
+    label en unofficial "the creditor, receiving payment from a third party, subrogates that party into his rights against the debtor (Article 1346-1, paragraph 1)";
+}
+pub relation concomitance_de_la_subrogation_et_du_paiement(s: Subrogation) kind empirical {
+    label fr official "la subrogation a été consentie en même temps que le paiement, ou un acte antérieur a manifesté la volonté qu'elle ait lieu lors du paiement (article 1346-1, alinéa 3)";
+    label en unofficial "subrogation was granted at the same time as payment, or an earlier deed expressed the will that it occur upon payment (Article 1346-1, paragraph 3)";
+}
+pub relation subrogation_par_emprunt_du_debiteur(s: Subrogation) kind empirical {
+    label fr official "le débiteur, empruntant une somme à l'effet de payer sa dette, subroge le prêteur dans les droits du créancier (article 1346-2, alinéa 1)";
+    label en unofficial "the debtor, borrowing a sum to pay his debt, subrogates the lender into the creditor's rights (Article 1346-2, paragraph 1)";
+}
+pub relation quittance_indiquant_l_origine_des_fonds(s: Subrogation) kind empirical {
+    label fr official "la quittance donnée par le créancier indique l'origine des fonds (article 1346-2, alinéa 1)";
+    label en unofficial "the receipt given by the creditor states the origin of the funds (Article 1346-2, paragraph 1)";
+}
+pub relation creancier_paye_en_partie_seulement(s: Subrogation) kind empirical {
+    label fr official "le créancier n'a été payé qu'en partie (article 1346-3)";
+    label en unofficial "the creditor was only partly paid (Article 1346-3)";
+}
+pub relation subrogation_notifiee_ou_prise_en_acte(s: Subrogation) kind empirical {
+    label fr official "la subrogation a été notifiée au débiteur ou celui-ci en a pris acte (article 1346-5, alinéa 1)";
+    label en unofficial "the subrogation was notified to the debtor or he took note of it (Article 1346-5, paragraph 1)";
+}
+pub relation droit_exclusivement_attache_a_la_personne(c: Creance) kind empirical {
+    label fr official "droit exclusivement attaché à la personne du créancier, excepté de la transmission (article 1346-4, alinéa 1)";
+    label en unofficial "right exclusively attached to the creditor's person, excepted from the transfer (Article 1346-4, paragraph 1)";
+}
+
+pub relation subrogation_acquise(s: Subrogation, c: Creance, p: Personne) kind derived {
+    label fr official "la subrogation est acquise au profit de cette personne dans cette créance (articles 1346 à 1346-2)";
+    label en unofficial "subrogation is acquired for this person in this claim (Articles 1346 to 1346-2)";
+}
+pub relation etendue_de_la_subrogation(s: Subrogation, m: Money) kind derived {
+    key(s);
+    label fr official "la subrogation transmet la créance et ses accessoires dans la limite de ce que le subrogé a payé (article 1346-4, alinéa 1)";
+    label en unofficial "subrogation transfers the claim and its accessories within the limit of what the subrogee paid (Article 1346-4, paragraph 1)";
+}
+pub relation preference_du_creancier_partiellement_paye(s: Subrogation, c: Creance) kind derived {
+    label fr official "la subrogation ne peut nuire au créancier payé en partie : il exerce ses droits, pour ce qui lui reste dû, par préférence (article 1346-3)";
+    label en unofficial "subrogation may not harm the partly paid creditor: he exercises his rights, for the balance due, by preference (Article 1346-3)";
+}
+pub relation exercice_de_la_preference_du_creancier(s: Subrogation, c: Creance) kind empirical {
+    key(s, c);
+    label fr official "le créancier partiellement payé exerce ses droits par préférence (article 1346-3)";
+    label en unofficial "the partly paid creditor exercises his rights in preference (Article 1346-3)";
+}
+pub relation subrogation_opposable_au_debiteur(s: Subrogation, c: Creance) kind derived {
+    label fr official "la subrogation est opposable au débiteur : elle lui a été notifiée ou il en a pris acte (article 1346-5, alinéa 1)";
+    label en unofficial "the subrogation is enforceable against the debtor: it was notified to him or he took note of it (Article 1346-5, paragraph 1)";
+}
+pub relation subrogation_inopposable_au_debiteur(s: Subrogation, c: Creance) kind derived {
+    label fr official "faute de notification ou de prise d'acte, la subrogation n'est pas opposable au débiteur, qui peut néanmoins l'invoquer dès qu'il en a connaissance (article 1346-5, alinéa 1)";
+    label en unofficial "absent notification or acknowledgement, the subrogation is not enforceable against the debtor, who may nonetheless invoke it once aware of it (Article 1346-5, paragraph 1)";
+}
+pub relation droit_non_transmis_au_subroge(s: Subrogation, c: Creance) kind derived {
+    label fr official "les droits exclusivement attachés à la personne du créancier ne passent pas au subrogé (article 1346-4, alinéa 1)";
+    label en unofficial "rights exclusively attached to the creditor's person do not pass to the subrogee (Article 1346-4, paragraph 1)";
+}
+
+@source(CC_ART1346)
+rule SubrogationLegale(s: Subrogation, c: Creance, solvens: Personne, charge: Personne) strict {
+    label fr official "Article 1346. La subrogation a lieu par le seul effet de la loi au profit de celui qui, y ayant un intérêt légitime, paie dès lors que son paiement libère envers le créancier celui sur qui doit peser la charge définitive de tout ou partie de la dette";
+    label en unofficial "Article 1346. Subrogation occurs by operation of law alone for the person who, having a legitimate interest, pays, where that payment discharges towards the creditor the person on whom the final burden of all or part of the debt must fall";
+    when subrogation_de_la_creance(s, c) and subroge(s, solvens)
+        and interet_legitime_au_paiement(s, solvens)
+        and charge_definitive_pesant_sur(c, charge);
+    then subrogation_acquise(s, c, solvens);
+}
+
+@source(CC_ART1346_1)
+rule SubrogationConventionnelleDuCreancier(s: Subrogation, c: Creance, tiers: Personne) strict {
+    label fr official "Article 1346-1. La subrogation conventionnelle s'opère à l'initiative du créancier lorsque celui-ci, recevant son paiement d'une tierce personne, la subroge dans ses droits contre le débiteur ; elle doit être expresse et consentie en même temps que le paiement";
+    label en unofficial "Article 1346-1. Contractual subrogation operates at the creditor's initiative where, receiving payment from a third party, he subrogates that party into his rights against the debtor; it must be express and granted at the same time as payment";
+    when subrogation_de_la_creance(s, c) and subroge(s, tiers)
+        and subrogation_consentie_par_le_creancier(s) and subrogation_expresse(s)
+        and concomitance_de_la_subrogation_et_du_paiement(s);
+    then subrogation_acquise(s, c, tiers);
+}
+
+@source(CC_ART1346_2)
+rule SubrogationParEmpruntDuDebiteur(s: Subrogation, c: Creance, preteur: Personne) strict {
+    label fr official "Article 1346-2, alinéa 1. La subrogation a lieu également lorsque le débiteur, empruntant une somme à l'effet de payer sa dette, subroge le prêteur dans les droits du créancier avec le concours de celui-ci ; elle doit être expresse et la quittance doit indiquer l'origine des fonds";
+    label en unofficial "Article 1346-2, paragraph 1. Subrogation also occurs where the debtor, borrowing a sum to pay his debt, subrogates the lender into the creditor's rights with the creditor's participation; it must be express and the receipt must state the origin of the funds";
+    when subrogation_de_la_creance(s, c) and subroge(s, preteur)
+        and subrogation_par_emprunt_du_debiteur(s) and subrogation_expresse(s)
+        and quittance_indiquant_l_origine_des_fonds(s);
+    then subrogation_acquise(s, c, preteur);
+}
+
+@source(CC_ART1346_3)
+rule PreferenceDuCreancierPartiellementPaye(s: Subrogation, c: Creance) strict {
+    label fr official "Article 1346-3. La subrogation ne peut nuire au créancier lorsqu'il n'a été payé qu'en partie ; en ce cas, il peut exercer ses droits, pour ce qui lui reste dû, par préférence à celui dont il n'a reçu qu'un paiement partiel";
+    label en unofficial "Article 1346-3. Subrogation may not harm the creditor where he was only partly paid; he may then exercise his rights, for the balance due, in preference to the partial payer";
+    when subrogation_de_la_creance(s, c) and creancier_paye_en_partie_seulement(s);
+    then preference_du_creancier_partiellement_paye(s, c);
+}
+
+@source(CC_ART1346_3)
+rule P2LiberteExercerLaPreference(s: Subrogation, c: Creance, cr: Personne, p: Personne, jour: Date) strict {
+    label fr official "Article 1346-3. Le créancier partiellement payé peut exercer ses droits par préférence";
+    label en unofficial "Article 1346-3. The partly paid creditor may exercise his rights in preference";
+    when preference_du_creancier_partiellement_paye(s, c)
+        and fr.code_civil.core::creancier(c, cr)
+        and subroge(s, p)
+        and date_d_exigibilite(c, jour);
+    then liberty P2PositionLiberteExercerLaPreference {
+        holder cr;
+        against p;
+        action exercice_de_la_preference_du_creancier(s, c);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1346_4) {
+    rule EtendueDeLaSubrogation(s: Subrogation, c: Creance, p: Personne, m: Money) strict {
+        label fr official "Article 1346-4, alinéa 1. La subrogation transmet à son bénéficiaire, dans la limite de ce qu'il a payé, la créance et ses accessoires";
+        label en unofficial "Article 1346-4, paragraph 1. Subrogation transfers to its beneficiary, within the limit of what he paid, the claim and its accessories";
+        when subrogation_acquise(s, c, p) and montant_paye_par_le_subroge(s, m);
+        then etendue_de_la_subrogation(s, m);
+    }
+    rule DroitAttacheALaPersonneNonTransmis(s: Subrogation, c: Creance, p: Personne) strict {
+        label fr official "Article 1346-4, alinéa 1, in fine. A l'exception des droits exclusivement attachés à la personne du créancier";
+        label en unofficial "Article 1346-4, paragraph 1, in fine. Except for rights exclusively attached to the creditor's person";
+        when subrogation_acquise(s, c, p) and droit_exclusivement_attache_a_la_personne(c);
+        then droit_non_transmis_au_subroge(s, c);
+    }
+}
+
+@source(CC_ART1346_5) {
+    rule SubrogationOpposableAuDebiteur(s: Subrogation, c: Creance) strict {
+        label fr official "Article 1346-5, alinéa 1. Elle ne peut être opposée au débiteur que si elle lui a été notifiée ou s'il en a pris acte";
+        label en unofficial "Article 1346-5, paragraph 1. It may be set up against the debtor only if notified to him or acknowledged by him";
+        when subrogation_de_la_creance(s, c) and subrogation_notifiee_ou_prise_en_acte(s);
+        then subrogation_opposable_au_debiteur(s, c);
+    }
+    rule SubrogationInopposableAuDebiteur(s: Subrogation, c: Creance) strict {
+        label fr official "Article 1346-5, alinéa 1. Faute de notification ou de prise d'acte, la subrogation n'est pas opposable au débiteur";
+        label en unofficial "Article 1346-5, paragraph 1. Absent notification or acknowledgement, subrogation is not enforceable against the debtor";
+        when subrogation_de_la_creance(s, c) and not_known(subrogation_notifiee_ou_prise_en_acte(s));
+        then subrogation_inopposable_au_debiteur(s, c);
+    }
+}
+
+// --- Section 2 : la compensation (1347 à 1348-2) --------------------------------------------
+
+pub relation obligation_reciproque(c: Creance, autre: Creance) kind empirical {
+    label fr official "obligations réciproques entre deux personnes (article 1347, alinéa 1)";
+    label en unofficial "reciprocal obligations between two persons (Article 1347, paragraph 1)";
+}
+pub relation compensation_invoquee(c: Creance, autre: Creance) kind empirical {
+    label fr official "la compensation est invoquée (article 1347, alinéa 2)";
+    label en unofficial "set-off is invoked (Article 1347, paragraph 2)";
+}
+pub relation obligation_fongible(c: Creance) kind empirical {
+    label fr official "obligation de somme d'argent, même en différentes devises pourvu qu'elles soient convertibles, ou obligation portant sur une quantité de choses de même genre (article 1347-1, alinéa 2)";
+    label en unofficial "monetary obligation, even in different convertible currencies, or obligation bearing on a quantity of things of the same kind (Article 1347-1, paragraph 2)";
+}
+pub relation obligation_certaine(c: Creance) kind empirical {
+    label fr official "obligation certaine (article 1347-1, alinéa 1)";
+    label en unofficial "certain obligation (Article 1347-1, paragraph 1)";
+}
+pub relation obligation_liquide(c: Creance) kind empirical {
+    label fr official "obligation liquide (article 1347-1, alinéa 1)";
+    label en unofficial "liquidated obligation (Article 1347-1, paragraph 1)";
+}
+pub relation date_de_reunion_des_conditions(c: Creance, autre: Creance, jour: Date) kind empirical {
+    key(c, autre);
+    label fr official "date à laquelle les conditions de la compensation se trouvent réunies (article 1347, alinéa 2)";
+    label en unofficial "date on which the conditions for set-off are met (Article 1347, paragraph 2)";
+}
+pub relation creance_insaisissable(c: Creance) kind empirical {
+    label fr official "créance insaisissable (article 1347-2)";
+    label en unofficial "unseizable claim (Article 1347-2)";
+}
+pub relation obligation_de_restitution_protegee(c: Creance) kind empirical {
+    label fr official "obligation de restitution d'un dépôt, d'un prêt à usage ou d'une chose dont le propriétaire a été injustement privé (article 1347-2)";
+    label en unofficial "obligation to restore a deposit, a loan for use, or a thing of which the owner was unjustly deprived (Article 1347-2)";
+}
+pub relation consentement_du_creancier_a_la_compensation(c: Creance) kind empirical {
+    label fr official "le créancier consent à la compensation malgré l'article 1347-2";
+    label en unofficial "the creditor consents to set-off despite Article 1347-2";
+}
+pub relation dettes_connexes(c: Creance, autre: Creance) kind empirical {
+    label fr official "dettes connexes (articles 1347-5, 1348-1 et 1324, alinéa 2)";
+    label en unofficial "connected debts (Articles 1347-5, 1348-1 and 1324, paragraph 2)";
+}
+pub relation prise_d_acte_sans_reserve_de_la_cession(c: Creance, d: Personne) kind empirical {
+    label fr official "le débiteur a pris acte sans réserve de la cession de la créance (article 1347-5)";
+    label en unofficial "the debtor took note of the assignment of the claim without reservation (Article 1347-5)";
+}
+pub relation caution_opposant_la_compensation(c: Creance, caution_p: Personne) kind empirical {
+    label fr official "la caution oppose la compensation de ce que le créancier doit au débiteur principal (article 1347-6, alinéa 1)";
+    label en unofficial "the surety raises the set-off of what the creditor owes the principal debtor (Article 1347-6, paragraph 1)";
+}
+pub relation compensation_prononcee_en_justice(c: Creance, autre: Creance, jour: Date) kind empirical {
+    label fr official "la compensation a été prononcée en justice à cette date (article 1348)";
+    label en unofficial "set-off was ordered by the court on this date (Article 1348)";
+}
+pub relation compensation_conventionnelle(c: Creance, autre: Creance, jour: Date) kind empirical {
+    label fr official "les parties sont convenues d'éteindre leurs obligations réciproques par une compensation, à cette date (article 1348-2)";
+    label en unofficial "the parties agreed to extinguish their reciprocal obligations by set-off on this date (Article 1348-2)";
+}
+pub relation droits_acquis_par_un_tiers(c: Creance) kind empirical {
+    label fr official "des tiers ont acquis des droits sur l'obligation (articles 1347-7 et 1348-1, alinéa 3)";
+    label en unofficial "third parties acquired rights over the obligation (Articles 1347-7 and 1348-1, paragraph 3)";
+}
+
+pub relation compensation_ecartee(c: Creance) kind derived {
+    label fr official "créance insaisissable ou obligation de restitution protégée : elle n'est compensable que si le créancier y consent (article 1347-2)";
+    label en unofficial "unseizable claim or protected restitution obligation: set-off only with the creditor's consent (Article 1347-2)";
+}
+pub relation obligation_compensable(c: Creance, jour: Date) kind derived {
+    label fr official "obligation fongible, certaine, liquide et exigible au jour considéré (article 1347-1, alinéa 1)";
+    label en unofficial "obligation fungible, certain, liquidated and enforceable on the day considered (Article 1347-1, paragraph 1)";
+}
+pub relation conditions_de_la_compensation_reunies(c: Creance, autre: Creance) kind derived {
+    label fr official "la compensation n'a lieu qu'entre deux obligations fongibles, certaines, liquides et exigibles (article 1347-1, alinéa 1)";
+    label en unofficial "set-off occurs only between two obligations that are fungible, certain, liquidated and enforceable (Article 1347-1, paragraph 1)";
+}
+pub relation extinction_par_compensation(c: Creance, autre: Creance, montant: Money, jour: Date) kind derived {
+    key(c, autre);
+    label fr official "extinction simultanée des obligations réciproques, à due concurrence, à la date où ses conditions se trouvent réunies (article 1347)";
+    label en unofficial "simultaneous extinction of the reciprocal obligations, to the extent of the lesser, on the date its conditions are met (Article 1347)";
+}
+pub relation compensation_operee(c: Creance, autre: Creance) kind institutional {
+    label fr official "la compensation invoquée par le créancier a opéré entre les obligations réciproques (articles 1347 et 1347-1)";
+    label en unofficial "the set-off invoked by the creditor has operated between the reciprocal obligations (Articles 1347 and 1347-1)";
+}
+pub relation delai_de_grace_sans_effet_sur_la_compensation(c: Creance) kind derived {
+    label fr official "le délai de grâce ne fait pas obstacle à la compensation (article 1347-3)";
+    label en unofficial "a grace period does not bar set-off (Article 1347-3)";
+}
+pub relation compensation_inopposable_au_cessionnaire(c: Creance, d: Personne) kind derived {
+    label fr official "le débiteur qui a pris acte sans réserve de la cession de la créance ne peut opposer au cessionnaire la compensation qu'il eût pu opposer au cédant (article 1347-5)";
+    label en unofficial "a debtor who took note of the assignment without reservation may not raise against the assignee the set-off he could have raised against the assignor (Article 1347-5)";
+}
+pub relation opposition_compensation_au_cessionnaire(c: Creance, d: Personne) kind empirical {
+    key(c, d);
+    label fr official "le débiteur oppose la compensation au cessionnaire, ce que l'article 1347-5 lui interdit";
+    label en unofficial "the debtor raises set-off against the assignee, which Article 1347-5 prohibits";
+}
+pub relation respect_de_l_interdiction_de_compensation(c: Creance, d: Personne) kind empirical {
+    key(c, d);
+    label fr official "le débiteur respecte l'interdiction d'opposer la compensation au cessionnaire";
+    label en unofficial "the debtor observes the prohibition on raising set-off against the assignee";
+}
+pub relation compensation_opposable_par_la_caution(c: Creance, caution_p: Personne) kind derived {
+    label fr official "la caution peut opposer la compensation de ce que le créancier doit au débiteur principal (article 1347-6, alinéa 1)";
+    label en unofficial "the surety may raise the set-off of what the creditor owes the principal debtor (Article 1347-6, paragraph 1)";
+}
+pub relation compensation_opposee_par_la_caution(c: Creance, caution_p: Personne) kind institutional {
+    label fr official "la caution a opposé la compensation de ce que le créancier doit au débiteur principal (article 1347-6, alinéa 1)";
+    label en unofficial "the surety has raised set-off of what the creditor owes the principal debtor (Article 1347-6, paragraph 1)";
+}
+pub relation compensation_sans_prejudice_pour_les_tiers(c: Creance) kind derived {
+    label fr official "la compensation ne préjudicie pas aux droits acquis par des tiers (article 1347-7)";
+    label en unofficial "set-off does not prejudice rights acquired by third parties (Article 1347-7)";
+}
+pub relation compensation_judiciaire_a_la_date_de_la_decision(c: Creance, autre: Creance, jour: Date) kind derived {
+    label fr official "la compensation prononcée en justice produit ses effets à la date de la décision (article 1348, seconde phrase)";
+    label en unofficial "set-off ordered by the court takes effect on the date of the decision (Article 1348, second sentence)";
+}
+pub relation compensation_des_dettes_connexes_au_jour_de_la_premiere_exigibilite(c: Creance, autre: Creance, jour: Date) kind derived {
+    label fr official "pour les dettes connexes, la compensation est réputée s'être produite au jour de l'exigibilité de la première d'entre elles (article 1348-1, alinéa 2)";
+    label en unofficial "for connected debts, set-off is deemed to have occurred on the day the first of them became enforceable (Article 1348-1, paragraph 2)";
+}
+pub relation compensation_conventionnelle_effective(c: Creance, autre: Creance, jour: Date) kind derived {
+    label fr official "les parties peuvent librement convenir d'éteindre toutes obligations réciproques par une compensation ; celle-ci prend effet à la date de leur accord (article 1348-2)";
+    label en unofficial "the parties may freely agree to extinguish all reciprocal obligations by set-off; it takes effect on the date of their agreement (Article 1348-2)";
+}
+
+@source(CC_ART1347_2) {
+    rule CompensationEcarteePourCreanceInsaisissable(c: Creance) strict {
+        label fr official "Article 1347-2. Les créances insaisissables ne sont compensables que si le créancier y consent";
+        label en unofficial "Article 1347-2. Unseizable claims may be set off only with the creditor's consent";
+        when creance_insaisissable(c) and not_known(consentement_du_creancier_a_la_compensation(c));
+        then compensation_ecartee(c);
+    }
+    rule CompensationEcarteePourObligationDeRestitution(c: Creance) strict {
+        label fr official "Article 1347-2. Les obligations de restitution d'un dépôt, d'un prêt à usage ou d'une chose dont le propriétaire a été injustement privé ne sont compensables que si le créancier y consent";
+        label en unofficial "Article 1347-2. Obligations to restore a deposit, a loan for use or a thing of which the owner was unjustly deprived may be set off only with the creditor's consent";
+        when obligation_de_restitution_protegee(c)
+            and not_known(consentement_du_creancier_a_la_compensation(c));
+        then compensation_ecartee(c);
+    }
+}
+
+@source(CC_ART1347_1)
+rule ObligationCompensable(c: Creance, autre: Creance, jour: Date, echeance: Date) strict {
+    label fr official "Article 1347-1, alinéa 1. La compensation n'a lieu qu'entre deux obligations fongibles, certaines, liquides et exigibles";
+    label en unofficial "Article 1347-1, paragraph 1. Set-off occurs only between two obligations that are fungible, certain, liquidated and enforceable";
+    when obligation_fongible(c) and obligation_certaine(c) and obligation_liquide(c)
+        and date_de_reunion_des_conditions(c, autre, jour)
+        and date_d_exigibilite(c, echeance) and echeance <= jour;
+    then obligation_compensable(c, jour);
+}
+
+@source(CC_ART1347, CC_ART1347_1) {
+    rule ConditionsDeLaCompensationReunies(c: Creance, autre: Creance, jour: Date) strict {
+        label fr official "Article 1347-1, alinéa 1. Les conditions sont réunies lorsque les deux obligations réciproques sont fongibles, certaines, liquides et exigibles";
+        label en unofficial "Article 1347-1, paragraph 1. The conditions are met when both reciprocal obligations are fungible, certain, liquidated and enforceable";
+        when obligation_reciproque(c, autre)
+            and date_de_reunion_des_conditions(c, autre, jour)
+            and obligation_compensable(c, jour) and obligation_compensable(autre, jour)
+            and not_known(compensation_ecartee(c)) and not_known(compensation_ecartee(autre));
+        then conditions_de_la_compensation_reunies(c, autre);
+    }
+    rule ExtinctionParCompensation(c: Creance, autre: Creance, jour: Date, m1: Money, m2: Money) strict {
+        label fr official "Article 1347. La compensation est l'extinction simultanée d'obligations réciproques entre deux personnes ; elle s'opère, sous réserve d'être invoquée, à due concurrence, à la date où ses conditions se trouvent réunies";
+        label en unofficial "Article 1347. Set-off is the simultaneous extinction of reciprocal obligations between two persons; subject to being invoked, it operates to the extent of the lesser, on the date its conditions are met";
+        when conditions_de_la_compensation_reunies(c, autre)
+            and compensation_invoquee(c, autre)
+            and date_de_reunion_des_conditions(c, autre, jour)
+            and fr.code_civil.core::objet_monetaire(c, m1)
+            and fr.code_civil.core::objet_monetaire(autre, m2);
+        then extinction_par_compensation(c, autre, min(m1, m2), jour);
+    }
+}
+
+@source(CC_ART1347_3)
+rule DelaiDeGraceSansEffetSurLaCompensation(c: Creance, reportee: Date) strict {
+    label fr official "Article 1347-3. Le délai de grâce ne fait pas obstacle à la compensation";
+    label en unofficial "Article 1347-3. A grace period does not bar set-off";
+    when delai_de_grace_accorde(c, reportee);
+    then delai_de_grace_sans_effet_sur_la_compensation(c);
+}
+
+@source(CC_ART1347_5)
+rule CompensationInopposableAuCessionnaire(c: Creance, d: Personne) strict {
+    label fr official "Article 1347-5. Le débiteur qui a pris acte sans réserve de la cession de la créance ne peut opposer au cessionnaire la compensation qu'il eût pu opposer au cédant";
+    label en unofficial "Article 1347-5. A debtor who took note of the assignment of the claim without reservation may not raise against the assignee the set-off he could have raised against the assignor";
+    when prise_d_acte_sans_reserve_de_la_cession(c, d);
+    then compensation_inopposable_au_cessionnaire(c, d);
+}
+
+// L'article 1347-6 a reçu de la loi n° 2018-287 une modification de caractère
+// INTERPRÉTATIF : elle vaut depuis le 1er octobre 2016 (corridor 2018).
+@source(CC_ART1347_6)
+rule CompensationOpposableParLaCaution(c: Creance, caution_p: Personne) strict {
+    label fr official "Article 1347-6, alinéa 1. La caution peut opposer la compensation de ce que le créancier doit au débiteur principal";
+    label en unofficial "Article 1347-6, paragraph 1. The surety may raise the set-off of what the creditor owes the principal debtor";
+    when caution_opposant_la_compensation(c, caution_p);
+    then compensation_opposable_par_la_caution(c, caution_p);
+}
+
+@source(CC_ART1347_5)
+rule P2InterdictionOpposerLaCompensation(c: Creance, d: Personne, jour: Date) strict {
+    label fr official "Article 1347-5. Le débiteur ne peut opposer au cessionnaire la compensation";
+    label en unofficial "Article 1347-5. The debtor must not raise set-off against the assignee";
+    when compensation_inopposable_au_cessionnaire(c, d)
+        and date_d_exigibilite(c, jour);
+    then prohibition P2PositionInterdictionOpposerLaCompensation {
+        bearer d;
+        action opposition_compensation_au_cessionnaire(c, d);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1347_5)
+rule ApplyP2MaintienInterdictionCompensation(c: Creance, d: Personne, jour: Date) strict {
+    label fr official "Article 1347-5. Le débiteur doit maintenir le respect de l'interdiction d'opposer la compensation";
+    label en unofficial "Article 1347-5. The debtor must maintain observance of the prohibition on raising set-off";
+    when compensation_inopposable_au_cessionnaire(c, d)
+        and date_d_exigibilite(c, jour);
+    then duty P2MaintienInterdictionCompensation {
+        bearer d;
+        goal maintenance {
+            condition respect_de_l_interdiction_de_compensation(c, d);
+            window [jour, infinity];
+        }
+    };
+}
+
+@source(CC_ART1347_6)
+rule P2PouvoirOpposerLaCompensationCaution(c: Creance, caution_p: Personne, jour: Date) strict {
+    label fr official "Article 1347-6. La caution peut opposer la compensation de ce que le créancier doit au débiteur principal";
+    label en unofficial "Article 1347-6. The surety may raise set-off of what the creditor owes the principal debtor";
+    when caution_opposant_la_compensation(c, caution_p)
+        and date_d_exigibilite(c, jour);
+    then power P2PositionPouvoirOpposerLaCompensationCaution {
+        holder caution_p;
+        over c;
+        exercise caution_opposant_la_compensation(c, caution_p);
+        valid_when compensation_opposable_par_la_caution(c, caution_p);
+        effect compensation_opposee_par_la_caution(c, caution_p);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1347_7)
+rule CompensationSansPrejudicePourLesTiers(c: Creance) strict {
+    label fr official "Article 1347-7. La compensation ne préjudicie pas aux droits acquis par des tiers";
+    label en unofficial "Article 1347-7. Set-off does not prejudice rights acquired by third parties";
+    when droits_acquis_par_un_tiers(c);
+    then compensation_sans_prejudice_pour_les_tiers(c);
+}
+
+@source(CC_ART1348)
+rule CompensationJudiciaire(c: Creance, autre: Creance, jour: Date) strict {
+    label fr official "Article 1348. La compensation peut être prononcée en justice, même si l'une des obligations, quoique certaine, n'est pas encore liquide ou exigible ; à moins qu'il n'en soit décidé autrement, elle produit alors ses effets à la date de la décision";
+    label en unofficial "Article 1348. Set-off may be ordered by the court even if one obligation, though certain, is not yet liquidated or enforceable; unless otherwise decided, it then takes effect on the date of the decision";
+    when compensation_prononcee_en_justice(c, autre, jour) and obligation_certaine(c)
+        and obligation_certaine(autre);
+    then compensation_judiciaire_a_la_date_de_la_decision(c, autre, jour);
+}
+
+@source(CC_ART1348_1)
+rule CompensationDesDettesConnexes(c: Creance, autre: Creance, e1: Date, e2: Date) strict {
+    label fr official "Article 1348-1, alinéas 1 et 2. Le juge ne peut refuser la compensation de dettes connexes au seul motif que l'une des obligations ne serait pas liquide ou exigible ; dans ce cas, la compensation est réputée s'être produite au jour de l'exigibilité de la première d'entre elles";
+    label en unofficial "Article 1348-1, paragraphs 1 and 2. The court may not refuse set-off of connected debts on the sole ground that one obligation is not liquidated or enforceable; set-off is then deemed to have occurred on the day the first of them became enforceable";
+    when dettes_connexes(c, autre)
+        and date_d_exigibilite(c, e1) and date_d_exigibilite(autre, e2);
+    then compensation_des_dettes_connexes_au_jour_de_la_premiere_exigibilite(c, autre, min(e1, e2));
+}
+
+@source(CC_ART1348_2)
+rule CompensationConventionnelle(c: Creance, autre: Creance, jour: Date) strict {
+    label fr official "Article 1348-2. Les parties peuvent librement convenir d'éteindre toutes obligations réciproques, présentes ou futures, par une compensation ; celle-ci prend effet à la date de leur accord ou, s'il s'agit d'obligations futures, à celle de leur coexistence";
+    label en unofficial "Article 1348-2. The parties may freely agree to extinguish all reciprocal obligations, present or future, by set-off; it takes effect on the date of their agreement or, for future obligations, on the date they coexist";
+    when compensation_conventionnelle(c, autre, jour);
+    then compensation_conventionnelle_effective(c, autre, jour);
+}
+
+@source(CC_ART1347, CC_ART1347_1)
+rule P2PouvoirDInvoquerLaCompensation(c: Creance, autre: Creance, cr: Personne, jour: Date, m1: Money, m2: Money) strict {
+    label fr official "Articles 1347 et 1347-1. Le créancier peut invoquer la compensation de ses obligations réciproques lorsqu'elles sont certaines, liquides et exigibles";
+    label en unofficial "Articles 1347 and 1347-1. A creditor may invoke set-off of reciprocal obligations when they are certain, liquidated and enforceable";
+    when fr.code_civil.core::creancier(c, cr)
+        and conditions_de_la_compensation_reunies(c, autre)
+        and date_de_reunion_des_conditions(c, autre, jour)
+        and fr.code_civil.core::objet_monetaire(c, m1)
+        and fr.code_civil.core::objet_monetaire(autre, m2);
+    then power P2PositionPouvoirDInvoquerLaCompensation {
+        holder cr;
+        over autre;
+        exercise compensation_invoquee(c, autre);
+        valid_when conditions_de_la_compensation_reunies(c, autre);
+        effect compensation_operee(c, autre);
+        window [jour, infinity];
+    };
+}
+
+// --- Section 3 : la confusion (1349, 1349-1) ------------------------------------------------
+
+pub relation reunion_des_qualites_dans_la_meme_personne(c: Creance, p: Personne) kind empirical {
+    label fr official "les qualités de créancier et de débiteur d'une même obligation sont réunies dans la même personne (article 1349)";
+    label en unofficial "the capacities of creditor and debtor of the same obligation are united in the same person (Article 1349)";
+}
+pub relation caution_de_la_creance(c: Creance, caution_p: Personne) kind empirical {
+    label fr official "caution de l'obligation (articles 1349-1, 1350-2 et 1385-4)";
+    label en unofficial "surety of the obligation (Articles 1349-1, 1350-2 and 1385-4)";
+}
+
+pub relation extinction_par_confusion(c: Creance) kind derived {
+    label fr official "la confusion éteint la créance et ses accessoires, sous réserve des droits acquis par ou contre des tiers (article 1349)";
+    label en unofficial "merger extinguishes the claim and its accessories, subject to rights acquired by or against third parties (Article 1349)";
+}
+pub relation extinction_par_confusion_limitee_a_la_part(c: Creance, p: Personne) kind derived {
+    label fr official "lorsqu'il y a solidarité et que la confusion ne concerne que l'un d'eux, l'extinction n'a lieu, à l'égard des autres, que pour sa part (article 1349-1, alinéa 1)";
+    label en unofficial "where there is solidarity and merger concerns only one of them, extinction occurs, as regards the others, only for his share (Article 1349-1, paragraph 1)";
+}
+pub relation caution_liberee_par_la_confusion(c: Creance, caution_p: Personne) kind derived {
+    label fr official "lorsque la confusion concerne une obligation cautionnée, la caution, même solidaire, est libérée (article 1349-1, alinéa 2)";
+    label en unofficial "where merger concerns a secured obligation, the surety, even a joint one, is discharged (Article 1349-1, paragraph 2)";
+}
+
+@source(CC_ART1349)
+rule ExtinctionParConfusion(c: Creance, p: Personne) strict {
+    label fr official "Article 1349. La confusion résulte de la réunion des qualités de créancier et de débiteur d'une même obligation dans la même personne ; elle éteint la créance et ses accessoires";
+    label en unofficial "Article 1349. Merger results from the union in the same person of the capacities of creditor and debtor of the same obligation; it extinguishes the claim and its accessories";
+    when reunion_des_qualites_dans_la_meme_personne(c, p)
+        and not_known(obligation_solidaire_entre_debiteurs(c))
+        and not_known(obligation_solidaire_entre_creanciers(c));
+    then extinction_par_confusion(c);
+}
+
+@source(CC_ART1349_1) {
+    rule ConfusionLimiteeALaPartDuCodebiteur(c: Creance, p: Personne) strict {
+        label fr official "Article 1349-1, alinéa 1. Lorsqu'il y a solidarité entre plusieurs débiteurs ou entre plusieurs créanciers, et que la confusion ne concerne que l'un d'eux, l'extinction n'a lieu, à l'égard des autres, que pour sa part";
+        label en unofficial "Article 1349-1, paragraph 1. Where there is solidarity among several debtors or creditors and merger concerns only one of them, extinction occurs, as regards the others, only for his share";
+        when reunion_des_qualites_dans_la_meme_personne(c, p)
+            and obligation_solidaire_entre_debiteurs(c);
+        then extinction_par_confusion_limitee_a_la_part(c, p);
+    }
+    rule CautionLibereeParLaConfusion(c: Creance, p: Personne, caution_p: Personne) strict {
+        label fr official "Article 1349-1, alinéa 2. Lorsque la confusion concerne une obligation cautionnée, la caution, même solidaire, est libérée";
+        label en unofficial "Article 1349-1, paragraph 2. Where merger concerns a secured obligation, the surety, even a joint one, is discharged";
+        when reunion_des_qualites_dans_la_meme_personne(c, p) and caution_de_la_creance(c, caution_p);
+        then caution_liberee_par_la_confusion(c, caution_p);
+    }
+}
+
+// --- Section 4 : la remise de dette (1350 à 1350-2) -----------------------------------------
+
+pub relation remise_consentie(r: RemiseDeDette, c: Creance, d: Personne) kind empirical {
+    label fr official "remise de dette consentie par le créancier au débiteur (article 1350)";
+    label en unofficial "release of debt granted by the creditor to the debtor (Article 1350)";
+}
+pub relation remise_consentie_a_une_caution(r: RemiseDeDette, c: Creance, caution_p: Personne) kind empirical {
+    label fr official "remise consentie à l'une des cautions solidaires (article 1350-2, alinéa 2)";
+    label en unofficial "release granted to one of the joint sureties (Article 1350-2, paragraph 2)";
+}
+pub relation remise_faite_par_un_creancier_solidaire(r: RemiseDeDette, c: Creance, cr: Personne) kind empirical {
+    label fr official "remise faite par l'un seulement des créanciers solidaires (article 1350-1, alinéa 2)";
+    label en unofficial "release granted by only one of the joint creditors (Article 1350-1, paragraph 2)";
+}
+
+pub relation debiteur_libere_par_la_remise(c: Creance, d: Personne) kind derived {
+    label fr official "la remise de dette libère le débiteur de son obligation (article 1350)";
+    label en unofficial "the release of debt discharges the debtor from his obligation (Article 1350)";
+}
+pub relation codebiteurs_liberes_a_concurrence_de_la_part(c: Creance, d: Personne) kind derived {
+    label fr official "la remise de dette consentie à l'un des codébiteurs solidaires libère les autres à concurrence de sa part (article 1350-1, alinéa 1)";
+    label en unofficial "a release granted to one joint debtor discharges the others to the extent of his share (Article 1350-1, paragraph 1)";
+}
+pub relation debiteur_libere_pour_la_part_du_creancier(c: Creance, cr: Personne) kind derived {
+    label fr official "la remise faite par l'un seulement des créanciers solidaires ne libère le débiteur que pour la part de ce créancier (article 1350-1, alinéa 2)";
+    label en unofficial "a release granted by only one joint creditor discharges the debtor only for that creditor's share (Article 1350-1, paragraph 2)";
+}
+pub relation cautions_liberees_par_la_remise(c: Creance, caution_p: Personne) kind derived {
+    label fr official "la remise de dette accordée au débiteur principal libère les cautions, même solidaires (article 1350-2, alinéa 1)";
+    label en unofficial "a release granted to the principal debtor discharges the sureties, even joint ones (Article 1350-2, paragraph 1)";
+}
+pub relation debiteur_principal_non_libere(c: Creance) kind derived {
+    label fr official "la remise consentie à l'une des cautions solidaires ne libère pas le débiteur principal (article 1350-2, alinéa 2)";
+    label en unofficial "a release granted to one of the joint sureties does not discharge the principal debtor (Article 1350-2, paragraph 2)";
+}
+
+@source(CC_ART1350)
+rule RemiseDeDetteLibereLeDebiteur(r: RemiseDeDette, c: Creance, d: Personne) strict {
+    label fr official "Article 1350. La remise de dette est le contrat par lequel le créancier libère le débiteur de son obligation";
+    label en unofficial "Article 1350. A release of debt is the contract by which the creditor discharges the debtor from his obligation";
+    when remise_consentie(r, c, d);
+    then debiteur_libere_par_la_remise(c, d);
+}
+
+@source(CC_ART1350_1) {
+    rule RemiseAUnCodebiteurSolidaire(r: RemiseDeDette, c: Creance, d: Personne) strict {
+        label fr official "Article 1350-1, alinéa 1. La remise de dette consentie à l'un des codébiteurs solidaires libère les autres à concurrence de sa part";
+        label en unofficial "Article 1350-1, paragraph 1. A release granted to one joint debtor discharges the others to the extent of his share";
+        when remise_consentie(r, c, d) and obligation_solidaire_entre_debiteurs(c);
+        then codebiteurs_liberes_a_concurrence_de_la_part(c, d);
+    }
+    rule RemiseParUnCreancierSolidaire(r: RemiseDeDette, c: Creance, cr: Personne) strict {
+        label fr official "Article 1350-1, alinéa 2. La remise de dette faite par l'un seulement des créanciers solidaires ne libère le débiteur que pour la part de ce créancier";
+        label en unofficial "Article 1350-1, paragraph 2. A release granted by only one of the joint creditors discharges the debtor only for that creditor's share";
+        when remise_faite_par_un_creancier_solidaire(r, c, cr) and obligation_solidaire_entre_creanciers(c);
+        then debiteur_libere_pour_la_part_du_creancier(c, cr);
+    }
+}
+
+@source(CC_ART1350_2) {
+    rule RemiseAuDebiteurPrincipalLibereLesCautions(r: RemiseDeDette, c: Creance, d: Personne, caution_p: Personne) strict {
+        label fr official "Article 1350-2, alinéa 1. La remise de dette accordée au débiteur principal libère les cautions, même solidaires";
+        label en unofficial "Article 1350-2, paragraph 1. A release granted to the principal debtor discharges the sureties, even joint ones";
+        when remise_consentie(r, c, d) and fr.code_civil.core::debiteur(c, d)
+            and caution_de_la_creance(c, caution_p);
+        then cautions_liberees_par_la_remise(c, caution_p);
+    }
+    rule RemiseAUneCautionNeLiberePasLeDebiteur(r: RemiseDeDette, c: Creance, caution_p: Personne) strict {
+        label fr official "Article 1350-2, alinéa 2. La remise consentie à l'une des cautions solidaires ne libère pas le débiteur principal, mais libère les autres à concurrence de sa part";
+        label en unofficial "Article 1350-2, paragraph 2. A release granted to one of the joint sureties does not discharge the principal debtor, but discharges the others to the extent of his share";
+        when remise_consentie_a_une_caution(r, c, caution_p);
+        then debiteur_principal_non_libere(c);
+    }
+}
+
+// --- Section 5 : l'impossibilité d'exécuter (1351, 1351-1) -----------------------------------
+//
+// La force majeure est définie à l'article 1218 (paquet du contrat, CC-08) :
+// ce paquet ne l'importe pas et la reçoit par le canal du juge. Le pont futur
+// est noté dans DECISIONS.md (D-CC10-04).
+
+pub relation risque_assume_par_le_debiteur(c: Creance) kind empirical {
+    label fr official "le débiteur avait convenu de se charger du risque de l'impossibilité (article 1351)";
+    label en unofficial "the debtor had agreed to bear the risk of impossibility (Article 1351)";
+}
+pub relation perte_de_la_chose_due(c: Creance) kind empirical {
+    label fr official "l'impossibilité d'exécuter résulte de la perte de la chose due (article 1351-1, alinéa 1)";
+    label en unofficial "the impossibility to perform results from the loss of the thing owed (Article 1351-1, paragraph 1)";
+}
+pub relation perte_se_serait_pareillement_produite(c: Creance) kind empirical {
+    label fr official "le débiteur prouve que la perte se serait pareillement produite si l'obligation avait été exécutée (article 1351-1, alinéa 1)";
+    label en unofficial "the debtor proves the loss would equally have occurred had the obligation been performed (Article 1351-1, paragraph 1)";
+}
+
+pub relation mise_en_demeure_prealable(c: Creance) kind derived {
+    label fr official "le débiteur a été préalablement mis en demeure (articles 1351 et 1351-1)";
+    label en unofficial "the debtor was previously given formal notice (Articles 1351 and 1351-1)";
+}
+pub relation debiteur_libere_par_l_impossibilite(c: Creance) kind derived {
+    label fr official "l'impossibilité d'exécuter la prestation libère le débiteur à due concurrence lorsqu'elle procède d'un cas de force majeure et qu'elle est définitive (article 1351)";
+    label en unofficial "the impossibility to perform discharges the debtor to the corresponding extent where it arises from force majeure and is definitive (Article 1351)";
+}
+pub relation debiteur_non_libere_malgre_la_force_majeure(c: Creance) kind derived {
+    label fr official "le débiteur qui a convenu de se charger du risque, ou qui a été préalablement mis en demeure, n'est pas libéré (article 1351, in fine)";
+    label en unofficial "a debtor who agreed to bear the risk, or who was previously given formal notice, is not discharged (Article 1351, in fine)";
+}
+pub relation debiteur_mis_en_demeure_neanmoins_libere(c: Creance) kind derived {
+    label fr official "le débiteur mis en demeure est néanmoins libéré s'il prouve que la perte se serait pareillement produite (article 1351-1, alinéa 1)";
+    label en unofficial "a debtor given formal notice is nonetheless discharged if he proves the loss would equally have occurred (Article 1351-1, paragraph 1)";
+}
+pub relation cession_des_droits_attaches_a_la_chose(c: Creance) kind derived {
+    label fr official "le débiteur est cependant tenu de céder à son créancier les droits et actions attachés à la chose (article 1351-1, alinéa 2)";
+    label en unofficial "the debtor is nonetheless bound to assign to his creditor the rights and actions attached to the thing (Article 1351-1, paragraph 2)";
+}
+
+@source(CC_ART1351) {
+    rule MiseEnDemeurePrealable(c: Creance, d: Personne, jour: Date) strict {
+        label fr official "Articles 1351 et 1351-1. Le débiteur a été préalablement mis en demeure";
+        label en unofficial "Articles 1351 and 1351-1. The debtor was previously given formal notice";
+        when debiteur_mis_en_demeure(c, d, jour);
+        then mise_en_demeure_prealable(c);
+    }
+    rule LiberationParLImpossibilite(c: Creance) strict {
+        label fr official "Article 1351. L'impossibilité d'exécuter la prestation libère le débiteur à due concurrence lorsqu'elle procède d'un cas de force majeure et qu'elle est définitive, à moins qu'il n'ait convenu de s'en charger ou qu'il ait été préalablement mis en demeure";
+        label en unofficial "Article 1351. The impossibility to perform discharges the debtor to the corresponding extent where it arises from force majeure and is definitive, unless he agreed to bear it or was previously given formal notice";
+        when force_majeure_definitive(c)
+            and not_known(risque_assume_par_le_debiteur(c))
+            and not_known(mise_en_demeure_prealable(c));
+        then debiteur_libere_par_l_impossibilite(c);
+    }
+    rule DebiteurNonLibereAyantAssumeLeRisque(c: Creance) strict {
+        label fr official "Article 1351, in fine. Le débiteur qui a convenu de se charger de l'impossibilité n'est pas libéré";
+        label en unofficial "Article 1351, in fine. A debtor who agreed to bear the impossibility is not discharged";
+        when force_majeure_definitive(c) and risque_assume_par_le_debiteur(c);
+        then debiteur_non_libere_malgre_la_force_majeure(c);
+    }
+    rule DebiteurNonLibereMisEnDemeure(c: Creance) strict {
+        label fr official "Article 1351, in fine. Le débiteur préalablement mis en demeure n'est pas libéré";
+        label en unofficial "Article 1351, in fine. A debtor previously given formal notice is not discharged";
+        when force_majeure_definitive(c) and mise_en_demeure_prealable(c);
+        then debiteur_non_libere_malgre_la_force_majeure(c);
+    }
+}
+
+@source(CC_ART1351_1) {
+    rule PerteQuiSeSeraitPareillementProduite(c: Creance) strict {
+        label fr official "Article 1351-1, alinéa 1. Lorsque l'impossibilité d'exécuter résulte de la perte de la chose due, le débiteur mis en demeure est néanmoins libéré s'il prouve que la perte se serait pareillement produite si l'obligation avait été exécutée";
+        label en unofficial "Article 1351-1, paragraph 1. Where the impossibility results from the loss of the thing owed, a debtor given formal notice is nonetheless discharged if he proves the loss would equally have occurred had the obligation been performed";
+        when perte_de_la_chose_due(c) and mise_en_demeure_prealable(c)
+            and perte_se_serait_pareillement_produite(c);
+        then debiteur_mis_en_demeure_neanmoins_libere(c);
+    }
+    rule CessionDesDroitsAttachesALaChose(c: Creance) strict {
+        label fr official "Article 1351-1, alinéa 2. Il est cependant tenu de céder à son créancier les droits et actions attachés à la chose";
+        label en unofficial "Article 1351-1, paragraph 2. He is nonetheless bound to assign to his creditor the rights and actions attached to the thing";
+        when debiteur_mis_en_demeure_neanmoins_libere(c);
+        then cession_des_droits_attaches_a_la_chose(c);
+    }
+}
+
+// --- Renvoi de la compensation à l'imputation des paiements (1347-4) -------------------------
+
+pub relation regles_d_imputation_transposables(c: Creance, autre: Creance) kind derived {
+    label fr official "s'il y a plusieurs dettes compensables, les règles d'imputation des paiements sont transposables (article 1347-4) : l'ordre de l'article 1342-10 gouverne aussi le choix entre elles";
+    label en unofficial "where there are several debts capable of set-off, the rules on appropriation of payments are transposable (Article 1347-4): the order of Article 1342-10 also governs the choice among them";
+}
+
+@source(CC_ART1347_4)
+rule ReglesDImputationTransposables(c: Creance, autre: Creance, jour: Date) strict {
+    label fr official "Article 1347-4. S'il y a plusieurs dettes compensables, les règles d'imputation des paiements sont transposables";
+    label en unofficial "Article 1347-4. Where there are several debts capable of set-off, the rules on appropriation of payments are transposable";
+    when obligation_compensable(c, jour) and obligation_compensable(autre, jour) and c != autre;
+    then regles_d_imputation_transposables(c, autre);
+}
+
+// --- Alinéas que les sections précédentes n'avaient pas portés ------------------------------
+
+pub relation prestation_due_executee_volontairement(pay: Paiement) kind empirical {
+    label fr official "la prestation due a été exécutée volontairement (article 1342, alinéa 1)";
+    label en unofficial "what was owed was voluntarily performed (Article 1342, paragraph 1)";
+}
+pub relation dation_acceptee_par_le_creancier(pay: Paiement) kind empirical {
+    label fr official "le créancier accepte de recevoir en paiement autre chose que ce qui lui est dû (article 1342-4, alinéa 2)";
+    label en unofficial "the creditor agrees to receive in payment something other than what is owed to him (Article 1342-4, paragraph 2)";
+}
+pub relation taux_reduit_ordonne_par_le_juge(c: Creance) kind empirical {
+    label fr official "par décision spéciale et motivée, le juge ordonne que les sommes reportées porteront intérêt à un taux réduit au moins égal au taux légal (article 1343-5, alinéa 2)";
+    label en unofficial "by a special reasoned decision, the court orders that the deferred sums shall bear interest at a reduced rate at least equal to the legal rate (Article 1343-5, paragraph 2)";
+}
+pub relation imputation_sur_le_capital_ordonnee(c: Creance) kind empirical {
+    label fr official "par décision spéciale et motivée, le juge ordonne que les paiements s'imputeront d'abord sur le capital (article 1343-5, alinéa 2)";
+    label en unofficial "by a special reasoned decision, the court orders that payments shall be appropriated first to the principal (Article 1343-5, paragraph 2)";
+}
+pub relation mesure_subordonnee_a_des_actes_du_debiteur(c: Creance) kind empirical {
+    label fr official "le juge subordonne ces mesures à l'accomplissement par le débiteur d'actes propres à faciliter ou à garantir le paiement de la dette (article 1343-5, alinéa 3)";
+    label en unofficial "the court makes those measures conditional on the debtor's performing acts apt to facilitate or secure payment of the debt (Article 1343-5, paragraph 3)";
+}
+pub relation stipulation_contraire_au_delai_de_grace(c: Creance) kind empirical {
+    label fr official "une stipulation contraire aux dispositions de l'article 1343-5 a été convenue (alinéa 5)";
+    label en unofficial "a stipulation contrary to Article 1343-5 was agreed (paragraph 5)";
+}
+pub relation consignation_ou_sequestre_notifie_le(c: Creance, jour: Date) kind empirical {
+    label fr official "la consignation ou le séquestre ont été notifiés au créancier à cette date (article 1345-1, alinéa 3)";
+    label en unofficial "the deposit or sequestration was notified to the creditor on this date (Article 1345-1, paragraph 3)";
+}
+pub relation acte_d_emprunt_et_quittance_notaries(s: Subrogation) kind empirical {
+    label fr official "l'acte d'emprunt et la quittance ont été passés devant notaire, avec les déclarations que le texte exige (article 1346-2, alinéa 2)";
+    label en unofficial "the loan deed and the receipt were executed before a notary, with the declarations the text requires (Article 1346-2, paragraph 2)";
+}
+pub relation dette_echue_ou_terme_en_faveur_du_debiteur(c: Creance) kind empirical {
+    label fr official "la dette est échue ou le terme est en faveur du débiteur (article 1346-2, alinéa 2)";
+    label en unofficial "the debt has matured or the term is in the debtor's favour (Article 1346-2, paragraph 2)";
+}
+pub relation nouvel_interet_convenu_avec_le_debiteur(s: Subrogation) kind empirical {
+    label fr official "le subrogé a convenu d'un nouvel intérêt avec le débiteur (article 1346-4, alinéa 2)";
+    label en unofficial "the subrogee agreed a new rate of interest with the debtor (Article 1346-4, paragraph 2)";
+}
+pub relation exception_nee_avant_la_subrogation(s: Subrogation, c: Creance) kind empirical {
+    label fr official "exception née des rapports du débiteur avec le subrogeant avant que la subrogation lui soit devenue opposable (article 1346-5, alinéa 3)";
+    label en unofficial "defence arising from the debtor's dealings with the subrogor before the subrogation became enforceable against him (Article 1346-5, paragraph 3)";
+}
+pub relation exception_a_opposer_au_subroge(s: Subrogation, c: Creance) kind empirical {
+    key(s, c);
+    label fr official "le débiteur exerce l'opposition d'une exception au créancier subrogé (article 1346-5)";
+    label en unofficial "the debtor exercises an exception against the subrogated creditor (Article 1346-5)";
+}
+pub relation date_du_paiement_subrogatoire(s: Subrogation, jour: Date) kind empirical {
+    key(s);
+    label fr official "date du paiement qui fonde la subrogation (article 1346-5, alinéa 2)";
+    label en unofficial "date of the payment on which the subrogation is founded (Article 1346-5, paragraph 2)";
+}
+pub relation obligation_portant_sur_une_quantite_de_choses_de_meme_genre(c: Creance) kind empirical {
+    label fr official "l'obligation porte sur une quantité de choses de même genre (article 1347-1, alinéa 2)";
+    label en unofficial "the obligation bears on a quantity of things of the same kind (Article 1347-1, paragraph 2)";
+}
+pub relation devises_convertibles(c: Creance) kind empirical {
+    label fr official "les obligations de somme d'argent sont libellées en devises convertibles (article 1347-1, alinéa 2)";
+    label en unofficial "the monetary obligations are denominated in convertible currencies (Article 1347-1, paragraph 2)";
+}
+pub relation valeur_fournie_par_la_caution(c: Creance, caution_p: Personne, v: Money) kind empirical {
+    key(c, caution_p);
+    label fr official "ce que le créancier a reçu d'une caution pour la décharge de son cautionnement (article 1350-2, alinéa 3)";
+    label en unofficial "what the creditor received from a surety to discharge his suretyship (Article 1350-2, paragraph 3)";
+}
+
+pub relation paiement_constitue(pay: Paiement) kind derived {
+    label fr official "le paiement est l'exécution volontaire de la prestation due (article 1342, alinéa 1)";
+    label en unofficial "payment is the voluntary performance of what is owed (Article 1342, paragraph 1)";
+}
+pub relation dation_en_paiement_admise(pay: Paiement) kind derived {
+    label fr official "le créancier peut accepter de recevoir en paiement autre chose que ce qui lui est dû (article 1342-4, alinéa 2)";
+    label en unofficial "the creditor may agree to receive in payment something other than what is owed to him (Article 1342-4, paragraph 2)";
+}
+pub relation amenagement_special_du_delai_de_grace(c: Creance) kind derived {
+    label fr official "par décision spéciale et motivée, le juge peut ordonner un taux réduit ou l'imputation d'abord sur le capital (article 1343-5, alinéa 2)";
+    label en unofficial "by a special reasoned decision, the court may order a reduced rate or appropriation first to the principal (Article 1343-5, paragraph 2)";
+}
+pub relation delai_de_grace_subordonne(c: Creance) kind derived {
+    label fr official "le juge peut subordonner ces mesures à l'accomplissement par le débiteur d'actes propres à faciliter ou à garantir le paiement de la dette (article 1343-5, alinéa 3)";
+    label en unofficial "the court may make those measures conditional on the debtor's performing acts apt to facilitate or secure payment of the debt (Article 1343-5, paragraph 3)";
+}
+pub relation stipulation_contraire_reputee_non_ecrite(c: Creance) kind derived {
+    label fr official "toute stipulation contraire est réputée non écrite (article 1343-5, alinéa 5)";
+    label en unofficial "any contrary stipulation is deemed unwritten (Article 1343-5, paragraph 5)";
+}
+pub relation debiteur_libere_par_la_consignation(c: Creance, jour: Date) kind derived {
+    key(c);
+    label fr official "la consignation ou le séquestre libère le débiteur à compter de leur notification au créancier (article 1345-1, alinéa 3)";
+    label en unofficial "the deposit or sequestration discharges the debtor from their notification to the creditor (Article 1345-1, paragraph 3)";
+}
+pub relation subrogation_par_emprunt_sans_le_creancier(s: Subrogation, c: Creance, preteur: Personne) kind derived {
+    label fr official "la subrogation peut être consentie sans le concours du créancier, à la condition que la dette soit échue ou que le terme soit en faveur du débiteur, et que l'acte d'emprunt et la quittance soient passés devant notaire (article 1346-2, alinéa 2)";
+    label en unofficial "subrogation may be granted without the creditor's participation, provided the debt has matured or the term is in the debtor's favour, and the loan deed and receipt are executed before a notary (Article 1346-2, paragraph 2)";
+}
+pub relation subroge_limite_a_l_interet_legal(s: Subrogation) kind derived {
+    label fr official "le subrogé n'a droit qu'à l'intérêt légal à compter d'une mise en demeure, s'il n'a convenu avec le débiteur d'un nouvel intérêt (article 1346-4, alinéa 2)";
+    label en unofficial "the subrogee is entitled only to legal interest from a formal notice, unless he agreed a new rate with the debtor (Article 1346-4, paragraph 2)";
+}
+pub relation subrogation_opposable_aux_tiers_des_le_paiement(s: Subrogation, jour: Date) kind derived {
+    key(s);
+    label fr official "la subrogation est opposable aux tiers dès le paiement (article 1346-5, alinéa 2)";
+    label en unofficial "the subrogation is enforceable against third parties from the payment (Article 1346-5, paragraph 2)";
+}
+pub relation exception_opposable_au_creancier_subroge(s: Subrogation, c: Creance) kind derived {
+    label fr official "le débiteur peut opposer au créancier subrogé les exceptions inhérentes à la dette et celles nées de ses rapports avec le subrogeant avant que la subrogation lui soit devenue opposable (article 1346-5, alinéa 3)";
+    label en unofficial "the debtor may raise against the subrogated creditor defences inherent in the debt and those arising from his dealings with the subrogor before the subrogation became enforceable (Article 1346-5, paragraph 3)";
+}
+pub relation fongibilite_etablie(c: Creance) kind derived {
+    label fr official "sont fongibles les obligations de somme d'argent, même en différentes devises pourvu qu'elles soient convertibles, ou celles qui ont pour objet une quantité de choses de même genre (article 1347-1, alinéa 2)";
+    label en unofficial "monetary obligations, even in different convertible currencies, or those bearing on a quantity of things of the same kind, are fungible (Article 1347-1, paragraph 2)";
+}
+pub relation compensation_maintenue_malgre_les_droits_du_tiers(c: Creance, autre: Creance) kind derived {
+    label fr official "l'acquisition de droits par un tiers sur l'une des obligations connexes n'empêche pas son débiteur d'opposer la compensation (article 1348-1, alinéa 3)";
+    label en unofficial "the acquisition of rights by a third party over one of the connected obligations does not prevent its debtor from raising set-off (Article 1348-1, paragraph 3)";
+}
+pub relation valeur_fournie_imputee_sur_la_dette(c: Creance, caution_p: Personne, v: Money) kind derived {
+    key(c, caution_p);
+    label fr official "ce que le créancier a reçu d'une caution pour la décharge de son cautionnement doit être imputé sur la dette et décharger le débiteur principal à proportion (article 1350-2, alinéa 3)";
+    label en unofficial "what the creditor received from a surety to discharge his suretyship must be appropriated to the debt and discharge the principal debtor proportionally (Article 1350-2, paragraph 3)";
+}
+
+@source(CC_ART1342)
+rule PaiementConstitue(pay: Paiement, c: Creance) strict {
+    label fr official "Article 1342, alinéa 1. Le paiement est l'exécution volontaire de la prestation due";
+    label en unofficial "Article 1342, paragraph 1. Payment is the voluntary performance of what is owed";
+    when paiement_de_la_dette(pay, c) and prestation_due_executee_volontairement(pay);
+    then paiement_constitue(pay);
+}
+
+@source(CC_ART1342_4)
+rule DationEnPaiementAdmise(pay: Paiement, c: Creance) strict {
+    label fr official "Article 1342-4, alinéa 2. Il peut accepter de recevoir en paiement autre chose que ce qui lui est dû";
+    label en unofficial "Article 1342-4, paragraph 2. He may agree to receive in payment something other than what is owed to him";
+    when paiement_de_la_dette(pay, c) and dation_acceptee_par_le_creancier(pay);
+    then dation_en_paiement_admise(pay);
+}
+
+@source(CC_ART1343_5) {
+    rule TauxReduitOrdonne(c: Creance, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 2. Par décision spéciale et motivée, il peut ordonner que les sommes correspondant aux échéances reportées porteront intérêt à un taux réduit au moins égal au taux légal";
+        label en unofficial "Article 1343-5, paragraph 2. By a special reasoned decision, it may order that the sums corresponding to the deferred instalments shall bear interest at a reduced rate at least equal to the legal rate";
+        when report_dans_la_limite_de_deux_annees(c, reportee) and taux_reduit_ordonne_par_le_juge(c);
+        then amenagement_special_du_delai_de_grace(c);
+    }
+    rule ImputationSurLeCapitalOrdonnee(c: Creance, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 2. Ou que les paiements s'imputeront d'abord sur le capital";
+        label en unofficial "Article 1343-5, paragraph 2. Or that payments shall be appropriated first to the principal";
+        when report_dans_la_limite_de_deux_annees(c, reportee) and imputation_sur_le_capital_ordonnee(c);
+        then amenagement_special_du_delai_de_grace(c);
+    }
+    rule DelaiDeGraceSubordonne(c: Creance, reportee: Date) strict {
+        label fr official "Article 1343-5, alinéa 3. Il peut subordonner ces mesures à l'accomplissement par le débiteur d'actes propres à faciliter ou à garantir le paiement de la dette";
+        label en unofficial "Article 1343-5, paragraph 3. It may make those measures conditional on the debtor's performing acts apt to facilitate or secure payment of the debt";
+        when report_dans_la_limite_de_deux_annees(c, reportee) and mesure_subordonnee_a_des_actes_du_debiteur(c);
+        then delai_de_grace_subordonne(c);
+    }
+    rule StipulationContraireReputeeNonEcrite(c: Creance) strict {
+        label fr official "Article 1343-5, alinéa 5. Toute stipulation contraire est réputée non écrite";
+        label en unofficial "Article 1343-5, paragraph 5. Any contrary stipulation is deemed unwritten";
+        when stipulation_contraire_au_delai_de_grace(c);
+        then stipulation_contraire_reputee_non_ecrite(c);
+    }
+}
+
+@source(CC_ART1346_5)
+rule ApplyP2PouvoirOpposerExceptionSubrogation(s: Subrogation, c: Creance, d: Personne, p: Personne, jour: Date) strict {
+    label fr official "Article 1346-5. Le débiteur peut opposer au créancier subrogé les exceptions opposables";
+    label en unofficial "Article 1346-5. The debtor may raise opposable defences against the subrogated creditor";
+    when exception_a_opposer_au_subroge(s, c)
+        and fr.code_civil.core::debiteur(c, d)
+        and subroge(s, p)
+        and date_d_exigibilite(c, jour);
+    then power P2PositionPouvoirOpposerExceptionSubrogation {
+        holder d;
+        over p;
+        exercise exception_nee_avant_la_subrogation(s, c);
+        valid_when exception_nee_avant_la_subrogation(s, c);
+        effect exception_opposable_au_creancier_subroge(s, c);
+        window [jour, infinity];
+    };
+}
+@source(CC_ART1345_1)
+
+rule LiberationParLaConsignationNotifiee(c: Creance, jour: Date) strict {
+    label fr official "Article 1345-1, alinéa 3. La consignation ou le séquestre libère le débiteur à compter de leur notification au créancier";
+    label en unofficial "Article 1345-1, paragraph 3. The deposit or sequestration discharges the debtor from their notification to the creditor";
+    when consignation_ouverte(c) and consignation_ou_sequestre_notifie_le(c, jour);
+    then debiteur_libere_par_la_consignation(c, jour);
+}
+
+@source(CC_ART1346_2)
+rule SubrogationParEmpruntSansLeCreancier(s: Subrogation, c: Creance, preteur: Personne) strict {
+    label fr official "Article 1346-2, alinéa 2. La subrogation peut être consentie sans le concours du créancier, mais à la condition que la dette soit échue ou que le terme soit en faveur du débiteur ; il faut alors que l'acte d'emprunt et la quittance soient passés devant notaire";
+    label en unofficial "Article 1346-2, paragraph 2. Subrogation may be granted without the creditor's participation, but on condition that the debt has matured or the term is in the debtor's favour; the loan deed and receipt must then be executed before a notary";
+    when subrogation_de_la_creance(s, c) and subroge(s, preteur)
+        and subrogation_par_emprunt_du_debiteur(s) and subrogation_expresse(s)
+        and dette_echue_ou_terme_en_faveur_du_debiteur(c)
+        and acte_d_emprunt_et_quittance_notaries(s);
+    then subrogation_par_emprunt_sans_le_creancier(s, c, preteur);
+}
+
+@source(CC_ART1346_4)
+rule SubrogeLimiteALInteretLegal(s: Subrogation, c: Creance, p: Personne) strict {
+    label fr official "Article 1346-4, alinéa 2. Toutefois, le subrogé n'a droit qu'à l'intérêt légal à compter d'une mise en demeure, s'il n'a convenu avec le débiteur d'un nouvel intérêt";
+    label en unofficial "Article 1346-4, paragraph 2. However, the subrogee is entitled only to legal interest from a formal notice, unless he agreed a new rate with the debtor";
+    when subrogation_acquise(s, c, p) and not_known(nouvel_interet_convenu_avec_le_debiteur(s));
+    then subroge_limite_a_l_interet_legal(s);
+}
+
+@source(CC_ART1346_5) {
+    rule SubrogationOpposableAuxTiersDesLePaiement(s: Subrogation, c: Creance, jour: Date) strict {
+        label fr official "Article 1346-5, alinéa 2. La subrogation est opposable aux tiers dès le paiement";
+        label en unofficial "Article 1346-5, paragraph 2. The subrogation is enforceable against third parties from the payment";
+        when subrogation_de_la_creance(s, c) and date_du_paiement_subrogatoire(s, jour);
+        then subrogation_opposable_aux_tiers_des_le_paiement(s, jour);
+    }
+    rule ExceptionInherenteOpposableAuCreancierSubroge(s: Subrogation, c: Creance) strict {
+        label fr official "Article 1346-5, alinéa 3. Le débiteur peut opposer au créancier subrogé les exceptions inhérentes à la dette, telles que la nullité, l'exception d'inexécution, la résolution ou la compensation de dettes connexes";
+        label en unofficial "Article 1346-5, paragraph 3. The debtor may raise against the subrogated creditor defences inherent in the debt, such as nullity, non-performance, rescission or set-off of connected debts";
+        when subrogation_de_la_creance(s, c) and exception_inherente_a_la_dette(c);
+        then exception_opposable_au_creancier_subroge(s, c);
+    }
+    rule ExceptionAnterieureOpposableAuCreancierSubroge(s: Subrogation, c: Creance) strict {
+        label fr official "Article 1346-5, alinéa 3. Il peut également lui opposer les exceptions nées de ses rapports avec le subrogeant avant que la subrogation lui soit devenue opposable";
+        label en unofficial "Article 1346-5, paragraph 3. He may also raise defences arising from his dealings with the subrogor before the subrogation became enforceable against him";
+        when subrogation_de_la_creance(s, c) and exception_nee_avant_la_subrogation(s, c);
+        then exception_opposable_au_creancier_subroge(s, c);
+    }
+}
+
+@source(CC_ART1347_1) {
+    rule FongibiliteDeLaSommeDArgent(c: Creance) strict {
+        label fr official "Article 1347-1, alinéa 2. Sont fongibles les obligations de somme d'argent, même en différentes devises, pourvu qu'elles soient convertibles";
+        label en unofficial "Article 1347-1, paragraph 2. Monetary obligations are fungible, even in different currencies, provided they are convertible";
+        when obligation_de_somme_d_argent(c) and devises_convertibles(c);
+        then fongibilite_etablie(c);
+    }
+    rule FongibiliteDeLaQuantiteDeChoses(c: Creance) strict {
+        label fr official "Article 1347-1, alinéa 2. Ou celles qui ont pour objet une quantité de choses de même genre";
+        label en unofficial "Article 1347-1, paragraph 2. Or those bearing on a quantity of things of the same kind";
+        when obligation_portant_sur_une_quantite_de_choses_de_meme_genre(c);
+        then fongibilite_etablie(c);
+    }
+}
+
+@source(CC_ART1348_1)
+rule CompensationMaintenueMalgreLesDroitsDuTiers(c: Creance, autre: Creance) strict {
+    label fr official "Article 1348-1, alinéa 3. Dans le même cas, l'acquisition de droits par un tiers sur l'une des obligations n'empêche pas son débiteur d'opposer la compensation";
+    label en unofficial "Article 1348-1, paragraph 3. In the same case, the acquisition of rights by a third party over one of the obligations does not prevent its debtor from raising set-off";
+    when dettes_connexes(c, autre) and droits_acquis_par_un_tiers(c);
+    then compensation_maintenue_malgre_les_droits_du_tiers(c, autre);
+}
+
+@source(CC_ART1350_2)
+rule ValeurFournieImputeeSurLaDette(c: Creance, caution_p: Personne, v: Money) strict {
+    label fr official "Article 1350-2, alinéa 3. Ce que le créancier a reçu d'une caution pour la décharge de son cautionnement doit être imputé sur la dette et décharger le débiteur principal à proportion";
+    label en unofficial "Article 1350-2, paragraph 3. What the creditor received from a surety to discharge his suretyship must be appropriated to the debt and discharge the principal debtor proportionally";
+    when valeur_fournie_par_la_caution(c, caution_p, v);
+    then valeur_fournie_imputee_sur_la_dette(c, caution_p, v);
+}

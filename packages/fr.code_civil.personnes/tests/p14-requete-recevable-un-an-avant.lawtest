@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 125 : la requête est recevable dès l année précédente, soit le 1er juin 2024.
+test "urn:query:fr-code-civil-personnes-p14-requete-recevable-un-an-avant" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": presomption_d_absence_constatee_le(entity_ref("urn:fr:cc:pers:a:p"), @2015-06-01) { origin adjudicated; }
+    }
+    evaluate truth(declaration_d_absence_recevable_le(entity_ref("urn:fr:cc:pers:a:p"), @2024-06-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RequeteRecevableNeufAnsApresLePresomption);
+}

@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2530 : le privilège général immobilier des salaires et apprentis est écarté à Mayotte.
+test "urn:query:fr-code-civil-mayotte-p02-privilege-general-des-salaires-inapplicable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": privilege_invoque(entity_ref("urn:fr:cc:may:ao:cr"), SalairesEtApprentis) { origin case_input; }
+    }
+    evaluate truth(privilege_general_applicable(entity_ref("urn:fr:cc:may:ao:cr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

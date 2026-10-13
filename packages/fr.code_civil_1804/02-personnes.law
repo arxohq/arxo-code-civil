@@ -1,0 +1,30 @@
+// LIVRE I — spouses (art. 217) and paternal power (art. 371–372): a wife may
+// not acquire or alienate without the husband’s joining in the act or his
+// written consent (217); a child remains under parental authority until
+// majority or emancipation (372). The Code has no patria potestas over an
+// adult son — the father’s obligation with an adult son is ordinary (case 11).
+//
+// READING A CASE FACT: `in_potestate(s, p)` — a son in the householder’s
+// power — is read here as a minor child under parental authority (372) living
+// with them (1384): the Code has no other subjection of this kind.
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART217,
+    CC_ART371,
+    CC_ART372,
+    Causa,
+    Persona,
+};
+
+relation concours_du_mari(causa: Causa) kind institutional { label fr official "concours du mari"; label en unofficial "the husband joins in the wife’s act — her obligation toward the husband himself (art. 217)"; }
+relation enfant_sous_autorite(enfant: Persona, parent: Persona) kind institutional { label fr official "enfant sous l’autorité de ses père et mère"; label en unofficial "child under parental authority: a minor who is not emancipated (art. 372)"; }
+relation majeur_ou_emancipe(persona: Persona) kind empirical { label fr official "majeur ou émancipé"; label en unofficial "person of full age or emancipated (art. 372)"; }
+
+@source(CC_ART217)
+rule ConcoursDuMari(m: Persona, f: Persona, c: Causa) strict { label fr official "La femme ne peut acquérir sans le concours du mari dans l’acte"; label en unofficial "A wife who binds herself toward the husband himself acts with his joining in the act (art. 217)"; when doctrine.ius_privatum::coniuges(m, f) and doctrine.ius_privatum::contractus(m, f, c); then concours_du_mari(c); }
+@source(CC_ART372, CC_ART371)
+rule EnfantSousAutorite(s: Persona, p: Persona) strict { label fr official "Il reste sous leur autorité jusqu’à sa majorité ou son émancipation"; label en unofficial "The case’s son in power is a child under parental authority until majority (art. 371–372)"; when doctrine.ius_privatum::in_potestate(s, p) and not_known(majeur_ou_emancipe(s)); then enfant_sous_autorite(s, p); }

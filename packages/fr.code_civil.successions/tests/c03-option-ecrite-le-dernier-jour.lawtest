@@ -1,0 +1,26 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 758-3 : option écrite le 30 avril 2026, dernier jour — pas de présomption.
+test "urn:query:fr-code-civil-successions-c03-option-ecrite-le-dernier-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:cj:c03:S"), @2026-03-31) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:cj:c03:F"), entity_ref("urn:fr:cc:successions:cj:c03:D"), entity_ref("urn:fr:cc:successions:cj:c03:C1")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:cj:c03:F"), entity_ref("urn:fr:cc:successions:cj:c03:E"), entity_ref("urn:fr:cc:successions:cj:c03:C1")) { origin case_input; }
+        assert "f6": filiation(entity_ref("urn:fr:cc:successions:cj:c03:F"), entity_ref("urn:fr:cc:successions:cj:c03:D"), entity_ref("urn:fr:cc:successions:cj:c03:C2")) { origin case_input; }
+        assert "f7": filiation(entity_ref("urn:fr:cc:successions:cj:c03:F"), entity_ref("urn:fr:cc:successions:cj:c03:E"), entity_ref("urn:fr:cc:successions:cj:c03:C2")) { origin case_input; }
+        assert "f8": mariage(entity_ref("urn:fr:cc:successions:cj:c03:F"), entity_ref("urn:fr:cc:successions:cj:c03:D"), entity_ref("urn:fr:cc:successions:cj:c03:E")) { origin case_input; }
+        assert "f9": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:E")) { origin case_input; }
+        assert "f10": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:C1")) { origin case_input; }
+        assert "f11": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:C2")) { origin case_input; }
+        assert "f12": invitation_ecrite_a_opter_le(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:E"), @2026-01-31) { origin case_input; }
+        assert "f13": option_ecrite_du_conjoint_le(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:E"), @2026-04-30) { origin case_input; }
+    }
+    evaluate truth(option_reputee_pour_l_usufruit(entity_ref("urn:fr:cc:successions:cj:c03:S"), entity_ref("urn:fr:cc:successions:cj:c03:E")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

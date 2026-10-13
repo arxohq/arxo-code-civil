@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 807 : un autre héritier a déjà accepté — la renonciation n'est plus révocable.
+test "urn:query:fr-code-civil-successions-o37-revocation-impossible-apres-acceptation-d-un-autre" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o37:S"), @2014-01-10) { origin case_input; }
+        assert "f2": option_exercee_le(entity_ref("urn:fr:cc:successions:opt:o37:S"), entity_ref("urn:fr:cc:successions:opt:o37:H"), Renonciation, @2015-06-01) { origin case_input; }
+        assert "f3": date_d_appreciation_de_l_option(entity_ref("urn:fr:cc:successions:opt:o37:S"), entity_ref("urn:fr:cc:successions:opt:o37:H"), @2020-01-01) { origin case_input; }
+        assert "f4": deja_acceptee_par_un_autre_ou_etat_envoye(entity_ref("urn:fr:cc:successions:opt:o37:S")) { origin case_input; }
+    }
+    evaluate truth(revocation_de_la_renonciation_possible(entity_ref("urn:fr:cc:successions:opt:o37:S"), entity_ref("urn:fr:cc:successions:opt:o37:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

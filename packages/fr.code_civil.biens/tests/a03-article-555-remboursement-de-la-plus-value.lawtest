@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 555, al. 1 et 3. Le propriétaire choisit de conserver l'ouvrage, puis
+// choisit entre les deux sommes : ici la plus-value du fonds, 12 000 €. Le
+// choix est un fait du cas, les sommes aussi ; le paquet ne fait que lier
+// le choix à la somme qu'il désigne.
+test "urn:query:fr-code-civil-biens-a03-555-plus-value" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": ouvrage_sur(entity_ref("urn:fr:cc:biens:a03:O"), entity_ref("urn:fr:cc:biens:a03:F")) { origin case_input; }
+        assert "f2": proprietaire_du_bien(entity_ref("urn:fr:cc:biens:a03:F"), entity_ref("urn:fr:cc:biens:a03:MAITRE")) { origin case_input; }
+        assert "f3": ouvrage_fait_par_un_tiers(entity_ref("urn:fr:cc:biens:a03:O"), entity_ref("urn:fr:cc:biens:a03:TIERS")) { origin case_input; }
+        assert "f4": choix_du_proprietaire_du_fonds(entity_ref("urn:fr:cc:biens:a03:O"), ConserverLaPropriete) { origin case_input; }
+        assert "f5": option_de_remboursement(entity_ref("urn:fr:cc:biens:a03:O"), PlusValueDuFonds) { origin case_input; }
+        assert "f6": plus_value_du_fonds(entity_ref("urn:fr:cc:biens:a03:O"), 12000 EUR) { origin case_input; }
+        assert "f7": cout_des_materiaux_et_main_d_oeuvre(entity_ref("urn:fr:cc:biens:a03:O"), 18000 EUR) { origin case_input; }
+    }
+    evaluate truth(remboursement_du_au_tiers(entity_ref("urn:fr:cc:biens:a03:O"), entity_ref("urn:fr:cc:biens:a03:TIERS"), 12000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

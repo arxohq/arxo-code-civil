@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2427 : échus 5 000, sous les trois années (9 000) — colloqué pour 105 000 EUR.
+test "urn:query:fr-code-civil-suretes-h15-interets-echus-sous-le-plafond" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:h15:H"), entity_ref("urn:fr:cc:suretes:h15:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:h15:H"), HypothequeConventionnelle) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:h15:H"), 100000 EUR) { origin case_input; }
+        assert "f4": date_de_rang(entity_ref("urn:fr:cc:suretes:h15:H"), @2015-01-01) { origin case_input; }
+        assert "f5": interets_annuels(entity_ref("urn:fr:cc:suretes:h15:H"), 3000 EUR) { origin case_input; }
+        assert "f6": interets_echus_impayes(entity_ref("urn:fr:cc:suretes:h15:H"), 5000 EUR) { origin case_input; }
+    }
+    evaluate truth(montant_admis(entity_ref("urn:fr:cc:suretes:h15:H"), 105000 EUR));
+    expect truth_status == TRUE_ONLY;
+}

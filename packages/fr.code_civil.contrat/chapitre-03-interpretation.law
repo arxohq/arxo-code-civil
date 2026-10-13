@@ -1,0 +1,166 @@
+// CHAPITRE III — L'INTERPRÉTATION DU CONTRAT (art. 1188 à 1192).
+//
+// Le Code donne ici des DIRECTIVES d'interprétation, pas des conclusions :
+// chaque règle produit la directive applicable au contrat, elle ne décide pas
+// du sens. L'article 1190 est le seul dont l'issue dépend d'une qualification
+// déjà produite (gré à gré / adhésion, article 1110) : dans le doute, le
+// contrat de gré à gré s'interprète contre le créancier, le contrat
+// d'adhésion contre celui qui l'a proposé.
+//
+// L'INTENTION COMMUNE ET LA PERSONNE RAISONNABLE (1188) sont des
+// appréciations : le canal §47.3 les porte, faute de quoi le paquet
+// paraphraserait le juge.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1188,
+    CC_ART1189,
+    CC_ART1190,
+    CC_ART1191,
+    CC_ART1192,
+    Clause,
+    Contrat,
+    Personne,
+    Qualification,
+    clause_du_contrat,
+    qualification_du_contrat,
+    regi_par_le_droit_nouveau,
+};
+
+pub enum DirectiveDInterpretation {
+    label fr official "Directive d'interprétation applicable (articles 1188 à 1192)";
+    label en unofficial "Applicable directive of interpretation (Articles 1188 to 1192)";
+    CommuneIntentionDesParties,
+    SensDeLaPersonneRaisonnable,
+    CoherenceDeLActeEntier,
+    CoherenceDeLOperation,
+    ContreLeCreancier,
+    ContreCeluiQuiLAProposee,
+    EffetUtile,
+    PasDInterpretationDesClausesClaires
+}
+
+// --- Entrées du cas et canaux ------------------------------------------------------------------
+
+pub relation clause_litigieuse(cl: Clause, c: Contrat) kind empirical {
+    label fr official "clause dont le sens est discuté";
+    label en unofficial "clause whose meaning is disputed";
+}
+pub relation clause_claire_et_precise(cl: Clause) kind empirical {
+    label fr official "clause claire et précise (article 1192)";
+    label en unofficial "clear and precise clause (Article 1192)";
+}
+pub relation clause_susceptible_de_deux_sens(cl: Clause) kind empirical {
+    label fr official "clause susceptible de deux sens, dont l'un lui confère un effet (article 1191)";
+    label en unofficial "clause capable of two meanings, one of which gives it effect (Article 1191)";
+}
+pub relation contrats_concourant_a_une_meme_operation(c: Contrat, autre: Contrat) kind empirical {
+    label fr official "plusieurs contrats concourent, dans l'intention commune des parties, à une même opération (article 1189, alinéa 2)";
+    label en unofficial "several contracts contribute, in the parties' common intention, to one and the same operation (Article 1189, paragraph 2)";
+}
+pub relation contrat_propose_par(c: Contrat, p: Personne) kind empirical {
+    label fr official "partie qui a proposé le contrat d'adhésion (article 1190)";
+    label en unofficial "party who proposed the contract of adhesion (Article 1190)";
+}
+
+@source(CC_ART1188)
+pub external judgment relation commune_intention_decelable(c: Contrat) {
+    authority Court;
+    label fr official "la commune intention des parties peut être décelée (article 1188, alinéas 1 et 2)";
+    label en unofficial "the parties' common intention can be discerned (Article 1188, paragraphs 1 and 2)";
+}
+
+@source(CC_ART1190)
+pub external judgment relation doute_sur_le_sens_de_la_clause(cl: Clause) {
+    authority Court;
+    label fr official "il y a doute sur le sens de la clause (article 1190)";
+    label en unofficial "there is doubt as to the clause's meaning (Article 1190)";
+}
+
+// --- Tête produite -----------------------------------------------------------------------------
+
+pub relation directive_d_interpretation(c: Contrat, d: DirectiveDInterpretation) kind derived {
+    label fr official "directive d'interprétation applicable au contrat (articles 1188 à 1192)";
+    label en unofficial "directive of interpretation applicable to the contract (Articles 1188 to 1192)";
+}
+pub relation clause_non_interpretable(cl: Clause) kind derived {
+    label fr official "on ne peut interpréter les clauses claires et précises à peine de dénaturation (article 1192)";
+    label en unofficial "clear and precise clauses cannot be interpreted, on pain of distortion (Article 1192)";
+}
+
+// --- Articles 1188 à 1192 -----------------------------------------------------------------------
+
+@source(CC_ART1188) {
+    rule InterpretationParLaCommuneIntention(c: Contrat) strict {
+        label fr official "Article 1188, alinéa 1. Le contrat s'interprète d'après la commune intention des parties plutôt qu'en s'arrêtant au sens littéral de ses termes";
+        label en unofficial "Article 1188, paragraph 1. A contract is interpreted according to the parties' common intention rather than stopping at the literal meaning of its terms";
+        when regi_par_le_droit_nouveau(c) and commune_intention_decelable(c);
+        then directive_d_interpretation(c, CommuneIntentionDesParties);
+    }
+    rule InterpretationParLaPersonneRaisonnable(c: Contrat) strict {
+        label fr official "Article 1188, alinéa 2. Lorsque cette intention ne peut être décelée, le contrat s'interprète selon le sens que lui donnerait une personne raisonnable placée dans la même situation";
+        label en unofficial "Article 1188, paragraph 2. Where that intention cannot be discerned, the contract is interpreted as a reasonable person in the same situation would understand it";
+        when regi_par_le_droit_nouveau(c) and not_known(commune_intention_decelable(c));
+        then directive_d_interpretation(c, SensDeLaPersonneRaisonnable);
+    }
+}
+
+@source(CC_ART1189) {
+    rule InterpretationCoherenteDeLActe(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1189, alinéa 1. Toutes les clauses d'un contrat s'interprètent les unes par rapport aux autres, en donnant à chacune le sens qui respecte la cohérence de l'acte tout entier";
+        label en unofficial "Article 1189, paragraph 1. All the clauses of a contract are interpreted in relation to one another, giving each the meaning that respects the coherence of the whole instrument";
+        when regi_par_le_droit_nouveau(c) and clause_litigieuse(cl, c);
+        then directive_d_interpretation(c, CoherenceDeLActeEntier);
+    }
+    rule InterpretationCoherenteDeLOperation(c: Contrat, autre: Contrat) strict {
+        label fr official "Article 1189, alinéa 2. Lorsque, dans l'intention commune des parties, plusieurs contrats concourent à une même opération, ils s'interprètent en fonction de celle-ci";
+        label en unofficial "Article 1189, paragraph 2. Where, in the parties' common intention, several contracts contribute to one operation, they are interpreted in the light of it";
+        when regi_par_le_droit_nouveau(c) and contrats_concourant_a_une_meme_operation(c, autre);
+        then directive_d_interpretation(c, CoherenceDeLOperation);
+    }
+}
+
+@source(CC_ART1190) {
+    rule DouteContreLeCreancierDansLeGreAGre(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1190. Dans le doute, le contrat de gré à gré s'interprète contre le créancier et en faveur du débiteur";
+        label en unofficial "Article 1190. In case of doubt, a contract by mutual agreement is interpreted against the creditor and in favour of the debtor";
+        when qualification_du_contrat(c, GreAGre) and clause_litigieuse(cl, c)
+            and doute_sur_le_sens_de_la_clause(cl);
+        then directive_d_interpretation(c, ContreLeCreancier);
+    }
+    rule DouteContreLeRedacteurDansLAdhesion(c: Contrat, cl: Clause, redacteur: Personne) strict {
+        label fr official "Article 1190. Dans le doute, le contrat d'adhésion s'interprète contre celui qui l'a proposé";
+        label en unofficial "Article 1190. In case of doubt, a contract of adhesion is interpreted against the party who proposed it";
+        when qualification_du_contrat(c, Adhesion) and clause_litigieuse(cl, c)
+            and contrat_propose_par(c, redacteur)
+            and doute_sur_le_sens_de_la_clause(cl);
+        then directive_d_interpretation(c, ContreCeluiQuiLAProposee);
+    }
+}
+
+@source(CC_ART1191)
+rule EffetUtileDeLaClause(c: Contrat, cl: Clause) strict {
+    label fr official "Article 1191. Lorsqu'une clause est susceptible de deux sens, celui qui lui confère un effet l'emporte sur celui qui ne lui en fait produire aucun";
+    label en unofficial "Article 1191. Where a clause is capable of two meanings, the one giving it effect prevails over the one giving it none";
+    when regi_par_le_droit_nouveau(c) and clause_litigieuse(cl, c)
+        and clause_susceptible_de_deux_sens(cl);
+    then directive_d_interpretation(c, EffetUtile);
+}
+
+@source(CC_ART1192) {
+    rule ClauseClaireNonInterpretable(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1192. On ne peut interpréter les clauses claires et précises à peine de dénaturation";
+        label en unofficial "Article 1192. Clear and precise clauses cannot be interpreted, on pain of distortion";
+        when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c) and clause_claire_et_precise(cl);
+        then clause_non_interpretable(cl);
+    }
+    rule PasDInterpretationDesClausesClairesDirective(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1192. La clarté de la clause écarte toute directive d'interprétation à son égard";
+        label en unofficial "Article 1192. The clause's clarity excludes any directive of interpretation as regards it";
+        when clause_non_interpretable(cl) and clause_du_contrat(cl, c);
+        then directive_d_interpretation(c, PasDInterpretationDesClausesClaires);
+    }
+}

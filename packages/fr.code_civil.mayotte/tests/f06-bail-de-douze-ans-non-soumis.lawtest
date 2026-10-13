@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2521, 2° : un bail de douze ans tout juste (144 mois) n'excède pas douze ans.
+test "urn:query:fr-code-civil-mayotte-f06-bail-de-douze-ans-non-soumis" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:t:dr"), Bail) { origin case_input; }
+        assert "f2": duree_du_bail_en_mois(entity_ref("urn:fr:cc:may:t:dr"), 144) { origin case_input; }
+    }
+    evaluate truth(soumis_a_inscription(entity_ref("urn:fr:cc:may:t:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

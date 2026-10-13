@@ -1,0 +1,524 @@
+// CODE CIVIL — TITRE XXI : DE LA POSSESSION ET DE LA PRESCRIPTION ACQUISITIVE
+// (articles 2255 à 2278).
+//
+// Le titre dit quand la possession fait acquérir et le chiffre :
+//
+//   — deux présomptions : on possède pour soi et à titre de propriétaire
+//     (2256), et celui qui a commencé pour autrui continue au même titre
+//     (2257) ; le possesseur actuel qui a possédé anciennement est présumé
+//     avoir possédé entre-temps (2264) ;
+//   — les conditions de la possession utile (2261) et ce qui ne la fonde pas :
+//     choses hors commerce (2260), actes de faculté ou de tolérance (2262),
+//     violence, la possession utile ne commençant qu'à sa cessation (2263) ;
+//   — le précaire ne prescrit jamais, ni ses héritiers (2266, 2267), sauf
+//     interversion du titre (2268), et son ayant cause par titre translatif
+//     le peut (2269) ;
+//   — la jonction des possessions (2265) et l'interruption par une privation
+//     de jouissance de PLUS d'un an (2271) ;
+//   — les délais : trente ans pour la propriété immobilière, dix ans de bonne
+//     foi et par juste titre (2272), le titre nul en la forme ne servant pas
+//     aux dix ans (2273), la bonne foi présumée et suffisante au jour de
+//     l'acquisition (2274, 2275) ;
+//   — les meubles : la possession vaut titre, la chose perdue ou volée se
+//     revendique trois ans, contre remboursement du prix si elle a été
+//     achetée en foire, marché, vente publique ou chez un marchand (2276,
+//     2277) ;
+//   — la protection possessoire, contre tous, et du détenteur contre tout
+//     autre que son auteur (2278).
+//
+// Les qualités de la possession — continue, paisible, publique — sont des
+// FAITS constatés par le juge (origine `adjudicated`) ; son caractère « non
+// équivoque » est une APPRÉCIATION (jugement §47.3).
+
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+use self::{
+    CC_POST_ART2256,
+    CC_POST_ART2257,
+    CC_POST_ART2260,
+    CC_POST_ART2261,
+    CC_POST_ART2262,
+    CC_POST_ART2263,
+    CC_POST_ART2264,
+    CC_POST_ART2265,
+    CC_POST_ART2266,
+    CC_POST_ART2267,
+    CC_POST_ART2268,
+    CC_POST_ART2269,
+    CC_POST_ART2270,
+    CC_POST_ART2271,
+    CC_POST_ART2272,
+    CC_POST_ART2273,
+    CC_POST_ART2274,
+    CC_POST_ART2275,
+    CC_POST_ART2276,
+    CC_POST_ART2277,
+    CC_POST_ART2278,
+    Persona,
+};
+
+pub entity Possession {
+    label fr official "Possession d'une chose ou d'un droit, examinée pour la prescription acquisitive ou la protection possessoire (titre XXI)";
+    label en unofficial "Possession of a thing or right, examined for acquisitive prescription or possessory protection (Title XXI)";
+}
+
+pub enum NatureDeLaChosePossedee {
+    label fr official "Nature de la chose possédée, qui commande le régime de la prescription acquisitive (articles 2260, 2272, 2276)";
+    label en unofficial "Nature of the possessed thing, which governs the acquisitive-prescription regime (Articles 2260, 2272, 2276)";
+    Immeuble,
+    Meuble,
+    ChoseHorsDuCommerce
+}
+
+pub enum TitreDuDetenteur {
+    label fr official "Titre de celui qui détient précairement la chose pour le propriétaire (article 2266)";
+    label en unofficial "Title of one who holds the thing precariously for the owner (Article 2266)";
+    Locataire,
+    Depositaire,
+    Usufruitier,
+    AutreDetenteurPrecaire
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------------
+
+pub relation chose_possedee(p: Possession, nature: NatureDeLaChosePossedee) kind empirical {
+    key(p);
+    label fr official "nature de la chose possédée";
+    label en unofficial "nature of the possessed thing";
+}
+pub relation possesseur(p: Possession, personne: Persona) kind empirical {
+    key(p);
+    label fr official "personne qui possède";
+    label en unofficial "person in possession";
+}
+pub relation possession_commencee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où la possession a commencé";
+    label en unofficial "day possession began";
+}
+pub relation commence_a_posseder_pour_autrui(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "il est prouvé que le possesseur a commencé à posséder pour un autre (articles 2256, 2257)";
+    label en unofficial "it is proven that the possessor began possessing for another (Articles 2256, 2257)";
+}
+pub relation possession_continue_et_non_interrompue(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "la possession est continue et non interrompue (article 2261)";
+    label en unofficial "possession is continuous and uninterrupted (Article 2261)";
+}
+pub relation possession_paisible(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "la possession est paisible (article 2261)";
+    label en unofficial "possession is peaceful (Article 2261)";
+}
+pub relation possession_publique(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "la possession est publique (article 2261)";
+    label en unofficial "possession is public (Article 2261)";
+}
+pub relation actes_de_pure_faculte_ou_de_simple_tolerance(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "les actes invoqués sont de pure faculté ou de simple tolérance (article 2262)";
+    label en unofficial "the acts relied on are of mere faculty or sufferance (Article 2262)";
+}
+pub relation violence_cessee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où la violence qui a accompagné l'entrée en possession a cessé (article 2263)";
+    label en unofficial "day the violence accompanying the taking of possession ceased (Article 2263)";
+}
+pub relation possession_ancienne_prouvee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour d'une possession ancienne prouvée par le possesseur actuel (article 2264)";
+    label en unofficial "day of an earlier possession proven by the current possessor (Article 2264)";
+}
+pub relation possession_actuelle_prouvee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la possession actuelle prouvée (article 2264)";
+    label en unofficial "day of the current possession proven (Article 2264)";
+}
+pub relation preuve_contraire_de_la_possession_intermediaire(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "la preuve contraire d'une possession dans le temps intermédiaire est rapportée (article 2264)";
+    label en unofficial "contrary proof of possession in the intermediate period is produced (Article 2264)";
+}
+pub relation succede_a_la_possession_de(p: Possession, auteur: Possession) kind empirical {
+    key(p);
+    label fr official "le possesseur a succédé, à quelque titre que ce soit, à la possession de son auteur (article 2265)";
+    label en unofficial "the possessor succeeded, by whatever title, to his predecessor's possession (Article 2265)";
+}
+pub relation detenteur_precaire(p: Possession, titre: TitreDuDetenteur) kind empirical {
+    key(p);
+    label fr official "le possesseur détient la chose précairement pour le propriétaire, à ce titre (article 2266)";
+    label en unofficial "the possessor holds the thing precariously for the owner, in this capacity (Article 2266)";
+}
+pub relation heritier_d_un_detenteur_precaire(p: Possession) kind empirical {
+    label fr official "le possesseur est héritier de celui qui détenait à titre précaire (article 2267)";
+    label en unofficial "the possessor is the heir of a precarious holder (Article 2267)";
+}
+pub relation titre_interverti(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "le titre de la possession a été interverti par une cause venant d'un tiers ou par la contradiction opposée au droit du propriétaire (article 2268)";
+    label en unofficial "the title of possession was inverted by a cause from a third party or by contradiction of the owner's right (Article 2268)";
+}
+pub relation acquis_d_un_detenteur_precaire_par_titre_translatif(p: Possession) kind empirical {
+    label fr official "le possesseur tient la chose d'un détenteur précaire par un titre translatif de propriété (article 2269)";
+    label en unofficial "the possessor holds the thing from a precarious holder under a title transferring ownership (Article 2269)";
+}
+pub relation privation_de_jouissance(p: Possession, debut: Date, fin: Date) kind empirical {
+    label fr official "période pendant laquelle le possesseur a été privé de la jouissance, par le propriétaire ou par un tiers (article 2271)";
+    label en unofficial "period during which the possessor was deprived of enjoyment, by the owner or a third party (Article 2271)";
+}
+pub relation juste_titre(p: Possession) kind empirical {
+    label fr official "le possesseur a acquis l'immeuble par juste titre (article 2272, alinéa 2)";
+    label en unofficial "the possessor acquired the immovable under a just title (Article 2272, paragraph 2)";
+}
+pub relation titre_nul_par_defaut_de_forme(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "le titre est nul par défaut de forme (article 2273)";
+    label en unofficial "the title is void for want of form (Article 2273)";
+}
+pub relation mauvaise_foi_prouvee_a_l_acquisition(p: Possession) kind empirical {
+    origin adjudicated;
+    label fr official "la mauvaise foi du possesseur au moment de l'acquisition est prouvée par celui qui l'allègue (articles 2274, 2275)";
+    label en unofficial "the possessor's bad faith at acquisition is proven by the party alleging it (Articles 2274, 2275)";
+}
+pub relation chose_perdue_ou_volee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la perte ou du vol de la chose (article 2276, alinéa 2)";
+    label en unofficial "day the thing was lost or stolen (Article 2276, paragraph 2)";
+}
+pub relation revendication_formee_le(p: Possession, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le propriétaire revendique la chose perdue ou volée (article 2276, alinéa 2)";
+    label en unofficial "day the owner claims back the lost or stolen thing (Article 2276, paragraph 2)";
+}
+pub relation achetee_en_foire_marche_vente_publique_ou_chez_un_marchand(p: Possession) kind empirical {
+    label fr official "le possesseur actuel a acheté la chose dans une foire, un marché, une vente publique ou d'un marchand vendant des choses pareilles (article 2277)";
+    label en unofficial "the current possessor bought the thing at a fair, market, public sale or from a dealer in such things (Article 2277)";
+}
+pub relation prix_paye(p: Possession, prix: Money) kind empirical {
+    key(p);
+    label fr official "prix que la chose a coûté au possesseur (article 2277)";
+    label en unofficial "price the thing cost the possessor (Article 2277)";
+}
+pub relation trouble_a_la_possession(p: Possession, auteur: Persona) kind empirical {
+    label fr official "trouble qui affecte ou menace la possession, du fait de cette personne (article 2278)";
+    label en unofficial "disturbance affecting or threatening possession, caused by this person (Article 2278)";
+}
+pub relation detenteur_tenant_ses_droits_de(p: Possession, auteur: Persona) kind empirical {
+    key(p);
+    label fr official "le détenteur tient ses droits de cette personne (article 2278, alinéa 2)";
+    label en unofficial "the holder derives his rights from this person (Article 2278, paragraph 2)";
+}
+
+@source(CC_POST_ART2261)
+pub external judgment relation possession_non_equivoque(p: Possession) {
+    authority Court;
+    label fr official "la possession est non équivoque (article 2261)";
+    label en unofficial "possession is unequivocal (Article 2261)";
+}
+
+// --- Résultats -----------------------------------------------------------------------------------
+
+pub relation presume_posseder_a_titre_de_proprietaire(p: Possession) kind derived {
+    label fr official "on est présumé posséder pour soi et à titre de propriétaire (article 2256)";
+    label en unofficial "one is presumed to possess for oneself and as owner (Article 2256)";
+}
+pub relation presume_posseder_pour_autrui(p: Possession) kind derived {
+    label fr official "qui a commencé à posséder pour autrui est présumé posséder au même titre (article 2257)";
+    label en unofficial "one who began possessing for another is presumed to continue in that capacity (Article 2257)";
+}
+pub relation chose_imprescriptible(p: Possession) kind derived {
+    label fr official "la chose hors du commerce ne peut être prescrite (article 2260)";
+    label en unofficial "a thing outside commerce cannot be acquired by prescription (Article 2260)";
+}
+pub relation possession_utile(p: Possession) kind derived {
+    label fr official "possession continue et non interrompue, paisible, publique, non équivoque et à titre de propriétaire, capable de fonder la prescription (articles 2261 à 2263)";
+    label en unofficial "continuous, uninterrupted, peaceful, public, unequivocal possession as owner, capable of founding prescription (Articles 2261 to 2263)";
+}
+pub relation debut_de_la_possession_utile_le(p: Possession, jour: Date) kind derived {
+    key(p);
+    label fr official "jour où commence la possession utile : le début de la possession, ou la cessation de la violence, ou celui de l'auteur en cas de jonction (articles 2263, 2265)";
+    label en unofficial "day useful possession begins: start of possession, cessation of violence, or the predecessor's start where possessions are joined (Articles 2263, 2265)";
+}
+pub relation possession_intermediaire_presumee(p: Possession) kind derived {
+    label fr official "le possesseur est présumé avoir possédé dans le temps intermédiaire (article 2264)";
+    label en unofficial "the possessor is presumed to have possessed in the intermediate period (Article 2264)";
+}
+pub relation ne_peut_prescrire(p: Possession) kind derived {
+    label fr official "le possesseur détient pour autrui et ne prescrit jamais (articles 2266, 2267)";
+    label en unofficial "the possessor holds for another and never acquires by prescription (Articles 2266, 2267)";
+}
+pub relation peut_prescrire_malgre_la_precarite(p: Possession) kind derived {
+    label fr official "le titre de la possession est interverti, ou la chose a été transmise par titre translatif : la prescription redevient possible (articles 2268, 2269)";
+    label en unofficial "the title of possession was inverted, or the thing transferred under a transfer title: prescription becomes possible again (Articles 2268, 2269)";
+}
+pub relation prescription_acquisitive_interrompue(p: Possession) kind derived {
+    label fr official "la prescription acquisitive est interrompue : privation de jouissance pendant plus d'un an (article 2271)";
+    label en unofficial "acquisitive prescription is interrupted: deprivation of enjoyment for more than a year (Article 2271)";
+}
+pub relation bonne_foi_retenue(p: Possession) kind derived {
+    label fr official "la bonne foi, présumée, n'est pas combattue par la preuve de la mauvaise foi au jour de l'acquisition (articles 2274, 2275)";
+    label en unofficial "good faith, presumed, is not rebutted by proof of bad faith at acquisition (Articles 2274, 2275)";
+}
+pub relation propriete_acquise_le(p: Possession, jour: Date) kind derived {
+    label fr official "jour où la propriété de l'immeuble est acquise par prescription : trente ans, ou dix ans de bonne foi et par juste titre (article 2272)";
+    label en unofficial "day ownership of the immovable is acquired by prescription: thirty years, or ten in good faith under just title (Article 2272)";
+}
+pub relation possession_vaut_titre(p: Possession) kind derived {
+    label fr official "en fait de meubles, la possession vaut titre (article 2276, alinéa 1)";
+    label en unofficial "for movables, possession is equivalent to title (Article 2276, paragraph 1)";
+}
+pub relation revendication_recevable(p: Possession) kind derived {
+    label fr official "la chose perdue ou volée est revendiquée dans les trois ans de la perte ou du vol (article 2276, alinéa 2)";
+    label en unofficial "the lost or stolen thing is claimed back within three years of the loss or theft (Article 2276, paragraph 2)";
+}
+pub relation restitution_contre_remboursement_du_prix(p: Possession, prix: Money) kind derived {
+    label fr official "le propriétaire ne peut se faire rendre la chose qu'en remboursant au possesseur le prix qu'elle lui a coûté (article 2277)";
+    label en unofficial "the owner may recover the thing only by repaying the possessor the price it cost him (Article 2277)";
+}
+pub relation protection_possessoire(p: Possession, contre: Persona) kind derived {
+    label fr official "la possession est protégée contre le trouble de cette personne, sans égard au fond du droit (article 2278)";
+    label en unofficial "possession is protected against this person's disturbance, regardless of the merits (Article 2278)";
+}
+
+// --- Qualifications intermédiaires (le `_` ne vit que dans un littéral positif, §98) -------------------
+
+pub relation violence_invoquee(p: Possession) kind derived {
+    label fr official "l'entrée en possession s'est accompagnée de violence (article 2263)";
+    label en unofficial "the taking of possession was accompanied by violence (Article 2263)";
+}
+pub relation jonction_invoquee(p: Possession) kind derived {
+    label fr official "le possesseur joint à la sienne la possession de son auteur (article 2265)";
+    label en unofficial "the possessor joins his predecessor's possession to his own (Article 2265)";
+}
+pub relation perte_ou_vol_invoque(p: Possession) kind derived {
+    label fr official "la chose a été perdue ou volée (article 2276, alinéa 2)";
+    label en unofficial "the thing was lost or stolen (Article 2276, paragraph 2)";
+}
+
+@source(CC_POST_ART2263)
+rule ViolenceInvoquee(p: Possession) strict {
+    label fr official "Article 2263. Une violence a accompagné l'entrée en possession : sa cessation est datée";
+    label en unofficial "Article 2263. Violence accompanied the taking of possession: its cessation is dated";
+    when violence_cessee_le(p, _);
+    then violence_invoquee(p);
+}
+
+@source(CC_POST_ART2265)
+rule JonctionInvoquee(p: Possession) strict {
+    label fr official "Article 2265. Le possesseur a succédé à la possession de son auteur";
+    label en unofficial "Article 2265. The possessor succeeded to his predecessor's possession";
+    when succede_a_la_possession_de(p, _);
+    then jonction_invoquee(p);
+}
+
+@source(CC_POST_ART2276)
+rule PerteOuVolInvoque(p: Possession) strict {
+    label fr official "Article 2276, alinéa 2. La chose a été perdue ou volée à une date donnée";
+    label en unofficial "Article 2276, paragraph 2. The thing was lost or stolen on a given date";
+    when chose_perdue_ou_volee_le(p, _);
+    then perte_ou_vol_invoque(p);
+}
+
+// --- Articles 2256, 2257, 2264 : les présomptions -----------------------------------------------------
+
+@source(CC_POST_ART2256)
+rule PresomptionDePossederPourSoi(p: Possession) strict {
+    label fr official "Article 2256. On est toujours présumé posséder pour soi, et à titre de propriétaire, s'il n'est prouvé qu'on a commencé à posséder pour un autre";
+    label en unofficial "Article 2256. One is always presumed to possess for oneself, as owner, unless it is proven one began possessing for another";
+    when possession_commencee_le(p, _) and not_known(commence_a_posseder_pour_autrui(p));
+    then presume_posseder_a_titre_de_proprietaire(p);
+}
+
+@source(CC_POST_ART2257)
+rule PresomptionDeContinuiteDuTitre(p: Possession) strict {
+    label fr official "Article 2257. Quand on a commencé à posséder pour autrui, on est toujours présumé posséder au même titre, s'il n'y a preuve du contraire";
+    label en unofficial "Article 2257. One who began possessing for another is always presumed to possess in that capacity, absent contrary proof";
+    when commence_a_posseder_pour_autrui(p) and not_known(titre_interverti(p));
+    then presume_posseder_pour_autrui(p);
+}
+
+@source(CC_POST_ART2264)
+rule PresomptionDePossessionIntermediaire(p: Possession, ancienne: Date, actuelle: Date) strict {
+    label fr official "Article 2264. Le possesseur actuel qui prouve avoir possédé anciennement est présumé avoir possédé dans le temps intermédiaire, sauf la preuve contraire";
+    label en unofficial "Article 2264. A current possessor who proves earlier possession is presumed to have possessed in between, save contrary proof";
+    when possession_ancienne_prouvee_le(p, ancienne) and possession_actuelle_prouvee_le(p, actuelle)
+        and ancienne < actuelle
+        and not_known(preuve_contraire_de_la_possession_intermediaire(p));
+    then possession_intermediaire_presumee(p);
+}
+
+// --- Articles 2260 à 2263 : la possession utile ------------------------------------------------------
+
+@source(CC_POST_ART2260)
+rule ChoseHorsCommerceImprescriptible(p: Possession) strict {
+    label fr official "Article 2260. On ne peut prescrire les biens ou les droits qui ne sont point dans le commerce";
+    label en unofficial "Article 2260. Property or rights outside commerce cannot be acquired by prescription";
+    when chose_possedee(p, ChoseHorsDuCommerce);
+    then chose_imprescriptible(p);
+}
+
+@source(CC_POST_ART2261, CC_POST_ART2262) {
+    rule PossessionUtile(p: Possession) defeasible {
+        label fr official "Articles 2261 et 2262. Pour prescrire, il faut une possession continue et non interrompue, paisible, publique, non équivoque et à titre de propriétaire ; les actes de pure faculté ou de simple tolérance ne la fondent pas";
+        label en unofficial "Articles 2261 and 2262. Prescription requires continuous, uninterrupted, peaceful, public, unequivocal possession as owner; acts of mere faculty or sufferance do not found it";
+        when possession_continue_et_non_interrompue(p) and possession_paisible(p) and possession_publique(p)
+            and possession_non_equivoque(p) and presume_posseder_a_titre_de_proprietaire(p)
+            and not_known(actes_de_pure_faculte_ou_de_simple_tolerance(p));
+        then possession_utile(p);
+    }
+}
+
+@source(CC_POST_ART2263) {
+    rule DebutDeLaPossessionUtileSansViolence(p: Possession, debut: Date) strict {
+        label fr official "Article 2263. Sans violence, la possession utile commence avec la possession";
+        label en unofficial "Article 2263. Without violence, useful possession begins with possession";
+        when possession_commencee_le(p, debut)
+            and not_known(violence_invoquee(p))
+            and not_known(jonction_invoquee(p));
+        then debut_de_la_possession_utile_le(p, debut);
+    }
+    rule DebutDeLaPossessionUtileApresLaViolence(p: Possession, cessation: Date) strict {
+        label fr official "Article 2263, alinéa 2. La possession utile ne commence que lorsque la violence a cessé";
+        label en unofficial "Article 2263, paragraph 2. Useful possession begins only when the violence has ceased";
+        when violence_cessee_le(p, cessation);
+        then debut_de_la_possession_utile_le(p, cessation);
+    }
+}
+
+// --- Article 2265 : la jonction des possessions ---------------------------------------------------------
+
+@source(CC_POST_ART2265)
+rule JonctionDesPossessions(p: Possession, auteur: Possession, debut: Date) strict {
+    label fr official "Article 2265. Pour compléter la prescription, on peut joindre à sa possession celle de son auteur, de quelque manière qu'on lui ait succédé";
+    label en unofficial "Article 2265. To complete prescription, one may join to one's possession that of one's predecessor, however one succeeded him";
+    when succede_a_la_possession_de(p, auteur) and possession_commencee_le(auteur, debut)
+        and not_known(violence_invoquee(p));
+    then debut_de_la_possession_utile_le(p, debut);
+}
+
+// --- Articles 2266 à 2270 : le précaire ------------------------------------------------------------------
+
+@source(CC_POST_ART2266, CC_POST_ART2267, CC_POST_ART2270) {
+    rule LePrecaireNePrescritPas(p: Possession, titre: TitreDuDetenteur) strict {
+        label fr official "Articles 2266 et 2270. Ceux qui possèdent pour autrui — locataire, dépositaire, usufruitier et tous détenteurs précaires — ne prescrivent jamais, et l'on ne prescrit pas contre son titre";
+        label en unofficial "Articles 2266 and 2270. Those possessing for another — tenant, depositary, usufructuary and all precarious holders — never prescribe, and one cannot prescribe against one's title";
+        when detenteur_precaire(p, titre) and not_known(peut_prescrire_malgre_la_precarite(p));
+        then ne_peut_prescrire(p);
+    }
+    rule LHeritierDuPrecaireNePrescritPas(p: Possession) strict {
+        label fr official "Article 2267. Les héritiers de ceux qui tenaient le bien à titre précaire ne peuvent non plus prescrire";
+        label en unofficial "Article 2267. The heirs of those who held the property precariously cannot prescribe either";
+        when heritier_d_un_detenteur_precaire(p) and not_known(peut_prescrire_malgre_la_precarite(p));
+        then ne_peut_prescrire(p);
+    }
+}
+
+@source(CC_POST_ART2268, CC_POST_ART2269) {
+    rule InterversionDuTitre(p: Possession) strict {
+        label fr official "Article 2268. Les détenteurs précaires et leurs héritiers peuvent prescrire si le titre de leur possession se trouve interverti";
+        label en unofficial "Article 2268. Precarious holders and their heirs may prescribe if the title of their possession has been inverted";
+        when titre_interverti(p);
+        then peut_prescrire_malgre_la_precarite(p);
+    }
+    rule AyantCauseParTitreTranslatif(p: Possession) strict {
+        label fr official "Article 2269. Ceux à qui les détenteurs précaires ont transmis le bien par un titre translatif de propriété peuvent le prescrire";
+        label en unofficial "Article 2269. Those to whom precarious holders transferred the property under a title transferring ownership may prescribe it";
+        when acquis_d_un_detenteur_precaire_par_titre_translatif(p);
+        then peut_prescrire_malgre_la_precarite(p);
+    }
+}
+
+// --- Article 2271 : l'interruption par privation de jouissance ------------------------------------------
+
+@source(CC_POST_ART2271)
+rule PrivationDePlusDUnAn(p: Possession, debut: Date, fin: Date) strict {
+    label fr official "Article 2271. La prescription acquisitive est interrompue lorsque le possesseur est privé pendant plus d'un an de la jouissance du bien, par le propriétaire ou par un tiers";
+    label en unofficial "Article 2271. Acquisitive prescription is interrupted when the possessor is deprived of enjoyment for more than a year, by the owner or a third party";
+    when privation_de_jouissance(p, debut, fin) and fin > add_calendar_period(debut, 1 calendar_year);
+    then prescription_acquisitive_interrompue(p);
+}
+
+// --- Articles 2272 à 2275 : la prescription immobilière -------------------------------------------------
+
+@source(CC_POST_ART2274, CC_POST_ART2275)
+rule BonneFoiPresumee(p: Possession) strict {
+    label fr official "Articles 2274 et 2275. La bonne foi est toujours présumée, c'est à celui qui allègue la mauvaise foi à la prouver, et il suffit qu'elle ait existé au moment de l'acquisition";
+    label en unofficial "Articles 2274 and 2275. Good faith is always presumed, the party alleging bad faith must prove it, and it suffices that it existed at acquisition";
+    when possession_commencee_le(p, _) and not_known(mauvaise_foi_prouvee_a_l_acquisition(p));
+    then bonne_foi_retenue(p);
+}
+
+@source(CC_POST_ART2272, CC_POST_ART2273) {
+    rule TrenteAnsPourLaProprieteImmobiliere(p: Possession, debut: Date) defeasible {
+        label fr official "Article 2272, alinéa 1. Le délai de prescription requis pour acquérir la propriété immobilière est de trente ans";
+        label en unofficial "Article 2272, paragraph 1. The prescription period to acquire immovable ownership is thirty years";
+        when chose_possedee(p, Immeuble) and possession_utile(p)
+            and debut_de_la_possession_utile_le(p, debut)
+            and not_known(ne_peut_prescrire(p))
+            and not_known(prescription_acquisitive_interrompue(p));
+        then propriete_acquise_le(p, add_calendar_period(debut, 30 calendar_year));
+    }
+    rule DixAnsDeBonneFoiEtParJusteTitre(p: Possession, debut: Date) defeasible {
+        label fr official "Articles 2272, alinéa 2, et 2273. Celui qui acquiert de bonne foi et par juste titre un immeuble en prescrit la propriété par dix ans ; le titre nul par défaut de forme ne sert pas";
+        label en unofficial "Articles 2272, paragraph 2, and 2273. One acquiring an immovable in good faith under just title acquires ownership in ten years; a title void for want of form does not serve";
+        when chose_possedee(p, Immeuble) and possession_utile(p)
+            and debut_de_la_possession_utile_le(p, debut)
+            and juste_titre(p) and bonne_foi_retenue(p)
+            and not_known(titre_nul_par_defaut_de_forme(p))
+            and not_known(ne_peut_prescrire(p))
+            and not_known(prescription_acquisitive_interrompue(p));
+        then propriete_acquise_le(p, add_calendar_period(debut, 10 calendar_year));
+    }
+}
+
+// --- Articles 2276 et 2277 : les meubles ------------------------------------------------------------------
+
+@source(CC_POST_ART2276) {
+    rule EnFaitDeMeublesPossessionVautTitre(p: Possession) strict {
+        label fr official "Article 2276, alinéa 1. En fait de meubles, la possession vaut titre";
+        label en unofficial "Article 2276, paragraph 1. For movables, possession is equivalent to title";
+        when chose_possedee(p, Meuble) and possesseur(p, _)
+            and not_known(perte_ou_vol_invoque(p))
+            and not_known(ne_peut_prescrire(p));
+        then possession_vaut_titre(p);
+    }
+    rule RevendicationDansLesTroisAns(p: Possession, perte: Date, revendication: Date) strict {
+        label fr official "Article 2276, alinéa 2. Celui qui a perdu une chose ou auquel elle a été volée peut la revendiquer pendant trois ans à compter de la perte ou du vol";
+        label en unofficial "Article 2276, paragraph 2. One who lost a thing or from whom it was stolen may claim it back for three years from the loss or theft";
+        when chose_possedee(p, Meuble) and chose_perdue_ou_volee_le(p, perte)
+            and revendication_formee_le(p, revendication)
+            and revendication <= add_calendar_period(perte, 3 calendar_year);
+        then revendication_recevable(p);
+    }
+}
+
+@source(CC_POST_ART2277)
+rule RemboursementDuPrixAuPossesseur(p: Possession, prix: Money) strict {
+    label fr official "Article 2277, alinéa 1. Si le possesseur actuel a acheté la chose volée ou perdue en foire, au marché, en vente publique ou d'un marchand, le propriétaire ne peut se la faire rendre qu'en remboursant le prix";
+    label en unofficial "Article 2277, paragraph 1. If the current possessor bought the lost or stolen thing at a fair, market, public sale or from a dealer, the owner may recover it only by repaying the price";
+    when revendication_recevable(p) and achetee_en_foire_marche_vente_publique_ou_chez_un_marchand(p)
+        and prix_paye(p, prix);
+    then restitution_contre_remboursement_du_prix(p, prix);
+}
+
+// --- Article 2278 : la protection possessoire ---------------------------------------------------------------
+
+@source(CC_POST_ART2278) {
+    rule ProtectionDeLaPossession(p: Possession, auteur: Persona) strict {
+        label fr official "Article 2278, alinéa 1. La possession est protégée, sans avoir égard au fond du droit, contre le trouble qui l'affecte ou la menace";
+        label en unofficial "Article 2278, paragraph 1. Possession is protected, regardless of the merits, against disturbance affecting or threatening it";
+        when trouble_a_la_possession(p, auteur) and presume_posseder_a_titre_de_proprietaire(p);
+        then protection_possessoire(p, auteur);
+    }
+    rule ProtectionDuDetenteur(p: Possession, auteur: Persona, ayant_droit: Persona) strict {
+        label fr official "Article 2278, alinéa 2. La protection est pareillement accordée au détenteur contre tout autre que celui de qui il tient ses droits";
+        label en unofficial "Article 2278, paragraph 2. Protection is likewise granted to the holder against anyone other than the person from whom he derives his rights";
+        when trouble_a_la_possession(p, auteur) and detenteur_tenant_ses_droits_de(p, ayant_droit)
+            and not_known(detenteur_tenant_ses_droits_de(p, auteur));
+        then protection_possessoire(p, auteur);
+    }
+}

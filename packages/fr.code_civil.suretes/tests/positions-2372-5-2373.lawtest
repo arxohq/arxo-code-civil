@@ -1,0 +1,71 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2372-5-recharge-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": fiducie_surete(entity_ref("urn:fr:cc:suretes:q23725:S"), entity_ref("urn:fr:cc:suretes:q23725:F"), entity_ref("urn:fr:cc:suretes:q23725:C")) { origin case_input; }
+        assert "reload": convention_de_rechargement(entity_ref("urn:fr:cc:suretes:q23725:X"), entity_ref("urn:fr:cc:suretes:q23725:S"), entity_ref("urn:fr:cc:suretes:q23725:C"), 5000 EUR) { origin case_input; }
+        assert "act": acte_prevoit_le_rechargement(entity_ref("urn:fr:cc:suretes:q23725:S")) { origin case_input; }
+        assert "registered": convention_enregistree_ou_publiee_le(entity_ref("urn:fr:cc:suretes:q23725:X"), @2026-01-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteRechargerFiducie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-5-recharge-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": fiducie_surete(entity_ref("urn:fr:cc:suretes:q23725b:S"), entity_ref("urn:fr:cc:suretes:q23725b:F"), entity_ref("urn:fr:cc:suretes:q23725b:C")) { origin case_input; }
+        assert "reload": convention_de_rechargement(entity_ref("urn:fr:cc:suretes:q23725b:X"), entity_ref("urn:fr:cc:suretes:q23725b:S"), entity_ref("urn:fr:cc:suretes:q23725b:C"), 7000 EUR) { origin case_input; }
+        assert "act": acte_prevoit_le_rechargement(entity_ref("urn:fr:cc:suretes:q23725b:S")) { origin case_input; }
+        assert "registered": convention_enregistree_ou_publiee_le(entity_ref("urn:fr:cc:suretes:q23725b:X"), @2026-02-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteRechargerFiducie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2373-cession-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:q2373:S"), entity_ref("urn:fr:cc:suretes:q2373:C"), entity_ref("urn:fr:cc:suretes:q2373:P"), entity_ref("urn:fr:cc:suretes:q2373:B")) { origin case_input; }
+        assert "cession": cession_de_creance_en_garantie(entity_ref("urn:fr:cc:suretes:q2373:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteCederCreanceEnGarantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2373-cession-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:q2373b:S"), entity_ref("urn:fr:cc:suretes:q2373b:C"), entity_ref("urn:fr:cc:suretes:q2373b:P"), entity_ref("urn:fr:cc:suretes:q2373b:B")) { origin case_input; }
+        assert "cession": cession_de_creance_en_garantie(entity_ref("urn:fr:cc:suretes:q2373b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteCederCreanceEnGarantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2373-3-retour-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:q23733:S"), entity_ref("urn:fr:cc:suretes:q23733:C"), entity_ref("urn:fr:cc:suretes:q23733:P"), entity_ref("urn:fr:cc:suretes:q23733:B")) { origin case_input; }
+        assert "cession": cession_de_creance_en_garantie(entity_ref("urn:fr:cc:suretes:q23733:S")) { origin case_input; }
+        assert "paid": creance_garantie_integralement_payee(entity_ref("urn:fr:cc:suretes:q23733:S")) { origin case_input; }
+        assert "open": creance_cedee_non_encore_payee(entity_ref("urn:fr:cc:suretes:q23733:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerCreanceCedee, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2373-3-retour-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:q23733b:S"), entity_ref("urn:fr:cc:suretes:q23733b:C"), entity_ref("urn:fr:cc:suretes:q23733b:P"), entity_ref("urn:fr:cc:suretes:q23733b:B")) { origin case_input; }
+        assert "cession": cession_de_creance_en_garantie(entity_ref("urn:fr:cc:suretes:q23733b:S")) { origin case_input; }
+        assert "paid": creance_garantie_integralement_payee(entity_ref("urn:fr:cc:suretes:q23733b:S")) { origin case_input; }
+        assert "open": creance_cedee_non_encore_payee(entity_ref("urn:fr:cc:suretes:q23733b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerCreanceCedee, ACTIVE);
+}

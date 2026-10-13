@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1116 al. 1 : le juge fixe l'issue du délai raisonnable au 20 mars ; la rétractation du 15 mars est interdite.
+test "urn:query:fr-code-civil-contrat-f05-delai-raisonnable-non-expire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f05"), @2019-03-01) { origin case_input; }
+        assert "f2": offre_du_contrat(entity_ref("urn:fr:cc:contrat:f05:offre"), entity_ref("urn:fr:cc:contrat:f05")) { origin case_input; }
+        assert "f3": offre_comprend_les_elements_essentiels(entity_ref("urn:fr:cc:contrat:f05:offre")) { origin case_input; }
+        assert "f4": volonte_d_etre_lie(entity_ref("urn:fr:cc:contrat:f05:offre")) { origin case_input; }
+        assert "f5": auteur_de_l_offre(entity_ref("urn:fr:cc:contrat:f05:offre"), entity_ref("urn:fr:cc:contrat:f05:offrant")) { origin case_input; }
+        assert "f6": retractation_de_l_offre_le(entity_ref("urn:fr:cc:contrat:f05:offre"), @2019-03-15) { origin case_input; }
+        assert "f7": delai_raisonnable_de_l_offre_expire_le_1116(entity_ref("urn:fr:cc:contrat:f05:offre"), @2019-03-20) { origin adjudicated; }
+    }
+    evaluate truth(retractation_interdite_de_l_offre(entity_ref("urn:fr:cc:contrat:f05:offre")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RetractationInterditeAvantLeDelaiRaisonnable);
+    expect judgment_requests(0);
+}

@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1341-2 : la fraude ET la connaissance du tiers sont établies par le juge —
+// l'acte est déclaré inopposable au créancier.
+test "urn:query:fr-code-civil-obligations-o17-paulienne-acte-onereux-tiers-de-mauvaise-foi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": acte_du_debiteur(entity_ref("urn:fr:cc:obligations:pmf:a"), entity_ref("urn:fr:cc:obligations:pmf:c"), entity_ref("urn:fr:cc:obligations:pmf:D")) { origin case_input; }
+        assert "f2": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:pmf:c"), entity_ref("urn:fr:cc:obligations:pmf:CR")) { origin case_input; }
+        assert "f3": fraude_aux_droits_du_creancier(entity_ref("urn:fr:cc:obligations:pmf:a")) { origin adjudicated; }
+        assert "f4": acte_a_titre_onereux(entity_ref("urn:fr:cc:obligations:pmf:a")) { origin case_input; }
+        assert "f5": tiers_cocontractant(entity_ref("urn:fr:cc:obligations:pmf:a"), entity_ref("urn:fr:cc:obligations:pmf:T")) { origin case_input; }
+        assert "f6": connaissance_de_la_fraude(entity_ref("urn:fr:cc:obligations:pmf:a"), entity_ref("urn:fr:cc:obligations:pmf:T")) { origin adjudicated; }
+    }
+    evaluate truth(acte_inopposable_au_creancier(entity_ref("urn:fr:cc:obligations:pmf:a"), entity_ref("urn:fr:cc:obligations:pmf:CR")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ActionPaulienneActeOnereux);
+}

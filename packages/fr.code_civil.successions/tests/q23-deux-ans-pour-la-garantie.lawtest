@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 886 : éviction du 15 mars 2024 — action jusqu'au 15 mars 2026.
+test "urn:query:fr-code-civil-successions-q23-deux-ans-pour-la-garantie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": eviction_subie_le(entity_ref("urn:fr:cc:successions:par:q23:S"), entity_ref("urn:fr:cc:successions:par:q23:H"), @2024-03-15) { origin case_input; }
+    }
+    evaluate truth(fin_de_l_action_en_garantie(entity_ref("urn:fr:cc:successions:par:q23:S"), entity_ref("urn:fr:cc:successions:par:q23:H"), @2026-03-15));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DeuxAnsPourLaGarantie);
+}

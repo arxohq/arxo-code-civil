@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1304-2 : est nulle l'obligation sous condition dépendant de la seule volonté du
+// débiteur ; mais cette nullité NE PEUT ÊTRE INVOQUÉE lorsque l'obligation a été
+// exécutée en connaissance de cause — la nullité ne se produit alors pas.
+test "urn:query:fr-code-civil-obligations-m02-condition-potestative-executee-en-connaissance-de-cause" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": condition_de_l_obligation(entity_ref("urn:fr:cc:obligations:pot:c"), entity_ref("urn:fr:cc:obligations:pot:k")) { origin case_input; }
+        assert "f2": realisation_dependant_de_la_seule_volonte_du_debiteur(entity_ref("urn:fr:cc:obligations:pot:k")) { origin case_input; }
+        assert "f3": obligation_executee_en_connaissance_de_cause(entity_ref("urn:fr:cc:obligations:pot:c")) { origin case_input; }
+    }
+    evaluate truth(obligation_nulle_pour_condition_potestative(entity_ref("urn:fr:cc:obligations:pot:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(NulliteNonInvocableApresExecution);
+}

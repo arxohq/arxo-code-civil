@@ -1,0 +1,26 @@
+language "law.core" version "0.2"; package fr.code_civil.regimes_matrimoniaux version "0.1.0"; namespace "urn:fr:corpus:clir:code-civil-regimes-matrimoniaux";
+test "CC11-L01-liquidation-complete-et-valeurs-egales" { given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "e1": epoux(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p1")) { origin case_input; }
+        assert "e2": epoux(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p2")) { origin case_input; }
+        assert "m": masse_commune_avant_comptes(entity_ref("urn:cc11:ul1"), 100000 EUR) { origin case_input; }
+        assert "diss": evenement_de_dissolution(entity_ref("urn:cc11:ul1"), Divorce, @2026-01-01) { origin case_input; }
+        assert "oa": depense_faite(entity_ref("urn:cc11:oa"), 100 EUR) { origin case_input; }
+        assert "pa": profit_subsistant(entity_ref("urn:cc11:oa"), 150 EUR) { origin case_input; }
+        assert "ob": depense_faite(entity_ref("urn:cc11:ob"), 100 EUR) { origin case_input; }
+        assert "pb": profit_subsistant(entity_ref("urn:cc11:ob"), 140 EUR) { origin case_input; }
+        assert "oc": depense_faite(entity_ref("urn:cc11:oc"), 100 EUR) { origin case_input; }
+        assert "pc": profit_subsistant(entity_ref("urn:cc11:oc"), 130 EUR) { origin case_input; }
+        assert "od": depense_faite(entity_ref("urn:cc11:od"), 100 EUR) { origin case_input; }
+        assert "pd": profit_subsistant(entity_ref("urn:cc11:od"), 120 EUR) { origin case_input; }
+        assert "oe": depense_faite(entity_ref("urn:cc11:oe"), 100 EUR) { origin case_input; }
+        assert "pe": profit_subsistant(entity_ref("urn:cc11:oe"), 110 EUR) { origin case_input; }
+        assert "of": depense_faite(entity_ref("urn:cc11:of"), 100 EUR) { origin case_input; }
+        assert "pf": profit_subsistant(entity_ref("urn:cc11:of"), 105 EUR) { origin case_input; }
+        assert "r1": recompense_due_a_l_epoux(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p1"), entity_ref("urn:cc11:oa")) { origin case_input; }
+        assert "r2": recompense_due_a_l_epoux(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p1"), entity_ref("urn:cc11:ob")) { origin case_input; }
+        assert "r3": recompense_due_a_la_communaute(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p1"), entity_ref("urn:cc11:oc")) { origin case_input; }
+        assert "r4": recompense_due_a_l_epoux(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p2"), entity_ref("urn:cc11:od")) { origin case_input; }
+        assert "r5": recompense_due_a_la_communaute(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p2"), entity_ref("urn:cc11:oe")) { origin case_input; }
+        assert "r6": recompense_due_a_la_communaute(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p2"), entity_ref("urn:cc11:of")) { origin case_input; }
+    }
+    evaluate truth(part_finale_de_communaute(entity_ref("urn:cc11:ul1"), entity_ref("urn:cc11:p1"), 50000 EUR)); expect evaluation_status == COMPUTED; expect truth_status == TRUE_ONLY; expect applied(PartEgale); }

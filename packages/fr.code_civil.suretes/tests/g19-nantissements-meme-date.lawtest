@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2361-1 : deux actes du même jour — frontière.
+test "urn:query:fr-code-civil-suretes-g19-nantissements-meme-date" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": nantissement_de(entity_ref("urn:fr:cc:suretes:g19:S1"), entity_ref("urn:fr:cc:suretes:g19:N")) { origin case_input; }
+        assert "f2": date_de_l_acte(entity_ref("urn:fr:cc:suretes:g19:S1"), @2020-01-01) { origin case_input; }
+        assert "f3": nantissement_de(entity_ref("urn:fr:cc:suretes:g19:S2"), entity_ref("urn:fr:cc:suretes:g19:N")) { origin case_input; }
+        assert "f4": date_de_l_acte(entity_ref("urn:fr:cc:suretes:g19:S2"), @2020-01-01) { origin case_input; }
+    }
+    evaluate truth(nantissements_de_meme_date(entity_ref("urn:fr:cc:suretes:g19:N"), @2020-01-01));
+    expect truth_status == TRUE_ONLY;
+}

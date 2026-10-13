@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 812-7 : le mandataire n'a pas rendu compte de sa gestion.
+test "urn:query:fr-code-civil-successions-m72-revocation-pour-defaut-de-compte" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": mandat_de_la_succession(entity_ref("urn:fr:cc:successions:adm:m72:M"), entity_ref("urn:fr:cc:successions:adm:m72:S")) { origin case_input; }
+        assert "f2": mandataire_jouit_de_la_pleine_capacite_civile(entity_ref("urn:fr:cc:successions:adm:m72:M")) { origin case_input; }
+        assert "f3": mandat_donne_le(entity_ref("urn:fr:cc:successions:adm:m72:M"), @2024-01-15) { origin case_input; }
+        assert "f4": compte_rendu_annuel_omis_constate(entity_ref("urn:fr:cc:successions:adm:m72:M")) { origin adjudicated; }
+    }
+    evaluate truth(revocation_judiciaire_possible(entity_ref("urn:fr:cc:successions:adm:m72:M")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevocationJudiciairePourDefautDeCompte);
+}

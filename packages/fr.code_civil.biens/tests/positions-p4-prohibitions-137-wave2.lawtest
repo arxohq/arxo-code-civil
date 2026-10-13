@@ -1,0 +1,311 @@
+language "law.core" version "0.2";
+package fr.code_civil_biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+test "urn:query:fr-code-civil-biens-p4-wave2-545-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_du_bien(entity_ref("urn:p4:545:w2a:B"), entity_ref("urn:p4:545:w2a:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionCessionForcee545Actif, ACTIVE);
+ expect position(MaintenanceInterdictionCessionForcee545Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-545-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_du_bien(entity_ref("urn:p4:545:w2v:B"), entity_ref("urn:p4:545:w2v:P")) { origin case_input; }
+ assert "b": cession_forcee_exercee(entity_ref("urn:p4:545:w2v:B"), entity_ref("urn:p4:545:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionCessionForcee545Actif, VIOLATED);
+ expect position(MaintenanceInterdictionCessionForcee545Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-554-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": materiaux_n_appartenant_pas_au_proprietaire_du_sol(entity_ref("urn:p4:554:w2a:O")) { origin case_input; }
+ assert "b": proprietaire_des_materiaux(entity_ref("urn:p4:554:w2a:O"), entity_ref("urn:p4:554:w2a:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEnleverMateriaux554Actif, ACTIVE);
+ expect position(MaintenanceInterdictionEnleverMateriaux554Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-554-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": materiaux_n_appartenant_pas_au_proprietaire_du_sol(entity_ref("urn:p4:554:w2v:O")) { origin case_input; }
+ assert "b": proprietaire_des_materiaux(entity_ref("urn:p4:554:w2v:O"), entity_ref("urn:p4:554:w2v:P")) { origin case_input; }
+ assert "c": materiaux_enleves(entity_ref("urn:p4:554:w2v:O"), entity_ref("urn:p4:554:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEnleverMateriaux554Actif, VIOLATED);
+ expect position(MaintenanceInterdictionEnleverMateriaux554Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-555-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": ouvrage_sur(entity_ref("urn:p4:555:w2a:O"), entity_ref("urn:p4:555:w2a:F")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:555:w2a:F"), entity_ref("urn:p4:555:w2a:P")) { origin case_input; }
+ assert "c": ouvrage_fait_par_un_tiers(entity_ref("urn:p4:555:w2a:O"), entity_ref("urn:p4:555:w2a:T")) { origin case_input; }
+ assert "d": tiers_evince(entity_ref("urn:p4:555:w2a:O"), entity_ref("urn:p4:555:w2a:T")) { origin case_input; }
+ assert "e": non_condamne_a_restituer_les_fruits_pour_bonne_foi(entity_ref("urn:p4:555:w2a:O"), entity_ref("urn:p4:555:w2a:T")) { origin adjudicated; } }
+ evaluate positions();
+ expect position(P4InterdictionExigerSuppression555Actif, ACTIVE);
+ expect position(MaintenanceInterdictionExigerSuppression555Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-555-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": ouvrage_sur(entity_ref("urn:p4:555:w2v:O"), entity_ref("urn:p4:555:w2v:F")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:555:w2v:F"), entity_ref("urn:p4:555:w2v:P")) { origin case_input; }
+ assert "c": ouvrage_fait_par_un_tiers(entity_ref("urn:p4:555:w2v:O"), entity_ref("urn:p4:555:w2v:T")) { origin case_input; }
+ assert "d": tiers_evince(entity_ref("urn:p4:555:w2v:O"), entity_ref("urn:p4:555:w2v:T")) { origin case_input; }
+ assert "e": non_condamne_a_restituer_les_fruits_pour_bonne_foi(entity_ref("urn:p4:555:w2v:O"), entity_ref("urn:p4:555:w2v:T")) { origin adjudicated; }
+ assert "f": suppression_ouvrage_exigee(entity_ref("urn:p4:555:w2v:O"), entity_ref("urn:p4:555:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionExigerSuppression555Actif, VIOLATED);
+ expect position(MaintenanceInterdictionExigerSuppression555Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-530-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": creancier_rente(entity_ref("urn:p4:530:w2a:B"), entity_ref("urn:p4:530:w2a:P")) { origin case_input; }
+ assert "b": rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(entity_ref("urn:p4:530:w2a:B")) { origin case_input; }
+ assert "c": terme_de_rachat_stipule(entity_ref("urn:p4:530:w2a:B"), 31) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionTermeRenteExcessif530Actif, ACTIVE);
+ expect position(MaintenanceInterdictionTermeRenteExcessif530Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-530-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": creancier_rente(entity_ref("urn:p4:530:w2v:B"), entity_ref("urn:p4:530:w2v:P")) { origin case_input; }
+ assert "b": rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(entity_ref("urn:p4:530:w2v:B")) { origin case_input; }
+ assert "c": terme_de_rachat_stipule(entity_ref("urn:p4:530:w2v:B"), 31) { origin case_input; }
+ assert "d": terme_rente_excessif_stipule(entity_ref("urn:p4:530:w2v:B"), entity_ref("urn:p4:530:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionTermeRenteExcessif530Actif, VIOLATED);
+ expect position(MaintenanceInterdictionTermeRenteExcessif530Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-537-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": n_appartient_pas_a_un_particulier(entity_ref("urn:p4:537:w2a:B")) { origin case_input; }
+ assert "b": administrateur_du_bien(entity_ref("urn:p4:537:w2a:B"), entity_ref("urn:p4:537:w2a:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionAlienationHorsFormes537Actif, ACTIVE);
+ expect position(MaintenanceInterdictionAlienationHorsFormes537Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-537-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": n_appartient_pas_a_un_particulier(entity_ref("urn:p4:537:w2v:B")) { origin case_input; }
+ assert "b": administrateur_du_bien(entity_ref("urn:p4:537:w2v:B"), entity_ref("urn:p4:537:w2v:P")) { origin case_input; }
+ assert "c": alienation_hors_formes_exercee(entity_ref("urn:p4:537:w2v:B"), entity_ref("urn:p4:537:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionAlienationHorsFormes537Actif, VIOLATED);
+ expect position(MaintenanceInterdictionAlienationHorsFormes537Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-675-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:675:w2a:O"), entity_ref("urn:p4:675:w2a:P")) { origin case_input; }
+ assert "b": ouverture_dans(entity_ref("urn:p4:675:w2a:O"), entity_ref("urn:p4:675:w2a:M")) { origin case_input; }
+ assert "c": cloture_separant(entity_ref("urn:p4:675:w2a:M"), entity_ref("urn:p4:675:w2a:F"), entity_ref("urn:p4:675:w2a:V"), MurEntreCoursEtJardins) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionOuverture675Actif, ACTIVE);
+ expect position(MaintenanceInterdictionOuverture675Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-675-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:675:w2v:O"), entity_ref("urn:p4:675:w2v:P")) { origin case_input; }
+ assert "b": ouverture_dans(entity_ref("urn:p4:675:w2v:O"), entity_ref("urn:p4:675:w2v:M")) { origin case_input; }
+ assert "c": cloture_separant(entity_ref("urn:p4:675:w2v:M"), entity_ref("urn:p4:675:w2v:F"), entity_ref("urn:p4:675:w2v:V"), MurEntreCoursEtJardins) { origin case_input; }
+ assert "d": ouverture_pratiquee(entity_ref("urn:p4:675:w2v:O")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionOuverture675Actif, VIOLATED);
+ expect position(MaintenanceInterdictionOuverture675Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-677-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:677:w2a:O"), entity_ref("urn:p4:677:w2a:P")) { origin case_input; }
+ assert "b": niveau_de_l_ouverture(entity_ref("urn:p4:677:w2a:O"), RezDeChaussee) { origin case_input; }
+ assert "c": hauteur_au_dessus_du_plancher(entity_ref("urn:p4:677:w2a:O"), 20 dm) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionJourTropBas677Actif, ACTIVE);
+ expect position(MaintenanceInterdictionJourTropBas677Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-677-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:677:w2v:O"), entity_ref("urn:p4:677:w2v:P")) { origin case_input; }
+ assert "b": niveau_de_l_ouverture(entity_ref("urn:p4:677:w2v:O"), RezDeChaussee) { origin case_input; }
+ assert "c": hauteur_au_dessus_du_plancher(entity_ref("urn:p4:677:w2v:O"), 20 dm) { origin case_input; }
+ assert "d": jour_trop_bas_exerce(entity_ref("urn:p4:677:w2v:O"), entity_ref("urn:p4:677:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionJourTropBas677Actif, VIOLATED);
+ expect position(MaintenanceInterdictionJourTropBas677Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-678-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:678:w2a:O"), entity_ref("urn:p4:678:w2a:P")) { origin case_input; }
+ assert "b": espece_de_l_ouverture(entity_ref("urn:p4:678:w2a:O"), VueDroiteOuFenetreDAspect) { origin case_input; }
+ assert "c": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:p4:678:w2a:O"), 10 dm) { origin case_input; }
+ assert "d": ouverture_sur_l_heritage(entity_ref("urn:p4:678:w2a:O"), entity_ref("urn:p4:678:w2a:V")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionVueDroiteTropProche678Actif, ACTIVE);
+ expect position(MaintenanceInterdictionVueDroiteTropProche678Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-678-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:678:w2v:O"), entity_ref("urn:p4:678:w2v:P")) { origin case_input; }
+ assert "b": espece_de_l_ouverture(entity_ref("urn:p4:678:w2v:O"), VueDroiteOuFenetreDAspect) { origin case_input; }
+ assert "c": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:p4:678:w2v:O"), 10 dm) { origin case_input; }
+ assert "d": ouverture_sur_l_heritage(entity_ref("urn:p4:678:w2v:O"), entity_ref("urn:p4:678:w2v:V")) { origin case_input; }
+ assert "e": vue_droite_trop_proche_exercee(entity_ref("urn:p4:678:w2v:O"), entity_ref("urn:p4:678:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionVueDroiteTropProche678Actif, VIOLATED);
+ expect position(MaintenanceInterdictionVueDroiteTropProche678Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-679-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:679:w2a:O"), entity_ref("urn:p4:679:w2a:P")) { origin case_input; }
+ assert "b": espece_de_l_ouverture(entity_ref("urn:p4:679:w2a:O"), VueParCoteOuOblique) { origin case_input; }
+ assert "c": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:p4:679:w2a:O"), 5 dm) { origin case_input; }
+ assert "d": ouverture_sur_l_heritage(entity_ref("urn:p4:679:w2a:O"), entity_ref("urn:p4:679:w2a:V")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionVueObliqueTropProche679Actif, ACTIVE);
+ expect position(MaintenanceInterdictionVueObliqueTropProche679Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-679-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": auteur_ouverture(entity_ref("urn:p4:679:w2v:O"), entity_ref("urn:p4:679:w2v:P")) { origin case_input; }
+ assert "b": espece_de_l_ouverture(entity_ref("urn:p4:679:w2v:O"), VueParCoteOuOblique) { origin case_input; }
+ assert "c": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:p4:679:w2v:O"), 5 dm) { origin case_input; }
+ assert "d": ouverture_sur_l_heritage(entity_ref("urn:p4:679:w2v:O"), entity_ref("urn:p4:679:w2v:V")) { origin case_input; }
+ assert "e": vue_oblique_trop_proche_exercee(entity_ref("urn:p4:679:w2v:O"), entity_ref("urn:p4:679:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionVueObliqueTropProche679Actif, VIOLATED);
+ expect position(MaintenanceInterdictionVueObliqueTropProche679Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-681-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_du_fonds(entity_ref("urn:p4:681:w2a:F"), entity_ref("urn:p4:681:w2a:P")) { origin case_input; }
+ assert "b": voisin(entity_ref("urn:p4:681:w2a:F"), entity_ref("urn:p4:681:w2a:V")) { origin case_input; }
+ assert "c": toits_versant_sur_le_fonds_voisin(entity_ref("urn:p4:681:w2a:F"), entity_ref("urn:p4:681:w2a:V")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEgoutVoisin681Actif, ACTIVE);
+ expect position(MaintenanceInterdictionEgoutVoisin681Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-681-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_du_fonds(entity_ref("urn:p4:681:w2v:F"), entity_ref("urn:p4:681:w2v:P")) { origin case_input; }
+ assert "b": voisin(entity_ref("urn:p4:681:w2v:F"), entity_ref("urn:p4:681:w2v:V")) { origin case_input; }
+ assert "c": toits_versant_sur_le_fonds_voisin(entity_ref("urn:p4:681:w2v:F"), entity_ref("urn:p4:681:w2v:V")) { origin case_input; }
+ assert "d": eaux_versees_sur_fonds_voisin(entity_ref("urn:p4:681:w2v:F"), entity_ref("urn:p4:681:w2v:V")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEgoutVoisin681Actif, VIOLATED);
+ expect position(MaintenanceInterdictionEgoutVoisin681Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-684-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": demande_passage_sur_terrain_non_divise(entity_ref("urn:p4:684:w2a:D"), entity_ref("urn:p4:684:w2a:S"), entity_ref("urn:p4:684:w2a:P")) { origin case_input; }
+ assert "b": enclave_resultant_d_une_division(entity_ref("urn:p4:684:w2a:D")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionPassageTerrainNonDivise684Actif, ACTIVE);
+ expect position(MaintenanceInterdictionPassageTerrainNonDivise684Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-684-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": demande_passage_sur_terrain_non_divise(entity_ref("urn:p4:684:w2v:D"), entity_ref("urn:p4:684:w2v:S"), entity_ref("urn:p4:684:w2v:P")) { origin case_input; }
+ assert "b": enclave_resultant_d_une_division(entity_ref("urn:p4:684:w2v:D")) { origin case_input; }
+ assert "c": passage_sur_terrain_non_divise_exerce(entity_ref("urn:p4:684:w2v:D"), entity_ref("urn:p4:684:w2v:S")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionPassageTerrainNonDivise684Actif, VIOLATED);
+ expect position(MaintenanceInterdictionPassageTerrainNonDivise684Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-691-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_servitude(entity_ref("urn:p4:691:w2a:S"), entity_ref("urn:p4:691:w2a:P")) { origin case_input; }
+ assert "b": continuite(entity_ref("urn:p4:691:w2a:S"), Continue) { origin case_input; }
+ assert "c": apparence(entity_ref("urn:p4:691:w2a:S"), NonApparente) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEtablirSansTitre691Actif, ACTIVE);
+ expect position(MaintenanceInterdictionEtablirSansTitre691Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-691-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_servitude(entity_ref("urn:p4:691:w2v:S"), entity_ref("urn:p4:691:w2v:P")) { origin case_input; }
+ assert "b": continuite(entity_ref("urn:p4:691:w2v:S"), Continue) { origin case_input; }
+ assert "c": apparence(entity_ref("urn:p4:691:w2v:S"), NonApparente) { origin case_input; }
+ assert "d": etablissement_sans_titre_exerce(entity_ref("urn:p4:691:w2v:S"), entity_ref("urn:p4:691:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionEtablirSansTitre691Actif, VIOLATED);
+ expect position(MaintenanceInterdictionEtablirSansTitre691Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-695-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_fonds_servant(entity_ref("urn:p4:695:w2a:S"), entity_ref("urn:p4:695:w2a:P")) { origin case_input; }
+ assert "b": continuite(entity_ref("urn:p4:695:w2a:S"), Continue) { origin case_input; }
+ assert "c": apparence(entity_ref("urn:p4:695:w2a:S"), NonApparente) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionRemplacerTitre695Actif, ACTIVE);
+ expect position(MaintenanceInterdictionRemplacerTitre695Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-695-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_fonds_servant(entity_ref("urn:p4:695:w2v:S"), entity_ref("urn:p4:695:w2v:P")) { origin case_input; }
+ assert "b": continuite(entity_ref("urn:p4:695:w2v:S"), Continue) { origin case_input; }
+ assert "c": apparence(entity_ref("urn:p4:695:w2v:S"), NonApparente) { origin case_input; }
+ assert "d": remplacement_titre_par_autre_acte_exerce(entity_ref("urn:p4:695:w2v:S"), entity_ref("urn:p4:695:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionRemplacerTitre695Actif, VIOLATED);
+ expect position(MaintenanceInterdictionRemplacerTitre695Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-701-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_fonds_servant(entity_ref("urn:p4:701:w2a:S"), entity_ref("urn:p4:701:w2a:P")) { origin case_input; }
+ assert "b": servitude_acquise(entity_ref("urn:p4:701:w2a:S")) { origin case_input; }
+ assert "c": changement_de_l_etat_des_lieux_par_le_fonds_servant(entity_ref("urn:p4:701:w2a:S")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionDiminuerUsage701Actif, ACTIVE);
+ expect position(MaintenanceInterdictionDiminuerUsage701Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-701-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": proprietaire_fonds_servant(entity_ref("urn:p4:701:w2v:S"), entity_ref("urn:p4:701:w2v:P")) { origin case_input; }
+ assert "b": servitude_acquise(entity_ref("urn:p4:701:w2v:S")) { origin case_input; }
+ assert "c": changement_de_l_etat_des_lieux_par_le_fonds_servant(entity_ref("urn:p4:701:w2v:S")) { origin case_input; }
+ assert "d": modification_usage_exercee(entity_ref("urn:p4:701:w2v:S"), entity_ref("urn:p4:701:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionDiminuerUsage701Actif, VIOLATED);
+ expect position(MaintenanceInterdictionDiminuerUsage701Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-702-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": titulaire_servitude(entity_ref("urn:p4:702:w2a:S"), entity_ref("urn:p4:702:w2a:P")) { origin case_input; }
+ assert "b": servitude_acquise(entity_ref("urn:p4:702:w2a:S")) { origin case_input; }
+ assert "c": changement_aggravant_la_condition_du_fonds_servant(entity_ref("urn:p4:702:w2a:S")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionAggraverServitude702Actif, ACTIVE);
+ expect position(MaintenanceInterdictionAggraverServitude702Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-702-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": titulaire_servitude(entity_ref("urn:p4:702:w2v:S"), entity_ref("urn:p4:702:w2v:P")) { origin case_input; }
+ assert "b": servitude_acquise(entity_ref("urn:p4:702:w2v:S")) { origin case_input; }
+ assert "c": changement_aggravant_la_condition_du_fonds_servant(entity_ref("urn:p4:702:w2v:S")) { origin case_input; }
+ assert "d": usage_aggravant_exerce(entity_ref("urn:p4:702:w2v:S"), entity_ref("urn:p4:702:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionAggraverServitude702Actif, VIOLATED);
+ expect position(MaintenanceInterdictionAggraverServitude702Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-662-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:662:w2a:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:662:w2a:F"), entity_ref("urn:p4:662:w2a:P")) { origin case_input; }
+ assert "c": enfoncement_ou_ouvrage_appuye_sur_le_mur(entity_ref("urn:p4:662:w2a:M"), entity_ref("urn:p4:662:w2a:F")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionOuvrageMur662Actif, ACTIVE);
+ expect position(MaintenanceInterdictionOuvrageMur662Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-662-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:662:w2v:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:662:w2v:F"), entity_ref("urn:p4:662:w2v:P")) { origin case_input; }
+ assert "c": enfoncement_ou_ouvrage_appuye_sur_le_mur(entity_ref("urn:p4:662:w2v:M"), entity_ref("urn:p4:662:w2v:F")) { origin case_input; }
+ assert "d": ouvrage_mur_mitoyen_exerce(entity_ref("urn:p4:662:w2v:M"), entity_ref("urn:p4:662:w2v:F"), entity_ref("urn:p4:662:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionOuvrageMur662Actif, VIOLATED);
+ expect position(MaintenanceInterdictionOuvrageMur662Duty, VIOLATED); }
+
+test "urn:query:fr-code-civil-biens-p4-wave2-671-active" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": plantee_sur(entity_ref("urn:p4:671:w2a:Pl"), entity_ref("urn:p4:671:w2a:F")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:671:w2a:F"), entity_ref("urn:p4:671:w2a:P")) { origin case_input; }
+ assert "c": aucun_reglement_ni_usage_sur_les_distances(entity_ref("urn:p4:671:w2a:F")) { origin case_input; }
+ assert "d": hauteur_de_la_plantation(entity_ref("urn:p4:671:w2a:Pl"), 1 m) { origin case_input; }
+ assert "e": distance_a_la_ligne_separative(entity_ref("urn:p4:671:w2a:Pl"), 0.25 m) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionPlanterDistanceMindre671Actif, ACTIVE);
+ expect position(MaintenanceInterdictionPlanterDistanceMindre671Duty, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-wave2-671-violated" {
+ given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": plantee_sur(entity_ref("urn:p4:671:w2v:Pl"), entity_ref("urn:p4:671:w2v:F")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:671:w2v:F"), entity_ref("urn:p4:671:w2v:P")) { origin case_input; }
+ assert "c": aucun_reglement_ni_usage_sur_les_distances(entity_ref("urn:p4:671:w2v:F")) { origin case_input; }
+ assert "d": hauteur_de_la_plantation(entity_ref("urn:p4:671:w2v:Pl"), 1 m) { origin case_input; }
+ assert "e": distance_a_la_ligne_separative(entity_ref("urn:p4:671:w2v:Pl"), 0.25 m) { origin case_input; }
+ assert "f": plantation_a_distance_moindre_exercee(entity_ref("urn:p4:671:w2v:Pl"), entity_ref("urn:p4:671:w2v:F"), entity_ref("urn:p4:671:w2v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionPlanterDistanceMindre671Actif, VIOLATED);
+ expect position(MaintenanceInterdictionPlanterDistanceMindre671Duty, VIOLATED); }

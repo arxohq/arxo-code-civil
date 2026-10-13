@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-5, alinéa 3 : saisine le 1er mars 2026 — tardive.
+test "urn:query:fr-code-civil-successions-m36-contestation-le-lendemain" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": projet_de_reglement_publie_le(entity_ref("urn:fr:cc:successions:adm:m36:S"), @2026-01-31) { origin case_input; }
+        assert "f2": creancier_non_integralement_desinteresse(entity_ref("urn:fr:cc:successions:adm:m36:S"), entity_ref("urn:fr:cc:successions:adm:m36:P")) { origin case_input; }
+        assert "f3": saisine_contre_le_projet_le(entity_ref("urn:fr:cc:successions:adm:m36:S"), entity_ref("urn:fr:cc:successions:adm:m36:P"), @2026-03-01) { origin case_input; }
+    }
+    evaluate truth(contestation_du_projet_tardive(entity_ref("urn:fr:cc:successions:adm:m36:S"), entity_ref("urn:fr:cc:successions:adm:m36:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ContestationHorsDelai);
+}

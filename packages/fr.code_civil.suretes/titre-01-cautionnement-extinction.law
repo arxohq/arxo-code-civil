@@ -1,0 +1,438 @@
+// LIVRE IV, TITRE Ier, CHAPITRE Ier, SECTION 4 : EXTINCTION DU CAUTIONNEMENT
+// (articles 2313 à 2320).
+//
+// FIN DU CAUTIONNEMENT DE DETTES FUTURES. Deux sources de la date de fin :
+// le terme stipulé, ou la résiliation de la caution quand le cautionnement est
+// à durée indéterminée (2315). La résiliation prend effet à l'expiration du
+// préavis contractuel ou, à défaut, d'un « délai raisonnable » — appréciation
+// du juge (§47.3) sur la date de prise d'effet invoquée.
+//
+// COUVERTURE DANS LE TEMPS. Une dette est couverte si elle est née avant la
+// fin (2316), avant le décès de la caution pour ses héritiers (2317), avant
+// l'opposabilité de la fusion ou de la scission (2318). La naissance à la
+// date même de l'événement n'est pas « antérieure » : lecture stricte du texte.
+//
+// CINQ ANS (2319). La caution du solde d'un compte ne peut plus être
+// poursuivie cinq ans après la fin du cautionnement : la date anniversaire
+// est la première date où la poursuite est fermée (pas en années sous
+// `CC_SURETES_MOIS_AN`).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2313,
+    CC_ART2314,
+    CC_ART2315,
+    CC_ART2316,
+    CC_ART2317,
+    CC_ART2318,
+    CC_ART2319,
+    CC_ART2320,
+    Cautionnement,
+    Creance,
+    Personne,
+    caution,
+    caution_personne_morale,
+    creancier_du_cautionnement,
+    dette_garantie,
+    regi_par_la_loi_nouvelle,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation obligation_garantie_eteinte(k: Cautionnement) kind empirical {
+    label fr official "l'obligation garantie est éteinte (article 2313)";
+    label en unofficial "the guaranteed obligation is extinguished (Article 2313)";
+}
+pub relation cause_d_extinction_propre_a_la_caution(k: Cautionnement, cause: Text) kind empirical {
+    label fr official "cause d'extinction de droit commun de l'obligation de la caution (paiement, compensation, remise…) (article 2313)";
+    label en unofficial "ordinary ground extinguishing the surety's own obligation (payment, set-off, release…) (Article 2313)";
+}
+pub relation subrogation_devenue_impossible(k: Cautionnement) kind empirical {
+    label fr official "la subrogation aux droits du créancier ne peut plus s'opérer en faveur de la caution (article 2314)";
+    label en unofficial "subrogation to the creditor's rights can no longer operate for the surety (Article 2314)";
+}
+pub relation prejudice_de_la_perte_de_subrogation(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "préjudice subi par la caution du fait de la perte de subrogation, fixé par le juge (article 2314)";
+    label en unofficial "loss suffered by the surety from the loss of subrogation, set by the court (Article 2314)";
+}
+pub relation grief_limite_au_choix_du_mode_de_realisation(k: Cautionnement) kind empirical {
+    label fr official "la caution ne reproche au créancier que son choix du mode de réalisation d'une sûreté (article 2314, dernière phrase)";
+    label en unofficial "the surety complains only of the creditor's choice of how to enforce a security (Article 2314, last sentence)";
+}
+pub relation cautionnement_de_dettes_futures(k: Cautionnement) kind empirical {
+    label fr official "le cautionnement garantit des dettes futures (articles 2315, 2316)";
+    label en unofficial "the suretyship secures future debts (Articles 2315, 2316)";
+}
+pub relation terme_du_cautionnement(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "terme stipulé du cautionnement";
+    label en unofficial "stipulated term of the suretyship";
+}
+pub relation resiliation_notifiee_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date à laquelle la caution a notifié la résiliation (article 2315)";
+    label en unofficial "date the surety gave notice of termination (Article 2315)";
+}
+pub relation expiration_du_preavis_contractuel(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date d'expiration du délai de préavis contractuellement prévu (article 2315)";
+    label en unofficial "expiry date of the contractual notice period (Article 2315)";
+}
+pub relation prise_d_effet_invoquee(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date de prise d'effet de la résiliation invoquée, sans préavis contractuel (article 2315)";
+    label en unofficial "claimed effective date of termination, absent a contractual notice period (Article 2315)";
+}
+pub relation clause_contraire_2316(k: Cautionnement) kind empirical {
+    label fr official "clause contraire : la caution n'est pas tenue, après la fin, des dettes nées antérieurement (article 2316)";
+    label en unofficial "contrary clause: after the end, the surety is not liable for debts that arose earlier (Article 2316)";
+}
+pub relation nee_le(c: Creance, jour: Date) kind empirical {
+    key(c);
+    label fr official "date de naissance de la dette";
+    label en unofficial "date the debt arose";
+}
+pub relation deces_de_la_caution_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date du décès de la caution (article 2317)";
+    label en unofficial "date of the surety's death (Article 2317)";
+}
+pub relation dissolution_par_fusion_ou_scission_d_une_partie(k: Cautionnement, opposable: Date) kind empirical {
+    key(k);
+    label fr official "dissolution de la personne morale débitrice ou créancière par fusion, scission ou transmission universelle (article 1844-5, al. 3), opposable aux tiers à cette date (article 2318)";
+    label en unofficial "dissolution of the debtor or creditor legal person by merger, division or universal transfer (Article 1844-5, para. 3), effective against third parties on this date (Article 2318)";
+}
+pub relation operation_affecte_le_creancier(k: Cautionnement) kind empirical {
+    label fr official "l'opération affecte la société créancière (article 2318)";
+    label en unofficial "the transaction affects the creditor company (Article 2318)";
+}
+pub relation consentement_de_la_caution_lors_de_l_operation(k: Cautionnement) kind empirical {
+    label fr official "la caution a consenti, à l'occasion de l'opération, à garantir les dettes postérieures (article 2318)";
+    label en unofficial "the surety consented, on the transaction, to guarantee later debts (Article 2318)";
+}
+pub relation consentement_par_avance(k: Cautionnement) kind empirical {
+    label fr official "la caution a consenti par avance à garantir les dettes postérieures à une opération affectant la société créancière (article 2318)";
+    label en unofficial "the surety consented in advance to guarantee debts after a transaction affecting the creditor company (Article 2318)";
+}
+pub relation dissolution_de_la_caution_personne_morale(k: Cautionnement) kind empirical {
+    label fr official "la personne morale caution est dissoute par fusion, scission ou transmission universelle (article 2318, al. 2)";
+    label en unofficial "the surety legal person is dissolved by merger, division or universal transfer (Article 2318, para. 2)";
+}
+pub relation cautionnement_du_solde_d_un_compte(k: Cautionnement) kind empirical {
+    label fr official "cautionnement du solde d'un compte courant ou de dépôt (article 2319)";
+    label en unofficial "suretyship of the balance of a current or deposit account (Article 2319)";
+}
+pub relation poursuite_engagee_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date de la poursuite de la caution";
+    label en unofficial "date proceedings are brought against the surety";
+}
+pub relation prorogation_de_terme_accordee(k: Cautionnement) kind empirical {
+    label fr official "le créancier a accordé au débiteur une simple prorogation de terme (article 2320)";
+    label en unofficial "the creditor granted the debtor a mere extension of time (Article 2320)";
+}
+pub relation terme_initial_echu(k: Cautionnement) kind empirical {
+    label fr official "le terme initial est échu (article 2320)";
+    label en unofficial "the original due date has passed (Article 2320)";
+}
+pub relation preuve_contraire_du_debiteur_2320(k: Cautionnement) kind empirical {
+    label fr official "le débiteur prouve l'absence de circonstances menaçant le recouvrement (article 2320)";
+    label en unofficial "the debtor proves there are no circumstances threatening recovery (Article 2320)";
+}
+
+@source(CC_ART2315)
+pub external judgment relation delai_raisonnable_respecte(k: Cautionnement) {
+    authority Court;
+    label fr official "la résiliation respecte un délai raisonnable (article 2315)";
+    label en unofficial "the termination observes a reasonable notice period (Article 2315)";
+}
+@source(CC_ART2314)
+pub external judgment relation faute_du_creancier_2314(k: Cautionnement) {
+    authority Court;
+    label fr official "la subrogation ne peut plus s'opérer par la faute du créancier (article 2314)";
+    label en unofficial "subrogation can no longer operate through the creditor's fault (Article 2314)";
+}
+
+// --- 2313, 2314 ---------------------------------------------------------------------------------
+
+pub relation obligation_de_la_caution_eteinte(k: Cautionnement) kind derived {
+    label fr official "l'obligation de la caution est éteinte (article 2313)";
+    label en unofficial "the surety's obligation is extinguished (Article 2313)";
+}
+pub relation caution_dechargee(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "la caution est déchargée à concurrence du préjudice qu'elle subit (article 2314)";
+    label en unofficial "the surety is discharged up to the loss it suffers (Article 2314)";
+}
+
+@source(CC_ART2313) {
+    rule ExtinctionParVoieAccessoire(k: Cautionnement) strict {
+        label fr official "Article 2313. L'obligation de la caution s'éteint aussi par suite de l'extinction de l'obligation garantie";
+        label en unofficial "Article 2313. The surety's obligation is also extinguished when the guaranteed obligation is extinguished";
+        when regi_par_la_loi_nouvelle(k) and obligation_garantie_eteinte(k);
+        then obligation_de_la_caution_eteinte(k);
+    }
+    rule ExtinctionParVoiePrincipale(k: Cautionnement, x: Text) strict {
+        label fr official "Article 2313. L'obligation de la caution s'éteint par les mêmes causes que les autres obligations";
+        label en unofficial "Article 2313. The surety's obligation is extinguished on the same grounds as other obligations";
+        when regi_par_la_loi_nouvelle(k) and cause_d_extinction_propre_a_la_caution(k, x);
+        then obligation_de_la_caution_eteinte(k);
+    }
+}
+
+// La clause contraire est réputée non écrite : elle ne figure pas dans le
+// corps de la règle. Le seul grief du choix du mode de réalisation écarte la
+// décharge (dernière phrase).
+@source(CC_ART2314)
+rule DechargePourPerteDeSubrogation(k: Cautionnement, m: Money) strict {
+    label fr official "Article 2314. Lorsque la subrogation aux droits du créancier ne peut plus, par la faute de celui-ci, s'opérer en sa faveur, la caution est déchargée à concurrence du préjudice qu'elle subit ; toute clause contraire est réputée non écrite";
+    label en unofficial "Article 2314. Where subrogation to the creditor's rights can no longer operate for the surety through the creditor's fault, the surety is discharged up to its loss; any contrary clause is deemed unwritten";
+    when regi_par_la_loi_nouvelle(k) and subrogation_devenue_impossible(k)
+        and not_known(grief_limite_au_choix_du_mode_de_realisation(k))
+        and faute_du_creancier_2314(k) and prejudice_de_la_perte_de_subrogation(k, m);
+    then caution_dechargee(k, m);
+}
+
+// --- 2315, 2316 : fin du cautionnement de dettes futures ----------------------------------------
+
+pub relation fin_du_cautionnement(k: Cautionnement, jour: Date) kind derived {
+    key(k);
+    label fr official "date à laquelle le cautionnement prend fin";
+    label en unofficial "date the suretyship ends";
+}
+pub relation cautionnement_a_duree_indeterminee(k: Cautionnement) kind derived {
+    label fr official "cautionnement de dettes futures à durée indéterminée (article 2315)";
+    label en unofficial "open-ended suretyship of future debts (Article 2315)";
+}
+pub relation resiliation_notifiee(k: Cautionnement) kind derived {
+    label fr official "la caution a mis fin au cautionnement (article 2315)";
+    label en unofficial "the surety terminated the suretyship (Article 2315)";
+}
+pub relation dette_couverte(k: Cautionnement, c: Creance) kind derived {
+    label fr official "dette née avant la fin du cautionnement, dont la caution reste tenue (article 2316)";
+    label en unofficial "debt arising before the suretyship ended, for which the surety remains liable (Article 2316)";
+}
+pub relation dette_non_couverte(k: Cautionnement, c: Creance) kind derived {
+    label fr official "dette née à la fin du cautionnement ou après : la caution n'en est pas tenue (article 2316)";
+    label en unofficial "debt arising on or after the end of the suretyship: the surety is not liable (Article 2316)";
+}
+
+@source(CC_ART2315) {
+    rule DureeIndeterminee(k: Cautionnement) strict {
+        label fr official "Article 2315. Cautionnement de dettes futures à durée indéterminée";
+        label en unofficial "Article 2315. Open-ended suretyship of future debts";
+        when regi_par_la_loi_nouvelle(k) and cautionnement_de_dettes_futures(k) and not_known(terme_stipule(k));
+        then cautionnement_a_duree_indeterminee(k);
+    }
+    rule FaculteDeResiliation(k: Cautionnement, d: Date, a: Personne, b: Personne) strict {
+        label fr official "Article 2315. La caution peut mettre fin à tout moment au cautionnement de dettes futures à durée indéterminée";
+        label en unofficial "Article 2315. The surety may at any time terminate an open-ended suretyship of future debts";
+        when cautionnement_a_duree_indeterminee(k) and fr.code_civil.transitions::cautionnement_conclu_le(k, d)
+            and caution(k, a) and creancier_du_cautionnement(k, b);
+        then liberty FaculteDeMettreFinAuCautionnement {
+            holder a;
+            against b;
+            action resiliation_notifiee(k);
+            window [d, infinity);
+        };
+    }
+    rule ResiliationNotifiee(k: Cautionnement, n: Date) strict {
+        label fr official "Article 2315. Notification de la résiliation";
+        label en unofficial "Article 2315. Notice of termination";
+        when cautionnement_a_duree_indeterminee(k) and resiliation_notifiee_le(k, n);
+        then resiliation_notifiee(k);
+    }
+    rule FinApresPreavisContractuel(k: Cautionnement, n: Date, p: Date) strict {
+        label fr official "Article 2315. La résiliation prend effet à l'expiration du délai de préavis contractuellement prévu";
+        label en unofficial "Article 2315. Termination takes effect when the contractual notice period expires";
+        when cautionnement_a_duree_indeterminee(k) and resiliation_notifiee_le(k, n)
+            and expiration_du_preavis_contractuel(k, p) and p >= n;
+        then fin_du_cautionnement(k, p);
+    }
+    rule FinApresDelaiRaisonnable(k: Cautionnement, n: Date, p: Date) strict {
+        label fr official "Article 2315. A défaut de préavis contractuel, la résiliation respecte un délai raisonnable";
+        label en unofficial "Article 2315. Absent a contractual notice period, termination observes a reasonable period";
+        when cautionnement_a_duree_indeterminee(k) and resiliation_notifiee_le(k, n)
+            and not_known(preavis_contractuel_stipule(k)) and prise_d_effet_invoquee(k, p) and p >= n
+            and delai_raisonnable_respecte(k);
+        then fin_du_cautionnement(k, p);
+    }
+    rule FinAuTerme(k: Cautionnement, t: Date) strict {
+        label fr official "Articles 2315 et 2316. Le cautionnement à durée déterminée prend fin à son terme";
+        label en unofficial "Articles 2315 and 2316. A fixed-term suretyship ends at its term";
+        when regi_par_la_loi_nouvelle(k) and terme_du_cautionnement(k, t);
+        then fin_du_cautionnement(k, t);
+    }
+    rule TermeStipule(k: Cautionnement, t: Date) strict {
+        label fr official "Article 2315. Un terme est stipulé";
+        label en unofficial "Article 2315. A term is stipulated";
+        when terme_du_cautionnement(k, t);
+        then terme_stipule(k);
+    }
+    rule PreavisContractuelStipule(k: Cautionnement, p: Date) strict {
+        label fr official "Article 2315. Un préavis contractuel est prévu";
+        label en unofficial "Article 2315. A contractual notice period is provided";
+        when expiration_du_preavis_contractuel(k, p);
+        then preavis_contractuel_stipule(k);
+    }
+}
+
+pub relation terme_stipule(k: Cautionnement) kind derived {
+    label fr official "le cautionnement comporte un terme";
+    label en unofficial "the suretyship has a term";
+}
+pub relation preavis_contractuel_stipule(k: Cautionnement) kind derived {
+    label fr official "le contrat prévoit un délai de préavis";
+    label en unofficial "the contract provides a notice period";
+}
+
+@source(CC_ART2316) {
+    rule DettesNeesAvantLaFin(k: Cautionnement, c: Creance, f: Date, n: Date) strict {
+        label fr official "Article 2316. Lorsqu'un cautionnement de dettes futures prend fin, la caution reste tenue des dettes nées antérieurement";
+        label en unofficial "Article 2316. When a suretyship of future debts ends, the surety remains liable for debts that arose earlier";
+        when cautionnement_de_dettes_futures(k) and fin_du_cautionnement(k, f) and dette_garantie(k, c) and nee_le(c, n) and n < f
+            and not_known(clause_contraire_2316(k));
+        then dette_couverte(k, c);
+    }
+    rule DettesNeesApresLaFin(k: Cautionnement, c: Creance, f: Date, n: Date) strict {
+        label fr official "Article 2316. Le cautionnement ayant pris fin, la caution n'est pas tenue des dettes nées à cette date ou après";
+        label en unofficial "Article 2316. Once the suretyship has ended, the surety is not liable for debts arising on or after that date";
+        when cautionnement_de_dettes_futures(k) and fin_du_cautionnement(k, f) and dette_garantie(k, c) and nee_le(c, n) and n >= f;
+        then dette_non_couverte(k, c);
+    }
+}
+
+// --- 2317 à 2320 --------------------------------------------------------------------------------
+
+pub relation heritiers_tenus_de_la_dette(k: Cautionnement, c: Creance) kind derived {
+    label fr official "les héritiers de la caution sont tenus de la dette née avant le décès (article 2317)";
+    label en unofficial "the surety's heirs are liable for the debt arising before death (Article 2317)";
+}
+pub relation heritiers_non_tenus_de_la_dette(k: Cautionnement, c: Creance) kind derived {
+    label fr official "les héritiers ne sont pas tenus de la dette née au décès ou après ; toute clause contraire est réputée non écrite (article 2317)";
+    label en unofficial "the heirs are not liable for a debt arising on or after death; any contrary clause is deemed unwritten (Article 2317)";
+}
+pub relation caution_tenue_apres_l_operation(k: Cautionnement, c: Creance) kind derived {
+    label fr official "la caution demeure tenue de la dette née avant que l'opération ne soit devenue opposable aux tiers, ou de la dette postérieure à laquelle elle a consenti (article 2318)";
+    label en unofficial "the surety remains liable for the debt arising before the transaction became effective against third parties, or for a later debt it consented to (Article 2318)";
+}
+pub relation obligations_du_cautionnement_transmises(k: Cautionnement) kind derived {
+    label fr official "toutes les obligations issues du cautionnement sont transmises (article 2318, al. 2)";
+    label en unofficial "all obligations under the suretyship are transferred (Article 2318, para. 2)";
+}
+pub relation date_limite_des_poursuites_2319(k: Cautionnement, jour: Date) kind derived {
+    key(k);
+    label fr official "cinq ans après la fin du cautionnement : à compter de cette date, la caution du solde d'un compte ne peut plus être poursuivie (article 2319)";
+    label en unofficial "five years after the suretyship ends: from this date the surety of an account balance can no longer be pursued (Article 2319)";
+}
+pub relation poursuite_fermee_2319(k: Cautionnement) kind derived {
+    label fr official "la caution du solde d'un compte ne peut plus être poursuivie (article 2319)";
+    label en unofficial "the surety of an account balance can no longer be pursued (Article 2319)";
+}
+pub relation poursuite_ouverte_2319(k: Cautionnement) kind derived {
+    label fr official "la poursuite de la caution du solde d'un compte intervient dans les cinq ans de la fin du cautionnement (article 2319)";
+    label en unofficial "proceedings against the surety of an account balance are brought within five years of the end of the suretyship (Article 2319)";
+}
+pub relation caution_non_dechargee_par_la_prorogation(k: Cautionnement) kind derived {
+    label fr official "la simple prorogation de terme ne décharge pas la caution (article 2320)";
+    label en unofficial "a mere extension of time does not discharge the surety (Article 2320)";
+}
+pub relation option_de_la_caution_au_terme_initial(k: Cautionnement) kind derived {
+    label fr official "au terme initial échu, la caution peut payer et se retourner contre le débiteur, ou solliciter une sûreté judiciaire sur tout bien du débiteur (article 2320)";
+    label en unofficial "once the original term has passed, the surety may pay and turn to the debtor, or seek a judicial security over any of the debtor's assets (Article 2320)";
+}
+pub relation menace_sur_le_recouvrement_presumee(k: Cautionnement) kind derived {
+    label fr official "la caution est présumée justifier de circonstances susceptibles de menacer le recouvrement de sa créance (article 2320)";
+    label en unofficial "the surety is presumed to show circumstances likely to threaten recovery of its claim (Article 2320)";
+}
+
+@source(CC_ART2317) {
+    rule HeritiersTenus(k: Cautionnement, c: Creance, d: Date, n: Date) strict {
+        label fr official "Article 2317. Les héritiers de la caution ne sont tenus que des dettes nées avant le décès";
+        label en unofficial "Article 2317. The surety's heirs are liable only for debts arising before death";
+        when regi_par_la_loi_nouvelle(k) and deces_de_la_caution_le(k, d) and dette_garantie(k, c) and nee_le(c, n) and n < d;
+        then heritiers_tenus_de_la_dette(k, c);
+    }
+    rule HeritiersNonTenus(k: Cautionnement, c: Creance, d: Date, n: Date) strict {
+        label fr official "Article 2317. Toute clause contraire est réputée non écrite : les dettes nées au décès ou après ne passent pas aux héritiers";
+        label en unofficial "Article 2317. Any contrary clause is deemed unwritten: debts arising on or after death do not pass to the heirs";
+        when regi_par_la_loi_nouvelle(k) and deces_de_la_caution_le(k, d) and dette_garantie(k, c) and nee_le(c, n) and n >= d;
+        then heritiers_non_tenus_de_la_dette(k, c);
+    }
+}
+
+@source(CC_ART2318) {
+    rule DetteAnterieureALOperation(k: Cautionnement, c: Creance, o: Date, n: Date) strict {
+        label fr official "Article 2318. En cas de dissolution de la personne morale débitrice ou créancière par fusion, scission ou transmission universelle, la caution demeure tenue pour les dettes nées avant que l'opération ne soit devenue opposable aux tiers";
+        label en unofficial "Article 2318. Where the debtor or creditor legal person is dissolved by merger, division or universal transfer, the surety remains liable for debts arising before the transaction became effective against third parties";
+        when regi_par_la_loi_nouvelle(k) and dissolution_par_fusion_ou_scission_d_une_partie(k, o) and dette_garantie(k, c) and nee_le(c, n) and n < o;
+        then caution_tenue_apres_l_operation(k, c);
+    }
+    rule DettePosterieureConsentie(k: Cautionnement, c: Creance, o: Date, n: Date) strict {
+        label fr official "Article 2318. Elle ne garantit les dettes nées postérieurement que si elle y a consenti à l'occasion de cette opération";
+        label en unofficial "Article 2318. It guarantees later debts only if it consented on that transaction";
+        when regi_par_la_loi_nouvelle(k) and dissolution_par_fusion_ou_scission_d_une_partie(k, o) and dette_garantie(k, c) and nee_le(c, n) and n >= o
+            and consentement_de_la_caution_lors_de_l_operation(k);
+        then caution_tenue_apres_l_operation(k, c);
+    }
+    rule DettePosterieureConsentieParAvance(k: Cautionnement, c: Creance, o: Date, n: Date) strict {
+        label fr official "Article 2318. Pour les opérations affectant la société créancière, le consentement peut être donné par avance";
+        label en unofficial "Article 2318. For transactions affecting the creditor company, consent may be given in advance";
+        when regi_par_la_loi_nouvelle(k) and dissolution_par_fusion_ou_scission_d_une_partie(k, o) and dette_garantie(k, c) and nee_le(c, n) and n >= o
+            and operation_affecte_le_creancier(k) and consentement_par_avance(k);
+        then caution_tenue_apres_l_operation(k, c);
+    }
+    rule TransmissionDesObligationsDeLaCaution(k: Cautionnement) strict {
+        label fr official "Article 2318, alinéa 2. En cas de dissolution de la personne morale caution pour l'une de ces causes, toutes les obligations issues du cautionnement sont transmises";
+        label en unofficial "Article 2318, paragraph 2. Where the surety legal person is dissolved on one of these grounds, all obligations under the suretyship are transferred";
+        when regi_par_la_loi_nouvelle(k) and caution_personne_morale(k) and dissolution_de_la_caution_personne_morale(k);
+        then obligations_du_cautionnement_transmises(k);
+    }
+}
+
+@source(CC_ART2319) {
+    rule DateLimiteDesPoursuites(k: Cautionnement, f: Date) strict {
+        label fr official "Article 2319. La caution du solde d'un compte courant ou de dépôt ne peut plus être poursuivie cinq ans après la fin du cautionnement";
+        label en unofficial "Article 2319. The surety of a current or deposit account balance can no longer be pursued five years after the suretyship ends";
+        when regi_par_la_loi_nouvelle(k) and cautionnement_du_solde_d_un_compte(k) and fin_du_cautionnement(k, f);
+        then date_limite_des_poursuites_2319(k, add_calendar_period(f, 5 calendar_year));
+    }
+    rule PoursuiteFermee(k: Cautionnement, l: Date, p: Date) strict {
+        label fr official "Article 2319. Poursuite engagée cinq ans ou plus après la fin du cautionnement";
+        label en unofficial "Article 2319. Proceedings brought five years or more after the suretyship ended";
+        when date_limite_des_poursuites_2319(k, l) and poursuite_engagee_le(k, p) and p >= l;
+        then poursuite_fermee_2319(k);
+    }
+    rule PoursuiteOuverte(k: Cautionnement, l: Date, p: Date) strict {
+        label fr official "Article 2319. Poursuite engagée moins de cinq ans après la fin du cautionnement";
+        label en unofficial "Article 2319. Proceedings brought less than five years after the suretyship ended";
+        when date_limite_des_poursuites_2319(k, l) and poursuite_engagee_le(k, p) and p < l;
+        then poursuite_ouverte_2319(k);
+    }
+}
+
+@source(CC_ART2320) {
+    rule ProrogationSansDecharge(k: Cautionnement) strict {
+        label fr official "Article 2320. La simple prorogation de terme, accordée par le créancier au débiteur principal, ne décharge pas la caution";
+        label en unofficial "Article 2320. A mere extension of time granted by the creditor to the principal debtor does not discharge the surety";
+        when regi_par_la_loi_nouvelle(k) and prorogation_de_terme_accordee(k);
+        then caution_non_dechargee_par_la_prorogation(k);
+    }
+    rule OptionAuTermeInitial(k: Cautionnement) strict {
+        label fr official "Article 2320. Lorsque le terme initial est échu, la caution peut soit payer le créancier et se retourner contre le débiteur, soit solliciter la constitution d'une sûreté judiciaire sur tout bien du débiteur à hauteur des sommes garanties";
+        label en unofficial "Article 2320. Once the original term has passed, the surety may either pay the creditor and turn to the debtor, or seek a judicial security over any of the debtor's assets up to the sums guaranteed";
+        when caution_non_dechargee_par_la_prorogation(k) and terme_initial_echu(k);
+        then option_de_la_caution_au_terme_initial(k);
+    }
+    rule MenacePresumee(k: Cautionnement) defeasible {
+        label fr official "Article 2320. Elle est alors présumée justifier de circonstances susceptibles de menacer le recouvrement de sa créance, sauf preuve contraire apportée par le débiteur";
+        label en unofficial "Article 2320. It is then presumed to show circumstances likely to threaten recovery of its claim, unless the debtor proves otherwise";
+        when option_de_la_caution_au_terme_initial(k);
+        then menace_sur_le_recouvrement_presumee(k);
+        unless preuve_contraire_du_debiteur_2320(k);
+    }
+}

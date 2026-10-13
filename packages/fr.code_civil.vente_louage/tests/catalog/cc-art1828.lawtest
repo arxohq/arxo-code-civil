@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-POSITIONDEVOIRMAINTENIRNULLITEPERTEMETAYER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": stipulation_de_toute_la_perte_a_la_charge_du_metayer(entity_ref("urn:law:catalog:positiondevoirmaintenirnullitepertemetayer:v0")) { origin case_input; }
+        assert "cat-1": cheptel_donne_au_metayer(entity_ref("urn:law:catalog:positiondevoirmaintenirnullitepertemetayer:v0")) { origin case_input; }
+        assert "cat-2": preneur_de_cheptel(entity_ref("urn:law:catalog:positiondevoirmaintenirnullitepertemetayer:v0"), entity_ref("urn:law:catalog:positiondevoirmaintenirnullitepertemetayer:v1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(MaintenirNullitePerteMetayer, ACTIVE);
+}

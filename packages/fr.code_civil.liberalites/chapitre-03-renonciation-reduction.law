@@ -1,0 +1,72 @@
+// CHAPITRE III — RENONCIATION ANTICIPÉE À L'ACTION EN RÉDUCTION (929 à 930-5).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART929,
+    CC_ART930,
+    CC_ART930_1,
+    CC_ART930_2,
+    CC_ART930_3,
+    CC_ART930_4,
+    CC_ART930_5,
+    RenonciationReduction,
+};
+
+pub relation succession_non_ouverte(r: RenonciationReduction) kind empirical { label fr official "la succession visée n'est pas ouverte"; label en unofficial "the estate concerned has not opened"; }
+pub relation renoncant_reservataire_presomptif(r: RenonciationReduction) kind empirical { label fr official "le renonçant est héritier réservataire présomptif"; label en unofficial "the waiving party is a presumptive forced heir"; }
+pub relation beneficiaire_determine_de_la_renonciation(r: RenonciationReduction) kind empirical { label fr official "la renonciation est faite au profit d'une ou plusieurs personnes déterminées"; label en unofficial "the waiver is made for one or more identified persons"; }
+pub relation renonciation_acceptee_par_le_futur_defunt(r: RenonciationReduction) kind empirical { label fr official "la renonciation est acceptée par celui dont le renonçant a vocation à hériter"; label en unofficial "the waiver is accepted by the person whose estate the waiving party expects to inherit"; }
+pub relation renonciation_engage(r: RenonciationReduction) kind derived { label fr official "la renonciation engage le renonçant"; label en unofficial "the waiver binds the waiving party"; }
+pub relation portee_totale_fractionnaire_ou_bien_determine(r: RenonciationReduction) kind empirical { label fr official "la portée vise toute la réserve, une fraction ou un bien déterminé"; label en unofficial "the scope concerns the whole reserve, a fraction or identified property"; }
+pub relation portee_de_la_renonciation_admissible(r: RenonciationReduction) kind derived { label fr official "portée admissible de la renonciation"; label en unofficial "permissible scope of the waiver"; }
+pub relation acte_cree_obligation_ou_condition_pour_futur_defunt(r: RenonciationReduction) kind empirical { label fr official "l'acte crée une obligation ou une condition à la charge du futur défunt"; label en unofficial "the instrument creates an obligation or condition for the future deceased"; }
+pub relation acte_authentique_specifique_deux_notaires(r: RenonciationReduction) kind empirical { label fr official "acte authentique spécifique reçu par deux notaires, signé séparément et mentionnant ses conséquences"; label en unofficial "specific authentic instrument received by two notaries, signed separately and stating its consequences"; }
+pub relation consentement_du_renoncant_vicie(r: RenonciationReduction) kind empirical { label fr official "le consentement du renonçant est vicié par erreur, dol ou violence"; label en unofficial "the waiving party's consent is vitiated by mistake, fraud or duress"; }
+pub relation renonciation_valable(r: RenonciationReduction) kind derived { label fr official "renonciation anticipée valable"; label en unofficial "valid advance waiver"; }
+pub relation renonciation_nulle(r: RenonciationReduction) kind derived { label fr official "renonciation anticipée nulle"; label en unofficial "void advance waiver"; }
+pub relation renoncant_capable_de_donner_entre_vifs(r: RenonciationReduction) kind empirical { label fr official "le renonçant a la capacité requise pour consentir une donation entre vifs"; label en unofficial "the waiving party has capacity to make an inter vivos gift"; }
+pub relation renoncant_mineur_emancipe(r: RenonciationReduction) kind empirical { label fr official "le renonçant est mineur émancipé"; label en unofficial "the waiving party is an emancipated minor"; }
+pub relation atteinte_a_la_reserve(r: RenonciationReduction, part: Rational) kind empirical { key(r); label fr official "fraction de l'atteinte portée à la réserve du renonçant"; label en unofficial "fraction by which the waiving party's reserve is impaired"; }
+pub relation fraction_visee_par_renonciation(r: RenonciationReduction, part: Rational) kind empirical { key(r); label fr official "fraction de réserve visée par la renonciation"; label en unofficial "fraction of the reserve covered by the waiver"; }
+pub relation effet_de_la_renonciation(r: RenonciationReduction, part: Rational) kind derived { key(r); label fr official "fraction sur laquelle la renonciation produit effet"; label en unofficial "fraction over which the waiver takes effect"; }
+pub relation bien_ou_beneficiaire_ne_correspond_pas(r: RenonciationReduction) kind empirical { label fr official "le bien ou le bénéficiaire de la libéralité ne correspond pas à la renonciation"; label en unofficial "the property or beneficiary of the disposition does not match the waiver"; }
+pub relation renonciation_caduque(r: RenonciationReduction) kind derived { label fr official "renonciation caduque"; label en unofficial "lapsed waiver"; }
+pub relation obligation_alimentaire_non_executee(r: RenonciationReduction) kind empirical { label fr official "le futur défunt n'exécute pas ses obligations alimentaires envers le renonçant"; label en unofficial "the future deceased fails to perform maintenance obligations toward the waiving party"; }
+pub relation etat_de_besoin_a_l_ouverture(r: RenonciationReduction) kind empirical { label fr official "à l'ouverture, le renonçant est dans un besoin qui disparaîtrait sans la renonciation"; label en unofficial "at opening, the waiving party is in need that would disappear without the waiver"; }
+pub relation crime_ou_delit_du_beneficiaire_contre_renoncant(r: RenonciationReduction) kind empirical { label fr official "le bénéficiaire a commis un crime ou délit contre le renonçant"; label en unofficial "the beneficiary committed an offence against the waiving party"; }
+pub relation revocation_demandable(r: RenonciationReduction) kind derived { label fr official "révocation de la renonciation demandable"; label en unofficial "revocation of the waiver may be sought"; }
+pub relation fait_de_revocation_connu_le(r: RenonciationReduction, jour: Date) kind empirical { key(r); label fr official "date du fait de révocation ou de sa connaissance"; label en unofficial "date of the revocation event or its discovery"; }
+pub relation succession_ouverte_le_pour_renonciation(r: RenonciationReduction, jour: Date) kind empirical { key(r); label fr official "date d'ouverture de la succession visée par la renonciation"; label en unofficial "opening date of the estate concerned by the waiver"; }
+pub relation demande_revocation_le(r: RenonciationReduction, jour: Date) kind empirical { key(r); label fr official "date de la demande en révocation"; label en unofficial "date of the revocation application"; }
+pub relation demande_revocation_dans_delai(r: RenonciationReduction) kind derived { label fr official "demande de révocation formée dans le délai d'un an"; label en unofficial "revocation application brought within the one-year period"; }
+pub relation renonciation_opposable_aux_representants(r: RenonciationReduction) kind derived { label fr official "renonciation opposable aux représentants du renonçant"; label en unofficial "waiver enforceable against the waiving party's representatives"; }
+
+@source(CC_ART929) {
+ rule RenonciationEngageApresAcceptation(r: RenonciationReduction) strict { label fr official "Article 929, alinéa 1. La renonciation du réservataire présomptif dans une succession non ouverte engage après acceptation au profit d'une personne déterminée"; label en unofficial "Article 929, paragraph 1. A presumptive forced heir's waiver before opening binds after acceptance for an identified person"; when succession_non_ouverte(r) and renoncant_reservataire_presomptif(r) and beneficiaire_determine_de_la_renonciation(r) and renonciation_acceptee_par_le_futur_defunt(r); then renonciation_engage(r); }
+ rule PorteeAdmissible(r: RenonciationReduction) strict { label fr official "Article 929, alinéa 2. La renonciation peut viser la totalité, une fraction ou un bien déterminé"; label en unofficial "Article 929, paragraph 2. A waiver may concern the whole reserve, a fraction or identified property"; when portee_totale_fractionnaire_ou_bien_determine(r); then portee_de_la_renonciation_admissible(r); }
+ rule ObligationInterditeRendNulle(r: RenonciationReduction) strict { label fr official "Article 929, alinéa 3. L'acte ne peut obliger le futur défunt ni être conditionné à son acte"; label en unofficial "Article 929, paragraph 3. The instrument may not bind the future deceased or be conditional on that person's act"; when acte_cree_obligation_ou_condition_pour_futur_defunt(r); then renonciation_nulle(r); }
+}
+@source(CC_ART930) {
+ rule FormeAuthentiqueValide(r: RenonciationReduction) strict { label fr official "Article 930, alinéa 1. L'acte authentique spécifique reçu par deux notaires et signé séparément respecte la forme"; label en unofficial "Article 930, paragraph 1. A specific authentic instrument received by two notaries and signed separately meets the form"; when acte_authentique_specifique_deux_notaires(r) and not_known(consentement_du_renoncant_vicie(r)); then renonciation_valable(r); }
+ rule ViceDuConsentementRendNulle(r: RenonciationReduction) strict { label fr official "Article 930, alinéa 2. Le vice du consentement rend la renonciation nulle"; label en unofficial "Article 930, paragraph 2. Vitiated consent makes the waiver void"; when consentement_du_renoncant_vicie(r); then renonciation_nulle(r); }
+}
+@source(CC_ART930_1)
+rule CapaciteDonationSansMineurEmancipe(r: RenonciationReduction) strict { label fr official "Article 930-1, alinéa 1. La capacité de donner entre vifs est requise et le mineur émancipé ne peut renoncer"; label en unofficial "Article 930-1, paragraph 1. Capacity to make an inter vivos gift is required and an emancipated minor may not waive"; when renoncant_capable_de_donner_entre_vifs(r) and not_known(renoncant_mineur_emancipe(r)); then renonciation_valable(r); }
+@source(CC_ART930_2) {
+ rule EffetLimiteALAtteinte(r: RenonciationReduction, atteinte: Rational, visee: Rational) strict { label fr official "Article 930-2, alinéa 1. La renonciation produit effet seulement à concurrence de l'atteinte et de la fraction visée"; label en unofficial "Article 930-2, paragraph 1. A waiver takes effect only up to the impairment and the covered fraction"; when atteinte_a_la_reserve(r, atteinte) and fraction_visee_par_renonciation(r, visee) and atteinte <= visee; then effet_de_la_renonciation(r, atteinte); }
+ rule CaduciteBienOuBeneficiaireDifferent(r: RenonciationReduction) strict { label fr official "Article 930-2, alinéa 2. La renonciation est caduque si le bien ou le bénéficiaire ne correspond pas"; label en unofficial "Article 930-2, paragraph 2. The waiver lapses if the property or beneficiary does not match"; when bien_ou_beneficiaire_ne_correspond_pas(r); then renonciation_caduque(r); }
+}
+@source(CC_ART930_3) {
+ rule RevocationPourAliments(r: RenonciationReduction) strict { label fr official "Article 930-3, 1°. Le manquement aux obligations alimentaires ouvre la révocation"; label en unofficial "Article 930-3(1). Failure to perform maintenance obligations opens revocation"; when obligation_alimentaire_non_executee(r); then revocation_demandable(r); }
+ rule RevocationPourBesoin(r: RenonciationReduction) strict { label fr official "Article 930-3, 2°. L'état de besoin à l'ouverture ouvre la révocation"; label en unofficial "Article 930-3(2). Need at opening opens revocation"; when etat_de_besoin_a_l_ouverture(r); then revocation_demandable(r); }
+ rule RevocationPourInfraction(r: RenonciationReduction) strict { label fr official "Article 930-3, 3°. Le crime ou délit du bénéficiaire contre le renonçant ouvre la révocation"; label en unofficial "Article 930-3(3). An offence by the beneficiary against the waiving party opens revocation"; when crime_ou_delit_du_beneficiaire_contre_renoncant(r); then revocation_demandable(r); }
+}
+@source(CC_ART930_4) {
+ rule DelaiRevocationBesoin(r: RenonciationReduction, ouverture: Date, demande: Date) strict { label fr official "Article 930-4, alinéa 2. La demande fondée sur le besoin est formée dans l'année de l'ouverture"; label en unofficial "Article 930-4, paragraph 2. An application based on need is brought within one year after opening"; when etat_de_besoin_a_l_ouverture(r) and succession_ouverte_le_pour_renonciation(r, ouverture) and demande_revocation_le(r, demande) and demande <= add_calendar_period(ouverture, 1 calendar_year); then demande_revocation_dans_delai(r); }
+ rule DelaiRevocationAutresFaits(r: RenonciationReduction, fait: Date, demande: Date) strict { label fr official "Article 930-4, alinéa 2. Les autres demandes sont formées dans l'année du fait ou de sa connaissance"; label en unofficial "Article 930-4, paragraph 2. Other applications are brought within one year after the event or its discovery"; when fait_de_revocation_connu_le(r, fait) and demande_revocation_le(r, demande) and demande <= add_calendar_period(fait, 1 calendar_year); then demande_revocation_dans_delai(r); }
+}
+@source(CC_ART930_5)
+rule OpposabiliteAuxRepresentants(r: RenonciationReduction) strict { label fr official "Article 930-5. La renonciation est opposable aux représentants du renonçant"; label en unofficial "Article 930-5. The waiver is enforceable against the waiving party's representatives"; when renonciation_engage(r); then renonciation_opposable_aux_representants(r); }

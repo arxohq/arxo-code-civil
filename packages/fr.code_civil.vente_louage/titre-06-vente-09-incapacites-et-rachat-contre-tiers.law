@@ -1,0 +1,198 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1596,
+    CC_ART1597,
+    CC_ART1601_4,
+    CC_ART1663,
+    CC_ART1664,
+    CC_ART1666,
+    CC_ART1799,
+    CC_ART1804,
+    Cheptel,
+    EspeceDeCheptel,
+    Marche,
+    Personne,
+    QualiteInterditeDAdjudication,
+    Vente,
+    acheteur,
+    action_en_rachat_ouverte_contre_le_second_acquereur,
+    adjudicataire_en_qualite,
+    adjudication_nulle,
+    auxiliaire_de_justice_du_ressort,
+    bailleur_de_cheptel,
+    benefice_de_discussion_opposable_aux_creanciers,
+    cession_a_un_auxiliaire_de_justice_nulle,
+    cession_de_droit_litigieux_du_ressort,
+    cession_des_droits_de_l_acquereur_d_immeuble_a_construire,
+    cessionnaire_substitue_aux_obligations_envers_le_vendeur,
+    cheptel_simple_qualifie,
+    creancier_du_vendeur_a_pacte_de_rachat,
+    delai_de_rachat_court_contre_toutes_personnes,
+    espece_du_cheptel,
+    fonds_de_betail_remis,
+    mandat_poursuivi_avec_le_cessionnaire,
+    marche_a_prix_fait_conclu_directement,
+    ouvrier_est_entrepreneur_dans_sa_partie,
+    pacte_de_rachat_stipule,
+    poursuite_des_creanciers_ecartee,
+    preneur_de_cheptel,
+    preneur_profite_de_la_moitie_du_croit,
+    preneur_supporte_la_moitie_de_la_perte,
+    second_acquereur_du_bien_rachetable,
+    vente_assortie_d_un_mandat,
+    vente_d_immeuble_a_construire,
+};
+
+// Dernier reste exécutable : incapacités d'adjudication (1596) et de cession
+// de droits litigieux (1597), cession des droits de l'acquéreur d'immeuble à
+// construire (1601-4), faculté de rachat opposée aux tiers (1663, 1664, 1666),
+// marchés à prix fait directs (1799) et cheptel simple (1804).
+//
+// Les articles 1665 et 1667 à 1672, et avec eux 1685, règlent l'exercice du
+// rachat et de la rescision QUAND LES VENDEURS OU LES HÉRITIERS SONT PLUSIEURS.
+// Ils supposent des parts et un partage que ce paquet ne tient pas : leurs
+// frontières sont déclarées, avec le nom de ce qui manque.
+
+// Article 1596 : liste fermée de cinq qualités. Le « or » du corps est
+// remplacé par cinq règles nommées, pour que chaque qualité reste adressable.
+@source(CC_ART1596)
+rule AdjudicationDuTuteurNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1596. Les tuteurs ne peuvent se rendre adjudicataires des biens de ceux dont ils ont la tutelle, sous peine de nullité";
+    label en unofficial "Article 1596. Guardians may not become successful bidders for the assets of those in their guardianship, on pain of nullity";
+    when adjudicataire_en_qualite(v, p, Tuteur);
+    then adjudication_nulle(v);
+}
+
+@source(CC_ART1596)
+rule AdjudicationDuMandataireNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1596. Les mandataires ne peuvent se rendre adjudicataires des biens qu'ils sont chargés de vendre";
+    label en unofficial "Article 1596. Agents may not become successful bidders for the assets they are charged with selling";
+    when adjudicataire_en_qualite(v, p, Mandataire);
+    then adjudication_nulle(v);
+}
+
+@source(CC_ART1596)
+rule AdjudicationDeLAdministrateurNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1596. Les administrateurs ne peuvent se rendre adjudicataires des biens des communes ou des établissements publics confiés à leurs soins";
+    label en unofficial "Article 1596. Administrators may not become successful bidders for the assets of communes or public establishments in their care";
+    when adjudicataire_en_qualite(v, p, Administrateur);
+    then adjudication_nulle(v);
+}
+
+@source(CC_ART1596)
+rule AdjudicationDeLOfficierPublicNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1596. Les officiers publics ne peuvent se rendre adjudicataires des biens nationaux dont les ventes se font par leur ministère";
+    label en unofficial "Article 1596. Public officers may not become successful bidders for national assets sold through their office";
+    when adjudicataire_en_qualite(v, p, OfficierPublic);
+    then adjudication_nulle(v);
+}
+
+@source(CC_ART1596)
+rule AdjudicationDuFiduciaireNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1596. Les fiduciaires ne peuvent se rendre adjudicataires des biens ou droits composant le patrimoine fiduciaire";
+    label en unofficial "Article 1596. Fiduciaries may not become successful bidders for the assets or rights of the fiduciary estate";
+    when adjudicataire_en_qualite(v, p, Fiduciaire);
+    then adjudication_nulle(v);
+}
+
+@source(CC_ART1597)
+rule CessionDeDroitLitigieuxAUnAuxiliaireDeJusticeNulle(v: Vente, p: Personne) strict {
+    label fr official "Article 1597. Les auxiliaires de justice ne peuvent devenir cessionnaires des procès, droits et actions litigieux de leur ressort, à peine de nullité";
+    label en unofficial "Article 1597. Officers of the court may not become assignees of litigation, rights and actions in their district, on pain of nullity";
+    when auxiliaire_de_justice_du_ressort(v, p) and cession_de_droit_litigieux_du_ressort(v);
+    then cession_a_un_auxiliaire_de_justice_nulle(v);
+}
+
+@source(CC_ART1601_4)
+rule CessionnaireSubstitueALAcquereurDImmeubleAConstruire(v: Vente) strict {
+    label fr official "Article 1601-4, alinéa 1. La cession des droits de l'acquéreur substitue de plein droit le cessionnaire dans ses obligations envers le vendeur";
+    label en unofficial "Article 1601-4, first paragraph. The assignment of the buyer's rights substitutes the assignee by operation of law in his obligations towards the seller";
+    when vente_d_immeuble_a_construire(v) and cession_des_droits_de_l_acquereur_d_immeuble_a_construire(v);
+    then cessionnaire_substitue_aux_obligations_envers_le_vendeur(v);
+}
+
+@source(CC_ART1601_4)
+rule MandatPoursuiviAvecLeCessionnaire(v: Vente) strict {
+    label fr official "Article 1601-4, alinéa 2. Si la vente a été assortie d'un mandat, celui-ci se poursuit entre le vendeur et le cessionnaire";
+    label en unofficial "Article 1601-4, second paragraph. If the sale was accompanied by a mandate, it continues between the seller and the assignee";
+    when cessionnaire_substitue_aux_obligations_envers_le_vendeur(v) and vente_assortie_d_un_mandat(v);
+    then mandat_poursuivi_avec_le_cessionnaire(v);
+}
+
+// Article 1663 : le délai court MÊME contre le mineur. La minorité n'ouvre donc
+// aucune exception ici — elle ouvre un recours ailleurs.
+@source(CC_ART1663)
+rule DelaiDeRachatCourtContreToutesPersonnes(v: Vente) strict {
+    label fr official "Article 1663. Le délai de rachat court contre toutes personnes, même contre le mineur, sauf le recours contre qui de droit";
+    label en unofficial "Article 1663. The redemption period runs against all persons, even against a minor, save recourse against whoever is answerable";
+    when pacte_de_rachat_stipule(v);
+    then delai_de_rachat_court_contre_toutes_personnes(v);
+}
+
+@source(CC_ART1664)
+rule ActionEnRachatContreUnSecondAcquereur(v: Vente, p: Personne) strict {
+    label fr official "Article 1664. Le vendeur à pacte de rachat peut exercer son action contre un second acquéreur, quand même la faculté n'aurait pas été déclarée dans le second contrat";
+    label en unofficial "Article 1664. The seller with a redemption pact may bring his action against a second buyer, even if the right was not declared in the second contract";
+    when pacte_de_rachat_stipule(v) and second_acquereur_du_bien_rachetable(v, p);
+    then action_en_rachat_ouverte_contre_le_second_acquereur(v, p);
+}
+
+@source(CC_ART1666)
+rule BeneficeDeDiscussionOpposableAuxCreanciersDuVendeur(v: Vente, p: Personne) strict {
+    label fr official "Article 1666. L'acquéreur à pacte de rachat peut opposer le bénéfice de la discussion aux créanciers de son vendeur";
+    label en unofficial "Article 1666. The buyer under a redemption pact may plead the benefit of discussion against his seller's creditors";
+    when pacte_de_rachat_stipule(v) and creancier_du_vendeur_a_pacte_de_rachat(v, p);
+    then benefice_de_discussion_opposable_aux_creanciers(v);
+}
+
+@source(CC_ART1666)
+rule PositionImmuniteAcquereurContreCreanciers(v: Vente, a: Personne, p: Personne) strict {
+    label fr official "Article 1666. Immunité de l'acquéreur contre la poursuite des créanciers du vendeur";
+    label en unofficial "Article 1666. Buyer's immunity against pursuit by the seller's creditors";
+    when acheteur(v, a) and creancier_du_vendeur_a_pacte_de_rachat(v, p)
+        and pacte_de_rachat_stipule(v);
+    then immunity ImmuniteAcquereurContreCreanciers {
+        holder a;
+        against p;
+        protected_effect poursuite_des_creanciers_ecartee(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1799)
+rule OuvrierAPrixFaitEstEntrepreneur(m: Marche) strict {
+    label fr official "Article 1799. Les ouvriers qui font directement des marchés à prix fait sont entrepreneurs dans la partie qu'ils traitent";
+    label en unofficial "Article 1799. Workers who make fixed-price contracts directly are contractors in the part they handle";
+    when marche_a_prix_fait_conclu_directement(m);
+    then ouvrier_est_entrepreneur_dans_sa_partie(m);
+}
+
+// Article 1804 : le cheptel simple partage le croît ET la perte par moitié —
+// c'est la définition, et c'est aussi la règle de partage par défaut.
+@source(CC_ART1804)
+rule CheptelSimpleQualifie(c: Cheptel, b: Personne, p: Personne) strict {
+    label fr official "Article 1804. Le bail à cheptel simple donne des bestiaux à garder, nourrir et soigner, le preneur profitant de la moitié du croît et supportant la moitié de la perte";
+    label en unofficial "Article 1804. A simple livestock lease gives animals to keep, feed and care for, the lessee taking half the increase and bearing half the loss";
+    when bailleur_de_cheptel(c, b) and preneur_de_cheptel(c, p) and fonds_de_betail_remis(c)
+        and espece_du_cheptel(c, CheptelSimple);
+    then cheptel_simple_qualifie(c);
+}
+
+@source(CC_ART1804)
+rule MoitieDuCroitAuPreneur(c: Cheptel) strict {
+    label fr official "Article 1804. Le preneur du cheptel simple profite de la moitié du croît";
+    label en unofficial "Article 1804. The lessee of a simple livestock lease takes half the increase";
+    when cheptel_simple_qualifie(c);
+    then preneur_profite_de_la_moitie_du_croit(c);
+}
+
+@source(CC_ART1804)
+rule MoitieDeLaPerteAuPreneur(c: Cheptel) strict {
+    label fr official "Article 1804. Le preneur du cheptel simple supporte la moitié de la perte";
+    label en unofficial "Article 1804. The lessee of a simple livestock lease bears half the loss";
+    when cheptel_simple_qualifie(c);
+    then preneur_supporte_la_moitie_de_la_perte(c);
+}

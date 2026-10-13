@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1343-2, frontière : un jour de moins qu'une année entière (31 décembre 2024)
+// ne suffit pas — la capitalisation n'a pas lieu, quand bien même le contrat la prévoit.
+test "urn:query:fr-code-civil-obligations-p10-anatocisme-un-jour-de-moins" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": interets_echus(entity_ref("urn:fr:cc:obl:b:c"), @2024-01-01, @2024-12-31) { origin case_input; }
+        assert "f2": capitalisation_prevue_au_contrat(entity_ref("urn:fr:cc:obl:b:c")) { origin case_input; }
+    }
+    evaluate truth(interets_producteurs(entity_ref("urn:fr:cc:obl:b:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect not applied(InteretsDusPourUneAnneeEntiere);
+}

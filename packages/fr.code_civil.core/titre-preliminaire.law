@@ -1,0 +1,400 @@
+// CODE CIVIL — TITRE PRELIMINAIRE (ARTICLES 1 A 6-2).
+//
+// Les relations d'entree decrivent uniquement des faits de publication,
+// de situation ou de procedure. Les conclusions juridiques sont produites
+// par les regles ancrees ci-dessous.
+
+language "law.core" version "0.2";
+package fr.code_civil.core version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-core";
+
+use self::{
+    Bien,
+    CC_ART1,
+    CC_ART2,
+    CC_ART3,
+    CC_ART4,
+    CC_ART5,
+    CC_ART6,
+    CC_ART6_1,
+    CC_ART6_2,
+    Personne,
+};
+
+pub entity ActeNormatif {
+    label fr official "loi ou acte administratif examine au titre de l'article 1";
+    label en unofficial "statute or administrative act examined under Article 1";
+}
+
+pub entity SituationJuridique {
+    label fr official "situation ou acte dont la date determine l'application de la loi";
+    label en unofficial "situation or act whose date determines application of the statute";
+}
+
+pub entity InstanceJudiciaire {
+    label fr official "instance soumise a un juge";
+    label en unofficial "proceeding submitted to a judge";
+}
+
+pub entity DecisionJudiciaire {
+    label fr official "decision rendue dans une cause determinee";
+    label en unofficial "decision issued in a particular case";
+}
+
+pub entity ConventionPrivee {
+    label fr official "convention particuliere examinee au regard de l'ordre public";
+    label en unofficial "private agreement examined against public policy";
+}
+
+pub entity EffetCivil {
+    label fr official "effet, droit ou obligation reconnu par la loi civile";
+    label en unofficial "effect, right or obligation recognised by civil law";
+}
+
+pub entity LienDeFiliation {
+    label fr official "lien de filiation legalement etabli";
+    label en unofficial "legally established parentage link";
+}
+
+pub relation acte_individuel(a: ActeNormatif) kind empirical {
+    label fr official "l'acte administratif est individuel";
+    label en unofficial "the administrative act is individual";
+}
+pub relation publie_au_journal_officiel_le(a: ActeNormatif, jour: Date) kind empirical {
+    key(a);
+    label fr official "date de publication au Journal officiel";
+    label en unofficial "date of publication in the Official Journal";
+}
+pub relation date_d_entree_en_vigueur_fixee(a: ActeNormatif, jour: Date) kind empirical {
+    key(a);
+    label fr official "date d'entree en vigueur fixee par l'acte";
+    label en unofficial "commencement date fixed by the act";
+}
+pub relation acte_fixe_une_date_d_entree(a: ActeNormatif) kind derived {
+    label fr official "l'acte fixe une date d'entree en vigueur";
+    label en unofficial "the act fixes a commencement date";
+}
+pub relation mesures_d_application_necessaires(a: ActeNormatif) kind empirical {
+    label fr official "l'execution de la disposition necessite des mesures d'application";
+    label en unofficial "implementation of the provision requires implementing measures";
+}
+pub relation mesures_d_application_en_vigueur_le(a: ActeNormatif, jour: Date) kind empirical {
+    key(a);
+    label fr official "date d'entree en vigueur des mesures d'application necessaires";
+    label en unofficial "commencement date of the required implementing measures";
+}
+pub relation urgence_prescrite(a: ActeNormatif) kind empirical {
+    label fr official "l'urgence est prescrite par le decret de promulgation ou par une disposition speciale du Gouvernement";
+    label en unofficial "urgency is prescribed by the promulgation decree or a special government provision";
+}
+pub relation entre_en_vigueur_le(a: ActeNormatif, jour: Date) kind derived {
+    key(a);
+    label fr official "date d'entree en vigueur determinee par l'article 1";
+    label en unofficial "commencement date determined under Article 1";
+}
+
+deadline policy CC_CORE_JOUR {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+@source(CC_ART1)
+rule PresenceDateFixee(a: ActeNormatif, jour: Date) strict {
+    label fr official "Article 1, alinea 1. Une date d'entree en vigueur est fixee par l'acte";
+    label en unofficial "Article 1, paragraph 1. The act fixes a commencement date";
+    when date_d_entree_en_vigueur_fixee(a, jour);
+    then acte_fixe_une_date_d_entree(a);
+}
+
+@source(CC_ART1)
+rule EntreeEnVigueurDateFixee(a: ActeNormatif, jour_publication: Date, entree: Date) defeasible {
+    label fr official "Article 1, alinea 1. L'acte entre en vigueur a la date qu'il fixe";
+    label en unofficial "Article 1, paragraph 1. The act commences on the date it fixes";
+    when publie_au_journal_officiel_le(a, jour_publication)
+        and date_d_entree_en_vigueur_fixee(a, entree)
+        and not_known(acte_individuel(a))
+        and not_known(urgence_prescrite(a))
+        and not_known(mesures_d_application_necessaires(a));
+    then entre_en_vigueur_le(a, entree);
+}
+
+@source(CC_ART1)
+rule EntreeEnVigueurLendemain(a: ActeNormatif, jour_publication: Date) defeasible {
+    label fr official "Article 1, alinea 1. A defaut de date fixee, l'acte entre en vigueur le lendemain de sa publication";
+    label en unofficial "Article 1, paragraph 1. Without a fixed date, the act commences on the day after publication";
+    when publie_au_journal_officiel_le(a, jour_publication)
+        and not_known(acte_fixe_une_date_d_entree(a))
+        and not_known(acte_individuel(a))
+        and not_known(urgence_prescrite(a))
+        and not_known(mesures_d_application_necessaires(a));
+    then entre_en_vigueur_le(a, add_calendar_period(jour_publication, 1 calendar_day));
+}
+
+@source(CC_ART1)
+rule EntreeEnVigueurMesures(a: ActeNormatif, jour_publication: Date, mesures: Date) strict {
+    label fr official "Article 1, alinea 1. La disposition qui exige des mesures d'application entre en vigueur avec ces mesures";
+    label en unofficial "Article 1, paragraph 1. A provision requiring implementing measures commences with those measures";
+    when publie_au_journal_officiel_le(a, jour_publication)
+        and mesures_d_application_necessaires(a)
+        and mesures_d_application_en_vigueur_le(a, mesures)
+        and not_known(acte_individuel(a))
+        and not_known(urgence_prescrite(a));
+    then entre_en_vigueur_le(a, mesures);
+}
+
+@source(CC_ART1)
+rule EntreeEnVigueurUrgence(a: ActeNormatif, jour_publication: Date) strict {
+    label fr official "Article 1, alinea 2. En cas d'urgence prescrite, l'acte entre en vigueur des sa publication";
+    label en unofficial "Article 1, paragraph 2. Where urgency is prescribed, the act commences upon publication";
+    when publie_au_journal_officiel_le(a, jour_publication)
+        and urgence_prescrite(a)
+        and not_known(acte_individuel(a));
+    then entre_en_vigueur_le(a, jour_publication);
+}
+
+pub relation situation_survenue_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date a laquelle la situation juridique est survenue";
+    label en unofficial "date on which the legal situation arose";
+}
+pub relation loi_entree_en_vigueur_le(a: ActeNormatif, jour: Date) kind empirical {
+    key(a);
+    label fr official "date d'entree en vigueur de la loi examinee";
+    label en unofficial "commencement date of the statute under examination";
+}
+pub relation loi_applicable_sans_retroactivite(a: ActeNormatif, s: SituationJuridique) kind derived {
+    label fr official "la loi est applicable a la situation sans effet retroactif";
+    label en unofficial "the statute applies to the situation without retroactive effect";
+}
+
+@source(CC_ART2)
+rule NonRetroactivite(a: ActeNormatif, s: SituationJuridique, entree: Date, fait: Date) strict {
+    label fr official "Article 2. La loi ne s'applique qu'aux situations survenues a compter de son entree en vigueur, sous reserve des dispositions transitoires speciales";
+    label en unofficial "Article 2. Subject to special transitional provisions, a statute applies only to situations arising on or after its commencement";
+    when loi_entree_en_vigueur_le(a, entree)
+        and situation_survenue_le(s, fait)
+        and fait >= entree;
+    then loi_applicable_sans_retroactivite(a, s);
+}
+
+pub relation personne_habite_le_territoire(p: Personne) kind empirical {
+    label fr official "la personne habite le territoire francais";
+    label en unofficial "the person inhabits French territory";
+}
+pub relation loi_de_police_ou_de_surete(a: ActeNormatif) kind empirical {
+    label fr official "la loi est une loi de police ou de surete";
+    label en unofficial "the statute is a police or public-safety statute";
+}
+pub relation loi_oblige_personne(a: ActeNormatif, p: Personne) kind derived {
+    label fr official "la loi de police ou de surete oblige la personne";
+    label en unofficial "the police or public-safety statute binds the person";
+}
+pub relation bien_est_immeuble(b: Bien) kind empirical {
+    label fr official "le bien est un immeuble";
+    label en unofficial "the asset is immovable property";
+}
+pub relation immeuble_releve_de_la_loi_francaise(b: Bien) kind derived {
+    label fr official "l'immeuble est regi par la loi francaise";
+    label en unofficial "the immovable property is governed by French law";
+}
+pub relation personne_est_francaise(p: Personne) kind empirical {
+    label fr official "la personne a la nationalite francaise";
+    label en unofficial "the person is a French national";
+}
+pub relation question_d_etat_ou_de_capacite(p: Personne, s: SituationJuridique) kind empirical {
+    label fr official "la situation concerne l'etat ou la capacite de la personne";
+    label en unofficial "the situation concerns the person's status or capacity";
+}
+pub relation loi_francaise_regit_etat_ou_capacite(p: Personne, s: SituationJuridique) kind derived {
+    label fr official "la loi francaise regit l'etat ou la capacite de la personne";
+    label en unofficial "French law governs the person's status or capacity";
+}
+
+@source(CC_ART3)
+rule LoiDePoliceTerritoire(a: ActeNormatif, p: Personne) strict {
+    label fr official "Article 3, alinea 1. Les lois de police et de surete obligent tous ceux qui habitent le territoire";
+    label en unofficial "Article 3, paragraph 1. Police and public-safety statutes bind everyone inhabiting the territory";
+    when loi_de_police_ou_de_surete(a) and personne_habite_le_territoire(p);
+    then loi_oblige_personne(a, p);
+}
+
+@source(CC_ART3)
+rule ImmeubleLoiFrancaise(b: Bien) strict {
+    label fr official "Article 3, alinea 2. Les immeubles sont regis par la loi francaise, meme s'ils appartiennent a des etrangers";
+    label en unofficial "Article 3, paragraph 2. Immovable property is governed by French law even when owned by foreigners";
+    when bien_est_immeuble(b);
+    then immeuble_releve_de_la_loi_francaise(b);
+}
+
+@source(CC_ART3)
+rule EtatCapaciteFrancais(p: Personne, s: SituationJuridique) strict {
+    label fr official "Article 3, alinea 3. Les lois francaises sur l'etat et la capacite regissent les Francais meme a l'etranger";
+    label en unofficial "Article 3, paragraph 3. French status and capacity laws govern French nationals even abroad";
+    when personne_est_francaise(p) and question_d_etat_ou_de_capacite(p, s);
+    then loi_francaise_regit_etat_ou_capacite(p, s);
+}
+
+pub relation juge_saisi(j: Personne, i: InstanceJudiciaire) kind empirical {
+    label fr official "le juge est saisi de l'instance";
+    label en unofficial "the judge is seised of the proceeding";
+}
+pub relation loi_silencieuse_obscure_ou_insuffisante(i: InstanceJudiciaire) kind empirical {
+    label fr official "la loi est invoquee comme silencieuse, obscure ou insuffisante dans l'instance";
+    label en unofficial "the statute is invoked as silent, obscure or insufficient in the proceeding";
+}
+pub relation juge_refuse_de_juger(j: Personne, i: InstanceJudiciaire) kind empirical {
+    label fr official "le juge refuse de juger l'instance";
+    label en unofficial "the judge refuses to adjudicate the proceeding";
+}
+pub relation jugement_assure(j: Personne, i: InstanceJudiciaire) kind institutional {
+    label fr official "le juge ne refuse pas de juger l'instance";
+    label en unofficial "the judge does not refuse to adjudicate the proceeding";
+}
+
+@source(CC_ART4)
+rule JugementAssure(j: Personne, i: InstanceJudiciaire) defeasible {
+    label fr official "Article 4. Le juge saisi qui ne refuse pas de juger satisfait a l'obligation de statuer";
+    label en unofficial "Article 4. A seised judge who does not refuse to adjudicate satisfies the duty to decide";
+    when juge_saisi(j, i) and not_known(juge_refuse_de_juger(j, i));
+    then jugement_assure(j, i);
+}
+
+@source(CC_ART4)
+rule JugementRefuse(j: Personne, i: InstanceJudiciaire) strict {
+    label fr official "Article 4. Le refus de juger ne satisfait pas a l'obligation de statuer";
+    label en unofficial "Article 4. Refusal to adjudicate does not satisfy the duty to decide";
+    when juge_refuse_de_juger(j, i);
+    then not jugement_assure(j, i);
+}
+
+@source(CC_ART4)
+rule ObligationDeJuger(j: Personne, i: InstanceJudiciaire) strict {
+    label fr official "Article 4. Le juge ne peut refuser de juger sous pretexte du silence, de l'obscurite ou de l'insuffisance de la loi";
+    label en unofficial "Article 4. A judge may not refuse to adjudicate on the ground that the statute is silent, obscure or insufficient";
+    when juge_saisi(j, i) and loi_silencieuse_obscure_ou_insuffisante(i);
+    then duty ObligationDeStatuer {
+        bearer j;
+        maintain jugement_assure(j, i) during [@1804-03-21, infinity);
+    };
+}
+
+pub relation decision_rendue_par(d: DecisionJudiciaire, j: Personne) kind empirical {
+    label fr official "la decision est rendue par le juge";
+    label en unofficial "the decision is issued by the judge";
+}
+pub relation disposition_generale_et_reglementaire(d: DecisionJudiciaire) kind empirical {
+    label fr official "la decision statue par voie de disposition generale et reglementaire";
+    label en unofficial "the decision lays down a general and regulatory provision";
+}
+pub relation decision_reste_particuliere(d: DecisionJudiciaire) kind institutional {
+    label fr official "la decision demeure particuliere a la cause soumise";
+    label en unofficial "the decision remains particular to the case submitted";
+}
+
+@source(CC_ART5)
+rule DecisionParticuliere(d: DecisionJudiciaire, j: Personne) defeasible {
+    label fr official "Article 5. La decision sans disposition generale respecte l'interdiction des arrets de reglement";
+    label en unofficial "Article 5. A decision without a general provision complies with the ban on regulatory judgments";
+    when decision_rendue_par(d, j) and not_known(disposition_generale_et_reglementaire(d));
+    then decision_reste_particuliere(d);
+}
+
+@source(CC_ART5)
+rule DecisionGenerale(d: DecisionJudiciaire) strict {
+    label fr official "Article 5. Une disposition generale et reglementaire meconnait l'interdiction";
+    label en unofficial "Article 5. A general and regulatory provision breaches the prohibition";
+    when disposition_generale_et_reglementaire(d);
+    then not decision_reste_particuliere(d);
+}
+
+@source(CC_ART5)
+rule InterdictionArretDeReglement(d: DecisionJudiciaire, j: Personne) strict {
+    label fr official "Article 5. Il est defendu au juge de prononcer une disposition generale et reglementaire";
+    label en unofficial "Article 5. A judge is prohibited from issuing a general and regulatory provision";
+    when decision_rendue_par(d, j);
+    then duty InterdictionDesArretsDeReglement {
+        bearer j;
+        maintain decision_reste_particuliere(d) during [@1804-03-21, infinity);
+    };
+}
+
+pub relation convention_deroge_a_une_loi(c: ConventionPrivee) kind empirical {
+    label fr official "la convention particuliere deroge a une loi";
+    label en unofficial "the private agreement derogates from a statute";
+}
+@source(CC_ART6)
+pub external judgment relation loi_interesse_ordre_public_ou_bonnes_moeurs(c: ConventionPrivee) {
+    authority Court;
+    label fr official "la loi a laquelle la convention deroge interesse l'ordre public ou les bonnes moeurs";
+    label en unofficial "the statute derogated from by the agreement concerns public policy or morality";
+}
+pub relation derogation_conventionnelle_interdite(c: ConventionPrivee) kind derived {
+    label fr official "la derogation par convention particuliere est interdite";
+    label en unofficial "derogation by private agreement is prohibited";
+}
+
+@source(CC_ART6)
+rule OrdrePublicConvention(c: ConventionPrivee) strict {
+    label fr official "Article 6. Une convention particuliere ne peut deroger a une loi qui interesse l'ordre public ou les bonnes moeurs";
+    label en unofficial "Article 6. A private agreement may not derogate from a statute concerning public policy or morality";
+    when convention_deroge_a_une_loi(c) and loi_interesse_ordre_public_ou_bonnes_moeurs(c);
+    then derogation_conventionnelle_interdite(c);
+}
+
+pub relation effet_du_mariage_ou_de_l_adoption_pleniere(e: EffetCivil) kind empirical {
+    label fr official "l'effet resulte du mariage ou de la filiation adoptive pleniere";
+    label en unofficial "the effect results from marriage or full adoptive parentage";
+}
+pub relation effet_releve_chapitres_un_a_quatre_titre_sept(e: EffetCivil) kind empirical {
+    label fr official "l'effet releve des chapitres Ier a IV du titre VII du livre Ier";
+    label en unofficial "the effect falls within Chapters I to IV of Title VII of Book I";
+}
+pub relation effet_identique_independant_du_sexe(e: EffetCivil) kind derived {
+    label fr official "l'effet, le droit ou l'obligation est identique independamment du sexe des epoux ou des parents";
+    label en unofficial "the effect, right or obligation is identical regardless of the sex of the spouses or parents";
+}
+
+@source(CC_ART6_1)
+rule EgaliteMariageAdoption(e: EffetCivil) defeasible {
+    label fr official "Article 6-1. Le mariage et la filiation adoptive pleniere emportent les memes effets independamment du sexe, hors chapitres Ier a IV du titre VII";
+    label en unofficial "Article 6-1. Marriage and full adoptive parentage have the same effects regardless of sex, outside Chapters I to IV of Title VII";
+    when effet_du_mariage_ou_de_l_adoption_pleniere(e)
+        and not_known(effet_releve_chapitres_un_a_quatre_titre_sept(e));
+    then effet_identique_independant_du_sexe(e);
+}
+
+pub relation filiation_legalement_etablie(l: LienDeFiliation, enfant: Personne, parent: Personne) kind empirical {
+    label fr official "la filiation de l'enfant a l'egard du parent est legalement etablie";
+    label en unofficial "the child's parentage in relation to the parent is legally established";
+}
+pub relation filiation_adoptive_simple(l: LienDeFiliation) kind empirical {
+    label fr official "le lien est une filiation adoptive simple";
+    label en unofficial "the link is simple adoptive parentage";
+}
+pub relation enfant_a_droits_et_devoirs_egaux(l: LienDeFiliation, enfant: Personne, parent: Personne) kind derived {
+    label fr official "l'enfant a les memes droits et devoirs dans ses rapports avec son parent";
+    label en unofficial "the child has equal rights and duties in relation to the parent";
+}
+pub relation enfant_entre_dans_famille_du_parent(l: LienDeFiliation, enfant: Personne, parent: Personne) kind derived {
+    label fr official "la filiation fait entrer l'enfant dans la famille du parent";
+    label en unofficial "parentage brings the child into the parent's family";
+}
+
+@source(CC_ART6_2)
+rule EgaliteDesEnfants(l: LienDeFiliation, enfant: Personne, parent: Personne) defeasible {
+    label fr official "Article 6-2, phrase 1. La filiation legalement etablie donne a tous les enfants les memes droits et devoirs, sous reserve de l'adoption simple";
+    label en unofficial "Article 6-2, sentence 1. Legally established parentage gives all children equal rights and duties, subject to simple adoption";
+    when filiation_legalement_etablie(l, enfant, parent)
+        and not_known(filiation_adoptive_simple(l));
+    then enfant_a_droits_et_devoirs_egaux(l, enfant, parent);
+}
+
+@source(CC_ART6_2)
+rule EntreeDansLaFamille(l: LienDeFiliation, enfant: Personne, parent: Personne) strict {
+    label fr official "Article 6-2, phrase 2. La filiation fait entrer l'enfant dans la famille de chacun de ses parents";
+    label en unofficial "Article 6-2, sentence 2. Parentage brings the child into the family of each parent";
+    when filiation_legalement_etablie(l, enfant, parent);
+    then enfant_entre_dans_famille_du_parent(l, enfant, parent);
+}

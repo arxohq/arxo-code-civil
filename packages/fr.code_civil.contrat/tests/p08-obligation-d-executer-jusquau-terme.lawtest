@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1212 al. 1, §122 : dans le contrat à durée déterminée, chaque partie doit l'exécuter jusqu'à son terme — devoir de maintien.
+test "urn:query:fr-code-civil-contrat-p08-obligation-d-executer-jusquau-terme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:p08"), @2019-03-01) { origin case_input; }
+        assert "f2": duree_du_contrat(entity_ref("urn:fr:cc:contrat:p08"), DureeDeterminee) { origin case_input; }
+        assert "f3": terme_du_contrat(entity_ref("urn:fr:cc:contrat:p08"), @2020-12-31) { origin case_input; }
+        assert "f4": partie_au_contrat(entity_ref("urn:fr:cc:contrat:p08"), entity_ref("urn:fr:cc:contrat:p08:p1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ExecuterJusquAuTerme, ACTIVE);
+}

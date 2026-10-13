@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1302 et 1302-1 : paiement sans dette — sujet à restitution.
+test "urn:query:fr-code-civil-responsabilite-r33-paiement-de-l-indu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": montant_paye(entity_ref("urn:fr:cc:resp:w:pa"), 500 EUR) { origin case_input; }
+        assert "f2": paiement_recu_par(entity_ref("urn:fr:cc:resp:w:pa"), entity_ref("urn:fr:cc:resp:w:creancier")) { origin case_input; }
+        assert "f3": paiement_fait_par(entity_ref("urn:fr:cc:resp:w:pa"), entity_ref("urn:fr:cc:resp:w:solvens")) { origin case_input; }
+    }
+    evaluate truth(sujet_a_restitution(entity_ref("urn:fr:cc:resp:w:pa")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PaiementIndu);
+}

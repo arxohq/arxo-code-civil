@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1344 et 1344-1 : la sommation met le débiteur en demeure le 12 mars 2025 ;
+// l'intérêt moratoire court de cette date, au taux légal, sans preuve d'un préjudice.
+// Le TAUX n'est pas dans le Code (CMF, art. L. 313-2) : le paquet répond la DATE.
+test "urn:query:fr-code-civil-obligations-p07-interet-moratoire-depuis-la-mise-en-demeure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": obligation_de_somme_d_argent(entity_ref("urn:fr:cc:obl:m:c")) { origin case_input; }
+        assert "f2": mise_en_demeure_du_debiteur(entity_ref("urn:fr:cc:obl:m:md"), entity_ref("urn:fr:cc:obl:m:c"), entity_ref("urn:fr:cc:obl:m:D")) { origin case_input; }
+        assert "f3": mode_de_la_mise_en_demeure(entity_ref("urn:fr:cc:obl:m:md"), Sommation) { origin case_input; }
+        assert "f4": date_de_la_mise_en_demeure(entity_ref("urn:fr:cc:obl:m:md"), @2025-03-12) { origin case_input; }
+    }
+    evaluate truth(interet_moratoire_court_depuis(entity_ref("urn:fr:cc:obl:m:c"), @2025-03-12));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(MiseEnDemeureParSommation);
+    expect applied(InteretMoratoireDepuisLaMiseEnDemeure);
+}

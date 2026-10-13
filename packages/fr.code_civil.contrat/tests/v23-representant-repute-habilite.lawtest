@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1158, applicable dès 2016 au contrat de 2015 : à défaut de réponse du représenté dans le délai raisonnable, le représentant est réputé habilité.
+test "urn:query:fr-code-civil-contrat-v23-representant-repute-habilite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v23"), @2015-06-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:v23"), "1158") { origin case_input; }
+        assert "f3": representation_pour_le_contrat(entity_ref("urn:fr:cc:contrat:v23:r"), entity_ref("urn:fr:cc:contrat:v23")) { origin case_input; }
+        assert "f4": representation_conventionnelle(entity_ref("urn:fr:cc:contrat:v23:r")) { origin case_input; }
+        assert "f5": representant(entity_ref("urn:fr:cc:contrat:v23:r"), entity_ref("urn:fr:cc:contrat:v23:p1")) { origin case_input; }
+        assert "f6": represente(entity_ref("urn:fr:cc:contrat:v23:r"), entity_ref("urn:fr:cc:contrat:v23:p2")) { origin case_input; }
+        assert "f7": demande_ecrite_de_confirmation_du_pouvoir(entity_ref("urn:fr:cc:contrat:v23:r"), entity_ref("urn:fr:cc:contrat:v23:tiers"), @2017-09-30) { origin case_input; }
+        assert "f8": mention_de_l_habilitation_reputee(entity_ref("urn:fr:cc:contrat:v23:r")) { origin case_input; }
+        assert "f9": delai_de_la_demande_raisonnable_1158(entity_ref("urn:fr:cc:contrat:v23:r")) { origin adjudicated; }
+    }
+    evaluate truth(representant_repute_habilite(entity_ref("urn:fr:cc:contrat:v23:r")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RepresentantReputeHabiliteFauteDeReponse);
+}

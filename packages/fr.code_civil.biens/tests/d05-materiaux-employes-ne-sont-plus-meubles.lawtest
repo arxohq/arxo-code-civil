@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 532. Les matériaux sont meubles « jusqu'à ce qu'ils soient employés
+// par l'ouvrier dans une construction » : une fois employés, la règle ne
+// les range plus parmi les meubles par nature.
+test "urn:query:fr-code-civil-biens-d05-materiaux-employes" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": materiau_de_demolition_ou_assemble(entity_ref("urn:fr:cc:biens:d05:B")) { origin case_input; }
+        assert "f2": employe_par_l_ouvrier_dans_une_construction(entity_ref("urn:fr:cc:biens:d05:B")) { origin case_input; }
+    }
+    evaluate truth(meuble(entity_ref("urn:fr:cc:biens:d05:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

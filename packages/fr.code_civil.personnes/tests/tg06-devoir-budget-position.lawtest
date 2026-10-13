@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 500: the guardian bears an observable duty to set and communicate the budget.
+test "urn:query:fr-code-civil-personnes-tg06-devoir-budget-position" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg06:m"), entity_ref("urn:fr:cc:personnes:tg06:p"), entity_ref("urn:fr:cc:personnes:tg06:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(ArreterEtCommuniquerLeBudget, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-personnes-tg06-devoir-budget-position-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg06b:m"), entity_ref("urn:fr:cc:personnes:tg06b:p"), entity_ref("urn:fr:cc:personnes:tg06b:t"), @2026-01-10) { origin adjudicated; }
+        assert "f2": budget_tutelle_arrete(entity_ref("urn:fr:cc:personnes:tg06b:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(ArreterEtCommuniquerLeBudget, SATISFIED);
+}

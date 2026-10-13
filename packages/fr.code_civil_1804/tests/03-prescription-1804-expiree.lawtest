@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+test "urn:query:oecd-code-civil-1804-prescription-expiree" {
+    given {
+        context { decision_time @1834-03-22T12:00:00Z; knowledge_time @1834-03-22T12:00:00Z; legal_time @1804-03-21; timezone "UTC"; deadline_policy OECD_CODE_CIVIL_1804_PRESCRIPTION; }
+        assert "cc1804-expiree-1": creance_exigible_depuis(entity_ref("urn:fr:oecd:creance:expiree"), @1804-03-21) { origin case_input; }
+        assert "cc1804-expiree-2": action_introduite_le(entity_ref("urn:fr:oecd:creance:expiree"), @1834-03-22) { origin case_input; }
+        assert "cc1804-expiree-3": prescription_non_interrompue(entity_ref("urn:fr:oecd:creance:expiree")) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:oecd:creance:expiree"), @1834-03-22));
+    expect truth_status == TRUE_ONLY;
+}

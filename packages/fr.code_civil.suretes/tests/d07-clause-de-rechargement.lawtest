@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2429, al. 3 : clause de rechargement — cinquante ans même si l'échéance est en 2030.
+test "urn:query:fr-code-civil-suretes-d07-clause-de-rechargement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": inscription_de(entity_ref("urn:fr:cc:suretes:d07:I"), entity_ref("urn:fr:cc:suretes:d07:S")) { origin case_input; }
+        assert "f2": inscription_prise_le(entity_ref("urn:fr:cc:suretes:d07:I"), @2020-05-15) { origin case_input; }
+        assert "f3": derniere_echeance_de_la_creance(entity_ref("urn:fr:cc:suretes:d07:I"), entity_ref("urn:fr:cc:suretes:d07:C"), @2030-05-15) { origin case_input; }
+        assert "f4": clause_de_rechargement_2416(entity_ref("urn:fr:cc:suretes:d07:I")) { origin case_input; }
+    }
+    evaluate truth(date_extreme_d_effet(entity_ref("urn:fr:cc:suretes:d07:I"), @2070-05-15));
+    expect truth_status == TRUE_ONLY;
+    expect applied(LimiteClauseDeRechargement);
+}

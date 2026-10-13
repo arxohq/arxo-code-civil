@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1178 al. 1 à 3 : la nullité prononcée par le juge, le contrat est censé n'avoir jamais existé et les prestations exécutées donnent lieu à restitution (articles 1352 à 1352-9, hors du paquet).
+test "urn:query:fr-code-civil-contrat-s09-nullite-prononcee-restitution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s09"), @2019-03-01) { origin case_input; }
+        assert "f2": regle_violee_protege_un_interet_prive(entity_ref("urn:fr:cc:contrat:s09")) { origin case_input; }
+        assert "f3": nullite_prononcee_par_le_juge(entity_ref("urn:fr:cc:contrat:s09")) { origin case_input; }
+        assert "f4": prestation_executee(entity_ref("urn:fr:cc:contrat:s09")) { origin case_input; }
+    }
+    evaluate truth(contrat_repute_n_avoir_jamais_existe(entity_ref("urn:fr:cc:contrat:s09")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ContratAnnuleReputeNAvoirJamaisExiste);
+
+    evaluate truth(lieu_a_restitution(entity_ref("urn:fr:cc:contrat:s09")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RestitutionDesPrestationsExecutees);
+}

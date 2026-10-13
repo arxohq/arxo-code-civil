@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Loi 2006-728 art. 47 II : la dérogation ne bascule pas toute la succession — la loi applicable reste l ancienne.
+test "urn:query:fr-code-civil-transitions-t17-indivision-non-partagee-reste-loi-ancienne" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": succession_ouverte_le(entity_ref("urn:fr:cc:transitions:c06"), @2005-06-01) { origin case_input; }
+        assert "f2": succession_non_encore_partagee(entity_ref("urn:fr:cc:transitions:c06")) { origin case_input; }
+    }
+    evaluate truth(loi_applicable_a_la_succession(entity_ref("urn:fr:cc:transitions:c06"), LoiAncienne));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

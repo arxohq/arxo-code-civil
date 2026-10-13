@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1216 al. 2 : l'accord ayant été donné par avance, la cession produit effet à l'égard du cédé par la notification.
+test "urn:query:fr-code-civil-contrat-e27-cession-opposable-par-la-notification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e27"), @2019-03-01) { origin case_input; }
+        assert "f2": cession_du_contrat(entity_ref("urn:fr:cc:contrat:e27:cess"), entity_ref("urn:fr:cc:contrat:e27")) { origin case_input; }
+        assert "f3": cedant(entity_ref("urn:fr:cc:contrat:e27:cess"), entity_ref("urn:fr:cc:contrat:e27:p1")) { origin case_input; }
+        assert "f4": cessionnaire(entity_ref("urn:fr:cc:contrat:e27:cess"), entity_ref("urn:fr:cc:contrat:e27:p2")) { origin case_input; }
+        assert "f5": cede(entity_ref("urn:fr:cc:contrat:e27:cess"), entity_ref("urn:fr:cc:contrat:e27:cede")) { origin case_input; }
+        assert "f6": accord_du_cede(entity_ref("urn:fr:cc:contrat:e27:cess")) { origin case_input; }
+        assert "f7": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:contrat:e27:cess")) { origin case_input; }
+        assert "f8": accord_du_cede_donne_par_avance(entity_ref("urn:fr:cc:contrat:e27:cess")) { origin case_input; }
+        assert "f9": cession_notifiee_au_cede(entity_ref("urn:fr:cc:contrat:e27:cess")) { origin case_input; }
+    }
+    evaluate truth(cession_opposable_au_cede(entity_ref("urn:fr:cc:contrat:e27:cess")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CessionOpposableParLaNotification);
+}

@@ -1,0 +1,637 @@
+// TITRE IV — DES SERVITUDES OU SERVICES FONCIERS (637 à 710).
+// Première partie : la situation des lieux (637 à 648), le mur et le fossé
+// mitoyens (649 à 673).
+//
+// LE CŒUR CHIFFRÉ DU CODE. Deux nombres vivent ici, et deux règles de
+// subsidiarité identiques les commandent.
+//
+// L'ARTICLE 663 fixe la hauteur de la clôture « suivant les règlements
+// particuliers ou les usages constants et reconnus et, À DÉFAUT d'usages et
+// de règlements, […] au moins TRENTE-DEUX DÉCIMÈTRES […] dans les villes de
+// CINQUANTE MILLE ÂMES ET AU-DESSUS, et VINGT-SIX DÉCIMÈTRES dans les
+// autres ».
+//
+// L'ARTICLE 671 fixe la distance des plantations « à la distance prescrite
+// par les règlements particuliers actuellement existants, ou par des usages
+// constants et reconnus et, À DÉFAUT de règlements et usages, […] à la
+// distance de DEUX MÈTRES […] pour les plantations dont la hauteur DÉPASSE
+// DEUX MÈTRES, et à la distance d'UN DEMI-MÈTRE pour les autres ».
+//
+// « À DÉFAUT » EST UN FAIT, PAS UN SILENCE. La norme supplétive ne joue que
+// sur un fait d'entrée ÉTABLI — « il n'existe ni règlement particulier ni
+// usage constant et reconnu » — et jamais sur l'absence de la norme locale
+// dans le dossier. Un dossier muet sur le règlement local ne déclenche pas
+// les deux mètres : il ne dit rien. Les deux relations
+// `aucun_reglement_ni_usage_sur_*` portent cette affirmation.
+//
+// STRICT ET LARGE. « dont la hauteur DÉPASSE deux mètres » est strict :
+// 2,00 m ne dépasse pas, 2,01 m dépasse. « À LA DISTANCE DE deux mètres »,
+// « AU MOINS trente-deux décimètres » et « cinquante mille âmes ET
+// AU-DESSUS » sont larges : 2,00 m suffit, 1,99 m non ; 50 000 habitants
+// font la grande ville, 49 999 non. Chaque seuil a ses deux témoins.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART637,
+    CC_ART638,
+    CC_ART639,
+    CC_ART640,
+    CC_ART641,
+    CC_ART642,
+    CC_ART643,
+    CC_ART644,
+    CC_ART646,
+    CC_ART647,
+    CC_ART648,
+    CC_ART649,
+    CC_ART650,
+    CC_ART651,
+    Fonds,
+    Personne,
+    Servitude,
+    proprietaire_du_bien,
+    voisin,
+};
+
+// --- Servitude : notion (637 à 639) --------------------------------------------------------------
+
+pub relation servitude_grevant(s: Servitude, servant: Fonds, dominant: Fonds) kind empirical {
+    key(s);
+    label fr official "la servitude grève le fonds servant pour l'usage et l'utilité du fonds dominant (article 637)";
+    label en unofficial "the servitude burdens the servient land for the use and benefit of the dominant land (Article 637)";
+}
+pub relation charge_de_la_servitude(s: Servitude) kind derived {
+    label fr official "la servitude est une charge imposée sur un héritage pour l'usage et l'utilité d'un héritage appartenant à un autre propriétaire (article 637)";
+    label en unofficial "the servitude is a charge imposed on a tenement for the use and benefit of a tenement belonging to another owner (Article 637)";
+}
+pub relation aucune_preeminence_d_un_heritage_sur_l_autre(s: Servitude) kind derived {
+    label fr official "la servitude n'établit aucune prééminence d'un héritage sur l'autre (article 638)";
+    label en unofficial "the servitude establishes no pre-eminence of one tenement over the other (Article 638)";
+}
+
+pub enum OrigineDeLaServitude {
+    label fr official "Origine de la servitude : situation naturelle des lieux, obligation imposée par la loi, convention entre propriétaires (article 639)";
+    label en unofficial "Origin of the servitude: natural situation of the places, obligation imposed by statute, agreement between owners (Article 639)";
+    SituationNaturelleDesLieux,
+    ObligationImposeeParLaLoi,
+    ConventionEntreProprietaires
+}
+
+pub relation origine_de_la_servitude(s: Servitude, origine: OrigineDeLaServitude) kind derived {
+    label fr official "la servitude dérive de la situation naturelle des lieux, des obligations imposées par la loi, ou des conventions entre les propriétaires (article 639)";
+    label en unofficial "the servitude derives from the natural situation of the places, from obligations imposed by statute, or from agreements between owners (Article 639)";
+}
+pub relation origine_declaree(s: Servitude, origine: OrigineDeLaServitude) kind empirical {
+    key(s);
+    label fr official "origine que le cas déclare pour la servitude (article 639)";
+    label en unofficial "origin the case declares for the servitude (Article 639)";
+}
+
+@source(CC_ART637)
+rule ServitudeEstUneCharge(s: Servitude, servant: Fonds, dominant: Fonds, ps: Personne, pd: Personne) strict {
+    label fr official "Article 637. Une servitude est une charge imposée sur un héritage pour l'usage et l'utilité d'un héritage appartenant à un autre propriétaire";
+    label en unofficial "Article 637. A servitude is a charge imposed on a tenement for the use and benefit of a tenement belonging to another owner";
+    when servitude_grevant(s, servant, dominant)
+        and proprietaire_du_bien(servant, ps)
+        and proprietaire_du_bien(dominant, pd);
+    then charge_de_la_servitude(s);
+}
+
+@source(CC_ART638)
+rule PasDePreeminence(s: Servitude, servant: Fonds, dominant: Fonds) strict {
+    label fr official "Article 638. La servitude n'établit aucune prééminence d'un héritage sur l'autre";
+    label en unofficial "Article 638. The servitude establishes no pre-eminence of one tenement over the other";
+    when servitude_grevant(s, servant, dominant);
+    then aucune_preeminence_d_un_heritage_sur_l_autre(s);
+}
+
+@source(CC_ART639)
+rule OrigineDeLaServitudeDeclaree(s: Servitude, origine: OrigineDeLaServitude) strict {
+    label fr official "Article 639. La servitude dérive ou de la situation naturelle des lieux, ou des obligations imposées par la loi, ou des conventions entre les propriétaires";
+    label en unofficial "Article 639. A servitude derives either from the natural situation of the places, or from obligations imposed by statute, or from agreements between owners";
+    when origine_declaree(s, origine);
+    then origine_de_la_servitude(s, origine);
+}
+
+// --- Servitudes qui dérivent de la situation des lieux (640 à 648) ------------------------------
+
+pub relation fonds_inferieur_de(inferieur: Fonds, superieur: Fonds) kind empirical {
+    label fr official "le premier fonds est inférieur au second et en reçoit les eaux qui en découlent (article 640)";
+    label en unofficial "the first land is lower than the second and receives the water flowing down from it (Article 640)";
+}
+pub relation digue_elevee_par_le_proprietaire_inferieur(inferieur: Fonds) kind empirical {
+    label fr official "le propriétaire inférieur a élevé une digue qui empêche l'écoulement (article 640, alinéa 2)";
+    label en unofficial "the lower owner raised a dyke preventing the flow (Article 640, paragraph 2)";
+}
+pub relation aggravation_par_le_proprietaire_superieur(superieur: Fonds) kind empirical {
+    label fr official "le propriétaire supérieur a fait quelque chose qui aggrave la servitude du fonds inférieur (articles 640, alinéa 3, et 641, alinéa 2)";
+    label en unofficial "the upper owner did something aggravating the servitude of the lower land (Articles 640, paragraph 3, and 641, paragraph 2)";
+}
+pub relation eaux_pluviales_tombant_sur_le_fonds(f: Fonds) kind empirical {
+    label fr official "des eaux pluviales tombent sur le fonds (article 641, alinéa 1)";
+    label en unofficial "rainwater falls on the land (Article 641, paragraph 1)";
+}
+pub relation eaux_fait_surgir_par_sondages_ou_travaux(superieur: Fonds) kind empirical {
+    label fr official "par des sondages ou des travaux souterrains, le propriétaire a fait surgir des eaux dans son fonds (article 641, alinéa 4)";
+    label en unofficial "by boring or underground works, the owner caused water to appear on his land (Article 641, paragraph 4)";
+}
+pub relation dommage_resultant_de_l_ecoulement(inferieur: Fonds) kind empirical {
+    label fr official "un dommage résulte de l'écoulement pour le fonds inférieur (article 641, alinéa 4)";
+    label en unofficial "damage results from the flow for the lower land (Article 641, paragraph 4)";
+}
+pub relation maison_cour_jardin_parc_ou_enclos_attenant(f: Fonds) kind empirical {
+    label fr official "le fonds est une maison, cour, jardin, parc ou enclos attenant aux habitations (article 641, alinéa 5)";
+    label en unofficial "the land is a house, yard, garden, park or enclosure adjoining dwellings (Article 641, paragraph 5)";
+}
+pub relation source_dans_le_fonds(f: Fonds) kind empirical {
+    label fr official "une source jaillit dans le fonds (articles 642, 643)";
+    label en unofficial "a spring rises on the land (Articles 642, 643)";
+}
+pub relation ouvrages_apparents_et_permanents_acheves_depuis_plus_de_trente_ans(inferieur: Fonds, fsource: Fonds) kind empirical {
+    label fr official "les propriétaires inférieurs ont, depuis plus de trente ans, fait et terminé sur le fonds où jaillit la source des ouvrages apparents et permanents destinés à utiliser les eaux ou à en faciliter le passage (article 642, alinéa 2)";
+    label en unofficial "the lower owners have, for more than thirty years, made and completed on the land where the spring rises visible and permanent works intended to use the water or ease its passage (Article 642, paragraph 2)";
+}
+pub relation eau_necessaire_aux_habitants(fsource: Fonds) kind empirical {
+    label fr official "l'eau de la source est nécessaire aux habitants d'une commune, village ou hameau (article 642, alinéa 3)";
+    label en unofficial "the spring water is necessary to the inhabitants of a commune, village or hamlet (Article 642, paragraph 3)";
+}
+pub relation usage_acquis_ou_prescrit_par_les_habitants(fsource: Fonds) kind empirical {
+    label fr official "les habitants ont acquis ou prescrit l'usage de l'eau (article 642, alinéa 3)";
+    label en unofficial "the inhabitants have acquired or prescribed the use of the water (Article 642, paragraph 3)";
+}
+pub relation eaux_de_source_formant_un_cours_d_eau_public(fsource: Fonds) kind empirical {
+    label fr official "dès la sortie du fonds, les eaux de source forment un cours d'eau offrant le caractère d'eaux publiques et courantes (article 643)";
+    label en unofficial "on leaving the land, the spring water forms a watercourse having the character of public running water (Article 643)";
+}
+pub relation detournement_au_prejudice_des_usagers_inferieurs(fsource: Fonds) kind empirical {
+    label fr official "le propriétaire détourne les eaux de leur cours naturel au préjudice des usagers inférieurs (article 643)";
+    label en unofficial "the owner diverts the water from its natural course to the prejudice of the lower users (Article 643)";
+}
+pub relation propriete_bordant_une_eau_courante(f: Fonds) kind empirical {
+    label fr official "la propriété borde une eau courante autre que celle qui est déclarée dépendance du domaine public (article 644, alinéa 1)";
+    label en unofficial "the property borders running water other than that declared part of the public domain (Article 644, paragraph 1)";
+}
+pub relation eau_courante_traversant_l_heritage(f: Fonds) kind empirical {
+    label fr official "l'eau courante traverse l'héritage (article 644, alinéa 2)";
+    label en unofficial "the running water crosses the tenement (Article 644, paragraph 2)";
+}
+pub relation bornage_demande(f: Fonds, v: Fonds) kind empirical {
+    label fr official "un propriétaire demande le bornage de propriétés contiguës (article 646)";
+    label en unofficial "an owner requests the boundary marking of contiguous properties (Article 646)";
+}
+pub relation volonte_de_se_clore(f: Fonds) kind empirical {
+    label fr official "le propriétaire veut clore son héritage (articles 647, 648)";
+    label en unofficial "the owner wishes to enclose his tenement (Articles 647, 648)";
+}
+pub relation fonds_servant_d_un_passage_pour_enclave(f: Fonds) kind empirical {
+    label fr official "le fonds est grevé d'un passage pour cause d'enclave au profit d'un fonds voisin (articles 647, 682)";
+    label en unofficial "the land is burdened with a right of way for landlocked property in favour of a neighbouring tenement (Articles 647, 682)";
+}
+pub relation droit_au_parcours_et_vaine_pature(f: Fonds) kind empirical {
+    label fr official "le propriétaire a un droit au parcours et à la vaine pâture sur le terrain qu'il veut clore (article 648)";
+    label en unofficial "the owner has a right of common pasture over the land he wishes to enclose (Article 648)";
+}
+
+pub relation servitude_naturelle_d_ecoulement(inferieur: Fonds, superieur: Fonds) kind derived {
+    label fr official "les fonds inférieurs sont assujettis envers ceux qui sont plus élevés à recevoir les eaux qui en découlent naturellement sans que la main de l'homme y ait contribué (article 640, alinéa 1)";
+    label en unofficial "lower lands are bound towards higher ones to receive the water flowing down naturally without human intervention (Article 640, paragraph 1)";
+}
+pub relation digue_interdite_au_proprietaire_inferieur(inferieur: Fonds) kind derived {
+    label fr official "le propriétaire inférieur ne peut point élever de digue qui empêche cet écoulement (article 640, alinéa 2)";
+    label en unofficial "the lower owner may not raise a dyke preventing that flow (Article 640, paragraph 2)";
+}
+pub relation elevation_digue_exercee(inferieur: Fonds, p: Personne) kind empirical {
+    label fr official "élévation de digue empêchant l'écoulement";
+    label en unofficial "dyke elevation preventing flow";
+}
+pub relation aggravation_interdite_au_proprietaire_superieur(superieur: Fonds) kind derived {
+    label fr official "le propriétaire supérieur ne peut rien faire qui aggrave la servitude du fonds inférieur (article 640, alinéa 3)";
+    label en unofficial "the upper owner may do nothing that aggravates the servitude of the lower land (Article 640, paragraph 3)";
+}
+pub relation aggravation_servitude_exercee(superieur: Fonds, p: Personne) kind empirical {
+    label fr official "aggravation de la servitude du fonds inférieur exercée par le propriétaire supérieur";
+    label en unofficial "aggravation of the lower land's servitude exercised by the upper owner";
+}
+pub relation droit_d_user_des_eaux_pluviales(f: Fonds) kind derived {
+    label fr official "tout propriétaire a le droit d'user et de disposer des eaux pluviales qui tombent sur son fonds (article 641, alinéa 1)";
+    label en unofficial "every owner has the right to use and dispose of the rainwater falling on his land (Article 641, paragraph 1)";
+}
+pub relation usage_eaux_pluviales_exerce(f: Fonds, p: Personne) kind empirical {
+    label fr official "usage et disposition des eaux pluviales exercés";
+    label en unofficial "use and disposal of rainwater exercised";
+}
+pub relation indemnite_due_au_proprietaire_inferieur(inferieur: Fonds) kind derived {
+    label fr official "une indemnité est due au propriétaire du fonds inférieur (article 641, alinéas 2 et 4)";
+    label en unofficial "an indemnity is due to the owner of the lower land (Article 641, paragraphs 2 and 4)";
+}
+pub relation aucune_aggravation_pour_les_enclos_attenants(f: Fonds) kind derived {
+    label fr official "les maisons, cours, jardins, parcs et enclos attenant aux habitations ne peuvent être assujettis à aucune aggravation de la servitude d'écoulement (article 641, alinéa 5)";
+    label en unofficial "houses, yards, gardens, parks and enclosures adjoining dwellings may not be subjected to any aggravation of the drainage servitude (Article 641, paragraph 5)";
+}
+pub relation libre_usage_des_eaux_de_la_source(f: Fonds) kind derived {
+    label fr official "celui qui a une source dans son fonds peut toujours user des eaux à sa volonté dans les limites et pour les besoins de son héritage (article 642, alinéa 1)";
+    label en unofficial "the owner of a spring on his land may always use the water at will, within the limits and for the needs of his tenement (Article 642, paragraph 1)";
+}
+pub relation usage_de_la_source_restreint_par_les_ouvrages_trentenaires(fsource: Fonds, inferieur: Fonds) kind derived {
+    label fr official "le propriétaire d'une source ne peut plus en user au préjudice des propriétaires inférieurs qui, depuis plus de trente ans, ont fait et terminé des ouvrages apparents et permanents (article 642, alinéa 2)";
+    label en unofficial "the owner of a spring may no longer use it to the prejudice of the lower owners who, for more than thirty years, have made and completed visible and permanent works (Article 642, paragraph 2)";
+}
+pub relation usage_de_la_source_restreint_au_profit_des_habitants(fsource: Fonds) kind derived {
+    label fr official "le propriétaire ne peut user de la source de manière à enlever aux habitants d'une commune, village ou hameau l'eau qui leur est nécessaire (article 642, alinéa 3)";
+    label en unofficial "the owner may not use the spring so as to deprive the inhabitants of a commune, village or hamlet of the water they need (Article 642, paragraph 3)";
+}
+pub relation usage_source_privant_habitants_exerce(fsource: Fonds, p: Personne) kind empirical {
+    label fr official "usage de la source privant les habitants exercé";
+    label en unofficial "source use depriving inhabitants exercised";
+}
+pub relation indemnite_reglee_par_experts_due_au_proprietaire(fsource: Fonds) kind derived {
+    label fr official "si les habitants n'ont pas acquis ou prescrit l'usage, le propriétaire peut réclamer une indemnité réglée par experts (article 642, alinéa 3)";
+    label en unofficial "if the inhabitants have not acquired or prescribed the use, the owner may claim an indemnity settled by experts (Article 642, paragraph 3)";
+}
+pub relation detournement_interdit_au_proprietaire_de_la_source(fsource: Fonds) kind derived {
+    label fr official "si les eaux de source forment dès la sortie du fonds un cours d'eau public et courant, le propriétaire ne peut les détourner de leur cours naturel au préjudice des usagers inférieurs (article 643)";
+    label en unofficial "if on leaving the land the spring water forms a public running watercourse, the owner may not divert it from its natural course to the prejudice of the lower users (Article 643)";
+}
+pub relation detournement_eaux_publiques_exerce(fsource: Fonds, p: Personne) kind empirical {
+    label fr official "détournement préjudiciable des eaux publiques exercé";
+    label en unofficial "harmful diversion of public waters exercised";
+}
+pub relation droit_d_irrigation_au_passage(f: Fonds) kind derived {
+    label fr official "celui dont la propriété borde une eau courante peut s'en servir à son passage pour l'irrigation de ses propriétés (article 644, alinéa 1)";
+    label en unofficial "the owner whose property borders running water may use it as it passes for the irrigation of his properties (Article 644, paragraph 1)";
+}
+pub relation charge_de_rendre_l_eau_a_son_cours_ordinaire(f: Fonds) kind derived {
+    label fr official "celui dont l'eau traverse l'héritage peut en user dans l'intervalle qu'elle y parcourt, mais à la charge de la rendre, à la sortie de ses fonds, à son cours ordinaire (article 644, alinéa 2)";
+    label en unofficial "the owner whose land the water crosses may use it over that stretch, but must return it, on leaving his land, to its ordinary course (Article 644, paragraph 2)";
+}
+pub relation eau_rendue_a_son_cours_ordinaire(f: Fonds, p: Personne) kind empirical {
+    label fr official "eau rendue à son cours ordinaire";
+    label en unofficial "water returned to its ordinary course";
+}
+pub relation droit_au_bornage_a_frais_communs(f: Fonds, v: Fonds) kind derived {
+    label fr official "tout propriétaire peut obliger son voisin au bornage de leurs propriétés contiguës ; le bornage se fait à frais communs (article 646)";
+    label en unofficial "every owner may compel his neighbour to mark the boundary of their contiguous properties; the marking is at common cost (Article 646)";
+}
+pub relation droit_de_se_clore(f: Fonds) kind derived {
+    label fr official "tout propriétaire peut clore son héritage, sauf l'exception portée en l'article 682 (article 647)";
+    label en unofficial "every owner may enclose his tenement, save the exception in Article 682 (Article 647)";
+}
+pub relation perte_du_droit_au_parcours(f: Fonds) kind derived {
+    label fr official "le propriétaire qui veut se clore perd son droit au parcours et vaine pâture en proportion du terrain qu'il y soustrait (article 648)";
+    label en unofficial "an owner who wishes to enclose loses his right of common pasture in proportion to the land he withdraws from it (Article 648)";
+}
+
+@source(CC_ART640) {
+    rule ServitudeNaturelleDEcoulement(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 640, alinéa 1. Les fonds inférieurs sont assujettis envers ceux qui sont plus élevés à recevoir les eaux qui en découlent naturellement, sans que la main de l'homme y ait contribué";
+        label en unofficial "Article 640, paragraph 1. Lower lands are bound towards higher ones to receive the water flowing down from them naturally, without human intervention";
+        when fonds_inferieur_de(inferieur, superieur);
+        then servitude_naturelle_d_ecoulement(inferieur, superieur);
+    }
+    rule DigueInterditeAuFondsInferieur(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 640, alinéa 2. Le propriétaire inférieur ne peut point élever de digue qui empêche cet écoulement";
+        label en unofficial "Article 640, paragraph 2. The lower owner may not raise a dyke preventing that flow";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and digue_elevee_par_le_proprietaire_inferieur(inferieur);
+        then digue_interdite_au_proprietaire_inferieur(inferieur);
+    }
+    rule P4InterdictionEleverDigue640(inferieur: Fonds, superieur: Fonds, p: Personne) strict {
+        label fr official "Article 640. Le propriétaire inférieur ne peut élever de digue";
+        label en unofficial "Article 640. The lower owner may not raise a dyke";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and proprietaire_du_bien(inferieur, p);
+        then prohibition P4InterdictionEleverDigue640Actif {
+            bearer p;
+            action elevation_digue_exercee(inferieur, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionEleverDigue640(inferieur: Fonds, superieur: Fonds, p: Personne) strict {
+        label fr official "Article 640. Le propriétaire inférieur doit maintenir l'absence d'élévation de digue";
+        label en unofficial "Article 640. The lower owner must maintain the absence of a dyke";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and proprietaire_du_bien(inferieur, p);
+        then duty MaintenanceInterdictionEleverDigue640Duty {
+            bearer p;
+            goal maintenance {
+                condition not elevation_digue_exercee(inferieur, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule AggravationInterditeAuFondsSuperieur(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 640, alinéa 3. Le propriétaire supérieur ne peut rien faire qui aggrave la servitude du fonds inférieur";
+        label en unofficial "Article 640, paragraph 3. The upper owner may do nothing that aggravates the servitude of the lower land";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and aggravation_par_le_proprietaire_superieur(superieur);
+        then aggravation_interdite_au_proprietaire_superieur(superieur);
+    }
+    rule P4InterdictionAggraverServitude640(inferieur: Fonds, superieur: Fonds, p: Personne) strict {
+        label fr official "Article 640, alinéa 3. Le propriétaire supérieur ne peut aggraver la servitude du fonds inférieur";
+        label en unofficial "Article 640, paragraph 3. The upper owner may not aggravate the servitude of the lower land";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and proprietaire_du_bien(superieur, p);
+        then prohibition P4InterdictionAggraverServitude640Actif {
+            bearer p;
+            action aggravation_servitude_exercee(superieur, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionAggraverServitude640(inferieur: Fonds, superieur: Fonds, p: Personne) strict {
+        label fr official "Article 640. Le propriétaire supérieur doit maintenir l'absence d'aggravation de la servitude";
+        label en unofficial "Article 640. The upper owner must maintain the absence of aggravation of the servitude";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and proprietaire_du_bien(superieur, p);
+        then duty MaintenanceInterdictionAggraverServitude640Duty {
+            bearer p;
+            goal maintenance {
+                condition not aggravation_servitude_exercee(superieur, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+@source(CC_ART641) {
+    rule DroitDUserDesEauxPluviales(f: Fonds, p: Personne) strict {
+        label fr official "Article 641, alinéa 1. Tout propriétaire a le droit d'user et de disposer des eaux pluviales qui tombent sur son fonds";
+        label en unofficial "Article 641, paragraph 1. Every owner has the right to use and dispose of the rainwater falling on his land";
+        when proprietaire_du_bien(f, p)
+            and eaux_pluviales_tombant_sur_le_fonds(f);
+        then droit_d_user_des_eaux_pluviales(f);
+    }
+    rule P4LiberteUserEauxPluviales641(f: Fonds, p: Personne) strict {
+        label fr official "Article 641. Le propriétaire peut user et disposer des eaux pluviales";
+        label en unofficial "Article 641. The owner may use and dispose of rainwater";
+        when proprietaire_du_bien(f, p)
+            and eaux_pluviales_tombant_sur_le_fonds(f);
+        then liberty P4LiberteUserEauxPluviales641Actif {
+            holder p;
+            action usage_eaux_pluviales_exerce(f, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule IndemnitePourAggravationDeLEcoulement(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 641, alinéas 2 et 3. Si l'usage des eaux pluviales ou la direction qui leur est donnée aggrave la servitude naturelle d'écoulement établie par l'article 640, une indemnité est due au propriétaire du fonds inférieur ; la même disposition est applicable aux eaux de sources nées sur un fonds";
+        label en unofficial "Article 641, paragraphs 2 and 3. If the use of the rainwater or the direction given to it aggravates the natural drainage servitude of Article 640, an indemnity is due to the owner of the lower land; the same applies to spring water arising on land";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and aggravation_par_le_proprietaire_superieur(superieur)
+            and not_known(maison_cour_jardin_parc_ou_enclos_attenant(inferieur));
+        then indemnite_due_au_proprietaire_inferieur(inferieur);
+    }
+    rule IndemnitePourEauxFaitesSurgir(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 641, alinéa 4. Lorsque, par des sondages ou des travaux souterrains, un propriétaire fait surgir des eaux dans son fonds, les propriétaires des fonds inférieurs doivent les recevoir, mais ils ont droit à une indemnité en cas de dommages résultant de leur écoulement";
+        label en unofficial "Article 641, paragraph 4. Where, by boring or underground works, an owner causes water to appear on his land, the owners of the lower lands must receive it, but they are entitled to an indemnity for damage resulting from its flow";
+        when fonds_inferieur_de(inferieur, superieur)
+            and eaux_fait_surgir_par_sondages_ou_travaux(superieur)
+            and dommage_resultant_de_l_ecoulement(inferieur);
+        then indemnite_due_au_proprietaire_inferieur(inferieur);
+    }
+    rule PasDAggravationPourLesEnclosAttenants(inferieur: Fonds, superieur: Fonds) strict {
+        label fr official "Article 641, alinéa 5. Les maisons, cours, jardins, parcs et enclos attenant aux habitations ne peuvent être assujettis à aucune aggravation de la servitude d'écoulement dans les cas prévus par les paragraphes précédents";
+        label en unofficial "Article 641, paragraph 5. Houses, yards, gardens, parks and enclosures adjoining dwellings may not be subjected to any aggravation of the drainage servitude in the cases of the preceding paragraphs";
+        when servitude_naturelle_d_ecoulement(inferieur, superieur)
+            and maison_cour_jardin_parc_ou_enclos_attenant(inferieur);
+        then aucune_aggravation_pour_les_enclos_attenants(inferieur);
+    }
+}
+
+@source(CC_ART642) {
+    rule LibreUsageDeLaSource(f: Fonds, p: Personne) strict {
+        label fr official "Article 642, alinéa 1. Celui qui a une source dans son fonds peut toujours user des eaux à sa volonté dans les limites et pour les besoins de son héritage";
+        label en unofficial "Article 642, paragraph 1. The owner of a spring on his land may always use the water at will, within the limits and for the needs of his tenement";
+        when source_dans_le_fonds(f)
+            and proprietaire_du_bien(f, p);
+        then libre_usage_des_eaux_de_la_source(f);
+    }
+    rule SourceRestreinteParLesOuvragesTrentenaires(fsource: Fonds, inferieur: Fonds) strict {
+        label fr official "Article 642, alinéa 2. Le propriétaire d'une source ne peut plus en user au préjudice des propriétaires des fonds inférieurs qui, depuis plus de trente ans, ont fait et terminé, sur le fonds où jaillit la fsource, des ouvrages apparents et permanents destinés à utiliser les eaux ou à en faciliter le passage dans leur propriété";
+        label en unofficial "Article 642, paragraph 2. The owner of a spring may no longer use it to the prejudice of the owners of the lower lands who, for more than thirty years, have made and completed, on the land where the spring rises, visible and permanent works intended to use the water or ease its passage onto their property";
+        when source_dans_le_fonds(fsource)
+            and ouvrages_apparents_et_permanents_acheves_depuis_plus_de_trente_ans(inferieur, fsource);
+        then usage_de_la_source_restreint_par_les_ouvrages_trentenaires(fsource, inferieur);
+    }
+    rule SourceNecessaireAuxHabitants(fsource: Fonds) strict {
+        label fr official "Article 642, alinéa 3. Le propriétaire ne peut pas non plus user de la source de manière à enlever aux habitants d'une commune, village ou hameau l'eau qui leur est nécessaire";
+        label en unofficial "Article 642, paragraph 3. Nor may the owner use the spring so as to deprive the inhabitants of a commune, village or hamlet of the water they need";
+        when source_dans_le_fonds(fsource)
+            and eau_necessaire_aux_habitants(fsource);
+        then usage_de_la_source_restreint_au_profit_des_habitants(fsource);
+    }
+    rule P4InterdictionPriverHabitantsSource642(fsource: Fonds, p: Personne) strict {
+        label fr official "Article 642. Le propriétaire ne peut priver les habitants de l'eau nécessaire";
+        label en unofficial "Article 642. The owner may not deprive inhabitants of necessary water";
+        when source_dans_le_fonds(fsource)
+            and proprietaire_du_bien(fsource, p)
+            and eau_necessaire_aux_habitants(fsource);
+        then prohibition P4InterdictionPriverHabitantsSource642Actif {
+            bearer p;
+            action usage_source_privant_habitants_exerce(fsource, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionPriverHabitantsSource642(fsource: Fonds, p: Personne) strict {
+        label fr official "Article 642. Le propriétaire doit maintenir l'accès des habitants à l'eau nécessaire";
+        label en unofficial "Article 642. The owner must maintain inhabitants' access to necessary water";
+        when source_dans_le_fonds(fsource)
+            and proprietaire_du_bien(fsource, p)
+            and eau_necessaire_aux_habitants(fsource);
+        then duty MaintenanceInterdictionPriverHabitantsSource642Duty {
+            bearer p;
+            goal maintenance {
+                condition not usage_source_privant_habitants_exerce(fsource, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule IndemniteAuProprietaireDeLaSource(fsource: Fonds) strict {
+        label fr official "Article 642, alinéa 3. Mais si les habitants n'en ont pas acquis ou prescrit l'usage, le propriétaire peut réclamer une indemnité, laquelle est réglée par experts";
+        label en unofficial "Article 642, paragraph 3. But if the inhabitants have not acquired or prescribed the use, the owner may claim an indemnity, which is settled by experts";
+        when usage_de_la_source_restreint_au_profit_des_habitants(fsource)
+            and not_known(usage_acquis_ou_prescrit_par_les_habitants(fsource));
+        then indemnite_reglee_par_experts_due_au_proprietaire(fsource);
+    }
+}
+
+@source(CC_ART643)
+rule PasDeDetournementDesEauxPubliques(fsource: Fonds) strict {
+    label fr official "Article 643. Si, dès la sortie du fonds où elles surgissent, les eaux de source forment un cours d'eau offrant le caractère d'eaux publiques et courantes, le propriétaire ne peut les détourner de leur cours naturel au préjudice des usagers inférieurs";
+    label en unofficial "Article 643. If, on leaving the land where they rise, the spring waters form a watercourse having the character of public running water, the owner may not divert them from their natural course to the prejudice of the lower users";
+    when eaux_de_source_formant_un_cours_d_eau_public(fsource)
+        and detournement_au_prejudice_des_usagers_inferieurs(fsource);
+    then detournement_interdit_au_proprietaire_de_la_source(fsource);
+}
+@source(CC_ART643)
+rule P4InterdictionDetournerEauxPubliques643(fsource: Fonds, p: Personne) strict {
+    label fr official "Article 643. Le propriétaire ne peut détourner les eaux publiques";
+    label en unofficial "Article 643. The owner may not divert public waters";
+    when proprietaire_du_bien(fsource, p)
+            and eaux_de_source_formant_un_cours_d_eau_public(fsource);
+    then prohibition P4InterdictionDetournerEauxPubliques643Actif {
+        bearer p;
+        action detournement_eaux_publiques_exerce(fsource, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART643)
+rule MaintenanceInterdictionDetournerEauxPubliques643(fsource: Fonds, p: Personne) strict {
+    label fr official "Article 643. Le propriétaire doit maintenir le cours naturel des eaux publiques";
+    label en unofficial "Article 643. The owner must maintain the natural course of public waters";
+    when proprietaire_du_bien(fsource, p)
+        and eaux_de_source_formant_un_cours_d_eau_public(fsource);
+    then duty MaintenanceInterdictionDetournerEauxPubliques643Duty {
+        bearer p;
+        goal maintenance {
+            condition not detournement_eaux_publiques_exerce(fsource, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART644) {
+    rule DroitDIrrigationDuRiverain(f: Fonds) strict {
+        label fr official "Article 644, alinéa 1. Celui dont la propriété borde une eau courante, autre que celle qui est déclarée dépendance du domaine public par l'article 538, peut s'en servir à son passage pour l'irrigation de ses propriétés";
+        label en unofficial "Article 644, paragraph 1. The owner whose property borders running water, other than water declared part of the public domain by Article 538, may use it as it passes for the irrigation of his properties";
+        when propriete_bordant_une_eau_courante(f);
+        then droit_d_irrigation_au_passage(f);
+    }
+    rule ChargeDeRendreLEauASonCoursOrdinaire(f: Fonds) strict {
+        label fr official "Article 644, alinéa 2. Celui dont cette eau traverse l'héritage peut même en user dans l'intervalle qu'elle y parcourt, mais à la charge de la rendre, à la sortie de ses fonds, à son cours ordinaire";
+        label en unofficial "Article 644, paragraph 2. The owner whose tenement the water crosses may even use it over the stretch it runs there, but must return it, on leaving his land, to its ordinary course";
+        when eau_courante_traversant_l_heritage(f);
+        then charge_de_rendre_l_eau_a_son_cours_ordinaire(f);
+    }
+    rule P4DevoirRendreEauCoursOrdinaire644(f: Fonds, p: Personne) strict {
+        label fr official "Article 644. Le propriétaire doit rendre l'eau à son cours ordinaire";
+        label en unofficial "Article 644. The owner must return water to its ordinary course";
+        when eau_courante_traversant_l_heritage(f)
+            and proprietaire_du_bien(f, p);
+        then duty P4DevoirRendreEauCoursOrdinaire644Actif {
+            bearer p;
+            goal achievement {
+                condition eau_rendue_a_son_cours_ordinaire(f, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+pub relation bornage_exerce(f: Fonds, v: Fonds, p: Personne) kind empirical {
+    label fr official "bornage exercé";
+    label en unofficial "boundary marking exercised";
+}
+pub relation cloture_heritage_exercee(f: Fonds, p: Personne) kind empirical {
+    label fr official "clôture de l'héritage exercée";
+    label en unofficial "tenement enclosure exercised";
+}
+@source(CC_ART646)
+rule P4PouvoirBornage646(f: Fonds, v: Fonds, p: Personne) strict {
+    label fr official "Article 646. Le propriétaire peut obliger son voisin au bornage";
+    label en unofficial "Article 646. The owner may compel boundary marking";
+    when voisin(f, v)
+        and proprietaire_du_bien(f, p)
+        and bornage_demande(f, v);
+    then power P4PouvoirBornage646Actif {
+        holder p;
+        over v;
+        exercise bornage_demande(f, v);
+        effect droit_au_bornage_a_frais_communs(f, v);
+        valid_when voisin(f, v);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART646)
+rule DroitAuBornage(f: Fonds, v: Fonds) strict {
+    label fr official "Article 646. Tout propriétaire peut obliger son voisin au bornage de leurs propriétés contiguës ; le bornage se fait à frais communs";
+    label en unofficial "Article 646. Every owner may compel his neighbour to mark the boundary of their contiguous properties; the marking is at common cost";
+    when voisin(f, v)
+        and bornage_demande(f, v);
+    then droit_au_bornage_a_frais_communs(f, v);
+}
+
+@source(CC_ART647)
+rule P4LiberteCloreHeritage647(f: Fonds, p: Personne) strict {
+    label fr official "Article 647. Le propriétaire peut clore son héritage";
+    label en unofficial "Article 647. The owner may enclose his tenement";
+    when proprietaire_du_bien(f, p)
+        and volonte_de_se_clore(f)
+        and not_known(fonds_servant_d_un_passage_pour_enclave(f));
+    then liberty P4LiberteCloreHeritage647Actif {
+        holder p;
+        action cloture_heritage_exercee(f, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART647)
+rule DroitDeSeClore(f: Fonds, p: Personne) strict {
+    label fr official "Article 647. Tout propriétaire peut clore son héritage, sauf l'exception portée en l'article 682";
+    label en unofficial "Article 647. Every owner may enclose his tenement, save the exception in Article 682";
+    when proprietaire_du_bien(f, p)
+        and volonte_de_se_clore(f)
+        and not_known(fonds_servant_d_un_passage_pour_enclave(f));
+    then droit_de_se_clore(f);
+}
+
+@source(CC_ART648)
+rule PerteDuParcoursEnSeClosant(f: Fonds) strict {
+    label fr official "Article 648. Le propriétaire qui veut se clore perd son droit au parcours et vaine pâture en proportion du terrain qu'il y soustrait";
+    label en unofficial "Article 648. An owner who wishes to enclose loses his right of common pasture in proportion to the land he withdraws from it";
+    when volonte_de_se_clore(f)
+        and droit_au_parcours_et_vaine_pature(f);
+    then perte_du_droit_au_parcours(f);
+}
+
+// --- Servitudes établies par la loi : notion (649 à 652) ------------------------------------------
+
+pub enum ObjetDeLaServitudeLegale {
+    label fr official "Objet de la servitude établie par la loi : utilité publique ou communale, ou utilité des particuliers (article 649)";
+    label en unofficial "Object of a servitude established by statute: public or communal benefit, or the benefit of private persons (Article 649)";
+    UtilitePubliqueOuCommunale,
+    UtiliteDesParticuliers
+}
+
+pub relation servitude_legale_pour(s: Servitude, objet: ObjetDeLaServitudeLegale) kind empirical {
+    key(s);
+    label fr official "objet pour lequel la servitude légale est établie (articles 649, 650)";
+    label en unofficial "object for which the statutory servitude is established (Articles 649, 650)";
+}
+pub relation objet_de_la_servitude_etablie_par_la_loi(s: Servitude, objet: ObjetDeLaServitudeLegale) kind derived {
+    label fr official "les servitudes établies par la loi ont pour objet l'utilité publique ou communale, ou l'utilité des particuliers (article 649)";
+    label en unofficial "servitudes established by statute have as their object the public or communal benefit, or the benefit of private persons (Article 649)";
+}
+pub relation servitude_d_utilite_publique_ou_communale(s: Servitude) kind derived {
+    label fr official "servitude pour l'utilité publique ou communale : marchepied le long des cours d'eau domaniaux, construction ou réparation des chemins et autres ouvrages publics (article 650, alinéa 1)";
+    label en unofficial "servitude for the public or communal benefit: towpath along State-owned watercourses, construction or repair of roads and other public works (Article 650, paragraph 1)";
+}
+pub relation obligations_reciproques_des_proprietaires(f: Fonds, v: Fonds) kind derived {
+    label fr official "la loi assujettit les propriétaires à différentes obligations l'un à l'égard de l'autre, indépendamment de toute convention (article 651)";
+    label en unofficial "statute subjects owners to various obligations towards each other, independently of any agreement (Article 651)";
+}
+
+@source(CC_ART649)
+rule ObjetDeLaServitudeLegaleDeclare(s: Servitude, objet: ObjetDeLaServitudeLegale) strict {
+    label fr official "Article 649. Les servitudes établies par la loi ont pour objet l'utilité publique ou communale, ou l'utilité des particuliers";
+    label en unofficial "Article 649. Servitudes established by statute have as their object the public or communal benefit, or the benefit of private persons";
+    when servitude_legale_pour(s, objet);
+    then objet_de_la_servitude_etablie_par_la_loi(s, objet);
+}
+
+@source(CC_ART650)
+rule ServitudeDUtilitePubliqueOuCommunale(s: Servitude) strict {
+    label fr official "Article 650, alinéa 1. Celles établies pour l'utilité publique ou communale ont pour objet le marchepied le long des cours d'eau domaniaux, la construction ou réparation des chemins et autres ouvrages publics ou communaux ; tout ce qui concerne cette espèce de servitude est déterminé par des lois ou des règlements particuliers";
+    label en unofficial "Article 650, paragraph 1. Those established for the public or communal benefit concern the towpath along State-owned watercourses, the construction or repair of roads and other public or communal works; everything concerning this kind of servitude is determined by particular statutes or regulations";
+    when servitude_legale_pour(s, UtilitePubliqueOuCommunale);
+    then servitude_d_utilite_publique_ou_communale(s);
+}
+
+@source(CC_ART651)
+rule ObligationsLegalesEntreVoisins(f: Fonds, v: Fonds) strict {
+    label fr official "Article 651. La loi assujettit les propriétaires à différentes obligations l'un à l'égard de l'autre, indépendamment de toute convention";
+    label en unofficial "Article 651. Statute subjects owners to various obligations towards each other, independently of any agreement";
+    when voisin(f, v);
+    then obligations_reciproques_des_proprietaires(f, v);
+}

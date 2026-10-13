@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ACTEAUTHENTIQUEELECTRONIQUEADMIS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": conditions_du_decret_sur_l_acte_electronique_remplies(entity_ref("urn:kz:catalog:acteauthentiqueelectroniqueadmis:v0")) { origin case_input; }
+        assert "cat-1": acte_authentique(entity_ref("urn:kz:catalog:acteauthentiqueelectroniqueadmis:v0")) { origin case_input; }
+        assert "cat-2": acte_authentique_sur_support_electronique(entity_ref("urn:kz:catalog:acteauthentiqueelectroniqueadmis:v0")) { origin case_input; }
+    }
+    evaluate truth(acte_authentique_electronique_admis(entity_ref("urn:kz:catalog:acteauthentiqueelectroniqueadmis:v0")));
+    expect truth_status == TRUE_ONLY;
+}

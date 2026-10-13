@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2320 : le débiteur apporte la preuve contraire — la présomption tombe.
+test "urn:query:fr-code-civil-suretes-c52-prorogation-preuve-contraire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c52:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c52:K"), entity_ref("urn:fr:cc:suretes:c52:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c52:K"), entity_ref("urn:fr:cc:suretes:c52:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c52:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c52:B")) { origin case_input; }
+        assert "f6": prorogation_de_terme_accordee(entity_ref("urn:fr:cc:suretes:c52:K")) { origin case_input; }
+        assert "f7": terme_initial_echu(entity_ref("urn:fr:cc:suretes:c52:K")) { origin case_input; }
+        assert "f8": preuve_contraire_du_debiteur_2320(entity_ref("urn:fr:cc:suretes:c52:K")) { origin case_input; }
+    }
+    evaluate truth(menace_sur_le_recouvrement_presumee(entity_ref("urn:fr:cc:suretes:c52:K")));
+    expect truth_status == NEITHER;
+}

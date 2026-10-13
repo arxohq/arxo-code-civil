@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 774 : l'héritier subséquent apprend la renonciation le 10 mars 2026 — quatre mois jusqu'au 10 juillet 2026.
+test "urn:query:fr-code-civil-successions-o08-quatre-mois-de-l-heritier-subsequent" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o08:S"), @2025-06-01) { origin case_input; }
+        assert "f2": connaissance_de_la_renonciation_ou_de_l_indignite_le(entity_ref("urn:fr:cc:successions:opt:o08:S"), entity_ref("urn:fr:cc:successions:opt:o08:H"), @2026-03-10) { origin case_input; }
+    }
+    evaluate truth(sommation_possible_a_compter_du(entity_ref("urn:fr:cc:successions:opt:o08:S"), entity_ref("urn:fr:cc:successions:opt:o08:H"), @2026-07-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(QuatreMoisDeLHeritierSubsequent);
+}

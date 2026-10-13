@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 809-2, alinéa 3 : sans justification du titre, pas de consultation.
+test "urn:query:fr-code-civil-successions-m11-consultation-sans-titre-justifie" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": inventaire_estimatif_dresse(entity_ref("urn:fr:cc:successions:adm:m11:S")) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m11:S"), entity_ref("urn:fr:cc:successions:adm:m11:P"), CreancierDeclare) { origin case_input; }
+    }
+    evaluate truth(consultation_de_l_inventaire_ouverte(entity_ref("urn:fr:cc:successions:adm:m11:S"), entity_ref("urn:fr:cc:successions:adm:m11:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

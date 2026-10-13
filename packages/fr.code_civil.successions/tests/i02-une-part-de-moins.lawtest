@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-3 : 1 999 parts sur 3 000 — la majorité n'est pas atteinte.
+test "urn:query:fr-code-civil-successions-i02-une-part-de-moins" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": total_des_parts(entity_ref("urn:fr:cc:successions:ind:i02:I"), 3000) { origin case_input; }
+        assert "f2": parts_favorables(entity_ref("urn:fr:cc:successions:ind:i02:I"), 1999) { origin case_input; }
+    }
+    evaluate truth(majorite_des_deux_tiers(entity_ref("urn:fr:cc:successions:ind:i02:I")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

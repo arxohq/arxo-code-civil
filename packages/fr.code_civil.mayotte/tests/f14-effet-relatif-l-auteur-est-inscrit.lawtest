@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2523, alinéa 1 : le droit de l'auteur immédiat est inscrit ; l'inscription peut être opérée.
+test "urn:query:fr-code-civil-mayotte-f14-effet-relatif-l-auteur-est-inscrit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:ab:dr"), ProprieteImmobiliere) { origin case_input; }
+        assert "f2": auteur_immediat(entity_ref("urn:fr:cc:may:ab:dr"), entity_ref("urn:fr:cc:may:ab:auteur")) { origin case_input; }
+        assert "f3": droit_de_l_auteur_inscrit(entity_ref("urn:fr:cc:may:ab:dr")) { origin case_input; }
+    }
+    evaluate truth(inscription_recevable(entity_ref("urn:fr:cc:may:ab:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InscriptionDeLaProprieteRecevable);
+}

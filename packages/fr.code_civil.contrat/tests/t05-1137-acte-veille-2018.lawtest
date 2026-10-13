@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Loi 2018-287 art. 16 I : acte du 30 septembre 2018, article nouveau 1137 — rédaction de 2016.
+test "urn:query:fr-code-civil-contrat-t05-1137-acte-veille-2018" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:t05"), @2018-09-30) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:t05"), @2018-09-30) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:t05"), "1137") { origin case_input; }
+    }
+    evaluate truth(redaction_2016_applicable(entity_ref("urn:fr:cc:contrat:t05"), "1137"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RedactionDeLOrdonnance);
+}

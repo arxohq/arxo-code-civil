@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1324, al. 1 : notifiée au débiteur le 2 mai 2025, la cession lui est opposable.
+// Les deux dates de l'opération restent distinctes : 15 avril pour les tiers (1323),
+// 2 mai pour le débiteur cédé (1324).
+test "urn:query:fr-code-civil-obligations-o04-cession-opposable-apres-notification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": cession_de_creance(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:c")) { origin case_input; }
+        assert "f2": cedant(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CED")) { origin case_input; }
+        assert "f3": cessionnaire(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:CESS")) { origin case_input; }
+        assert "f4": date_de_l_acte_de_cession(entity_ref("urn:fr:cc:obligations:ces:x"), @2025-04-15) { origin case_input; }
+        assert "f5": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:obligations:ces:x")) { origin case_input; }
+        assert "f6": cession_notifiee_au_debiteur(entity_ref("urn:fr:cc:obligations:ces:x"), @2025-05-02) { origin case_input; }
+    }
+    evaluate truth(cession_opposable_au_debiteur(entity_ref("urn:fr:cc:obligations:ces:x"), entity_ref("urn:fr:cc:obligations:ces:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CessionOpposableParNotification);
+}

@@ -1,0 +1,760 @@
+// LIVRE IV, TITRE II, SOUS-TITRE II, CHAPITRE II : DU GAGE DE MEUBLES
+// CORPORELS (articles 2333 à 2350).
+//
+// HUIT JOURS (2346). La vente publique des biens gagés pour une dette
+// professionnelle a lieu huit jours après la signification : le délai se
+// compte sans le jour de la signification et expire à la fin du huitième jour
+// (CPC 641 et 642, texte externe) ; la vente est possible le lendemain
+// (D-CC14-08). Pas en jours sous la politique du cas (§86, E-0187).
+//
+// SOULTE (2347, 2348). Quand la valeur du bien attribué excède la dette, la
+// différence revient au constituant, ou est consignée s'il existe d'autres
+// créanciers gagistes. L'estimation par expert (2348) est une entrée du cas ;
+// la cotation officielle la remplace.
+//
+// REGISTRE (2338). Les modalités du registre spécial sont fixées par décret en
+// Conseil d'État : elles ne sont pas inventées ici. Seule la règle du texte est
+// exécutée : l'inscription d'un gage sur un véhicule immatriculé fait obstacle
+// à toute nouvelle inscription sur le même véhicule.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2333,
+    CC_ART2334,
+    CC_ART2335,
+    CC_ART2336,
+    CC_ART2337,
+    CC_ART2338,
+    CC_ART2339,
+    CC_ART2340,
+    CC_ART2341,
+    CC_ART2342,
+    CC_ART2342_1,
+    CC_ART2343,
+    CC_ART2344,
+    CC_ART2345,
+    CC_ART2346,
+    CC_ART2347,
+    CC_ART2348,
+    CC_ART2349,
+    CC_ART2350,
+    CauseDePreference,
+    Collocation,
+    NatureDeSurete,
+    Personne,
+    SureteReelle,
+    cause_de_preference,
+    classe_de_preference,
+    date_de_rang,
+    nature_de_la_surete,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation gage_constitue(s: SureteReelle, creancier_p: Personne, constituant: Personne) kind empirical {
+    key(s);
+    label fr official "convention de gage entre le créancier et le constituant (article 2333)";
+    label en unofficial "pledge agreement between the creditor and the pledgor (Article 2333)";
+}
+pub relation creance_garantie_future_indeterminable(s: SureteReelle) kind empirical {
+    label fr official "la créance future garantie n'est pas déterminable (articles 2333, 2355, 2372-1, 2415)";
+    label en unofficial "the secured future claim is not determinable (Articles 2333, 2355, 2372-1, 2415)";
+}
+pub relation creancier_ignorait_que_la_chose_etait_a_autrui(s: SureteReelle) kind empirical {
+    label fr official "le créancier ignorait que la chose n'appartenait pas au constituant (article 2335)";
+    label en unofficial "the creditor did not know the thing did not belong to the pledgor (Article 2335)";
+}
+pub relation chose_d_autrui(s: SureteReelle) kind empirical {
+    label fr official "la chose gagée n'appartient pas au constituant (article 2335)";
+    label en unofficial "the pledged thing does not belong to the pledgor (Article 2335)";
+}
+pub relation ecrit_etabli(s: SureteReelle) kind empirical {
+    label fr official "un écrit constate la sûreté (articles 2336, 2356, 2368, 2374-1)";
+    label en unofficial "a written instrument records the security (Articles 2336, 2356, 2368, 2374-1)";
+}
+pub relation ecrit_designe_la_dette_garantie(s: SureteReelle) kind empirical {
+    label fr official "l'écrit désigne la dette garantie (articles 2336, 2356, 2372-2, 2374-1)";
+    label en unofficial "the instrument identifies the secured debt (Articles 2336, 2356, 2372-2, 2374-1)";
+}
+pub relation ecrit_indique_la_quantite_des_biens(s: SureteReelle) kind empirical {
+    label fr official "l'écrit indique la quantité des biens gagés (article 2336)";
+    label en unofficial "the instrument states the quantity of pledged goods (Article 2336)";
+}
+pub relation ecrit_indique_l_espece_ou_la_nature(s: SureteReelle) kind empirical {
+    label fr official "l'écrit indique l'espèce ou la nature des biens gagés (article 2336)";
+    label en unofficial "the instrument states the kind or nature of the pledged goods (Article 2336)";
+}
+pub relation gage_publie(s: SureteReelle) kind empirical {
+    label fr official "le gage a été régulièrement publié (articles 2337, 2338)";
+    label en unofficial "the pledge was duly registered (Articles 2337, 2338)";
+}
+pub relation gage_avec_depossession(s: SureteReelle) kind empirical {
+    label fr official "le bien, ou le titre qui le représente, est entre les mains du créancier ou d'un tiers convenu (article 2337)";
+    label en unofficial "the asset, or the document representing it, is in the hands of the creditor or an agreed third party (Article 2337)";
+}
+pub relation gage_sur_vehicule_immatricule(s: SureteReelle, b: Bien) kind empirical {
+    label fr official "gage portant sur un véhicule terrestre à moteur ou une remorque immatriculés, inscrit au registre de l'autorité administrative (article 2338)";
+    label en unofficial "pledge over a registered motor vehicle or trailer, entered in the administrative register (Article 2338)";
+}
+pub relation gage_de_choses_fongibles_revocables(s: SureteReelle) kind empirical {
+    label fr official "le gage sur le véhicule est soumis à l'article 2342 (choses fongibles)";
+    label en unofficial "the pledge over the vehicle is governed by Article 2342 (fungibles)";
+}
+pub relation nouvelle_inscription_demandee(s: SureteReelle, b: Bien) kind empirical {
+    label fr official "une nouvelle inscription de gage est demandée sur le même véhicule (article 2338)";
+    label en unofficial "a further pledge registration is sought over the same vehicle (Article 2338)";
+}
+pub relation dette_entierement_payee(s: SureteReelle) kind empirical {
+    label fr official "la dette garantie est entièrement payée en principal, intérêts et frais (articles 2339, 2383)";
+    label en unofficial "the secured debt is fully paid in principal, interest and costs (Articles 2339, 2383)";
+}
+pub relation choses_fongibles(s: SureteReelle) kind empirical {
+    label fr official "le gage porte sur des choses fongibles (articles 2341, 2342)";
+    label en unofficial "the pledge bears on fungible things (Articles 2341, 2342)";
+}
+pub relation choses_tenues_separees(s: SureteReelle) kind empirical {
+    label fr official "le créancier tient les choses gagées séparées des siennes (article 2341)";
+    label en unofficial "the creditor keeps the pledged things separate from its own (Article 2341)";
+}
+pub relation dispense_de_separation(s: SureteReelle) kind empirical {
+    label fr official "la convention dispense le créancier de tenir les choses séparées (article 2341, al. 2)";
+    label en unofficial "the agreement relieves the creditor of keeping the things separate (Article 2341, para. 2)";
+}
+pub relation convention_d_alienation(s: SureteReelle) kind empirical {
+    label fr official "la convention permet au constituant d'aliéner les choses gagées à charge de remplacement (article 2341, al. 3)";
+    label en unofficial "the agreement lets the pledgor dispose of the pledged things if it replaces them (Article 2341, para. 3)";
+}
+pub relation convention_interdisant_l_alienation(s: SureteReelle) kind empirical {
+    label fr official "convention contraire à la faculté d'aliéner du constituant (article 2342)";
+    label en unofficial "agreement excluding the pledgor's power to dispose (Article 2342)";
+}
+pub relation bien_acquis_en_remplacement(s: SureteReelle, b: Bien) kind empirical {
+    label fr official "bien acquis en remplacement des choses gagées aliénées (article 2342-1)";
+    label en unofficial "asset acquired to replace the pledged things disposed of (Article 2342-1)";
+}
+pub relation depenses_de_conservation(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "dépenses utiles ou nécessaires faites pour la conservation du gage (article 2343)";
+    label en unofficial "useful or necessary expenses incurred to preserve the pledge (Article 2343)";
+}
+pub relation obligation_de_conservation_meconnue(s: SureteReelle) kind empirical {
+    label fr official "l'obligation de conservation du gage n'est pas satisfaite (article 2344)";
+    label en unofficial "the duty to preserve the pledge is not complied with (Article 2344)";
+}
+pub relation creancier_detenteur(s: SureteReelle) kind empirical {
+    label fr official "le détenteur du bien gagé est le créancier de la dette garantie (article 2345)";
+    label en unofficial "the holder of the pledged asset is the creditor of the secured debt (Article 2345)";
+}
+pub relation convention_contraire_sur_les_fruits(s: SureteReelle) kind empirical {
+    label fr official "convention contraire sur les fruits (article 2345)";
+    label en unofficial "contrary agreement on the fruits (Article 2345)";
+}
+pub relation fruits_percus(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "fruits perçus du bien affecté en garantie (articles 2345, 2381)";
+    label en unofficial "fruits collected from the encumbered asset (Articles 2345, 2381)";
+}
+pub relation interets_dus(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "intérêts dus sur la dette garantie (articles 2345, 2381)";
+    label en unofficial "interest owed on the secured debt (Articles 2345, 2381)";
+}
+pub relation dette_garantie_impayee(s: SureteReelle) kind empirical {
+    label fr official "la dette garantie n'est pas payée à l'échéance (articles 2346, 2348, 2371)";
+    label en unofficial "the secured debt is unpaid when due (Articles 2346, 2348, 2371)";
+}
+pub relation dette_professionnelle(s: SureteReelle) kind empirical {
+    label fr official "le gage garantit une dette professionnelle (article 2346, al. 2)";
+    label en unofficial "the pledge secures a business debt (Article 2346, para. 2)";
+}
+pub relation signification_au_debiteur_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la simple signification faite au débiteur (article 2346)";
+    label en unofficial "date of the mere service on the debtor (Article 2346)";
+}
+pub relation vente_publique_projetee_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date prévue de la vente publique (article 2346)";
+    label en unofficial "planned date of the public sale (Article 2346)";
+}
+pub relation valeur_au_jour_du_transfert(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "valeur du bien au jour du transfert, déterminée par expert ou par cotation officielle (articles 2347, 2348, 2371, 2372-3, 2453)";
+    label en unofficial "value of the asset on the day of transfer, set by an expert or an official quotation (Articles 2347, 2348, 2371, 2372-3, 2453)";
+}
+pub relation montant_de_la_dette_reelle(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "montant de la dette garantie par la sûreté réelle";
+    label en unofficial "amount of the debt secured by the real security";
+}
+pub relation autres_creanciers_de_meme_rang_ou_inscrits(s: SureteReelle) kind empirical {
+    label fr official "il existe d'autres créanciers gagistes ou hypothécaires sur le bien (articles 2347, 2348, 2453)";
+    label en unofficial "there are other pledgees or mortgagees over the asset (Articles 2347, 2348, 2453)";
+}
+pub relation attribution_judiciaire_demandee(s: SureteReelle) kind empirical {
+    label fr official "le créancier demande en justice que le bien lui demeure en paiement (articles 2347, 2451)";
+    label en unofficial "the creditor asks the court to let it keep the asset in payment (Articles 2347, 2451)";
+}
+pub relation pacte_commissoire(s: SureteReelle) kind empirical {
+    label fr official "il est convenu qu'à défaut d'exécution le créancier deviendra propriétaire du bien (articles 2348, 2452)";
+    label en unofficial "it is agreed that on default the creditor becomes owner of the asset (Articles 2348, 2452)";
+}
+pub relation heritier_ayant_paye_sa_portion(s: SureteReelle, h: Personne) kind empirical {
+    label fr official "un héritier du débiteur a payé sa portion de la dette (article 2349)";
+    label en unofficial "one of the debtor's heirs paid its share of the debt (Article 2349)";
+}
+pub relation sequestre_ou_consignation_judiciaire(s: SureteReelle) kind empirical {
+    label fr official "séquestre ou consignation de sommes, effets ou valeurs ordonné judiciairement à titre de garantie ou conservatoire (article 2350)";
+    label en unofficial "court-ordered escrow or deposit of sums, instruments or securities by way of security or protection (Article 2350)";
+}
+pub relation gage_avec_depossession_posterieur(s: SureteReelle, t: SureteReelle) kind empirical {
+    label fr official "le bien gagé sans dépossession (s) fait ultérieurement l'objet d'un gage avec dépossession (t) (article 2340, al. 2)";
+    label en unofficial "the asset pledged without dispossession (s) is later pledged with dispossession (t) (Article 2340, para. 2)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation droit_de_preference_du_gagiste(s: SureteReelle, p: Personne) kind derived {
+    label fr official "le créancier gagiste peut se faire payer par préférence à ses autres créanciers sur le bien (article 2333)";
+    label en unofficial "the pledgee may be paid in priority to the other creditors out of the asset (Article 2333)";
+}
+pub relation surete_sans_creance_determinable(s: SureteReelle) kind derived {
+    label fr official "la créance future garantie doit être déterminable : à défaut, la sûreté est sans objet";
+    label en unofficial "the secured future claim must be determinable: otherwise the security has no object";
+}
+pub relation gage_sur_immeuble_par_destination_ordonne_par_2419(s: SureteReelle) kind derived {
+    label fr official "l'ordre entre le gagiste d'un meuble immobilisé par destination et le créancier hypothécaire suit l'article 2419 (article 2334)";
+    label en unofficial "priority between the pledgee of a movable fixture and the mortgagee follows Article 2419 (Article 2334)";
+}
+pub relation annulation_ouverte_au_creancier(s: SureteReelle) kind derived {
+    label fr official "le gage de la chose d'autrui peut être annulé à la demande du créancier qui l'ignorait (article 2335)";
+    label en unofficial "a pledge of another's thing may be annulled at the request of a creditor unaware of it (Article 2335)";
+}
+pub relation gage_parfait(s: SureteReelle) kind derived {
+    label fr official "le gage est parfait : écrit désignant la dette, la quantité et l'espèce ou la nature des biens (article 2336)";
+    label en unofficial "the pledge is perfected: an instrument identifying the debt, the quantity and the kind or nature of the goods (Article 2336)";
+}
+pub relation gage_opposable_aux_tiers(s: SureteReelle) kind derived {
+    label fr official "le gage est opposable aux tiers par la publicité ou par la dépossession (article 2337)";
+    label en unofficial "the pledge is effective against third parties through registration or dispossession (Article 2337)";
+}
+pub relation article_2276_ecarte(s: SureteReelle) kind derived {
+    label fr official "le gage régulièrement publié, les ayants cause à titre particulier du constituant ne peuvent se prévaloir de l'article 2276 (article 2337, al. 3)";
+    label en unofficial "once the pledge is duly registered, the pledgor's particular successors cannot rely on Article 2276 (Article 2337, para. 3)";
+}
+pub relation nouvelle_inscription_impossible(b: Bien) kind derived {
+    label fr official "l'inscription du gage fait obstacle à toute nouvelle inscription sur le même véhicule (article 2338)";
+    label en unofficial "the pledge registration bars any further registration over the same vehicle (Article 2338)";
+}
+pub relation modalites_du_registre_par_decret(s: SureteReelle) kind derived {
+    label fr official "frontière : les modalités du registre spécial sont réglées par décret en Conseil d'État (article 2338)";
+    label en unofficial "boundary: the special register's arrangements are set by decree in Conseil d'État (Article 2338)";
+}
+pub relation radiation_ou_restitution_exigible(s: SureteReelle) kind derived {
+    label fr official "le constituant peut exiger la radiation de l'inscription ou la restitution du bien (articles 2339, 2383)";
+    label en unofficial "the pledgor may require removal of the registration or return of the asset (Articles 2339, 2383)";
+}
+pub relation preference_du_gagiste_anterieur_publie(s: SureteReelle, t: SureteReelle) kind derived {
+    label fr official "le droit de préférence du gagiste antérieur régulièrement publié est opposable au gagiste postérieur avec dépossession, nonobstant son droit de rétention (article 2340, al. 2)";
+    label en unofficial "the earlier duly registered pledgee's priority prevails over the later possessory pledgee despite its right of retention (Article 2340, para. 2)";
+}
+pub relation restitution_ouverte_pour_confusion(s: SureteReelle) kind derived {
+    label fr official "faute de séparation des choses fongibles, le constituant peut réclamer leur restitution (articles 2341, 2344)";
+    label en unofficial "if the fungibles are not kept separate, the pledgor may claim their return (Articles 2341, 2344)";
+}
+pub relation creancier_proprietaire_a_charge_d_equivalent(s: SureteReelle) kind derived {
+    label fr official "dispensé de séparation, le créancier acquiert la propriété des choses gagées à charge de restituer la même quantité de choses équivalentes (article 2341, al. 2)";
+    label en unofficial "relieved of separation, the creditor becomes owner of the pledged things, bound to return the same quantity of equivalents (Article 2341, para. 2)";
+}
+pub relation faculte_d_aliener_a_charge_de_remplacement(s: SureteReelle) kind derived {
+    label fr official "le constituant peut aliéner les choses gagées à charge de les remplacer par la même quantité de choses équivalentes (articles 2341, al. 3, et 2342)";
+    label en unofficial "the pledgor may dispose of the pledged things provided it replaces them with the same quantity of equivalents (Articles 2341, para. 3, and 2342)";
+}
+pub relation dans_l_assiette_du_gage(s: SureteReelle, b: Bien) kind derived {
+    label fr official "le bien acquis en remplacement est de plein droit compris dans l'assiette du gage (article 2342-1)";
+    label en unofficial "the replacement asset is automatically included in the pledged assets (Article 2342-1)";
+}
+pub relation remboursement_des_depenses_de_conservation(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "le constituant rembourse au créancier ou au tiers convenu les dépenses de conservation (article 2343)";
+    label en unofficial "the pledgor reimburses the creditor or agreed third party for the preservation expenses (Article 2343)";
+}
+pub relation restitution_pour_defaut_de_conservation(s: SureteReelle) kind derived {
+    label fr official "gage avec dépossession mal conservé : le constituant peut réclamer la restitution, sans préjudice de dommages-intérêts (article 2344, al. 1)";
+    label en unofficial "possessory pledge not preserved: the pledgor may claim its return, without prejudice to damages (Article 2344, para. 1)";
+}
+pub relation decheance_du_terme_ou_complement_de_gage(s: SureteReelle) kind derived {
+    label fr official "gage sans dépossession mal conservé : le créancier peut se prévaloir de la déchéance du terme ou solliciter un complément de gage (article 2344, al. 2)";
+    label en unofficial "non-possessory pledge not preserved: the creditor may invoke acceleration or request additional collateral (Article 2344, para. 2)";
+}
+pub relation fruits_imputes_sur_les_interets(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "part des fruits imputée sur les intérêts (articles 2345, 2381)";
+    label en unofficial "part of the fruits charged to interest (Articles 2345, 2381)";
+}
+pub relation fruits_imputes_sur_le_capital(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "part des fruits imputée, à défaut d'intérêts, sur le capital (articles 2345, 2381)";
+    label en unofficial "part of the fruits charged, absent interest, to capital (Articles 2345, 2381)";
+}
+pub relation vente_du_bien_gage_ouverte(s: SureteReelle) kind derived {
+    label fr official "à défaut de paiement, le créancier peut poursuivre la vente du bien gagé selon le code des procédures civiles d'exécution (article 2346, al. 1)";
+    label en unofficial "on non-payment, the creditor may seek sale of the pledged asset under the Civil Enforcement Procedures Code (Article 2346, para. 1)";
+}
+pub relation vente_publique_possible_a_partir_du(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour du délai de huit jours suivant la signification, jour de la signification non compté (article 2346, al. 2 ; CPC 641) : la vente peut avoir lieu le lendemain";
+    label en unofficial "last day of the eight-day period after service, the service day not counted (Article 2346, para. 2; CPC 641): the sale may take place the next day";
+}
+pub relation vente_publique_permise(s: SureteReelle) kind derived {
+    label fr official "la vente publique projetée respecte le délai de huit jours (article 2346, al. 2)";
+    label en unofficial "the planned public sale observes the eight-day period (Article 2346, para. 2)";
+}
+pub relation vente_publique_prematuree(s: SureteReelle) kind derived {
+    label fr official "la vente publique projetée intervient avant l'expiration des huit jours (article 2346, al. 2)";
+    label en unofficial "the planned public sale comes before the eight days have run (Article 2346, para. 2)";
+}
+pub relation soulte_due_au_constituant(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "la valeur du bien excédant la dette, la différence est versée au constituant (articles 2347, 2348, 2371, 2453)";
+    label en unofficial "the asset's value exceeding the debt, the difference is paid to the pledgor (Articles 2347, 2348, 2371, 2453)";
+}
+pub relation soulte_consignee(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "s'il existe d'autres créanciers gagistes ou hypothécaires, la différence est consignée (articles 2347, 2348, 2453)";
+    label en unofficial "if there are other pledgees or mortgagees, the difference is deposited (Articles 2347, 2348, 2453)";
+}
+pub relation creancier_devient_proprietaire(s: SureteReelle) kind derived {
+    label fr official "par le pacte commissoire ou l'attribution judiciaire, le bien devient la propriété du créancier (articles 2347, 2348)";
+    label en unofficial "through the forfeiture clause or court allocation, the asset becomes the creditor's property (Articles 2347, 2348)";
+}
+pub relation restitution_partielle_refusee(s: SureteReelle, h: Personne) kind derived {
+    label fr official "l'héritier qui a payé sa portion ne peut demander la restitution de sa portion dans le gage tant que la dette n'est pas entièrement acquittée (article 2349)";
+    label en unofficial "an heir that paid its share cannot recover its share of the pledge until the debt is fully paid (Article 2349)";
+}
+pub relation affectation_speciale_et_preference(s: SureteReelle) kind derived {
+    label fr official "le séquestre ou la consignation emporte affectation spéciale et droit de préférence au sens de l'article 2333 (article 2350)";
+    label en unofficial "the escrow or deposit creates a specific allocation and priority within Article 2333 (Article 2350)";
+}
+
+// --- Règles --------------------------------------------------------------------------------
+
+@source(CC_ART2333) {
+    rule DroitDePreferenceDuGagiste(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2333, alinéa 1. Le gage accorde au créancier le droit de se faire payer par préférence à ses autres créanciers sur un bien mobilier corporel";
+        label en unofficial "Article 2333, paragraph 1. A pledge gives the creditor the right to be paid in priority to the other creditors out of a tangible movable";
+        when gage_constitue(s, c, p) and not_known(creance_garantie_future_indeterminable(s));
+        then droit_de_preference_du_gagiste(s, c);
+    }
+    rule GageSansCreanceDeterminable(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2333, alinéa 2. Les créances garanties futures doivent être déterminables";
+        label en unofficial "Article 2333, paragraph 2. Secured future claims must be determinable";
+        when gage_constitue(s, c, p) and creance_garantie_future_indeterminable(s);
+        then surete_sans_creance_determinable(s);
+    }
+}
+
+@source(CC_ART2334)
+rule GageSurImmeubleParDestination(r: Collocation) strict {
+    label fr official "Article 2334. Le gage peut avoir pour objet des meubles immobilisés par destination ; l'ordre avec le créancier hypothécaire suit l'article 2419";
+    label en unofficial "Article 2334. A pledge may cover movables that are fixtures; priority against the mortgagee follows Article 2419";
+    when cause_de_preference(r, GageSurImmeubleParDestination);
+    then classe_de_preference(r, 40);
+}
+
+@source(CC_ART2335)
+rule AnnulationDuGageDeLaChoseDAutrui(s: SureteReelle) strict {
+    label fr official "Article 2335. Le gage de la chose d'autrui peut être annulé à la demande du créancier qui ignorait que la chose n'appartenait pas au constituant";
+    label en unofficial "Article 2335. A pledge of another's thing may be annulled at the request of a creditor unaware that the thing did not belong to the pledgor";
+    when chose_d_autrui(s) and creancier_ignorait_que_la_chose_etait_a_autrui(s);
+    then annulation_ouverte_au_creancier(s);
+}
+
+@source(CC_ART2336)
+rule GageParfait(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2336. Le gage est parfait par l'établissement d'un écrit contenant la désignation de la dette garantie, la quantité des biens donnés en gage ainsi que leur espèce ou leur nature";
+    label en unofficial "Article 2336. A pledge is perfected by a written instrument identifying the secured debt, the quantity of the pledged goods and their kind or nature";
+    when gage_constitue(s, c, p) and ecrit_etabli(s) and ecrit_designe_la_dette_garantie(s)
+        and ecrit_indique_la_quantite_des_biens(s) and ecrit_indique_l_espece_ou_la_nature(s);
+    then gage_parfait(s);
+}
+
+@source(CC_ART2337) {
+    rule OpposabiliteParPublicite(s: SureteReelle) strict {
+        label fr official "Article 2337, alinéa 1. Le gage est opposable aux tiers par la publicité qui en est faite";
+        label en unofficial "Article 2337, paragraph 1. A pledge is effective against third parties through its registration";
+        when gage_parfait(s) and gage_publie(s);
+        then gage_opposable_aux_tiers(s);
+    }
+    rule OpposabiliteParDepossession(s: SureteReelle) strict {
+        label fr official "Article 2337, alinéa 2. Il l'est également par la dépossession entre les mains du créancier ou d'un tiers convenu";
+        label en unofficial "Article 2337, paragraph 2. It is also effective through dispossession into the hands of the creditor or an agreed third party";
+        when gage_parfait(s) and gage_avec_depossession(s);
+        then gage_opposable_aux_tiers(s);
+    }
+    rule Article2276Ecarte(s: SureteReelle) strict {
+        label fr official "Article 2337, alinéa 3. Lorsque le gage a été régulièrement publié, les ayants cause à titre particulier du constituant ne peuvent se prévaloir de l'article 2276";
+        label en unofficial "Article 2337, paragraph 3. Once the pledge is duly registered, the pledgor's particular successors cannot rely on Article 2276";
+        when gage_parfait(s) and gage_publie(s);
+        then article_2276_ecarte(s);
+    }
+}
+
+@source(CC_ART2338) {
+    rule RegistreRegleParDecret(s: SureteReelle) strict {
+        label fr official "Article 2338, alinéa 1. Le gage est publié par une inscription sur un registre spécial dont les modalités sont réglées par décret en Conseil d'État";
+        label en unofficial "Article 2338, paragraph 1. The pledge is registered in a special register whose arrangements are set by decree in Conseil d'État";
+        effective [@2023-01-01, infinity);
+        when gage_publie(s);
+        then modalites_du_registre_par_decret(s);
+    }
+    rule VehiculeSansNouvelleInscription(s: SureteReelle, b: Bien) strict {
+        label fr official "Article 2338, alinéa 2. L'inscription d'un gage sur un véhicule immatriculé fait obstacle à toute nouvelle inscription sur le même véhicule, sauf s'il est soumis à l'article 2342";
+        label en unofficial "Article 2338, paragraph 2. Registering a pledge over a registered vehicle bars any further registration over it, unless Article 2342 applies";
+        effective [@2023-01-01, infinity);
+        when gage_sur_vehicule_immatricule(s, b) and not_known(gage_de_choses_fongibles_revocables(s));
+        then nouvelle_inscription_impossible(b);
+    }
+}
+
+@source(CC_ART2339)
+rule RadiationApresPaiementComplet(s: SureteReelle) strict {
+    label fr official "Article 2339. Le constituant ne peut exiger la radiation de l'inscription ou la restitution du bien gagé qu'après avoir entièrement payé la dette garantie en principal, intérêts et frais";
+    label en unofficial "Article 2339. The pledgor may require removal of the registration or return of the asset only after fully paying the secured debt in principal, interest and costs";
+    when nature_de_la_surete(s, GageDeMeublesCorporels) and dette_entierement_payee(s);
+    then radiation_ou_restitution_exigible(s);
+}
+
+@source(CC_ART2339)
+rule PositionPouvoirExigerRadiationApresPaiement(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+    label fr official "Article 2339. Pouvoir du constituant d'exiger la radiation ou la restitution après paiement complet";
+    label en unofficial "Article 2339. Pledgor's power to require removal or return after full payment";
+    when gage_constitue(s, creancier, constituant)
+        and nature_de_la_surete(s, GageDeMeublesCorporels)
+        and dette_entierement_payee(s);
+    then liberty PouvoirExigerRadiationApresPaiement {
+        holder constituant;
+        action radiation_ou_restitution_exigible(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2340) {
+    rule GagesSansDepossessionParInscription(r: Collocation) strict {
+        label fr official "Article 2340, alinéa 1. Lorsqu'un même bien fait l'objet de plusieurs gages successifs sans dépossession, le rang des créanciers est réglé par l'ordre de leur inscription";
+        label en unofficial "Article 2340, paragraph 1. Where the same asset is subject to several successive non-possessory pledges, the creditors rank in order of registration";
+        when cause_de_preference(r, GageSansDepossession) and date_de_rang_existe(r);
+        then gage_range_par_inscription(r);
+    }
+    rule GagisteAnterieurPublie(s: SureteReelle, t: SureteReelle) strict {
+        label fr official "Article 2340, alinéa 2. Le droit de préférence du créancier gagiste antérieur régulièrement publié est opposable au créancier gagiste postérieur avec dépossession, nonobstant le droit de rétention de ce dernier";
+        label en unofficial "Article 2340, paragraph 2. The earlier duly registered pledgee's priority prevails over the later possessory pledgee, despite the latter's right of retention";
+        when gage_avec_depossession_posterieur(s, t) and gage_publie(s);
+        then preference_du_gagiste_anterieur_publie(s, t);
+    }
+}
+
+pub relation date_de_rang_existe(r: Collocation) kind derived {
+    label fr official "la collocation porte une date d'inscription ou de publication";
+    label en unofficial "the entry carries a registration or publication date";
+}
+pub relation gage_range_par_inscription(r: Collocation) kind derived {
+    label fr official "le gage se range par la date de son inscription (article 2340)";
+    label en unofficial "the pledge ranks by its registration date (Article 2340)";
+}
+
+@source(CC_ART2340)
+rule DateDeRangExiste(r: Collocation, d: Date) strict {
+    label fr official "Article 2340. Date d'inscription connue";
+    label en unofficial "Article 2340. Known registration date";
+    when date_de_rang(r, d);
+    then date_de_rang_existe(r);
+}
+
+@source(CC_ART2341) {
+    rule ConfusionDesChosesFongibles(s: SureteReelle) strict {
+        label fr official "Article 2341, alinéa 1. Le créancier doit tenir les choses fongibles séparées ; à défaut, le constituant peut se prévaloir du premier alinéa de l'article 2344";
+        label en unofficial "Article 2341, paragraph 1. The creditor must keep fungibles separate; otherwise the pledgor may rely on Article 2344, paragraph 1";
+        when gage_avec_depossession(s) and choses_fongibles(s) and not_known(choses_tenues_separees(s)) and not_known(dispense_de_separation(s));
+        then restitution_ouverte_pour_confusion(s);
+    }
+
+    rule PositionDevoirSeparerChosesFongibles(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+        label fr official "Article 2341. Devoir du créancier de tenir séparées les choses fongibles";
+        label en unofficial "Article 2341. Creditor's duty to keep fungibles separate";
+        when gage_constitue(s, creancier, constituant)
+            and gage_avec_depossession(s) and choses_fongibles(s)
+            and not_known(dispense_de_separation(s));
+        then duty DevoirSeparerChosesFongibles {
+            bearer creancier;
+            achieve choses_tenues_separees(s) during [@2022-01-01, infinity);
+        };
+    }
+    rule DispenseDeSeparation(s: SureteReelle) strict {
+        label fr official "Article 2341, alinéa 2. Si la convention dispense le créancier de cette obligation, il acquiert la propriété des choses gagées à charge de restituer la même quantité de choses équivalentes";
+        label en unofficial "Article 2341, paragraph 2. If the agreement relieves the creditor of that duty, it becomes owner of the pledged things and must return the same quantity of equivalents";
+        when gage_avec_depossession(s) and choses_fongibles(s) and dispense_de_separation(s);
+        then creancier_proprietaire_a_charge_d_equivalent(s);
+    }
+    rule AlienationConventionnelleAvecDepossession(s: SureteReelle) strict {
+        label fr official "Article 2341, alinéa 3. Les choses étant tenues séparées, le constituant peut, si la convention le prévoit, aliéner les choses gagées à charge de les remplacer";
+        label en unofficial "Article 2341, paragraph 3. The things being kept separate, the pledgor may, if agreed, dispose of them provided it replaces them";
+        when gage_avec_depossession(s) and choses_fongibles(s) and not_known(dispense_de_separation(s)) and convention_d_alienation(s);
+        then faculte_d_aliener_a_charge_de_remplacement(s);
+    }
+}
+
+@source(CC_ART2342)
+rule AlienationSansDepossession(s: SureteReelle) strict {
+    label fr official "Article 2342. Lorsque le gage sans dépossession a pour objet des choses fongibles, le constituant peut, sauf convention contraire, les aliéner à charge de les remplacer";
+    label en unofficial "Article 2342. Where a non-possessory pledge covers fungibles, the pledgor may, unless otherwise agreed, dispose of them provided it replaces them";
+    when nature_de_la_surete(s, GageDeMeublesCorporels) and choses_fongibles(s) and not_known(gage_avec_depossession(s))
+        and not_known(convention_interdisant_l_alienation(s));
+    then faculte_d_aliener_a_charge_de_remplacement(s);
+}
+
+@source(CC_ART2342)
+rule PositionLiberteAlienerAvecRemplacement(s: SureteReelle, constituant: Personne, creancier: Personne) strict {
+    label fr official "Article 2342. Liberté du constituant d'aliéner les choses fongibles avec remplacement";
+    label en unofficial "Article 2342. Pledgor's liberty to dispose of fungibles with replacement";
+    when gage_constitue(s, creancier, constituant)
+        and nature_de_la_surete(s, GageDeMeublesCorporels)
+        and choses_fongibles(s) and not_known(gage_avec_depossession(s))
+        and not_known(convention_interdisant_l_alienation(s));
+    then liberty LiberteAlienerAvecRemplacement {
+        holder constituant;
+        action faculte_d_aliener_a_charge_de_remplacement(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2342_1)
+rule BiensDeRemplacementDansLAssiette(s: SureteReelle, b: Bien) strict {
+    label fr official "Article 2342-1. Les biens acquis en remplacement sont de plein droit compris dans l'assiette du gage";
+    label en unofficial "Article 2342-1. Replacement assets are automatically included in the pledged assets";
+    when faculte_d_aliener_a_charge_de_remplacement(s) and bien_acquis_en_remplacement(s, b);
+    then dans_l_assiette_du_gage(s, b);
+}
+
+@source(CC_ART2343)
+rule RemboursementDesDepenses(s: SureteReelle, m: Money) strict {
+    label fr official "Article 2343. Le constituant doit rembourser au créancier ou au tiers convenu les dépenses utiles ou nécessaires faites pour la conservation du gage";
+    label en unofficial "Article 2343. The pledgor must reimburse the creditor or agreed third party for useful or necessary preservation expenses";
+    when nature_de_la_surete(s, GageDeMeublesCorporels) and depenses_de_conservation(s, m);
+    then remboursement_des_depenses_de_conservation(s, m);
+}
+
+@source(CC_ART2343)
+rule PositionDevoirRembourserDepenses(s: SureteReelle, creancier: Personne, constituant: Personne, m: Money) strict {
+    label fr official "Article 2343. Devoir du constituant de rembourser les dépenses de conservation";
+    label en unofficial "Article 2343. Pledgor's duty to reimburse preservation expenses";
+    when gage_constitue(s, creancier, constituant)
+        and nature_de_la_surete(s, GageDeMeublesCorporels)
+        and depenses_de_conservation(s, m);
+    then duty DevoirRembourserDepenses {
+        bearer constituant;
+        achieve remboursement_des_depenses_de_conservation(s, m) during [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2344) {
+    rule RestitutionPourDefautDeConservation(s: SureteReelle) strict {
+        label fr official "Article 2344, alinéa 1. Gage avec dépossession : le constituant peut réclamer la restitution si le créancier ne satisfait pas à son obligation de conservation";
+        label en unofficial "Article 2344, paragraph 1. Possessory pledge: the pledgor may claim its return if the creditor fails to preserve it";
+        when gage_avec_depossession(s) and obligation_de_conservation_meconnue(s);
+        then restitution_pour_defaut_de_conservation(s);
+    }
+
+    rule PositionLiberteReclamerRestitutionDefautConservation(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+        label fr official "Article 2344. Liberté du constituant de réclamer la restitution en cas de défaut de conservation";
+        label en unofficial "Article 2344. Pledgor's liberty to claim return when preservation fails";
+        when gage_constitue(s, creancier, constituant)
+            and gage_avec_depossession(s)
+            and obligation_de_conservation_meconnue(s);
+        then liberty LiberteReclamerRestitutionDefautConservation {
+            holder constituant;
+            action restitution_pour_defaut_de_conservation(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule RestitutionPourConfusion(s: SureteReelle) strict {
+        label fr official "Articles 2341 et 2344, alinéa 1. La confusion des choses fongibles ouvre la même restitution";
+        label en unofficial "Articles 2341 and 2344, paragraph 1. Commingling the fungibles opens the same return";
+        when restitution_ouverte_pour_confusion(s);
+        then restitution_pour_defaut_de_conservation(s);
+    }
+    rule DecheanceOuComplement(s: SureteReelle) strict {
+        label fr official "Article 2344, alinéa 2. Gage sans dépossession : le créancier peut se prévaloir de la déchéance du terme ou solliciter un complément de gage si le constituant ne conserve pas le gage";
+        label en unofficial "Article 2344, paragraph 2. Non-possessory pledge: the creditor may invoke acceleration or request additional collateral if the pledgor fails to preserve it";
+        when nature_de_la_surete(s, GageDeMeublesCorporels) and not_known(gage_avec_depossession(s)) and obligation_de_conservation_meconnue(s);
+        then decheance_du_terme_ou_complement_de_gage(s);
+    }
+}
+
+@source(CC_ART2345) {
+    rule FruitsSurLesInterets(s: SureteReelle, f: Money, i: Money) strict {
+        label fr official "Article 2345. Sauf convention contraire, le créancier détenteur perçoit les fruits et les impute sur les intérêts";
+        label en unofficial "Article 2345. Unless otherwise agreed, the creditor holding the asset collects its fruits and charges them to interest";
+        when creancier_detenteur(s) and not_known(convention_contraire_sur_les_fruits(s)) and fruits_percus(s, f) and interets_dus(s, i);
+        then fruits_imputes_sur_les_interets(s, min(f, i));
+    }
+    rule FruitsSurLeCapital(s: SureteReelle, f: Money, i: Money) strict {
+        label fr official "Article 2345. A défaut d'intérêts, les fruits s'imputent sur le capital de la dette";
+        label en unofficial "Article 2345. Absent interest, the fruits are charged to the capital of the debt";
+        when creancier_detenteur(s) and not_known(convention_contraire_sur_les_fruits(s)) and fruits_percus(s, f) and interets_dus(s, i);
+        then fruits_imputes_sur_le_capital(s, max(0 EUR, f - i));
+    }
+}
+
+@source(CC_ART2346) {
+    rule VenteDuBienGage(s: SureteReelle) strict {
+        label fr official "Article 2346, alinéa 1. A défaut de paiement de la dette garantie, le créancier peut poursuivre la vente du bien gagé selon le code des procédures civiles d'exécution";
+        label en unofficial "Article 2346, paragraph 1. On non-payment of the secured debt, the creditor may seek sale of the pledged asset under the Civil Enforcement Procedures Code";
+        when nature_de_la_surete(s, GageDeMeublesCorporels) and dette_garantie_impayee(s);
+        then vente_du_bien_gage_ouverte(s);
+    }
+
+    rule PositionLibertePoursuivreVenteDuGage(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+        label fr official "Article 2346. Liberté du créancier de poursuivre la vente du bien gagé en cas de défaut de paiement";
+        label en unofficial "Article 2346. Creditor's liberty to pursue sale of the pledged asset after non-payment";
+        when gage_constitue(s, creancier, constituant)
+            and nature_de_la_surete(s, GageDeMeublesCorporels)
+            and dette_garantie_impayee(s);
+        then liberty LibertePoursuivreVenteDuGage {
+            holder creancier;
+            action vente_du_bien_gage_ouverte(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule VentePubliqueHuitJours(s: SureteReelle, d: Date) strict {
+        label fr official "Article 2346, alinéa 2. Pour une dette professionnelle, vente publique huit jours après une simple signification faite au débiteur";
+        label en unofficial "Article 2346, paragraph 2. For a business debt, public sale eight days after mere service on the debtor";
+        when vente_du_bien_gage_ouverte(s) and dette_professionnelle(s) and signification_au_debiteur_le(s, d);
+        then vente_publique_possible_a_partir_du(s, add_calendar_period(d, 8 calendar_day));
+    }
+    rule VentePubliquePermise(s: SureteReelle, a: Date, v: Date) strict {
+        label fr official "Article 2346, alinéa 2. La vente projetée intervient une fois les huit jours écoulés";
+        label en unofficial "Article 2346, paragraph 2. The planned sale comes once the eight days have run";
+        when vente_publique_possible_a_partir_du(s, a) and vente_publique_projetee_le(s, v) and v > a;
+        then vente_publique_permise(s);
+    }
+    rule VentePubliquePrematuree(s: SureteReelle, a: Date, v: Date) strict {
+        label fr official "Article 2346, alinéa 2. La vente projetée intervient avant l'expiration des huit jours";
+        label en unofficial "Article 2346, paragraph 2. The planned sale comes before the eight days have run";
+        when vente_publique_possible_a_partir_du(s, a) and vente_publique_projetee_le(s, v) and v <= a;
+        then vente_publique_prematuree(s);
+    }
+}
+
+@source(CC_ART2347) {
+    rule AttributionJudiciaireDuGage(s: SureteReelle) strict {
+        label fr official "Article 2347, alinéa 1. Le créancier peut aussi faire ordonner en justice que le bien lui demeurera en paiement";
+        label en unofficial "Article 2347, paragraph 1. The creditor may also have the court order that the asset remain with it in payment";
+        when nature_de_la_surete(s, GageDeMeublesCorporels) and dette_garantie_impayee(s) and attribution_judiciaire_demandee(s);
+        then creancier_devient_proprietaire(s);
+    }
+
+    rule PositionLiberteDemanderAttributionJudiciaire(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+        label fr official "Article 2347. Liberté du créancier de demander l'attribution judiciaire du gage";
+        label en unofficial "Article 2347. Creditor's liberty to seek judicial attribution of the pledge";
+        when gage_constitue(s, creancier, constituant)
+            and nature_de_la_surete(s, GageDeMeublesCorporels)
+            and dette_garantie_impayee(s)
+            and attribution_judiciaire_demandee(s);
+        then liberty LiberteDemanderAttributionJudiciaire {
+            holder creancier;
+            action attribution_judiciaire_demandee(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART2348)
+rule PacteCommissoireDuGage(s: SureteReelle) strict {
+    label fr official "Article 2348, alinéa 1. Il peut être convenu qu'à défaut d'exécution de l'obligation garantie le créancier deviendra propriétaire du bien gagé";
+    label en unofficial "Article 2348, paragraph 1. It may be agreed that, on default, the creditor becomes owner of the pledged asset";
+    when nature_de_la_surete(s, GageDeMeublesCorporels) and dette_garantie_impayee(s) and pacte_commissoire(s);
+    then creancier_devient_proprietaire(s);
+}
+
+@source(CC_ART2348)
+rule PositionLiberteConvenIrPacteCommissoire(s: SureteReelle, creancier: Personne, constituant: Personne) strict {
+    label fr official "Article 2348. Liberté des parties de convenir d'un pacte commissoire";
+    label en unofficial "Article 2348. Parties' liberty to agree a forfeiture pact";
+    when gage_constitue(s, creancier, constituant)
+        and nature_de_la_surete(s, GageDeMeublesCorporels)
+        and dette_garantie_impayee(s)
+        and pacte_commissoire(s);
+    then liberty LiberteConvenirPacteCommissoire {
+        holder creancier;
+        action pacte_commissoire(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+// Soulte commune (2347, 2348 ; mêmes formules aux articles 2371 et 2453) :
+// la valeur au jour du transfert, moins la dette.
+@source(CC_ART2347, CC_ART2348) {
+    rule SoulteAuConstituant(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Articles 2347, alinéa 2, et 2348, alinéa 3. Lorsque la valeur du bien excède le montant de la dette garantie, la somme égale à la différence est versée au constituant";
+        label en unofficial "Articles 2347, paragraph 2, and 2348, paragraph 3. Where the asset's value exceeds the secured debt, the difference is paid to the pledgor";
+        when creancier_devient_proprietaire(s) and valeur_au_jour_du_transfert(s, v) and montant_de_la_dette_reelle(s, d) and v > d
+            and not_known(autres_creanciers_de_meme_rang_ou_inscrits(s));
+        then soulte_due_au_constituant(s, v - d);
+    }
+    rule SoulteConsignee(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Articles 2347, alinéa 2, et 2348, alinéa 3. S'il existe d'autres créanciers gagistes, la différence est consignée";
+        label en unofficial "Articles 2347, paragraph 2, and 2348, paragraph 3. If there are other pledgees, the difference is deposited";
+        when creancier_devient_proprietaire(s) and valeur_au_jour_du_transfert(s, v) and montant_de_la_dette_reelle(s, d) and v > d
+            and autres_creanciers_de_meme_rang_ou_inscrits(s);
+        then soulte_consignee(s, v - d);
+    }
+
+    rule PositionDevoirVerserSoulteAuConstituant(s: SureteReelle, creancier: Personne, constituant: Personne, v: Money, d: Money) strict {
+        label fr official "Articles 2347 et 2348. Devoir de verser au constituant la différence excédentaire";
+        label en unofficial "Articles 2347 and 2348. Duty to pay the surplus to the pledgor";
+        when gage_constitue(s, creancier, constituant)
+            and nature_de_la_surete(s, GageDeMeublesCorporels)
+            and attribution_judiciaire_demandee(s)
+            and valeur_au_jour_du_transfert(s, v)
+            and montant_de_la_dette_reelle(s, d) and v > d
+            and not_known(autres_creanciers_de_meme_rang_ou_inscrits(s));
+        then liberty DevoirVerserSoulteAuConstituant {
+            holder constituant;
+            action soulte_due_au_constituant(s, v - d);
+            window [@2022-01-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART2349)
+rule IndivisibiliteDuGage(s: SureteReelle, h: Personne) strict {
+    label fr official "Article 2349. Le gage est indivisible : l'héritier du débiteur qui a payé sa portion ne peut demander la restitution de sa portion dans le gage tant que la dette n'est pas entièrement acquittée";
+    label en unofficial "Article 2349. A pledge is indivisible: the debtor's heir that paid its share cannot recover its share of the pledge until the debt is fully paid";
+    when heritier_ayant_paye_sa_portion(s, h) and not_known(dette_entierement_payee(s));
+    then restitution_partielle_refusee(s, h);
+}
+
+@source(CC_ART2349)
+rule PositionInterdictionRestitutionPartielle(s: SureteReelle, h: Personne) strict {
+    label fr official "Article 2349. Interdiction de réclamer la restitution partielle avant paiement complet";
+    label en unofficial "Article 2349. Prohibition on claiming partial return before full payment";
+    when heritier_ayant_paye_sa_portion(s, h) and not_known(dette_entierement_payee(s));
+    then liberty NePasReclamerRestitutionPartielle {
+        holder h;
+        action restitution_partielle_refusee(s, h);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2350)
+rule SequestreEtConsignation(s: SureteReelle) strict {
+    label fr official "Article 2350. Le séquestre ou la consignation ordonné judiciairement à titre de garantie ou conservatoire emporte affectation spéciale et droit de préférence";
+    label en unofficial "Article 2350. Court-ordered escrow or deposit by way of security or protection creates a specific allocation and priority";
+    when sequestre_ou_consignation_judiciaire(s);
+    then affectation_speciale_et_preference(s);
+}

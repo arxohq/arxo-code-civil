@@ -1,0 +1,802 @@
+// CODE CIVIL — TITRE XX, SECONDE VAGUE : LA PRESCRIPTION EXTINCTIVE EN ENTIER
+// (articles 2220 à 2254).
+//
+// La démonstration OECD (20-prescription-extinctive.law) calcule le délai de
+// droit commun et le corridor de 2008. Cette vague exécute le reste du titre,
+// sans toucher à la démonstration :
+//
+//   — le champ : la forclusion hors du titre (2220), la loi de la prescription
+//     (2221), la loi nouvelle qui allonge (2222, alinéa 1) ;
+//   — les délais particuliers : cinq ans depuis la fin de la mission (2225),
+//     dix ans depuis la consolidation du dommage corporel et vingt ans pour
+//     les tortures et violences sexuelles sur mineur (2226), dix ans pour le
+//     préjudice écologique (2226-1), trente ans pour les actions réelles
+//     immobilières, la propriété restant imprescriptible (2227) ;
+//   — le report du point de départ : condition, garantie, terme (2233),
+//     minorité (2235), mariage et pacte (2236) ; le délai butoir de vingt ans
+//     depuis la naissance du droit et ses exclusions (2232) ; la reprise d'au
+//     moins six mois après une médiation ou une mesure d'instruction (2238,
+//     2239) ;
+//   — l'interruption : demande en justice jusqu'à l'extinction de l'instance,
+//     non avenue en cas de désistement, péremption ou rejet définitif (2241 à
+//     2243), mesure conservatoire ou acte d'exécution (2244), effet contre
+//     les codébiteurs solidaires et la caution (2245, 2246) — lu sur l'ACTE
+//     interruptif et non sur l'interruption dérivée, pour que l'effet ne se
+//     propage pas de proche en proche (§110 : pas de cycle) ;
+//   — l'invocation et la renonciation (2247 à 2253) ;
+//   — l'aménagement conventionnel entre un et dix ans (2254).
+//
+// La suspension survenue EN COURS de délai (2234, 2237) est qualifiée mais pas
+// prolongée en date : le reliquat se compte d'une durée variable, et
+// `add_calendar_period` n'accepte qu'une période littérale (§86). Le paquet
+// dit que la prescription ne court pas ; la date de l'échéance prolongée reste
+// à l'entrée du cas, et cette limite est écrite ici plutôt que tue.
+
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+use self::{
+    CC_POST_ART2220,
+    CC_POST_ART2221,
+    CC_POST_ART2222,
+    CC_POST_ART2224,
+    CC_POST_ART2225,
+    CC_POST_ART2226,
+    CC_POST_ART2226_1,
+    CC_POST_ART2227,
+    CC_POST_ART2231,
+    CC_POST_ART2232,
+    CC_POST_ART2233,
+    CC_POST_ART2234,
+    CC_POST_ART2235,
+    CC_POST_ART2236,
+    CC_POST_ART2237,
+    CC_POST_ART2238,
+    CC_POST_ART2239,
+    CC_POST_ART2240,
+    CC_POST_ART2241,
+    CC_POST_ART2242,
+    CC_POST_ART2243,
+    CC_POST_ART2244,
+    CC_POST_ART2245,
+    CC_POST_ART2246,
+    CC_POST_ART2247,
+    CC_POST_ART2248,
+    CC_POST_ART2249,
+    CC_POST_ART2250,
+    CC_POST_ART2251,
+    CC_POST_ART2252,
+    CC_POST_ART2253,
+    CC_POST_ART2254,
+    Causa,
+    Persona,
+    action_introduite_le,
+    action_prescrite_le,
+    echeance_prescription_le,
+    prescription_interrompue_le,
+    reconnaissance_du_debiteur_le,
+    titulaire_connait_les_faits_le,
+};
+
+// --- Nomenclature -------------------------------------------------------------------------------
+
+pub enum NatureDeLAction {
+    label fr official "Nature de l'action, qui commande le délai et le point de départ (articles 2224 à 2227)";
+    label en unofficial "Nature of the action, which governs the period and its starting point (Articles 2224 to 2227)";
+    ActionPersonnelleOuMobiliere,
+    ActionContreAuxiliaireDeJustice,
+    DommageCorporel,
+    TorturesBarbarieOuViolencesSexuellesSurMineur,
+    PrejudiceEcologique,
+    ActionReelleImmobiliere,
+    ActionEnRevendicationDeLaPropriete,
+    EtatDesPersonnes
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------------
+
+pub relation nature_de_l_action(c: Causa, nature: NatureDeLAction) kind empirical {
+    key(c);
+    label fr official "nature de l'action en cause (articles 2224 à 2227)";
+    label en unofficial "nature of the action at issue (Articles 2224 to 2227)";
+}
+pub relation delai_de_forclusion(c: Causa) kind empirical {
+    label fr official "le délai en cause est un délai de forclusion (article 2220)";
+    label en unofficial "the period at issue is a foreclosure period (Article 2220)";
+}
+pub relation renvoi_legal_au_titre_xx(c: Causa) kind empirical {
+    label fr official "une disposition légale soumet ce délai de forclusion au titre XX (article 2220)";
+    label en unofficial "a statutory provision subjects this foreclosure period to Title XX (Article 2220)";
+}
+pub relation loi_regissant_le_droit(c: Causa, loi: Text) kind empirical {
+    key(c);
+    label fr official "loi qui régit le droit affecté par la prescription (article 2221)";
+    label en unofficial "law governing the right affected by limitation (Article 2221)";
+}
+pub relation ancien_delai_expire_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le délai de la loi antérieure expirait (article 2222)";
+    label en unofficial "day the period under the former law expired (Article 2222)";
+}
+pub relation loi_allongeante_en_vigueur_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour d'entrée en vigueur d'une loi qui allonge la durée de la prescription (article 2222, alinéa 1)";
+    label en unofficial "day a law lengthening the limitation period entered into force (Article 2222, paragraph 1)";
+}
+pub relation fin_de_mission_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "fin de la mission de la personne qui a représenté ou assisté la partie en justice (article 2225)";
+    label en unofficial "end of the mandate of the person who represented or assisted the party in court (Article 2225)";
+}
+pub relation consolidation_du_dommage_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "date de la consolidation du dommage corporel initial ou aggravé (article 2226)";
+    label en unofficial "date the initial or aggravated bodily injury became consolidated (Article 2226)";
+}
+pub relation connaissance_du_prejudice_ecologique_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le titulaire a connu ou aurait dû connaître la manifestation du préjudice écologique (article 2226-1)";
+    label en unofficial "day the holder knew or should have known of the ecological harm's manifestation (Article 2226-1)";
+}
+pub relation naissance_du_droit_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la naissance du droit (article 2232)";
+    label en unofficial "day the right arose (Article 2232)";
+}
+pub relation condition_realisee_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où la condition dont dépend la créance est arrivée (article 2233, 1°)";
+    label en unofficial "day the condition of the claim occurred (Article 2233, 1°)";
+}
+pub relation eviction_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de l'éviction ouvrant l'action en garantie (article 2233, 2°)";
+    label en unofficial "day of the eviction opening the warranty action (Article 2233, 2°)";
+}
+pub relation terme_arrive_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le terme de la créance est arrivé (article 2233, 3°)";
+    label en unofficial "day the claim's term fell due (Article 2233, 3°)";
+}
+pub relation titulaire_mineur_ne_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "date de naissance du titulaire non émancipé de l'action (article 2235)";
+    label en unofficial "date of birth of the unemancipated holder of the action (Article 2235)";
+}
+pub relation action_en_paiement_periodique(c: Causa) kind empirical {
+    label fr official "action en paiement ou en répétition de salaires, arrérages, pensions alimentaires, loyers, fermages, charges, intérêts ou de ce qui est payable par années ou à termes plus courts (articles 2235, 2254)";
+    label en unofficial "action for payment or recovery of wages, arrears, maintenance, rent, farm rent, charges, interest or anything payable yearly or at shorter intervals (Articles 2235, 2254)";
+}
+pub relation action_entre_epoux_ou_partenaires(c: Causa) kind empirical {
+    label fr official "l'action oppose des époux ou des partenaires liés par un pacte civil de solidarité (article 2236)";
+    label en unofficial "the action is between spouses or civil-union partners (Article 2236)";
+}
+pub relation union_dissoute_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la dissolution du mariage ou du pacte (article 2236)";
+    label en unofficial "day the marriage or pact was dissolved (Article 2236)";
+}
+pub relation empechement_d_agir(c: Causa) kind empirical {
+    origin adjudicated;
+    label fr official "le juge a constaté l'impossibilité d'agir par suite d'un empêchement résultant de la loi, de la convention ou de la force majeure (article 2234)";
+    label en unofficial "the court found an impossibility to act due to law, agreement or force majeure (Article 2234)";
+}
+pub relation heritier_acceptant_a_concurrence_de_l_actif_net(c: Causa) kind empirical {
+    label fr official "le titulaire est héritier acceptant à concurrence de l'actif net, agissant contre la succession (article 2237)";
+    label en unofficial "the holder is an heir accepting up to net assets, claiming against the estate (Article 2237)";
+}
+pub relation mediation_terminee_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où la médiation, la conciliation ou la procédure participative est déclarée terminée ou arrive à terme (article 2238)";
+    label en unofficial "day mediation, conciliation or participatory procedure was declared ended or reached its term (Article 2238)";
+}
+pub relation mesure_d_instruction_executee_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où la mesure d'instruction ordonnée avant tout procès a été exécutée (article 2239)";
+    label en unofficial "day the pre-trial investigative measure was carried out (Article 2239)";
+}
+pub relation demande_en_justice_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la demande en justice, même en référé, même devant une juridiction incompétente ou par un acte annulé pour vice de procédure (article 2241)";
+    label en unofficial "day of the court claim, even interim, even before a court lacking jurisdiction or by an instrument annulled for procedural defect (Article 2241)";
+}
+pub relation instance_eteinte_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de l'extinction de l'instance (article 2242)";
+    label en unofficial "day the proceedings ended (Article 2242)";
+}
+pub relation desistement_peremption_ou_rejet_definitif(c: Causa) kind empirical {
+    label fr official "le demandeur s'est désisté, a laissé périmer l'instance, ou sa demande est définitivement rejetée (article 2243)";
+    label en unofficial "the claimant withdrew, let the proceedings lapse, or the claim was finally dismissed (Article 2243)";
+}
+pub relation mesure_conservatoire_ou_acte_d_execution_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour d'une mesure conservatoire ou d'un acte d'exécution forcée (article 2244)";
+    label en unofficial "day of a protective measure or enforcement act (Article 2244)";
+}
+pub relation obligation_solidaire_avec(c: Causa, autre: Causa) kind empirical {
+    label fr official "les deux actions visent des débiteurs solidaires de la même dette (article 2245)";
+    label en unofficial "the two actions target joint and several debtors of the same debt (Article 2245)";
+}
+pub relation cautionnement_de(caution: Causa, principal: Causa) kind empirical {
+    label fr official "l'action contre la caution garantit l'action contre le débiteur principal (article 2246)";
+    label en unofficial "the action against the surety secures the action against the principal debtor (Article 2246)";
+}
+pub relation prescription_invoquee(c: Causa) kind empirical {
+    label fr official "la prescription est opposée par la partie, en tout état de cause (articles 2247, 2248)";
+    label en unofficial "limitation is raised by the party, at any stage (Articles 2247, 2248)";
+}
+pub relation paiement_effectue_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où la dette a été payée (article 2249)";
+    label en unofficial "day the debt was paid (Article 2249)";
+}
+pub relation renonciation_expresse_le(c: Causa, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la renonciation expresse à la prescription (article 2251)";
+    label en unofficial "day of the express waiver of limitation (Article 2251)";
+}
+pub relation renoncant_ne_peut_exercer_seul_ses_droits(c: Causa) kind empirical {
+    label fr official "celui qui renonce ne peut exercer par lui-même ses droits (article 2252)";
+    label en unofficial "the waiving party cannot exercise his rights by himself (Article 2252)";
+}
+pub relation tiers_interesse_a_la_prescription(c: Causa, tiers: Persona) kind empirical {
+    label fr official "créancier ou autre personne ayant intérêt à ce que la prescription soit acquise (article 2253)";
+    label en unofficial "creditor or other person with an interest in limitation being acquired (Article 2253)";
+}
+pub relation duree_conventionnelle_en_mois(c: Causa, mois: Integer) kind empirical {
+    key(c);
+    label fr official "durée de la prescription convenue par les parties, en mois (article 2254)";
+    label en unofficial "limitation period agreed by the parties, in months (Article 2254)";
+}
+
+// --- Appréciation déléguée -----------------------------------------------------------------------
+
+@source(CC_POST_ART2251)
+pub external judgment relation volonte_non_equivoque_de_renoncer(c: Causa) {
+    authority Court;
+    label fr official "des circonstances établissent sans équivoque la volonté de ne pas se prévaloir de la prescription (article 2251, alinéa 2)";
+    label en unofficial "circumstances unequivocally establish the will not to rely on limitation (Article 2251, paragraph 2)";
+}
+
+// --- Résultats -----------------------------------------------------------------------------------
+
+pub relation hors_du_regime_de_la_prescription(c: Causa) kind derived {
+    label fr official "le délai de forclusion n'est pas régi par le titre XX (article 2220)";
+    label en unofficial "the foreclosure period is not governed by Title XX (Article 2220)";
+}
+pub relation loi_de_la_prescription(c: Causa, loi: Text) kind derived {
+    key(c);
+    label fr official "la prescription est soumise à la loi régissant le droit qu'elle affecte (article 2221)";
+    label en unofficial "limitation is governed by the law governing the right it affects (Article 2221)";
+}
+pub relation prescription_acquise_avant_la_loi_nouvelle(c: Causa) kind derived {
+    label fr official "la prescription était acquise à l'entrée en vigueur de la loi qui allonge : cette loi est sans effet (article 2222, alinéa 1)";
+    label en unofficial "limitation was acquired when the lengthening law came into force: that law has no effect (Article 2222, paragraph 1)";
+}
+pub relation loi_allongeante_applicable(c: Causa) kind derived {
+    label fr official "le délai n'était pas expiré : la loi qui allonge s'applique, compte tenu du délai déjà écoulé (article 2222, alinéa 1)";
+    label en unofficial "the period had not expired: the lengthening law applies, counting the time already elapsed (Article 2222, paragraph 1)";
+}
+pub relation propriete_imprescriptible(c: Causa) kind derived {
+    label fr official "le droit de propriété est imprescriptible (article 2227)";
+    label en unofficial "the right of ownership is imprescriptible (Article 2227)";
+}
+pub relation point_de_depart_reporte_au(c: Causa, jour: Date) kind derived {
+    key(c);
+    label fr official "la prescription ne court pas avant ce jour (articles 2233, 2235, 2236)";
+    label en unofficial "limitation does not run before this day (Articles 2233, 2235, 2236)";
+}
+pub relation report_exclu_du_delai_butoir(c: Causa) kind derived {
+    label fr official "le report relève des articles 2233 ou 2236, que l'article 2232 exclut du délai butoir (article 2232, alinéa 2)";
+    label en unofficial "the postponement falls under Articles 2233 or 2236, which Article 2232 excludes from the long-stop (Article 2232, paragraph 2)";
+}
+pub relation prescription_ne_court_pas(c: Causa) kind derived {
+    label fr official "la prescription ne court pas ou est suspendue (articles 2234 à 2237)";
+    label en unofficial "limitation does not run or is suspended (Articles 2234 to 2237)";
+}
+pub relation delai_butoir_le(c: Causa, jour: Date) kind derived {
+    key(c);
+    label fr official "vingt ans depuis la naissance du droit : aucun report, suspension ou interruption ne porte le délai au-delà (article 2232)";
+    label en unofficial "twenty years from the right's birth: no postponement, suspension or interruption extends the period beyond (Article 2232)";
+}
+pub relation action_prescrite_par_le_delai_butoir(c: Causa) kind derived {
+    label fr official "l'action est introduite après le délai butoir de vingt ans (article 2232)";
+    label en unofficial "the action was brought after the twenty-year long-stop (Article 2232)";
+}
+pub relation echeance_minimale_le(c: Causa, jour: Date) kind derived {
+    key(c);
+    label fr official "le délai recommence à courir pour au moins six mois : il ne peut expirer avant ce jour (articles 2238, 2239)";
+    label en unofficial "the period restarts for at least six months: it cannot expire before this day (Articles 2238, 2239)";
+}
+pub relation plancher_d_echeance_opposable(c: Causa) kind derived {
+    key(c);
+    label fr official "un plancher de six mois après médiation, conciliation ou mesure d'instruction s'applique (articles 2238, 2239)";
+    label en unofficial "a six-month floor after mediation, conciliation or an investigative measure applies (Articles 2238, 2239)";
+}
+pub relation butoir_d_echeance_opposable(c: Causa) kind derived {
+    key(c);
+    label fr official "le délai butoir de vingt ans borne l'échéance (article 2232, alinéa 1)";
+    label en unofficial "the twenty-year long-stop caps the deadline (Article 2232, paragraph 1)";
+}
+pub relation echeance_apres_plancher_le(c: Causa, jour: Date) kind derived {
+    key(c);
+    label fr official "échéance après le plancher des articles 2238 et 2239";
+    label en unofficial "deadline after the floor of Articles 2238 and 2239";
+}
+pub relation date_d_echeance_applicable_le(c: Causa, jour: Date) kind derived {
+    key(c);
+    label fr official "jour d'échéance applicable : le plus tardif du délai et du plancher, sans dépasser le butoir";
+    label en unofficial "applicable deadline: the later of the period and the floor, without passing the long-stop";
+}
+pub relation acte_interruptif_le(c: Causa, jour: Date) kind derived {
+    key(c, jour);
+    label fr official "acte qui interrompt la prescription de cette action : reconnaissance, demande en justice jusqu'à l'extinction de l'instance, mesure conservatoire ou acte d'exécution (articles 2240, 2241, 2242, 2244)";
+    label en unofficial "act interrupting limitation of this action: acknowledgment, court claim until the proceedings end, protective measure or enforcement act (Articles 2240, 2241, 2242, 2244)";
+}
+pub relation interruption_non_avenue(c: Causa) kind derived {
+    label fr official "l'interruption est non avenue (article 2243)";
+    label en unofficial "the interruption is void (Article 2243)";
+}
+pub relation demande_rejetee_pour_prescription(c: Causa) kind derived {
+    label fr official "la demande se heurte à la prescription opposée par la partie : le juge ne la supplée pas d'office (articles 2247, 2248)";
+    label en unofficial "the claim is barred by limitation raised by the party: the court does not raise it of its own motion (Articles 2247, 2248)";
+}
+pub relation repetition_exclue_pour_seule_prescription(c: Causa) kind derived {
+    label fr official "le paiement fait après l'expiration du délai ne peut être répété à ce seul motif (article 2249)";
+    label en unofficial "a payment made after the period expired cannot be recovered on that ground alone (Article 2249)";
+}
+pub relation renonciation_valable(c: Causa) kind derived {
+    label fr official "la renonciation porte sur une prescription acquise et émane d'une personne capable (articles 2250 à 2252)";
+    label en unofficial "the waiver concerns an acquired limitation and comes from a capable person (Articles 2250 to 2252)";
+}
+pub relation renonciation_anticipee_sans_effet(c: Causa) kind derived {
+    label fr official "seule une prescription acquise est susceptible de renonciation : la renonciation anticipée est sans effet (article 2250)";
+    label en unofficial "only an acquired limitation may be waived: an early waiver has no effect (Article 2250)";
+}
+pub relation renonciation_tacite(c: Causa) kind derived {
+    label fr official "renonciation tacite, résultant de circonstances non équivoques (article 2251, alinéa 2)";
+    label en unofficial "tacit waiver, resulting from unequivocal circumstances (Article 2251, paragraph 2)";
+}
+pub relation prescription_invocable_par_le_tiers(c: Causa, tiers: Persona) kind derived {
+    label fr official "le créancier ou l'intéressé peut opposer la prescription lors même que le débiteur y renonce (article 2253)";
+    label en unofficial "the creditor or interested person may raise limitation even though the debtor waives it (Article 2253)";
+}
+pub relation amenagement_conventionnel_valable(c: Causa) kind derived {
+    label fr official "la durée convenue est comprise entre un et dix ans (article 2254, alinéa 1)";
+    label en unofficial "the agreed period lies between one and ten years (Article 2254, paragraph 1)";
+}
+pub relation amenagement_conventionnel_sans_effet(c: Causa) kind derived {
+    label fr official "l'aménagement conventionnel est sans effet : hors des bornes d'un et dix ans, ou action en paiement périodique (article 2254)";
+    label en unofficial "the contractual adjustment has no effect: outside the one-to-ten-year bounds, or a periodic-payment action (Article 2254)";
+}
+
+// --- Articles 2220 à 2222 : le champ et la loi ----------------------------------------------------
+
+@source(CC_POST_ART2220)
+rule ForclusionHorsDuTitre(c: Causa) strict {
+    label fr official "Article 2220. Les délais de forclusion ne sont pas, sauf dispositions contraires prévues par la loi, régis par le présent titre";
+    label en unofficial "Article 2220. Foreclosure periods are not, save statutory provision to the contrary, governed by this title";
+    when delai_de_forclusion(c) and not_known(renvoi_legal_au_titre_xx(c));
+    then hors_du_regime_de_la_prescription(c);
+}
+
+@source(CC_POST_ART2221)
+rule LoiDeLaPrescription(c: Causa, loi: Text) strict {
+    label fr official "Article 2221. La prescription extinctive est soumise à la loi régissant le droit qu'elle affecte";
+    label en unofficial "Article 2221. Extinctive limitation is governed by the law governing the right it affects";
+    when loi_regissant_le_droit(c, loi);
+    then loi_de_la_prescription(c, loi);
+}
+
+@source(CC_POST_ART2222) {
+    rule LoiAllongeanteSansEffetSurLaPrescriptionAcquise(c: Causa, expire: Date, vigueur: Date) strict {
+        label fr official "Article 2222, alinéa 1. La loi qui allonge la durée d'une prescription est sans effet sur une prescription acquise";
+        label en unofficial "Article 2222, paragraph 1. A law lengthening a limitation period has no effect on an acquired limitation";
+        when ancien_delai_expire_le(c, expire) and loi_allongeante_en_vigueur_le(c, vigueur)
+            and expire < vigueur;
+        then prescription_acquise_avant_la_loi_nouvelle(c);
+    }
+    rule LoiAllongeanteApplicable(c: Causa, expire: Date, vigueur: Date) strict {
+        label fr official "Article 2222, alinéa 1. Elle s'applique lorsque le délai n'était pas expiré à la date de son entrée en vigueur ; il est tenu compte du délai déjà écoulé";
+        label en unofficial "Article 2222, paragraph 1. It applies where the period had not expired on its entry into force; time already elapsed counts";
+        when ancien_delai_expire_le(c, expire) and loi_allongeante_en_vigueur_le(c, vigueur)
+            and expire >= vigueur;
+        then loi_allongeante_applicable(c);
+    }
+}
+
+// --- Articles 2225 à 2227 : délais particuliers --------------------------------------------------
+
+@source(CC_POST_ART2225)
+rule CinqAnsDepuisLaFinDeMission(c: Causa, fin: Date) strict {
+    label fr official "Article 2225. L'action en responsabilité contre ceux qui ont représenté ou assisté les parties en justice se prescrit par cinq ans à compter de la fin de leur mission";
+    label en unofficial "Article 2225. Liability actions against those who represented or assisted parties in court are time-barred five years after their mandate ended";
+    when nature_de_l_action(c, ActionContreAuxiliaireDeJustice) and fin_de_mission_le(c, fin);
+    then echeance_prescription_le(c, add_calendar_period(fin, 5 calendar_year));
+}
+
+@source(CC_POST_ART2226) {
+    rule DixAnsDepuisLaConsolidation(c: Causa, consolidation: Date) strict {
+        label fr official "Article 2226, alinéa 1. L'action en responsabilité née d'un dommage corporel se prescrit par dix ans à compter de la consolidation du dommage initial ou aggravé";
+        label en unofficial "Article 2226, paragraph 1. A liability action arising from bodily injury is time-barred ten years after the initial or aggravated injury became consolidated";
+        when nature_de_l_action(c, DommageCorporel) and consolidation_du_dommage_le(c, consolidation);
+        then echeance_prescription_le(c, add_calendar_period(consolidation, 10 calendar_year));
+    }
+    rule VingtAnsPourTorturesEtViolencesSurMineur(c: Causa, consolidation: Date) strict {
+        label fr official "Article 2226, alinéa 2. En cas de préjudice causé par des tortures, des actes de barbarie ou des violences ou agressions sexuelles contre un mineur, l'action est prescrite par vingt ans";
+        label en unofficial "Article 2226, paragraph 2. For harm caused by torture, barbarity or sexual violence against a minor, the action is time-barred after twenty years";
+        when nature_de_l_action(c, TorturesBarbarieOuViolencesSexuellesSurMineur)
+            and consolidation_du_dommage_le(c, consolidation);
+        then echeance_prescription_le(c, add_calendar_period(consolidation, 20 calendar_year));
+    }
+}
+
+@source(CC_POST_ART2226_1)
+rule DixAnsPourLePrejudiceEcologique(c: Causa, connaissance: Date) strict {
+    label fr official "Article 2226-1. L'action en réparation du préjudice écologique se prescrit par dix ans à compter du jour où le titulaire a connu ou aurait dû connaître sa manifestation";
+    label en unofficial "Article 2226-1. The action for ecological harm is time-barred ten years after the holder knew or should have known of its manifestation";
+    when nature_de_l_action(c, PrejudiceEcologique) and connaissance_du_prejudice_ecologique_le(c, connaissance);
+    then echeance_prescription_le(c, add_calendar_period(connaissance, 10 calendar_year));
+}
+
+@source(CC_POST_ART2227) {
+    rule ProprieteImprescriptible(c: Causa) strict {
+        label fr official "Article 2227. Le droit de propriété est imprescriptible";
+        label en unofficial "Article 2227. The right of ownership is imprescriptible";
+        when nature_de_l_action(c, ActionEnRevendicationDeLaPropriete);
+        then propriete_imprescriptible(c);
+    }
+    rule TrenteAnsPourLesActionsReellesImmobilieres(c: Causa, connaissance: Date) strict {
+        label fr official "Article 2227. Les actions réelles immobilières se prescrivent par trente ans à compter du jour où le titulaire a connu ou aurait dû connaître les faits";
+        label en unofficial "Article 2227. Real actions in immovables are time-barred thirty years after the holder knew or should have known the facts";
+        when nature_de_l_action(c, ActionReelleImmobiliere) and titulaire_connait_les_faits_le(c, connaissance);
+        then echeance_prescription_le(c, add_calendar_period(connaissance, 30 calendar_year));
+    }
+}
+
+// --- Articles 2233, 2235, 2236 : report du point de départ --------------------------------------------
+
+@source(CC_POST_ART2233) {
+    rule ReportJusquALaCondition(c: Causa, jour: Date) strict {
+        label fr official "Article 2233, 1°. La prescription ne court pas à l'égard d'une créance qui dépend d'une condition, jusqu'à ce que la condition arrive";
+        label en unofficial "Article 2233, 1°. Limitation does not run against a conditional claim until the condition occurs";
+        when condition_realisee_le(c, jour);
+        then point_de_depart_reporte_au(c, jour);
+    }
+    rule ReportJusquALEviction(c: Causa, jour: Date) strict {
+        label fr official "Article 2233, 2°. Elle ne court pas à l'égard d'une action en garantie, jusqu'à ce que l'éviction ait lieu";
+        label en unofficial "Article 2233, 2°. It does not run against a warranty action until eviction occurs";
+        when eviction_le(c, jour);
+        then point_de_depart_reporte_au(c, jour);
+    }
+    rule ReportJusquAuTerme(c: Causa, jour: Date) strict {
+        label fr official "Article 2233, 3°. Elle ne court pas à l'égard d'une créance à terme, jusqu'à ce que ce terme soit arrivé";
+        label en unofficial "Article 2233, 3°. It does not run against a term claim until the term falls due";
+        when terme_arrive_le(c, jour);
+        then point_de_depart_reporte_au(c, jour);
+    }
+    rule ReportDeLArticle2233HorsButoirCondition(c: Causa, jour: Date) strict {
+        label fr official "Article 2232, alinéa 2. Le report de l'article 2233 échappe au délai butoir";
+        label en unofficial "Article 2232, paragraph 2. A postponement under Article 2233 escapes the long-stop";
+        when condition_realisee_le(c, jour);
+        then report_exclu_du_delai_butoir(c);
+    }
+    rule ReportDeLArticle2233HorsButoirEviction(c: Causa, jour: Date) strict {
+        label fr official "Article 2232, alinéa 2. Le report jusqu'à l'éviction échappe au délai butoir";
+        label en unofficial "Article 2232, paragraph 2. Postponement until eviction escapes the long-stop";
+        when eviction_le(c, jour);
+        then report_exclu_du_delai_butoir(c);
+    }
+    rule ReportDeLArticle2233HorsButoirTerme(c: Causa, jour: Date) strict {
+        label fr official "Article 2232, alinéa 2. Le report jusqu'au terme échappe au délai butoir";
+        label en unofficial "Article 2232, paragraph 2. Postponement until the term escapes the long-stop";
+        when terme_arrive_le(c, jour);
+        then report_exclu_du_delai_butoir(c);
+    }
+}
+
+@source(CC_POST_ART2224, CC_POST_ART2233) {
+    rule EcheanceQuinquennaleDepuisLeReport(c: Causa, report: Date, connaissance: Date) strict {
+        label fr official "Articles 2224 et 2233. Le délai de cinq ans court du report lorsque les faits étaient déjà connus à cette date";
+        label en unofficial "Articles 2224 and 2233. The five-year period runs from the postponement where the facts were already known on that date";
+        when nature_de_l_action(c, ActionPersonnelleOuMobiliere)
+            and point_de_depart_reporte_au(c, report) and titulaire_connait_les_faits_le(c, connaissance)
+            and report >= connaissance;
+        then echeance_prescription_le(c, add_calendar_period(report, 5 calendar_year));
+    }
+    rule EcheanceQuinquennaleDepuisLaConnaissancePosterieure(c: Causa, report: Date, connaissance: Date) strict {
+        label fr official "Articles 2224 et 2233. Le délai de cinq ans court de la connaissance lorsqu'elle est postérieure au report";
+        label en unofficial "Articles 2224 and 2233. The five-year period runs from knowledge where it comes after the postponement";
+        when nature_de_l_action(c, ActionPersonnelleOuMobiliere)
+            and point_de_depart_reporte_au(c, report) and titulaire_connait_les_faits_le(c, connaissance)
+            and connaissance > report;
+        then echeance_prescription_le(c, add_calendar_period(connaissance, 5 calendar_year));
+    }
+}
+
+@source(CC_POST_ART2235)
+rule ReportJusquALaMajorite(c: Causa, naissance: Date) strict {
+    label fr official "Article 2235. La prescription ne court pas contre les mineurs non émancipés, sauf pour les actions en paiement de ce qui est payable par années ou à des termes périodiques plus courts";
+    label en unofficial "Article 2235. Limitation does not run against unemancipated minors, save for actions for payment of what is payable yearly or at shorter intervals";
+    when titulaire_mineur_ne_le(c, naissance) and not_known(action_en_paiement_periodique(c));
+    then point_de_depart_reporte_au(c, add_calendar_period(naissance, 18 calendar_year));
+}
+
+@source(CC_POST_ART2236) {
+    rule ReportEntreEpouxEtPartenaires(c: Causa, dissolution: Date) strict {
+        label fr official "Article 2236. La prescription ne court pas entre époux, ni entre partenaires liés par un pacte civil de solidarité : elle court de la dissolution";
+        label en unofficial "Article 2236. Limitation does not run between spouses or civil-union partners: it runs from dissolution";
+        when action_entre_epoux_ou_partenaires(c) and union_dissoute_le(c, dissolution);
+        then point_de_depart_reporte_au(c, dissolution);
+    }
+    rule ReportEntreEpouxHorsButoir(c: Causa) strict {
+        label fr official "Article 2232, alinéa 2. Le report de l'article 2236 échappe au délai butoir";
+        label en unofficial "Article 2232, paragraph 2. Postponement under Article 2236 escapes the long-stop";
+        when action_entre_epoux_ou_partenaires(c);
+        then report_exclu_du_delai_butoir(c);
+    }
+}
+
+@source(CC_POST_ART2234, CC_POST_ART2237) {
+    rule EmpechementDAgir(c: Causa) strict {
+        label fr official "Article 2234. La prescription ne court pas ou est suspendue contre celui qui est dans l'impossibilité d'agir par suite d'un empêchement résultant de la loi, de la convention ou de la force majeure";
+        label en unofficial "Article 2234. Limitation does not run or is suspended against one who cannot act due to an impediment arising from law, agreement or force majeure";
+        when empechement_d_agir(c);
+        then prescription_ne_court_pas(c);
+    }
+    rule HeritierAcceptantALActifNet(c: Causa) strict {
+        label fr official "Article 2237. Elle ne court pas contre l'héritier acceptant à concurrence de l'actif net, à l'égard de ses créances contre la succession";
+        label en unofficial "Article 2237. It does not run against an heir accepting up to net assets, for his claims against the estate";
+        when heritier_acceptant_a_concurrence_de_l_actif_net(c);
+        then prescription_ne_court_pas(c);
+    }
+}
+
+// --- Article 2232 : le délai butoir --------------------------------------------------------------------
+
+@source(CC_POST_ART2232) {
+    rule DelaiButoirDeVingtAns(c: Causa, naissance: Date, nature: NatureDeLAction) strict {
+        label fr official "Article 2232, alinéa 1. Le report, la suspension ou l'interruption ne peuvent porter le délai au-delà de vingt ans à compter de la naissance du droit ; l'alinéa 2 en exclut les articles 2226, 2226-1, 2227 et l'état des personnes";
+        label en unofficial "Article 2232, paragraph 1. Postponement, suspension or interruption cannot extend the period beyond twenty years from the right's birth; paragraph 2 excludes Articles 2226, 2226-1, 2227 and personal status";
+        when naissance_du_droit_le(c, naissance) and nature_de_l_action(c, nature)
+            and not_known(nature_de_l_action(c, DommageCorporel))
+            and not_known(nature_de_l_action(c, TorturesBarbarieOuViolencesSexuellesSurMineur))
+            and not_known(nature_de_l_action(c, PrejudiceEcologique))
+            and not_known(nature_de_l_action(c, ActionReelleImmobiliere))
+            and not_known(nature_de_l_action(c, ActionEnRevendicationDeLaPropriete))
+            and not_known(nature_de_l_action(c, EtatDesPersonnes));
+        then delai_butoir_le(c, add_calendar_period(naissance, 20 calendar_year));
+    }
+    rule ActionAuDelaDuButoir(c: Causa, butoir: Date, saisine: Date) strict {
+        label fr official "Article 2232. L'action introduite après le délai butoir est prescrite, sauf report exclu par l'alinéa 2";
+        label en unofficial "Article 2232. An action brought after the long-stop is time-barred, save a postponement excluded by paragraph 2";
+        when delai_butoir_le(c, butoir) and action_introduite_le(c, saisine) and saisine > butoir
+            and not_known(report_exclu_du_delai_butoir(c));
+        then action_prescrite_par_le_delai_butoir(c);
+    }
+}
+
+// --- Articles 2238 et 2239 : reprise d'au moins six mois -------------------------------------------------
+
+@source(CC_POST_ART2238)
+rule SixMoisApresLaMediation(c: Causa, fin: Date) strict {
+    label fr official "Article 2238, alinéa 2. Le délai recommence à courir, pour une durée qui ne peut être inférieure à six mois, à compter de la fin de la médiation ou de la conciliation";
+    label en unofficial "Article 2238, paragraph 2. The period restarts, for no less than six months, from the end of mediation or conciliation";
+    when mediation_terminee_le(c, fin);
+    then echeance_minimale_le(c, add_calendar_period(fin, 6 calendar_month));
+}
+
+@source(CC_POST_ART2239)
+rule SixMoisApresLaMesureDInstruction(c: Causa, execution: Date) strict {
+    label fr official "Article 2239, alinéa 2. Le délai recommence à courir, pour une durée qui ne peut être inférieure à six mois, à compter du jour où la mesure a été exécutée";
+    label en unofficial "Article 2239, paragraph 2. The period restarts, for no less than six months, from the day the measure was carried out";
+    when mesure_d_instruction_executee_le(c, execution);
+    then echeance_minimale_le(c, add_calendar_period(execution, 6 calendar_month));
+}
+
+@source(CC_POST_ART2238, CC_POST_ART2239)
+rule PlancherDEcheanceOpposable(c: Causa, plancher: Date) strict {
+    label fr official "Articles 2238 et 2239. Le plancher de six mois est opposable dès qu'une échéance minimale est établie";
+    label en unofficial "Articles 2238 and 2239. The six-month floor is opposable once a minimum deadline is established";
+    when echeance_minimale_le(c, plancher);
+    then plancher_d_echeance_opposable(c);
+}
+
+@source(CC_POST_ART2232)
+rule ButoirDEcheanceOpposable(c: Causa, butoir: Date) strict {
+    label fr official "Article 2232, alinéa 1. Le délai butoir borne l'échéance, sauf les reports que l'alinéa 2 en exclut";
+    label en unofficial "Article 2232, paragraph 1. The long-stop caps the deadline, save postponements that paragraph 2 excludes";
+    when delai_butoir_le(c, butoir) and not_known(report_exclu_du_delai_butoir(c));
+    then butoir_d_echeance_opposable(c);
+}
+
+@source(CC_POST_ART2224, CC_POST_ART2238, CC_POST_ART2239) {
+    rule EcheanceApresPlancherPlusHaut(c: Causa, echeance: Date, plancher: Date) strict {
+        label fr official "Articles 2238 et 2239. Le délai ne peut expirer avant le plancher de six mois";
+        label en unofficial "Articles 2238 and 2239. The period cannot expire before the six-month floor";
+        when echeance_prescription_le(c, echeance) and echeance_minimale_le(c, plancher)
+            and plancher > echeance;
+        then echeance_apres_plancher_le(c, plancher);
+    }
+    rule EcheanceApresPlancherDejaAtteint(c: Causa, echeance: Date, plancher: Date) strict {
+        label fr official "Articles 2238 et 2239. Le délai applicable est déjà au moins égal au plancher";
+        label en unofficial "Articles 2238 and 2239. The applicable period is already at least the floor";
+        when echeance_prescription_le(c, echeance) and echeance_minimale_le(c, plancher)
+            and plancher <= echeance;
+        then echeance_apres_plancher_le(c, echeance);
+    }
+    rule EcheanceApresPlancherSansMinimale(c: Causa, echeance: Date) strict {
+        label fr official "Sans médiation, conciliation ni mesure d'instruction, l'échéance du délai n'est pas relevée";
+        label en unofficial "Without mediation, conciliation or an investigative measure, the period's deadline is not raised";
+        when echeance_prescription_le(c, echeance)
+            and not_known(plancher_d_echeance_opposable(c));
+        then echeance_apres_plancher_le(c, echeance);
+    }
+}
+
+@source(CC_POST_ART2232) {
+    rule DateApplicableBorneeParLeButoir(c: Causa, jour: Date, butoir: Date) strict {
+        label fr official "Article 2232, alinéa 1. L'échéance applicable ne porte pas le délai au-delà de vingt ans";
+        label en unofficial "Article 2232, paragraph 1. The applicable deadline does not extend the period beyond twenty years";
+        when echeance_apres_plancher_le(c, jour) and delai_butoir_le(c, butoir)
+            and butoir_d_echeance_opposable(c) and jour > butoir;
+        then date_d_echeance_applicable_le(c, butoir);
+    }
+    rule DateApplicableSousLeButoir(c: Causa, jour: Date, butoir: Date) strict {
+        label fr official "Article 2232, alinéa 1. L'échéance du délai et du plancher reste en deçà du butoir";
+        label en unofficial "Article 2232, paragraph 1. The period and floor still fall short of the long-stop";
+        when echeance_apres_plancher_le(c, jour) and delai_butoir_le(c, butoir)
+            and butoir_d_echeance_opposable(c) and jour <= butoir;
+        then date_d_echeance_applicable_le(c, jour);
+    }
+    rule DateApplicableSansButoirOpposable(c: Causa, jour: Date) strict {
+        label fr official "Article 2232, alinéa 2. Hors butoir opposable, l'échéance après plancher est la date applicable";
+        label en unofficial "Article 2232, paragraph 2. Without an opposable long-stop, the deadline after the floor is the applicable date";
+        when echeance_apres_plancher_le(c, jour)
+            and not_known(butoir_d_echeance_opposable(c));
+        then date_d_echeance_applicable_le(c, jour);
+    }
+}
+
+// --- Articles 2241 à 2246 : l'interruption ---------------------------------------------------------------
+
+@source(CC_POST_ART2241, CC_POST_ART2242) {
+    rule DemandeEnJusticeInterromptJusquALExtinction(c: Causa, demande: Date, extinction: Date) strict {
+        label fr official "Articles 2241 et 2242. La demande en justice interrompt la prescription, et l'interruption produit ses effets jusqu'à l'extinction de l'instance";
+        label en unofficial "Articles 2241 and 2242. A court claim interrupts limitation, and the interruption lasts until the proceedings end";
+        when demande_en_justice_le(c, demande) and instance_eteinte_le(c, extinction)
+            and not_known(desistement_peremption_ou_rejet_definitif(c));
+        then acte_interruptif_le(c, extinction);
+    }
+}
+
+@source(CC_POST_ART2231)
+rule LActeInterruptifInterrompt(c: Causa, jour: Date) strict {
+    label fr official "Article 2231. L'interruption efface le délai acquis : l'acte interruptif fait courir un nouveau délai";
+    label en unofficial "Article 2231. Interruption erases the elapsed period: the interrupting act starts a new period";
+    when acte_interruptif_le(c, jour);
+    then prescription_interrompue_le(c, jour);
+}
+
+@source(CC_POST_ART2240)
+rule LaReconnaissanceEstUnActeInterruptif(c: Causa, jour: Date) strict {
+    label fr official "Article 2240. La reconnaissance par le débiteur est un acte interruptif, y compris à l'égard des codébiteurs et de la caution (articles 2245, 2246)";
+    label en unofficial "Article 2240. The debtor's acknowledgment is an interrupting act, including towards co-debtors and the surety (Articles 2245, 2246)";
+    when reconnaissance_du_debiteur_le(c, jour);
+    then acte_interruptif_le(c, jour);
+}
+
+@source(CC_POST_ART2243)
+rule InterruptionNonAvenue(c: Causa, demande: Date) strict {
+    label fr official "Article 2243. L'interruption est non avenue si le demandeur se désiste, laisse périmer l'instance, ou si sa demande est définitivement rejetée";
+    label en unofficial "Article 2243. The interruption is void if the claimant withdraws, lets the proceedings lapse, or the claim is finally dismissed";
+    when demande_en_justice_le(c, demande) and desistement_peremption_ou_rejet_definitif(c);
+    then interruption_non_avenue(c);
+}
+
+@source(CC_POST_ART2244)
+rule MesureConservatoireInterrompt(c: Causa, jour: Date) strict {
+    label fr official "Article 2244. Le délai est également interrompu par une mesure conservatoire ou un acte d'exécution forcée";
+    label en unofficial "Article 2244. The period is also interrupted by a protective measure or an enforcement act";
+    when mesure_conservatoire_ou_acte_d_execution_le(c, jour);
+    then acte_interruptif_le(c, jour);
+}
+
+@source(CC_POST_ART2245)
+rule InterruptionContreLesCodebiteursSolidaires(c: Causa, autre: Causa, jour: Date) strict {
+    label fr official "Article 2245, alinéa 1. L'interpellation faite à l'un des débiteurs solidaires, ou sa reconnaissance, interrompt le délai contre tous les autres";
+    label en unofficial "Article 2245, paragraph 1. Summoning one joint and several debtor, or his acknowledgment, interrupts the period against all the others";
+    when obligation_solidaire_avec(c, autre) and acte_interruptif_le(c, jour);
+    then prescription_interrompue_le(autre, jour);
+}
+
+@source(CC_POST_ART2246)
+rule InterruptionContreLaCaution(caution: Causa, principal: Causa, jour: Date) strict {
+    label fr official "Article 2246. L'interpellation faite au débiteur principal ou sa reconnaissance interrompt le délai contre la caution";
+    label en unofficial "Article 2246. Summoning the principal debtor or his acknowledgment interrupts the period against the surety";
+    when cautionnement_de(caution, principal) and acte_interruptif_le(principal, jour);
+    then prescription_interrompue_le(caution, jour);
+}
+
+// --- Articles 2247 à 2253 : invocation et renonciation -----------------------------------------------------
+
+@source(CC_POST_ART2247, CC_POST_ART2248)
+rule PrescriptionOpposeeParLaPartie(c: Causa, saisine: Date) strict {
+    label fr official "Articles 2247 et 2248. Les juges ne suppléent pas d'office le moyen de prescription ; opposée par la partie en tout état de cause, sauf renonciation, elle fait rejeter la demande";
+    label en unofficial "Articles 2247 and 2248. Courts do not raise limitation of their own motion; raised by the party at any stage, save waiver, it defeats the claim";
+    when action_prescrite_le(c, saisine) and prescription_invoquee(c)
+        and not_known(renonciation_valable(c));
+    then demande_rejetee_pour_prescription(c);
+}
+
+@source(CC_POST_ART2249)
+rule PaiementApresExpirationNonRepetible(c: Causa, echeance: Date, paiement: Date) strict {
+    label fr official "Article 2249. Le paiement effectué pour éteindre une dette ne peut être répété au seul motif que le délai de prescription était expiré";
+    label en unofficial "Article 2249. A payment made to discharge a debt cannot be recovered merely because the limitation period had expired";
+    when echeance_prescription_le(c, echeance) and paiement_effectue_le(c, paiement) and paiement > echeance;
+    then repetition_exclue_pour_seule_prescription(c);
+}
+
+@source(CC_POST_ART2250, CC_POST_ART2251, CC_POST_ART2252) {
+    rule RenonciationExpresseAPrescriptionAcquise(c: Causa, echeance: Date, renonciation: Date) strict {
+        label fr official "Articles 2250 à 2252. Seule une prescription acquise est susceptible de renonciation, expresse ou tacite, et celui qui ne peut exercer seul ses droits ne peut y renoncer seul";
+        label en unofficial "Articles 2250 to 2252. Only an acquired limitation may be waived, expressly or tacitly, and one who cannot exercise his rights alone cannot waive it alone";
+        when echeance_prescription_le(c, echeance) and renonciation_expresse_le(c, renonciation)
+            and renonciation > echeance
+            and not_known(renoncant_ne_peut_exercer_seul_ses_droits(c));
+        then renonciation_valable(c);
+    }
+    rule RenonciationAnticipee(c: Causa, echeance: Date, renonciation: Date) strict {
+        label fr official "Article 2250. La renonciation faite avant que la prescription soit acquise est sans effet";
+        label en unofficial "Article 2250. A waiver made before limitation is acquired has no effect";
+        when echeance_prescription_le(c, echeance) and renonciation_expresse_le(c, renonciation)
+            and renonciation <= echeance;
+        then renonciation_anticipee_sans_effet(c);
+    }
+    rule RenonciationTacite(c: Causa) defeasible {
+        label fr official "Article 2251, alinéa 2. La renonciation tacite résulte de circonstances établissant sans équivoque la volonté de ne pas se prévaloir de la prescription";
+        label en unofficial "Article 2251, paragraph 2. A tacit waiver results from circumstances unequivocally establishing the will not to rely on limitation";
+        when volonte_non_equivoque_de_renoncer(c);
+        then renonciation_tacite(c);
+    }
+}
+
+@source(CC_POST_ART2253)
+rule TiersInteresseOpposeLaPrescription(c: Causa, tiers: Persona) strict {
+    label fr official "Article 2253. Les créanciers, ou toute personne ayant intérêt à ce que la prescription soit acquise, peuvent l'opposer lors même que le débiteur y renonce";
+    label en unofficial "Article 2253. Creditors, or anyone with an interest in limitation being acquired, may raise it even though the debtor waives it";
+    when tiers_interesse_a_la_prescription(c, tiers);
+    then prescription_invocable_par_le_tiers(c, tiers);
+}
+
+// --- Article 2254 : aménagement conventionnel ---------------------------------------------------------------
+
+@source(CC_POST_ART2254) {
+    rule DureeConventionnelleDansLesBornes(c: Causa, mois: Integer) strict {
+        label fr official "Article 2254, alinéa 1. La durée peut être abrégée ou allongée par accord, sans être réduite à moins d'un an ni étendue à plus de dix ans";
+        label en unofficial "Article 2254, paragraph 1. The period may be shortened or lengthened by agreement, but not to less than one year or more than ten";
+        when duree_conventionnelle_en_mois(c, mois) and mois >= 12 and mois <= 120
+            and not_known(action_en_paiement_periodique(c));
+        then amenagement_conventionnel_valable(c);
+    }
+    rule DureeConventionnelleTropCourte(c: Causa, mois: Integer) strict {
+        label fr official "Article 2254, alinéa 1. Une durée convenue de moins d'un an est sans effet";
+        label en unofficial "Article 2254, paragraph 1. An agreed period of less than one year has no effect";
+        when duree_conventionnelle_en_mois(c, mois) and mois < 12;
+        then amenagement_conventionnel_sans_effet(c);
+    }
+    rule DureeConventionnelleTropLongue(c: Causa, mois: Integer) strict {
+        label fr official "Article 2254, alinéa 1. Une durée convenue de plus de dix ans est sans effet";
+        label en unofficial "Article 2254, paragraph 1. An agreed period of more than ten years has no effect";
+        when duree_conventionnelle_en_mois(c, mois) and mois > 120;
+        then amenagement_conventionnel_sans_effet(c);
+    }
+    rule AmenagementExcluPourLesPaiementsPeriodiques(c: Causa, mois: Integer) strict {
+        label fr official "Article 2254, alinéa 3. L'aménagement n'est pas applicable aux actions en paiement de ce qui est payable par années ou à des termes périodiques plus courts";
+        label en unofficial "Article 2254, paragraph 3. Adjustment does not apply to actions for what is payable yearly or at shorter intervals";
+        when duree_conventionnelle_en_mois(c, mois) and action_en_paiement_periodique(c);
+        then amenagement_conventionnel_sans_effet(c);
+    }
+}

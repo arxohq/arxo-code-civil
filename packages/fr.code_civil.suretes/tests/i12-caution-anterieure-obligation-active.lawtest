@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Ordonnance 2021-1192, art. 37, III ; art. 2302 : le cautionnement de 2020 oblige le créancier à l'information annuelle de 2023.
+test "urn:query:fr-code-civil-suretes-i12-caution-anterieure-obligation-active" {
+    // E-0212: статус позиции берётся на decision_time; ожидание писалось на дату
+    // legal_time, поэтому момент решения и знания выровнен с ней.
+    given {
+        context { decision_time @2023-02-15T09:00:00Z; knowledge_time @2023-02-15T09:00:00Z; legal_time @2023-02-15; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i12:K"), @2020-06-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i12:K"), entity_ref("urn:fr:cc:suretes:i12:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i12:K"), entity_ref("urn:fr:cc:suretes:i12:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i12:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i12:B")) { origin case_input; }
+        assert "f6": arrete_annuel(entity_ref("urn:fr:cc:suretes:i12:K"), @2022-12-31) { origin case_input; }
+        assert "f7": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:suretes:i12:K"), "2302") { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDInformationAnnuelle, ACTIVE);
+}

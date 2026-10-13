@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+// Variante: reconnaissance du débiteur le 1er janvier 2012. L'article 2248
+// interrompt la prescription; même en 2040 le nouveau délai de trente ans
+// n'est pas accompli.
+test "urn:query:oecd-code-civil-1804-prescription-interruption" {
+    given {
+        context { decision_time @2040-01-01T12:00:00Z; knowledge_time @2040-01-01T12:00:00Z; legal_time @1804-03-21; timezone "UTC"; deadline_policy OECD_CODE_CIVIL_1804_PRESCRIPTION; }
+        assert "cc1804-int-1": creance_exigible_depuis(entity_ref("urn:fr:oecd:creance:interrompue"), @2000-01-01) { origin case_input; }
+        assert "cc1804-int-2": reconnaissance_du_debiteur_le(entity_ref("urn:fr:oecd:creance:interrompue"), @2012-01-01) { origin case_input; }
+        assert "cc1804-int-3": action_introduite_le(entity_ref("urn:fr:oecd:creance:interrompue"), @2040-01-01) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:oecd:creance:interrompue"), @2040-01-01));
+    expect result_kind == PROPOSITION;
+    expect truth_status == FALSE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

@@ -1,0 +1,247 @@
+// CHAPITRE II — LA RESPONSABILITÉ DU FAIT DES PRODUITS DÉFECTUEUX
+// (articles 1245 à 1245-17).
+//
+// Responsabilité de plein droit du producteur (1245, 1245-10 alinéa 1), avec
+// la charge de preuve du demandeur (1245-8) et les cinq causes d'exonération
+// que le producteur doit prouver (1245-10). Le défaut lui-même est une
+// appréciation déléguée (1245-3 : « la sécurité à laquelle on peut
+// légitimement s'attendre »), donc un canal de jugement.
+//
+// FRONTIÈRES DÉCLARÉES DE CE CHAPITRE :
+//   * 1245-1 alinéa 2 : le seuil de l'atteinte à un bien est fixé par décret,
+//     texte extérieur non épinglé — entrée de cas, jamais un nombre inventé ;
+//   * les articles 1245-2 à 1245-16 que la première vague laissait au cas —
+//     produit, mise en circulation, qualité de producteur, fournisseur à
+//     défaut, solidarité, réduction, clauses, extinction et prescription —
+//     sont exécutés par la seconde vague (chapitre-02b-produits-seconde-vague.law).
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1245,
+    CC_ART1245_1,
+    CC_ART1245_10,
+    CC_ART1245_11,
+    CC_ART1245_17,
+    CC_ART1245_3,
+    CC_ART1245_8,
+    CC_ART1245_9,
+    Dommage,
+    Fait,
+    MotifDExoneration,
+    Personne,
+    Produit,
+    a_cause,
+    atteinte_a_la_personne,
+    defaut_prouve,
+    dommage_par_element_du_corps_humain,
+    exoneration_invoquee_et_prouvee,
+    producteur,
+    produit_defectueux,
+    produit_en_cause,
+    responsable_du_dommage,
+    victime,
+};
+
+pub relation chapitre_produits_applicable(d: Dommage) kind derived {
+    label fr official "le chapitre du fait des produits défectueux s'applique à la réparation de ce dommage (article 1245-1)";
+    label en unofficial "the defective-products chapter applies to the reparation of this damage (Article 1245-1)";
+}
+pub relation exoneration_admise(p: Produit, motif: MotifDExoneration) kind derived {
+    label fr official "cause d'exonération que le producteur peut invoquer (articles 1245-10, 1245-11)";
+    label en unofficial "exemption the producer may invoke (Articles 1245-10, 1245-11)";
+}
+pub relation producteur_responsable(d: Dommage, personne: Personne) kind derived {
+    label fr official "le producteur est responsable de plein droit du dommage causé par le défaut de son produit (articles 1245, 1245-10)";
+    label en unofficial "the producer is strictly liable for damage caused by his product's defect (Articles 1245, 1245-10)";
+}
+
+@source(CC_ART1245_1)
+rule ChapitreApplicableALAtteinteALaPersonne(d: Dommage) strict {
+    label fr official "Article 1245-1, alinéa 1. Les dispositions du présent chapitre s'appliquent à la réparation du dommage qui résulte d'une atteinte à la personne";
+    label en unofficial "Article 1245-1, paragraph 1. This chapter applies to the reparation of damage resulting from personal injury";
+    when atteinte_a_la_personne(d);
+    then chapitre_produits_applicable(d);
+}
+
+@source(CC_ART1245, CC_ART1245_3, CC_ART1245_8, CC_ART1245_10) {
+    rule ResponsabiliteDuProducteur(f: Fait, d: Dommage, p: Produit, personne: Personne) defeasible {
+        label fr official "Articles 1245 et 1245-10, alinéa 1. Le producteur est responsable de plein droit du dommage causé par un défaut de son produit, qu'il soit ou non lié par un contrat avec la victime ; le demandeur prouve le dommage, le défaut et le lien de causalité (article 1245-8)";
+        label en unofficial "Articles 1245 and 1245-10, paragraph 1. The producer is strictly liable for damage caused by a defect of his product, whether or not bound by contract to the victim; the claimant proves the damage, the defect and the causal link (Article 1245-8)";
+        when produit_en_cause(f, p) and a_cause(f, d) and chapitre_produits_applicable(d)
+            and producteur(p, personne) and produit_defectueux(p) and defaut_prouve(f, p);
+        then producteur_responsable(d, personne);
+    }
+    rule ProducteurResponsableEstResponsable(d: Dommage, personne: Personne) defeasible {
+        label fr official "Article 1245. La responsabilité du producteur est une responsabilité du dommage";
+        label en unofficial "Article 1245. The producer's liability is liability for the damage";
+        when producteur_responsable(d, personne);
+        then responsable_du_dommage(d, personne);
+    }
+}
+pub relation prouver_defaut_dommage_lien_1245_8(f: Fait, d: Dommage, p: Produit) kind empirical {
+    label fr official "le demandeur prouve le dommage, le défaut et le lien de causalité";
+    label en unofficial "the claimant proves the damage, the defect and the causal link";
+}
+@source(CC_ART1245_8)
+rule PositionDevoirProuverDefautDommageLien(f: Fait, d: Dommage, p: Produit) strict {
+    label fr official "Article 1245-8. Le demandeur doit prouver le dommage, le défaut et le lien de causalité";
+    label en unofficial "Article 1245-8. The claimant must prove the damage, defect and causal link";
+    when produit_en_cause(f, p) and a_cause(f, d);
+    then duty DevoirProuverDefautDommageLien {
+        bearer entity_ref("urn:fr:cc:responsabilite:demandeur");
+        goal achievement {
+            condition prouver_defaut_dommage_lien_1245_8(f, d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1245_9)
+rule ResponsabiliteMalgreLesReglesDeLArt(p: Produit) defeasible {
+    label fr official "Article 1245-9. Le producteur peut être responsable du défaut alors même que le produit a été fabriqué dans le respect des règles de l'art ou de normes existantes, ou qu'il a fait l'objet d'une autorisation administrative : aucune de ces circonstances n'est une cause d'exonération";
+    label en unofficial "Article 1245-9. The producer may be liable although the product was made according to the state of the art or existing standards, or was administratively authorised: none of these is an exemption";
+    when produit_defectueux(p);
+    then produit_defectueux_malgre_conformite(p);
+}
+
+pub relation produit_defectueux_malgre_conformite(p: Produit) kind derived {
+    label fr official "le défaut est retenu bien que le produit soit conforme aux règles de l'art, aux normes ou à une autorisation administrative (article 1245-9)";
+    label en unofficial "the defect stands although the product complies with the state of the art, standards or an administrative authorisation (Article 1245-9)";
+}
+pub relation invoquer_conformite_comme_exoneration_1245_9(p: Produit, personne: Personne) kind empirical {
+    label fr official "le producteur invoque la conformité du produit comme cause d'exonération";
+    label en unofficial "the producer invokes product conformity as an exemption";
+}
+@source(CC_ART1245_9)
+rule PositionInterdictionInvoquerConformite(p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-9. Le producteur ne peut invoquer la conformité comme exonération";
+    label en unofficial "Article 1245-9. The producer may not invoke conformity as an exemption";
+    when produit_defectueux(p) and producteur(p, personne)
+        and invoquer_conformite_comme_exoneration_1245_9(p, personne);
+    then prohibition InterdictionInvoquerConformite {
+        bearer personne;
+        action invoquer_conformite_comme_exoneration_1245_9(p, personne);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_9)
+rule MaintenanceInterdictionInvoquerConformite(p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-9. Le producteur doit maintenir l'absence d'invocation de la conformité comme exonération";
+    label en unofficial "Article 1245-9. The producer must maintain the absence of invoking conformity as an exemption";
+    when produit_defectueux(p) and producteur(p, personne);
+    then duty MaintenanceInterdictionInvoquerConformiteDuty {
+        bearer personne;
+        goal maintenance {
+            condition not invoquer_conformite_comme_exoneration_1245_9(p, personne);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART1245_10, CC_ART1245_11) {
+    rule ExonerationProuvee(p: Produit, motif: MotifDExoneration) defeasible {
+        label fr official "Article 1245-10. Le producteur est responsable de plein droit à moins qu'il ne prouve l'une des cinq causes d'exonération";
+        label en unofficial "Article 1245-10. The producer is strictly liable unless he proves one of the five exemptions";
+        when exoneration_invoquee_et_prouvee(p, motif);
+        then exoneration_admise(p, motif);
+    }
+    rule RisqueDeDeveloppementEcarte(f: Fait, p: Produit) defeater {
+        label fr official "Article 1245-11. Le producteur ne peut invoquer le risque de développement lorsque le dommage a été causé par un élément du corps humain ou par les produits issus de celui-ci";
+        label en unofficial "Article 1245-11. The producer may not invoke the development-risk defence where the damage was caused by an element of the human body or products derived from it";
+        when produit_en_cause(f, p) and dommage_par_element_du_corps_humain(f);
+        defeat exoneration_admise(p, RisqueDeDeveloppement);
+    }
+    rule ExonerationEcarteLaResponsabilite(f: Fait, d: Dommage, p: Produit, personne: Personne,
+                                           motif: MotifDExoneration) defeater {
+        label fr official "Article 1245-10. La cause d'exonération prouvée écarte la responsabilité de plein droit du producteur";
+        label en unofficial "Article 1245-10. A proven exemption removes the producer's strict liability";
+        when produit_en_cause(f, p) and a_cause(f, d)
+            and producteur(p, personne) and exoneration_admise(p, motif);
+        defeat producteur_responsable(d, personne);
+    }
+}
+pub relation exoneration_invoquee_par_le_producteur(p: Produit, motif: MotifDExoneration) kind empirical {
+    label fr official "le producteur invoque l'une des causes d'exonération de l'article 1245-10";
+    label en unofficial "the producer invokes one of the exemptions of Article 1245-10";
+}
+pub relation prouver_cause_exoneration_1245_10(p: Produit, motif: MotifDExoneration) kind empirical {
+    label fr official "le producteur prouve une cause d'exonération";
+    label en unofficial "the producer proves an exemption";
+}
+@source(CC_ART1245_10)
+rule PositionDevoirProuverCauseExoneration(p: Produit, motif: MotifDExoneration) strict {
+    label fr official "Article 1245-10. Le producteur doit prouver la cause d'exonération";
+    label en unofficial "Article 1245-10. The producer must prove the exemption";
+    when exoneration_invoquee_par_le_producteur(p, motif);
+    then duty DevoirProuverCauseExoneration {
+        bearer entity_ref("urn:fr:cc:responsabilite:producteur");
+        goal achievement {
+            condition prouver_cause_exoneration_1245_10(p, motif);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1245_17)
+rule AutresFondementsPreserves(d: Dommage, personne: Personne) defeasible {
+    label fr official "Article 1245-17. Les dispositions du présent chapitre ne portent pas atteinte aux droits que la victime tient du droit de la responsabilité contractuelle ou extracontractuelle : la faute du producteur reste sanctionnée par l'article 1240";
+    label en unofficial "Article 1245-17. This chapter does not affect the victim's rights under contractual or extra-contractual liability: the producer's fault remains covered by Article 1240";
+    when producteur_responsable(d, personne);
+    then autres_fondements_preserves(d, personne);
+}
+
+pub relation autres_fondements_preserves(d: Dommage, personne: Personne) kind derived {
+    label fr official "la victime garde les autres fondements de responsabilité contre cette personne (article 1245-17)";
+    label en unofficial "the victim keeps the other grounds of liability against this person (Article 1245-17)";
+}
+pub relation invoquer_autre_fondement_responsabilite_1245_17(d: Dommage, victime_personne: Personne, producteur_personne: Personne) kind empirical {
+    label fr official "la victime invoque un autre fondement de responsabilité contre le producteur";
+    label en unofficial "the victim invokes another ground of liability against the producer";
+}
+@source(CC_ART1245_17)
+rule PositionPouvoirInvoquerAutreFondement(d: Dommage, victime_personne: Personne, producteur_personne: Personne) strict {
+    label fr official "Article 1245-17. La victime peut invoquer les autres fondements de responsabilité";
+    label en unofficial "Article 1245-17. The victim may invoke other grounds of liability";
+    when producteur_responsable(d, producteur_personne)
+        and victime(d, victime_personne)
+        and invoquer_autre_fondement_responsabilite_1245_17(d, victime_personne, producteur_personne);
+    then liberty PouvoirInvoquerAutreFondement {
+        holder victime_personne;
+        action invoquer_autre_fondement_responsabilite_1245_17(d, victime_personne, producteur_personne);
+        window [@2016-10-01, infinity);
+    };
+}
+pub relation invoquer_risque_developpement_1245_11(f: Fait, p: Produit, personne: Personne) kind empirical {
+    label fr official "le producteur invoque le risque de développement";
+    label en unofficial "the producer invokes the development-risk defence";
+}
+@source(CC_ART1245_11)
+rule PositionInterdictionInvoquerRisqueDeveloppement(f: Fait, p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-11. Le producteur ne peut invoquer le risque de développement";
+    label en unofficial "Article 1245-11. The producer may not invoke the development-risk defence";
+    when produit_en_cause(f, p) and dommage_par_element_du_corps_humain(f)
+        and producteur(p, personne)
+        and invoquer_risque_developpement_1245_11(f, p, personne);
+    then prohibition InterdictionInvoquerRisqueDeveloppement {
+        bearer personne;
+        action invoquer_risque_developpement_1245_11(f, p, personne);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_11)
+rule MaintenanceInterdictionInvoquerRisqueDeveloppement(f: Fait, p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-11. Le producteur doit maintenir l'absence d'invocation du risque de développement";
+    label en unofficial "Article 1245-11. The producer must maintain the absence of invoking the development-risk defence";
+    when produit_en_cause(f, p) and dommage_par_element_du_corps_humain(f)
+        and producteur(p, personne);
+    then duty MaintenanceInterdictionInvoquerRisqueDeveloppementDuty {
+        bearer personne;
+        goal maintenance {
+            condition not invoquer_risque_developpement_1245_11(f, p, personne);
+            window [@2016-10-01, infinity);
+        };
+    };
+}

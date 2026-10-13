@@ -1,0 +1,183 @@
+// TITRE Ier — DES DROITS CIVILS.
+// Les appréciations médicales et les décisions juridictionnelles sont des
+// entrées adjudicated ; le paquet porte leurs conséquences civiles.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART14,
+    CC_ART15,
+    CC_ART16_1,
+    CC_ART16_10,
+    CC_ART16_3,
+    CC_ART16_5,
+    CC_ART16_7,
+    Personne,
+};
+
+pub entity InterventionMedicale { label fr official "intervention sur le corps humain"; label en unofficial "intervention on the human body"; }
+pub entity ConventionCorporelle { label fr official "convention relative au corps humain"; label en unofficial "agreement concerning the human body"; }
+
+pub relation francais(p: Personne) kind empirical { label fr official "la personne est française"; label en unofficial "the person is French"; }
+pub relation demandeur_contre_etranger(demandeur: Personne, defendeur: Personne) kind empirical { label fr official "un Français demande contre un étranger"; label en unofficial "a French person brings a claim against a foreigner"; }
+pub relation etranger_demande_contre_francais(demandeur: Personne, defendeur: Personne) kind empirical { label fr official "un étranger demande contre un Français"; label en unofficial "a foreigner brings a claim against a French person"; }
+pub relation juridiction_francaise_competente(demandeur: Personne, defendeur: Personne) kind derived { label fr official "la juridiction française est compétente sur le fondement des articles 14 ou 15"; label en unofficial "French courts have jurisdiction under Article 14 or 15"; }
+pub relation saisir_juridiction_francaise(demandeur: Personne, defendeur: Personne) kind empirical { label fr official "le Français saisit la juridiction française contre l'étranger"; label en unofficial "the French claimant seizes the French courts against the foreigner"; }
+pub relation etre_attraint_juridiction_francaise(demandeur: Personne, defendeur: Personne) kind empirical { label fr official "l'étranger est attrait devant la juridiction française par un Français"; label en unofficial "the foreigner is sued before French courts by a French claimant"; }
+
+@source(CC_ART14)
+rule CompetenceArticle14(d: Personne, x: Personne) defeasible { label fr official "Article 14. Le Français peut attraire l'étranger devant les juridictions françaises"; label en unofficial "Article 14. A French claimant may sue a foreign defendant before French courts"; when francais(d) and demandeur_contre_etranger(d, x); then juridiction_francaise_competente(d, x); }
+@source(CC_ART15)
+rule CompetenceArticle15(d: Personne, f: Personne) defeasible { label fr official "Article 15. Le Français peut être traduit devant les juridictions françaises"; label en unofficial "Article 15. A French defendant may be sued before French courts"; when francais(f) and etranger_demande_contre_francais(d, f); then juridiction_francaise_competente(d, f); }
+
+@source(CC_ART14)
+rule PositionPouvoirSaisirJuridictionFrancaise(d: Personne, x: Personne) strict {
+    label fr official "Article 14. Le Français peut attraire l'étranger devant les juridictions françaises";
+    label en unofficial "Article 14. A French claimant may sue the foreigner before French courts";
+    when francais(d) and demandeur_contre_etranger(d, x) and saisir_juridiction_francaise(d, x);
+    then liberty PouvoirSaisirJuridictionFrancaise {
+        holder d;
+        action saisir_juridiction_francaise(d, x);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART15)
+rule PositionPouvoirEtreAttraitJuridictionFrancaise(d: Personne, f: Personne) strict {
+    label fr official "Article 15. Le Français peut être traduit devant les juridictions françaises";
+    label en unofficial "Article 15. A French defendant may be sued before French courts";
+    when francais(f) and etranger_demande_contre_francais(d, f)
+        and etre_attraint_juridiction_francaise(d, f);
+    then liberty PouvoirEtreAttraitJuridictionFrancaise {
+        holder f;
+        action etre_attraint_juridiction_francaise(d, f);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation intervention_sur(i: InterventionMedicale, p: Personne) kind empirical { label fr official "l'intervention porte sur cette personne"; label en unofficial "the intervention concerns this person"; }
+pub external judgment relation necessite_medicale_intervention(i: InterventionMedicale) { authority Court; label fr official "l'intervention répond à une nécessité médicale pour la personne"; label en unofficial "the intervention meets a medical necessity for the person"; }
+pub external judgment relation interet_therapeutique_autrui(i: InterventionMedicale) { authority Court; label fr official "l'intervention répond exceptionnellement à l'intérêt thérapeutique d'autrui"; label en unofficial "the intervention exceptionally serves another person's therapeutic interest"; }
+pub relation consentement_prealable(i: InterventionMedicale, p: Personne) kind empirical { label fr official "le consentement préalable de la personne a été recueilli"; label en unofficial "the person's prior consent was obtained"; }
+pub relation impossibilite_consentir(i: InterventionMedicale, p: Personne) kind empirical { label fr official "la personne est hors d'état de consentir"; label en unofficial "the person is unable to consent"; }
+pub relation intervention_admissible(i: InterventionMedicale) kind derived { label fr official "l'intervention satisfait l'article 16-3"; label en unofficial "the intervention complies with Article 16-3"; }
+pub relation intervention_sans_consentement(i: InterventionMedicale, p: Personne) kind derived { label fr official "l'intervention est pratiquée sans consentement préalable"; label en unofficial "the intervention is performed without prior consent"; }
+pub relation porter_atteinte_corps_exercee(i: InterventionMedicale, p: Personne) kind empirical { label fr official "une atteinte au corps est exercée"; label en unofficial "an infringement of the body is performed"; }
+
+@source(CC_ART16_1)
+rule RespectDuCorps(p: Personne, i: InterventionMedicale) defeasible { label fr official "Article 16-1. Chacun a droit au respect de son corps et celui-ci est inviolable"; label en unofficial "Article 16-1. Everyone has a right to respect for the body, which is inviolable"; when intervention_sur(i, p); then prohibition PorterAtteinteAuCorps { bearer p; action porter_atteinte_corps_exercee(i, p); window [@1994-07-30, infinity); }; }
+@source(CC_ART16_1)
+rule MaintenancePorterAtteinteAuCorps(p: Personne, i: InterventionMedicale) strict {
+    label fr official "Maintenir l'interdiction PorterAtteinteAuCorps";
+    label en unofficial "Maintain prohibition PorterAtteinteAuCorps";
+    when intervention_sur(i, p);
+    then duty MaintenancePorterAtteinteAuCorpsDuty {
+        bearer p;
+        goal maintenance {
+            condition not porter_atteinte_corps_exercee(i, p);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+@source(CC_ART16_3) {
+  rule InterventionNecessaireEtConsentement(i: InterventionMedicale, p: Personne) defeasible { label fr official "Article 16-3. L'atteinte justifiée par une nécessité médicale exige le consentement préalable"; label en unofficial "Article 16-3. An intervention justified by medical necessity requires prior consent"; when intervention_sur(i, p) and necessite_medicale_intervention(i) and consentement_prealable(i, p); then intervention_admissible(i); }
+  rule InterventionInteretAutruiEtConsentement(i: InterventionMedicale, p: Personne) defeasible { label fr official "Article 16-3. L'intérêt thérapeutique d'autrui peut justifier l'intervention avec consentement"; label en unofficial "Article 16-3. Another person's therapeutic interest may justify intervention with consent"; when intervention_sur(i, p) and interet_therapeutique_autrui(i) and consentement_prealable(i, p); then intervention_admissible(i); }
+  rule ExceptionImpossibiliteConsentir(i: InterventionMedicale, p: Personne) defeasible { label fr official "Article 16-3. L'impossibilité de consentir écarte l'exigence du consentement préalable"; label en unofficial "Article 16-3. Inability to consent displaces the prior-consent requirement"; when intervention_sur(i, p) and necessite_medicale_intervention(i) and impossibilite_consentir(i, p); then intervention_admissible(i); }
+  rule DefaillanceConsentement(i: InterventionMedicale, p: Personne) defeasible { label fr official "Article 16-3. Hors impossibilité, l'absence de consentement reste interdite"; label en unofficial "Article 16-3. Except for inability, absence of consent remains prohibited"; when intervention_sur(i, p) and not_known(consentement_prealable(i, p)) and not_known(impossibilite_consentir(i, p)); then intervention_sans_consentement(i, p); }
+}
+
+pub relation convention_donne_valeur_patrimoniale_au_corps(c: ConventionCorporelle) kind empirical { label fr official "la convention confère une valeur patrimoniale au corps, à ses éléments ou à ses produits"; label en unofficial "the agreement gives patrimonial value to the body, its elements or products"; }
+pub relation convention_gestation_pour_autrui(c: ConventionCorporelle) kind empirical { label fr official "la convention porte sur la procréation ou la gestation pour autrui"; label en unofficial "the agreement concerns procreation or gestation for another"; }
+pub relation conclure_convention_valeur_patrimoniale(c: ConventionCorporelle) kind empirical { label fr official "les parties concluent la convention à valeur patrimoniale"; label en unofficial "the parties conclude the agreement giving patrimonial value"; }
+pub relation conclure_convention_gestation(c: ConventionCorporelle) kind empirical { label fr official "les parties concluent la convention de gestation pour autrui"; label en unofficial "the parties conclude the surrogacy agreement"; }
+pub relation convention_nulle(c: ConventionCorporelle) kind derived { label fr official "la convention est nulle"; label en unofficial "the agreement is void"; }
+@source(CC_ART16_5)
+rule NulliteValeurPatrimoniale(c: ConventionCorporelle) strict { label fr official "Article 16-5. Est nulle toute convention conférant une valeur patrimoniale au corps humain"; label en unofficial "Article 16-5. An agreement giving patrimonial value to the human body is void"; when convention_donne_valeur_patrimoniale_au_corps(c); then convention_nulle(c); }
+@source(CC_ART16_5)
+rule PositionInterdictionValeurPatrimoniale(c: ConventionCorporelle) strict {
+    label fr official "Article 16-5. La convention conférant une valeur patrimoniale au corps est interdite";
+    label en unofficial "Article 16-5. An agreement giving patrimonial value to the body is prohibited";
+    when convention_donne_valeur_patrimoniale_au_corps(c);
+    then prohibition InterdictionValeurPatrimoniale {
+        bearer entity_ref("urn:fr:cc:personnes:parties-convention");
+        action conclure_convention_valeur_patrimoniale(c);
+        window [@1994-07-30, infinity);
+    };
+}
+@source(CC_ART16_5)
+rule MaintenanceInterdictionValeurPatrimoniale(c: ConventionCorporelle) strict {
+    label fr official "Maintenir l'interdiction InterdictionValeurPatrimoniale";
+    label en unofficial "Maintain prohibition InterdictionValeurPatrimoniale";
+    when convention_donne_valeur_patrimoniale_au_corps(c);
+    then duty MaintenanceInterdictionValeurPatrimonialeDuty {
+        bearer entity_ref("urn:fr:cc:personnes:parties-convention");
+        goal maintenance {
+            condition not conclure_convention_valeur_patrimoniale(c);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+@source(CC_ART16_7)
+rule NulliteGestationPourAutrui(c: ConventionCorporelle) strict { label fr official "Article 16-7. Toute convention de procréation ou gestation pour autrui est nulle"; label en unofficial "Article 16-7. Any procreation or surrogacy agreement is void"; when convention_gestation_pour_autrui(c); then convention_nulle(c); }
+@source(CC_ART16_7)
+rule PositionInterdictionGestationPourAutrui(c: ConventionCorporelle) strict {
+    label fr official "Article 16-7. La convention de procréation ou gestation pour autrui est interdite";
+    label en unofficial "Article 16-7. A procreation or surrogacy agreement is prohibited";
+    when convention_gestation_pour_autrui(c);
+    then prohibition InterdictionGestationPourAutrui {
+        bearer entity_ref("urn:fr:cc:personnes:parties-convention");
+        action conclure_convention_gestation(c);
+        window [@1994-07-30, infinity);
+    };
+}
+@source(CC_ART16_7)
+rule MaintenanceInterdictionGestationPourAutrui(c: ConventionCorporelle) strict {
+    label fr official "Maintenir l'interdiction InterdictionGestationPourAutrui";
+    label en unofficial "Maintain prohibition InterdictionGestationPourAutrui";
+    when convention_gestation_pour_autrui(c);
+    then duty MaintenanceInterdictionGestationPourAutruiDuty {
+        bearer entity_ref("urn:fr:cc:personnes:parties-convention");
+        goal maintenance {
+            condition not conclure_convention_gestation(c);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+pub relation examen_genetique_finalite_medicale_ou_recherche(p: Personne) kind empirical { label fr official "l'examen génétique a une finalité médicale ou de recherche scientifique"; label en unofficial "the genetic examination has a medical or scientific-research purpose"; }
+pub relation examen_genetique_admissible(p: Personne) kind derived { label fr official "l'examen génétique a une finalité admise"; label en unofficial "the genetic examination has an admitted purpose"; }
+pub relation examen_genetique_hors_finalite(p: Personne) kind empirical { label fr official "l'examen génétique est pratiqué hors finalité admise"; label en unofficial "the genetic examination is performed outside an admitted purpose"; }
+pub relation examiner_caracteristiques_genetiques(p: Personne) kind empirical { label fr official "une personne examine les caractéristiques génétiques"; label en unofficial "someone examines genetic characteristics"; }
+@source(CC_ART16_10)
+rule FinaliteExamenGenetique(p: Personne) defeasible { label fr official "Article 16-10. L'examen des caractéristiques génétiques n'est admis qu'à des fins médicales ou de recherche scientifique"; label en unofficial "Article 16-10. Genetic examination is admitted only for medical or scientific-research purposes"; when examen_genetique_finalite_medicale_ou_recherche(p); then examen_genetique_admissible(p); }
+@source(CC_ART16_10)
+rule PositionInterdictionExamenGenetiqueHorsFinalite(p: Personne) strict {
+    label fr official "Article 16-10. L'examen génétique hors finalité admise est interdit";
+    label en unofficial "Article 16-10. Genetic examination outside an admitted purpose is prohibited";
+    when examen_genetique_hors_finalite(p);
+    then prohibition InterdictionExamenGenetiqueHorsFinalite {
+        bearer entity_ref("urn:fr:cc:personnes:professionnel-examen-genetique");
+        action examiner_caracteristiques_genetiques(p);
+        window [@1994-07-30, infinity);
+    };
+}
+@source(CC_ART16_10)
+rule MaintenanceInterdictionExamenGenetiqueHorsFinalite(p: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionExamenGenetiqueHorsFinalite";
+    label en unofficial "Maintain prohibition InterdictionExamenGenetiqueHorsFinalite";
+    when examen_genetique_hors_finalite(p);
+    then duty MaintenanceInterdictionExamenGenetiqueHorsFinaliteDuty {
+        bearer entity_ref("urn:fr:cc:personnes:professionnel-examen-genetique");
+        goal maintenance {
+            condition not examiner_caracteristiques_genetiques(p);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+

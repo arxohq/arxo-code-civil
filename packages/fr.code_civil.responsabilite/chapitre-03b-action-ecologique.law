@@ -1,0 +1,240 @@
+// CHAPITRE III — L'ACTION EN RÉPARATION DU PRÉJUDICE ÉCOLOGIQUE
+// (articles 1248 à 1252).
+//
+// La première vague disait quand le préjudice écologique est réparable (1246,
+// 1247, 1251). Celle-ci dit qui peut agir et comment la réparation s'exécute :
+//
+//   — la qualité pour agir est une LISTE, et pour les associations une durée :
+//     agréées, ou créées depuis au moins cinq ans à la date d'introduction de
+//     l'instance (1248) — le cinquième anniversaire suffit ;
+//   — la réparation se fait par priorité en nature ; les dommages et intérêts
+//     ne viennent qu'en cas d'impossibilité ou d'insuffisance, constatée par
+//     le juge, et vont au demandeur ou, s'il ne peut agir utilement, à l'État
+//     (1249) ; l'astreinte suit la même affectation (1250) ;
+//   — les mesures de prévention ou de cessation sont prescrites par le juge,
+//     saisi par une personne ayant qualité (1252) : le paquet dit la
+//     recevabilité de la demande, jamais le contenu des mesures.
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1248,
+    CC_ART1249,
+    CC_ART1250,
+    CC_ART1252,
+    Dommage,
+    Personne,
+    prejudice_ecologique,
+    prejudice_reparable,
+    responsable_du_dommage,
+};
+
+pub enum TitulaireDeLActionEcologique {
+    label fr official "Personne ayant qualité et intérêt à agir en réparation du préjudice écologique (article 1248)";
+    label en unofficial "Person with standing to sue for ecological damage (Article 1248)";
+    Etat,
+    OfficeFrancaisDeLaBiodiversite,
+    CollectiviteTerritorialeConcernee,
+    EtablissementPublic,
+    AssociationAgreee,
+    AssociationDeProtectionDeLaNature,
+    AutrePersonneAyantQualiteEtInteret
+}
+
+pub relation demandeur_ecologique(d: Dommage, personne: Personne, titre: TitulaireDeLActionEcologique) kind empirical {
+    label fr official "la personne agit en réparation du préjudice écologique à ce titre (article 1248)";
+    label en unofficial "the person sues for ecological damage in this capacity (Article 1248)";
+}
+pub relation association_creee_le(personne: Personne, jour: Date) kind empirical {
+    key(personne);
+    label fr official "jour de la création de l'association (article 1248)";
+    label en unofficial "day the association was created (Article 1248)";
+}
+pub relation instance_introduite_le(d: Dommage, jour: Date) kind empirical {
+    key(d);
+    label fr official "jour d'introduction de l'instance en réparation du préjudice écologique (article 1248)";
+    label en unofficial "day the proceedings for ecological damage were brought (Article 1248)";
+}
+pub relation reparation_en_nature_impossible_ou_insuffisante(d: Dommage) kind empirical {
+    label fr official "le juge a constaté l'impossibilité de droit ou de fait, ou l'insuffisance, des mesures de réparation en nature (article 1249, alinéa 2)";
+    label en unofficial "the court found the legal or factual impossibility, or inadequacy, of reparation in kind (Article 1249, paragraph 2)";
+}
+pub relation demandeur_ne_peut_prendre_les_mesures(d: Dommage, personne: Personne) kind empirical {
+    label fr official "le demandeur ne peut prendre les mesures utiles à la réparation de l'environnement (articles 1249, 1250)";
+    label en unofficial "the claimant cannot take the measures needed to restore the environment (Articles 1249, 1250)";
+}
+pub relation astreinte_prononcee(d: Dommage) kind empirical {
+    label fr official "une astreinte est prononcée dans l'instance en réparation du préjudice écologique (article 1250)";
+    label en unofficial "a penalty payment is ordered in the ecological-damage proceedings (Article 1250)";
+}
+pub relation demande_de_mesures_de_prevention(d: Dommage, personne: Personne) kind empirical {
+    label fr official "la personne demande au juge de prescrire des mesures propres à prévenir ou faire cesser le dommage (article 1252)";
+    label en unofficial "the person asks the court to order measures to prevent or stop the damage (Article 1252)";
+}
+
+pub relation qualite_pour_agir_en_reparation_ecologique(d: Dommage, personne: Personne) kind derived {
+    label fr official "la personne a qualité et intérêt à agir en réparation du préjudice écologique (article 1248)";
+    label en unofficial "the person has standing to sue for ecological damage (Article 1248)";
+}
+pub relation reparation_par_priorite_en_nature(d: Dommage) kind derived {
+    label fr official "la réparation du préjudice écologique s'effectue par priorité en nature (article 1249, alinéa 1)";
+    label en unofficial "ecological damage is repaired primarily in kind (Article 1249, paragraph 1)";
+}
+pub relation dommages_et_interets_affectes_au_demandeur(d: Dommage, personne: Personne) kind derived {
+    label fr official "le juge condamne à des dommages et intérêts affectés à la réparation de l'environnement, versés au demandeur (article 1249, alinéa 2)";
+    label en unofficial "the court awards damages earmarked for environmental restoration, paid to the claimant (Article 1249, paragraph 2)";
+}
+pub relation dommages_et_interets_affectes_a_l_etat(d: Dommage) kind derived {
+    label fr official "les dommages et intérêts sont versés à l'État, le demandeur ne pouvant prendre les mesures utiles (article 1249, alinéa 2)";
+    label en unofficial "damages are paid to the State, the claimant being unable to take the measures (Article 1249, paragraph 2)";
+}
+pub relation astreinte_liquidee_au_profit_du_demandeur(d: Dommage, personne: Personne) kind derived {
+    label fr official "l'astreinte est liquidée au profit du demandeur, qui l'affecte à la réparation de l'environnement (article 1250)";
+    label en unofficial "the penalty is liquidated for the claimant, who earmarks it for environmental restoration (Article 1250)";
+}
+pub relation astreinte_liquidee_au_profit_de_l_etat(d: Dommage) kind derived {
+    label fr official "l'astreinte est liquidée au profit de l'État, qui l'affecte à la même fin (article 1250)";
+    label en unofficial "the penalty is liquidated for the State, which earmarks it for the same purpose (Article 1250)";
+}
+pub relation demande_de_mesures_recevable(d: Dommage, personne: Personne) kind derived {
+    label fr official "la demande de mesures de prévention ou de cessation émane d'une personne mentionnée à l'article 1248 : le juge peut prescrire les mesures raisonnables (article 1252)";
+    label en unofficial "the request for preventive or stopping measures comes from a person mentioned in Article 1248: the court may order reasonable measures (Article 1252)";
+}
+
+@source(CC_ART1248) {
+    rule QualitePourAgirParLaListe(d: Dommage, personne: Personne, titre: TitulaireDeLActionEcologique) strict {
+        label fr official "Article 1248. L'action est ouverte à toute personne ayant qualité et intérêt à agir, telle que l'État, l'Office français de la biodiversité, les collectivités territoriales concernées, les établissements publics et les associations agréées";
+        label en unofficial "Article 1248. The action is open to any person with standing, such as the State, the French Biodiversity Office, the territorial authorities concerned, public bodies and approved associations";
+        when demandeur_ecologique(d, personne, titre)
+            and not_known(demandeur_ecologique(d, personne, AssociationDeProtectionDeLaNature));
+        then qualite_pour_agir_en_reparation_ecologique(d, personne);
+    }
+    rule AssociationCreeeDepuisCinqAns(d: Dommage, personne: Personne, creation: Date, introduction: Date) strict {
+        label fr official "Article 1248. Les associations créées depuis au moins cinq ans à la date d'introduction de l'instance qui ont pour objet la protection de la nature et la défense de l'environnement ont qualité pour agir";
+        label en unofficial "Article 1248. Associations created at least five years before the proceedings were brought, whose object is the protection of nature and the environment, have standing";
+        when demandeur_ecologique(d, personne, AssociationDeProtectionDeLaNature)
+            and association_creee_le(personne, creation) and instance_introduite_le(d, introduction)
+            and introduction >= add_calendar_period(creation, 5 calendar_year);
+        then qualite_pour_agir_en_reparation_ecologique(d, personne);
+    }
+}
+pub relation engager_action_ecologique_1248(d: Dommage, personne: Personne) kind empirical {
+    label fr official "la personne engage l'action en réparation écologique";
+    label en unofficial "the person brings the ecological-repair action";
+}
+@source(CC_ART1248)
+rule PositionPouvoirEngagerActionEcologique(d: Dommage, personne: Personne) strict {
+    label fr official "Article 1248. La personne ayant qualité peut engager l'action écologique";
+    label en unofficial "Article 1248. A person with standing may bring the ecological action";
+    when qualite_pour_agir_en_reparation_ecologique(d, personne)
+        and engager_action_ecologique_1248(d, personne);
+    then liberty PouvoirEngagerActionEcologique {
+        holder personne;
+        action engager_action_ecologique_1248(d, personne);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1249) {
+    rule ReparationEnNatureParPriorite(d: Dommage) defeasible {
+        label fr official "Article 1249, alinéa 1. La réparation du préjudice écologique s'effectue par priorité en nature";
+        label en unofficial "Article 1249, paragraph 1. Ecological damage is repaired primarily in kind";
+        when prejudice_reparable(d) and prejudice_ecologique(d);
+        then reparation_par_priorite_en_nature(d);
+    }
+    rule DommagesEtInteretsAuDemandeur(d: Dommage, personne: Personne) defeasible {
+        label fr official "Article 1249, alinéa 2. En cas d'impossibilité ou d'insuffisance des mesures de réparation, le juge condamne le responsable à des dommages et intérêts affectés à la réparation de l'environnement, au demandeur";
+        label en unofficial "Article 1249, paragraph 2. Where reparation measures are impossible or inadequate, the court orders damages earmarked for the environment, paid to the claimant";
+        when reparation_par_priorite_en_nature(d) and reparation_en_nature_impossible_ou_insuffisante(d)
+            and qualite_pour_agir_en_reparation_ecologique(d, personne)
+            and not_known(demandeur_ne_peut_prendre_les_mesures(d, personne));
+        then dommages_et_interets_affectes_au_demandeur(d, personne);
+    }
+    rule DommagesEtInteretsALEtat(d: Dommage, personne: Personne) defeasible {
+        label fr official "Article 1249, alinéa 2. Si le demandeur ne peut prendre les mesures utiles à cette fin, les dommages et intérêts sont versés à l'État";
+        label en unofficial "Article 1249, paragraph 2. If the claimant cannot take the measures needed, the damages are paid to the State";
+        when reparation_par_priorite_en_nature(d) and reparation_en_nature_impossible_ou_insuffisante(d)
+            and qualite_pour_agir_en_reparation_ecologique(d, personne)
+            and demandeur_ne_peut_prendre_les_mesures(d, personne);
+        then dommages_et_interets_affectes_a_l_etat(d);
+    }
+}
+pub relation payer_dommages_ecologiques_1249(d: Dommage, responsable: Personne) kind empirical {
+    label fr official "le responsable paie les dommages et intérêts affectés à la réparation écologique";
+    label en unofficial "the liable person pays damages earmarked for ecological repair";
+}
+@source(CC_ART1249)
+rule PositionDevoirPayerDommagesEcologiques(d: Dommage, responsable: Personne) strict {
+    label fr official "Article 1249. Le responsable doit payer les dommages et intérêts affectés à la réparation écologique";
+    label en unofficial "Article 1249. The liable person must pay damages earmarked for ecological repair";
+    when reparation_en_nature_impossible_ou_insuffisante(d)
+        and responsable_du_dommage(d, responsable);
+    then duty DevoirPayerDommagesEcologiques {
+        bearer responsable;
+        goal achievement {
+            condition payer_dommages_ecologiques_1249(d, responsable);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1250) {
+    rule AstreinteAuDemandeur(d: Dommage, personne: Personne) strict {
+        label fr official "Article 1250. En cas d'astreinte, celle-ci est liquidée par le juge au profit du demandeur, qui l'affecte à la réparation de l'environnement";
+        label en unofficial "Article 1250. A penalty payment is liquidated by the court for the claimant, who earmarks it for environmental restoration";
+        when astreinte_prononcee(d) and qualite_pour_agir_en_reparation_ecologique(d, personne)
+            and not_known(demandeur_ne_peut_prendre_les_mesures(d, personne));
+        then astreinte_liquidee_au_profit_du_demandeur(d, personne);
+    }
+    rule AstreinteALEtat(d: Dommage, personne: Personne) strict {
+        label fr official "Article 1250. Si le demandeur ne peut prendre les mesures utiles, l'astreinte est liquidée au profit de l'État, qui l'affecte à cette même fin";
+        label en unofficial "Article 1250. If the claimant cannot take the measures, the penalty is liquidated for the State, which earmarks it for the same purpose";
+        when astreinte_prononcee(d) and qualite_pour_agir_en_reparation_ecologique(d, personne)
+            and demandeur_ne_peut_prendre_les_mesures(d, personne);
+        then astreinte_liquidee_au_profit_de_l_etat(d);
+    }
+}
+pub relation affecter_astreinte_reparation_1250(d: Dommage, personne: Personne) kind empirical {
+    label fr official "le demandeur affecte l'astreinte liquidée à la réparation de l'environnement";
+    label en unofficial "the claimant earmarks the liquidated penalty for environmental restoration";
+}
+@source(CC_ART1250)
+rule PositionDevoirAffecterAstreinteReparation(d: Dommage, personne: Personne) strict {
+    label fr official "Article 1250. Le demandeur doit affecter l'astreinte à la réparation de l'environnement";
+    label en unofficial "Article 1250. The claimant must earmark the penalty for environmental restoration";
+    when astreinte_liquidee_au_profit_du_demandeur(d, personne);
+    then duty DevoirAffecterAstreinteReparation {
+        bearer personne;
+        goal achievement {
+            condition affecter_astreinte_reparation_1250(d, personne);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1252)
+rule DemandeDeMesuresRecevable(d: Dommage, personne: Personne) strict {
+    label fr official "Article 1252. Indépendamment de la réparation, le juge, saisi par une personne mentionnée à l'article 1248, peut prescrire les mesures raisonnables propres à prévenir ou faire cesser le dommage";
+    label en unofficial "Article 1252. Independently of reparation, the court, seised by a person mentioned in Article 1248, may order reasonable measures to prevent or stop the damage";
+    when demande_de_mesures_de_prevention(d, personne)
+        and qualite_pour_agir_en_reparation_ecologique(d, personne);
+    then demande_de_mesures_recevable(d, personne);
+}
+pub relation demander_mesures_prevention_1252(d: Dommage, personne: Personne) kind empirical {
+    label fr official "la personne demande les mesures raisonnables de prévention ou de cessation";
+    label en unofficial "the person requests reasonable preventive or stopping measures";
+}
+@source(CC_ART1252)
+rule PositionPouvoirDemanderMesuresPrevention(d: Dommage, personne: Personne) strict {
+    label fr official "Article 1252. La personne peut demander des mesures raisonnables de prévention ou de cessation";
+    label en unofficial "Article 1252. A person may request reasonable preventive or stopping measures";
+    when qualite_pour_agir_en_reparation_ecologique(d, personne)
+        and demander_mesures_prevention_1252(d, personne);
+    then liberty PouvoirDemanderMesuresPrevention {
+        holder personne;
+        action demander_mesures_prevention_1252(d, personne);
+        window [@2016-10-01, infinity);
+    };
+}

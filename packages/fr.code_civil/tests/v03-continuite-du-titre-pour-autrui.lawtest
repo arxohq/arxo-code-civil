@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2257 : qui a commencé pour autrui est présumé continuer au même titre.
+test "urn:query:fr-code-civil-v03-continuite-du-titre-pour-autrui" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": chose_possedee(entity_ref("urn:fr:cc:presc:v03"), Immeuble) { origin case_input; }
+        assert "f2": possesseur(entity_ref("urn:fr:cc:presc:v03"), entity_ref("urn:fr:cc:presc:v03:pers")) { origin case_input; }
+        assert "f3": possession_commencee_le(entity_ref("urn:fr:cc:presc:v03"), @1990-04-01) { origin case_input; }
+        assert "f4": commence_a_posseder_pour_autrui(entity_ref("urn:fr:cc:presc:v03")) { origin adjudicated; }
+    }
+    evaluate truth(presume_posseder_pour_autrui(entity_ref("urn:fr:cc:presc:v03")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PresomptionDeContinuiteDuTitre);
+}

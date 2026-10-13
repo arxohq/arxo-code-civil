@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-BAILPARLECREANCIER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": bail_consenti_par_le_creancier(entity_ref("urn:law:catalog:bailparlecreancier:v0")) { origin case_input; }
+        assert "cat-1": gage_immobilier_constitue(entity_ref("urn:law:catalog:bailparlecreancier:v0"), entity_ref("urn:law:catalog:bailparlecreancier:v1"), entity_ref("urn:law:catalog:bailparlecreancier:v2")) { origin case_input; }
+    }
+    evaluate truth(bail_sans_perte_de_possession(entity_ref("urn:law:catalog:bailparlecreancier:v0")));
+    expect truth_status == TRUE_ONLY;
+}

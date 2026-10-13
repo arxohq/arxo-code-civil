@@ -1,0 +1,1826 @@
+// TITRE IV, sections 2 à 5 et chapitre III — DISTANCES ET OUVRAGES (674),
+// VUES (675 à 680), ÉGOUT DES TOITS (681), DROIT DE PASSAGE (682 à 685-1),
+// SERVITUDES ÉTABLIES PAR LE FAIT DE L'HOMME (686 à 710).
+//
+// LES QUATRE NOMBRES DES VUES. L'article 676, alinéa 2, veut un treillis de
+// fer dont les mailles auront UN DÉCIMÈTRE d'ouverture AU PLUS. L'article
+// 677 veut le jour à VINGT-SIX DÉCIMÈTRES au-dessus du plancher au
+// rez-de-chaussée, à DIX-NEUF DÉCIMÈTRES aux étages supérieurs. L'article
+// 678 interdit les vues DROITES à moins de DIX-NEUF DÉCIMÈTRES ; l'article
+// 679, les vues OBLIQUES à moins de SIX DÉCIMÈTRES.
+//
+// L'ARTICLE 680 EST LA RÈGLE DE MESURE, et il est exécuté comme telle : la
+// distance se compte depuis le PAREMENT EXTÉRIEUR du mur où l'ouverture se
+// fait, et, s'il y a balcons ou autres semblables saillies, depuis leur
+// LIGNE EXTÉRIEURE, jusqu'à la ligne de séparation des deux propriétés. Le
+// cas fournit donc les deux mesures brutes ; c'est le paquet qui choisit
+// laquelle est « la distance » au sens des articles 678 et 679.
+//
+// L'ENCLAVE (682) A DEUX BRANCHES ET UN SEUL CANAL. « aucune issue » est un
+// fait physique du dossier ; « une issue INSUFFISANTE » est une appréciation
+// que le texte confie au juge — insuffisante pour quoi ? « soit pour
+// l'exploitation agricole, industrielle ou commerciale, soit pour la
+// réalisation d'opérations de construction ou de lotissement ». C'est un
+// jugement §47.3. De même l'endroit « le moins dommageable » (683,
+// alinéa 2) ; le trajet « le plus court » (683, alinéa 1), lui, se calcule
+// sur les longueurs que le cas fournit.
+//
+// TRENTE ANS, DE NOUVEAU. La servitude continue et apparente s'acquiert par
+// la possession de trente ans (690) ; l'assiette du passage pour enclave se
+// détermine par trente ans d'usage continu (685) ; la servitude s'éteint par
+// le non-usage pendant trente ans (706), comptés depuis le jour où l'on a
+// cessé d'en jouir pour les discontinues, depuis l'acte contraire pour les
+// continues (707).
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART543,
+    CC_ART674,
+    CC_ART675,
+    CC_ART676,
+    CC_ART677,
+    CC_ART678,
+    CC_ART679,
+    CC_ART680,
+    CC_ART681,
+    CC_ART682,
+    CC_ART683,
+    CC_ART684,
+    CC_ART685,
+    CC_ART685_1,
+    CC_ART686,
+    CC_ART687,
+    CC_ART688,
+    CC_ART689,
+    CC_ART690,
+    CC_ART691,
+    CC_ART692,
+    CC_ART693,
+    CC_ART694,
+    CC_ART695,
+    CC_ART696,
+    CC_ART697,
+    CC_ART698,
+    CC_ART699,
+    CC_ART700,
+    CC_ART701,
+    CC_ART702,
+    CC_ART703,
+    CC_ART704,
+    CC_ART705,
+    CC_ART706,
+    CC_ART707,
+    CC_ART708,
+    CC_ART709,
+    CC_ART710,
+    EspeceDeDroitSurLeBien,
+    Fonds,
+    Mur,
+    OrigineDeLaServitude,
+    Ouverture,
+    Personne,
+    Servitude,
+    Usufruit,
+    droit_sur_le_bien,
+    mur_mitoyen,
+    origine_declaree,
+    proprietaire_du_bien,
+    servitude_grevant,
+    usufruit_sur,
+    usufruitier,
+    voisin,
+};
+
+// --- Article 674 : distances et ouvrages intermédiaires -------------------------------------------
+
+pub enum OuvrageDangereuxPourLeVoisin {
+    label fr official "Ouvrage dont l'article 674 exige la distance ou les ouvrages prescrits par les règlements et usages particuliers";
+    label en unofficial "Work for which Article 674 requires the distance or works prescribed by particular regulations and usages";
+    PuitsOuFosseDAisance,
+    CheminneeAtreForgeFourOuFourneau,
+    Etable,
+    MagasinDeSelOuAmasDeMatieresCorrosives
+}
+
+pub relation ouvrage_pres_du_mur(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin) kind empirical {
+    label fr official "l'un des voisins fait creuser, construire, adosser ou établir près du mur, mitoyen ou non, l'un des ouvrages nommés (article 674)";
+    label en unofficial "one of the neighbours digs, builds, leans or sets up near the wall, party or not, one of the named works (Article 674)";
+}
+pub relation distance_ou_ouvrages_prescrits_par_les_reglements(m: Mur, espece: OuvrageDangereuxPourLeVoisin) kind empirical {
+    label fr official "les règlements et usages particuliers prescrivent, pour cet objet, une distance ou des ouvrages (article 674)";
+    label en unofficial "the particular regulations and usages prescribe, for that object, a distance or works (Article 674)";
+}
+pub relation obligation_de_laisser_la_distance_ou_de_faire_les_ouvrages(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin) kind derived {
+    label fr official "celui qui fait l'ouvrage est obligé à laisser la distance prescrite par les règlements et usages particuliers sur ces objets, ou à faire les ouvrages prescrits par les mêmes règlements et usages, pour éviter de nuire au voisin (article 674)";
+    label en unofficial "the person making the work must leave the distance prescribed by the particular regulations and usages on those objects, or make the works prescribed by the same regulations and usages, to avoid harming the neighbour (Article 674)";
+}
+pub relation auteur_ouvrage(m: Mur, f: Fonds, p: Personne) kind empirical {
+    label fr official "personne qui fait l'ouvrage visé par l'article 674";
+    label en unofficial "person who makes the work covered by Article 674";
+}
+pub relation ouvrages_mis_en_conformite(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin) kind empirical {
+    label fr official "distance ou ouvrages prescrits réalisés";
+    label en unofficial "prescribed distance or works completed";
+}
+
+@source(CC_ART674)
+rule DistanceOuOuvragesPrescritsParLesReglements(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin) strict {
+    label fr official "Article 674. Celui qui fait creuser un puits ou une fosse d'aisance près d'un mur mitoyen ou non, celui qui veut y construire cheminée ou âtre, forge, four ou fourneau, y adosser une étable, ou établir contre ce mur un magasin de sel ou amas de matières corrosives, est obligé à laisser la distance prescrite par les règlements et usages particuliers sur ces objets, ou à faire les ouvrages prescrits par les mêmes règlements et usages, pour éviter de nuire au voisin";
+    label en unofficial "Article 674. A person who has a well or cesspit dug near a wall, party or not, who wishes to build a chimney or hearth, forge, oven or furnace there, to lean a stable against it, or to set a salt store or heap of corrosive matter against that wall, must leave the distance prescribed by the particular regulations and usages on those objects, or make the works prescribed by the same regulations and usages, to avoid harming the neighbour";
+    when ouvrage_pres_du_mur(m, f, espece)
+        and distance_ou_ouvrages_prescrits_par_les_reglements(m, espece);
+    then obligation_de_laisser_la_distance_ou_de_faire_les_ouvrages(m, f, espece);
+}
+
+@source(CC_ART674)
+rule P4DevoirRespecterDistance674(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin, p: Personne) strict {
+    label fr official "Article 674. L'auteur de l'ouvrage doit laisser la distance ou réaliser les ouvrages prescrits";
+    label en unofficial "Article 674. The maker of the work must leave the required distance or complete the prescribed works";
+    when auteur_ouvrage(m, f, p)
+        and ouvrage_pres_du_mur(m, f, espece)
+        and distance_ou_ouvrages_prescrits_par_les_reglements(m, espece);
+    then duty P4DevoirRespecterDistance674Actif {
+        bearer p;
+        goal achievement {
+            condition ouvrages_mis_en_conformite(m, f, espece);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART674)
+rule P4MaintenanceRespecterDistance674(m: Mur, f: Fonds, espece: OuvrageDangereuxPourLeVoisin, p: Personne) strict {
+    label fr official "Article 674. L'auteur de l'ouvrage doit maintenir la distance ou les ouvrages prescrits";
+    label en unofficial "Article 674. The maker of the work must maintain the required distance or works";
+    when auteur_ouvrage(m, f, p)
+        and ouvrage_pres_du_mur(m, f, espece)
+        and distance_ou_ouvrages_prescrits_par_les_reglements(m, espece);
+    then duty P4MaintenanceRespecterDistance674Duty {
+        bearer p;
+        goal maintenance {
+            condition ouvrages_mis_en_conformite(m, f, espece);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Articles 675 à 680 : les vues -----------------------------------------------------------------
+
+pub enum EspeceDeVue {
+    label fr official "Espèce de vue ou d'ouverture (articles 676 à 679)";
+    label en unofficial "Kind of view or opening (Articles 676 to 679)";
+    JourAFerMailleEtVerreDormant,
+    VueDroiteOuFenetreDAspect,
+    BalconOuAutreSaillieSemblable,
+    VueParCoteOuOblique
+}
+pub enum NiveauDeLOuverture {
+    label fr official "Niveau où l'ouverture est pratiquée (article 677)";
+    label en unofficial "Level at which the opening is made (Article 677)";
+    RezDeChaussee,
+    EtageSuperieur
+}
+
+pub relation ouverture_dans(o: Ouverture, m: Mur) kind empirical {
+    key(o);
+    label fr official "l'ouverture est pratiquée dans ce mur (articles 675 à 680)";
+    label en unofficial "the opening is made in this wall (Articles 675 to 680)";
+}
+pub relation ouverture_sur_l_heritage(o: Ouverture, v: Fonds) kind empirical {
+    key(o);
+    label fr official "l'ouverture donne sur l'héritage, clos ou non clos, du voisin (articles 676, 678, 679)";
+    label en unofficial "the opening looks onto the neighbour's tenement, enclosed or not (Articles 676, 678, 679)";
+}
+pub relation espece_de_l_ouverture(o: Ouverture, espece: EspeceDeVue) kind empirical {
+    key(o);
+    label fr official "espèce de l'ouverture, telle que les articles 676 à 679 la nomment";
+    label en unofficial "kind of the opening, as Articles 676 to 679 name it";
+}
+pub relation niveau_de_l_ouverture(o: Ouverture, niveau: NiveauDeLOuverture) kind empirical {
+    key(o);
+    label fr official "niveau où l'ouverture est pratiquée : rez-de-chaussée ou étage supérieur (article 677)";
+    label en unofficial "level at which the opening is made: ground floor or upper storey (Article 677)";
+}
+pub relation ouverture_du_treillis(o: Ouverture, ouverture_maille: Quantity) kind empirical {
+    key(o);
+    label fr official "ouverture des mailles du treillis de fer qui garnit la fenêtre (article 676, alinéa 2)";
+    label en unofficial "aperture of the mesh of the iron grille fitted to the window (Article 676, paragraph 2)";
+}
+pub relation chassis_a_verre_dormant(o: Ouverture) kind empirical {
+    label fr official "la fenêtre est garnie d'un châssis à verre dormant (article 676, alinéa 2)";
+    label en unofficial "the window is fitted with a fixed-glass frame (Article 676, paragraph 2)";
+}
+pub relation hauteur_au_dessus_du_plancher(o: Ouverture, hauteur: Quantity) kind empirical {
+    key(o);
+    label fr official "hauteur de l'ouverture au-dessus du plancher ou sol de la chambre qu'on veut éclairer (article 677)";
+    label en unofficial "height of the opening above the floor or ground of the room to be lit (Article 677)";
+}
+pub relation distance_du_parement_exterieur_a_la_ligne_separative(o: Ouverture, distance: Quantity) kind empirical {
+    key(o);
+    label fr official "distance mesurée depuis le parement extérieur du mur où l'ouverture se fait jusqu'à la ligne de séparation des deux propriétés (article 680)";
+    label en unofficial "distance measured from the outer face of the wall where the opening is made to the boundary line of the two properties (Article 680)";
+}
+pub relation balcon_ou_saillie_semblable(o: Ouverture) kind empirical {
+    label fr official "l'ouverture comporte un balcon ou une autre semblable saillie : la distance se compte alors depuis sa ligne extérieure (article 680)";
+    label en unofficial "the opening carries a balcony or other similar projection: the distance is then counted from its outer line (Article 680)";
+}
+pub relation distance_de_la_ligne_exterieure_de_la_saillie(o: Ouverture, distance: Quantity) kind empirical {
+    key(o);
+    label fr official "distance mesurée depuis la ligne extérieure du balcon ou autre semblable saillie jusqu'à la ligne de séparation des deux propriétés (article 680)";
+    label en unofficial "distance measured from the outer line of the balcony or other similar projection to the boundary line of the two properties (Article 680)";
+}
+pub relation consentement_du_voisin_a_l_ouverture(o: Ouverture) kind empirical {
+    label fr official "l'autre voisin a consenti à la fenêtre ou ouverture pratiquée dans le mur mitoyen (article 675)";
+    label en unofficial "the other neighbour consented to the window or opening made in the party wall (Article 675)";
+}
+pub relation servitude_de_passage_faisant_obstacle_aux_constructions(v: Fonds) kind empirical {
+    label fr official "le fonds ou la partie du fonds sur lequel s'exerce la vue est déjà grevé, au profit du fonds qui en bénéficie, d'une servitude de passage faisant obstacle à l'édification de constructions (articles 678, 679)";
+    label en unofficial "the land, or the part of the land, over which the view is exercised is already burdened, in favour of the land benefiting from it, by a right of way preventing the erection of buildings (Articles 678, 679)";
+}
+
+pub relation distance_de_la_vue(o: Ouverture, distance: Quantity) kind derived {
+    label fr official "distance de la vue au sens des articles 678 et 679, comptée selon la règle de mesure de l'article 680";
+    label en unofficial "distance of the view for the purposes of Articles 678 and 679, counted under the measuring rule of Article 680";
+}
+pub relation distance_legale_de_vue(o: Ouverture, distance: Quantity) kind derived {
+    label fr official "distance que la vue doit respecter : dix-neuf décimètres pour les vues droites, six décimètres pour les vues obliques (articles 678, 679)";
+    label en unofficial "distance the view must observe: nineteen decimetres for direct views, six decimetres for oblique views (Articles 678, 679)";
+}
+pub relation vue_permise(o: Ouverture) kind derived {
+    label fr official "la vue est permise : la distance légale est respectée, ou le fonds est déjà grevé d'une servitude de passage faisant obstacle aux constructions (articles 678, 679)";
+    label en unofficial "the view is permitted: the statutory distance is observed, or the land is already burdened by a right of way preventing buildings (Articles 678, 679)";
+}
+pub relation vue_prohibee(o: Ouverture) kind derived {
+    label fr official "la vue est prohibée : la distance légale n'est pas respectée (articles 678, 679)";
+    label en unofficial "the view is prohibited: the statutory distance is not observed (Articles 678, 679)";
+}
+pub relation ouverture_dans_le_mur_mitoyen_prohibee(o: Ouverture) kind derived {
+    label fr official "l'un des voisins ne peut, sans le consentement de l'autre, pratiquer dans le mur mitoyen aucune fenêtre ou ouverture, en quelque manière que ce soit, même à verre dormant (article 675)";
+    label en unofficial "one of the neighbours may not, without the other's consent, make any window or opening in the party wall, in any manner whatsoever, even with fixed glass (Article 675)";
+}
+pub relation auteur_ouverture(o: Ouverture, p: Personne) kind empirical {
+    label fr official "personne qui pratique l'ouverture";
+    label en unofficial "person who makes the opening";
+}
+pub relation ouverture_pratiquee(o: Ouverture) kind empirical {
+    label fr official "ouverture pratiquée dans le mur mitoyen";
+    label en unofficial "opening made in the party wall";
+}
+pub relation jour_trop_bas_exerce(o: Ouverture, p: Personne) kind empirical {
+    label fr official "jour établi trop bas exercé";
+    label en unofficial "light established too low exercised";
+}
+pub relation vue_droite_trop_proche_exercee(o: Ouverture, p: Personne) kind empirical {
+    label fr official "vue droite trop proche exercée";
+    label en unofficial "direct view too close exercised";
+}
+pub relation vue_oblique_trop_proche_exercee(o: Ouverture, p: Personne) kind empirical {
+    label fr official "vue oblique trop proche exercée";
+    label en unofficial "oblique view too close exercised";
+}
+pub relation jour_permis_dans_le_mur_non_mitoyen(o: Ouverture) kind derived {
+    label fr official "le propriétaire d'un mur non mitoyen joignant immédiatement l'héritage d'autrui peut y pratiquer des jours ou fenêtres à fer maillé et verre dormant (article 676)";
+    label en unofficial "the owner of a non-party wall immediately adjoining another's tenement may make lights or windows there with iron mesh and fixed glass (Article 676)";
+}
+pub relation proprietaire_du_mur(m: Mur, p: Personne) kind empirical {
+    label fr official "propriétaire du mur";
+    label en unofficial "owner of the wall";
+}
+pub relation jour_pratique(o: Ouverture) kind empirical {
+    label fr official "jour ou fenêtre pratiqué";
+    label en unofficial "light or window made";
+}
+pub relation jour_conforme_au_treillis_et_au_chassis(o: Ouverture) kind derived {
+    label fr official "le jour est garni d'un treillis de fer dont les mailles ont un décimètre d'ouverture au plus et d'un châssis à verre dormant (article 676, alinéa 2)";
+    label en unofficial "the light is fitted with an iron grille whose mesh is at most one decimetre wide and with a fixed-glass frame (Article 676, paragraph 2)";
+}
+pub relation jour_non_conforme_au_treillis(o: Ouverture) kind derived {
+    label fr official "les mailles du treillis dépassent un décimètre d'ouverture (article 676, alinéa 2)";
+    label en unofficial "the mesh of the grille exceeds one decimetre in width (Article 676, paragraph 2)";
+}
+pub relation jour_a_la_hauteur_requise(o: Ouverture) kind derived {
+    label fr official "le jour est établi à la hauteur requise au-dessus du plancher : vingt-six décimètres au rez-de-chaussée, dix-neuf décimètres aux étages supérieurs (article 677)";
+    label en unofficial "the light is set at the required height above the floor: twenty-six decimetres on the ground floor, nineteen decimetres on upper storeys (Article 677)";
+}
+pub relation jour_trop_bas(o: Ouverture) kind derived {
+    label fr official "le jour n'est pas établi à la hauteur requise au-dessus du plancher (article 677)";
+    label en unofficial "the light is not set at the required height above the floor (Article 677)";
+}
+
+@source(CC_ART675)
+rule OuvertureDansLeMurMitoyenSansConsentement(o: Ouverture, m: Mur) strict {
+    label fr official "Article 675. L'un des voisins ne peut, sans le consentement de l'autre, pratiquer dans le mur mitoyen aucune fenêtre ou ouverture, en quelque manière que ce soit, même à verre dormant";
+    label en unofficial "Article 675. One of the neighbours may not, without the other's consent, make any window or opening in the party wall, in any manner whatsoever, even with fixed glass";
+    when ouverture_dans(o, m)
+        and mur_mitoyen(m)
+        and not_known(consentement_du_voisin_a_l_ouverture(o));
+    then ouverture_dans_le_mur_mitoyen_prohibee(o);
+}
+
+@source(CC_ART675)
+rule P4InterdictionOuverture675(o: Ouverture, m: Mur, p: Personne) strict {
+    label fr official "Article 675. Le voisin ne peut pratiquer l'ouverture sans consentement";
+    label en unofficial "Article 675. The neighbour may not make the opening without consent";
+    when auteur_ouverture(o, p)
+        and ouverture_dans(o, m)
+        and mur_mitoyen(m)
+        and not_known(consentement_du_voisin_a_l_ouverture(o));
+    then prohibition P4InterdictionOuverture675Actif {
+        bearer p;
+        action ouverture_pratiquee(o);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART675)
+rule MaintenanceInterdictionOuverture675(o: Ouverture, m: Mur, p: Personne) strict {
+    label fr official "Article 675. Le voisin doit maintenir l'absence d'ouverture sans consentement";
+    label en unofficial "Article 675. The neighbour must maintain the absence of an opening without consent";
+    when auteur_ouverture(o, p)
+        and ouverture_dans(o, m)
+        and mur_mitoyen(m)
+        and not_known(consentement_du_voisin_a_l_ouverture(o));
+    then duty MaintenanceInterdictionOuverture675Duty {
+        bearer p;
+        goal maintenance {
+            condition not ouverture_pratiquee(o);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART676) {
+    rule JourPermisDansLeMurNonMitoyen(o: Ouverture, m: Mur, v: Fonds) strict {
+        label fr official "Article 676, alinéa 1. Le propriétaire d'un mur non mitoyen, joignant immédiatement l'héritage d'autrui, peut pratiquer dans ce mur des jours ou fenêtres à fer maillé et verre dormant";
+        label en unofficial "Article 676, paragraph 1. The owner of a non-party wall immediately adjoining another's tenement may make lights or windows in that wall with iron mesh and fixed glass";
+        when ouverture_dans(o, m)
+            and ouverture_sur_l_heritage(o, v)
+            and espece_de_l_ouverture(o, JourAFerMailleEtVerreDormant)
+            and not_known(mur_mitoyen(m));
+        then jour_permis_dans_le_mur_non_mitoyen(o);
+    }
+    rule P4LiberteJour676(o: Ouverture, m: Mur, v: Fonds, p: Personne) strict {
+        label fr official "Article 676. Le propriétaire peut pratiquer le jour conforme";
+        label en unofficial "Article 676. The owner may make the compliant light";
+        when proprietaire_du_mur(m, p)
+            and ouverture_dans(o, m)
+            and ouverture_sur_l_heritage(o, v)
+            and espece_de_l_ouverture(o, JourAFerMailleEtVerreDormant)
+            and not_known(mur_mitoyen(m));
+        then liberty P4LiberteJour676Actif {
+            holder p;
+            action jour_pratique(o);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule TreillisConforme(o: Ouverture, maille: Quantity) strict {
+        label fr official "Article 676, alinéa 2. Ces fenêtres doivent être garnies d'un treillis de fer dont les mailles auront un décimètre d'ouverture au plus, et d'un châssis à verre dormant";
+        label en unofficial "Article 676, paragraph 2. Those windows must be fitted with an iron grille whose mesh is at most one decimetre wide, and with a fixed-glass frame";
+        when espece_de_l_ouverture(o, JourAFerMailleEtVerreDormant)
+            and ouverture_du_treillis(o, maille)
+            and unit_convert(magnitude(maille), "dm") <= magnitude(1 dm)
+            and chassis_a_verre_dormant(o);
+        then jour_conforme_au_treillis_et_au_chassis(o);
+    }
+    rule TreillisTropLarge(o: Ouverture, maille: Quantity) strict {
+        label fr official "Article 676, alinéa 2. Les mailles du treillis ne peuvent avoir plus d'un décimètre d'ouverture";
+        label en unofficial "Article 676, paragraph 2. The mesh of the grille may not be more than one decimetre wide";
+        when espece_de_l_ouverture(o, JourAFerMailleEtVerreDormant)
+            and ouverture_du_treillis(o, maille)
+            and unit_convert(magnitude(maille), "dm") > magnitude(1 dm);
+        then jour_non_conforme_au_treillis(o);
+    }
+}
+
+@source(CC_ART677) {
+    rule P4InterdictionJourTropBas677(o: Ouverture, p: Personne, hauteur: Quantity) strict {
+        label fr official "Article 677. Le propriétaire ne peut établir un jour trop bas";
+        label en unofficial "Article 677. The owner may not establish a light too low";
+        when auteur_ouverture(o, p)
+            and niveau_de_l_ouverture(o, RezDeChaussee)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") < magnitude(26 dm);
+        then prohibition P4InterdictionJourTropBas677Actif {
+            bearer p;
+            action jour_trop_bas_exerce(o, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionJourTropBas677(o: Ouverture, p: Personne, hauteur: Quantity) strict {
+        label fr official "Article 677. Le propriétaire doit maintenir l'absence de jour trop bas";
+        label en unofficial "Article 677. The owner must maintain the absence of a light set too low";
+        when auteur_ouverture(o, p)
+            and niveau_de_l_ouverture(o, RezDeChaussee)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") < magnitude(26 dm);
+        then duty MaintenanceInterdictionJourTropBas677Duty {
+            bearer p;
+            goal maintenance {
+                condition not jour_trop_bas_exerce(o, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule JourAuRezDeChausseeConforme(o: Ouverture, hauteur: Quantity) strict {
+        label fr official "Article 677. Ces fenêtres ou jours ne peuvent être établis qu'à vingt-six décimètres au-dessus du plancher ou sol de la chambre qu'on veut éclairer, si c'est à rez-de-chaussée";
+        label en unofficial "Article 677. Those windows or lights may be set only at twenty-six decimetres above the floor or ground of the room to be lit, if on the ground floor";
+        when niveau_de_l_ouverture(o, RezDeChaussee)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") >= magnitude(26 dm);
+        then jour_a_la_hauteur_requise(o);
+    }
+    rule JourAuRezDeChausseeTropBas(o: Ouverture, hauteur: Quantity) strict {
+        label fr official "Article 677. Au rez-de-chaussée, le jour établi à moins de vingt-six décimètres au-dessus du plancher n'est pas permis";
+        label en unofficial "Article 677. On the ground floor, a light set at less than twenty-six decimetres above the floor is not allowed";
+        when niveau_de_l_ouverture(o, RezDeChaussee)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") < magnitude(26 dm);
+        then jour_trop_bas(o);
+    }
+    rule JourAuxEtagesSuperieursConforme(o: Ouverture, hauteur: Quantity) strict {
+        label fr official "Article 677. Et à dix-neuf décimètres au-dessus du plancher pour les étages supérieurs";
+        label en unofficial "Article 677. And at nineteen decimetres above the floor for upper storeys";
+        when niveau_de_l_ouverture(o, EtageSuperieur)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") >= magnitude(19 dm);
+        then jour_a_la_hauteur_requise(o);
+    }
+    rule JourAuxEtagesSuperieursTropBas(o: Ouverture, hauteur: Quantity) strict {
+        label fr official "Article 677. Aux étages supérieurs, le jour établi à moins de dix-neuf décimètres au-dessus du plancher n'est pas permis";
+        label en unofficial "Article 677. On upper storeys, a light set at less than nineteen decimetres above the floor is not allowed";
+        when niveau_de_l_ouverture(o, EtageSuperieur)
+            and hauteur_au_dessus_du_plancher(o, hauteur)
+            and unit_convert(magnitude(hauteur), "dm") < magnitude(19 dm);
+        then jour_trop_bas(o);
+    }
+}
+
+@source(CC_ART680) {
+    rule MesureDepuisLeParementExterieur(o: Ouverture, distance: Quantity) strict {
+        label fr official "Article 680. La distance dont il est parlé dans les deux articles précédents se compte depuis le parement extérieur du mur où l'ouverture se fait jusqu'à la ligne de séparation des deux propriétés";
+        label en unofficial "Article 680. The distance spoken of in the two preceding articles is counted from the outer face of the wall where the opening is made to the boundary line of the two properties";
+        when distance_du_parement_exterieur_a_la_ligne_separative(o, distance)
+            and not_known(balcon_ou_saillie_semblable(o));
+        then distance_de_la_vue(o, distance);
+    }
+    rule MesureDepuisLaLigneExterieureDeLaSaillie(o: Ouverture, distance: Quantity) strict {
+        label fr official "Article 680. Et, s'il y a balcons ou autres semblables saillies, depuis leur ligne extérieure jusqu'à la ligne de séparation des deux propriétés";
+        label en unofficial "Article 680. And, if there are balconies or other similar projections, from their outer line to the boundary line of the two properties";
+        when balcon_ou_saillie_semblable(o)
+            and distance_de_la_ligne_exterieure_de_la_saillie(o, distance);
+        then distance_de_la_vue(o, distance);
+    }
+}
+
+@source(CC_ART678) {
+    rule P4InterdictionVueDroiteTropProche678(o: Ouverture, p: Personne, legale: Quantity, reelle: Quantity, v: Fonds) strict {
+        label fr official "Article 678. Le propriétaire ne peut avoir une vue droite à moins de dix-neuf décimètres";
+        label en unofficial "Article 678. The owner may not have a direct view closer than nineteen decimetres";
+        when auteur_ouverture(o, p)
+            and espece_de_l_ouverture(o, VueDroiteOuFenetreDAspect)
+            and distance_legale_de_vue(o, legale)
+            and distance_de_la_vue(o, reelle)
+            and ouverture_sur_l_heritage(o, v)
+            and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm")
+            and not_known(servitude_de_passage_faisant_obstacle_aux_constructions(v));
+        then prohibition P4InterdictionVueDroiteTropProche678Actif {
+            bearer p;
+            action vue_droite_trop_proche_exercee(o, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionVueDroiteTropProche678(o: Ouverture, p: Personne, legale: Quantity, reelle: Quantity, v: Fonds) strict {
+        label fr official "Article 678. Le propriétaire doit maintenir l'absence de vue droite trop proche";
+        label en unofficial "Article 678. The owner must maintain the absence of an overly close direct view";
+        when auteur_ouverture(o, p)
+            and espece_de_l_ouverture(o, VueDroiteOuFenetreDAspect)
+            and distance_legale_de_vue(o, legale)
+            and distance_de_la_vue(o, reelle)
+            and ouverture_sur_l_heritage(o, v)
+            and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm")
+            and not_known(servitude_de_passage_faisant_obstacle_aux_constructions(v));
+        then duty MaintenanceInterdictionVueDroiteTropProche678Duty {
+            bearer p;
+            goal maintenance {
+                condition not vue_droite_trop_proche_exercee(o, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule DistanceLegaleDeLaVueDroite(o: Ouverture) strict {
+        label fr official "Article 678. On ne peut avoir des vues droites ou fenêtres d'aspect sur l'héritage clos ou non clos de son voisin s'il n'y a dix-neuf décimètres de distance";
+        label en unofficial "Article 678. One may not have direct views or prospect windows over the enclosed or unenclosed tenement of one's neighbour unless there are nineteen decimetres of distance";
+        when espece_de_l_ouverture(o, VueDroiteOuFenetreDAspect);
+        then distance_legale_de_vue(o, 19 dm);
+    }
+    rule DistanceLegaleDuBalcon(o: Ouverture) strict {
+        label fr official "Article 678. Ni balcons ou autres semblables saillies sur l'héritage clos ou non clos de son voisin, s'il n'y a dix-neuf décimètres de distance";
+        label en unofficial "Article 678. Nor balconies or other similar projections over the enclosed or unenclosed tenement of one's neighbour, unless there are nineteen decimetres of distance";
+        when espece_de_l_ouverture(o, BalconOuAutreSaillieSemblable);
+        then distance_legale_de_vue(o, 19 dm);
+    }
+    rule VuePermiseParLaDistance(o: Ouverture, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Articles 678 et 679. La vue qui respecte la distance légale est permise";
+        label en unofficial "Articles 678 and 679. A view observing the statutory distance is permitted";
+        when distance_legale_de_vue(o, legale)
+            and distance_de_la_vue(o, reelle)
+            and unit_convert(magnitude(reelle), "dm") >= unit_convert(magnitude(legale), "dm");
+        then vue_permise(o);
+    }
+    rule VueProhibeeFauteDeDistance(o: Ouverture, v: Fonds, legale: Quantity, reelle: Quantity) strict {
+        label fr official "Articles 678 et 679. La vue qui ne respecte pas la distance légale est prohibée, à moins que le fonds sur lequel elle s'exerce ne soit déjà grevé d'une servitude de passage faisant obstacle à l'édification de constructions";
+        label en unofficial "Articles 678 and 679. A view that does not observe the statutory distance is prohibited, unless the land over which it is exercised is already burdened by a right of way preventing the erection of buildings";
+        when distance_legale_de_vue(o, legale)
+            and distance_de_la_vue(o, reelle)
+            and ouverture_sur_l_heritage(o, v)
+            and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm")
+            and not_known(servitude_de_passage_faisant_obstacle_aux_constructions(v));
+        then vue_prohibee(o);
+    }
+    rule VuePermiseParLaServitudeDePassage(o: Ouverture, v: Fonds) strict {
+        label fr official "Article 678. À moins que le fonds ou la partie du fonds sur lequel s'exerce la vue ne soit déjà grevé, au profit du fonds qui en bénéficie, d'une servitude de passage faisant obstacle à l'édification de constructions";
+        label en unofficial "Article 678. Unless the land, or the part of the land, over which the view is exercised is already burdened, in favour of the land benefiting from it, by a right of way preventing the erection of buildings";
+        when ouverture_sur_l_heritage(o, v)
+            and servitude_de_passage_faisant_obstacle_aux_constructions(v);
+        then vue_permise(o);
+    }
+}
+
+@source(CC_ART679)
+rule P4InterdictionVueObliqueTropProche679(o: Ouverture, p: Personne, legale: Quantity, reelle: Quantity, v: Fonds) strict {
+    label fr official "Article 679. Le propriétaire ne peut avoir une vue oblique à moins de six décimètres";
+    label en unofficial "Article 679. The owner may not have an oblique view closer than six decimetres";
+    when auteur_ouverture(o, p)
+        and espece_de_l_ouverture(o, VueParCoteOuOblique)
+        and distance_legale_de_vue(o, legale)
+        and distance_de_la_vue(o, reelle)
+        and ouverture_sur_l_heritage(o, v)
+        and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm")
+        and not_known(servitude_de_passage_faisant_obstacle_aux_constructions(v));
+    then prohibition P4InterdictionVueObliqueTropProche679Actif {
+        bearer p;
+        action vue_oblique_trop_proche_exercee(o, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART679)
+rule MaintenanceInterdictionVueObliqueTropProche679(o: Ouverture, p: Personne, legale: Quantity, reelle: Quantity, v: Fonds) strict {
+    label fr official "Article 679. Le propriétaire doit maintenir l'absence de vue oblique trop proche";
+    label en unofficial "Article 679. The owner must maintain the absence of an overly close oblique view";
+    when auteur_ouverture(o, p)
+        and espece_de_l_ouverture(o, VueParCoteOuOblique)
+        and distance_legale_de_vue(o, legale)
+        and distance_de_la_vue(o, reelle)
+        and ouverture_sur_l_heritage(o, v)
+        and unit_convert(magnitude(reelle), "dm") < unit_convert(magnitude(legale), "dm")
+        and not_known(servitude_de_passage_faisant_obstacle_aux_constructions(v));
+    then duty MaintenanceInterdictionVueObliqueTropProche679Duty {
+        bearer p;
+        goal maintenance {
+            condition not vue_oblique_trop_proche_exercee(o, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART679)
+rule DistanceLegaleDeLaVueOblique(o: Ouverture) strict {
+    label fr official "Article 679. On ne peut, sous la même réserve, avoir des vues par côté ou obliques sur le même héritage, s'il n'y a six décimètres de distance";
+    label en unofficial "Article 679. One may not, subject to the same reservation, have side or oblique views over the same tenement unless there are six decimetres of distance";
+    when espece_de_l_ouverture(o, VueParCoteOuOblique);
+    then distance_legale_de_vue(o, 6 dm);
+}
+
+// --- Article 681 : l'égout des toits -----------------------------------------------------------------
+
+pub relation toits_versant_sur_le_fonds_voisin(f: Fonds, v: Fonds) kind empirical {
+    label fr official "le propriétaire fait verser les eaux pluviales de ses toits sur le fonds de son voisin (article 681)";
+    label en unofficial "the owner lets the rainwater from his roofs fall onto his neighbour's land (Article 681)";
+}
+pub relation obligation_d_ecouler_les_eaux_sur_son_terrain(f: Fonds) kind derived {
+    label fr official "tout propriétaire doit établir des toits de manière que les eaux pluviales s'écoulent sur son terrain ou sur la voie publique ; il ne peut les faire verser sur le fonds de son voisin (article 681)";
+    label en unofficial "every owner must set his roofs so that the rainwater runs onto his own land or onto the public road; he may not let it fall onto his neighbour's land (Article 681)";
+}
+pub relation proprietaire_du_fonds(f: Fonds, p: Personne) kind empirical {
+    label fr official "propriétaire du fonds";
+    label en unofficial "owner of the tenement";
+}
+pub relation eaux_ecoulees_sur_son_terrain(f: Fonds) kind empirical {
+    label fr official "eaux pluviales écoulées sur le fonds propre";
+    label en unofficial "rainwater discharged onto the owner's land";
+}
+pub relation eaux_versees_sur_fonds_voisin(f: Fonds, v: Fonds) kind empirical {
+    label fr official "eaux pluviales versées sur le fonds voisin";
+    label en unofficial "rainwater discharged onto the neighbour's land";
+}
+
+@source(CC_ART681)
+rule EgoutDesToitsSurSonPropreTerrain(f: Fonds, v: Fonds) strict {
+    label fr official "Article 681. Tout propriétaire doit établir des toits de manière que les eaux pluviales s'écoulent sur son terrain ou sur la voie publique ; il ne peut les faire verser sur le fonds de son voisin";
+    label en unofficial "Article 681. Every owner must set his roofs so that the rainwater runs onto his own land or onto the public road; he may not let it fall onto his neighbour's land";
+    when voisin(f, v)
+        and toits_versant_sur_le_fonds_voisin(f, v);
+    then obligation_d_ecouler_les_eaux_sur_son_terrain(f);
+}
+
+@source(CC_ART681)
+rule P4DevoirEgoutDesToits681(f: Fonds, v: Fonds, p: Personne) strict {
+    label fr official "Article 681. Le propriétaire doit faire écouler les eaux sur son fonds ou la voie publique";
+    label en unofficial "Article 681. The owner must direct rainwater onto his land or the public road";
+    when proprietaire_du_fonds(f, p)
+        and voisin(f, v)
+        and toits_versant_sur_le_fonds_voisin(f, v);
+    then duty P4DevoirEgoutDesToits681Actif {
+        bearer p;
+        goal achievement {
+            condition eaux_ecoulees_sur_son_terrain(f);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART681)
+rule P4InterdictionEgoutVoisin681(f: Fonds, v: Fonds, p: Personne) strict {
+    label fr official "Article 681. Le propriétaire ne peut verser les eaux sur le fonds voisin";
+    label en unofficial "Article 681. The owner may not discharge rainwater onto the neighbour's land";
+    when proprietaire_du_fonds(f, p)
+        and voisin(f, v)
+        and toits_versant_sur_le_fonds_voisin(f, v);
+    then prohibition P4InterdictionEgoutVoisin681Actif {
+        bearer p;
+        action eaux_versees_sur_fonds_voisin(f, v);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART681)
+rule MaintenanceInterdictionEgoutVoisin681(f: Fonds, v: Fonds, p: Personne) strict {
+    label fr official "Article 681. Le propriétaire doit maintenir l'absence d'écoulement sur le fonds voisin";
+    label en unofficial "Article 681. The owner must maintain the absence of drainage onto the neighbour's land";
+    when proprietaire_du_fonds(f, p)
+        and voisin(f, v)
+        and toits_versant_sur_le_fonds_voisin(f, v);
+    then duty MaintenanceInterdictionEgoutVoisin681Duty {
+        bearer p;
+        goal maintenance {
+            condition not eaux_versees_sur_fonds_voisin(f, v);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Articles 682 à 685-1 : le droit de passage pour cause d'enclave ---------------------------------
+
+pub relation aucune_issue_sur_la_voie_publique(f: Fonds) kind empirical {
+    label fr official "le fonds n'a aucune issue sur la voie publique (article 682)";
+    label en unofficial "the land has no outlet onto the public road (Article 682)";
+}
+pub relation issue_existante_sur_la_voie_publique(f: Fonds) kind empirical {
+    label fr official "le fonds a une issue sur la voie publique, dont il reste à savoir si elle est suffisante (article 682)";
+    label en unofficial "the land has an outlet onto the public road, whose sufficiency remains to be determined (Article 682)";
+}
+pub relation longueur_du_trajet_par(dominant: Fonds, servant: Fonds, longueur: Quantity) kind empirical {
+    key(dominant, servant);
+    label fr official "longueur du trajet du fonds enclavé à la voie publique par le fonds voisin considéré (article 683, alinéa 1)";
+    label en unofficial "length of the route from the landlocked land to the public road across the neighbouring land considered (Article 683, paragraph 1)";
+}
+pub relation enclave_resultant_d_une_division(dominant: Fonds) kind empirical {
+    label fr official "l'enclave résulte de la division d'un fonds par suite d'une vente, d'un échange, d'un partage ou de tout autre contrat (article 684, alinéa 1)";
+    label en unofficial "the landlocking results from the division of a tenement by sale, exchange, partition or any other contract (Article 684, paragraph 1)";
+}
+pub relation terrain_objet_de_l_acte_de_division(dominant: Fonds, servant: Fonds) kind empirical {
+    label fr official "le fonds voisin a fait l'objet de l'acte de division dont résulte l'enclave (article 684, alinéa 1)";
+    label en unofficial "the neighbouring land was the object of the act of division from which the landlocking results (Article 684, paragraph 1)";
+}
+pub relation passage_suffisant_impossible_sur_les_fonds_divises(dominant: Fonds) kind empirical {
+    label fr official "un passage suffisant ne pourrait être établi sur les fonds divisés (article 684, alinéa 2)";
+    label en unofficial "a sufficient way could not be established over the divided lands (Article 684, paragraph 2)";
+}
+pub relation debut_de_l_usage_continu_du_passage_le(s: Servitude, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où a commencé l'usage continu du passage dont l'assiette et le mode se déterminent par trente ans (article 685, alinéa 1)";
+    label en unofficial "day on which the continuous use of the way began, whose route and mode are determined by thirty years (Article 685, paragraph 1)";
+}
+pub relation desserte_assuree_dans_les_conditions_de_l_article_682(dominant: Fonds) kind empirical {
+    label fr official "la desserte du fonds dominant est assurée dans les conditions de l'article 682 : l'enclave a cessé (article 685-1, alinéa 1)";
+    label en unofficial "the dominant land is served in the conditions of Article 682: the landlocking has ceased (Article 685-1, paragraph 1)";
+}
+pub relation disparition_constatee_par_decision_de_justice(s: Servitude) kind empirical {
+    label fr official "à défaut d'accord amiable, la disparition de la servitude est constatée par une décision de justice (article 685-1, alinéa 2)";
+    label en unofficial "failing amicable agreement, the disappearance of the servitude is recorded by a court decision (Article 685-1, paragraph 2)";
+}
+pub relation accord_amiable_sur_la_disparition(s: Servitude) kind empirical {
+    label fr official "les parties se sont accordées à l'amiable sur la disparition de la servitude (article 685-1, alinéa 2)";
+    label en unofficial "the parties amicably agreed on the disappearance of the servitude (Article 685-1, paragraph 2)";
+}
+
+pub relation fonds_enclave(f: Fonds) kind derived {
+    label fr official "le fonds est enclavé : il n'a sur la voie publique aucune issue, ou qu'une issue insuffisante (article 682)";
+    label en unofficial "the land is landlocked: it has no outlet onto the public road, or only an insufficient one (Article 682)";
+}
+pub relation droit_de_reclamer_un_passage(dominant: Fonds, servant: Fonds) kind derived {
+    label fr official "le propriétaire du fonds enclavé est fondé à réclamer sur les fonds de ses voisins un passage suffisant pour assurer la desserte complète de ses fonds, à charge d'une indemnité proportionnée au dommage qu'il peut occasionner (article 682)";
+    label en unofficial "the owner of the landlocked land may claim over his neighbours' lands a way sufficient to serve his lands fully, subject to an indemnity proportionate to the damage he may cause (Article 682)";
+}
+pub relation passage_reclame_sur_le_fonds_voisin(dominant: Fonds, servant: Fonds) kind institutional {
+    label fr official "le passage est réclamé sur le fonds voisin, à charge d'une indemnité proportionnée au dommage (article 682)";
+    label en unofficial "a way is claimed over the neighbouring tenement, subject to compensation proportionate to the damage (Article 682)";
+}
+pub relation proprietaire_fonds_enclave(dominant: Fonds, p: Personne) kind empirical {
+    label fr official "propriétaire du fonds enclavé";
+    label en unofficial "owner of the landlocked tenement";
+}
+pub relation passage_reclame_exerce(dominant: Fonds, servant: Fonds, p: Personne) kind empirical {
+    label fr official "droit de passage exercé";
+    label en unofficial "way claimed and exercised";
+}
+pub relation trajet_le_plus_court(dominant: Fonds, servant: Fonds) kind derived {
+    label fr official "le passage doit régulièrement être pris du côté où le trajet est le plus court du fonds enclavé à la voie publique (article 683, alinéa 1)";
+    label en unofficial "the way must regularly be taken on the side where the route from the landlocked land to the public road is shortest (Article 683, paragraph 1)";
+}
+pub relation passage_pris_par_le_proprietaire(dominant: Fonds, servant: Fonds, p: Personne) kind empirical {
+    label fr official "passage pris par le propriétaire du fonds enclavé";
+    label en unofficial "way taken by the owner of the landlocked tenement";
+}
+pub relation passage_limite_aux_terrains_divises(dominant: Fonds, servant: Fonds) kind derived {
+    label fr official "si l'enclave résulte de la division d'un fonds, le passage ne peut être demandé que sur les terrains qui ont fait l'objet de ces actes (article 684, alinéa 1)";
+    label en unofficial "if the landlocking results from the division of a tenement, the way may be claimed only over the lands that were the object of those acts (Article 684, paragraph 1)";
+}
+pub relation demande_passage_sur_terrain_non_divise(dominant: Fonds, servant: Fonds, p: Personne) kind empirical {
+    label fr official "demande de passage sur un terrain étranger à l'acte de division";
+    label en unofficial "way demanded over land not covered by the division instrument";
+}
+pub relation passage_sur_terrain_non_divise_exerce(dominant: Fonds, servant: Fonds) kind empirical {
+    label fr official "passage demandé sur un terrain non compris dans la division";
+    label en unofficial "way demanded over land outside the division";
+}
+pub relation assiette_du_passage_determinee_par_trente_ans(s: Servitude) kind derived {
+    label fr official "l'assiette et le mode de servitude de passage pour cause d'enclave sont déterminés par trente ans d'usage continu (article 685, alinéa 1)";
+    label en unofficial "the route and mode of the right of way for landlocked land are determined by thirty years of continuous use (Article 685, paragraph 1)";
+}
+pub relation echeance_des_trente_ans_d_usage_continu(s: Servitude, jour: Date) kind derived {
+    label fr official "dernier jour des trente ans d'usage continu du passage (article 685, alinéa 1)";
+    label en unofficial "last day of the thirty years of continuous use of the way (Article 685, paragraph 1)";
+}
+pub relation extinction_de_la_servitude_de_passage_invocable(s: Servitude) kind derived {
+    label fr official "en cas de cessation de l'enclave, le propriétaire du fonds servant peut à tout moment invoquer l'extinction de la servitude (article 685-1, alinéa 1)";
+    label en unofficial "where the landlocking ceases, the owner of the servient land may at any time invoke the extinction of the servitude (Article 685-1, paragraph 1)";
+}
+pub relation proprietaire_fonds_servant(s: Servitude, p: Personne) kind empirical {
+    label fr official "propriétaire du fonds servant";
+    label en unofficial "owner of the servient tenement";
+}
+pub relation extinction_de_passage_exercee(s: Servitude, p: Personne) kind empirical {
+    label fr official "invocation de l'extinction de la servitude exercée";
+    label en unofficial "extinction of the right of way invoked";
+}
+pub relation disparition_de_la_servitude_etablie(s: Servitude) kind derived {
+    label fr official "la disparition de la servitude est établie par l'accord amiable ou par la décision de justice qui la constate (article 685-1, alinéa 2)";
+    label en unofficial "the disappearance of the servitude is established by the amicable agreement or by the court decision recording it (Article 685-1, paragraph 2)";
+}
+
+external judgment relation issue_insuffisante(f: Fonds) {
+    authority Court;
+    label fr official "l'issue du fonds sur la voie publique est insuffisante, soit pour l'exploitation agricole, industrielle ou commerciale de la propriété, soit pour la réalisation d'opérations de construction ou de lotissement (article 682)";
+    label en unofficial "the land's outlet onto the public road is insufficient, whether for the agricultural, industrial or commercial working of the property, or for building or subdivision operations (Article 682)";
+}
+external judgment relation endroit_le_moins_dommageable(dominant: Fonds, servant: Fonds) {
+    authority Court;
+    label fr official "l'endroit est le moins dommageable à celui sur le fonds duquel le passage est accordé (article 683, alinéa 2)";
+    label en unofficial "the place is the least damaging to the owner over whose land the way is granted (Article 683, paragraph 2)";
+}
+
+@source(CC_ART682) {
+    rule EnclaveSansAucuneIssue(f: Fonds) strict {
+        label fr official "Article 682. Le propriétaire dont les fonds sont enclavés et qui n'a sur la voie publique aucune issue";
+        label en unofficial "Article 682. An owner whose lands are landlocked and who has no outlet onto the public road";
+        when aucune_issue_sur_la_voie_publique(f);
+        then fonds_enclave(f);
+    }
+    rule EnclaveParIssueInsuffisante(f: Fonds) strict {
+        label fr official "Article 682. Ou qu'une issue insuffisante, soit pour l'exploitation agricole, industrielle ou commerciale de sa propriété, soit pour la réalisation d'opérations de construction ou de lotissement";
+        label en unofficial "Article 682. Or only an insufficient outlet, whether for the agricultural, industrial or commercial working of his property, or for building or subdivision operations";
+        when issue_existante_sur_la_voie_publique(f)
+            and issue_insuffisante(f);
+        then fonds_enclave(f);
+    }
+    rule DroitDeReclamerUnPassage(dominant: Fonds, servant: Fonds) strict {
+        label fr official "Article 682. Le propriétaire du fonds enclavé est fondé à réclamer sur les fonds de ses voisins un passage suffisant pour assurer la desserte complète de ses fonds, à charge d'une indemnité proportionnée au dommage qu'il peut occasionner";
+        label en unofficial "Article 682. The owner of the landlocked land may claim over his neighbours' lands a way sufficient to serve his lands fully, subject to an indemnity proportionate to the damage he may cause";
+        when fonds_enclave(dominant)
+            and voisin(dominant, servant)
+            and not_known(enclave_resultant_d_une_division(dominant));
+        then droit_de_reclamer_un_passage(dominant, servant);
+    }
+}
+
+@source(CC_ART683)
+rule PassagePrisParLeTrajetLePlusCourt(dominant: Fonds, servant: Fonds, longueur: Quantity) strict {
+    label fr official "Article 683, alinéa 1. Le passage doit régulièrement être pris du côté où le trajet est le plus court du fonds enclavé à la voie publique ; alinéa 2, il doit néanmoins être fixé dans l'endroit le moins dommageable à celui sur le fonds duquel il est accordé";
+    label en unofficial "Article 683, paragraph 1. The way must regularly be taken on the side where the route from the landlocked land to the public road is shortest; paragraph 2, it must nonetheless be fixed at the place least damaging to the owner over whose land it is granted";
+    when droit_de_reclamer_un_passage(dominant, servant)
+        and longueur_du_trajet_par(dominant, servant, longueur)
+        and longueur == min(collect all autre: Fonds, l: Quantity where droit_de_reclamer_un_passage(dominant, autre) and longueur_du_trajet_par(dominant, autre, l));
+    then trajet_le_plus_court(dominant, servant);
+}
+
+@source(CC_ART682)
+rule P4PouvoirReclamerPassage682(dominant: Fonds, servant: Fonds, p: Personne) strict {
+    label fr official "Article 682. Le propriétaire du fonds enclavé peut réclamer un passage";
+    label en unofficial "Article 682. The owner of the landlocked tenement may claim a way";
+    when proprietaire_fonds_enclave(dominant, p)
+        and droit_de_reclamer_un_passage(dominant, servant);
+    then power P4PouvoirReclamerPassage682Actif {
+        holder p;
+        over servant;
+        exercise passage_reclame_exerce(dominant, servant, p);
+        effect passage_reclame_sur_le_fonds_voisin(dominant, servant);
+        valid_when fonds_enclave(dominant);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART683)
+rule P4DevoirPrendrePassageCourt683(dominant: Fonds, servant: Fonds, p: Personne, longueur: Quantity) strict {
+    label fr official "Article 683. Le propriétaire doit prendre le passage du côté le plus court";
+    label en unofficial "Article 683. The owner must take the way on the shortest side";
+    when proprietaire_fonds_enclave(dominant, p)
+        and fonds_enclave(dominant)
+        and voisin(dominant, servant)
+        and longueur_du_trajet_par(dominant, servant, longueur)
+        and not_known(enclave_resultant_d_une_division(dominant));
+    then duty P4DevoirPrendrePassageCourt683Actif {
+        bearer p;
+        goal achievement {
+            condition passage_pris_par_le_proprietaire(dominant, servant, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART683)
+rule P4MaintenancePrendrePassageCourt683(dominant: Fonds, servant: Fonds, p: Personne, longueur: Quantity) strict {
+    label fr official "Article 683. Le propriétaire doit maintenir le passage du côté le plus court";
+    label en unofficial "Article 683. The owner must maintain the way on the shortest side";
+    when proprietaire_fonds_enclave(dominant, p)
+        and fonds_enclave(dominant)
+        and voisin(dominant, servant)
+        and longueur_du_trajet_par(dominant, servant, longueur)
+        and not_known(enclave_resultant_d_une_division(dominant));
+    then duty P4MaintenancePrendrePassageCourt683Duty {
+        bearer p;
+        goal maintenance {
+            condition passage_pris_par_le_proprietaire(dominant, servant, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART684) {
+    rule PassageLimiteAuxTerrainsDivises(dominant: Fonds, servant: Fonds) strict {
+        label fr official "Article 684, alinéa 1. Si l'enclave résulte de la division d'un fonds par suite d'une vente, d'un échange, d'un partage ou de tout autre contrat, le passage ne peut être demandé que sur les terrains qui ont fait l'objet de ces actes";
+        label en unofficial "Article 684, paragraph 1. If the landlocking results from the division of a tenement by sale, exchange, partition or any other contract, the way may be claimed only over the lands that were the object of those acts";
+        when fonds_enclave(dominant)
+            and enclave_resultant_d_une_division(dominant)
+            and terrain_objet_de_l_acte_de_division(dominant, servant);
+        then passage_limite_aux_terrains_divises(dominant, servant);
+    }
+    rule PassageSurLesTerrainsDivises(dominant: Fonds, servant: Fonds) strict {
+        label fr official "Article 684, alinéa 1. Le passage est alors réclamé sur les terrains qui ont fait l'objet de ces actes";
+        label en unofficial "Article 684, paragraph 1. The way is then claimed over the lands that were the object of those acts";
+        when passage_limite_aux_terrains_divises(dominant, servant);
+        then droit_de_reclamer_un_passage(dominant, servant);
+    }
+    rule RetourALArticle682SiLePassageEstInsuffisant(dominant: Fonds, servant: Fonds) strict {
+        label fr official "Article 684, alinéa 2. Toutefois, dans le cas où un passage suffisant ne pourrait être établi sur les fonds divisés, l'article 682 serait applicable";
+        label en unofficial "Article 684, paragraph 2. However, where a sufficient way could not be established over the divided lands, Article 682 applies";
+        when fonds_enclave(dominant)
+            and enclave_resultant_d_une_division(dominant)
+            and passage_suffisant_impossible_sur_les_fonds_divises(dominant)
+            and voisin(dominant, servant);
+        then droit_de_reclamer_un_passage(dominant, servant);
+    }
+}
+
+@source(CC_ART684)
+rule P4InterdictionPassageTerrainNonDivise684(dominant: Fonds, servant: Fonds, p: Personne) strict {
+    label fr official "Article 684. Le propriétaire ne peut demander le passage sur un terrain non compris dans la division";
+    label en unofficial "Article 684. The owner may not claim a way over land outside the division";
+    when demande_passage_sur_terrain_non_divise(dominant, servant, p)
+        and enclave_resultant_d_une_division(dominant)
+        and not_known(terrain_objet_de_l_acte_de_division(dominant, servant));
+    then prohibition P4InterdictionPassageTerrainNonDivise684Actif {
+        bearer p;
+        action passage_sur_terrain_non_divise_exerce(dominant, servant);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART684)
+rule MaintenanceInterdictionPassageTerrainNonDivise684(dominant: Fonds, servant: Fonds, p: Personne) strict {
+    label fr official "Article 684. Le propriétaire doit maintenir l'absence de passage sur un terrain non compris dans la division";
+    label en unofficial "Article 684. The owner must maintain the absence of a way over land outside the division";
+    when demande_passage_sur_terrain_non_divise(dominant, servant, p)
+        and enclave_resultant_d_une_division(dominant)
+        and not_known(terrain_objet_de_l_acte_de_division(dominant, servant));
+    then duty MaintenanceInterdictionPassageTerrainNonDivise684Duty {
+        bearer p;
+        goal maintenance {
+            condition not passage_sur_terrain_non_divise_exerce(dominant, servant);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART685) {
+    rule EcheanceDesTrenteAnsDUsageContinu(s: Servitude, jour: Date) strict {
+        label fr official "Article 685, alinéa 1. Les trente ans d'usage continu courent du jour où cet usage a commencé";
+        label en unofficial "Article 685, paragraph 1. The thirty years of continuous use run from the day that use began";
+        when debut_de_l_usage_continu_du_passage_le(s, jour);
+        then echeance_des_trente_ans_d_usage_continu(s, add_calendar_period(jour, 30 calendar_year));
+    }
+    rule AssietteDuPassageDetermineeParTrenteAns(s: Servitude, echeance: Date, servant: Fonds, dominant: Fonds) strict {
+        label fr official "Article 685, alinéa 1. L'assiette et le mode de servitude de passage pour cause d'enclave sont déterminés par trente ans d'usage continu";
+        label en unofficial "Article 685, paragraph 1. The route and mode of the right of way for landlocked land are determined by thirty years of continuous use";
+        when servitude_grevant(s, servant, dominant)
+            and echeance_des_trente_ans_d_usage_continu(s, echeance)
+            and jour_de_reference_du_fonds(dominant, echeance);
+        then assiette_du_passage_determinee_par_trente_ans(s);
+    }
+}
+
+pub relation jour_de_reference_du_fonds(f: Fonds, jour: Date) kind empirical {
+    key(f);
+    label fr official "jour auquel la question est posée pour ce fonds (articles 685, 690, 706)";
+    label en unofficial "day as at which the question is asked for this land (Articles 685, 690, 706)";
+}
+
+@source(CC_ART685_1) {
+    rule ExtinctionInvocableApresCessationDeLEnclave(s: Servitude, servant: Fonds, dominant: Fonds) strict {
+        label fr official "Article 685-1, alinéa 1. En cas de cessation de l'enclave et quelle que soit la manière dont l'assiette et le mode de la servitude ont été déterminés, le propriétaire du fonds servant peut, à tout moment, invoquer l'extinction de la servitude si la desserte du fonds dominant est assurée dans les conditions de l'article 682";
+        label en unofficial "Article 685-1, paragraph 1. Where the landlocking ceases, and whatever the way the route and mode of the servitude were determined, the owner of the servient land may at any time invoke the extinction of the servitude if the dominant land is served in the conditions of Article 682";
+        when servitude_grevant(s, servant, dominant)
+            and desserte_assuree_dans_les_conditions_de_l_article_682(dominant);
+        then extinction_de_la_servitude_de_passage_invocable(s);
+    }
+    rule DisparitionConstateeParJustice(s: Servitude) strict {
+        label fr official "Article 685-1, alinéa 2. À défaut d'accord amiable, cette disparition est constatée par une décision de justice";
+        label en unofficial "Article 685-1, paragraph 2. Failing amicable agreement, that disappearance is recorded by a court decision";
+        when extinction_de_la_servitude_de_passage_invocable(s)
+            and disparition_constatee_par_decision_de_justice(s);
+        then disparition_de_la_servitude_etablie(s);
+    }
+    rule DisparitionParAccordAmiable(s: Servitude) strict {
+        label fr official "Article 685-1, alinéa 2. La disparition est d'abord constatée par l'accord amiable des parties";
+        label en unofficial "Article 685-1, paragraph 2. The disappearance is first established by the parties' amicable agreement";
+        when extinction_de_la_servitude_de_passage_invocable(s)
+            and accord_amiable_sur_la_disparition(s);
+        then disparition_de_la_servitude_etablie(s);
+    }
+}
+
+@source(CC_ART685_1)
+rule P4PouvoirInvoquerExtinction6851(s: Servitude, servant: Fonds, dominant: Fonds, p: Personne) strict {
+    label fr official "Article 685-1. Le propriétaire du fonds servant peut invoquer l'extinction";
+    label en unofficial "Article 685-1. The owner of the servient tenement may invoke extinction";
+    when proprietaire_fonds_servant(s, p)
+        and servitude_grevant(s, servant, dominant)
+        and desserte_assuree_dans_les_conditions_de_l_article_682(dominant);
+    then power P4PouvoirInvoquerExtinction6851Actif {
+        holder p;
+        over s;
+        exercise extinction_de_passage_exercee(s, p);
+        effect extinction_de_la_servitude_de_passage_invocable(s);
+        valid_when desserte_assuree_dans_les_conditions_de_l_article_682(dominant);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Chapitre III : servitudes établies par le fait de l'homme (686 à 710) --------------------------
+//
+// Deux classifications croisées commandent tout le chapitre : CONTINUE ou
+// DISCONTINUE (688), APPARENTE ou NON APPARENTE (689). De leur croisement
+// sort la règle d'acquisition : SEULES les servitudes continues ET
+// apparentes s'acquièrent par la possession de trente ans (690) et par la
+// destination du père de famille (692) ; toutes les autres ne s'établissent
+// que par titres (691).
+
+pub enum ContinuiteDeLaServitude {
+    label fr official "La servitude est continue ou discontinue (article 688)";
+    label en unofficial "The servitude is continuous or discontinuous (Article 688)";
+    Continue,
+    Discontinue
+}
+pub enum ApparenceDeLaServitude {
+    label fr official "La servitude est apparente ou non apparente (article 689)";
+    label en unofficial "The servitude is apparent or non-apparent (Article 689)";
+    Apparente,
+    NonApparente
+}
+pub enum EspeceDeFondsServi {
+    label fr official "La servitude est urbaine ou rurale, selon qu'elle est établie pour l'usage des bâtiments ou pour celui des fonds de terre (article 687)";
+    label en unofficial "The servitude is urban or rural, according to whether it is established for the use of buildings or of land (Article 687)";
+    Urbaine,
+    Rurale
+}
+
+pub relation usage_sans_le_fait_actuel_de_l_homme(s: Servitude) kind empirical {
+    label fr official "l'usage de la servitude est ou peut être continuel sans avoir besoin du fait actuel de l'homme : conduites d'eau, égouts, vues (article 688, alinéa 2)";
+    label en unofficial "the use of the servitude is or may be continual without needing a present human act: water conduits, drains, views (Article 688, paragraph 2)";
+}
+pub relation usage_exigeant_le_fait_actuel_de_l_homme(s: Servitude) kind empirical {
+    label fr official "la servitude a besoin du fait actuel de l'homme pour être exercée : passage, puisage, pacage (article 688, alinéa 3)";
+    label en unofficial "the servitude needs a present human act to be exercised: way, drawing water, pasturing (Article 688, paragraph 3)";
+}
+pub relation ouvrage_exterieur_annoncant_la_servitude(s: Servitude) kind empirical {
+    label fr official "la servitude s'annonce par des ouvrages extérieurs, tels qu'une porte, une fenêtre, un aqueduc (article 689, alinéa 2)";
+    label en unofficial "the servitude is announced by external works, such as a door, a window, an aqueduct (Article 689, paragraph 2)";
+}
+pub relation aucun_signe_exterieur_de_la_servitude(s: Servitude) kind empirical {
+    label fr official "la servitude n'a pas de signe extérieur de son existence, comme la prohibition de bâtir ou de ne bâtir qu'à une hauteur déterminée (article 689, alinéa 3)";
+    label en unofficial "the servitude has no external sign of its existence, such as a prohibition to build or to build only to a fixed height (Article 689, paragraph 3)";
+}
+pub relation servitude_pour_l_usage_des_batiments(s: Servitude) kind empirical {
+    label fr official "la servitude est établie pour l'usage des bâtiments (article 687, alinéa 1)";
+    label en unofficial "the servitude is established for the use of buildings (Article 687, paragraph 1)";
+}
+pub relation servitude_pour_l_usage_des_fonds_de_terre(s: Servitude) kind empirical {
+    label fr official "la servitude est établie pour l'usage des fonds de terre (article 687, alinéa 1)";
+    label en unofficial "the servitude is established for the use of land (Article 687, paragraph 1)";
+}
+pub relation service_impose_a_la_personne(s: Servitude) kind empirical {
+    label fr official "le service est imposé à la personne ou en faveur de la personne, et non à un fonds et pour un fonds (article 686, alinéa 1)";
+    label en unofficial "the service is imposed on a person or in favour of a person, and not on land and for land (Article 686, paragraph 1)";
+}
+pub relation service_contraire_a_l_ordre_public(s: Servitude) kind empirical {
+    label fr official "le service établi a quelque chose de contraire à l'ordre public (article 686, alinéa 1)";
+    label en unofficial "the service established has something contrary to public policy (Article 686, paragraph 1)";
+}
+pub relation titre_constitutif_de_la_servitude(s: Servitude) kind empirical {
+    label fr official "il existe un titre constitutif de la servitude (articles 686, alinéa 2, 690, 691, 695)";
+    label en unofficial "there is an instrument creating the servitude (Articles 686, paragraph 2, 690, 691, 695)";
+}
+pub relation titre_recognitif_emane_du_proprietaire_du_fonds_asservi(s: Servitude) kind empirical {
+    label fr official "un titre récognitif de la servitude, émané du propriétaire du fonds asservi, remplace le titre constitutif (article 695)";
+    label en unofficial "an instrument acknowledging the servitude, issued by the owner of the servient land, replaces the creating instrument (Article 695)";
+}
+pub relation debut_de_la_possession_le(s: Servitude, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où a commencé la possession de la servitude continue et apparente (article 690)";
+    label en unofficial "day on which possession of the continuous and apparent servitude began (Article 690)";
+}
+pub relation deux_fonds_ont_appartenu_au_meme_proprietaire(s: Servitude) kind empirical {
+    label fr official "il est prouvé que les deux fonds actuellement divisés ont appartenu au même propriétaire (article 693)";
+    label en unofficial "it is proved that the two now-divided tenements belonged to the same owner (Article 693)";
+}
+pub relation etat_mis_par_ce_proprietaire(s: Servitude) kind empirical {
+    label fr official "c'est par ce propriétaire que les choses ont été mises dans l'état duquel résulte la servitude (article 693)";
+    label en unofficial "it is by that owner that things were put in the state from which the servitude results (Article 693)";
+}
+pub relation signe_apparent_lors_de_l_alienation(s: Servitude) kind empirical {
+    label fr official "il existe entre les deux héritages un signe apparent de servitude au moment où le propriétaire dispose de l'un d'eux (article 694)";
+    label en unofficial "there is between the two tenements an apparent sign of servitude when the owner disposes of one of them (Article 694)";
+}
+pub relation convention_relative_a_la_servitude_dans_le_contrat(s: Servitude) kind empirical {
+    label fr official "le contrat d'aliénation contient une convention relative à la servitude (article 694)";
+    label en unofficial "the instrument of transfer contains a stipulation relating to the servitude (Article 694)";
+}
+pub relation ouvrages_necessaires_a_l_usage_de_la_servitude(s: Servitude) kind empirical {
+    label fr official "des ouvrages sont nécessaires pour user de la servitude et la conserver (articles 697, 698)";
+    label en unofficial "works are necessary to use and preserve the servitude (Articles 697, 698)";
+}
+pub relation titre_mettant_les_ouvrages_a_la_charge_du_fonds_assujetti(s: Servitude) kind empirical {
+    label fr official "le titre d'établissement de la servitude met les ouvrages à la charge du propriétaire du fonds assujetti (articles 698, 699)";
+    label en unofficial "the instrument creating the servitude puts the works at the charge of the owner of the servient land (Articles 698, 699)";
+}
+pub relation abandon_du_fonds_assujetti(s: Servitude) kind empirical {
+    label fr official "le propriétaire du fonds assujetti abandonne le fonds au propriétaire du fonds auquel la servitude est due (article 699)";
+    label en unofficial "the owner of the servient land abandons it to the owner of the land to which the servitude is due (Article 699)";
+}
+pub relation division_du_fonds_dominant(s: Servitude) kind empirical {
+    label fr official "l'héritage pour lequel la servitude a été établie vient à être divisé (article 700)";
+    label en unofficial "the tenement for which the servitude was established is divided (Article 700)";
+}
+pub relation changement_de_l_etat_des_lieux_par_le_fonds_servant(s: Servitude) kind empirical {
+    label fr official "le propriétaire du fonds débiteur de la servitude change l'état des lieux ou transporte l'exercice de la servitude ailleurs (article 701, alinéas 1 et 2)";
+    label en unofficial "the owner of the servient land changes the state of the premises or moves the exercise of the servitude elsewhere (Article 701, paragraphs 1 and 2)";
+}
+pub relation assignation_primitive_devenue_plus_onereuse(s: Servitude) kind empirical {
+    label fr official "l'assignation primitive est devenue plus onéreuse au propriétaire du fonds assujetti, ou l'empêche d'y faire des réparations avantageuses (article 701, alinéa 3)";
+    label en unofficial "the original assignment has become more onerous for the owner of the servient land, or prevents him from making beneficial repairs (Article 701, paragraph 3)";
+}
+pub relation endroit_aussi_commode_offert(s: Servitude) kind empirical {
+    label fr official "le propriétaire du fonds assujetti offre au propriétaire de l'autre fonds un endroit aussi commode pour l'exercice de ses droits (article 701, alinéa 3)";
+    label en unofficial "the owner of the servient land offers the owner of the other land a place equally convenient for the exercise of his rights (Article 701, paragraph 3)";
+}
+pub relation changement_aggravant_la_condition_du_fonds_servant(s: Servitude) kind empirical {
+    label fr official "celui qui a un droit de servitude fait, dans l'un ou l'autre fonds, un changement qui aggrave la condition du fonds servant (article 702)";
+    label en unofficial "the holder of a servitude makes, in either tenement, a change that aggravates the condition of the servient land (Article 702)";
+}
+pub relation choses_en_tel_etat_qu_on_ne_peut_plus_en_user(s: Servitude) kind empirical {
+    label fr official "les choses se trouvent en tel état qu'on ne peut plus user de la servitude (article 703)";
+    label en unofficial "things are in such a state that the servitude can no longer be used (Article 703)";
+}
+pub relation choses_retablies_de_maniere_a_pouvoir_en_user(s: Servitude) kind empirical {
+    label fr official "les choses sont rétablies de manière qu'on puisse user de la servitude (article 704)";
+    label en unofficial "things are restored so that the servitude can be used (Article 704)";
+}
+pub relation fonds_reunis_dans_la_meme_main(s: Servitude) kind empirical {
+    label fr official "le fonds à qui la servitude est due et celui qui la doit sont réunis dans la même main (article 705)";
+    label en unofficial "the land to which the servitude is due and the land owing it are united in the same hands (Article 705)";
+}
+pub relation cessation_de_la_jouissance_le(s: Servitude, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où l'on a cessé de jouir de la servitude discontinue (article 707)";
+    label en unofficial "day on which enjoyment of the discontinuous servitude ceased (Article 707)";
+}
+pub relation acte_contraire_a_la_servitude_le(s: Servitude, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où il a été fait un acte contraire à la servitude continue (article 707)";
+    label en unofficial "day on which an act contrary to the continuous servitude was done (Article 707)";
+}
+pub relation mode_de_la_servitude_non_use(s: Servitude) kind empirical {
+    label fr official "le mode de la servitude n'a pas été usé pendant le même temps que la servitude elle-même (article 708)";
+    label en unofficial "the mode of the servitude was not used during the same period as the servitude itself (Article 708)";
+}
+pub relation heritage_dominant_appartenant_a_plusieurs_par_indivis(s: Servitude) kind empirical {
+    label fr official "l'héritage en faveur duquel la servitude est établie appartient à plusieurs par indivis (article 709)";
+    label en unofficial "the tenement in favour of which the servitude is established belongs to several persons in undivided shares (Article 709)";
+}
+pub relation jouissance_par_l_un_des_indivisaires(s: Servitude) kind empirical {
+    label fr official "l'un des copropriétaires indivis a joui de la servitude (article 709)";
+    label en unofficial "one of the co-owners in undivided shares enjoyed the servitude (Article 709)";
+}
+pub relation coproprietaire_contre_lequel_la_prescription_n_a_pu_courir(s: Servitude) kind empirical {
+    label fr official "parmi les copropriétaires il s'en trouve un contre lequel la prescription n'a pu courir, comme un mineur (article 710)";
+    label en unofficial "among the co-owners there is one against whom prescription could not run, such as a minor (Article 710)";
+}
+pub relation jour_de_reference_de_la_servitude(s: Servitude, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour auquel la question est posée pour cette servitude (articles 690, 706)";
+    label en unofficial "day as at which the question is asked for this servitude (Articles 690, 706)";
+}
+
+pub relation servitude_valablement_etablie_par_convention(s: Servitude) kind derived {
+    label fr official "les propriétaires peuvent établir telles servitudes que bon leur semble, pourvu que les services ne soient imposés ni à la personne ni en faveur de la personne, mais seulement à un fonds et pour un fonds, et qu'ils n'aient rien de contraire à l'ordre public (article 686, alinéa 1)";
+    label en unofficial "owners may establish such servitudes as they see fit, provided the services are imposed neither on nor in favour of a person, but only on land and for land, and have nothing contrary to public policy (Article 686, paragraph 1)";
+}
+pub relation proprietaire_servitude(s: Servitude, p: Personne) kind empirical {
+    label fr official "propriétaire qui établit la servitude";
+    label en unofficial "owner establishing the servitude";
+}
+pub relation servitude_conventionnelle_exercee(s: Servitude, p: Personne) kind empirical {
+    label fr official "établissement de la servitude conventionnelle exercé";
+    label en unofficial "conventional servitude establishment exercised";
+}
+pub relation etendue_reglee_par_le_titre(s: Servitude) kind derived {
+    label fr official "l'usage et l'étendue des servitudes ainsi établies se règlent par le titre qui les constitue ; à défaut de titre, par les règles du chapitre (article 686, alinéa 2)";
+    label en unofficial "the use and extent of servitudes so established are governed by the instrument creating them; failing an instrument, by the rules of this chapter (Article 686, paragraph 2)";
+}
+pub relation espece_du_fonds_servi(s: Servitude, espece: EspeceDeFondsServi) kind derived {
+    label fr official "la servitude est urbaine ou rurale (article 687)";
+    label en unofficial "the servitude is urban or rural (Article 687)";
+}
+pub relation continuite(s: Servitude, valeur: ContinuiteDeLaServitude) kind derived {
+    label fr official "la servitude est continue ou discontinue (article 688)";
+    label en unofficial "the servitude is continuous or discontinuous (Article 688)";
+}
+pub relation apparence(s: Servitude, valeur: ApparenceDeLaServitude) kind derived {
+    label fr official "la servitude est apparente ou non apparente (article 689)";
+    label en unofficial "the servitude is apparent or non-apparent (Article 689)";
+}
+pub relation echeance_de_la_possession_trentenaire(s: Servitude, jour: Date) kind derived {
+    label fr official "dernier jour des trente ans de possession de la servitude continue et apparente (article 690)";
+    label en unofficial "last day of the thirty years' possession of the continuous and apparent servitude (Article 690)";
+}
+pub relation servitude_acquise(s: Servitude) kind derived {
+    label fr official "la servitude est acquise par titre, par la possession de trente ans ou par la destination du père de famille (articles 690 à 694)";
+    label en unofficial "the servitude is acquired by instrument, by thirty years' possession, or by destination by the former common owner (Articles 690 to 694)";
+}
+pub relation servitude_etablissable_par_titre_seulement(s: Servitude) kind derived {
+    label fr official "les servitudes continues non apparentes, et les servitudes discontinues apparentes ou non apparentes, ne peuvent s'établir que par titres ; la possession même immémoriale ne suffit pas (article 691)";
+    label en unofficial "continuous non-apparent servitudes, and discontinuous servitudes whether apparent or not, may be established only by instruments; even immemorial possession does not suffice (Article 691)";
+}
+pub relation destination_du_pere_de_famille_vaut_titre(s: Servitude) kind derived {
+    label fr official "la destination du père de famille vaut titre à l'égard des servitudes continues et apparentes (articles 692, 693)";
+    label en unofficial "destination by the former common owner is equivalent to an instrument for continuous and apparent servitudes (Articles 692, 693)";
+}
+pub relation servitude_continuee_apres_l_alienation(s: Servitude) kind derived {
+    label fr official "si le propriétaire de deux héritages entre lesquels il existe un signe apparent de servitude dispose de l'un d'eux sans convention relative à la servitude, elle continue d'exister activement ou passivement en faveur du fonds aliéné ou sur le fonds aliéné (article 694)";
+    label en unofficial "if the owner of two tenements between which there is an apparent sign of servitude disposes of one of them without a stipulation on the servitude, it continues to exist actively or passively in favour of or over the transferred land (Article 694)";
+}
+pub relation titre_recognitif_remplace_le_titre_constitutif(s: Servitude) kind derived {
+    label fr official "le titre constitutif de la servitude, à l'égard de celles qui ne peuvent s'acquérir par la prescription, ne peut être remplacé que par un titre récognitif émané du propriétaire du fonds asservi (article 695)";
+    label en unofficial "the instrument creating the servitude, for those that cannot be acquired by prescription, may be replaced only by an instrument of acknowledgment issued by the owner of the servient land (Article 695)";
+}
+pub relation accessoires_necessaires_accordes(s: Servitude) kind derived {
+    label fr official "quand on établit une servitude, on est censé accorder tout ce qui est nécessaire pour en user ; ainsi la servitude de puiser l'eau emporte le droit de passage (article 696)";
+    label en unofficial "when a servitude is established, everything necessary to use it is deemed granted; thus a servitude of drawing water carries the right of way (Article 696)";
+}
+pub relation droit_de_faire_les_ouvrages_necessaires(s: Servitude) kind derived {
+    label fr official "celui auquel est due une servitude a droit de faire tous les ouvrages nécessaires pour en user et pour la conserver (article 697)";
+    label en unofficial "the person to whom a servitude is due may make all the works necessary to use and preserve it (Article 697)";
+}
+pub relation etablissement_sans_titre_exerce(s: Servitude, p: Personne) kind empirical {
+    label fr official "établissement d'une servitude sans titre exercé";
+    label en unofficial "establishment of a servitude without an instrument exercised";
+}
+pub relation remplacement_titre_par_autre_acte_exerce(s: Servitude, p: Personne) kind empirical {
+    label fr official "remplacement irrégulier du titre constitutif exercé";
+    label en unofficial "irregular replacement of the creating instrument exercised";
+}
+pub relation ouvrages_necessaires_exerces(s: Servitude, p: Personne) kind empirical {
+    label fr official "ouvrages nécessaires réalisés par le titulaire";
+    label en unofficial "necessary works carried out by the holder";
+}
+pub relation ouvrages_aux_frais_du_fonds_dominant(s: Servitude) kind derived {
+    label fr official "ces ouvrages sont aux frais du propriétaire du fonds dominant, et non à ceux du propriétaire du fonds assujetti, à moins que le titre ne dise le contraire (article 698)";
+    label en unofficial "those works are at the cost of the owner of the dominant land, not of the servient land, unless the instrument provides otherwise (Article 698)";
+}
+pub relation ouvrages_aux_frais_du_fonds_assujetti(s: Servitude) kind derived {
+    label fr official "le titre met les ouvrages à la charge du propriétaire du fonds assujetti (articles 698, 699)";
+    label en unofficial "the instrument puts the works at the charge of the owner of the servient land (Articles 698, 699)";
+}
+pub relation affranchissement_par_abandon_du_fonds(s: Servitude) kind derived {
+    label fr official "le propriétaire du fonds assujetti chargé par le titre de faire les ouvrages peut toujours s'affranchir de la charge en abandonnant le fonds assujetti au propriétaire du fonds auquel la servitude est due (article 699)";
+    label en unofficial "the owner of the servient land charged by the instrument with making the works may always free himself by abandoning the servient land to the owner of the land to which the servitude is due (Article 699)";
+}
+pub relation charge_affranchie_par_abandon_du_fonds(s: Servitude) kind institutional {
+    label fr official "le propriétaire du fonds assujetti s'est affranchi de la charge en abandonnant le fonds (article 699)";
+    label en unofficial "the servient owner has freed himself from the charge by abandoning the tenement (Article 699)";
+}
+pub relation abandon_fonds_exerce(s: Servitude, p: Personne) kind empirical {
+    label fr official "abandon du fonds servant exercé";
+    label en unofficial "abandonment of the servient land exercised";
+}
+pub relation modification_usage_exercee(s: Servitude, p: Personne) kind empirical {
+    label fr official "modification de l'usage de la servitude exercée";
+    label en unofficial "modification of the servitude use exercised";
+}
+pub relation usage_aggravant_exerce(s: Servitude, p: Personne) kind empirical {
+    label fr official "usage aggravant la condition du fonds servant exercé";
+    label en unofficial "use aggravating the servient land exercised";
+}
+pub relation titulaire_servitude(s: Servitude, p: Personne) kind empirical {
+    label fr official "titulaire du droit de servitude";
+    label en unofficial "holder of the servitude right";
+}
+pub relation servitude_due_pour_chaque_portion(s: Servitude) kind derived {
+    label fr official "si l'héritage pour lequel la servitude a été établie vient à être divisé, la servitude reste due pour chaque portion, sans que la condition du fonds assujetti soit aggravée ; ainsi, s'il s'agit d'un droit de passage, tous les copropriétaires seront obligés de l'exercer par le même endroit (article 700)";
+    label en unofficial "if the tenement for which the servitude was established is divided, the servitude remains due for each portion, without aggravating the condition of the servient land; thus, for a right of way, all co-owners must exercise it at the same place (Article 700)";
+}
+pub relation diminution_de_l_usage_interdite_au_fonds_servant(s: Servitude) kind derived {
+    label fr official "le propriétaire du fonds débiteur de la servitude ne peut rien faire qui tende à en diminuer l'usage ou à le rendre plus incommode ; il ne peut changer l'état des lieux ni transporter l'exercice de la servitude ailleurs (article 701, alinéas 1 et 2)";
+    label en unofficial "the owner of the servient land may do nothing tending to reduce the use of the servitude or make it more inconvenient; he may not change the state of the premises or move the exercise of the servitude elsewhere (Article 701, paragraphs 1 and 2)";
+}
+pub relation deplacement_admis_vers_un_endroit_aussi_commode(s: Servitude) kind derived {
+    label fr official "si l'assignation primitive est devenue plus onéreuse au propriétaire du fonds assujetti, ou l'empêche d'y faire des réparations avantageuses, il peut offrir un endroit aussi commode, et l'autre ne peut le refuser (article 701, alinéa 3)";
+    label en unofficial "if the original assignment has become more onerous for the owner of the servient land, or prevents him from making beneficial repairs, he may offer an equally convenient place, and the other may not refuse it (Article 701, paragraph 3)";
+}
+pub relation usage_limite_au_titre(s: Servitude) kind derived {
+    label fr official "celui qui a un droit de servitude ne peut en user que suivant son titre, sans pouvoir faire, dans l'un ou l'autre fonds, de changement qui aggrave la condition du fonds servant (article 702)";
+    label en unofficial "the holder of a servitude may use it only under his instrument, and may make in either land no change that aggravates the condition of the servient land (Article 702)";
+}
+pub relation servitude_cesse_faute_de_pouvoir_en_user(s: Servitude) kind derived {
+    label fr official "les servitudes cessent lorsque les choses se trouvent en tel état qu'on ne peut plus en user (article 703)";
+    label en unofficial "servitudes cease when things are in such a state that they can no longer be used (Article 703)";
+}
+pub relation servitude_revit(s: Servitude) kind derived {
+    label fr official "les servitudes revivent si les choses sont rétablies de manière qu'on puisse en user, à moins qu'il ne se soit déjà écoulé un espace de temps suffisant pour faire présumer l'extinction, ainsi qu'il est dit à l'article 707 (article 704)";
+    label en unofficial "servitudes revive if things are restored so that they can be used, unless a period sufficient to presume extinction has already elapsed, as stated in Article 707 (Article 704)";
+}
+pub relation servitude_eteinte(s: Servitude) kind derived {
+    label fr official "la servitude est éteinte (articles 705, 706)";
+    label en unofficial "the servitude is extinguished (Articles 705, 706)";
+}
+pub relation point_de_depart_du_non_usage_le(s: Servitude, jour: Date) kind derived {
+    label fr official "point de départ des trente ans de non-usage : le jour où l'on a cessé de jouir pour les servitudes discontinues, le jour de l'acte contraire pour les continues (article 707)";
+    label en unofficial "starting point of the thirty years of non-use: the day enjoyment ceased for discontinuous servitudes, the day of the contrary act for continuous ones (Article 707)";
+}
+pub relation echeance_du_non_usage_de_la_servitude(s: Servitude, jour: Date) kind derived {
+    label fr official "dernier jour des trente ans de non-usage de la servitude (articles 706, 707)";
+    label en unofficial "last day of the thirty years of non-use of the servitude (Articles 706, 707)";
+}
+pub relation mode_prescrit_comme_la_servitude(s: Servitude) kind derived {
+    label fr official "le mode de la servitude peut se prescrire comme la servitude même, et de la même manière (article 708)";
+    label en unofficial "the mode of the servitude may be prescribed like the servitude itself, and in the same way (Article 708)";
+}
+pub relation prescription_empechee_par_la_jouissance_d_un_indivisaire(s: Servitude) kind derived {
+    label fr official "si l'héritage en faveur duquel la servitude est établie appartient à plusieurs par indivis, la jouissance de l'un empêche la prescription à l'égard de tous (article 709)";
+    label en unofficial "if the tenement in favour of which the servitude is established belongs to several in undivided shares, the enjoyment of one prevents prescription as regards all (Article 709)";
+}
+pub relation droit_conserve_par_le_coproprietaire_protege(s: Servitude) kind derived {
+    label fr official "si, parmi les copropriétaires, il s'en trouve un contre lequel la prescription n'ait pu courir, comme un mineur, il aura conservé le droit de tous les autres (article 710)";
+    label en unofficial "if, among the co-owners, there is one against whom prescription could not run, such as a minor, he will have preserved the right of all the others (Article 710)";
+}
+
+@source(CC_ART686) {
+    rule ServitudeConventionnelleValable(s: Servitude, servant: Fonds, dominant: Fonds) strict {
+        label fr official "Article 686, alinéa 1. Il est permis aux propriétaires d'établir sur leurs propriétés, ou en faveur de leurs propriétés, telles servitudes que bon leur semble, pourvu que les services établis ne soient imposés ni à la personne, ni en faveur de la personne, mais seulement à un fonds et pour un fonds, et que ces services n'aient rien de contraire à l'ordre public";
+        label en unofficial "Article 686, paragraph 1. Owners may establish on or in favour of their properties such servitudes as they see fit, provided the services established are imposed neither on nor in favour of a person, but only on land and for land, and that they have nothing contrary to public policy";
+        when servitude_grevant(s, servant, dominant)
+            and origine_declaree(s, ConventionEntreProprietaires)
+            and not_known(service_impose_a_la_personne(s))
+            and not_known(service_contraire_a_l_ordre_public(s));
+        then servitude_valablement_etablie_par_convention(s);
+    }
+    rule P4LiberteEtablirServitude686(s: Servitude, servant: Fonds, dominant: Fonds, p: Personne) strict {
+        label fr official "Article 686. Le propriétaire peut établir une servitude conventionnelle";
+        label en unofficial "Article 686. The owner may establish a conventional servitude";
+        when proprietaire_servitude(s, p)
+            and servitude_grevant(s, servant, dominant)
+            and origine_declaree(s, ConventionEntreProprietaires)
+            and not_known(service_impose_a_la_personne(s))
+            and not_known(service_contraire_a_l_ordre_public(s));
+        then liberty P4LiberteEtablirServitude686Actif {
+            holder p;
+            action servitude_conventionnelle_exercee(s, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule EtendueRegleeParLeTitre(s: Servitude) strict {
+        label fr official "Article 686, alinéa 2. L'usage et l'étendue des servitudes ainsi établies se règlent par le titre qui les constitue ; à défaut de titre, par les règles ci-après";
+        label en unofficial "Article 686, paragraph 2. The use and extent of servitudes so established are governed by the instrument creating them; failing an instrument, by the rules below";
+        when servitude_valablement_etablie_par_convention(s)
+            and titre_constitutif_de_la_servitude(s);
+        then etendue_reglee_par_le_titre(s);
+    }
+}
+
+@source(CC_ART687) {
+    rule ServitudeUrbaine(s: Servitude) strict {
+        label fr official "Article 687, alinéas 1 et 2. Les servitudes établies pour l'usage des bâtiments s'appellent urbaines, soit que les bâtiments auxquels elles sont dues soient situés à la ville ou à la campagne";
+        label en unofficial "Article 687, paragraphs 1 and 2. Servitudes established for the use of buildings are called urban, whether the buildings to which they are due are in town or in the country";
+        when servitude_pour_l_usage_des_batiments(s);
+        then espece_du_fonds_servi(s, Urbaine);
+    }
+    rule ServitudeRurale(s: Servitude) strict {
+        label fr official "Article 687, alinéa 3. Celles établies pour l'usage des fonds de terre se nomment rurales";
+        label en unofficial "Article 687, paragraph 3. Those established for the use of land are called rural";
+        when servitude_pour_l_usage_des_fonds_de_terre(s);
+        then espece_du_fonds_servi(s, Rurale);
+    }
+}
+
+@source(CC_ART688) {
+    rule ServitudeContinue(s: Servitude) strict {
+        label fr official "Article 688, alinéa 2. Les servitudes continues sont celles dont l'usage est ou peut être continuel sans avoir besoin du fait actuel de l'homme : tels sont les conduites d'eau, les égouts, les vues et autres de cette espèce";
+        label en unofficial "Article 688, paragraph 2. Continuous servitudes are those whose use is or may be continual without needing a present human act: such are water conduits, drains, views and the like";
+        when usage_sans_le_fait_actuel_de_l_homme(s);
+        then continuite(s, Continue);
+    }
+    rule ServitudeDiscontinue(s: Servitude) strict {
+        label fr official "Article 688, alinéa 3. Les servitudes discontinues sont celles qui ont besoin du fait actuel de l'homme pour être exercées : tels sont les droits de passage, puisage, pacage et autres semblables";
+        label en unofficial "Article 688, paragraph 3. Discontinuous servitudes are those needing a present human act to be exercised: such are rights of way, of drawing water, of pasturing and the like";
+        when usage_exigeant_le_fait_actuel_de_l_homme(s);
+        then continuite(s, Discontinue);
+    }
+}
+
+@source(CC_ART689) {
+    rule ServitudeApparente(s: Servitude) strict {
+        label fr official "Article 689, alinéa 2. Les servitudes apparentes sont celles qui s'annoncent par des ouvrages extérieurs, tels qu'une porte, une fenêtre, un aqueduc";
+        label en unofficial "Article 689, paragraph 2. Apparent servitudes are those announced by external works, such as a door, a window, an aqueduct";
+        when ouvrage_exterieur_annoncant_la_servitude(s);
+        then apparence(s, Apparente);
+    }
+    rule ServitudeNonApparente(s: Servitude) strict {
+        label fr official "Article 689, alinéa 3. Les servitudes non apparentes sont celles qui n'ont pas de signe extérieur de leur existence, comme la prohibition de bâtir sur un fonds, ou de ne bâtir qu'à une hauteur déterminée";
+        label en unofficial "Article 689, paragraph 3. Non-apparent servitudes are those with no external sign of their existence, such as a prohibition to build on land, or to build only to a fixed height";
+        when aucun_signe_exterieur_de_la_servitude(s);
+        then apparence(s, NonApparente);
+    }
+}
+
+@source(CC_ART690) {
+    rule ServitudeAcquiseParTitre(s: Servitude) strict {
+        label fr official "Article 690. Les servitudes continues et apparentes s'acquièrent par titre";
+        label en unofficial "Article 690. Continuous and apparent servitudes are acquired by instrument";
+        when titre_constitutif_de_la_servitude(s);
+        then servitude_acquise(s);
+    }
+    rule EcheanceDeLaPossessionTrentenaire(s: Servitude, jour: Date) strict {
+        label fr official "Article 690. Les trente ans de possession courent du jour où la possession a commencé";
+        label en unofficial "Article 690. The thirty years' possession runs from the day possession began";
+        when continuite(s, Continue)
+            and apparence(s, Apparente)
+            and debut_de_la_possession_le(s, jour);
+        then echeance_de_la_possession_trentenaire(s, add_calendar_period(jour, 30 calendar_year));
+    }
+    rule ServitudeAcquiseParLaPossessionTrentenaire(s: Servitude, echeance: Date, aujourdhui: Date) strict {
+        label fr official "Article 690. Les servitudes continues et apparentes s'acquièrent par la possession de trente ans";
+        label en unofficial "Article 690. Continuous and apparent servitudes are acquired by thirty years' possession";
+        when echeance_de_la_possession_trentenaire(s, echeance)
+            and jour_de_reference_de_la_servitude(s, aujourdhui)
+            and aujourdhui > echeance;
+        then servitude_acquise(s);
+    }
+}
+
+@source(CC_ART691) {
+    rule ServitudeContinueNonApparenteParTitreSeulement(s: Servitude) strict {
+        label fr official "Article 691, alinéa 1. Les servitudes continues non apparentes ne peuvent s'établir que par titres ; la possession même immémoriale ne suffit pas pour les établir";
+        label en unofficial "Article 691, paragraph 1. Continuous non-apparent servitudes may be established only by instruments; even immemorial possession does not suffice to establish them";
+        when continuite(s, Continue)
+            and apparence(s, NonApparente);
+        then servitude_etablissable_par_titre_seulement(s);
+    }
+    rule ServitudeDiscontinueParTitreSeulement(s: Servitude, valeur: ApparenceDeLaServitude) strict {
+        label fr official "Article 691, alinéa 1. Les servitudes discontinues, apparentes ou non apparentes, ne peuvent s'établir que par titres";
+        label en unofficial "Article 691, paragraph 1. Discontinuous servitudes, apparent or not, may be established only by instruments";
+        when continuite(s, Discontinue)
+            and apparence(s, valeur);
+        then servitude_etablissable_par_titre_seulement(s);
+    }
+}
+
+@source(CC_ART691)
+rule P4InterdictionEtablirSansTitre691(s: Servitude, p: Personne) strict {
+    label fr official "Article 691. La servitude ne peut être établie sans titre";
+    label en unofficial "Article 691. The servitude may not be established without an instrument";
+    when proprietaire_servitude(s, p)
+        and servitude_etablissable_par_titre_seulement(s)
+        and not_known(titre_constitutif_de_la_servitude(s));
+    then prohibition P4InterdictionEtablirSansTitre691Actif {
+        bearer p;
+        action etablissement_sans_titre_exerce(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART691)
+rule MaintenanceInterdictionEtablirSansTitre691(s: Servitude, p: Personne) strict {
+    label fr official "Article 691. Le propriétaire doit maintenir l'absence d'établissement sans titre";
+    label en unofficial "Article 691. The owner must maintain the absence of establishment without an instrument";
+    when proprietaire_servitude(s, p)
+        and servitude_etablissable_par_titre_seulement(s)
+        and not_known(titre_constitutif_de_la_servitude(s));
+    then duty MaintenanceInterdictionEtablirSansTitre691Duty {
+        bearer p;
+        goal maintenance {
+            condition not etablissement_sans_titre_exerce(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART692, CC_ART693)
+rule DestinationDuPereDeFamilleVautTitre(s: Servitude) strict {
+    label fr official "Articles 692 et 693. La destination du père de famille vaut titre à l'égard des servitudes continues et apparentes ; il n'y a destination du père de famille que lorsqu'il est prouvé que les deux fonds actuellement divisés ont appartenu au même propriétaire, et que c'est par lui que les choses ont été mises dans l'état duquel résulte la servitude";
+    label en unofficial "Articles 692 and 693. Destination by the former common owner is equivalent to an instrument for continuous and apparent servitudes; there is such a destination only when it is proved that the two now-divided tenements belonged to the same owner and that it is by him that things were put in the state from which the servitude results";
+    when continuite(s, Continue)
+        and apparence(s, Apparente)
+        and deux_fonds_ont_appartenu_au_meme_proprietaire(s)
+        and etat_mis_par_ce_proprietaire(s);
+    then destination_du_pere_de_famille_vaut_titre(s);
+}
+
+@source(CC_ART692)
+rule ServitudeAcquiseParDestinationDuPereDeFamille(s: Servitude) strict {
+    label fr official "Article 692. La destination du père de famille vaut titre : la servitude continue et apparente est acquise";
+    label en unofficial "Article 692. Destination by the former common owner is equivalent to an instrument: the continuous and apparent servitude is acquired";
+    when destination_du_pere_de_famille_vaut_titre(s);
+    then servitude_acquise(s);
+}
+
+@source(CC_ART694)
+rule ServitudeContinueeApresAlienation(s: Servitude) strict {
+    label fr official "Article 694. Si le propriétaire de deux héritages entre lesquels il existe un signe apparent de servitude dispose de l'un des héritages sans que le contrat contienne aucune convention relative à la servitude, elle continue d'exister activement ou passivement en faveur du fonds aliéné ou sur le fonds aliéné";
+    label en unofficial "Article 694. If the owner of two tenements between which there is an apparent sign of servitude disposes of one of them without the contract containing any stipulation on the servitude, it continues to exist actively or passively in favour of or over the transferred land";
+    when signe_apparent_lors_de_l_alienation(s)
+        and not_known(convention_relative_a_la_servitude_dans_le_contrat(s));
+    then servitude_continuee_apres_l_alienation(s);
+}
+
+@source(CC_ART695)
+rule TitreRecognitifRemplaceLeTitreConstitutif(s: Servitude) strict {
+    label fr official "Article 695. Le titre constitutif de la servitude, à l'égard de celles qui ne peuvent s'acquérir par la prescription, ne peut être remplacé que par un titre récognitif de la servitude, émané du propriétaire du fonds asservi";
+    label en unofficial "Article 695. The instrument creating the servitude, for those that cannot be acquired by prescription, may be replaced only by an instrument acknowledging the servitude, issued by the owner of the servient land";
+    when servitude_etablissable_par_titre_seulement(s)
+        and titre_recognitif_emane_du_proprietaire_du_fonds_asservi(s);
+    then titre_recognitif_remplace_le_titre_constitutif(s);
+}
+
+@source(CC_ART695)
+rule P4InterdictionRemplacerTitre695(s: Servitude, p: Personne) strict {
+    label fr official "Article 695. Le titre constitutif ne peut être remplacé que par le titre récognitif requis";
+    label en unofficial "Article 695. The creating instrument may be replaced only by the required acknowledging instrument";
+    when proprietaire_fonds_servant(s, p)
+        and servitude_etablissable_par_titre_seulement(s)
+        and not_known(titre_recognitif_emane_du_proprietaire_du_fonds_asservi(s));
+    then prohibition P4InterdictionRemplacerTitre695Actif {
+        bearer p;
+        action remplacement_titre_par_autre_acte_exerce(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART695)
+rule MaintenanceInterdictionRemplacerTitre695(s: Servitude, p: Personne) strict {
+    label fr official "Article 695. Le propriétaire doit maintenir l'absence de remplacement par un autre acte";
+    label en unofficial "Article 695. The owner must maintain the absence of replacement by another act";
+    when proprietaire_fonds_servant(s, p)
+        and servitude_etablissable_par_titre_seulement(s)
+        and not_known(titre_recognitif_emane_du_proprietaire_du_fonds_asservi(s));
+    then duty MaintenanceInterdictionRemplacerTitre695Duty {
+        bearer p;
+        goal maintenance {
+            condition not remplacement_titre_par_autre_acte_exerce(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART696)
+rule AccessoiresNecessairesAccordes(s: Servitude) strict {
+    label fr official "Article 696. Quand on établit une servitude, on est censé accorder tout ce qui est nécessaire pour en user ; ainsi la servitude de puiser l'eau à la fontaine d'autrui emporte nécessairement le droit de passage";
+    label en unofficial "Article 696. When a servitude is established, everything necessary to use it is deemed granted; thus a servitude of drawing water from another's spring necessarily carries the right of way";
+    when servitude_acquise(s);
+    then accessoires_necessaires_accordes(s);
+}
+
+@source(CC_ART697)
+rule DroitDeFaireLesOuvragesNecessaires(s: Servitude) strict {
+    label fr official "Article 697. Celui auquel est due une servitude a droit de faire tous les ouvrages nécessaires pour en user et pour la conserver";
+    label en unofficial "Article 697. The person to whom a servitude is due may make all the works necessary to use and preserve it";
+    when servitude_acquise(s)
+        and ouvrages_necessaires_a_l_usage_de_la_servitude(s);
+    then droit_de_faire_les_ouvrages_necessaires(s);
+}
+
+@source(CC_ART697)
+rule P4LiberteFaireOuvrages697(s: Servitude, p: Personne) strict {
+    label fr official "Article 697. Le titulaire peut faire les ouvrages nécessaires";
+    label en unofficial "Article 697. The holder may make the necessary works";
+    when titulaire_servitude(s, p)
+        and servitude_acquise(s)
+        and ouvrages_necessaires_a_l_usage_de_la_servitude(s);
+    then liberty P4LiberteFaireOuvrages697Actif {
+        holder p;
+        action ouvrages_necessaires_exerces(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART698) {
+    rule OuvragesAuxFraisDuFondsDominant(s: Servitude) strict {
+        label fr official "Article 698. Ces ouvrages sont aux frais de celui auquel la servitude est due, et non à ceux du propriétaire du fonds assujetti, à moins que le titre d'établissement de la servitude ne dise le contraire";
+        label en unofficial "Article 698. Those works are at the cost of the person to whom the servitude is due, and not of the owner of the servient land, unless the instrument creating the servitude provides otherwise";
+        when ouvrages_necessaires_a_l_usage_de_la_servitude(s)
+            and not_known(titre_mettant_les_ouvrages_a_la_charge_du_fonds_assujetti(s));
+        then ouvrages_aux_frais_du_fonds_dominant(s);
+    }
+    rule OuvragesAuxFraisDuFondsAssujetti(s: Servitude) strict {
+        label fr official "Article 698. À moins que le titre d'établissement de la servitude ne dise le contraire";
+        label en unofficial "Article 698. Unless the instrument creating the servitude provides otherwise";
+        when ouvrages_necessaires_a_l_usage_de_la_servitude(s)
+            and titre_mettant_les_ouvrages_a_la_charge_du_fonds_assujetti(s);
+        then ouvrages_aux_frais_du_fonds_assujetti(s);
+    }
+}
+
+@source(CC_ART699)
+rule AffranchissementParAbandonDuFonds(s: Servitude) strict {
+    label fr official "Article 699. Dans le cas même où le propriétaire du fonds assujetti est chargé par le titre de faire à ses frais les ouvrages nécessaires, il peut toujours s'affranchir de la charge en abandonnant le fonds assujetti au propriétaire du fonds auquel la servitude est due";
+    label en unofficial "Article 699. Even where the owner of the servient land is charged by the instrument with making the necessary works at his own cost, he may always free himself by abandoning the servient land to the owner of the land to which the servitude is due";
+    when ouvrages_aux_frais_du_fonds_assujetti(s)
+        and abandon_du_fonds_assujetti(s);
+    then affranchissement_par_abandon_du_fonds(s);
+}
+
+@source(CC_ART699)
+rule P4PouvoirAbandonnerFonds699(s: Servitude, p: Personne) strict {
+    label fr official "Article 699. Le propriétaire du fonds servant peut s'affranchir par abandon";
+    label en unofficial "Article 699. The servient owner may free himself by abandonment";
+    when proprietaire_fonds_servant(s, p)
+        and affranchissement_par_abandon_du_fonds(s);
+    then power P4PouvoirAbandonnerFonds699Actif {
+        holder p;
+        over s;
+        exercise abandon_fonds_exerce(s, p);
+        effect charge_affranchie_par_abandon_du_fonds(s);
+        valid_when ouvrages_aux_frais_du_fonds_assujetti(s);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART700)
+rule ServitudeDuePourChaquePortion(s: Servitude) strict {
+    label fr official "Article 700. Si l'héritage pour lequel la servitude a été établie vient à être divisé, la servitude reste due pour chaque portion, sans néanmoins que la condition du fonds assujetti soit aggravée ; ainsi, s'il s'agit d'un droit de passage, tous les copropriétaires seront obligés de l'exercer par le même endroit";
+    label en unofficial "Article 700. If the tenement for which the servitude was established is divided, the servitude remains due for each portion, without however aggravating the condition of the servient land; thus, for a right of way, all co-owners must exercise it at the same place";
+    when servitude_acquise(s)
+        and division_du_fonds_dominant(s);
+    then servitude_due_pour_chaque_portion(s);
+}
+
+@source(CC_ART701) {
+    rule DiminutionDeLUsageInterdite(s: Servitude) strict {
+        label fr official "Article 701, alinéas 1 et 2. Le propriétaire du fonds débiteur de la servitude ne peut rien faire qui tende à en diminuer l'usage, ou à le rendre plus incommode ; il ne peut changer l'état des lieux, ni transporter l'exercice de la servitude dans un endroit différent de celui où elle a été primitivement assignée";
+        label en unofficial "Article 701, paragraphs 1 and 2. The owner of the servient land may do nothing tending to reduce the use of the servitude or to make it more inconvenient; he may not change the state of the premises, nor move the exercise of the servitude to a place other than that originally assigned";
+        when servitude_acquise(s)
+            and changement_de_l_etat_des_lieux_par_le_fonds_servant(s)
+            and not_known(assignation_primitive_devenue_plus_onereuse(s));
+        then diminution_de_l_usage_interdite_au_fonds_servant(s);
+    }
+    rule DeplacementVersUnEndroitAussiCommode(s: Servitude) strict {
+        label fr official "Article 701, alinéa 3. Si cette assignation primitive était devenue plus onéreuse au propriétaire du fonds assujetti, ou si elle l'empêchait d'y faire des réparations avantageuses, il pourrait offrir au propriétaire de l'autre fonds un endroit aussi commode pour l'exercice de ses droits, et celui-ci ne pourrait pas le refuser";
+        label en unofficial "Article 701, paragraph 3. If that original assignment has become more onerous for the owner of the servient land, or prevents him from making beneficial repairs there, he may offer the owner of the other land an equally convenient place for the exercise of his rights, and the latter may not refuse it";
+        when servitude_acquise(s)
+            and assignation_primitive_devenue_plus_onereuse(s)
+            and endroit_aussi_commode_offert(s);
+        then deplacement_admis_vers_un_endroit_aussi_commode(s);
+    }
+}
+
+@source(CC_ART701)
+rule P4InterdictionDiminuerUsage701(s: Servitude, p: Personne) strict {
+    label fr official "Article 701. Le propriétaire du fonds servant ne peut diminuer l'usage de la servitude";
+    label en unofficial "Article 701. The servient owner may not reduce the use of the servitude";
+    when proprietaire_fonds_servant(s, p)
+        and servitude_acquise(s)
+        and changement_de_l_etat_des_lieux_par_le_fonds_servant(s)
+        and not_known(assignation_primitive_devenue_plus_onereuse(s));
+    then prohibition P4InterdictionDiminuerUsage701Actif {
+        bearer p;
+        action modification_usage_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART701)
+rule MaintenanceInterdictionDiminuerUsage701(s: Servitude, p: Personne) strict {
+    label fr official "Article 701. Le propriétaire du fonds servant doit maintenir l'usage de la servitude";
+    label en unofficial "Article 701. The servient owner must maintain the use of the servitude";
+    when proprietaire_fonds_servant(s, p)
+        and servitude_acquise(s)
+        and changement_de_l_etat_des_lieux_par_le_fonds_servant(s)
+        and not_known(assignation_primitive_devenue_plus_onereuse(s));
+    then duty MaintenanceInterdictionDiminuerUsage701Duty {
+        bearer p;
+        goal maintenance {
+            condition not modification_usage_exercee(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART702)
+rule UsageLimiteAuTitre(s: Servitude) strict {
+    label fr official "Article 702. Celui qui a un droit de servitude ne peut en user que suivant son titre, sans pouvoir faire, ni dans le fonds qui doit la servitude, ni dans le fonds à qui elle est due, de changement qui aggrave la condition du premier";
+    label en unofficial "Article 702. The holder of a servitude may use it only under his instrument, and may make, in neither the servient nor the dominant land, any change that aggravates the condition of the former";
+    when servitude_acquise(s)
+        and changement_aggravant_la_condition_du_fonds_servant(s);
+    then usage_limite_au_titre(s);
+}
+
+@source(CC_ART702)
+rule P4InterdictionAggraverServitude702(s: Servitude, p: Personne) strict {
+    label fr official "Article 702. Le titulaire ne peut aggraver la condition du fonds servant";
+    label en unofficial "Article 702. The holder may not aggravate the condition of the servient land";
+    when titulaire_servitude(s, p)
+        and servitude_acquise(s)
+        and changement_aggravant_la_condition_du_fonds_servant(s);
+    then prohibition P4InterdictionAggraverServitude702Actif {
+        bearer p;
+        action usage_aggravant_exerce(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART702)
+rule MaintenanceInterdictionAggraverServitude702(s: Servitude, p: Personne) strict {
+    label fr official "Article 702. Le titulaire doit maintenir l'absence d'aggravation de la servitude";
+    label en unofficial "Article 702. The holder must maintain the absence of aggravation of the servitude";
+    when titulaire_servitude(s, p)
+        and servitude_acquise(s)
+        and changement_aggravant_la_condition_du_fonds_servant(s);
+    then duty MaintenanceInterdictionAggraverServitude702Duty {
+        bearer p;
+        goal maintenance {
+            condition not usage_aggravant_exerce(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART703)
+rule ServitudeCesseFauteDePouvoirEnUser(s: Servitude) strict {
+    label fr official "Article 703. Les servitudes cessent lorsque les choses se trouvent en tel état qu'on ne peut plus en user";
+    label en unofficial "Article 703. Servitudes cease when things are in such a state that they can no longer be used";
+    when choses_en_tel_etat_qu_on_ne_peut_plus_en_user(s);
+    then servitude_cesse_faute_de_pouvoir_en_user(s);
+}
+
+@source(CC_ART704)
+rule ServitudeRevitSiLesChosesSontRetablies(s: Servitude) strict {
+    label fr official "Article 704. Les servitudes revivent si les choses sont rétablies de manière qu'on puisse en user, à moins qu'il ne se soit déjà écoulé un espace de temps suffisant pour faire présumer l'extinction de la servitude, ainsi qu'il est dit à l'article 707";
+    label en unofficial "Article 704. Servitudes revive if things are restored so that they can be used, unless a period sufficient to presume the extinction of the servitude has already elapsed, as stated in Article 707";
+    when servitude_cesse_faute_de_pouvoir_en_user(s)
+        and choses_retablies_de_maniere_a_pouvoir_en_user(s)
+        and not_known(servitude_eteinte(s));
+    then servitude_revit(s);
+}
+
+@source(CC_ART705)
+rule ExtinctionParReunionDansLaMemeMain(s: Servitude) strict {
+    label fr official "Article 705. Toute servitude est éteinte lorsque le fonds à qui elle est due, et celui qui la doit, sont réunis dans la même main";
+    label en unofficial "Article 705. Every servitude is extinguished when the land to which it is due and the land owing it are united in the same hands";
+    when fonds_reunis_dans_la_meme_main(s);
+    then servitude_eteinte(s);
+}
+
+@source(CC_ART707) {
+    rule PointDeDepartDuNonUsageServitudeDiscontinue(s: Servitude, jour: Date) strict {
+        label fr official "Article 707. Les trente ans commencent à courir, pour les servitudes discontinues, du jour où l'on a cessé d'en jouir";
+        label en unofficial "Article 707. The thirty years begin to run, for discontinuous servitudes, from the day enjoyment of them ceased";
+        when continuite(s, Discontinue)
+            and cessation_de_la_jouissance_le(s, jour);
+        then point_de_depart_du_non_usage_le(s, jour);
+    }
+    rule PointDeDepartDuNonUsageServitudeContinue(s: Servitude, jour: Date) strict {
+        label fr official "Article 707. Et, pour les servitudes continues, du jour où il a été fait un acte contraire à la servitude";
+        label en unofficial "Article 707. And, for continuous servitudes, from the day an act contrary to the servitude was done";
+        when continuite(s, Continue)
+            and acte_contraire_a_la_servitude_le(s, jour);
+        then point_de_depart_du_non_usage_le(s, jour);
+    }
+}
+
+@source(CC_ART706) {
+    rule EcheanceDuNonUsageDeLaServitude(s: Servitude, depart: Date) strict {
+        label fr official "Article 706. Le non-usage se compte sur trente ans depuis son point de départ";
+        label en unofficial "Article 706. Non-use is counted over thirty years from its starting point";
+        when point_de_depart_du_non_usage_le(s, depart);
+        then echeance_du_non_usage_de_la_servitude(s, add_calendar_period(depart, 30 calendar_year));
+    }
+    rule ExtinctionParLeNonUsageTrentenaireDeLaServitude(s: Servitude, echeance: Date, aujourdhui: Date) strict {
+        label fr official "Article 706. La servitude est éteinte par le non-usage pendant trente ans";
+        label en unofficial "Article 706. The servitude is extinguished by non-use for thirty years";
+        when echeance_du_non_usage_de_la_servitude(s, echeance)
+            and jour_de_reference_de_la_servitude(s, aujourdhui)
+            and aujourdhui > echeance
+            and not_known(prescription_empechee_par_la_jouissance_d_un_indivisaire(s))
+            and not_known(droit_conserve_par_le_coproprietaire_protege(s));
+        then servitude_eteinte(s);
+    }
+    rule ServitudeNonEteinteAvantLesTrenteAns(s: Servitude, echeance: Date, aujourdhui: Date) strict {
+        label fr official "Article 706. Tant que les trente ans de non-usage ne sont pas accomplis, la servitude n'est pas éteinte par le non-usage";
+        label en unofficial "Article 706. As long as the thirty years of non-use are not complete, the servitude is not extinguished by non-use";
+        when echeance_du_non_usage_de_la_servitude(s, echeance)
+            and jour_de_reference_de_la_servitude(s, aujourdhui)
+            and aujourdhui <= echeance;
+        then not servitude_eteinte(s);
+    }
+}
+
+@source(CC_ART708)
+rule ModePrescritCommeLaServitude(s: Servitude) strict {
+    label fr official "Article 708. Le mode de la servitude peut se prescrire comme la servitude même, et de la même manière";
+    label en unofficial "Article 708. The mode of the servitude may be prescribed like the servitude itself, and in the same way";
+    when servitude_acquise(s)
+        and mode_de_la_servitude_non_use(s);
+    then mode_prescrit_comme_la_servitude(s);
+}
+
+@source(CC_ART709)
+rule JouissanceDUnIndivisaireEmpechelaPrescription(s: Servitude) strict {
+    label fr official "Article 709. Si l'héritage en faveur duquel la servitude est établie appartient à plusieurs par indivis, la jouissance de l'un empêche la prescription à l'égard de tous";
+    label en unofficial "Article 709. If the tenement in favour of which the servitude is established belongs to several in undivided shares, the enjoyment of one prevents prescription as regards all";
+    when heritage_dominant_appartenant_a_plusieurs_par_indivis(s)
+        and jouissance_par_l_un_des_indivisaires(s);
+    then prescription_empechee_par_la_jouissance_d_un_indivisaire(s);
+}
+
+@source(CC_ART710)
+rule DroitConserveParLeCoproprietaireProtege(s: Servitude) strict {
+    label fr official "Article 710. Si, parmi les copropriétaires, il s'en trouve un contre lequel la prescription n'ait pu courir, comme un mineur, il aura conservé le droit de tous les autres";
+    label en unofficial "Article 710. If, among the co-owners, there is one against whom prescription could not run, such as a minor, he will have preserved the right of all the others";
+    when heritage_dominant_appartenant_a_plusieurs_par_indivis(s)
+        and coproprietaire_contre_lequel_la_prescription_n_a_pu_courir(s);
+    then droit_conserve_par_le_coproprietaire_protege(s);
+}
+
+// --- Article 543 : les trois espèces de droits sur les biens ----------------------------------------
+//
+// L'article 543 clôt la classification du titre Ier en nommant les trois
+// espèces de droits réels ; il ne peut être exécuté qu'ici, où la servitude
+// et l'usufruit sont déclarés.
+
+@source(CC_ART543) {
+    rule DroitDeProprieteSurLeBien(b: Bien, p: Personne) strict {
+        label fr official "Article 543. On peut avoir sur les biens un droit de propriété";
+        label en unofficial "Article 543. One may have over assets a right of ownership";
+        when proprietaire_du_bien(b, p);
+        then droit_sur_le_bien(b, p, Propriete);
+    }
+    rule DroitDeSimpleJouissanceSurLeBien(u: Usufruit, b: Bien, p: Personne) strict {
+        label fr official "Article 543. Ou un simple droit de jouissance";
+        label en unofficial "Article 543. Or a mere right of enjoyment";
+        when usufruit_sur(u, b)
+            and usufruitier(u, p);
+        then droit_sur_le_bien(b, p, SimpleJouissance);
+    }
+    rule ServiceFoncierAPretendreSurLeBien(s: Servitude, servant: Fonds, dominant: Fonds, p: Personne) strict {
+        label fr official "Article 543. Ou seulement des services fonciers à prétendre";
+        label en unofficial "Article 543. Or only servitudes to claim";
+        when servitude_grevant(s, servant, dominant)
+            and proprietaire_du_bien(dominant, p);
+        then droit_sur_le_bien(servant, p, ServiceFoncierAPretendre);
+    }
+}

@@ -1,0 +1,51 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1582-payer-le-prix-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1582:a:v"), entity_ref("urn:fr:cc12:e0179:1582:a:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:e0179:1582:a:v"), entity_ref("urn:fr:cc12:e0179:1582:a:a")) { origin case_input; }
+        assert "price": prix_convenu(entity_ref("urn:fr:cc12:e0179:1582:a:v"), 100000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerLePrix, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1582-payer-le-prix-satisfied" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1582:b:v"), entity_ref("urn:fr:cc12:e0179:1582:b:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:e0179:1582:b:v"), entity_ref("urn:fr:cc12:e0179:1582:b:a")) { origin case_input; }
+        assert "price": prix_convenu(entity_ref("urn:fr:cc12:e0179:1582:b:v"), 100000 EUR) { origin case_input; }
+        assert "paid": prix_paye_integralement(entity_ref("urn:fr:cc12:e0179:1582:b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerLePrix, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1674-rescision-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1674:a:v"), entity_ref("urn:fr:cc12:e0179:1674:a:s")) { origin case_input; }
+        assert "lesion": lesion_superieure_a_sept_douziemes(entity_ref("urn:fr:cc12:e0179:1674:a:v")) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:e0179:1674:a:v"), @2025-01-01) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:e0179:1674:a:v"), @2026-01-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRescisionPourLesion, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1674-rescision-exercised" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1674:b:v"), entity_ref("urn:fr:cc12:e0179:1674:b:s")) { origin case_input; }
+        assert "lesion": lesion_superieure_a_sept_douziemes(entity_ref("urn:fr:cc12:e0179:1674:b:v")) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:e0179:1674:b:v"), @2025-01-01) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:e0179:1674:b:v"), @2026-01-01) { origin case_input; }
+        assert "exercise": demande_rescision_pour_lesion(entity_ref("urn:fr:cc12:e0179:1674:b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRescisionPourLesion, ACTIVE);
+}

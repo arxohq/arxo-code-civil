@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2325 : sûreté constituée par un tiers — action limitée au bien, articles 2302 à 2305-1 applicables.
+test "urn:query:fr-code-civil-suretes-r12-surete-pour-autrui" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:r12:S"), entity_ref("urn:fr:cc:suretes:r12:B"), entity_ref("urn:fr:cc:suretes:r12:P"), entity_ref("urn:fr:cc:suretes:r12:X")) { origin case_input; }
+        assert "f2": surete_accordee_par_convention(entity_ref("urn:fr:cc:suretes:r12:S")) { origin case_input; }
+        assert "f3": surete_constituee_par_un_tiers(entity_ref("urn:fr:cc:suretes:r12:S"), entity_ref("urn:fr:cc:suretes:r12:T")) { origin case_input; }
+    }
+    evaluate truth(protection_de_la_caution_etendue(entity_ref("urn:fr:cc:suretes:r12:S"), "2302-2305-1"));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ProtectionInformationEtendue);
+}

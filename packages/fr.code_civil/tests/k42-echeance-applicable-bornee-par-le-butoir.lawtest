@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// K4 : transition 2008, échéance 2013-06-18 (Cass. 1re civ., 12 déc. 2018, n° 17-25.697), butoir 2010-01-01 — la date applicable est le butoir.
+test "urn:query:fr-code-civil-k42-echeance-applicable-bornee-par-le-butoir" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": creance_exigible_depuis(entity_ref("urn:fr:cc:presc:k42"), @1990-01-01) { origin case_input; }
+        assert "f2": prescription_non_interrompue(entity_ref("urn:fr:cc:presc:k42")) { origin case_input; }
+        assert "f3": naissance_du_droit_le(entity_ref("urn:fr:cc:presc:k42"), @1990-01-01) { origin case_input; }
+        assert "f4": nature_de_l_action(entity_ref("urn:fr:cc:presc:k42"), ActionPersonnelleOuMobiliere) { origin case_input; }
+    }
+    evaluate truth(date_d_echeance_applicable_le(entity_ref("urn:fr:cc:presc:k42"), @2010-01-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DateApplicableBorneeParLeButoir);
+}

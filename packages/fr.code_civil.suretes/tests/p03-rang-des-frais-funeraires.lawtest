@@ -1,0 +1,29 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2332-1 : les frais funéraires, privilège général, viennent après les deux privilèges spéciaux — rang 3.
+test "urn:query:fr-code-civil-suretes-p03-rang-des-frais-funeraires" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:p01:D"), 10000 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:p01:R1"), entity_ref("urn:fr:cc:suretes:p01:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:p01:R1"), PrivilegeMobilierSpecial) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:p01:R1"), 4000 EUR) { origin case_input; }
+        assert "f5": privilege_special_invoque(entity_ref("urn:fr:cc:suretes:p01:R1"), VendeurDeMeuble) { origin case_input; }
+        assert "f6": collocation_dans(entity_ref("urn:fr:cc:suretes:p01:R2"), entity_ref("urn:fr:cc:suretes:p01:D")) { origin case_input; }
+        assert "f7": cause_de_preference(entity_ref("urn:fr:cc:suretes:p01:R2"), PrivilegeMobilierSpecial) { origin case_input; }
+        assert "f8": creance_en_principal(entity_ref("urn:fr:cc:suretes:p01:R2"), 3000 EUR) { origin case_input; }
+        assert "f9": privilege_special_invoque(entity_ref("urn:fr:cc:suretes:p01:R2"), BailleurDImmeuble) { origin case_input; }
+        assert "f10": collocation_dans(entity_ref("urn:fr:cc:suretes:p01:R3"), entity_ref("urn:fr:cc:suretes:p01:D")) { origin case_input; }
+        assert "f11": cause_de_preference(entity_ref("urn:fr:cc:suretes:p01:R3"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f12": creance_en_principal(entity_ref("urn:fr:cc:suretes:p01:R3"), 2000 EUR) { origin case_input; }
+        assert "f13": privilege_general_invoque(entity_ref("urn:fr:cc:suretes:p01:R3"), FraisFuneraires) { origin case_input; }
+        assert "f14": collocation_dans(entity_ref("urn:fr:cc:suretes:p01:R4"), entity_ref("urn:fr:cc:suretes:p01:D")) { origin case_input; }
+        assert "f15": cause_de_preference(entity_ref("urn:fr:cc:suretes:p01:R4"), Chirographaire) { origin case_input; }
+        assert "f16": creance_en_principal(entity_ref("urn:fr:cc:suretes:p01:R4"), 5000 EUR) { origin case_input; }
+    }
+    evaluate truth(rang_de_la_collocation(entity_ref("urn:fr:cc:suretes:p01:R3"), 3));
+    expect truth_status == TRUE_ONLY;
+    expect applied(RangDeLaCollocation);
+}

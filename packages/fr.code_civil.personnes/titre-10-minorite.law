@@ -1,0 +1,186 @@
+// TITRE X — DE LA MINORITÉ, DE LA TUTELLE ET DE L'ÉMANCIPATION
+// (articles 388, 390, 413-1 à 413-8).
+//
+// Deux âges du texte : dix-huit ans accomplis pour la minorité (388), seize
+// ans révolus pour l'émancipation judiciaire (413-2). Ils se comparent à la
+// date légale du cas, jamais à un âge donné en fait. L'émancipation par le
+// mariage est de plein droit (413-1) ; l'émancipation judiciaire suppose de
+// justes motifs, appréciation du juge que le paquet ne calcule pas : le cas
+// apporte la décision, datée.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART388,
+    CC_ART390,
+    CC_ART413_1,
+    CC_ART413_2,
+    CC_ART413_6,
+    CC_ART413_7,
+    CC_ART414,
+    Personne,
+    date_d_appreciation,
+    emancipation_prononcee_le,
+    filiation_non_etablie,
+    marie,
+    ne_le,
+    pere_et_mere_decedes_ou_prives_de_l_autorite,
+};
+
+pub relation mineur(p: Personne) kind derived {
+    label fr official "l'individu n'a pas encore l'âge de dix-huit ans accomplis (article 388)";
+    label en unofficial "the individual has not yet reached eighteen full years (Article 388)";
+}
+pub relation majeur(p: Personne) kind derived {
+    label fr official "la majorité est fixée à dix-huit ans accomplis (article 414)";
+    label en unofficial "majority is set at eighteen full years (Article 414)";
+}
+pub relation exercer_droits_jouissance(p: Personne) kind empirical { label fr official "la personne majeure exerce les droits dont elle a la jouissance"; label en unofficial "the adult exercises the rights he or she enjoys"; }
+pub relation emancipe(p: Personne) kind derived {
+    label fr official "le mineur est émancipé (articles 413-1, 413-2)";
+    label en unofficial "the minor is emancipated (Articles 413-1, 413-2)";
+}
+pub relation mineur_non_emancipe(p: Personne) kind derived {
+    label fr official "mineur qui n'est pas émancipé (articles 388, 413-1 et suivants)";
+    label en unofficial "minor who is not emancipated (Articles 388, 413-1 et seq.)";
+}
+pub relation age_requis_pour_l_emancipation(p: Personne) kind derived {
+    label fr official "le mineur a atteint l'âge de seize ans révolus (article 413-2)";
+    label en unofficial "the minor has reached sixteen full years (Article 413-2)";
+}
+pub relation capable_comme_un_majeur(p: Personne) kind derived {
+    label fr official "le mineur émancipé est capable, comme un majeur, de tous les actes de la vie civile (article 413-6)";
+    label en unofficial "an emancipated minor is capable, like an adult, of all acts of civil life (Article 413-6)";
+}
+pub relation sous_autorite_parentale(p: Personne) kind derived {
+    label fr official "le mineur est sous l'autorité de ses père et mère ; l'émancipation y met fin (article 413-7)";
+    label en unofficial "the minor is under his parents' authority; emancipation ends it (Article 413-7)";
+}
+pub relation tutelle_ouverte(p: Personne) kind derived {
+    label fr official "la tutelle du mineur s'ouvre (article 390)";
+    label en unofficial "guardianship of the minor opens (Article 390)";
+}
+
+@source(CC_ART388) {
+    rule Mineur(p: Personne, naissance: Date, jour: Date) defeasible {
+        label fr official "Article 388. Le mineur est l'individu de l'un ou l'autre sexe qui n'a point encore l'âge de dix-huit ans accomplis";
+        label en unofficial "Article 388. A minor is an individual of either sex who has not yet reached eighteen full years";
+        when ne_le(p, naissance) and date_d_appreciation(p, jour)
+            and jour < add_calendar_period(naissance, 18 calendar_year);
+        then mineur(p);
+    }
+    rule MineurNonEmancipe(p: Personne) defeasible {
+        label fr official "Article 388. Mineur qui n'est pas émancipé : les règles de la minorité lui restent applicables";
+        label en unofficial "Article 388. A minor who is not emancipated: the rules of minority still apply to him";
+        when mineur(p) and not_known(emancipe(p));
+        then mineur_non_emancipe(p);
+    }
+    rule SousAutoriteParentale(p: Personne) defeasible {
+        label fr official "Articles 388 et 413-7. Le mineur non émancipé est sous l'autorité de ses père et mère";
+        label en unofficial "Articles 388 and 413-7. An unemancipated minor is under his parents' authority";
+        when mineur_non_emancipe(p);
+        then sous_autorite_parentale(p);
+    }
+}
+
+@source(CC_ART414)
+rule Majeur(p: Personne, naissance: Date, jour: Date) defeasible {
+    label fr official "Article 414. La majorité est fixée à dix-huit ans accomplis ; à cet âge, chacun est capable d'exercer les droits dont il a la jouissance";
+    label en unofficial "Article 414. Majority is set at eighteen full years; at that age everyone is capable of exercising the rights he holds";
+    when ne_le(p, naissance) and date_d_appreciation(p, jour)
+        and jour >= add_calendar_period(naissance, 18 calendar_year);
+    then majeur(p);
+}
+@source(CC_ART414)
+rule PositionPouvoirExercerDroitsMajeur(p: Personne) strict {
+    label fr official "Article 414. La personne majeure peut exercer les droits dont elle a la jouissance";
+    label en unofficial "Article 414. An adult may exercise the rights he or she enjoys";
+    when majeur(p) and exercer_droits_jouissance(p);
+    then liberty PouvoirExercerDroitsMajeur {
+        holder p;
+        action exercer_droits_jouissance(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART390)
+rule TutelleDuMineur(p: Personne) defeasible {
+    label fr official "Article 390, alinéas 1 et 2. La tutelle s'ouvre lorsque le père et la mère sont tous deux décédés ou privés de l'exercice de l'autorité parentale, et à l'égard d'un enfant dont la filiation n'est pas légalement établie";
+    label en unofficial "Article 390, paragraphs 1 and 2. Guardianship opens where both parents are deceased or deprived of parental authority, and for a child whose filiation is not legally established";
+    when mineur_non_emancipe(p) and pere_et_mere_decedes_ou_prives_de_l_autorite(p);
+    then tutelle_ouverte(p);
+}
+pub relation organiser_ou_ouvrir_tutelle_mineur(p: Personne) kind empirical { label fr official "la tutelle du mineur est ouverte conformément à la loi"; label en unofficial "the minor's guardianship is opened as provided by law"; }
+@source(CC_ART390)
+rule PositionDevoirOuvrirTutelleMineur(p: Personne) strict {
+    label fr official "Article 390. La tutelle du mineur doit être ouverte dans les cas légaux";
+    label en unofficial "Article 390. The minor's guardianship must be opened in the statutory cases";
+    when tutelle_ouverte(p);
+    then duty DevoirOuvrirTutelleMineur {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition organiser_ou_ouvrir_tutelle_mineur(p);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART390)
+rule TutelleFautDeFiliation(p: Personne) defeasible {
+    label fr official "Article 390, alinéa 2. La tutelle s'ouvre aussi à l'égard d'un enfant dont la filiation n'est pas légalement établie";
+    label en unofficial "Article 390, paragraph 2. Guardianship also opens for a child whose filiation is not legally established";
+    when mineur_non_emancipe(p) and filiation_non_etablie(p);
+    then tutelle_ouverte(p);
+}
+
+@source(CC_ART413_1, CC_ART413_2) {
+    rule EmancipationParLeMariage(p: Personne) defeasible {
+        label fr official "Article 413-1. Le mineur est émancipé de plein droit par le mariage";
+        label en unofficial "Article 413-1. A minor is emancipated by operation of law upon marriage";
+        when mineur(p) and marie(p);
+        then emancipe(p);
+    }
+    rule AgeRequisPourLEmancipation(p: Personne, naissance: Date, jour: Date) defeasible {
+        label fr official "Article 413-2, alinéa 1. Le mineur, même non marié, pourra être émancipé lorsqu'il aura atteint l'âge de seize ans révolus";
+        label en unofficial "Article 413-2, paragraph 1. A minor, even unmarried, may be emancipated once he has reached sixteen full years";
+        when ne_le(p, naissance) and date_d_appreciation(p, jour)
+            and jour >= add_calendar_period(naissance, 16 calendar_year);
+        then age_requis_pour_l_emancipation(p);
+    }
+    rule EmancipationJudiciaire(p: Personne, jour: Date, appreciation: Date) defeasible {
+        label fr official "Article 413-2, alinéa 2. L'émancipation est prononcée, s'il y a de justes motifs, par le juge des tutelles, à la demande des père et mère ou de l'un d'eux";
+        label en unofficial "Article 413-2, paragraph 2. Emancipation is granted, on proper grounds, by the guardianship judge at the request of the parents or one of them";
+        when emancipation_prononcee_le(p, jour) and age_requis_pour_l_emancipation(p)
+            and date_d_appreciation(p, appreciation) and appreciation >= jour;
+        then emancipe(p);
+    }
+}
+pub relation demander_emancipation_par_mariage(p: Personne) kind empirical { label fr official "la personne demande à constater son émancipation par mariage"; label en unofficial "the person asks to have emancipation by marriage recorded"; }
+@source(CC_ART413_1)
+rule PositionPouvoirDemanderEmancipationParMariage(p: Personne) strict {
+    label fr official "Article 413-1. Le mineur marié peut demander la constatation de son émancipation";
+    label en unofficial "Article 413-1. A married minor may ask for emancipation to be recorded";
+    when mineur(p) and marie(p) and demander_emancipation_par_mariage(p);
+    then liberty PouvoirDemanderEmancipationParMariage {
+        holder p;
+        action demander_emancipation_par_mariage(p);
+        window [@2009-01-01, infinity);
+    };
+}
+
+@source(CC_ART413_6, CC_ART413_7) {
+    rule CapaciteDuMineurEmancipe(p: Personne) defeasible {
+        label fr official "Article 413-6, alinéa 1. Le mineur émancipé est capable, comme un majeur, de tous les actes de la vie civile";
+        label en unofficial "Article 413-6, paragraph 1. An emancipated minor is capable, like an adult, of all acts of civil life";
+        when emancipe(p);
+        then capable_comme_un_majeur(p);
+    }
+    rule EmancipationMetFinALAutoriteParentale(p: Personne) defeater {
+        label fr official "Article 413-7, alinéa 1. Le mineur émancipé cesse d'être sous l'autorité de ses père et mère";
+        label en unofficial "Article 413-7, paragraph 1. An emancipated minor ceases to be under his parents' authority";
+        when emancipe(p);
+        defeat sous_autorite_parentale(p);
+    }
+}

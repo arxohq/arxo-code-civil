@@ -1,0 +1,288 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRE IV, SECTION 3, SOUS-SECTION 1 :
+// RANG DES HYPOTHÈQUES (articles 2418 à 2420) ET INTÉRÊTS CONSERVÉS AU MÊME
+// RANG QUE LE PRINCIPAL (article 2427).
+//
+// ORDRE (2418). Les hypothèques n'ont rang que du jour de leur inscription au
+// fichier immobilier : la classe 40 est ordonnée par date. Le texte départage
+// lui-même les inscriptions du MÊME JOUR :
+//   — l'hypothèque légale passe avant la judiciaire et la conventionnelle ;
+//   — entre légales, celle du vendeur passe avant celle du prêteur de deniers,
+//     les autres venant en concurrence ;
+//   — entre conventionnelles ou judiciaires, celle dont le titre porte la date
+//     la plus ancienne passe avant ; à titres de même date, concurrence.
+// Ces règles sont exécutées ; ce que le texte ne départage pas reste un
+// concours, non un choix du paquet.
+//
+// EXCEPTION DU SYNDICAT (2418, al. 1 ; 2402, 3°). L'hypothèque du syndicat des
+// copropriétaires est dispensée d'inscription et prime toutes les autres pour
+// l'année courante et les deux dernières années échues : classe 3. Pour les
+// années antérieures, elle vient en concours avec le vendeur et le prêteur de
+// deniers — le texte ne donne pas de file d'attente pour cette part :
+// frontière déclarée (`part_anterieure_du_syndicat`).
+//
+// GAGISTES SUR IMMEUBLE PAR DESTINATION (2419). L'ordre se fait par les dates
+// de publication des titres. À DATE ÉGALE entre un gagiste et un créancier
+// hypothécaire, l'article ne donne aucune règle : la distribution n'est pas
+// calculée (frontière `meme_date_de_publication`).
+//
+// INTÉRÊTS (2427). Le créancier hypothécaire est colloqué pour trois années
+// d'intérêts au même rang que le principal ; le paquet lit « trois années »
+// comme trois annuités d'intérêts (D-CC14-07), et non comme une période
+// datée : le texte ne dit pas lesquelles. Le prêt viager hypothécaire est
+// colloqué pour la totalité des intérêts.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2418,
+    CC_ART2419,
+    CC_ART2420,
+    CC_ART2427,
+    CauseDePreference,
+    Collocation,
+    Distribution,
+    GageSurImmeubleParDestination,
+    SureteReelle,
+    cause_de_preference,
+    classe_de_preference,
+    classe_de_preference_existe,
+    classe_ordonnee_par_date,
+    collocation_dans,
+    creance_en_principal,
+    date_de_rang,
+    date_utile,
+    distribution_non_calculee,
+    montant_admis,
+    montant_admis_calcule,
+    precede,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation date_du_titre(r: Collocation, jour: Date) kind empirical {
+    key(r);
+    label fr official "date du titre en vertu duquel l'inscription est prise (article 2418, al. 2)";
+    label en unofficial "date of the instrument under which the registration is taken (Article 2418, para. 2)";
+}
+pub relation collocation_du_vendeur_d_immeuble(r: Collocation) kind empirical {
+    label fr official "la collocation invoque l'hypothèque légale spéciale du vendeur d'immeuble (articles 2402, 1°, 2418)";
+    label en unofficial "the entry relies on the seller's special statutory mortgage (Articles 2402, 1°, 2418)";
+}
+pub relation collocation_du_preteur_de_deniers(r: Collocation) kind empirical {
+    label fr official "la collocation invoque l'hypothèque légale spéciale du prêteur de deniers (articles 2402, 2°, 2418)";
+    label en unofficial "the entry relies on the money-lender's special statutory mortgage (Articles 2402, 2°, 2418)";
+}
+pub relation collocation_du_syndicat(r: Collocation) kind empirical {
+    label fr official "la collocation invoque l'hypothèque légale du syndicat des copropriétaires (articles 2402, 3°, 2418)";
+    label en unofficial "the entry relies on the co-owners' association's statutory mortgage (Articles 2402, 3°, 2418)";
+}
+pub relation part_du_syndicat_anterieure_aux_trois_annees(r: Collocation) kind empirical {
+    label fr official "la collocation du syndicat porte aussi sur des années antérieures à l'année courante et aux deux dernières années échues (article 2418, al. 1)";
+    label en unofficial "the association's entry also covers years before the current year and the last two years (Article 2418, para. 1)";
+}
+pub relation collocation_hypothecaire_rechargeable(r: Collocation, s: SureteReelle) kind empirical {
+    key(r);
+    label fr official "la collocation est fondée sur une convention de rechargement d'une hypothèque rechargeable (article 2420)";
+    label en unofficial "the entry is based on a reloading agreement of a reloadable mortgage (Article 2420)";
+}
+pub relation date_de_la_convention_de_rechargement(r: Collocation, jour: Date) kind empirical {
+    key(r);
+    label fr official "date de publication de la convention de rechargement (article 2420)";
+    label en unofficial "publication date of the reloading agreement (Article 2420)";
+}
+pub relation interets_annuels(r: Collocation, m: Money) kind empirical {
+    key(r);
+    label fr official "montant annuel des intérêts et arrérages du capital inscrit (article 2427)";
+    label en unofficial "annual amount of interest and arrears on the registered capital (Article 2427)";
+}
+pub relation interets_echus_impayes(r: Collocation, m: Money) kind empirical {
+    key(r);
+    label fr official "intérêts et arrérages échus impayés (article 2427)";
+    label en unofficial "accrued unpaid interest and arrears (Article 2427)";
+}
+pub relation pret_viager_hypothecaire(r: Collocation) kind empirical {
+    label fr official "l'hypothèque a été consentie en garantie du prêt viager défini au I de l'article L. 315-1 du code de la consommation (article 2427, al. 2)";
+    label en unofficial "the mortgage secures the life loan defined in Article L. 315-1, I, of the Consumer Code (Article 2427, para. 2)";
+}
+pub relation inscription_particuliere_pour_les_interets(r: Collocation) kind empirical {
+    label fr official "inscription particulière prise pour les intérêts et arrérages autres que ceux conservés par l'inscription primitive (article 2427)";
+    label en unofficial "separate registration taken for interest and arrears other than those preserved by the original registration (Article 2427)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation hypotheque_legale_collocation(r: Collocation) kind derived {
+    label fr official "collocation fondée sur une hypothèque légale (article 2418)";
+    label en unofficial "entry based on a statutory mortgage (Article 2418)";
+}
+pub relation hypotheque_conventionnelle_ou_judiciaire_collocation(r: Collocation) kind derived {
+    label fr official "collocation fondée sur une hypothèque conventionnelle ou judiciaire (article 2418)";
+    label en unofficial "entry based on a contractual or judicial mortgage (Article 2418)";
+}
+pub relation collocation_gagiste_immobiliere(r: Collocation) kind derived {
+    label fr official "collocation d'un créancier gagiste sur un bien réputé immeuble (articles 2334, 2419)";
+    label en unofficial "entry of a pledgee over an asset deemed immovable (Articles 2334, 2419)";
+}
+pub relation interets_au_rang_du_principal(r: Collocation, m: Money) kind derived {
+    key(r);
+    label fr official "intérêts colloqués au même rang que le principal (article 2427)";
+    label en unofficial "interest ranked with the principal (Article 2427)";
+}
+pub relation part_anterieure_du_syndicat(r: Collocation) kind derived {
+    label fr official "frontière : pour les années antérieures, l'hypothèque du syndicat vient en concours avec celles du vendeur et du prêteur de deniers ; le texte ne donne pas d'ordre pour cette part (article 2418, al. 1)";
+    label en unofficial "boundary: for earlier years the association's mortgage competes with the seller's and the lender's; the text gives no ordering for that part (Article 2418, para. 1)";
+}
+pub relation meme_date_de_publication(d: Distribution, jour: Date) kind derived {
+    label fr official "frontière : un gagiste et un créancier hypothécaire ont publié leurs titres le même jour ; l'article 2419 ne les départage pas";
+    label en unofficial "boundary: a pledgee and a mortgagee published their titles on the same day; Article 2419 does not rank them";
+}
+
+// --- 2418 : rang par l'inscription ----------------------------------------------------------
+
+@source(CC_ART2418) {
+    rule ClasseOrdonneeParDateHypothecaire() strict {
+        label fr official "Article 2418, alinéa 1. Les hypothèques légales, judiciaires et conventionnelles n'ont rang que du jour de leur inscription prise au fichier immobilier";
+        label en unofficial "Article 2418, paragraph 1. Statutory, judicial and contractual mortgages rank only from the day of their registration in the land register";
+        when classe_de_preference_existe(40);
+        then classe_ordonnee_par_date(40);
+    }
+    rule ClasseDuSyndicat(r: Collocation) strict {
+        label fr official "Article 2418, alinéa 1. Par exception, l'hypothèque prévue au 3° de l'article 2402 est dispensée d'inscription et prime toutes les autres hypothèques pour l'année courante et les deux dernières années échues";
+        label en unofficial "Article 2418, paragraph 1. By way of exception, the Article 2402, 3° mortgage needs no registration and outranks all others for the current year and the last two years";
+        when collocation_du_syndicat(r) and cause_de_preference(r, PrivilegeDuSyndicatDesCoproprietaires);
+        then classe_de_preference(r, 3);
+    }
+    rule PartAnterieureDuSyndicat(r: Collocation) strict {
+        label fr official "Article 2418, alinéa 1. Pour les années antérieures, elle vient en concours avec l'hypothèque du vendeur et du prêteur de deniers — part non ordonnée par le texte";
+        label en unofficial "Article 2418, paragraph 1. For earlier years it competes with the seller's and the lender's mortgages — a part the text does not order";
+        when collocation_du_syndicat(r) and part_du_syndicat_anterieure_aux_trois_annees(r);
+        then part_anterieure_du_syndicat(r);
+    }
+    rule CollocationHypothequeLegale(r: Collocation) strict {
+        label fr official "Article 2418, alinéa 2. Collocation fondée sur une hypothèque légale";
+        label en unofficial "Article 2418, paragraph 2. Entry based on a statutory mortgage";
+        when cause_de_preference(r, HypothequeLegale);
+        then hypotheque_legale_collocation(r);
+    }
+    rule CollocationHypothequeConventionnelle(r: Collocation) strict {
+        label fr official "Article 2418, alinéa 2. Collocation fondée sur une hypothèque conventionnelle";
+        label en unofficial "Article 2418, paragraph 2. Entry based on a contractual mortgage";
+        when cause_de_preference(r, HypothequeConventionnelle);
+        then hypotheque_conventionnelle_ou_judiciaire_collocation(r);
+    }
+    rule CollocationHypothequeJudiciaire(r: Collocation) strict {
+        label fr official "Article 2418, alinéa 2. Collocation fondée sur une hypothèque judiciaire";
+        label en unofficial "Article 2418, paragraph 2. Entry based on a judicial mortgage";
+        when cause_de_preference(r, HypothequeJudiciaire);
+        then hypotheque_conventionnelle_ou_judiciaire_collocation(r);
+    }
+    rule MemeJourLegaleAvantConventionnelle(x: Collocation, r: Collocation, d: Distribution, t: Date) strict {
+        label fr official "Article 2418, alinéa 2. L'inscription d'une hypothèque légale est réputée d'un rang antérieur à celui d'une hypothèque judiciaire ou conventionnelle prise le même jour";
+        label en unofficial "Article 2418, paragraph 2. A statutory mortgage registered on the same day is deemed to rank ahead of a judicial or contractual one";
+        when collocation_dans(x, d) and collocation_dans(r, d) and hypotheque_legale_collocation(x)
+            and hypotheque_conventionnelle_ou_judiciaire_collocation(r) and date_utile(x, t) and date_utile(r, t);
+        then precede(x, r);
+    }
+    rule MemeJourVendeurAvantPreteur(x: Collocation, r: Collocation, d: Distribution, t: Date) strict {
+        label fr official "Article 2418, alinéa 2. Entre hypothèques légales du même jour, celle du vendeur est réputée antérieure à celle du prêteur de deniers ; les autres viennent en concurrence";
+        label en unofficial "Article 2418, paragraph 2. Between statutory mortgages of the same day, the seller's is deemed earlier than the lender's; the others compete";
+        when collocation_dans(x, d) and collocation_dans(r, d) and collocation_du_vendeur_d_immeuble(x)
+            and collocation_du_preteur_de_deniers(r) and date_utile(x, t) and date_utile(r, t);
+        then precede(x, r);
+    }
+    rule MemeJourTitreLePlusAncien(x: Collocation, r: Collocation, d: Distribution, t: Date, a: Date, b: Date) strict {
+        label fr official "Article 2418, alinéa 2. En présence de plusieurs inscriptions d'hypothèques conventionnelles ou judiciaires du même jour, celle prise en vertu du titre portant la date la plus ancienne est réputée d'un rang antérieur ; à titres de même date, concurrence";
+        label en unofficial "Article 2418, paragraph 2. Among contractual or judicial registrations of the same day, the one under the earliest-dated instrument ranks first; instruments of the same date compete";
+        when collocation_dans(x, d) and collocation_dans(r, d) and hypotheque_conventionnelle_ou_judiciaire_collocation(x)
+            and hypotheque_conventionnelle_ou_judiciaire_collocation(r) and date_utile(x, t) and date_utile(r, t)
+            and date_du_titre(x, a) and date_du_titre(r, b) and a < b;
+        then precede(x, r);
+    }
+}
+
+// --- 2419 : gagistes sur immeuble par destination -----------------------------------------------
+
+@source(CC_ART2419) {
+    rule CollocationGagisteImmobiliere(r: Collocation) strict {
+        label fr official "Article 2419. Collocation d'un créancier gagiste dont le gage porte sur des biens réputés immeubles";
+        label en unofficial "Article 2419. Entry of a pledgee whose pledge covers assets deemed immovable";
+        when cause_de_preference(r, GageSurImmeubleParDestination);
+        then collocation_gagiste_immobiliere(r);
+    }
+    rule MemeDateGagisteEtHypothecaire(x: Collocation, r: Collocation, d: Distribution, t: Date) strict {
+        label fr official "Article 2419. L'ordre entre créanciers hypothécaires et gagistes est déterminé par les dates de publication des titres : à date égale, le texte ne départage pas — frontière";
+        label en unofficial "Article 2419. Priority between mortgagees and pledgees follows the titles' publication dates: on an equal date the text does not rank them — boundary";
+        when collocation_dans(x, d) and collocation_dans(r, d) and collocation_gagiste_immobiliere(x)
+            and hypotheque_legale_collocation(r) and date_utile(x, t) and date_utile(r, t);
+        then meme_date_de_publication(d, t);
+    }
+    rule MemeDateGagisteEtConventionnelle(x: Collocation, r: Collocation, d: Distribution, t: Date) strict {
+        label fr official "Article 2419. Même date de publication entre un gagiste et une hypothèque conventionnelle ou judiciaire — frontière";
+        label en unofficial "Article 2419. Same publication date between a pledgee and a contractual or judicial mortgage — boundary";
+        when collocation_dans(x, d) and collocation_dans(r, d) and collocation_gagiste_immobiliere(x)
+            and hypotheque_conventionnelle_ou_judiciaire_collocation(r) and date_utile(x, t) and date_utile(r, t);
+        then meme_date_de_publication(d, t);
+    }
+    rule FrontiereSuspendLaDistribution(d: Distribution, t: Date) strict {
+        label fr official "Article 2419. La distribution où deux titres de même date ne sont pas départagés n'est pas calculée";
+        label en unofficial "Article 2419. A distribution where two same-dated titles are not ranked is not computed";
+        when meme_date_de_publication(d, t);
+        then distribution_non_calculee(d);
+    }
+}
+
+// --- 2420 : hypothèque rechargeable -------------------------------------------------------------
+
+@source(CC_ART2420) {
+    rule RechargementAuRangDeLInscription(r: Collocation, s: SureteReelle, d: Date) strict {
+        label fr official "Article 2420. Les créanciers titulaires d'une même hypothèque rechargeable bénéficient du rang de l'inscription de la convention constitutive";
+        label en unofficial "Article 2420. Creditors under the same reloadable mortgage enjoy the rank of the constituting agreement's registration";
+        when collocation_hypothecaire_rechargeable(r, s) and date_de_rang(r, d);
+        then rang_de_l_hypotheque_rechargeable(r, d);
+    }
+    rule RechargementPrecedeParLaPublication(x: Collocation, r: Collocation, dd: Distribution, s: SureteReelle, a: Date, b: Date) strict {
+        label fr official "Article 2420. Dans leurs relations réciproques, la date de publication des conventions de rechargement détermine leur rang";
+        label en unofficial "Article 2420. Among themselves, the publication date of the reloading agreements sets their rank";
+        when collocation_dans(x, dd) and collocation_dans(r, dd) and collocation_hypothecaire_rechargeable(x, s)
+            and collocation_hypothecaire_rechargeable(r, s) and date_de_la_convention_de_rechargement(x, a)
+            and date_de_la_convention_de_rechargement(r, b) and a < b;
+        then precede(x, r);
+    }
+}
+
+pub relation rang_de_l_hypotheque_rechargeable(r: Collocation, jour: Date) kind derived {
+    key(r);
+    label fr official "rang emprunté à l'inscription de la convention constitutive (article 2420)";
+    label en unofficial "rank taken from the constituting agreement's registration (Article 2420)";
+}
+
+// --- 2427 : intérêts au rang du principal ---------------------------------------------------------
+
+@source(CC_ART2427) {
+    rule TroisAnneesDInterets(r: Collocation, a: Money, e: Money) strict {
+        label fr official "Article 2427, alinéa 1. Le créancier hypothécaire inscrit pour un capital produisant intérêt a le droit d'être colloqué, pour trois années seulement, au même rang que le principal";
+        label en unofficial "Article 2427, paragraph 1. A mortgagee registered for interest-bearing capital may be ranked, for three years only, with the principal";
+        when classe_de_preference(r, 40) and interets_annuels(r, a) and interets_echus_impayes(r, e) and not_known(pret_viager_hypothecaire(r));
+        then interets_au_rang_du_principal(r, min(e, a * 3));
+    }
+    rule InteretsDuPretViager(r: Collocation, e: Money) strict {
+        label fr official "Article 2427, alinéa 2. Le créancier a le droit d'être colloqué pour la totalité des intérêts au même rang que le principal lorsque l'hypothèque garantit le prêt viager du I de l'article L. 315-1 du code de la consommation";
+        label en unofficial "Article 2427, paragraph 2. The creditor may be ranked for all the interest with the principal where the mortgage secures the life loan of Article L. 315-1, I, of the Consumer Code";
+        when classe_de_preference(r, 40) and interets_echus_impayes(r, e) and pret_viager_hypothecaire(r);
+        then interets_au_rang_du_principal(r, e);
+    }
+    rule MontantAdmisAvecInterets(r: Collocation, c: Money, i: Money) strict {
+        label fr official "Article 2427. La collocation vient pour le principal augmenté des intérêts conservés à son rang";
+        label en unofficial "Article 2427. The entry comes for the principal plus the interest preserved at its rank";
+        when creance_en_principal(r, c) and interets_au_rang_du_principal(r, i);
+        then montant_admis(r, c + i);
+    }
+    rule MontantAdmisAvecInteretsCalcule(r: Collocation, i: Money) strict {
+        label fr official "Article 2427. Montant calculé par l'article";
+        label en unofficial "Article 2427. Amount computed by the article";
+        when interets_au_rang_du_principal(r, i);
+        then montant_admis_calcule(r);
+    }
+}

@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-MANDATGENERALTOUTESAFFAIRES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mandat_general(entity_ref("urn:law:catalog:mandatgeneraltoutesaffaires:v0")) { origin case_input; }
+    }
+    evaluate truth(porte_sur_toutes_affaires(entity_ref("urn:law:catalog:mandatgeneraltoutesaffaires:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-MANDATSPECIALAFFAIRESDESIGNEES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mandat_special(entity_ref("urn:law:catalog:mandatspecialaffairesdesignees:v0")) { origin case_input; }
+    }
+    evaluate truth(porte_sur_affaires_designees(entity_ref("urn:law:catalog:mandatspecialaffairesdesignees:v0")));
+    expect truth_status == TRUE_ONLY;
+}

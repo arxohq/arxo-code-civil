@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-14, alinéa 3 : mise en demeure du 20 avril 2026, situation appréciée le 6 mai 2026.
+test "urn:query:fr-code-civil-successions-i22-preemption-nulle-quinze-jours-apres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": preemption_notifiee_le(entity_ref("urn:fr:cc:successions:ind:i22:I"), entity_ref("urn:fr:cc:successions:ind:i22:p"), @2026-02-10) { origin case_input; }
+        assert "f2": mise_en_demeure_le(entity_ref("urn:fr:cc:successions:ind:i22:I"), entity_ref("urn:fr:cc:successions:ind:i22:p"), @2026-04-20) { origin case_input; }
+        assert "f3": date_d_appreciation_de_l_indivision(entity_ref("urn:fr:cc:successions:ind:i22:I"), entity_ref("urn:fr:cc:successions:ind:i22:p"), @2026-05-06) { origin case_input; }
+    }
+    evaluate truth(preemption_nulle_de_plein_droit(entity_ref("urn:fr:cc:successions:ind:i22:I"), entity_ref("urn:fr:cc:successions:ind:i22:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PreemptionNulleQuinzeJoursApresLaMiseEnDemeure);
+}

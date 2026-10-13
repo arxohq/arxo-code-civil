@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+// Two living legitimate children: equal shares by head (745).
+test "urn:query:fr-code-civil-1804-successions-deux-enfants-par-tete" {
+    given {
+        context { decision_time @1804-03-21T12:00:00Z; knowledge_time @1804-03-21T12:00:00Z; legal_time @1804-03-21; timezone "UTC"; deadline_policy OECD_CODE_CIVIL_1804_PRESCRIPTION; }
+        assert "s1": doctrine.ius_privatum::mortuus(entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s2": doctrine.ius_privatum::sine_testamento(entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s3": doctrine.ius_privatum::filius(entity_ref("urn:fr:cc1804:s:C1"), entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s4": doctrine.ius_privatum::filius(entity_ref("urn:fr:cc1804:s:C2"), entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s5": existe_a_l_ouverture(entity_ref("urn:fr:cc1804:s:C1"), entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s6": existe_a_l_ouverture(entity_ref("urn:fr:cc1804:s:C2"), entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+        assert "s7": concourt(entity_ref("urn:fr:cc1804:s:C1"), entity_ref("urn:fr:cc1804:s:C2"), entity_ref("urn:fr:cc1804:s:D")) { origin case_input; }
+    }
+    evaluate truth(part_successorale(entity_ref("urn:fr:cc1804:s:C1"), entity_ref("urn:fr:cc1804:s:D"), 1 / 2));
+    expect result_kind == PROPOSITION;
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

@@ -1,0 +1,337 @@
+# Manifeste §10 — racine du paquet (DECISION-0033). Les en-têtes §22 des
+# fichiers .law font foi ; le manifeste doit y correspondre (LDC-E1109).
+[package]
+name = "fr.code_civil.successions"
+version = "0.1.0"
+language = "0.2"
+namespace = "urn:fr:corpus:clir:code-civil-successions"
+
+# Métadonnées de catalogue (DECISION-0051 ; docs/PACKAGE-METADATA.ru.md).
+[metadata]
+act = "fr-code-civil-successions"
+title = "Code civil — Livre III, titre Ier : des successions (ouverture, qualités requises pour succéder, dévolution légale, ordres et degrés, représentation, droits du conjoint survivant)"
+primarySource = "CODE_CIVIL"
+jurisdiction = "FR"
+instrument = "code"
+sourceFidelity = "pinned_unofficial_copy"
+legalStatus = "in_force"
+issuer = "République française ; données ouvertes LEGI diffusées par la DILA"
+verifiedAgainstSource = true
+
+# Importations §23 déclarées dans le manifeste (E-0122) : le concentrateur des
+# personnes et le calculateur de parenté par graphe (DECISION-0217).
+[dependencies]
+"fr.code_civil.core" = "0.1.0"
+"calc.kinship" = "0.1.0"
+
+# Scénarios déclaratifs du paquet (DECISION-0127). Pilote B1 : dévolution
+# légale, représentation par souche, droits du conjoint, indignité ; les
+# attentes viennent d'un calcul manuel à partir du texte (voir README).
+[[tests]]
+family = "fr.code_civil.successions#devolution"
+regression = true
+suites = [
+  "tests/a01-conjoint-quart-avec-souche.lawtest",
+  "tests/a02-enfant-vivant-trois-huitiemes.lawtest",
+  "tests/a03-petit-enfant-trois-seiziemes.lawtest",
+  "tests/a04-somme-des-fractions.lawtest",
+  "tests/a05-represente-sans-part-propre.lawtest",
+  "tests/a06-mutation-un-petit-enfant-de-moins.lawtest",
+  "tests/a07-mutation-ancienne-fraction-refusee.lawtest",
+  "tests/b01-renoncant-represente.lawtest",
+  "tests/b02-renoncant-ne-prend-rien.lawtest",
+  "tests/c01-pere-quart-avec-collateraux.lawtest",
+  "tests/c02-frere-quart.lawtest",
+  "tests/c03-neveu-represente-quart.lawtest",
+  "tests/c04-somme.lawtest",
+  "tests/d01-mere-moitie-fente.lawtest",
+  "tests/d02-grand-pere-paternel-moitie.lawtest",
+  "tests/d03-mere-seule-tout.lawtest",
+  "tests/e01-conjoint-moitie-avec-pere-et-mere.lawtest",
+  "tests/e02-pere-quart-avec-conjoint.lawtest",
+  "tests/e03-conjoint-trois-quarts-un-parent.lawtest",
+  "tests/e04-conjoint-seul-totalite.lawtest",
+  "tests/e05-divorce-exclut-le-conjoint.lawtest",
+  "tests/f01-indigne-represente-par-son-enfant.lawtest",
+  "tests/f02-indigne-exclu.lawtest",
+  "tests/f03-pardon-du-defunt.lawtest",
+  "tests/g01-fente-branche-paternelle-par-tete.lawtest",
+  "tests/g02-fente-branche-maternelle-arriere-grand-mere.lawtest",
+  "tests/g03-somme.lawtest",
+  "tests/h01-arriere-petit-enfant-quart.lawtest",
+  "tests/h02-somme.lawtest",
+  "tests/i01-enfant-non-commun-quart-impose.lawtest",
+  "tests/i02-usufruit-refuse.lawtest",
+  "tests/j01-option-usufruit.lawtest",
+  "tests/j02-nue-propriete-moitie.lawtest",
+  "tests/k01-sans-option-pas-de-droits.lawtest",
+          "tests/catalog/cc-art729-1.lawtest",
+          "tests/catalog/cc-art758-1.lawtest",
+          "tests/catalog/cc-art760.lawtest",
+          "tests/catalog/cc-art765.lawtest",
+          "tests/catalog/cc-art770.lawtest",
+          "tests/catalog/cc-art771.lawtest",
+          "tests/catalog/cc-art778.lawtest",
+          "tests/catalog/cc-art792-1.lawtest",
+          "tests/catalog/cc-art795.lawtest",
+          "tests/catalog/cc-art801.lawtest",
+          "tests/catalog/cc-art809-2.lawtest",
+          "tests/catalog/cc-art810-3.lawtest",
+          "tests/catalog/cc-art810-4.lawtest",
+          "tests/catalog/cc-art810-9.lawtest",
+          "tests/catalog/cc-art812-1-1.lawtest",
+          "tests/catalog/cc-art812-1-3.lawtest",
+          "tests/catalog/cc-art812-4.lawtest",
+          "tests/catalog/cc-art812-5.lawtest",
+          "tests/catalog/cc-art813-2.lawtest",
+          "tests/catalog/cc-art813-4.lawtest",
+          "tests/catalog/cc-art813-9.lawtest",
+          "tests/catalog/cc-art823.lawtest",
+          "tests/catalog/cc-art886.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# §137 : остаток запретов, для каждого — ACTIVE и VIOLATED.
+[[tests]]
+family = "fr.code_civil.successions#positions-prohibitions-137-wave3"
+regression = true
+suites = ["tests/positions-prohibitions-137-wave3.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# Seconde vague (17 septembre 2026) : l'option de l'héritier (768 à 807).
+# Chaque délai gardé des deux côtés ; les silences sont constatés (adjudicated),
+# jamais déduits d'un dossier vide.
+[[tests]]
+family = "fr.code_civil.successions#option"
+regression = true
+suites = [
+  "tests/p3-777-nullite.lawtest", "tests/p3-794-contestation.lawtest", "tests/p3-797-paiement.lawtest",
+  "tests/p3-801-renonciation.lawtest",
+  "tests/p3-795-publication.lawtest",
+  "tests/p3-771-sommation.lawtest",
+  "tests/p3-792-1-interdiction.lawtest", "tests/p3-792-2-partage.lawtest", "tests/p3-793-conservation.lawtest",
+  "tests/p3-786-decharge.lawtest", "tests/p3-790-inventaire.lawtest", "tests/p3-792-creance.lawtest",
+  "tests/p3-807-a.lawtest", "tests/p3-807-b.lawtest", "tests/p3-806-a.lawtest", "tests/p3-806-b.lawtest", "tests/p3-780-a.lawtest", "tests/p3-780-b.lawtest",
+  "tests/o01-option-conditionnelle-nulle.lawtest",
+  "tests/o02-option-avant-l-ouverture.lawtest",
+  "tests/o03-quatre-mois-depuis-l-ouverture.lawtest",
+  "tests/o04-sommation-prematuree.lawtest",
+  "tests/o05-deux-mois-apres-la-sommation.lawtest",
+  "tests/o06-silence-le-lendemain-du-delai.lawtest",
+  "tests/o07-silence-le-dernier-jour.lawtest",
+  "tests/o08-quatre-mois-de-l-heritier-subsequent.lawtest",
+  "tests/o09-quatre-mois-des-heritiers-de-l-heritier.lawtest",
+  "tests/o10-cinq-ans-pour-la-nullite-de-l-option.lawtest",
+  "tests/o11-repute-renoncant-apres-dix-ans.lawtest",
+  "tests/o12-dixieme-anniversaire-encore-dans-le-delai.lawtest",
+  "tests/o13-option-exercee-pas-de-renonciation-reputee.lawtest",
+  "tests/o14-conjoint-laisse-en-jouissance.lawtest",
+  "tests/o15-receleur-repute-acceptant.lawtest",
+  "tests/o16-receleur-sans-part.lawtest",
+  "tests/o17-cession-emporte-acceptation.lawtest",
+  "tests/o18-renonciation-in-favorem.lawtest",
+  "tests/o19-frais-funeraires-sans-acceptation.lawtest",
+  "tests/o20-frais-funeraires-en-qualite-d-heritier.lawtest",
+  "tests/o21-acceptation-pure-irrevocable.lawtest",
+  "tests/o22-cinq-mois-pour-la-decharge.lawtest",
+  "tests/o23-deux-mois-pour-l-inventaire.lawtest",
+  "tests/o24-inventaire-depose-le-1er-mars.lawtest",
+  "tests/o25-inventaire-depose-le-dernier-jour.lawtest",
+  "tests/o26-actif-net-empeche-la-renonciation.lawtest",
+  "tests/o27-quinze-mois-pour-declarer.lawtest",
+  "tests/o28-creance-chirographaire-tardive-eteinte.lawtest",
+  "tests/o29-creance-garantie-non-eteinte.lawtest",
+  "tests/o30-declaration-de-l-alienation-tardive.lawtest",
+  "tests/o31-declaration-le-quinzieme-jour.lawtest",
+  "tests/o32-trois-mois-pour-contester.lawtest",
+  "tests/o33-deux-mois-pour-payer.lawtest",
+  "tests/o34-decheance-pour-omission-de-mauvaise-foi.lawtest",
+  "tests/o35-renoncant-et-frais-funeraires.lawtest",
+  "tests/o36-revocation-de-la-renonciation.lawtest",
+  "tests/o37-revocation-impossible-apres-acceptation-d-un-autre.lawtest",
+  "tests/p3-770-a.lawtest", "tests/p3-770-b.lawtest", "tests/p3-772-a.lawtest", "tests/p3-772-b.lawtest", "tests/p3-778-a.lawtest", "tests/p3-778-b.lawtest",
+]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# Seconde vague, part 2 : les droits du conjoint successible (758 à 767) —
+# option réputée, logement, conversion de l'usufruit, pensions alimentaires.
+[[tests]]
+family = "fr.code_civil.successions#conjoint"
+regression = true
+suites = [
+  "tests/p3-758-3-a.lawtest", "tests/p3-758-3-b.lawtest", "tests/p3-758-3-option-a.lawtest", "tests/p3-758-3-option-b.lawtest",
+  "tests/p3-763-a.lawtest", "tests/p3-763-b.lawtest", "tests/p3-764-a.lawtest", "tests/p3-764-b.lawtest", "tests/p3-765-1-a.lawtest", "tests/p3-765-1-b.lawtest", "tests/p3-765-a.lawtest", "tests/p3-765-b.lawtest", "tests/p3-765-2-a.lawtest", "tests/p3-765-2-b.lawtest", "tests/p3-765-3-a.lawtest", "tests/p3-765-3-b.lawtest", "tests/p3-758-1-a.lawtest", "tests/p3-758-1-b.lawtest",
+  "tests/p3-760-a.lawtest", "tests/p3-760-b.lawtest", "tests/p3-767-a.lawtest", "tests/p3-767-b.lawtest",
+  "tests/c01-trois-mois-apres-l-invitation.lawtest",
+  "tests/c02-option-ecrite-tardive.lawtest",
+  "tests/c03-option-ecrite-le-dernier-jour.lawtest",
+  "tests/c04-aucune-option-ecrite.lawtest",
+  "tests/c05-deces-sans-opter.lawtest",
+  "tests/c06-usufruit-par-option-reputee.lawtest",
+  "tests/c07-droits-incessibles-avant-l-option.lawtest",
+  "tests/c08-droits-cessibles-apres-l-option.lawtest",
+  "tests/c09-une-annee-de-jouissance-gratuite.lawtest",
+  "tests/c10-loyers-rembourses-pendant-l-annee.lawtest",
+  "tests/c11-droit-viager-d-habitation.lawtest",
+  "tests/c12-privation-par-testament-authentique.lawtest",
+  "tests/c13-un-an-pour-reclamer-le-droit-viager.lawtest",
+  "tests/c14-volonte-manifestee-le-dernier-jour.lawtest",
+  "tests/c15-volonte-manifestee-le-lendemain.lawtest",
+  "tests/c16-complement-sur-les-biens-existants.lawtest",
+  "tests/c17-pas-de-recompense-pour-l-excedent.lawtest",
+  "tests/c18-usage-du-mobilier-logement-loue.lawtest",
+  "tests/c19-conversion-demandee-avant-le-partage.lawtest",
+  "tests/c20-conversion-demandee-apres-le-partage.lawtest",
+  "tests/c21-logement-principal-hors-conversion-forcee.lawtest",
+  "tests/c22-pension-du-conjoint-dans-le-besoin.lawtest",
+  "tests/c23-un-an-pour-reclamer-la-pension.lawtest",
+  "tests/c24-pension-prolongee-jusqu-au-partage.lawtest",
+]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# Seconde vague, part 3 : le régime légal de l'indivision (815 à 815-16) et les
+# durées du sursis et du maintien (820, 823) — majorité des deux tiers sans
+# division, préemption, substitution, nullité.
+[[tests]]
+family = "fr.code_civil.successions#indivision"
+regression = true
+suites = [
+  "tests/p3-815-10-a.lawtest", "tests/p3-815-10-b.lawtest", "tests/p3-815-16-a.lawtest", "tests/p3-815-16-b.lawtest", "tests/p3-815-5-1-a.lawtest", "tests/p3-815-5-1-b.lawtest",
+  "tests/p3-815-13-a.lawtest", "tests/p3-815-13-b.lawtest",
+  "tests/p3-820-sursis.lawtest", "tests/p3-821-entreprise.lawtest", "tests/p3-822-maintien.lawtest", "tests/p3-823-maintien.lawtest", "tests/p3-823-interdiction.lawtest", "tests/p3-824-attribution.lawtest", "tests/p3-824-complement.lawtest",
+  "tests/p3-815-3-majorite-a.lawtest", "tests/p3-815-3-majorite-b.lawtest", "tests/p3-815-3-tacite-a.lawtest", "tests/p3-815-3-tacite-b.lawtest",
+  "tests/i01-deux-tiers-exactement.lawtest",
+  "tests/i02-une-part-de-moins.lawtest",
+  "tests/i03-acte-d-administration-a-la-majorite.lawtest",
+  "tests/i04-acte-de-disposition-a-la-majorite.lawtest",
+  "tests/i05-acte-de-disposition-a-l-unanimite.lawtest",
+  "tests/i06-bail-commercial-a-l-unanimite.lawtest",
+  "tests/i07-decision-opposable-apres-information.lawtest",
+  "tests/i08-decision-inopposable-faute-d-information.lawtest",
+  "tests/i09-mandat-tacite-d-administration.lawtest",
+  "tests/i10-un-mois-pour-signifier-l-intention.lawtest",
+  "tests/i11-trois-mois-d-opposition.lawtest",
+  "tests/i12-alienation-soumise-au-tribunal.lawtest",
+  "tests/i13-indemnite-d-occupation.lawtest",
+  "tests/i14-convention-ecartant-l-indemnite.lawtest",
+  "tests/i15-cinq-ans-pour-les-fruits.lawtest",
+  "tests/i16-recherche-des-fruits-tardive.lawtest",
+  "tests/i17-recherche-des-fruits-au-dernier-jour.lawtest",
+  "tests/i18-un-mois-pour-preempter.lawtest",
+  "tests/i19-preemption-le-dernier-jour.lawtest",
+  "tests/p3-815-9-a.lawtest",
+  "tests/p3-815-9-b.lawtest",
+  "tests/p3-815-14-a.lawtest",
+  "tests/p3-815-14-b.lawtest",
+  "tests/p3-815-15-a.lawtest",
+  "tests/p3-815-15-b.lawtest",
+  "tests/i20-preemption-le-lendemain.lawtest",
+  "tests/i21-deux-mois-pour-realiser-la-vente.lawtest",
+  "tests/i22-preemption-nulle-quinze-jours-apres.lawtest",
+  "tests/i23-vente-realisee-avant-la-mise-en-demeure.lawtest",
+  "tests/i24-un-mois-pour-se-substituer.lawtest",
+  "tests/i25-substitution-le-dernier-jour.lawtest",
+  "tests/i26-nullite-de-la-cession-dans-les-cinq-ans.lawtest",
+  "tests/i27-nullite-de-la-cession-le-lendemain.lawtest",
+  "tests/i28-deux-ans-de-sursis-au-partage.lawtest",
+  "tests/i29-cinq-ans-de-maintien.lawtest",
+]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# Seconde vague, part 4 : le partage — rapport des libéralités et sa valeur,
+# dette du copartageant, garantie des lots, lésion de plus du quart et
+# complément de part, préférence sur les meubles.
+[[tests]]
+family = "fr.code_civil.successions#partage"
+regression = true
+suites = [
+  "tests/p3-881-a.lawtest", "tests/p3-881-b.lawtest", "tests/p3-891-a.lawtest", "tests/p3-891-b.lawtest",
+  "tests/p3-851-a.lawtest", "tests/p3-851-b.lawtest",
+  "tests/p3-886-garantie.lawtest", "tests/p3-886-prescription.lawtest",
+  "tests/p3-892-complement.lawtest",
+  "tests/q01-donation-en-avancement-rapportable.lawtest",
+  "tests/q02-don-hors-part-successorale.lawtest",
+  "tests/q03-legs-repute-hors-part.lawtest",
+  "tests/q04-legs-avec-volonte-contraire.lawtest",
+  "tests/q05-donataire-non-heritier-presomptif.lawtest",
+  "tests/q06-donateur-a-exige-le-rapport.lawtest",
+  "tests/q07-frais-d-education.lawtest",
+  "tests/q08-present-d-usage.lawtest",
+  "tests/q09-profit-d-une-convention.lawtest",
+  "tests/q10-bien-peri-par-cas-fortuit.lawtest",
+  "tests/q11-indemnite-employee-a-la-reconstitution.lawtest",
+  "tests/q12-rapport-en-moins-prenant.lawtest",
+  "tests/q13-valeur-au-partage.lawtest",
+  "tests/q14-valeur-a-l-alienation.lawtest",
+  "tests/q15-valeur-au-partage-ecartee-par-l-alienation.lawtest",
+  "tests/q16-rapport-d-une-somme-d-argent.lawtest",
+  "tests/q17-somme-employee-a-acquerir-un-bien.lawtest",
+  "tests/q18-alloti-de-sa-dette.lawtest",
+  "tests/q19-solde-de-la-dette.lawtest",
+  "tests/q20-dette-inferieure-aux-droits.lawtest",
+  "tests/q21-garantie-des-lots.lawtest",
+  "tests/q22-garantie-ecartee-par-la-faute.lawtest",
+  "tests/q23-deux-ans-pour-la-garantie.lawtest",
+  "tests/q24-garantie-prescrite.lawtest",
+  "tests/q25-garantie-au-dernier-jour.lawtest",
+  "tests/q26-lesion-de-plus-du-quart.lawtest",
+  "tests/q27-lesion-du-quart-tout-juste.lawtest",
+  "tests/q28-deux-ans-pour-le-complement-de-part.lawtest",
+  "tests/q29-complement-de-part-du.lawtest",
+  "tests/p3-860-a.lawtest", "tests/p3-860-b.lawtest",
+  "tests/p3-884-a.lawtest", "tests/p3-884-b.lawtest",
+  "tests/p3-889-a.lawtest", "tests/p3-889-b.lawtest",
+  "tests/p3-843-a.lawtest", "tests/p3-843-b.lawtest",
+  "tests/p3-858-a.lawtest", "tests/p3-858-b.lawtest",
+  "tests/p3-864-a.lawtest", "tests/p3-864-b.lawtest",
+  "tests/p3-860-1-somme.lawtest", "tests/p3-864-allotissement.lawtest", "tests/p3-889-complement-exercice.lawtest",
+  "tests/q30-transaction-apres-le-partage.lawtest",
+  "tests/q31-cession-aleatoire.lawtest",
+  "tests/q32-bien-indivis-omis.lawtest",
+  "tests/q33-deux-ans-pour-la-preference.lawtest",
+  "tests/q34-preference-prescrite.lawtest",
+]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+# Seconde vague (17 septembre 2026) : l'administration de la succession
+# (809 à 814-1) — vacance et curatelle, déshérence, mandat à effet posthume,
+# mandataire successoral. Chaque délai est gardé des deux côtés ; l'ordre de
+# paiement de l'article 796 est une comparaison à deux couches.
+[[tests]]
+family = "fr.code_civil.successions#administration"
+regression = true
+suites = [
+  "tests/m01-vacance-faute-de-reclamant.lawtest",  "tests/m02-vacance-tous-les-connus-renoncent.lawtest",  "tests/m03-vacance-un-connu-n-a-pas-renonce.lawtest",  "tests/m04-six-mois-depuis-l-ouverture.lawtest",  "tests/m05-vacance-le-lendemain-des-six-mois.lawtest",  "tests/m06-le-dernier-jour-des-six-mois-ne-suffit-pas.lawtest",  "tests/m07-requete-du-creancier.lawtest",  "tests/m08-requete-d-un-tiers-sans-qualite.lawtest",  "tests/m09-curatelle-confiee-au-domaine.lawtest",  "tests/m10-consultation-par-le-legataire.lawtest",  "tests/m11-consultation-sans-titre-justifie.lawtest",  "tests/m12-inventaire-a-la-charge-de-l-autorite.lawtest",  "tests/m13-vente-des-perissables-le-dernier-jour.lawtest",  "tests/m14-vente-d-immeubles-le-dernier-jour.lawtest",  "tests/m15-vente-d-immeubles-le-lendemain.lawtest",  "tests/m16-vente-d-immeubles-le-passif-apure.lawtest",  "tests/m17-vente-d-un-bien-de-conservation-onereuse.lawtest",  "tests/m18-acte-d-administration-avant-le-delai.lawtest",  "tests/m19-acte-d-administration-apres-le-delai.lawtest",  "tests/m20-adjudication-exigee.lawtest",  "tests/m21-perte-a-la-charge-du-demandeur.lawtest",  "tests/m22-adjudication-au-prix-du-projet.lawtest",  "tests/m23-plafond-a-l-actif.lawtest",  "tests/m24-plafond-au-passif.lawtest",  "tests/m25-frais-funeraires-payables-aussitot.lawtest",  "tests/m26-autre-dette-subordonnee-au-projet.lawtest",  "tests/m27-autre-dette-n-est-pas-payable-aussitot.lawtest",  "tests/m28-l-inscrit-avant-le-declare.lawtest",  "tests/m29-le-declare-avant-le-legs.lawtest",  "tests/m30-le-legs-ne-passe-pas-avant-l-inscrit.lawtest",  "tests/m31-rang-de-la-surete.lawtest",  "tests/m32-ordre-des-declarations.lawtest",  "tests/m33-rang-de-la-surete-inverse.lawtest",  "tests/m34-un-mois-pour-contester-le-projet.lawtest",  "tests/m35-contestation-le-dernier-jour.lawtest",  "tests/m36-contestation-le-lendemain.lawtest",  "tests/m37-opposition-le-dernier-jour.lawtest",  "tests/m38-opposition-le-lendemain.lawtest",  "tests/m39-realisation-prematuree.lawtest",  "tests/m40-creancier-limite-a-l-actif-subsistant.lawtest",  "tests/m41-recours-contre-le-legataire-rempli.lawtest",  "tests/m42-deux-ans-depuis-la-realisation.lawtest",  "tests/m43-recours-tardif-prescrit.lawtest",  "tests/m44-recours-le-dernier-jour.lawtest",  "tests/m45-curatelle-terminee-par-l-envoi-en-possession.lawtest",  "tests/m46-autre-circonstance-ne-met-pas-fin.lawtest",  "tests/m47-envoi-en-possession-a-demander.lawtest",  "tests/m48-desherence-terminee-par-l-acceptation.lawtest",  "tests/m49-desherence-sans-acceptation.lawtest",  "tests/m50-etat-expose-a-des-dommages.lawtest",  "tests/m51-mandataire-notaire-du-reglement.lawtest",  "tests/m52-interdiction-de-gerer-et-biens-professionnels.lawtest",  "tests/m53-duree-maximale-de-deux-ans.lawtest",  "tests/m54-cinq-ans-par-l-inaptitude.lawtest",  "tests/m55-terme-au-dernier-jour-admis.lawtest",  "tests/m56-terme-excedant-la-duree.lawtest",  "tests/m57-mandat-valable.lawtest",  "tests/m58-interet-serieux-attend-le-juge.lawtest",  "tests/m59-mandat-sans-forme-authentique.lawtest",  "tests/m60-pouvoirs-limites-a-784.lawtest",  "tests/m61-l-heritier-vise-a-accepte.lawtest",  "tests/m62-remuneration-non-determinee.lawtest",  "tests/m63-reduction-de-la-remuneration.lawtest",  "tests/m64-revision-de-la-remuneration.lawtest",  "tests/m65-fin-par-l-arrivee-du-terme.lawtest",  "tests/m66-cause-propre-a-un-heritier-sur-trois.lawtest",  "tests/m67-mandat-maintenu-pour-les-autres.lawtest",  "tests/m68-restitution-exclue.lawtest",  "tests/m69-restitution-apres-mauvaise-execution.lawtest",  "tests/m70-renonciation-effective-trois-mois-apres.lawtest",  "tests/m71-convention-contraire-sur-la-renonciation.lawtest",  "tests/m72-revocation-pour-defaut-de-compte.lawtest",  "tests/m73-designation-judiciaire-obligatoire.lawtest",  "tests/m74-mandat-conventionnel-valable.lawtest",  "tests/m75-mandat-conventionnel-ecarte.lawtest",  "tests/m76-designation-pour-complexite.lawtest",  "tests/m77-aucun-motif-particulier.lawtest",  "tests/m78-pouvoirs-du-mandataire-successoral-limites.lawtest",  "tests/m79-actes-d-administration-autorisables.lawtest",  "tests/m80-dessaisissement-pour-manquement.lawtest",  "tests/m81-mission-terminee-par-le-partage.lawtest",  "tests/m82-substitution-demandable.lawtest",
+  "tests/p3-811-a.lawtest", "tests/p3-811-b.lawtest", "tests/p3-813-4-a.lawtest", "tests/p3-813-4-b.lawtest", "tests/p3-814-a.lawtest", "tests/p3-814-b.lawtest", "tests/p3-813-7-a.lawtest", "tests/p3-813-7-b.lawtest", "tests/p3-814-1-a.lawtest", "tests/p3-814-1-b.lawtest", "tests/p3-812-3-a.lawtest", "tests/p3-812-3-b.lawtest", "tests/p3-811-3-a.lawtest", "tests/p3-811-3-b.lawtest", "tests/p3-812-5-a.lawtest", "tests/p3-812-5-b.lawtest", "tests/p3-812-7-a.lawtest", "tests/p3-812-7-b.lawtest", "tests/p3-812-3-reduction-a.lawtest", "tests/p3-812-3-reduction-b.lawtest", "tests/p3-812-6-a.lawtest", "tests/p3-812-6-b.lawtest", "tests/p3-812-5-restitution-a.lawtest", "tests/p3-812-5-restitution-b.lawtest", "tests/p3-812-1-1-a.lawtest", "tests/p3-812-1-1-b.lawtest", "tests/p3-812-4-a.lawtest", "tests/p3-812-4-b.lawtest", "tests/p3-810-4-immediat-a.lawtest", "tests/p3-810-4-immediat-b.lawtest", "tests/p3-810-4-projet-a.lawtest", "tests/p3-810-4-projet-b.lawtest", "tests/p3-810-3-exige-a.lawtest", "tests/p3-810-3-exige-b.lawtest", "tests/p3-810-3-interdit-a.lawtest", "tests/p3-810-3-interdit-b.lawtest", "tests/p3-810-9-a.lawtest", "tests/p3-810-9-b.lawtest", "tests/p3-809-2-consult-a.lawtest", "tests/p3-809-2-consult-b.lawtest", "tests/p3-810-1-surveillance-a.lawtest", "tests/p3-810-1-surveillance-b.lawtest", "tests/p3-810-1-provisoire-a.lawtest", "tests/p3-810-1-provisoire-b.lawtest", "tests/p3-810-1-perissables-a.lawtest", "tests/p3-810-1-perissables-b.lawtest", "tests/p3-810-2-a.lawtest", "tests/p3-810-2-b.lawtest", "tests/p3-810-2-conservatoire-a.lawtest", "tests/p3-810-2-conservatoire-b.lawtest", "tests/p3-810-2-meubles-a.lawtest", "tests/p3-810-2-meubles-b.lawtest", "tests/p3-810-2-immeubles-a.lawtest", "tests/p3-810-2-immeubles-b.lawtest", "tests/p3-812-1-3-a.lawtest", "tests/p3-812-1-3-b.lawtest", "tests/p3-813-2-a.lawtest", "tests/p3-813-2-b.lawtest", "tests/p3-812-2-a.lawtest", "tests/p3-812-2-b.lawtest",
+  "tests/p3-809-2-a.lawtest", "tests/p3-809-2-b.lawtest", "tests/p3-809-1-curatelle.lawtest", "tests/p3-810-1-a.lawtest", "tests/p3-810-1-b.lawtest", "tests/p3-811-1-inventaire.lawtest", "tests/p3-813-9-interdiction.lawtest", "tests/p3-813-9-devoir.lawtest", "tests/p3-812-2-remuneration.lawtest", "tests/p3-812-1-1-acceptation.lawtest", "tests/p3-796-passif.lawtest", "tests/p3-812-6-notification.lawtest", "tests/p3-812-7-compte.lawtest", "tests/p3-813-accord.lawtest", "tests/p3-813-1-a.lawtest", "tests/p3-813-1-b.lawtest",
+]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.successions#positions-source-gaps"
+regression = true
+suites = ["tests/positions-source-gaps.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.successions#positions-partage-liberties"
+regression = true
+suites = ["tests/positions-partage-liberties.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.successions#positions-partage-liberties-additional"
+regression = true
+suites = ["tests/positions-partage-liberties-additional.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.successions#positions-prohibitions-137"
+regression = true
+suites = ["tests/positions-prohibitions-137-wave.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.successions#positions-prohibitions-137-wave2"
+regression = true
+suites = ["tests/positions-prohibitions-137-wave2.lawtest"]
+world = ["fr.code_civil.successions", "fr.code_civil.core", "calc.kinship"]

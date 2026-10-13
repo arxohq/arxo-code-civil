@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ASSIETTEDUPASSAGEDETERMINEEPARTRENTEANS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": jour_de_reference_du_fonds(entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v3"), @2026-01-15) { origin case_input; }
+        assert "cat-1": echeance_des_trente_ans_d_usage_continu(entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v0"), @2026-01-15) { origin case_input; }
+        assert "cat-2": servitude_grevant(entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v0"), entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v2"), entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v3")) { origin case_input; }
+    }
+    evaluate truth(assiette_du_passage_determinee_par_trente_ans(entity_ref("urn:law:catalog:assiettedupassagedetermineepartrenteans:v0")));
+    expect truth_status == TRUE_ONLY;
+}

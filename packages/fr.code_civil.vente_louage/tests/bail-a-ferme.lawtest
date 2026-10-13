@@ -1,0 +1,401 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Bail à ferme (1764 à 1778). La moitié de récolte est gardée par une paire
+// exacte : sur 100 unités, 50 perdues atteignent la moitié (50 × 2 = 100 ≥ 100)
+// et 49 ne l'atteignent pas (49 × 2 = 98 < 100).
+
+test "urn:query:fr-code-civil-vente-louage-1764-contravention-rentree-en-jouissance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r1:b")) { origin case_input; }
+        assert "c": contravention_du_preneur_rural(entity_ref("urn:fr:cc12:r1:b")) { origin adjudicated; }
+    }
+    evaluate truth(proprietaire_peut_rentrer_en_jouissance(entity_ref("urn:fr:cc12:r1:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(dommages_interets_de_l_inexecution_du_bail(entity_ref("urn:fr:cc12:r1:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1764-bail-rural-sans-contravention" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r2:b")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_peut_rentrer_en_jouissance(entity_ref("urn:fr:cc12:r2:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1766-defaut-de-garnissement-avec-dommage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r3:b")) { origin case_input; }
+        assert "g": heritage_non_garni_de_bestiaux_et_ustensiles(entity_ref("urn:fr:cc12:r3:b")) { origin case_input; }
+        assert "d": dommage_pour_le_bailleur_rural(entity_ref("urn:fr:cc12:r3:b")) { origin adjudicated; }
+    }
+    evaluate truth(bailleur_rural_peut_faire_resilier(entity_ref("urn:fr:cc12:r3:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(dommages_interets_de_l_inexecution_du_bail(entity_ref("urn:fr:cc12:r3:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1766-manquement-sans-dommage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r4:b")) { origin case_input; }
+        assert "g": heritage_non_garni_de_bestiaux_et_ustensiles(entity_ref("urn:fr:cc12:r4:b")) { origin case_input; }
+    }
+    evaluate truth(bailleur_rural_peut_faire_resilier(entity_ref("urn:fr:cc12:r4:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1766-culture-abandonnee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r5:b")) { origin case_input; }
+        assert "a": culture_abandonnee_ou_deraisonnable(entity_ref("urn:fr:cc12:r5:b")) { origin adjudicated; }
+        assert "d": dommage_pour_le_bailleur_rural(entity_ref("urn:fr:cc12:r5:b")) { origin adjudicated; }
+    }
+    evaluate truth(bailleur_rural_peut_faire_resilier(entity_ref("urn:fr:cc12:r5:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1768-usurpation-non-denoncee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r6:b")) { origin case_input; }
+        assert "u": usurpation_commise_sur_les_fonds(entity_ref("urn:fr:cc12:r6:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_tenu_des_depens_faute_d_avertissement(entity_ref("urn:fr:cc12:r6:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1768-usurpation-denoncee-a-temps" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r7:b")) { origin case_input; }
+        assert "u": usurpation_commise_sur_les_fonds(entity_ref("urn:fr:cc12:r7:b")) { origin case_input; }
+        assert "w": avertissement_des_usurpations_donne(entity_ref("urn:fr:cc12:r7:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_tenu_des_depens_faute_d_avertissement(entity_ref("urn:fr:cc12:r7:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1769-perte-de-la-moitie-exacte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r8:b")) { origin case_input; }
+        assert "multi": bail_a_ferme_pluriannuel(entity_ref("urn:fr:cc12:r8:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r8:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r8:b"), 50) { origin case_input; }
+    }
+    evaluate truth(perte_atteint_la_moitie_de_la_recolte(entity_ref("urn:fr:cc12:r8:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r8:b")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(estimation_de_la_remise_a_la_fin_du_bail(entity_ref("urn:fr:cc12:r8:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1769-perte-sous-la-moitie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r9:b")) { origin case_input; }
+        assert "multi": bail_a_ferme_pluriannuel(entity_ref("urn:fr:cc12:r9:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r9:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r9:b"), 49) { origin case_input; }
+    }
+    evaluate truth(perte_atteint_la_moitie_de_la_recolte(entity_ref("urn:fr:cc12:r9:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r9:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1769-fermier-indemnise-par-les-recoltes-precedentes" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r10:b")) { origin case_input; }
+        assert "multi": bail_a_ferme_pluriannuel(entity_ref("urn:fr:cc12:r10:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r10:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r10:b"), 60) { origin case_input; }
+        assert "ind": fermier_indemnise_par_les_recoltes_precedentes(entity_ref("urn:fr:cc12:r10:b")) { origin case_input; }
+    }
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r10:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1770-bail-d-un-an-decharge-proportionnelle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r11:b")) { origin case_input; }
+        assert "one": bail_a_ferme_d_une_annee(entity_ref("urn:fr:cc12:r11:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r11:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r11:b"), 50) { origin case_input; }
+    }
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r11:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(estimation_de_la_remise_a_la_fin_du_bail(entity_ref("urn:fr:cc12:r11:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1771-perte-apres-separation-ferme-la-remise" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r12:b")) { origin case_input; }
+        assert "one": bail_a_ferme_d_une_annee(entity_ref("urn:fr:cc12:r12:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r12:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r12:b"), 80) { origin case_input; }
+        assert "sep": perte_apres_separation_des_fruits(entity_ref("urn:fr:cc12:r12:b")) { origin case_input; }
+    }
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r12:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1771-quotite-en-nature-part-du-proprietaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sep": perte_apres_separation_des_fruits(entity_ref("urn:fr:cc12:r13:b")) { origin case_input; }
+        assert "q": bail_donne_au_proprietaire_une_quotite_en_nature(entity_ref("urn:fr:cc12:r13:b")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_supporte_sa_part_de_la_perte(entity_ref("urn:fr:cc12:r13:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1771-preneur-en-demeure-de-delivrer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sep": perte_apres_separation_des_fruits(entity_ref("urn:fr:cc12:r14:b")) { origin case_input; }
+        assert "q": bail_donne_au_proprietaire_une_quotite_en_nature(entity_ref("urn:fr:cc12:r14:b")) { origin case_input; }
+        assert "late": preneur_en_demeure_de_delivrer_la_portion(entity_ref("urn:fr:cc12:r14:b")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_supporte_sa_part_de_la_perte(entity_ref("urn:fr:cc12:r14:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1771-cause-connue-au-bail" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r15:b")) { origin case_input; }
+        assert "one": bail_a_ferme_d_une_annee(entity_ref("urn:fr:cc12:r15:b")) { origin case_input; }
+        assert "tot": recolte_totale(entity_ref("urn:fr:cc12:r15:b"), 100) { origin case_input; }
+        assert "lost": recolte_enlevee_par_cas_fortuit(entity_ref("urn:fr:cc12:r15:b"), 70) { origin case_input; }
+        assert "known": cause_du_dommage_existante_et_connue_au_bail(entity_ref("urn:fr:cc12:r15:b")) { origin case_input; }
+    }
+    evaluate truth(remise_du_prix_de_location_due(entity_ref("urn:fr:cc12:r15:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1773-stipulation-ordinaire-et-cas-extraordinaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "st": stipulation_expresse_des_cas_fortuits(entity_ref("urn:fr:cc12:r16:b")) { origin case_input; }
+        assert "ex": cas_fortuit_extraordinaire(entity_ref("urn:fr:cc12:r16:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_charge_du_cas_fortuit(entity_ref("urn:fr:cc12:r16:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1772-stipulation-ordinaire-et-grele" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "st": stipulation_expresse_des_cas_fortuits(entity_ref("urn:fr:cc12:r17:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_charge_du_cas_fortuit(entity_ref("urn:fr:cc12:r17:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1773-stipulation-de-tous-les-cas-fortuits" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "st": stipulation_expresse_des_cas_fortuits(entity_ref("urn:fr:cc12:r18:b")) { origin case_input; }
+        assert "ex": cas_fortuit_extraordinaire(entity_ref("urn:fr:cc12:r18:b")) { origin case_input; }
+        assert "all": stipulation_de_tous_les_cas_fortuits_prevus_ou_imprevus(entity_ref("urn:fr:cc12:r18:b")) { origin case_input; }
+    }
+    evaluate truth(preneur_charge_du_cas_fortuit(entity_ref("urn:fr:cc12:r18:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1775-nouveau-bail-rural-faute-de-conge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r19:b")) { origin case_input; }
+        assert "oral": bail_sans_ecrit(entity_ref("urn:fr:cc12:r19:b")) { origin case_input; }
+        assert "exp": bail_expire(entity_ref("urn:fr:cc12:r19:b")) { origin case_input; }
+    }
+    evaluate truth(bail_rural_sans_ecrit_renouvele(entity_ref("urn:fr:cc12:r19:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1775-conge-ecrit-six-mois-avant" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r20:b")) { origin case_input; }
+        assert "oral": bail_sans_ecrit(entity_ref("urn:fr:cc12:r20:b")) { origin case_input; }
+        assert "exp": bail_expire(entity_ref("urn:fr:cc12:r20:b")) { origin case_input; }
+        assert "conge": conge_ecrit_six_mois_avant_le_terme(entity_ref("urn:fr:cc12:r20:b")) { origin case_input; }
+    }
+    evaluate truth(bail_rural_sans_ecrit_renouvele(entity_ref("urn:fr:cc12:r20:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1775-bail-ecrit-preneur-reste-en-possession" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": bail_a_ferme(entity_ref("urn:fr:cc12:r21:b")) { origin case_input; }
+        assert "w": bail_ecrit(entity_ref("urn:fr:cc12:r21:b")) { origin case_input; }
+        assert "exp": bail_expire(entity_ref("urn:fr:cc12:r21:b")) { origin case_input; }
+        assert "stay": preneur_laisse_en_jouissance(entity_ref("urn:fr:cc12:r21:b")) { origin case_input; }
+    }
+    evaluate truth(bail_rural_sans_ecrit_renouvele(entity_ref("urn:fr:cc12:r21:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1777-facilites-reciproques" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "out": fermier_sortant(entity_ref("urn:fr:cc12:r22:b"), entity_ref("urn:fr:cc12:r22:s")) { origin case_input; }
+        assert "in": fermier_entrant(entity_ref("urn:fr:cc12:r22:b"), entity_ref("urn:fr:cc12:r22:e")) { origin case_input; }
+    }
+    evaluate truth(logements_convenables_dus_au_fermier_entrant(entity_ref("urn:fr:cc12:r22:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(logements_convenables_dus_au_fermier_sortant(entity_ref("urn:fr:cc12:r22:b")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1778-pailles-recues-a-l-entree" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "out": fermier_sortant(entity_ref("urn:fr:cc12:r23:b"), entity_ref("urn:fr:cc12:r23:s")) { origin case_input; }
+        assert "got": pailles_et_engrais_recus_a_l_entree(entity_ref("urn:fr:cc12:r23:b")) { origin case_input; }
+    }
+    evaluate truth(pailles_et_engrais_a_laisser(entity_ref("urn:fr:cc12:r23:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(proprietaire_peut_retenir_pailles_suivant_estimation(entity_ref("urn:fr:cc12:r23:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1778-pailles-non-recues-retenue-par-estimation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "out": fermier_sortant(entity_ref("urn:fr:cc12:r24:b"), entity_ref("urn:fr:cc12:r24:s")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_peut_retenir_pailles_suivant_estimation(entity_ref("urn:fr:cc12:r24:b")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(pailles_et_engrais_a_laisser(entity_ref("urn:fr:cc12:r24:b")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1769-remise-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farmer": fermier_sortant(entity_ref("urn:fr:cc12:pos1769:b"), entity_ref("urn:fr:cc12:pos1769:p")) { origin case_input; }
+        assert "multi": bail_a_ferme_pluriannuel(entity_ref("urn:fr:cc12:pos1769:b")) { origin case_input; }
+        assert "loss": perte_atteint_la_moitie_de_la_recolte(entity_ref("urn:fr:cc12:pos1769:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRemisePrixFermier, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1769-remise-exercised" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farmer": fermier_sortant(entity_ref("urn:fr:cc12:pos1769b:b"), entity_ref("urn:fr:cc12:pos1769b:p")) { origin case_input; }
+        assert "multi": bail_a_ferme_pluriannuel(entity_ref("urn:fr:cc12:pos1769b:b")) { origin case_input; }
+        assert "loss": perte_atteint_la_moitie_de_la_recolte(entity_ref("urn:fr:cc12:pos1769b:b")) { origin case_input; }
+        assert "claim": demande_remise_du_prix_par_fermier(entity_ref("urn:fr:cc12:pos1769b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRemisePrixFermier, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1778-straw-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farmer": fermier_sortant(entity_ref("urn:fr:cc12:pos1778:b"), entity_ref("urn:fr:cc12:pos1778:p")) { origin case_input; }
+        assert "received": pailles_et_engrais_recus_a_l_entree(entity_ref("urn:fr:cc12:pos1778:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LaisserPaillesEtEngrais, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1778-straw-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farmer": fermier_sortant(entity_ref("urn:fr:cc12:pos1778b:b"), entity_ref("urn:fr:cc12:pos1778b:p")) { origin case_input; }
+        assert "received": pailles_et_engrais_recus_a_l_entree(entity_ref("urn:fr:cc12:pos1778b:b")) { origin case_input; }
+        assert "left": pailles_et_engrais_laisses(entity_ref("urn:fr:cc12:pos1778b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LaisserPaillesEtEngrais, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1768-usurpation-warning" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farm": bail_a_ferme(entity_ref("urn:fr:cc12:ferme:pos1768")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:ferme:pos1768"), entity_ref("urn:fr:cc12:ferme:lessee1768")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:ferme:pos1768"), entity_ref("urn:fr:cc12:ferme:lessor1768")) { origin case_input; }
+        assert "encroachment": usurpation_commise_sur_les_fonds(entity_ref("urn:fr:cc12:ferme:pos1768")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirAvertirUsurpations1768Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1768-usurpation-warning-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farm": bail_a_ferme(entity_ref("urn:fr:cc12:ferme:pos1768b")) { origin case_input; }
+        assert "lessee": preneur(entity_ref("urn:fr:cc12:ferme:pos1768b"), entity_ref("urn:fr:cc12:ferme:lessee1768b")) { origin case_input; }
+        assert "lessor": bailleur(entity_ref("urn:fr:cc12:ferme:pos1768b"), entity_ref("urn:fr:cc12:ferme:lessor1768b")) { origin case_input; }
+        assert "encroachment": usurpation_commise_sur_les_fonds(entity_ref("urn:fr:cc12:ferme:pos1768b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirAvertirUsurpations1768Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1777-facilities-incoming" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farm": bail_a_ferme(entity_ref("urn:fr:cc12:ferme:pos1777")) { origin case_input; }
+        assert "outgoing": fermier_sortant(entity_ref("urn:fr:cc12:ferme:pos1777"), entity_ref("urn:fr:cc12:ferme:out1777")) { origin case_input; }
+        assert "incoming": fermier_entrant(entity_ref("urn:fr:cc12:ferme:pos1777"), entity_ref("urn:fr:cc12:ferme:in1777")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirFacilitesFermierEntrant1777Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1777-facilities-outgoing" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "farm": bail_a_ferme(entity_ref("urn:fr:cc12:ferme:pos1777b")) { origin case_input; }
+        assert "outgoing": fermier_sortant(entity_ref("urn:fr:cc12:ferme:pos1777b"), entity_ref("urn:fr:cc12:ferme:out1777b")) { origin case_input; }
+        assert "incoming": fermier_entrant(entity_ref("urn:fr:cc12:ferme:pos1777b"), entity_ref("urn:fr:cc12:ferme:in1777b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirFacilitesFermierSortant1777Actif, ACTIVE);
+}

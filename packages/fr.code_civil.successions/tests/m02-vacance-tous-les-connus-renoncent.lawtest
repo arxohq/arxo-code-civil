@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 809, 2° : les trois héritiers connus ont tous renoncé.
+test "urn:query:fr-code-civil-successions-m02-vacance-tous-les-connus-renoncent" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": nombre_d_heritiers_connus(entity_ref("urn:fr:cc:successions:adm:m02:S"), 3) { origin case_input; }
+        assert "f2": nombre_d_heritiers_connus_renoncants(entity_ref("urn:fr:cc:successions:adm:m02:S"), 3) { origin case_input; }
+    }
+    evaluate truth(succession_vacante(entity_ref("urn:fr:cc:successions:adm:m02:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(VacanceParRenonciationDeTousLesHeritiersConnus);
+}

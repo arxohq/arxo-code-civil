@@ -1,0 +1,469 @@
+// CHAPITRE II, SECTION 4 — LES SANCTIONS (art. 1178 à 1187).
+//
+// La nullité, absolue ou relative, sa confirmation, l'action interrogatoire
+// de l'article 1183, la nullité partielle, l'exception de nullité perpétuelle,
+// la caducité.
+//
+// LE SEUL DÉLAI §86 DU PAQUET EST CELUI DE L'ARTICLE 1183 : six mois à
+// compter de la demande écrite, à peine de forclusion. L'unité est lue dans
+// le texte — « un délai de six mois » — et la politique `CC_CONTRAT_MOIS` la
+// compte en quantièmes (`month_end last_day_of_month`, E-0029). Les articles
+// 1144 et 1152, eux, ne donnent qu'un POINT DE DÉPART : leur durée est celle
+// du droit commun de la prescription (article 2224, paquet `fr.code_civil`),
+// et une seule politique par cas interdit de mêler ici les deux comptes.
+//
+// L'ARTICLE 1183 s'applique dès l'entrée en vigueur de l'ordonnance, même au
+// contrat antérieur (ordonnance n° 2016-131, article 9, troisième phrase) :
+// sa prémisse de temps est `article_applicable_des_2016`.
+//
+// LES RESTITUTIONS SONT HORS DU PAQUET. Les articles 1178 alinéa 3 et 1187
+// alinéa 2 renvoient aux articles 1352 à 1352-9, qui vivent dans le paquet du
+// régime général des obligations (CC-10) : ce paquet produit le fait qu'il y
+// a lieu à restitution et s'arrête là — frontière déclarée.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1178,
+    CC_ART1179,
+    CC_ART1180,
+    CC_ART1181,
+    CC_ART1182,
+    CC_ART1183,
+    CC_ART1184,
+    CC_ART1185,
+    CC_ART1186,
+    CC_ART1187,
+    Clause,
+    Contrat,
+    NatureDeLaNullite,
+    Personne,
+    article_applicable_des_2016,
+    cause_de_nullite,
+    clause_du_contrat,
+    clause_reputee_non_ecrite,
+    contrat_conclu,
+    contrat_legalement_forme,
+    regi_par_le_droit_nouveau,
+};
+
+pub deadline policy CC_CONTRAT_MOIS {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+// --- Entrées du cas -------------------------------------------------------------------------------
+
+pub relation nullite_prononcee_par_le_juge(c: Contrat) kind empirical {
+    label fr official "la nullité a été prononcée par le juge (article 1178, alinéa 1)";
+    label en unofficial "the nullity was pronounced by the court (Article 1178, paragraph 1)";
+}
+pub relation nullite_constatee_d_un_commun_accord(c: Contrat) kind empirical {
+    label fr official "les parties ont constaté la nullité d'un commun accord (article 1178, alinéa 1)";
+    label en unofficial "the parties established the nullity by mutual agreement (Article 1178, paragraph 1)";
+}
+pub relation prestation_executee(c: Contrat) kind empirical {
+    label fr official "des prestations ont été exécutées en vertu du contrat (articles 1178, alinéa 3, et 1185)";
+    label en unofficial "performances were rendered under the contract (Articles 1178, paragraph 3, and 1185)";
+}
+pub relation dommage_subi_par_la_partie_lesee(c: Contrat, lese: Personne) kind empirical {
+    label fr official "dommage subi par la partie lésée, indépendamment de l'annulation (article 1178, alinéa 4)";
+    label en unofficial "harm suffered by the injured party, independently of annulment (Article 1178, paragraph 4)";
+}
+pub relation regle_violee_protege_l_interet_general(c: Contrat) kind empirical {
+    label fr official "la règle violée a pour objet la sauvegarde de l'intérêt général (article 1179, alinéa 1)";
+    label en unofficial "the rule breached protects the general interest (Article 1179, paragraph 1)";
+}
+pub relation regle_violee_protege_un_interet_prive(c: Contrat) kind empirical {
+    label fr official "la règle violée a pour seul objet la sauvegarde d'un intérêt privé (article 1179, alinéa 2)";
+    label en unofficial "the rule breached protects a private interest alone (Article 1179, paragraph 2)";
+}
+pub relation interet_a_agir(c: Contrat, p: Personne) kind empirical {
+    label fr official "cette personne justifie d'un intérêt à demander la nullité (article 1180, alinéa 1)";
+    label en unofficial "this person shows an interest in seeking nullity (Article 1180, paragraph 1)";
+}
+pub relation ministere_public(p: Personne) kind empirical {
+    label fr official "le ministère public (article 1180, alinéa 1)";
+    label en unofficial "the public prosecutor (Article 1180, paragraph 1)";
+}
+pub relation partie_que_la_loi_entend_proteger(c: Contrat, p: Personne) kind empirical {
+    label fr official "partie que la loi entend protéger (article 1181, alinéa 1)";
+    label en unofficial "party whom the statute intends to protect (Article 1181, paragraph 1)";
+}
+pub relation renonciation_d_un_titulaire_de_l_action(c: Contrat, p: Personne) kind empirical {
+    label fr official "renonciation de l'un des titulaires de l'action en nullité relative (article 1181, alinéa 3)";
+    label en unofficial "renunciation by one of the holders of the action for relative nullity (Article 1181, paragraph 3)";
+}
+pub relation acte_de_confirmation_mentionnant_objet_et_vice(c: Contrat, p: Personne) kind empirical {
+    label fr official "acte par lequel celui qui pourrait se prévaloir de la nullité y renonce, mentionnant l'objet de l'obligation et le vice affectant le contrat (article 1182, alinéas 1 et 2)";
+    label en unofficial "act by which the person who could rely on nullity renounces it, stating the object of the obligation and the defect (Article 1182, paragraphs 1 and 2)";
+}
+pub relation execution_volontaire_en_connaissance_du_vice(c: Contrat, p: Personne) kind empirical {
+    label fr official "exécution volontaire du contrat en connaissance de la cause de nullité (article 1182, alinéa 3)";
+    label en unofficial "voluntary performance of the contract with knowledge of the ground of nullity (Article 1182, paragraph 3)";
+}
+pub relation demande_ecrite_de_prendre_parti_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la demande écrite faite à celle des parties qui pourrait se prévaloir de la nullité, soit de confirmer le contrat soit d'agir en nullité (article 1183, alinéa 1)";
+    label en unofficial "day of the written request to the party who could rely on nullity, either to confirm the contract or to seek nullity (Article 1183, paragraph 1)";
+}
+pub relation cause_de_la_nullite_cessee(c: Contrat) kind empirical {
+    label fr official "la cause de la nullité a cessé (article 1183, alinéa 1)";
+    label en unofficial "the ground of nullity has ceased (Article 1183, paragraph 1)";
+}
+pub relation mention_de_la_confirmation_reputee(c: Contrat) kind empirical {
+    label fr official "l'écrit mentionne expressément qu'à défaut d'action en nullité exercée avant l'expiration du délai de six mois, le contrat sera réputé confirmé (article 1183, alinéa 2)";
+    label en unofficial "the writing expressly states that failing an action for nullity before the six-month period expires, the contract will be deemed confirmed (Article 1183, paragraph 2)";
+}
+pub relation action_en_nullite_exercee_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où l'action en nullité a été exercée (article 1183)";
+    label en unofficial "day the action for nullity was brought (Article 1183)";
+}
+pub relation cause_de_nullite_limitee_a_des_clauses(c: Contrat, cl: Clause) kind empirical {
+    label fr official "la cause de nullité n'affecte qu'une ou plusieurs clauses du contrat (article 1184, alinéa 1)";
+    label en unofficial "the ground of nullity affects only one or more clauses of the contract (Article 1184, paragraph 1)";
+}
+pub relation clause_element_determinant_de_l_engagement(cl: Clause) kind empirical {
+    label fr official "cette clause a constitué un élément déterminant de l'engagement des parties ou de l'une d'elles (article 1184, alinéa 1)";
+    label en unofficial "that clause was a decisive element of the parties' undertaking, or of one party's (Article 1184, paragraph 1)";
+}
+pub relation fins_de_la_regle_exigent_le_maintien(c: Contrat) kind empirical {
+    label fr official "les fins de la règle méconnue exigent le maintien du contrat (article 1184, alinéa 2)";
+    label en unofficial "the purposes of the rule breached require the contract to be maintained (Article 1184, paragraph 2)";
+}
+pub relation exception_de_nullite_opposee(c: Contrat) kind empirical {
+    label fr official "l'exception de nullité est opposée (article 1185)";
+    label en unofficial "the defence of nullity is raised (Article 1185)";
+}
+pub relation element_essentiel_disparu(c: Contrat) kind empirical {
+    label fr official "l'un des éléments essentiels du contrat a disparu (article 1186, alinéa 1)";
+    label en unofficial "one of the contract's essential elements has disappeared (Article 1186, paragraph 1)";
+}
+pub relation contrat_d_une_meme_operation(c: Contrat, autre: Contrat) kind empirical {
+    label fr official "l'exécution de plusieurs contrats est nécessaire à la réalisation d'une même opération (article 1186, alinéa 2)";
+    label en unofficial "the performance of several contracts is necessary to carry out one and the same operation (Article 1186, paragraph 2)";
+}
+pub relation contrat_disparu(autre: Contrat) kind empirical {
+    label fr official "l'un des contrats de l'opération a disparu (article 1186, alinéa 2)";
+    label en unofficial "one of the operation's contracts has disappeared (Article 1186, paragraph 2)";
+}
+pub relation execution_rendue_impossible_par_la_disparition(c: Contrat, autre: Contrat) kind empirical {
+    label fr official "l'exécution de ce contrat est rendue impossible par la disparition de l'autre (article 1186, alinéa 2)";
+    label en unofficial "the performance of this contract is made impossible by the other's disappearance (Article 1186, paragraph 2)";
+}
+pub relation execution_du_contrat_disparu_condition_determinante(c: Contrat, autre: Contrat) kind empirical {
+    label fr official "l'exécution du contrat disparu était une condition déterminante du consentement d'une partie (article 1186, alinéa 2)";
+    label en unofficial "the performance of the vanished contract was a decisive condition of a party's consent (Article 1186, paragraph 2)";
+}
+pub relation contractant_connaissait_l_operation_d_ensemble(c: Contrat, p: Personne) kind empirical {
+    label fr official "le contractant contre lequel la caducité est invoquée connaissait l'existence de l'opération d'ensemble lorsqu'il a donné son consentement (article 1186, alinéa 3)";
+    label en unofficial "the party against whom lapse is invoked knew of the overall operation when giving consent (Article 1186, paragraph 3)";
+}
+
+// --- Têtes produites --------------------------------------------------------------------------------
+
+pub relation contrat_nul(c: Contrat) kind derived {
+    label fr official "le contrat qui ne remplit pas les conditions requises pour sa validité est nul (article 1178, alinéa 1)";
+    label en unofficial "a contract not meeting the conditions of validity is void (Article 1178, paragraph 1)";
+}
+pub relation contrat_repute_n_avoir_jamais_existe(c: Contrat) kind derived {
+    label fr official "le contrat annulé est censé n'avoir jamais existé (article 1178, alinéa 2)";
+    label en unofficial "the annulled contract is deemed never to have existed (Article 1178, paragraph 2)";
+}
+pub relation lieu_a_restitution(c: Contrat) kind derived {
+    label fr official "les prestations exécutées donnent lieu à restitution dans les conditions prévues aux articles 1352 à 1352-9 — régime du paquet fr.code_civil.obligations (frontière déclarée)";
+    label en unofficial "the performances rendered give rise to restitution under Articles 1352 to 1352-9 — regime of the fr.code_civil.obligations package (declared boundary)";
+}
+pub relation reparation_du_dommage_independante_de_l_annulation(c: Contrat, lese: Personne) kind derived {
+    label fr official "indépendamment de l'annulation, la partie lésée peut demander réparation du dommage subi dans les conditions du droit commun de la responsabilité extracontractuelle (article 1178, alinéa 4)";
+    label en unofficial "independently of annulment, the injured party may seek reparation under the general law of extra-contractual liability (Article 1178, paragraph 4)";
+}
+pub relation nullite_demandable_par(c: Contrat, p: Personne) kind derived {
+    label fr official "cette personne peut demander la nullité (articles 1180 et 1181)";
+    label en unofficial "this person may seek the nullity (Articles 1180 and 1181)";
+}
+pub relation nullite_non_couvrable_par_confirmation(c: Contrat) kind derived {
+    label fr official "la nullité absolue ne peut être couverte par la confirmation du contrat (article 1180, alinéa 2)";
+    label en unofficial "absolute nullity cannot be cured by confirmation of the contract (Article 1180, paragraph 2)";
+}
+pub relation action_des_autres_titulaires_maintenue(c: Contrat) kind derived {
+    label fr official "si l'action en nullité relative a plusieurs titulaires, la renonciation de l'un n'empêche pas les autres d'agir (article 1181, alinéa 3)";
+    label en unofficial "if the action for relative nullity has several holders, one's renunciation does not prevent the others from acting (Article 1181, paragraph 3)";
+}
+pub relation contrat_confirme(c: Contrat) kind derived {
+    label fr official "le contrat est confirmé : celui qui pouvait se prévaloir de la nullité y a renoncé (articles 1182 et 1183)";
+    label en unofficial "the contract is confirmed: the person who could rely on nullity has renounced it (Articles 1182 and 1183)";
+}
+pub relation renonciation_aux_moyens_et_exceptions(c: Contrat) kind derived {
+    label fr official "la confirmation emporte renonciation aux moyens et exceptions qui pouvaient être opposés, sans préjudice des droits des tiers (article 1182, alinéa 4)";
+    label en unofficial "confirmation entails renunciation of the pleas and defences that could be raised, without prejudice to third parties' rights (Article 1182, paragraph 4)";
+}
+pub relation echeance_de_l_action_interrogatoire(c: Contrat, jour: Date) kind derived {
+    key(c);
+    label fr official "échéance du délai de six mois de l'article 1183, à peine de forclusion";
+    label en unofficial "expiry of the six-month period of Article 1183, on pain of foreclosure";
+}
+pub relation action_en_nullite_forclose(c: Contrat) kind derived {
+    label fr official "l'action en nullité n'a pas été exercée avant l'expiration du délai de six mois : elle est forclose (article 1183)";
+    label en unofficial "the action for nullity was not brought before the six-month period expired: it is barred (Article 1183)";
+}
+pub relation nullite_partielle(c: Contrat, cl: Clause) kind derived {
+    label fr official "la cause de nullité n'emporte pas nullité de l'acte tout entier : seule la clause est atteinte (article 1184)";
+    label en unofficial "the ground of nullity does not void the whole instrument: only the clause is affected (Article 1184)";
+}
+pub relation nullite_totale(c: Contrat) kind derived {
+    label fr official "la clause viciée a constitué un élément déterminant de l'engagement : la nullité atteint l'acte tout entier (article 1184, alinéa 1)";
+    label en unofficial "the defective clause was a decisive element of the undertaking: nullity affects the whole instrument (Article 1184, paragraph 1)";
+}
+pub relation contrat_maintenu(c: Contrat) kind derived {
+    label fr official "le contrat est maintenu lorsque la loi répute la clause non écrite, ou lorsque les fins de la règle méconnue exigent son maintien (article 1184, alinéa 2)";
+    label en unofficial "the contract is maintained where statute deems the clause unwritten, or where the purposes of the rule breached require it (Article 1184, paragraph 2)";
+}
+pub relation exception_de_nullite_imprescriptible(c: Contrat) kind derived {
+    label fr official "l'exception de nullité ne se prescrit pas si elle se rapporte à un contrat qui n'a reçu aucune exécution (article 1185)";
+    label en unofficial "the defence of nullity is not time-barred if it concerns a contract that has received no performance (Article 1185)";
+}
+pub relation contrat_caduc(c: Contrat) kind derived {
+    label fr official "le contrat valablement formé devient caduc (articles 1186 et 1187)";
+    label en unofficial "the validly formed contract lapses (Articles 1186 and 1187)";
+}
+pub relation contrat_prend_fin_par_caducite(c: Contrat) kind derived {
+    label fr official "la caducité met fin au contrat (article 1187, alinéa 1)";
+    label en unofficial "lapse brings the contract to an end (Article 1187, paragraph 1)";
+}
+
+// --- Articles 1178 à 1187 ------------------------------------------------------------------------------
+
+@source(CC_ART1178) {
+    rule ContratNul(c: Contrat, nature: NatureDeLaNullite) strict {
+        label fr official "Article 1178, alinéa 1. Un contrat qui ne remplit pas les conditions requises pour sa validité est nul ; la nullité doit être prononcée par le juge, à moins que les parties ne la constatent d'un commun accord";
+        label en unofficial "Article 1178, paragraph 1. A contract not meeting the conditions of validity is void; the nullity must be pronounced by the court, unless the parties establish it by mutual agreement";
+        when cause_de_nullite(c, nature) and nullite_prononcee_par_le_juge(c);
+        then contrat_nul(c);
+    }
+    rule ContratNulParAccordDesParties(c: Contrat, nature: NatureDeLaNullite) strict {
+        label fr official "Article 1178, alinéa 1. Les parties peuvent constater la nullité d'un commun accord, sans que le juge la prononce";
+        label en unofficial "Article 1178, paragraph 1. The parties may establish the nullity by mutual agreement, without the court pronouncing it";
+        when cause_de_nullite(c, nature) and nullite_constatee_d_un_commun_accord(c);
+        then contrat_nul(c);
+    }
+    rule ContratAnnuleReputeNAvoirJamaisExiste(c: Contrat) strict {
+        label fr official "Article 1178, alinéa 2. Le contrat annulé est censé n'avoir jamais existé";
+        label en unofficial "Article 1178, paragraph 2. The annulled contract is deemed never to have existed";
+        when contrat_nul(c);
+        then contrat_repute_n_avoir_jamais_existe(c);
+    }
+    rule RestitutionDesPrestationsExecutees(c: Contrat) strict {
+        label fr official "Article 1178, alinéa 3. Les prestations exécutées donnent lieu à restitution dans les conditions prévues aux articles 1352 à 1352-9 : le régime des restitutions est hors de ce paquet (frontière déclarée)";
+        label en unofficial "Article 1178, paragraph 3. The performances rendered give rise to restitution under Articles 1352 to 1352-9: the restitution regime is outside this package (declared boundary)";
+        when contrat_nul(c) and prestation_executee(c);
+        then lieu_a_restitution(c);
+    }
+    rule ReparationIndependanteDeLAnnulation(c: Contrat, lese: Personne) strict {
+        label fr official "Article 1178, alinéa 4. Indépendamment de l'annulation du contrat, la partie lésée peut demander réparation du dommage subi dans les conditions du droit commun de la responsabilité extracontractuelle";
+        label en unofficial "Article 1178, paragraph 4. Independently of the contract's annulment, the injured party may seek reparation under the general law of extra-contractual liability";
+        when contrat_nul(c) and dommage_subi_par_la_partie_lesee(c, lese);
+        then reparation_du_dommage_independante_de_l_annulation(c, lese);
+    }
+}
+
+@source(CC_ART1179) {
+    rule NulliteAbsolue(c: Contrat) strict {
+        label fr official "Article 1179, alinéa 1. La nullité est absolue lorsque la règle violée a pour objet la sauvegarde de l'intérêt général";
+        label en unofficial "Article 1179, paragraph 1. The nullity is absolute where the rule breached protects the general interest";
+        when regi_par_le_droit_nouveau(c) and regle_violee_protege_l_interet_general(c);
+        then cause_de_nullite(c, Absolue);
+    }
+    rule NulliteRelative(c: Contrat) strict {
+        label fr official "Article 1179, alinéa 2. Elle est relative lorsque la règle violée a pour seul objet la sauvegarde d'un intérêt privé";
+        label en unofficial "Article 1179, paragraph 2. It is relative where the rule breached protects a private interest alone";
+        when regi_par_le_droit_nouveau(c) and regle_violee_protege_un_interet_prive(c);
+        then cause_de_nullite(c, Relative);
+    }
+}
+
+@source(CC_ART1180) {
+    rule NulliteAbsolueDemandableParToutePersonneInteressee(c: Contrat, p: Personne) strict {
+        label fr official "Article 1180, alinéa 1. La nullité absolue peut être demandée par toute personne justifiant d'un intérêt";
+        label en unofficial "Article 1180, paragraph 1. Absolute nullity may be sought by any person showing an interest";
+        when cause_de_nullite(c, Absolue) and interet_a_agir(c, p);
+        then nullite_demandable_par(c, p);
+    }
+    rule NulliteAbsolueDemandableParLeMinisterePublic(c: Contrat, p: Personne) strict {
+        label fr official "Article 1180, alinéa 1. La nullité absolue peut également être demandée par le ministère public";
+        label en unofficial "Article 1180, paragraph 1. Absolute nullity may also be sought by the public prosecutor";
+        when cause_de_nullite(c, Absolue) and ministere_public(p);
+        then nullite_demandable_par(c, p);
+    }
+    rule NulliteAbsolueNonCouvrable(c: Contrat) strict {
+        label fr official "Article 1180, alinéa 2. La nullité absolue ne peut être couverte par la confirmation du contrat";
+        label en unofficial "Article 1180, paragraph 2. Absolute nullity cannot be cured by confirmation of the contract";
+        when cause_de_nullite(c, Absolue);
+        then nullite_non_couvrable_par_confirmation(c);
+    }
+}
+
+@source(CC_ART1181) {
+    rule NulliteRelativeReserveeALaPartieProtegee(c: Contrat, p: Personne) strict {
+        label fr official "Article 1181, alinéa 1. La nullité relative ne peut être demandée que par la partie que la loi entend protéger";
+        label en unofficial "Article 1181, paragraph 1. Relative nullity may be sought only by the party whom the statute intends to protect";
+        when cause_de_nullite(c, Relative) and partie_que_la_loi_entend_proteger(c, p);
+        then nullite_demandable_par(c, p);
+    }
+    rule RenonciationDUnTitulaireSansEffetSurLesAutres(c: Contrat, p: Personne) strict {
+        label fr official "Article 1181, alinéa 3. Si l'action en nullité relative a plusieurs titulaires, la renonciation de l'un n'empêche pas les autres d'agir";
+        label en unofficial "Article 1181, paragraph 3. If the action for relative nullity has several holders, one's renunciation does not prevent the others from acting";
+        when cause_de_nullite(c, Relative) and renonciation_d_un_titulaire_de_l_action(c, p);
+        then action_des_autres_titulaires_maintenue(c);
+    }
+}
+
+@source(CC_ART1182) {
+    rule ConfirmationParActe(c: Contrat, p: Personne, jour: Date) strict {
+        label fr official "Article 1182, alinéas 1 et 2. La confirmation est l'acte par lequel celui qui pourrait se prévaloir de la nullité y renonce ; cet acte mentionne l'objet de l'obligation et le vice affectant le contrat et ne peut intervenir qu'après la conclusion du contrat";
+        label en unofficial "Article 1182, paragraphs 1 and 2. Confirmation is the act by which the person who could rely on nullity renounces it; it states the object of the obligation and the defect, and can occur only after the contract's conclusion";
+        when cause_de_nullite(c, Relative) and contrat_conclu(c, jour)
+            and acte_de_confirmation_mentionnant_objet_et_vice(c, p);
+        then contrat_confirme(c);
+    }
+    rule ExecutionVolontaireVautConfirmation(c: Contrat, p: Personne) strict {
+        label fr official "Article 1182, alinéa 3. L'exécution volontaire du contrat, en connaissance de la cause de nullité, vaut confirmation ; en cas de violence, la confirmation ne peut intervenir qu'après que la violence a cessé";
+        label en unofficial "Article 1182, paragraph 3. Voluntary performance with knowledge of the ground of nullity amounts to confirmation; in case of duress, confirmation can occur only after the duress has ceased";
+        when cause_de_nullite(c, Relative) and execution_volontaire_en_connaissance_du_vice(c, p)
+            and cause_de_la_nullite_cessee(c);
+        then contrat_confirme(c);
+    }
+    rule ConfirmationEmporteRenonciation(c: Contrat) strict {
+        label fr official "Article 1182, alinéa 4. La confirmation emporte renonciation aux moyens et exceptions qui pouvaient être opposés, sans préjudice néanmoins des droits des tiers";
+        label en unofficial "Article 1182, paragraph 4. Confirmation entails renunciation of the pleas and defences that could be raised, without prejudice to third parties' rights";
+        when contrat_confirme(c);
+        then renonciation_aux_moyens_et_exceptions(c);
+    }
+}
+
+// L'article 1183 : six mois, comptés par la politique CC_CONTRAT_MOIS.
+
+@source(CC_ART1183) {
+    rule EcheanceDeLActionInterrogatoire(c: Contrat, jour: Date) strict {
+        label fr official "Article 1183, alinéa 1. Une partie peut demander par écrit à celle qui pourrait se prévaloir de la nullité soit de confirmer le contrat soit d'agir en nullité dans un délai de six mois à peine de forclusion ; la cause de la nullité doit avoir cessé";
+        label en unofficial "Article 1183, paragraph 1. A party may request in writing that the person who could rely on nullity either confirm the contract or bring an action for nullity within six months on pain of foreclosure; the ground of nullity must have ceased";
+        when article_applicable_des_2016(c, "1183")
+            and demande_ecrite_de_prendre_parti_le(c, jour)
+            and cause_de_la_nullite_cessee(c);
+        then echeance_de_l_action_interrogatoire(c, add_calendar_period(jour, 6 calendar_month));
+    }
+    rule ActionEnNulliteForclose(c: Contrat, echeance: Date, exercice: Date) strict {
+        label fr official "Article 1183, alinéa 1. L'action en nullité exercée après l'expiration du délai de six mois est forclose";
+        label en unofficial "Article 1183, paragraph 1. An action for nullity brought after the six-month period has expired is barred";
+        when echeance_de_l_action_interrogatoire(c, echeance)
+            and action_en_nullite_exercee_le(c, exercice)
+            and exercice > echeance;
+        then action_en_nullite_forclose(c);
+    }
+    rule ContratReputeConfirmeFauteDAction(c: Contrat, echeance: Date) strict {
+        label fr official "Article 1183, alinéa 2. L'écrit mentionne expressément qu'à défaut d'action en nullité exercée avant l'expiration du délai de six mois, le contrat sera réputé confirmé";
+        label en unofficial "Article 1183, paragraph 2. The writing expressly states that failing an action for nullity before the six-month period expires, the contract will be deemed confirmed";
+        when echeance_de_l_action_interrogatoire(c, echeance)
+            and mention_de_la_confirmation_reputee(c)
+            and not_known(action_en_nullite_exercee_dans_le_delai(c));
+        then contrat_confirme(c);
+    }
+    rule ActionExerceeDansLeDelai(c: Contrat, echeance: Date, exercice: Date) strict {
+        label fr official "Article 1183. L'action en nullité exercée avant l'expiration du délai de six mois est recevable et fait obstacle à la confirmation réputée";
+        label en unofficial "Article 1183. An action for nullity brought before the six-month period expires is admissible and prevents the deemed confirmation";
+        when echeance_de_l_action_interrogatoire(c, echeance)
+            and action_en_nullite_exercee_le(c, exercice)
+            and exercice <= echeance;
+        then action_en_nullite_exercee_dans_le_delai(c);
+    }
+}
+
+pub relation action_en_nullite_exercee_dans_le_delai(c: Contrat) kind derived {
+    label fr official "l'action en nullité a été exercée avant l'expiration du délai de six mois (article 1183)";
+    label en unofficial "the action for nullity was brought before the six-month period expired (Article 1183)";
+}
+
+@source(CC_ART1184) {
+    rule NullitePartielle(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1184, alinéa 1. Lorsque la cause de nullité n'affecte qu'une ou plusieurs clauses du contrat, elle n'emporte pas nullité de l'acte tout entier si ces clauses n'ont pas constitué un élément déterminant de l'engagement";
+        label en unofficial "Article 1184, paragraph 1. Where the ground of nullity affects only one or more clauses, it does not void the whole instrument if those clauses were not a decisive element of the undertaking";
+        when regi_par_le_droit_nouveau(c) and cause_de_nullite_limitee_a_des_clauses(c, cl)
+            and not_known(clause_element_determinant_de_l_engagement(cl));
+        then nullite_partielle(c, cl);
+    }
+    rule NulliteTotaleParClauseDeterminante(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1184, alinéa 1. La nullité emporte nullité de l'acte tout entier si la ou les clauses ont constitué un élément déterminant de l'engagement des parties ou de l'une d'elles";
+        label en unofficial "Article 1184, paragraph 1. Nullity voids the whole instrument if the clause or clauses were a decisive element of the parties' undertaking, or of one party's";
+        when regi_par_le_droit_nouveau(c) and cause_de_nullite_limitee_a_des_clauses(c, cl)
+            and clause_element_determinant_de_l_engagement(cl);
+        then nullite_totale(c);
+    }
+    rule ContratMaintenuParLaClauseReputeeNonEcrite(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1184, alinéa 2. Le contrat est maintenu lorsque la loi répute la clause non écrite";
+        label en unofficial "Article 1184, paragraph 2. The contract is maintained where statute deems the clause unwritten";
+        when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c) and clause_reputee_non_ecrite(cl);
+        then contrat_maintenu(c);
+    }
+    rule ContratMaintenuParLesFinsDeLaRegle(c: Contrat) strict {
+        label fr official "Article 1184, alinéa 2. Le contrat est maintenu lorsque les fins de la règle méconnue exigent son maintien";
+        label en unofficial "Article 1184, paragraph 2. The contract is maintained where the purposes of the rule breached require it";
+        when regi_par_le_droit_nouveau(c) and fins_de_la_regle_exigent_le_maintien(c);
+        then contrat_maintenu(c);
+    }
+}
+
+@source(CC_ART1185)
+rule ExceptionDeNulliteImprescriptible(c: Contrat) strict {
+    label fr official "Article 1185. L'exception de nullité ne se prescrit pas si elle se rapporte à un contrat qui n'a reçu aucune exécution";
+    label en unofficial "Article 1185. The defence of nullity is not time-barred if it concerns a contract that has received no performance";
+    when regi_par_le_droit_nouveau(c) and exception_de_nullite_opposee(c)
+        and not_known(prestation_executee(c));
+    then exception_de_nullite_imprescriptible(c);
+}
+
+@source(CC_ART1186) {
+    rule CaduciteParDisparitionDUnElementEssentiel(c: Contrat) strict {
+        label fr official "Article 1186, alinéa 1. Un contrat valablement formé devient caduc si l'un de ses éléments essentiels disparaît";
+        label en unofficial "Article 1186, paragraph 1. A validly formed contract lapses if one of its essential elements disappears";
+        when contrat_legalement_forme(c) and element_essentiel_disparu(c);
+        then contrat_caduc(c);
+    }
+    rule CaduciteParImpossibiliteDansUneOperationDEnsemble(c: Contrat, autre: Contrat, p: Personne) strict {
+        label fr official "Article 1186, alinéas 2 et 3. Sont caducs les contrats dont l'exécution est rendue impossible par la disparition d'un contrat de la même opération, si le contractant contre lequel la caducité est invoquée connaissait l'existence de l'opération d'ensemble";
+        label en unofficial "Article 1186, paragraphs 2 and 3. Contracts whose performance is made impossible by the disappearance of a contract of the same operation lapse, if the party against whom lapse is invoked knew of the overall operation";
+        when contrat_legalement_forme(c) and contrat_d_une_meme_operation(c, autre)
+            and contrat_disparu(autre)
+            and execution_rendue_impossible_par_la_disparition(c, autre)
+            and contractant_connaissait_l_operation_d_ensemble(c, p);
+        then contrat_caduc(c);
+    }
+    rule CaduciteParConditionDeterminanteDansUneOperationDEnsemble(c: Contrat, autre: Contrat, p: Personne) strict {
+        label fr official "Article 1186, alinéas 2 et 3. Sont également caducs les contrats pour lesquels l'exécution du contrat disparu était une condition déterminante du consentement d'une partie, à la même condition de connaissance";
+        label en unofficial "Article 1186, paragraphs 2 and 3. Contracts for which the performance of the vanished contract was a decisive condition of a party's consent also lapse, subject to the same knowledge condition";
+        when contrat_legalement_forme(c) and contrat_d_une_meme_operation(c, autre)
+            and contrat_disparu(autre)
+            and execution_du_contrat_disparu_condition_determinante(c, autre)
+            and contractant_connaissait_l_operation_d_ensemble(c, p);
+        then contrat_caduc(c);
+    }
+}
+
+@source(CC_ART1187) {
+    rule CaduciteMetFinAuContrat(c: Contrat) strict {
+        label fr official "Article 1187, alinéa 1. La caducité met fin au contrat";
+        label en unofficial "Article 1187, paragraph 1. Lapse brings the contract to an end";
+        when contrat_caduc(c);
+        then contrat_prend_fin_par_caducite(c);
+    }
+    rule CaduciteEtRestitution(c: Contrat) strict {
+        label fr official "Article 1187, alinéa 2. La caducité peut donner lieu à restitution dans les conditions prévues aux articles 1352 à 1352-9 : régime hors de ce paquet (frontière déclarée)";
+        label en unofficial "Article 1187, paragraph 2. Lapse may give rise to restitution under Articles 1352 to 1352-9: regime outside this package (declared boundary)";
+        when contrat_caduc(c) and prestation_executee(c);
+        then lieu_a_restitution(c);
+    }
+}

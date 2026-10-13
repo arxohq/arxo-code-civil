@@ -1,0 +1,392 @@
+// CHAPITRE V — LES RESTITUTIONS (articles 1352 à 1352-9).
+//
+// TROIS DATES D'ÉVALUATION, ET ELLES NE SE CONFONDENT PAS :
+//   — la chose restituée en valeur s'estime AU JOUR DE LA RESTITUTION (1352) ;
+//   — la valeur de la jouissance s'évalue par le juge AU JOUR OÙ IL SE PRONONCE
+//     (1352-3, alinéa 2) : c'est un fait établi, fourni par le cas ;
+//   — la prestation de service s'apprécie A LA DATE À LAQUELLE ELLE A ÉTÉ
+//     FOURNIE (1352-8).
+//
+// LES INTÉRÊTS DE LA SOMME RESTITUÉE (1352-6 et 1352-7) partent de deux dates
+// distinctes selon la bonne ou la mauvaise foi de celui qui a reçu : du JOUR
+// DU PAIEMENT pour le receveur de mauvaise foi, du JOUR DE LA DEMANDE pour
+// celui de bonne foi. Le taux légal n'est pas dans le Code (code monétaire et
+// financier, article L. 313-2) : le paquet calcule la date, non le montant.
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    Bien,
+    CC_ART1352,
+    CC_ART1352_1,
+    CC_ART1352_2,
+    CC_ART1352_3,
+    CC_ART1352_4,
+    CC_ART1352_5,
+    CC_ART1352_6,
+    CC_ART1352_7,
+    CC_ART1352_8,
+    CC_ART1352_9,
+    Creance,
+    Personne,
+    Restitution,
+    recu_de_bonne_foi,
+    recu_de_mauvaise_foi,
+    valeur_de_la_jouissance,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation restitution_due(r: Restitution, debiteur_p: Personne, creancier_p: Personne) kind empirical {
+    label fr official "restitution due par celui qui a reçu à celui qui a payé ou livré (articles 1352 et suivants)";
+    label en unofficial "restitution owed by the recipient to the one who paid or delivered (Articles 1352 et seq.)";
+}
+pub relation restitution_effectuee(r: Restitution) kind empirical {
+    key(r);
+    label fr official "la restitution a été effectuée (articles 1352 et suivants)";
+    label en unofficial "the restitution was made (Articles 1352 et following)";
+}
+pub relation interets_de_restitution_payes(r: Restitution) kind empirical {
+    key(r);
+    label fr official "les intérêts, fruits ou valeur de jouissance de la restitution ont été payés (article 1352-7)";
+    label en unofficial "the restitution interest, fruits or enjoyment value were paid (Article 1352-7)";
+}
+pub relation devoir_de_restituer(r: Restitution, debiteur_p: Personne, creancier_p: Personne) kind derived {
+    key(r);
+    label fr official "celui qui a reçu doit restituer à celui qui a payé ou livré (articles 1352 et suivants)";
+    label en unofficial "the recipient must make restitution to the person who paid or delivered (Articles 1352 et following)";
+}
+pub relation restitution_d_une_somme_d_argent(r: Restitution, m: Money) kind empirical {
+    key(r);
+    label fr official "la restitution porte sur une somme d'argent (article 1352-6)";
+    label en unofficial "the restitution bears on a sum of money (Article 1352-6)";
+}
+pub relation restitution_d_une_chose(r: Restitution, b: Bien) kind empirical {
+    key(r);
+    label fr official "la restitution porte sur une chose autre qu'une somme d'argent (article 1352)";
+    label en unofficial "the restitution bears on a thing other than a sum of money (Article 1352)";
+}
+pub relation restitution_en_nature_impossible(r: Restitution) kind empirical {
+    label fr official "la restitution en nature est impossible (article 1352)";
+    label en unofficial "restitution in kind is impossible (Article 1352)";
+}
+pub relation valeur_au_jour_de_la_restitution(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "valeur de la chose estimée au jour de la restitution (articles 1352, 1352-2, alinéa 2, et 1352-5)";
+    label en unofficial "value of the thing estimated on the day of restitution (Articles 1352, 1352-2, paragraph 2, and 1352-5)";
+}
+pub relation chose_vendue_par_celui_qui_l_a_recue(r: Restitution, prix: Money) kind empirical {
+    key(r);
+    label fr official "celui qui a reçu la chose l'a vendue à ce prix (article 1352-2)";
+    label en unofficial "the recipient sold the thing at this price (Article 1352-2)";
+}
+pub relation degradation_ayant_diminue_la_valeur(r: Restitution) kind empirical {
+    label fr official "dégradations et détériorations qui ont diminué la valeur de la chose (article 1352-1)";
+    label en unofficial "damage and deterioration that reduced the value of the thing (Article 1352-1)";
+}
+pub relation degradation_due_a_la_faute(r: Restitution) kind empirical {
+    label fr official "les dégradations sont dues à la faute de celui qui restitue (article 1352-1)";
+    label en unofficial "the damage is due to the fault of the person making restitution (Article 1352-1)";
+}
+pub relation fruits_percus(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "fruits perçus par celui qui a reçu, ou leur valeur estimée à la date du remboursement (article 1352-3, alinéas 1 et 3)";
+    label en unofficial "fruits collected by the recipient, or their value estimated at the date of reimbursement (Article 1352-3, paragraphs 1 and 3)";
+}
+pub relation restitution_due_par_un_mineur_ou_un_majeur_protege(r: Restitution) kind empirical {
+    label fr official "la restitution est due par un mineur non émancipé ou par un majeur protégé (article 1352-4)";
+    label en unofficial "the restitution is owed by an unemancipated minor or a protected adult (Article 1352-4)";
+}
+pub relation profit_retire_de_l_acte_annule(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "profit que le mineur ou le majeur protégé a retiré de l'acte annulé (article 1352-4)";
+    label en unofficial "benefit the minor or protected adult derived from the annulled act (Article 1352-4)";
+}
+pub relation depenses_necessaires_a_la_conservation(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "dépenses nécessaires à la conservation de la chose (article 1352-5)";
+    label en unofficial "expenses necessary for the preservation of the thing (Article 1352-5)";
+}
+pub relation depenses_ayant_augmente_la_valeur(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "dépenses qui ont augmenté la valeur de la chose (article 1352-5)";
+    label en unofficial "expenses that increased the value of the thing (Article 1352-5)";
+}
+pub relation plus_value_estimee_au_jour_de_la_restitution(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "plus-value estimée au jour de la restitution : limite de la prise en compte des dépenses (article 1352-5)";
+    label en unofficial "added value estimated on the day of restitution: ceiling on the account taken of expenses (Article 1352-5)";
+}
+pub relation taxes_acquittees_entre_les_mains_du_receveur(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "taxes acquittées entre les mains de celui qui a reçu la somme (article 1352-6)";
+    label en unofficial "taxes paid into the hands of the person who received the sum (Article 1352-6)";
+}
+pub relation date_du_paiement_a_restituer(r: Restitution, jour: Date) kind empirical {
+    key(r);
+    label fr official "date du paiement dont la restitution est due (article 1352-7)";
+    label en unofficial "date of the payment whose restitution is owed (Article 1352-7)";
+}
+pub relation date_de_la_demande_en_restitution(r: Restitution, jour: Date) kind empirical {
+    key(r);
+    label fr official "date de la demande en restitution (article 1352-7)";
+    label en unofficial "date of the claim for restitution (Article 1352-7)";
+}
+pub relation restitution_d_une_prestation_de_service(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "valeur de la prestation de service, appréciée à la date à laquelle elle a été fournie (article 1352-8)";
+    label en unofficial "value of the service, assessed at the date it was provided (Article 1352-8)";
+}
+pub relation surete_constituee_pour_le_paiement(r: Restitution, c: Creance) kind empirical {
+    label fr official "sûreté constituée pour le paiement de l'obligation, reportée de plein droit sur l'obligation de restituer (article 1352-9)";
+    label en unofficial "security created for payment of the obligation, transferred by operation of law to the restitution obligation (Article 1352-9)";
+}
+
+// --- Règles ---------------------------------------------------------------------------------
+
+pub relation restitution_en_nature(r: Restitution) kind derived {
+    label fr official "la restitution d'une chose autre qu'une somme d'argent a lieu en nature (article 1352)";
+    label en unofficial "restitution of a thing other than a sum of money takes place in kind (Article 1352)";
+}
+pub relation restitution_en_valeur(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "lorsque cela est impossible, elle a lieu en valeur, estimée au jour de la restitution (article 1352)";
+    label en unofficial "where that is impossible, it takes place in value, estimated on the day of restitution (Article 1352)";
+}
+pub relation responsabilite_des_degradations(r: Restitution) kind derived {
+    label fr official "celui qui restitue la chose répond des dégradations et détériorations qui en ont diminué la valeur (article 1352-1)";
+    label en unofficial "the person making restitution answers for damage and deterioration that reduced the value (Article 1352-1)";
+}
+pub relation exoneration_des_degradations(r: Restitution) kind derived {
+    label fr official "à moins qu'il ne soit de bonne foi et que celles-ci ne soient pas dues à sa faute (article 1352-1)";
+    label en unofficial "unless he is in good faith and it is not due to his fault (Article 1352-1)";
+}
+pub relation restitution_du_prix_de_vente(r: Restitution, prix: Money) kind derived {
+    key(r);
+    label fr official "celui qui, l'ayant reçue de bonne foi, a vendu la chose ne doit restituer que le prix de la vente (article 1352-2, alinéa 1)";
+    label en unofficial "a person who, having received it in good faith, sold the thing owes only the sale price (Article 1352-2, paragraph 1)";
+}
+pub relation restitution_de_la_valeur_superieure_au_prix(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "s'il l'a reçue de mauvaise foi, il en doit la valeur au jour de la restitution lorsqu'elle est supérieure au prix (article 1352-2, alinéa 2)";
+    label en unofficial "if he received it in bad faith, he owes its value on the day of restitution where that exceeds the price (Article 1352-2, paragraph 2)";
+}
+pub relation restitution_incluant_les_fruits_et_la_jouissance(r: Restitution, total: Money) kind derived {
+    key(r);
+    label fr official "la restitution inclut les fruits et la valeur de la jouissance que la chose a procurée (article 1352-3, alinéa 1)";
+    label en unofficial "restitution includes the fruits and the value of the enjoyment the thing provided (Article 1352-3, paragraph 1)";
+}
+pub relation restitution_reduite_au_profit(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "les restitutions dues par un mineur non émancipé ou par un majeur protégé sont réduites à hauteur du profit qu'il a retiré de l'acte annulé (article 1352-4)";
+    label en unofficial "restitutions owed by an unemancipated minor or a protected adult are reduced to the benefit derived from the annulled act (Article 1352-4)";
+}
+pub relation depenses_prises_en_compte(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "il est tenu compte des dépenses nécessaires à la conservation et de celles qui ont augmenté la valeur, dans la limite de la plus-value estimée au jour de la restitution (article 1352-5)";
+    label en unofficial "account is taken of expenses necessary for preservation and of those that increased the value, within the limit of the added value estimated on the day of restitution (Article 1352-5)";
+}
+pub relation restitution_d_argent_avec_interets_et_taxes(r: Restitution, principal: Money, taxes: Money) kind derived {
+    key(r);
+    label fr official "la restitution d'une somme d'argent inclut les intérêts au taux légal et les taxes acquittées entre les mains de celui qui l'a reçue (article 1352-6)";
+    label en unofficial "restitution of a sum of money includes interest at the legal rate and the taxes paid into the recipient's hands (Article 1352-6)";
+}
+pub relation interets_de_restitution_courent_depuis(r: Restitution, jour: Date) kind derived {
+    key(r);
+    label fr official "point de départ des intérêts, des fruits et de la valeur de la jouissance dus par celui qui a reçu (article 1352-7)";
+    label en unofficial "starting point of the interest, fruits and value of enjoyment owed by the recipient (Article 1352-7)";
+}
+pub relation restitution_de_service_en_valeur(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "la restitution d'une prestation de service a lieu en valeur, appréciée à la date à laquelle elle a été fournie (article 1352-8)";
+    label en unofficial "restitution of a service takes place in value, assessed at the date it was provided (Article 1352-8)";
+}
+pub relation surete_reportee_sur_l_obligation_de_restituer(r: Restitution, c: Creance) kind derived {
+    label fr official "les sûretés constituées pour le paiement de l'obligation sont reportées de plein droit sur l'obligation de restituer sans que la caution soit privée du bénéfice du terme (article 1352-9)";
+    label en unofficial "securities created for payment of the obligation are transferred by operation of law to the restitution obligation, without depriving the surety of the benefit of the term (Article 1352-9)";
+}
+
+@source(CC_ART1352) {
+    rule P2DevoirDeRestituer(r: Restitution, debiteur_p: Personne, creancier_p: Personne, jour: Date) strict {
+        label fr official "Articles 1352 et suivants. Celui qui a reçu doit restituer à celui qui a payé ou livré";
+        label en unofficial "Articles 1352 and following. The recipient must make restitution to the person who paid or delivered";
+        when restitution_due(r, debiteur_p, creancier_p)
+            and date_du_paiement_a_restituer(r, jour);
+        then duty P2PositionDevoirDeRestituer {
+            bearer debiteur_p;
+            beneficiary creancier_p;
+            goal achievement {
+                condition restitution_effectuee(r);
+                window [jour, infinity];
+            }
+        };
+    }
+
+    rule RestitutionEnNature(r: Restitution, b: Bien) strict {
+        label fr official "Article 1352. La restitution d'une chose autre que d'une somme d'argent a lieu en nature";
+        label en unofficial "Article 1352. Restitution of a thing other than a sum of money takes place in kind";
+        when restitution_d_une_chose(r, b) and not_known(restitution_en_nature_impossible(r));
+        then restitution_en_nature(r);
+    }
+    rule RestitutionEnValeurAuJourDeLaRestitution(r: Restitution, b: Bien, v: Money) strict {
+        label fr official "Article 1352. Ou, lorsque cela est impossible, en valeur, estimée au jour de la restitution";
+        label en unofficial "Article 1352. Or, where that is impossible, in value, estimated on the day of restitution";
+        when restitution_d_une_chose(r, b) and restitution_en_nature_impossible(r)
+            and valeur_au_jour_de_la_restitution(r, v);
+        then restitution_en_valeur(r, v);
+    }
+}
+
+@source(CC_ART1352_1) {
+    rule ResponsabiliteDesDegradations(r: Restitution) strict {
+        label fr official "Article 1352-1. Celui qui restitue la chose répond des dégradations et détériorations qui en ont diminué la valeur, à moins qu'il ne soit de bonne foi et que celles-ci ne soient pas dues à sa faute";
+        label en unofficial "Article 1352-1. The person making restitution answers for damage and deterioration that reduced its value, unless he is in good faith and it is not due to his fault";
+        when degradation_ayant_diminue_la_valeur(r) and recu_de_mauvaise_foi(r);
+        then responsabilite_des_degradations(r);
+    }
+    rule ResponsabiliteDesDegradationsFautives(r: Restitution) strict {
+        label fr official "Article 1352-1. Le receveur de bonne foi répond néanmoins des dégradations dues à sa faute";
+        label en unofficial "Article 1352-1. A recipient in good faith nonetheless answers for damage due to his fault";
+        when degradation_ayant_diminue_la_valeur(r) and recu_de_bonne_foi(r)
+            and degradation_due_a_la_faute(r);
+        then responsabilite_des_degradations(r);
+    }
+    rule ExonerationDesDegradations(r: Restitution) strict {
+        label fr official "Article 1352-1. Celui qui est de bonne foi et dont les dégradations ne sont pas dues à sa faute n'en répond pas";
+        label en unofficial "Article 1352-1. A person in good faith whose damage is not due to his fault does not answer for it";
+        when degradation_ayant_diminue_la_valeur(r) and recu_de_bonne_foi(r)
+            and not_known(degradation_due_a_la_faute(r));
+        then exoneration_des_degradations(r);
+    }
+}
+
+@source(CC_ART1352_2) {
+    rule RestitutionDuSeulPrixDeVente(r: Restitution, prix: Money) strict {
+        label fr official "Article 1352-2, alinéa 1. Celui qui l'ayant reçue de bonne foi a vendu la chose ne doit restituer que le prix de la vente";
+        label en unofficial "Article 1352-2, paragraph 1. A person who, having received it in good faith, sold the thing owes only the sale price";
+        when chose_vendue_par_celui_qui_l_a_recue(r, prix) and recu_de_bonne_foi(r);
+        then restitution_du_prix_de_vente(r, prix);
+    }
+    rule RestitutionDeLaValeurSiSuperieureAuPrix(r: Restitution, prix: Money, v: Money) strict {
+        label fr official "Article 1352-2, alinéa 2. S'il l'a reçue de mauvaise foi, il en doit la valeur au jour de la restitution lorsqu'elle est supérieure au prix";
+        label en unofficial "Article 1352-2, paragraph 2. If he received it in bad faith, he owes its value on the day of restitution where that exceeds the price";
+        when chose_vendue_par_celui_qui_l_a_recue(r, prix) and recu_de_mauvaise_foi(r)
+            and valeur_au_jour_de_la_restitution(r, v);
+        then restitution_de_la_valeur_superieure_au_prix(r, max(prix, v));
+    }
+}
+
+@source(CC_ART1352_3)
+rule RestitutionIncluantFruitsEtJouissance(r: Restitution, fruits: Money, jouissance: Money) strict {
+    label fr official "Article 1352-3, alinéas 1 et 2. La restitution inclut les fruits et la valeur de la jouissance que la chose a procurée ; la valeur de la jouissance est évaluée par le juge au jour où il se prononce";
+    label en unofficial "Article 1352-3, paragraphs 1 and 2. Restitution includes the fruits and the value of the enjoyment the thing provided; the value of the enjoyment is assessed by the court on the day of its ruling";
+    when fruits_percus(r, fruits) and valeur_de_la_jouissance(r, jouissance);
+    then restitution_incluant_les_fruits_et_la_jouissance(r, fruits + jouissance);
+}
+
+// L'article 1352-4 a reçu de la loi n° 2018-287 une modification de caractère
+// INTERPRÉTATIF : elle vaut depuis le 1er octobre 2016 (corridor 2018).
+@source(CC_ART1352_4)
+rule RestitutionReduiteAuProfitDuMineurOuDuMajeurProtege(r: Restitution, profit: Money) strict {
+    label fr official "Article 1352-4. Les restitutions dues par un mineur non émancipé ou par un majeur protégé sont réduites à hauteur du profit qu'il a retiré de l'acte annulé";
+    label en unofficial "Article 1352-4. Restitutions owed by an unemancipated minor or a protected adult are reduced to the benefit he derived from the annulled act";
+    when restitution_due_par_un_mineur_ou_un_majeur_protege(r) and profit_retire_de_l_acte_annule(r, profit);
+    then restitution_reduite_au_profit(r, profit);
+}
+
+@source(CC_ART1352_5)
+rule DepensesPrisesEnCompteDansLaLimiteDeLaPlusValue(r: Restitution, conservation: Money, amelioration: Money, plus_value: Money) strict {
+    label fr official "Article 1352-5. Pour fixer le montant des restitutions, il est tenu compte à celui qui doit restituer des dépenses nécessaires à la conservation de la chose et de celles qui en ont augmenté la valeur, dans la limite de la plus-value estimée au jour de la restitution";
+    label en unofficial "Article 1352-5. In setting the amount of restitutions, account is taken, for the person making restitution, of the expenses necessary for preserving the thing and of those that increased its value, within the limit of the added value estimated on the day of restitution";
+    when depenses_necessaires_a_la_conservation(r, conservation)
+        and depenses_ayant_augmente_la_valeur(r, amelioration)
+        and plus_value_estimee_au_jour_de_la_restitution(r, plus_value);
+    then depenses_prises_en_compte(r, conservation + min(amelioration, plus_value));
+}
+
+@source(CC_ART1352_6)
+rule RestitutionDArgentAvecInteretsEtTaxes(r: Restitution, principal: Money, taxes: Money) strict {
+    label fr official "Article 1352-6. La restitution d'une somme d'argent inclut les intérêts au taux légal et les taxes acquittées entre les mains de celui qui l'a reçue ; le taux légal est fixé hors du Code (code monétaire et financier, article L. 313-2) et n'est pas calculé ici";
+    label en unofficial "Article 1352-6. Restitution of a sum of money includes interest at the legal rate and the taxes paid into the recipient's hands; the legal rate is set outside the Code (Monetary and Financial Code, Article L. 313-2) and is not computed here";
+    when restitution_d_une_somme_d_argent(r, principal)
+        and taxes_acquittees_entre_les_mains_du_receveur(r, taxes);
+    then restitution_d_argent_avec_interets_et_taxes(r, principal, taxes);
+}
+
+@source(CC_ART1352_7) {
+    rule ApplyP2DevoirPayerLesInteretsDeRestitution(r: Restitution, d: Personne, cr: Personne, jour: Date) strict {
+        label fr official "Article 1352-7. Le receveur doit les intérêts, fruits ou valeur de jouissance à compter du point de départ légal";
+        label en unofficial "Article 1352-7. The recipient must pay interest, fruits or enjoyment value from the legal starting point";
+        when restitution_due(r, d, cr)
+            and interets_de_restitution_courent_depuis(r, jour);
+        then duty P2PositionDevoirPayerLesInteretsDeRestitution {
+            bearer d;
+            beneficiary cr;
+            goal achievement {
+                condition interets_de_restitution_payes(r);
+                window [jour, infinity];
+            }
+        };
+    }
+
+    rule InteretsDepuisLePaiementPourLeReceveurDeMauvaiseFoi(r: Restitution, jour: Date) strict {
+        label fr official "Article 1352-7. Celui qui a reçu de mauvaise foi doit les intérêts, les fruits qu'il a perçus ou la valeur de la jouissance à compter du paiement";
+        label en unofficial "Article 1352-7. A person who received in bad faith owes interest, the fruits collected or the value of the enjoyment from the day of payment";
+        when recu_de_mauvaise_foi(r) and date_du_paiement_a_restituer(r, jour);
+        then interets_de_restitution_courent_depuis(r, jour);
+    }
+    rule InteretsDepuisLaDemandePourLeReceveurDeBonneFoi(r: Restitution, jour: Date) strict {
+        label fr official "Article 1352-7. Celui qui a reçu de bonne foi ne les doit qu'à compter du jour de la demande";
+        label en unofficial "Article 1352-7. A person who received in good faith owes them only from the day of the claim";
+        when recu_de_bonne_foi(r) and date_de_la_demande_en_restitution(r, jour);
+        then interets_de_restitution_courent_depuis(r, jour);
+    }
+}
+
+@source(CC_ART1352_8)
+rule RestitutionDeServiceEnValeur(r: Restitution, v: Money) strict {
+    label fr official "Article 1352-8. La restitution d'une prestation de service a lieu en valeur ; celle-ci est appréciée à la date à laquelle elle a été fournie";
+    label en unofficial "Article 1352-8. Restitution of a service takes place in value; the value is assessed at the date the service was provided";
+    when restitution_d_une_prestation_de_service(r, v);
+    then restitution_de_service_en_valeur(r, v);
+}
+
+@source(CC_ART1352_9)
+rule SuretesReporteesSurLObligationDeRestituer(r: Restitution, c: Creance) strict {
+    label fr official "Article 1352-9. Les sûretés constituées pour le paiement de l'obligation sont reportées de plein droit sur l'obligation de restituer sans toutefois que la caution soit privée du bénéfice du terme";
+    label en unofficial "Article 1352-9. Securities created for payment of the obligation are transferred by operation of law to the restitution obligation, without however depriving the surety of the benefit of the term";
+    when surete_constituee_pour_le_paiement(r, c);
+    then surete_reportee_sur_l_obligation_de_restituer(r, c);
+}
+
+// --- Alinéa 3 de l'article 1352-3 -----------------------------------------------------------
+
+pub relation fruits_non_retrouves_en_nature(r: Restitution) kind empirical {
+    label fr official "les fruits ne se retrouvent pas en nature (article 1352-3, alinéa 3)";
+    label en unofficial "the fruits are not found in kind (Article 1352-3, paragraph 3)";
+}
+pub relation stipulation_contraire_sur_les_fruits(r: Restitution) kind empirical {
+    label fr official "une stipulation contraire règle la restitution des fruits (article 1352-3, alinéa 3)";
+    label en unofficial "a contrary stipulation governs the restitution of the fruits (Article 1352-3, paragraph 3)";
+}
+pub relation valeur_des_fruits_a_la_date_du_remboursement(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "valeur des fruits estimée à la date du remboursement, suivant l'état de la chose au jour du paiement de l'obligation (article 1352-3, alinéa 3)";
+    label en unofficial "value of the fruits estimated at the date of reimbursement, according to the condition of the thing on the day the obligation was paid (Article 1352-3, paragraph 3)";
+}
+pub relation restitution_des_fruits_en_valeur(r: Restitution, v: Money) kind derived {
+    key(r);
+    label fr official "sauf stipulation contraire, la restitution des fruits qui ne se retrouvent pas en nature a lieu selon une valeur estimée à la date du remboursement (article 1352-3, alinéa 3)";
+    label en unofficial "absent a contrary stipulation, restitution of fruits not found in kind takes place at a value estimated at the date of reimbursement (Article 1352-3, paragraph 3)";
+}
+
+@source(CC_ART1352_3)
+rule RestitutionDesFruitsEnValeur(r: Restitution, v: Money) strict {
+    label fr official "Article 1352-3, alinéa 3. Sauf stipulation contraire, la restitution des fruits, s'ils ne se retrouvent pas en nature, a lieu selon une valeur estimée à la date du remboursement, suivant l'état de la chose au jour du paiement de l'obligation";
+    label en unofficial "Article 1352-3, paragraph 3. Absent a contrary stipulation, restitution of fruits not found in kind takes place at a value estimated at the date of reimbursement, according to the condition of the thing on the day the obligation was paid";
+    when fruits_non_retrouves_en_nature(r) and valeur_des_fruits_a_la_date_du_remboursement(r, v)
+        and not_known(stipulation_contraire_sur_les_fruits(r));
+    then restitution_des_fruits_en_valeur(r, v);
+}

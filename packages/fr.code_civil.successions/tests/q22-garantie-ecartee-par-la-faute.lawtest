@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 884, alinéa 2 : l'éviction est due à la faute du cohéritier.
+test "urn:query:fr-code-civil-successions-q22-garantie-ecartee-par-la-faute" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": cause_anterieure_au_partage(entity_ref("urn:fr:cc:successions:par:q22:S"), entity_ref("urn:fr:cc:successions:par:q22:H")) { origin case_input; }
+        assert "f2": eviction_par_la_faute_du_coheritier(entity_ref("urn:fr:cc:successions:par:q22:S"), entity_ref("urn:fr:cc:successions:par:q22:H")) { origin adjudicated; }
+    }
+    evaluate truth(garantie_des_lots_due(entity_ref("urn:fr:cc:successions:par:q22:S"), entity_ref("urn:fr:cc:successions:par:q22:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

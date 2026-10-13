@@ -1,0 +1,153 @@
+// CODE CIVIL — LIVRE III, TITRE Ier : DES SUCCESSIONS (CC-06).
+//
+// Pilote B1 de la formalisation complète (plan §6, vague B1) : dévolution
+// légale par ordres et degrés, représentation par souche, droits du conjoint
+// survivant, avec des fractions exactes (`Integer / Integer` donne un
+// `Rational`, §58). La parenté est calculée par `calc.kinship` à partir du
+// graphe familial fourni par le cas ; le Code ne dit que QUI hérite et POUR
+// QUELLE FRACTION.
+//
+// CE QUE LE CAS FOURNIT (relations `kind empirical`) : le défunt, la date
+// d'ouverture, le graphe familial (filiation, adoption plénière, mariage),
+// qui existe à l'ouverture, qui est prédécédé, qui renonce, les
+// condamnations et déclarations d'indignité (origine `adjudicated`), le
+// pardon testamentaire, le divorce, l'option du conjoint.
+//
+// CE QUE LE PAQUET DÉDUIT : capacité de succéder, exclusion, ordre appelé,
+// souches et subdivisions de souches, fraction héréditaire de chaque
+// successible en pleine propriété, droits du conjoint.
+//
+// FRACTIONS PAR SOUCHE, NON PAR TÊTE. « Le partage s'opère par souche »
+// (article 753) : la fraction d'un descendant est la fraction de sa souche
+// divisée par le nombre de sous-souches à chaque niveau. Écrire « un divisé
+// par le nombre d'héritiers vivants » ferait perdre l'article 753.
+//
+// PIÈGE E-0112 (DECISION-0217, plan §4.5) : le dénombrement d'un prédicat
+// déduit crée une arête `completion`; le cycle « cercle des héritiers →
+// fraction → cercle » est rejeté par la statique (LDC-E4102). Les strates
+// sont donc : graphe → capacité → nœuds (récursion positive) → dénombrement
+// des sous-souches → fractions (récursion positive sur les fractions, le
+// dénombrement étant déjà clos).
+//
+// Fichiers :
+//   package.law                      — types, vocabulaire d'entrée, politiques
+//   chapitre-02-qualites.law         — art. 725–729-1 : exister, indignité, pardon
+//   chapitre-03-devolution.law       — art. 731–758 : ordres, souches, conjoint
+//   sources.law                      — GÉNÉRÉ : source, édition, publication, fragments
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+import fr.code_civil.core version "0.1.0";
+import calc.kinship version "0.1.0";
+
+use self::{
+    CC_ART720,
+};
+
+type Personne = fr.code_civil.core::Personne;
+type Famille = calc.kinship::Family;
+
+// Politique §86 : les délais de l'option (771 à 808) et des droits du conjoint
+// (758 à 767) sont calendaires et courent du jour de l'événement ; un mois
+// échéant un 31 tombe au dernier jour du mois. Publique, pour qu'un paquet-cas
+// la nomme sans la recopier.
+pub deadline policy CC_SUCCESSIONS_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub entity Succession {
+    label fr official "Succession d'une personne décédée (article 720)";
+    label en unofficial "Estate of a deceased person (Article 720)";
+}
+
+pub enum OptionDuConjoint {
+    label fr official "Option du conjoint survivant en concours avec des descendants (article 757)";
+    label en unofficial "Surviving spouse's option in the presence of descendants (Article 757)";
+    Usufruit,
+    QuartEnPropriete
+}
+
+pub enum DroitDuConjoint {
+    label fr official "Nature des droits légaux du conjoint survivant (articles 757 à 757-2)";
+    label en unofficial "Nature of the surviving spouse's statutory rights (Articles 757 to 757-2)";
+    UsufruitDeLaTotalite,
+    QuartEnPropriete,
+    MoitieEnPropriete,
+    TroisQuartsEnPropriete,
+    TotaliteEnPropriete
+}
+
+// --- Entrées du cas ----------------------------------------------------------------------
+
+@source(CC_ART720)
+pub relation defunt(s: Succession, d: Personne) kind empirical {
+    key(s);
+    label fr official "personne dont la succession est ouverte";
+    label en unofficial "person whose estate is opened";
+}
+pub relation ouverte_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de l'ouverture de la succession : la mort (article 720)";
+    label en unofficial "day the succession opens: the death (Article 720)";
+}
+pub relation famille(s: Succession, f: Famille) kind empirical {
+    key(s);
+    label fr official "graphe familial du défunt dont se déduit la parenté";
+    label en unofficial "family graph of the deceased from which kinship is computed";
+}
+pub relation filiation(f: Famille, parent: Personne, enfant: Personne) kind empirical {
+    label fr official "lien de filiation établi (père ou mère de l'enfant)";
+    label en unofficial "established filiation (father or mother of the child)";
+}
+pub relation adoption_pleniere(f: Famille, adoptant: Personne, adopte: Personne) kind empirical {
+    label fr official "adoption plénière : l'adoptant est parent de l'adopté (titre VIII)";
+    label en unofficial "full adoption: the adopter is a parent of the adoptee (Title VIII)";
+}
+pub relation mariage(f: Famille, premier: Personne, second: Personne) kind empirical {
+    label fr official "mariage entre deux personnes";
+    label en unofficial "marriage between two persons";
+}
+pub relation existe_a_l_ouverture(s: Succession, p: Personne) kind empirical {
+    label fr official "la personne existe à l'instant de l'ouverture de la succession, ou, déjà conçue, naît viable (article 725)";
+    label en unofficial "the person exists at the instant the succession opens, or, already conceived, is born viable (Article 725)";
+}
+pub relation predecede(s: Succession, p: Personne) kind empirical {
+    label fr official "la personne est décédée avant l'ouverture de la succession";
+    label en unofficial "the person died before the succession opened";
+}
+pub relation renonce(s: Succession, p: Personne) kind empirical {
+    label fr official "le successible a renoncé à la succession (articles 754, 805)";
+    label en unofficial "the successor has renounced the succession (Articles 754, 805)";
+}
+pub relation divorce_prononce(s: Succession, conjoint: Personne) kind empirical {
+    label fr official "le divorce du conjoint et du défunt a été prononcé (article 732)";
+    label en unofficial "the divorce of the spouse and the deceased was pronounced (Article 732)";
+}
+pub relation option_du_conjoint(s: Succession, conjoint: Personne, option: OptionDuConjoint) kind empirical {
+    key(s, conjoint);
+    label fr official "option exercée par le conjoint survivant entre l'usufruit et le quart en propriété (articles 757, 758-2)";
+    label en unofficial "option exercised by the surviving spouse between usufruct and a quarter in ownership (Articles 757, 758-2)";
+}
+
+// Condamnations et déclarations : faits établis par une juridiction, donc
+// d'origine `adjudicated` dans le cas (DECISION-0194, deuxième canal).
+pub relation condamne_peine_criminelle_mort_volontaire(s: Succession, p: Personne) kind empirical {
+    label fr official "condamné, comme auteur ou complice, à une peine criminelle pour avoir volontairement donné ou tenté de donner la mort au défunt (article 726, 1°)";
+    label en unofficial "convicted, as principal or accomplice, to a criminal penalty for wilfully killing or attempting to kill the deceased (Article 726, 1°)";
+}
+pub relation condamne_peine_criminelle_violences_mortelles(s: Succession, p: Personne) kind empirical {
+    label fr official "condamné, comme auteur ou complice, à une peine criminelle pour coups, violences ou voies de fait ayant entraîné la mort du défunt sans intention de la donner (article 726, 2°)";
+    label en unofficial "convicted, as principal or accomplice, to a criminal penalty for blows or violence causing the death of the deceased without intent to kill (Article 726, 2°)";
+}
+pub relation declare_indigne_par_le_tribunal(s: Succession, p: Personne) kind empirical {
+    label fr official "déclaré indigne de succéder par le tribunal judiciaire (articles 727, 727-1)";
+    label en unofficial "declared unworthy to inherit by the judicial court (Articles 727, 727-1)";
+}
+pub relation maintenu_par_declaration_testamentaire(s: Succession, p: Personne) kind empirical {
+    label fr official "le défunt, postérieurement aux faits et à leur connaissance, a précisé en la forme testamentaire qu'il entend maintenir le successible dans ses droits héréditaires, ou lui a fait une libéralité universelle ou à titre universel (article 728)";
+    label en unofficial "the deceased, after the facts and with knowledge of them, stated in testamentary form that the successor keeps his inheritance rights, or made him a universal gift (Article 728)";
+}

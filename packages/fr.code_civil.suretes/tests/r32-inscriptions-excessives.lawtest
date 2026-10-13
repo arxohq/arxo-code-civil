@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2439 : créances 90 000, valeur d'un immeuble 211 000 (> 7/3 × 90 000 = 210 000) — excessives.
+test "urn:query:fr-code-civil-suretes-r32-inscriptions-excessives" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:r32:S"), entity_ref("urn:fr:cc:suretes:r32:B"), entity_ref("urn:fr:cc:suretes:r32:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:r32:S"), Legale) { origin case_input; }
+        assert "f3": hypotheque_legale_generale(entity_ref("urn:fr:cc:suretes:r32:S"), EntreEpoux) { origin case_input; }
+        assert "f4": inscription_de(entity_ref("urn:fr:cc:suretes:r32:I"), entity_ref("urn:fr:cc:suretes:r32:S")) { origin case_input; }
+        assert "f5": inscription_sur_plusieurs_immeubles(entity_ref("urn:fr:cc:suretes:r32:I")) { origin case_input; }
+        assert "f6": valeur_des_immeubles_consideres(entity_ref("urn:fr:cc:suretes:r32:I"), 211000 EUR) { origin case_input; }
+        assert "f7": montant_des_creances_garanties(entity_ref("urn:fr:cc:suretes:r32:I"), 90000 EUR) { origin case_input; }
+    }
+    evaluate truth(inscriptions_excessives(entity_ref("urn:fr:cc:suretes:r32:I")));
+    expect truth_status == TRUE_ONLY;
+}

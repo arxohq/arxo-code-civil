@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1352-5 : il est tenu compte des dépenses NÉCESSAIRES À LA CONSERVATION et de
+// celles qui ont AUGMENTÉ LA VALEUR, ces dernières DANS LA LIMITE de la plus-value
+// estimée au jour de la restitution.
+// Calcul à la main : conservation 800 EUR (sans plafond) + min(amélioration 3 000 EUR,
+// plus-value 1 200 EUR) = 800 + 1 200 = 2 000 EUR.
+test "urn:query:fr-code-civil-obligations-r04-depenses-plafonnees-par-la-plus-value" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": restitution_due(entity_ref("urn:fr:cc:obligations:rdp:r"), entity_ref("urn:fr:cc:obligations:rdp:D"), entity_ref("urn:fr:cc:obligations:rdp:CR")) { origin case_input; }
+        assert "f2": depenses_necessaires_a_la_conservation(entity_ref("urn:fr:cc:obligations:rdp:r"), 800 EUR) { origin case_input; }
+        assert "f3": depenses_ayant_augmente_la_valeur(entity_ref("urn:fr:cc:obligations:rdp:r"), 3000 EUR) { origin case_input; }
+        assert "f4": plus_value_estimee_au_jour_de_la_restitution(entity_ref("urn:fr:cc:obligations:rdp:r"), 1200 EUR) { origin case_input; }
+    }
+    evaluate truth(depenses_prises_en_compte(entity_ref("urn:fr:cc:obligations:rdp:r"), 2000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DepensesPrisesEnCompteDansLaLimiteDeLaPlusValue);
+}

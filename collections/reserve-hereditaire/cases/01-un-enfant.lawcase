@@ -1,0 +1,34 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.reserve_hereditaire version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:reserve-hereditaire";
+
+// Art. 913: one child — available portion one half.
+
+case UnEnfant {
+    context {
+        legal_time @2026-09-16;
+        knowledge_time @2026-09-16T09:00:00Z;
+        decision_time @2026-09-16T09:00:00Z;
+        timezone "Europe/Paris";
+        deadline_policy OECD_CODE_CIVIL_RESERVE;
+    }
+
+    const succession: fr.code_civil.successions::Succession = entity_ref("urn:fr:cc-p6:s");
+    const defunt: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:d");
+    const famille: calc.kinship::Family = entity_ref("urn:fr:cc-p6:f");
+    const enfant1: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:c1");
+    const enfant2: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:c2");
+    const enfant3: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:c3");
+    const enfant4: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:c4");
+    const conjoint: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:e");
+    const donation: fr.code_civil.liberalites::Liberalite = entity_ref("urn:fr:cc-p6:don");
+    const donataire: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:t");
+    const legs: fr.code_civil.liberalites::Liberalite = entity_ref("urn:fr:cc-p6:leg");
+    const legataire: fr.code_civil.core::Personne = entity_ref("urn:fr:cc-p6:l");
+    assert "defunt": fr.code_civil.successions::defunt(succession, defunt) { origin case_input; }
+    assert "ouverte": fr.code_civil.successions::ouverte_le(succession, @2026-03-01) { origin case_input; }
+    assert "famille": fr.code_civil.successions::famille(succession, famille) { origin case_input; }
+    assert "filiation-1": fr.code_civil.successions::filiation(famille, defunt, enfant1) { origin case_input; }
+    assert "existe-1": fr.code_civil.successions::existe_a_l_ouverture(succession, enfant1) { origin case_input; }
+    assert "biens": fr.code_civil.liberalites::biens_existants_au_deces(succession, 100000 EUR) { origin case_input; }
+}

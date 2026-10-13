@@ -1,0 +1,336 @@
+// Годность входа: каждый дефект назван, ни один не исправляется молча.
+//
+// ПОЧЕМУ СЧЁТ, А НЕ ОТРИЦАНИЕ. Все проверки ниже выражены агрегатом `count`
+// над положительными посылками. Форма `not recipient_weight(r, w)` выглядела
+// бы естественнее и не сработала бы НИ РАЗУ: классическое отрицание §115
+// требует отрицательного продюсера, а его у входных фактов нет. Счёт же
+// читает ровно то, что подано, и различает «не подано» от «подано дважды».
+//
+// ПОЧЕМУ ГОДНОСТЬ СНИМАЕТ ВЫЧИСЛЕНИЕ ЦЕЛИКОМ. Потерянный вес, нулевое
+// требование или единица, не равная последнему знаку точности, не делают
+// итог «немного неточным» — они делают его величиной, которой в задаче нет.
+// Поэтому фонды очередей и всё, что выше них, требуют
+// `allocation_wellformed`, а не выводятся «по возможности».
+
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+use self::{
+    Allocation,
+    AllocationDefect,
+    AllocationMode,
+    Recipient,
+    RemainderPolicy,
+    allocation_declared,
+    allocation_defect,
+    allocation_mode,
+    allocation_precision,
+    allocation_remainder_policy,
+    allocation_total,
+    allocation_unit,
+    allocation_wellformed,
+    allocation_zero,
+    recipient_claim,
+    recipient_defect,
+    recipient_of,
+    recipient_priority,
+    recipient_rank,
+    recipient_weight,
+};
+
+// --- Распределение объявлено -------------------------------------------------
+
+rule DeclaredByMode(a: Allocation, m: AllocationMode) strict {
+    label ru official "распределение с объявленным режимом подлежит проверке";
+    when allocation_mode(a, m);
+    then allocation_declared(a);
+}
+
+rule DeclaredByTotal(a: Allocation, t: Money) strict {
+    label ru official "распределение с объявленной суммой подлежит проверке";
+    when allocation_total(a, t);
+    then allocation_declared(a);
+}
+
+rule DeclaredByPrecision(a: Allocation, p: Integer) strict {
+    label ru official "распределение с объявленной точностью подлежит проверке";
+    when allocation_precision(a, p);
+    then allocation_declared(a);
+}
+
+rule DeclaredByUnit(a: Allocation, u: Money) strict {
+    label ru official "распределение с объявленной единицей подлежит проверке";
+    when allocation_unit(a, u);
+    then allocation_declared(a);
+}
+
+rule DeclaredByPolicy(a: Allocation, p: RemainderPolicy) strict {
+    label ru official "распределение с объявленной политикой остатка подлежит проверке";
+    when allocation_remainder_policy(a, p);
+    then allocation_declared(a);
+}
+
+rule DeclaredByRecipient(a: Allocation, r: Recipient) strict {
+    label ru official "распределение, у которого есть получатель, подлежит проверке";
+    when recipient_of(r, a);
+    then allocation_declared(a);
+}
+
+// --- Нуль валюты -------------------------------------------------------------
+
+rule AllocationZero(a: Allocation, t: Money) strict {
+    label ru official "нуль валюты распределения есть разность суммы с самой собой";
+    when allocation_total(a, t);
+    then allocation_zero(a, t - t);
+}
+
+// --- Дефекты распределения в целом -------------------------------------------
+
+rule ModeMissingDefect(a: Allocation) strict {
+    label ru official "распределение без объявленного режима неприменимо";
+    when allocation_declared(a)
+        and (count distinct m: AllocationMode where allocation_mode(a, m)) == 0;
+    then allocation_defect(a, ModeMissing);
+}
+
+rule ModeAmbiguousDefect(a: Allocation) strict {
+    label ru official "распределение с двумя режимами неприменимо";
+    when allocation_declared(a)
+        and (count distinct m: AllocationMode where allocation_mode(a, m)) >= 2;
+    then allocation_defect(a, ModeAmbiguous);
+}
+
+rule TotalMissingDefect(a: Allocation) strict {
+    label ru official "распределение без объявленной суммы неприменимо";
+    when allocation_declared(a)
+        and (count all t: Money where allocation_total(a, t)) == 0;
+    then allocation_defect(a, TotalMissing);
+}
+
+rule TotalAmbiguousDefect(a: Allocation) strict {
+    label ru official "распределение с двумя суммами неприменимо";
+    when allocation_declared(a)
+        and (count all t: Money where allocation_total(a, t)) >= 2;
+    then allocation_defect(a, TotalAmbiguous);
+}
+
+rule TotalNegativeDefect(a: Allocation, t: Money, zero: Money) strict {
+    label ru official "отрицательная сумма не распределяется";
+    when allocation_total(a, t) and allocation_zero(a, zero) and t < zero;
+    then allocation_defect(a, TotalNegative);
+}
+
+// Сумма обязана быть представима при объявленной точности: иначе остаток
+// округления не был бы целым числом единиц, и раздача по единице оставила
+// бы неназванный хвост.
+rule TotalNotRepresentableDefect(a: Allocation, t: Money, p: Integer) strict {
+    label ru official "сумма несёт знаки ниже объявленной точности";
+    when allocation_total(a, t) and allocation_precision(a, p) and p >= 0
+        and round(t, p, "DOWN") < t;
+    then allocation_defect(a, TotalNotRepresentable);
+}
+
+rule PrecisionMissingDefect(a: Allocation) strict {
+    label ru official "распределение без объявленной точности неприменимо: округление не подразумевается";
+    when allocation_declared(a)
+        and (count all p: Integer where allocation_precision(a, p)) == 0;
+    then allocation_defect(a, PrecisionMissing);
+}
+
+rule PrecisionAmbiguousDefect(a: Allocation) strict {
+    label ru official "распределение с двумя точностями неприменимо";
+    when allocation_declared(a)
+        and (count all p: Integer where allocation_precision(a, p)) >= 2;
+    then allocation_defect(a, PrecisionAmbiguous);
+}
+
+rule PrecisionNegativeDefect(a: Allocation, p: Integer) strict {
+    label ru official "отрицательная точность не определена";
+    when allocation_precision(a, p) and p < 0;
+    then allocation_defect(a, PrecisionNegative);
+}
+
+rule UnitMissingDefect(a: Allocation) strict {
+    label ru official "распределение без объявленной минимальной единицы неприменимо";
+    when allocation_declared(a)
+        and (count all u: Money where allocation_unit(a, u)) == 0;
+    then allocation_defect(a, UnitMissing);
+}
+
+rule UnitAmbiguousDefect(a: Allocation) strict {
+    label ru official "распределение с двумя минимальными единицами неприменимо";
+    when allocation_declared(a)
+        and (count all u: Money where allocation_unit(a, u)) >= 2;
+    then allocation_defect(a, UnitAmbiguous);
+}
+
+rule UnitNotPositiveDefect(a: Allocation, u: Money) strict {
+    label ru official "минимальная единица обязана быть положительной";
+    when allocation_unit(a, u) and u <= u - u;
+    then allocation_defect(a, UnitNotPositive);
+}
+
+// Единица есть ровно одна единица последнего знака точности, и это два
+// сравнения: усечение единицы к точности возвращает её саму (единица не
+// мельче точности), а усечение её половины даёт нуль (единица не крупнее
+// одного шага). 0.02 при точности 2 проваливает второе; 0.005 — первое.
+rule UnitCoarserThanPrecisionDefect(a: Allocation, u: Money, p: Integer) strict {
+    label ru official "минимальная единица несёт знаки ниже объявленной точности";
+    when allocation_unit(a, u) and allocation_precision(a, p) and p >= 0
+        and round(u, p, "DOWN") < u;
+    then allocation_defect(a, UnitNotMinimal);
+}
+
+rule UnitNotSmallestDefect(a: Allocation, u: Money, p: Integer) strict {
+    label ru official "минимальная единица крупнее одного шага объявленной точности";
+    when allocation_unit(a, u) and allocation_precision(a, p) and p >= 0
+        and round(u * 0.5, p, "DOWN") > u - u;
+    then allocation_defect(a, UnitNotMinimal);
+}
+
+rule RemainderPolicyMissingDefect(a: Allocation) strict {
+    label ru official "распределение без объявленной политики остатка неприменимо";
+    when allocation_declared(a)
+        and (count distinct p: RemainderPolicy where allocation_remainder_policy(a, p)) == 0;
+    then allocation_defect(a, RemainderPolicyMissing);
+}
+
+rule RemainderPolicyAmbiguousDefect(a: Allocation) strict {
+    label ru official "распределение с двумя политиками остатка неприменимо";
+    when allocation_declared(a)
+        and (count distinct p: RemainderPolicy where allocation_remainder_policy(a, p)) >= 2;
+    then allocation_defect(a, RemainderPolicyAmbiguous);
+}
+
+rule NoRecipientsDefect(a: Allocation) strict {
+    label ru official "распределение без единого получателя неприменимо";
+    when allocation_declared(a)
+        and (count distinct r: Recipient where recipient_of(r, a)) == 0;
+    then allocation_defect(a, NoRecipients);
+}
+
+// --- Дефекты получателя: режим Proportional ----------------------------------
+
+rule WeightMissingDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при пропорциональном распределении у получателя не объявлен вес";
+    when allocation_mode(a, Proportional) and recipient_of(r, a)
+        and (count all w: Decimal where recipient_weight(r, w)) == 0;
+    then recipient_defect(a, r, WeightMissing);
+}
+
+rule WeightAmbiguousDefect(a: Allocation, r: Recipient) strict {
+    label ru official "у получателя два веса";
+    when allocation_mode(a, Proportional) and recipient_of(r, a)
+        and (count all w: Decimal where recipient_weight(r, w)) >= 2;
+    then recipient_defect(a, r, WeightAmbiguous);
+}
+
+rule WeightNotPositiveDefect(a: Allocation, r: Recipient, w: Decimal) strict {
+    label ru official "вес получателя обязан быть положительным: нулевой вес — не участие";
+    when allocation_mode(a, Proportional) and recipient_of(r, a)
+        and recipient_weight(r, w) and w <= 0.0;
+    then recipient_defect(a, r, WeightNotPositive);
+}
+
+rule ClaimForeignToProportionalDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при пропорциональном распределении получателю подано требование — вход чужого режима";
+    when allocation_mode(a, Proportional) and recipient_of(r, a)
+        and (count all c: Money where recipient_claim(r, c)) >= 1;
+    then recipient_defect(a, r, ForeignInput);
+}
+
+rule RankForeignToProportionalDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при пропорциональном распределении получателю подан ранг очереди — вход чужого режима";
+    when allocation_mode(a, Proportional) and recipient_of(r, a)
+        and (count all k: Integer where recipient_rank(r, k)) >= 1;
+    then recipient_defect(a, r, ForeignInput);
+}
+
+// --- Дефекты получателя: режим Sequential ------------------------------------
+
+rule ClaimMissingDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при распределении по очередям у получателя не объявлено требование";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and (count all c: Money where recipient_claim(r, c)) == 0;
+    then recipient_defect(a, r, ClaimMissing);
+}
+
+rule ClaimAmbiguousDefect(a: Allocation, r: Recipient) strict {
+    label ru official "у получателя два требования";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and (count all c: Money where recipient_claim(r, c)) >= 2;
+    then recipient_defect(a, r, ClaimAmbiguous);
+}
+
+rule ClaimNotPositiveDefect(a: Allocation, r: Recipient, c: Money) strict {
+    label ru official "требование обязано быть положительным: нулевое требование — не требование";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and recipient_claim(r, c) and c <= c - c;
+    then recipient_defect(a, r, ClaimNotPositive);
+}
+
+rule ClaimNotRepresentableDefect(a: Allocation, r: Recipient, c: Money, p: Integer) strict {
+    label ru official "требование несёт знаки ниже объявленной точности";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and recipient_claim(r, c) and allocation_precision(a, p) and p >= 0
+        and round(c, p, "DOWN") < c;
+    then recipient_defect(a, r, ClaimNotRepresentable);
+}
+
+rule RankMissingDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при распределении по очередям у получателя не объявлен ранг";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and (count all k: Integer where recipient_rank(r, k)) == 0;
+    then recipient_defect(a, r, RankMissing);
+}
+
+rule RankAmbiguousDefect(a: Allocation, r: Recipient) strict {
+    label ru official "у получателя два ранга";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and (count all k: Integer where recipient_rank(r, k)) >= 2;
+    then recipient_defect(a, r, RankAmbiguous);
+}
+
+rule RankNotPositiveDefect(a: Allocation, r: Recipient, k: Integer) strict {
+    label ru official "ранг очереди начинается с единицы";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and recipient_rank(r, k) and k < 1;
+    then recipient_defect(a, r, RankNotPositive);
+}
+
+rule WeightForeignToSequentialDefect(a: Allocation, r: Recipient) strict {
+    label ru official "при распределении по очередям получателю подан вес — вход чужого режима";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and (count all w: Decimal where recipient_weight(r, w)) >= 1;
+    then recipient_defect(a, r, ForeignInput);
+}
+
+// --- Дефекты получателя: приоритет ------------------------------------------
+
+rule PriorityAmbiguousDefect(a: Allocation, r: Recipient) strict {
+    label ru official "у получателя два приоритета";
+    when recipient_of(r, a)
+        and (count all q: Integer where recipient_priority(r, q)) >= 2;
+    then recipient_defect(a, r, PriorityAmbiguous);
+}
+
+// Дубликат ловится счётом получателей с ТЕМ ЖЕ приоритетом, включая самого
+// получателя: единица — норма, двойка — дубликат.
+rule PriorityDuplicateDefect(a: Allocation, r: Recipient, q: Integer) strict {
+    label ru official "два получателя одного распределения несут один приоритет";
+    when recipient_of(r, a) and recipient_priority(r, q)
+        and (count distinct r2: Recipient where recipient_of(r2, a) and recipient_priority(r2, q)) >= 2;
+    then recipient_defect(a, r, PriorityDuplicate);
+}
+
+// --- Годность ----------------------------------------------------------------
+
+rule AllocationWellformed(a: Allocation) strict {
+    label ru official "вход пригоден к распределению: получатели есть, ни одного дефекта не выведено";
+    when allocation_declared(a)
+        and (count distinct r: Recipient where recipient_of(r, a)) >= 1
+        and (count distinct d: AllocationDefect where allocation_defect(a, d)) == 0
+        and (count distinct r: Recipient for d: AllocationDefect where recipient_defect(a, r, d)) == 0;
+    then allocation_wellformed(a);
+}

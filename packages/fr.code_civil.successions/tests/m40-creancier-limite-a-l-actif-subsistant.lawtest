@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-9, alinéa 1 : déclaration postérieure à la remise du compte.
+test "urn:query:fr-code-civil-successions-m40-creancier-limite-a-l-actif-subsistant" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": compte_remis_le(entity_ref("urn:fr:cc:successions:adm:m40:S"), @2026-01-15) { origin case_input; }
+        assert "f2": creance_declaree_le(entity_ref("urn:fr:cc:successions:adm:m40:S"), entity_ref("urn:fr:cc:successions:adm:m40:P"), @2026-01-16) { origin case_input; }
+    }
+    evaluate truth(creancier_limite_a_l_actif_subsistant(entity_ref("urn:fr:cc:successions:adm:m40:S"), entity_ref("urn:fr:cc:successions:adm:m40:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DeclarationApresLaRemiseDuCompte);
+}

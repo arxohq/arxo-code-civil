@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2394, al. 4 : inscription le 1er juillet 2024 — hors de l'année suivant la dissolution.
+test "urn:query:fr-code-civil-suretes-d19-participation-apres-l-annee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:d19:S"), entity_ref("urn:fr:cc:suretes:d19:B"), entity_ref("urn:fr:cc:suretes:d19:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:d19:S"), Legale) { origin case_input; }
+        assert "f3": hypotheque_legale_generale(entity_ref("urn:fr:cc:suretes:d19:S"), EntreEpoux) { origin case_input; }
+        assert "f4": stipulation_de_participation_aux_acquets(entity_ref("urn:fr:cc:suretes:d19:S")) { origin case_input; }
+        assert "f5": dissolution_du_regime_le(entity_ref("urn:fr:cc:suretes:d19:S"), @2023-06-30) { origin case_input; }
+        assert "f6": inscription_de_l_hypotheque_le(entity_ref("urn:fr:cc:suretes:d19:S"), @2024-07-01) { origin case_input; }
+    }
+    evaluate truth(inscription_2394_tardive(entity_ref("urn:fr:cc:suretes:d19:S")));
+    expect truth_status == TRUE_ONLY;
+}

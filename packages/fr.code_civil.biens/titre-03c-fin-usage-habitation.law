@@ -1,0 +1,745 @@
+// TITRE III, fin — COMMENT L'USUFRUIT PREND FIN (617 à 624) ET DES DROITS
+// D'USAGE ET D'HABITATION (625 à 636).
+//
+// L'article 617 énumère CINQ causes d'extinction, chacune avec sa propre
+// règle : la mort de l'usufruitier, l'expiration du temps accordé, la
+// consolidation, le non-usage pendant TRENTE ANS, la perte totale de la
+// chose. L'article 619 ajoute une borne de trente ans pour l'usufruit qui
+// n'est pas accordé à des particuliers, et l'article 620 une règle de terme
+// qui survit à la mort du tiers dont l'âge marquait l'échéance : « encore
+// que le tiers soit mort avant l'âge fixé ». Ces deux règles sont testées à
+// la journée près, des deux côtés du terme.
+//
+// L'article 618 délègue au juge : l'ABUS de jouissance, puis le CHOIX entre
+// l'extinction absolue et la rentrée du propriétaire sous charge d'une somme
+// annuelle « suivant la gravité des circonstances ». L'abus est un jugement
+// §47.3 ; la somme annuelle n'a aucun critère chiffré dans le texte et reste
+// une frontière déclarée.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART617,
+    CC_ART618,
+    CC_ART619,
+    CC_ART620,
+    CC_ART621,
+    CC_ART622,
+    CC_ART623,
+    CC_ART624,
+    CC_ART625,
+    CC_ART626,
+    CC_ART627,
+    CC_ART628,
+    CC_ART629,
+    CC_ART630,
+    CC_ART631,
+    CC_ART632,
+    CC_ART633,
+    CC_ART634,
+    CC_ART635,
+    Personne,
+    Usufruit,
+    batiment_detruit_par_incendie_accident_ou_vetuste,
+    consolidation_sur_la_meme_tete,
+    dernier_usage_du_droit_le,
+    jour_de_reference,
+    mort_de_l_usufruitier_le,
+    ouverture_de_l_usufruit_le,
+    personne_morale,
+    perte_partielle_de_la_chose,
+    perte_totale_de_la_chose,
+    terme_convenu_de_l_usufruit_le,
+    usufruit_sur_un_batiment_seul,
+    usufruit_sur_un_domaine_dont_le_batiment_fait_partie,
+    usufruitier,
+};
+
+pub relation usufruit_eteint(u: Usufruit) kind derived {
+    label fr official "l'usufruit est éteint (articles 617 à 620)";
+    label en unofficial "the usufruct is extinguished (Articles 617 to 620)";
+}
+pub relation terme_de_l_usufruit_le(u: Usufruit, jour: Date) kind derived {
+    label fr official "dernier jour de l'usufruit, par le temps accordé, par la borne de trente ans ou par l'âge fixé (articles 617, 619, 620)";
+    label en unofficial "last day of the usufruct, by the time granted, by the thirty-year limit or by the fixed age (Articles 617, 619, 620)";
+}
+pub relation duree_bornee_a_trente_ans(u: Usufruit) kind derived {
+    label fr official "l'usufruit qui n'est pas accordé à des particuliers ne dure que trente ans (article 619)";
+    label en unofficial "a usufruct not granted to private individuals lasts only thirty years (Article 619)";
+}
+pub relation echeance_du_non_usage_le(u: Usufruit, jour: Date) kind derived {
+    label fr official "dernier jour des trente ans de non-usage du droit d'usufruit (article 617, alinéa 5)";
+    label en unofficial "last day of the thirty years of non-use of the usufruct (Article 617, paragraph 5)";
+}
+pub relation usufruit_conserve_sur_le_reste(u: Usufruit) kind derived {
+    label fr official "si une partie seulement de la chose soumise à l'usufruit est détruite, l'usufruit se conserve sur ce qui reste (article 623)";
+    label en unofficial "if only part of the thing subject to the usufruct is destroyed, the usufruct is preserved over what remains (Article 623)";
+}
+pub relation jouissance_reste_apres_perte_partielle_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "jouissance du reste exercée après perte partielle";
+    label en unofficial "enjoyment of remainder exercised after partial loss";
+}
+pub relation pas_de_jouissance_du_sol_ni_des_materiaux(u: Usufruit) kind derived {
+    label fr official "l'usufruit n'étant établi que sur un bâtiment détruit, l'usufruitier n'a le droit de jouir ni du sol ni des matériaux (article 624, alinéa 1)";
+    label en unofficial "the usufruct being established on a destroyed building alone, the usufructuary has no right to enjoy either the soil or the materials (Article 624, paragraph 1)";
+}
+pub relation jouissance_du_sol_et_des_materiaux(u: Usufruit) kind derived {
+    label fr official "l'usufruit étant établi sur un domaine dont le bâtiment faisait partie, l'usufruitier jouit du sol et des matériaux (article 624, alinéa 2)";
+    label en unofficial "the usufruct being established on an estate of which the building formed part, the usufructuary enjoys the soil and the materials (Article 624, paragraph 2)";
+}
+pub relation extinction_pour_abus_ouverte(u: Usufruit) kind derived {
+    label fr official "l'usufruit peut cesser par l'abus que l'usufruitier fait de sa jouissance ; les juges prononcent l'extinction absolue ou la rentrée du propriétaire sous charge d'une somme annuelle (article 618)";
+    label en unofficial "the usufruct may cease through the usufructuary's abuse of his enjoyment; the judges pronounce absolute extinction or the owner's re-entry subject to an annual sum (Article 618)";
+}
+pub relation creanciers_peuvent_intervenir(u: Usufruit) kind derived {
+    label fr official "les créanciers de l'usufruitier peuvent intervenir dans les contestations pour la conservation de leurs droits, offrir la réparation des dégradations et des garanties pour l'avenir (article 618, alinéa 2)";
+    label en unofficial "the usufructuary's creditors may intervene in the disputes to preserve their rights, offer to make good the damage and give guarantees for the future (Article 618, paragraph 2)";
+}
+pub relation creancier_de_l_usufruitier(u: Usufruit, p: Personne) kind empirical {
+    label fr official "créancier de l'usufruitier";
+    label en unofficial "usufructuary creditor";
+}
+pub relation intervention_creancier_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "intervention du créancier exercée";
+    label en unofficial "creditor intervention exercised";
+}
+pub relation prix_reparti_entre_usufruit_et_nue_propriete(u: Usufruit) kind derived {
+    label fr official "en cas de vente simultanée de l'usufruit et de la nue-propriété, le prix se répartit selon la valeur respective de chacun de ces droits, sauf accord des parties pour reporter l'usufruit sur le prix (article 621, alinéa 1)";
+    label en unofficial "on a simultaneous sale of the usufruct and the bare ownership, the price is apportioned according to the respective value of each right, unless the parties agree to transfer the usufruct onto the price (Article 621, paragraph 1)";
+}
+pub relation usufruit_maintenu_malgre_la_vente(u: Usufruit) kind derived {
+    label fr official "la vente du bien grevé d'usufruit, sans l'accord de l'usufruitier, ne modifie pas son droit : il continue à jouir de son usufruit s'il n'y a pas expressément renoncé (article 621, alinéa 2)";
+    label en unofficial "the sale of the encumbered asset, without the usufructuary's consent, does not alter his right: he continues to enjoy his usufruct unless he expressly renounced it (Article 621, paragraph 2)";
+}
+pub relation jouissance_usufruit_exercee_apres_vente(u: Usufruit, p: Personne) kind empirical {
+    label fr official "jouissance de l'usufruit exercée après la vente";
+    label en unofficial "usufruct enjoyment exercised after sale";
+}
+pub relation renonciation_annulable_par_les_creanciers(u: Usufruit) kind derived {
+    label fr official "les créanciers de l'usufruitier peuvent faire annuler la renonciation qu'il aurait faite à leur préjudice (article 622)";
+    label en unofficial "the usufructuary's creditors may have set aside a renunciation made to their prejudice (Article 622)";
+}
+pub relation annulation_renonciation_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "annulation de la renonciation exercée";
+    label en unofficial "renunciation annulment exercised";
+}
+pub relation jouissance_sol_materiaux_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "jouissance du sol ou des matériaux exercée";
+    label en unofficial "enjoyment of soil or materials exercised";
+}
+
+pub relation vente_simultanee_de_l_usufruit_et_de_la_nue_propriete(u: Usufruit) kind empirical {
+    label fr official "l'usufruit et la nue-propriété du bien ont été vendus simultanément (article 621, alinéa 1)";
+    label en unofficial "the usufruct and the bare ownership of the asset were sold simultaneously (Article 621, paragraph 1)";
+}
+pub relation accord_pour_reporter_l_usufruit_sur_le_prix(u: Usufruit) kind empirical {
+    label fr official "les parties se sont accordées pour reporter l'usufruit sur le prix (article 621, alinéa 1)";
+    label en unofficial "the parties agreed to transfer the usufruct onto the price (Article 621, paragraph 1)";
+}
+pub relation vente_du_bien_greve_sans_accord_de_l_usufruitier(u: Usufruit) kind empirical {
+    label fr official "le bien grevé d'usufruit a été vendu sans l'accord de l'usufruitier (article 621, alinéa 2)";
+    label en unofficial "the encumbered asset was sold without the usufructuary's consent (Article 621, paragraph 2)";
+}
+pub relation renonciation_expresse_a_l_usufruit(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier a expressément renoncé à son usufruit (articles 621, alinéa 2, et 622)";
+    label en unofficial "the usufructuary expressly renounced his usufruct (Articles 621, paragraph 2, and 622)";
+}
+pub relation renonciation_au_prejudice_des_creanciers(u: Usufruit) kind empirical {
+    label fr official "la renonciation a été faite au préjudice des créanciers de l'usufruitier (article 622)";
+    label en unofficial "the renunciation was made to the prejudice of the usufructuary's creditors (Article 622)";
+}
+pub relation age_fixe_du_tiers_atteint_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour où le tiers, jusqu'à l'âge fixe duquel l'usufruit est accordé, atteindrait cet âge (article 620)";
+    label en unofficial "day on which the third party, until whose fixed age the usufruct is granted, would reach that age (Article 620)";
+}
+pub relation tiers_mort_avant_l_age_fixe(u: Usufruit) kind empirical {
+    label fr official "le tiers est mort avant d'atteindre l'âge fixé (article 620)";
+    label en unofficial "the third party died before reaching the fixed age (Article 620)";
+}
+
+external judgment relation abus_de_jouissance(u: Usufruit) {
+    authority Court;
+    label fr official "l'usufruitier abuse de sa jouissance, en commettant des dégradations sur le fonds ou en le laissant dépérir faute d'entretien (article 618)";
+    label en unofficial "the usufructuary abuses his enjoyment, by damaging the land or letting it decay for want of maintenance (Article 618)";
+}
+
+@source(CC_ART617) {
+    rule ExtinctionParLaMortDeLUsufruitier(u: Usufruit, mort: Date, aujourdhui: Date) strict {
+        label fr official "Article 617, alinéa 2. L'usufruit s'éteint par la mort de l'usufruitier";
+        label en unofficial "Article 617, paragraph 2. The usufruct is extinguished by the usufructuary's death";
+        when mort_de_l_usufruitier_le(u, mort)
+            and jour_de_reference(u, aujourdhui)
+            and aujourdhui >= mort;
+        then usufruit_eteint(u);
+    }
+    rule TermeParLeTempsAccorde(u: Usufruit, jour: Date) strict {
+        label fr official "Article 617, alinéa 3. L'usufruit s'éteint par l'expiration du temps pour lequel il a été accordé";
+        label en unofficial "Article 617, paragraph 3. The usufruct is extinguished by the expiry of the time for which it was granted";
+        when terme_convenu_de_l_usufruit_le(u, jour);
+        then terme_de_l_usufruit_le(u, jour);
+    }
+    rule ExtinctionParLeTerme(u: Usufruit, terme: Date, aujourdhui: Date) strict {
+        label fr official "Article 617, alinéa 3. L'usufruit est éteint lorsque le dernier jour du terme est passé";
+        label en unofficial "Article 617, paragraph 3. The usufruct is extinguished once the last day of the term has passed";
+        when terme_de_l_usufruit_le(u, terme)
+            and jour_de_reference(u, aujourdhui)
+            and aujourdhui > terme;
+        then usufruit_eteint(u);
+    }
+    rule UsufruitNonEteintAvantLeTerme(u: Usufruit, terme: Date, aujourdhui: Date) strict {
+        label fr official "Article 617, alinéa 3. Tant que le dernier jour du terme n'est pas passé, l'usufruit n'est pas éteint par l'expiration du temps";
+        label en unofficial "Article 617, paragraph 3. As long as the last day of the term has not passed, the usufruct is not extinguished by expiry of time";
+        when terme_de_l_usufruit_le(u, terme)
+            and jour_de_reference(u, aujourdhui)
+            and aujourdhui <= terme;
+        then not usufruit_eteint(u);
+    }
+    rule ExtinctionParConsolidation(u: Usufruit) strict {
+        label fr official "Article 617, alinéa 4. L'usufruit s'éteint par la consolidation ou la réunion sur la même tête des deux qualités d'usufruitier et de propriétaire";
+        label en unofficial "Article 617, paragraph 4. The usufruct is extinguished by consolidation or merger in the same person of the two capacities of usufructuary and owner";
+        when consolidation_sur_la_meme_tete(u);
+        then usufruit_eteint(u);
+    }
+    rule EcheanceDuNonUsageTrentenaire(u: Usufruit, dernier: Date) strict {
+        label fr official "Article 617, alinéa 5. Le non-usage du droit pendant trente ans court du dernier jour où le droit a été exercé";
+        label en unofficial "Article 617, paragraph 5. The thirty years of non-use run from the last day on which the right was exercised";
+        when dernier_usage_du_droit_le(u, dernier);
+        then echeance_du_non_usage_le(u, add_calendar_period(dernier, 30 calendar_year));
+    }
+    rule ExtinctionParLeNonUsageTrentenaire(u: Usufruit, echeance: Date, aujourdhui: Date) strict {
+        label fr official "Article 617, alinéa 5. L'usufruit s'éteint par le non-usage du droit pendant trente ans";
+        label en unofficial "Article 617, paragraph 5. The usufruct is extinguished by non-use of the right for thirty years";
+        when echeance_du_non_usage_le(u, echeance)
+            and jour_de_reference(u, aujourdhui)
+            and aujourdhui > echeance;
+        then usufruit_eteint(u);
+    }
+    rule ExtinctionParLaPerteTotale(u: Usufruit) strict {
+        label fr official "Article 617, alinéa 6. L'usufruit s'éteint par la perte totale de la chose sur laquelle il est établi";
+        label en unofficial "Article 617, paragraph 6. The usufruct is extinguished by the total loss of the thing on which it is established";
+        when perte_totale_de_la_chose(u);
+        then usufruit_eteint(u);
+    }
+}
+
+@source(CC_ART619) {
+    rule UsufruitDUnePersonneMoraleBorneATrenteAns(u: Usufruit, p: Personne) strict {
+        label fr official "Article 619. L'usufruit qui n'est pas accordé à des particuliers ne dure que trente ans";
+        label en unofficial "Article 619. A usufruct not granted to private individuals lasts only thirty years";
+        when usufruitier(u, p)
+            and personne_morale(p);
+        then duree_bornee_a_trente_ans(u);
+    }
+    rule TermeDeTrenteAnsDepuisLOuverture(u: Usufruit, ouverture: Date) strict {
+        label fr official "Article 619. Les trente ans se comptent depuis l'ouverture de l'usufruit";
+        label en unofficial "Article 619. The thirty years run from the opening of the usufruct";
+        when duree_bornee_a_trente_ans(u)
+            and ouverture_de_l_usufruit_le(u, ouverture);
+        then terme_de_l_usufruit_le(u, add_calendar_period(ouverture, 30 calendar_year));
+    }
+}
+
+@source(CC_ART620)
+rule UsufruitJusquaLAgeFixeDUnTiers(u: Usufruit, jour: Date) strict {
+    label fr official "Article 620. L'usufruit accordé jusqu'à ce qu'un tiers ait atteint un âge fixe dure jusqu'à cette époque, encore que le tiers soit mort avant l'âge fixé";
+    label en unofficial "Article 620. A usufruct granted until a third party reaches a fixed age lasts until that time, even though the third party died before the fixed age";
+    when age_fixe_du_tiers_atteint_le(u, jour);
+    then terme_de_l_usufruit_le(u, jour);
+}
+
+@source(CC_ART618) {
+    rule P4PouvoirIntervenirContestation618(u: Usufruit, p: Personne) strict {
+        label fr official "Article 618. Le créancier peut intervenir dans les contestations";
+        label en unofficial "Article 618. The creditor may intervene in disputes";
+        when creancier_de_l_usufruitier(u, p)
+            and extinction_pour_abus_ouverte(u);
+        then power P4PouvoirIntervenirContestation618Actif {
+            holder p;
+            over u;
+            exercise intervention_creancier_exercee(u, p);
+            effect creanciers_peuvent_intervenir(u);
+            valid_when extinction_pour_abus_ouverte(u);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ExtinctionPourAbusDeJouissance(u: Usufruit) strict {
+        label fr official "Article 618, alinéas 1 et 3. L'usufruit peut cesser par l'abus que l'usufruitier fait de sa jouissance ; les juges peuvent, suivant la gravité des circonstances, prononcer l'extinction absolue ou n'ordonner la rentrée du propriétaire que sous la charge de payer annuellement une somme déterminée";
+        label en unofficial "Article 618, paragraphs 1 and 3. The usufruct may cease through the usufructuary's abuse of his enjoyment; the judges may, according to the gravity of the circumstances, pronounce absolute extinction or order the owner's re-entry only subject to paying a determined sum annually";
+        when abus_de_jouissance(u);
+        then extinction_pour_abus_ouverte(u);
+    }
+    rule InterventionDesCreanciersDeLUsufruitier(u: Usufruit) strict {
+        label fr official "Article 618, alinéa 2. Les créanciers de l'usufruitier peuvent intervenir dans les contestations pour la conservation de leurs droits ; ils peuvent offrir la réparation des dégradations commises et des garanties pour l'avenir";
+        label en unofficial "Article 618, paragraph 2. The usufructuary's creditors may intervene in the disputes to preserve their rights; they may offer to make good the damage done and give guarantees for the future";
+        when extinction_pour_abus_ouverte(u);
+        then creanciers_peuvent_intervenir(u);
+    }
+}
+
+@source(CC_ART621) {
+    rule P4LiberteJouirApresVente621(u: Usufruit, p: Personne) strict {
+        label fr official "Article 621. L'usufruitier peut continuer à jouir après la vente";
+        label en unofficial "Article 621. The usufructuary may continue to enjoy after the sale";
+        when usufruitier(u, p)
+            and vente_du_bien_greve_sans_accord_de_l_usufruitier(u)
+            and not_known(renonciation_expresse_a_l_usufruit(u));
+        then liberty P4LiberteJouirApresVente621Actif {
+            holder p;
+            action jouissance_usufruit_exercee_apres_vente(u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule RepartitionDuPrixEnVenteSimultanee(u: Usufruit) strict {
+        label fr official "Article 621, alinéa 1. En cas de vente simultanée de l'usufruit et de la nue-propriété d'un bien, le prix se répartit entre l'usufruit et la nue-propriété selon la valeur respective de chacun de ces droits, sauf accord des parties pour reporter l'usufruit sur le prix";
+        label en unofficial "Article 621, paragraph 1. On a simultaneous sale of the usufruct and the bare ownership of an asset, the price is apportioned between the usufruct and the bare ownership according to their respective values, unless the parties agree to transfer the usufruct onto the price";
+        when vente_simultanee_de_l_usufruit_et_de_la_nue_propriete(u)
+            and not_known(accord_pour_reporter_l_usufruit_sur_le_prix(u));
+        then prix_reparti_entre_usufruit_et_nue_propriete(u);
+    }
+    rule UsufruitSurvitALaVenteDuBienGreve(u: Usufruit) strict {
+        label fr official "Article 621, alinéa 2. La vente du bien grevé d'usufruit, sans l'accord de l'usufruitier, ne modifie pas le droit de ce dernier, qui continue à jouir de son usufruit sur le bien s'il n'y a pas expressément renoncé";
+        label en unofficial "Article 621, paragraph 2. The sale of the encumbered asset, without the usufructuary's consent, does not alter his right, and he continues to enjoy his usufruct over the asset unless he expressly renounced it";
+        when vente_du_bien_greve_sans_accord_de_l_usufruitier(u)
+            and not_known(renonciation_expresse_a_l_usufruit(u));
+        then usufruit_maintenu_malgre_la_vente(u);
+    }
+}
+
+@source(CC_ART622)
+rule P4PouvoirAnnulerRenonciation622(u: Usufruit, p: Personne) strict {
+    label fr official "Article 622. Le créancier peut faire annuler la renonciation préjudiciable";
+    label en unofficial "Article 622. The creditor may set aside the prejudicial renunciation";
+    when creancier_de_l_usufruitier(u, p)
+        and renonciation_expresse_a_l_usufruit(u)
+        and renonciation_au_prejudice_des_creanciers(u);
+    then power P4PouvoirAnnulerRenonciation622Actif {
+        holder p;
+        over u;
+        exercise annulation_renonciation_exercee(u, p);
+        effect renonciation_annulable_par_les_creanciers(u);
+        valid_when renonciation_au_prejudice_des_creanciers(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART622)
+rule AnnulationDeLaRenonciationPrejudiciable(u: Usufruit) strict {
+    label fr official "Article 622. Les créanciers de l'usufruitier peuvent faire annuler la renonciation qu'il aurait faite à leur préjudice";
+    label en unofficial "Article 622. The usufructuary's creditors may have set aside a renunciation made to their prejudice";
+    when renonciation_expresse_a_l_usufruit(u)
+        and renonciation_au_prejudice_des_creanciers(u);
+    then renonciation_annulable_par_les_creanciers(u);
+}
+
+@source(CC_ART623)
+rule P4LiberteJouirResteApresPerte623(u: Usufruit, p: Personne) strict {
+    label fr official "Article 623. L'usufruitier peut jouir du reste après destruction partielle";
+    label en unofficial "Article 623. The usufructuary may enjoy what remains after partial destruction";
+    when usufruitier(u, p)
+        and perte_partielle_de_la_chose(u);
+    then liberty P4LiberteJouirResteApresPerte623Actif {
+        holder p;
+        action jouissance_reste_apres_perte_partielle_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART623)
+rule UsufruitConserveSurLeReste(u: Usufruit) strict {
+    label fr official "Article 623. Si une partie seulement de la chose soumise à l'usufruit est détruite, l'usufruit se conserve sur ce qui reste";
+    label en unofficial "Article 623. If only part of the thing subject to the usufruct is destroyed, the usufruct is preserved over what remains";
+    when perte_partielle_de_la_chose(u);
+    then usufruit_conserve_sur_le_reste(u);
+}
+
+@source(CC_ART624) {
+    rule P4InterdictionJouirSolMateriaux624(u: Usufruit, p: Personne) strict {
+        label fr official "Article 624. L'usufruitier ne peut jouir du sol ni des matériaux";
+        label en unofficial "Article 624. The usufructuary may not enjoy the soil or materials";
+        when usufruitier(u, p)
+            and usufruit_sur_un_batiment_seul(u)
+            and batiment_detruit_par_incendie_accident_ou_vetuste(u);
+        then prohibition P4InterdictionJouirSolMateriaux624Actif {
+            bearer p;
+            action jouissance_sol_materiaux_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionJouirSolMateriaux624(u: Usufruit, p: Personne) strict {
+        label fr official "Article 624. L'usufruitier doit maintenir l'absence de jouissance du sol et des matériaux";
+        label en unofficial "Article 624. The usufructuary must maintain the absence of enjoyment of soil and materials";
+        when usufruitier(u, p)
+            and usufruit_sur_un_batiment_seul(u)
+            and batiment_detruit_par_incendie_accident_ou_vetuste(u);
+        then duty MaintenanceInterdictionJouirSolMateriaux624Duty {
+            bearer p;
+            goal maintenance {
+                condition not jouissance_sol_materiaux_exercee(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule BatimentSeulDetruit(u: Usufruit) strict {
+        label fr official "Article 624, alinéa 1. Si l'usufruit n'est établi que sur un bâtiment et que ce bâtiment soit détruit par un incendie ou autre accident, ou qu'il s'écroule de vétusté, l'usufruitier n'aura le droit de jouir ni du sol ni des matériaux";
+        label en unofficial "Article 624, paragraph 1. If the usufruct is established on a building alone and that building is destroyed by fire or other accident, or collapses from age, the usufructuary has no right to enjoy either the soil or the materials";
+        when usufruit_sur_un_batiment_seul(u)
+            and batiment_detruit_par_incendie_accident_ou_vetuste(u);
+        then pas_de_jouissance_du_sol_ni_des_materiaux(u);
+    }
+    rule BatimentDUnDomaineDetruit(u: Usufruit) strict {
+        label fr official "Article 624, alinéa 2. Si l'usufruit était établi sur un domaine dont le bâtiment faisait partie, l'usufruitier jouirait du sol et des matériaux";
+        label en unofficial "Article 624, paragraph 2. If the usufruct was established on an estate of which the building formed part, the usufructuary would enjoy the soil and the materials";
+        when usufruit_sur_un_domaine_dont_le_batiment_fait_partie(u)
+            and batiment_detruit_par_incendie_accident_ou_vetuste(u);
+        then jouissance_du_sol_et_des_materiaux(u);
+    }
+}
+
+// --- De l'usage et de l'habitation (625 à 636) -------------------------------------------------
+
+pub entity DroitDUsageOuDHabitation {
+    label fr official "Droit d'usage ou droit d'habitation (articles 625 à 636)";
+    label en unofficial "Right of use or right of habitation (Articles 625 to 636)";
+}
+
+pub enum EspeceDuDroit {
+    label fr official "Espèce du droit : usage des fruits d'un fonds, ou habitation d'une maison (articles 630, 632)";
+    label en unofficial "Kind of right: use of the fruits of land, or habitation of a house (Articles 630, 632)";
+    Usage,
+    Habitation
+}
+
+pub relation droit_d_usage_ou_d_habitation_sur(d: DroitDUsageOuDHabitation, chose: Bien, espece: EspeceDuDroit) kind empirical {
+    key(d);
+    label fr official "droit d'usage ou d'habitation portant sur la chose, de l'espèce nommée (articles 625, 630, 632)";
+    label en unofficial "right of use or habitation over the thing, of the kind named (Articles 625, 630, 632)";
+}
+pub relation titulaire_du_droit(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "titulaire du droit d'usage ou d'habitation (articles 627 à 634)";
+    label en unofficial "holder of the right of use or habitation (Articles 627 to 634)";
+}
+pub relation titre_reglant_l_etendue_du_droit(d: DroitDUsageOuDHabitation) kind empirical {
+    label fr official "le titre qui a établi le droit s'explique sur son étendue (articles 628, 629)";
+    label en unofficial "the instrument creating the right states its extent (Articles 628, 629)";
+}
+pub relation besoins_du_titulaire_et_de_sa_famille(d: DroitDUsageOuDHabitation) kind empirical {
+    label fr official "besoins du titulaire et de ceux de sa famille, y compris les enfants survenus depuis la concession (article 630)";
+    label en unofficial "needs of the holder and of his family, including children born since the grant (Article 630)";
+}
+pub relation absorbe_tous_les_fruits_ou_occupe_toute_la_maison(d: DroitDUsageOuDHabitation) kind empirical {
+    label fr official "l'usager absorbe tous les fruits du fonds ou occupe la totalité de la maison (article 635, alinéa 1)";
+    label en unofficial "the user takes all the fruits of the land or occupies the whole house (Article 635, paragraph 1)";
+}
+pub relation cession_ou_location_du_droit_tentee(d: DroitDUsageOuDHabitation) kind empirical {
+    label fr official "le titulaire tente de céder ou de louer son droit (articles 631, 634)";
+    label en unofficial "the holder attempts to transfer or let his right (Articles 631, 634)";
+}
+
+pub relation droit_regle_par_son_titre(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "les droits d'usage et d'habitation se règlent par le titre qui les a établis et reçoivent, d'après ses dispositions, plus ou moins d'étendue (article 628)";
+    label en unofficial "rights of use and habitation are governed by the instrument creating them and receive, under its provisions, a wider or narrower extent (Article 628)";
+}
+pub relation droit_regle_par_les_articles_630_a_635(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "si le titre ne s'explique pas sur l'étendue de ces droits, ils sont réglés par les articles suivants (article 629)";
+    label en unofficial "if the instrument does not state the extent of these rights, they are governed by the following articles (Article 629)";
+}
+pub relation etabli_et_perdu_comme_l_usufruit(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "les droits d'usage et d'habitation s'établissent et se perdent de la même manière que l'usufruit (article 625)";
+    label en unofficial "rights of use and habitation are created and lost in the same way as usufruct (Article 625)";
+}
+pub relation caution_et_inventaire_prealables(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "on ne peut jouir du droit d'usage ou d'habitation sans donner préalablement caution et sans faire des états et inventaires (article 626)";
+    label en unofficial "one may not enjoy a right of use or habitation without first giving security and drawing up statements and inventories (Article 626)";
+}
+pub relation caution_et_inventaire_faits(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "caution et inventaire faits";
+    label en unofficial "security and inventory provided";
+}
+pub relation obligation_de_jouir_raisonnablement(d: DroitDUsageOuDHabitation, p: Personne) kind derived {
+    label fr official "l'usager et celui qui a un droit d'habitation doivent jouir raisonnablement (article 627)";
+    label en unofficial "the user and the holder of a right of habitation must enjoy reasonably (Article 627)";
+}
+pub relation jouissance_raisonnable_exercee(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "jouissance raisonnable exercée";
+    label en unofficial "reasonable enjoyment exercised";
+}
+pub relation usage_limite_aux_besoins(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "celui qui a l'usage des fruits d'un fonds ne peut en exiger qu'autant qu'il lui en faut pour ses besoins et ceux de sa famille, y compris les enfants survenus depuis la concession (article 630)";
+    label en unofficial "the holder of the use of the fruits of land may demand only as much as he needs for himself and his family, including children born since the grant (Article 630)";
+}
+pub relation fruits_demandes_dans_les_besoins(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "fruits demandés dans les besoins du titulaire et de sa famille";
+    label en unofficial "fruits demanded within holder and family needs";
+}
+pub relation fruits_demandes_au_dela_des_besoins(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "fruits demandés au-delà des besoins du titulaire et de sa famille";
+    label en unofficial "fruits demanded beyond the holder's and family's needs";
+}
+pub relation habitation_limitee_au_necessaire(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "le droit d'habitation se restreint à ce qui est nécessaire pour l'habitation du titulaire et de sa famille (article 633)";
+    label en unofficial "the right of habitation is limited to what is necessary for the habitation of the holder and his family (Article 633)";
+}
+pub relation droit_d_y_demeurer_avec_sa_famille(d: DroitDUsageOuDHabitation, p: Personne) kind derived {
+    label fr official "celui qui a un droit d'habitation dans une maison peut y demeurer avec sa famille, quand même il n'aurait pas été marié à l'époque où ce droit lui a été donné (article 632)";
+    label en unofficial "the holder of a right of habitation in a house may live there with his family, even though he was not married when the right was given to him (Article 632)";
+}
+pub relation habitation_avec_famille_exercee(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "habitation avec la famille exercée";
+    label en unofficial "habitation with family exercised";
+}
+pub relation cession_et_location_interdites(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "l'usager ne peut céder ni louer son droit à un autre ; le droit d'habitation ne peut être ni cédé ni loué (articles 631, 634)";
+    label en unofficial "the user may neither transfer nor let his right to another; the right of habitation may be neither transferred nor let (Articles 631, 634)";
+}
+pub relation cession_location_droit_exercee(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "cession ou location du droit exercée";
+    label en unofficial "right transfer or letting exercised";
+}
+pub relation tenu_de_toutes_les_charges_comme_l_usufruitier(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "si l'usager absorbe tous les fruits du fonds ou occupe la totalité de la maison, il est assujetti aux frais de culture, aux réparations d'entretien et au paiement des contributions, comme l'usufruitier (article 635, alinéa 1)";
+    label en unofficial "if the user takes all the fruits of the land or occupies the whole house, he bears the costs of cultivation, the maintenance repairs and the taxes, as the usufructuary does (Article 635, paragraph 1)";
+}
+pub relation charges_usage_payees(d: DroitDUsageOuDHabitation, p: Personne) kind empirical {
+    label fr official "charges du droit d'usage payées";
+    label en unofficial "use-right charges paid";
+}
+pub relation contribution_au_prorata_de_la_jouissance(d: DroitDUsageOuDHabitation) kind derived {
+    label fr official "s'il ne prend qu'une partie des fruits ou n'occupe qu'une partie de la maison, il contribue au prorata de ce dont il jouit (article 635, alinéa 2)";
+    label en unofficial "if he takes only part of the fruits or occupies only part of the house, he contributes in proportion to what he enjoys (Article 635, paragraph 2)";
+}
+
+@source(CC_ART625)
+rule UsageEtHabitationCommeLUsufruit(d: DroitDUsageOuDHabitation, chose: Bien, espece: EspeceDuDroit) strict {
+    label fr official "Article 625. Les droits d'usage et d'habitation s'établissent et se perdent de la même manière que l'usufruit";
+    label en unofficial "Article 625. Rights of use and habitation are created and lost in the same way as usufruct";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, espece);
+    then etabli_et_perdu_comme_l_usufruit(d);
+}
+
+@source(CC_ART626)
+rule P4DevoirCautionInventaire626(d: DroitDUsageOuDHabitation, p: Personne) strict {
+    label fr official "Article 626. Le titulaire doit donner caution et faire inventaire";
+    label en unofficial "Article 626. The holder must give security and make an inventory";
+    when titulaire_du_droit(d, p);
+    then duty P4DevoirCautionInventaire626Actif {
+        bearer p;
+        goal achievement {
+            condition caution_et_inventaire_faits(d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART626)
+rule CautionEtInventairePrealables(d: DroitDUsageOuDHabitation, chose: Bien, espece: EspeceDuDroit) strict {
+    label fr official "Article 626. On ne peut en jouir, comme dans le cas de l'usufruit, sans donner préalablement caution et sans faire des états et inventaires";
+    label en unofficial "Article 626. One may not enjoy them, as in the case of usufruct, without first giving security and drawing up statements and inventories";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, espece);
+    then caution_et_inventaire_prealables(d);
+}
+
+@source(CC_ART627)
+rule JouirRaisonnablement(d: DroitDUsageOuDHabitation, p: Personne) strict {
+    label fr official "Article 627. L'usager, et celui qui a un droit d'habitation, doivent jouir raisonnablement";
+    label en unofficial "Article 627. The user, and the holder of a right of habitation, must enjoy reasonably";
+    when titulaire_du_droit(d, p);
+    then obligation_de_jouir_raisonnablement(d, p);
+}
+@source(CC_ART627)
+rule P4DevoirJouirRaisonnablement627(d: DroitDUsageOuDHabitation, p: Personne) strict {
+    label fr official "Article 627. Le titulaire doit jouir raisonnablement";
+    label en unofficial "Article 627. The holder must enjoy reasonably";
+    when titulaire_du_droit(d, p);
+    then duty P4DevoirJouirRaisonnablement627Actif {
+        bearer p;
+        goal achievement {
+            condition jouissance_raisonnable_exercee(d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART628)
+rule DroitRegleParSonTitre(d: DroitDUsageOuDHabitation) strict {
+    label fr official "Article 628. Les droits d'usage et d'habitation se règlent par le titre qui les a établis et reçoivent, d'après ses dispositions, plus ou moins d'étendue";
+    label en unofficial "Article 628. Rights of use and habitation are governed by the instrument creating them and receive, under its provisions, a wider or narrower extent";
+    when titre_reglant_l_etendue_du_droit(d);
+    then droit_regle_par_son_titre(d);
+}
+
+@source(CC_ART629)
+rule ADefautDeTitreLesArticlesSuivants(d: DroitDUsageOuDHabitation, chose: Bien, espece: EspeceDuDroit) strict {
+    label fr official "Article 629. Si le titre ne s'explique pas sur l'étendue de ces droits, ils sont réglés ainsi qu'il suit";
+    label en unofficial "Article 629. If the instrument does not state the extent of these rights, they are governed as follows";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, espece)
+        and not_known(titre_reglant_l_etendue_du_droit(d));
+    then droit_regle_par_les_articles_630_a_635(d);
+}
+
+@source(CC_ART630)
+rule UsageLimiteAuxBesoins(d: DroitDUsageOuDHabitation, chose: Bien) strict {
+    label fr official "Article 630. Celui qui a l'usage des fruits d'un fonds ne peut en exiger qu'autant qu'il lui en faut pour ses besoins et ceux de sa famille ; il peut en exiger pour les besoins même des enfants qui lui sont survenus depuis la concession de l'usage";
+    label en unofficial "Article 630. The holder of the use of the fruits of land may demand only as much as he needs for himself and his family; he may demand for the needs even of children born to him since the grant of the use";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and droit_regle_par_les_articles_630_a_635(d)
+        and besoins_du_titulaire_et_de_sa_famille(d);
+    then usage_limite_aux_besoins(d);
+}
+@source(CC_ART630)
+rule P4InterdictionExigerAuDelaBesoins630(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 630. L'usager ne peut exiger les fruits au-delà de ses besoins";
+    label en unofficial "Article 630. The user may not demand fruits beyond needs";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and titulaire_du_droit(d, p)
+        and besoins_du_titulaire_et_de_sa_famille(d);
+    then prohibition P4InterdictionExigerAuDelaBesoins630Actif {
+        bearer p;
+        action fruits_demandes_au_dela_des_besoins(d, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART630)
+rule MaintenanceInterdictionExigerAuDelaBesoins630(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 630. L'usager doit maintenir les demandes de fruits dans les limites de ses besoins";
+    label en unofficial "Article 630. The user must maintain fruit demands within needs";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and titulaire_du_droit(d, p)
+        and besoins_du_titulaire_et_de_sa_famille(d);
+    then duty MaintenanceInterdictionExigerAuDelaBesoins630Duty {
+        bearer p;
+        goal maintenance {
+            condition not fruits_demandes_au_dela_des_besoins(d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART631)
+rule UsagerNePeutCederNiLouer(d: DroitDUsageOuDHabitation, chose: Bien) strict {
+    label fr official "Article 631. L'usager ne peut céder ni louer son droit à un autre";
+    label en unofficial "Article 631. The user may neither transfer nor let his right to another";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and cession_ou_location_du_droit_tentee(d);
+    then cession_et_location_interdites(d);
+}
+@source(CC_ART631)
+rule P4InterdictionCederLouerUsage631(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 631. L'usager ne peut céder ni louer son droit";
+    label en unofficial "Article 631. The user may neither transfer nor let the right";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and titulaire_du_droit(d, p);
+    then prohibition P4InterdictionCederLouerUsage631Actif {
+        bearer p;
+        action cession_location_droit_exercee(d, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART631)
+rule MaintenanceInterdictionCederLouerUsage631(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 631. L'usager doit maintenir l'absence de cession ou location";
+    label en unofficial "Article 631. The user must maintain the absence of transfer or letting";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Usage)
+        and titulaire_du_droit(d, p);
+    then duty MaintenanceInterdictionCederLouerUsage631Duty {
+        bearer p;
+        goal maintenance {
+            condition not cession_location_droit_exercee(d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART632)
+rule DemeurerAvecSaFamille(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 632. Celui qui a un droit d'habitation dans une maison peut y demeurer avec sa famille, quand même il n'aurait pas été marié à l'époque où ce droit lui a été donné";
+    label en unofficial "Article 632. The holder of a right of habitation in a house may live there with his family, even though he was not married when the right was given to him";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and titulaire_du_droit(d, p);
+    then droit_d_y_demeurer_avec_sa_famille(d, p);
+}
+@source(CC_ART632)
+rule P4LiberteHabiterAvecFamille632(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 632. Le titulaire peut demeurer avec sa famille";
+    label en unofficial "Article 632. The holder may live with his family";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and titulaire_du_droit(d, p);
+    then liberty P4LiberteHabiterAvecFamille632Actif {
+        holder p;
+        action habitation_avec_famille_exercee(d, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART633)
+rule HabitationLimiteeAuNecessaire(d: DroitDUsageOuDHabitation, chose: Bien) strict {
+    label fr official "Article 633. Le droit d'habitation se restreint à ce qui est nécessaire pour l'habitation de celui à qui ce droit est concédé et de sa famille";
+    label en unofficial "Article 633. The right of habitation is limited to what is necessary for the habitation of the person to whom it is granted and of his family";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and droit_regle_par_les_articles_630_a_635(d);
+    then habitation_limitee_au_necessaire(d);
+}
+
+@source(CC_ART634)
+rule HabitationNiCedeeNiLouee(d: DroitDUsageOuDHabitation, chose: Bien) strict {
+    label fr official "Article 634. Le droit d'habitation ne peut être ni cédé ni loué";
+    label en unofficial "Article 634. The right of habitation may be neither transferred nor let";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and cession_ou_location_du_droit_tentee(d);
+    then cession_et_location_interdites(d);
+}
+@source(CC_ART634)
+rule P4InterdictionCederLouerHabitation634(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 634. Le titulaire ne peut céder ni louer son droit d'habitation";
+    label en unofficial "Article 634. The holder may neither transfer nor let the habitation right";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and titulaire_du_droit(d, p);
+    then prohibition P4InterdictionCederLouerHabitation634Actif {
+        bearer p;
+        action cession_location_droit_exercee(d, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART634)
+rule MaintenanceInterdictionCederLouerHabitation634(d: DroitDUsageOuDHabitation, chose: Bien, p: Personne) strict {
+    label fr official "Article 634. Le titulaire doit maintenir l'absence de cession ou location";
+    label en unofficial "Article 634. The holder must maintain the absence of transfer or letting";
+    when droit_d_usage_ou_d_habitation_sur(d, chose, Habitation)
+        and titulaire_du_droit(d, p);
+    then duty MaintenanceInterdictionCederLouerHabitation634Duty {
+        bearer p;
+        goal maintenance {
+            condition not cession_location_droit_exercee(d, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART635) {
+    rule ChargesEntieresDeLUsagerTotal(d: DroitDUsageOuDHabitation) strict {
+        label fr official "Article 635, alinéa 1. Si l'usager absorbe tous les fruits du fonds ou s'il occupe la totalité de la maison, il est assujetti aux frais de culture, aux réparations d'entretien et au paiement des contributions, comme l'usufruitier";
+        label en unofficial "Article 635, paragraph 1. If the user takes all the fruits of the land or occupies the whole house, he bears the costs of cultivation, the maintenance repairs and the taxes, as the usufructuary does";
+        when absorbe_tous_les_fruits_ou_occupe_toute_la_maison(d);
+        then tenu_de_toutes_les_charges_comme_l_usufruitier(d);
+    }
+    rule P4DevoirPayerChargesUsage635(d: DroitDUsageOuDHabitation, p: Personne) strict {
+        label fr official "Article 635. L'usager doit payer les charges comme l'usufruitier";
+        label en unofficial "Article 635. The user must pay charges like the usufructuary";
+        when absorbe_tous_les_fruits_ou_occupe_toute_la_maison(d)
+            and titulaire_du_droit(d, p);
+        then duty P4DevoirPayerChargesUsage635Actif {
+            bearer p;
+            goal achievement {
+                condition charges_usage_payees(d, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule ContributionAuProrata(d: DroitDUsageOuDHabitation, chose: Bien, espece: EspeceDuDroit) strict {
+        label fr official "Article 635, alinéa 2. S'il ne prend qu'une partie des fruits ou s'il n'occupe qu'une partie de la maison, il contribue au prorata de ce dont il jouit";
+        label en unofficial "Article 635, paragraph 2. If he takes only part of the fruits or occupies only part of the house, he contributes in proportion to what he enjoys";
+        when droit_d_usage_ou_d_habitation_sur(d, chose, espece)
+            and not_known(absorbe_tous_les_fruits_ou_occupe_toute_la_maison(d));
+        then contribution_au_prorata_de_la_jouissance(d);
+    }
+}

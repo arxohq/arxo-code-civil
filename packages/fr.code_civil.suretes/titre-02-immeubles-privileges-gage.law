@@ -1,0 +1,351 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRES Ier À III : DISPOSITIONS
+// GÉNÉRALES, PRIVILÈGES IMMOBILIERS ET GAGE IMMOBILIER (articles 2375 à 2384).
+//
+// CLASSES (distribution du prix d'un immeuble) :
+//    1  frais de justice (2377, 1°) — préférence relative, comme au 2331, 1°
+//    2  rémunérations et indemnités (2377, 2°)
+//    3  syndicat des copropriétaires, pour l'année courante et les deux
+//       dernières années échues (2418, al. 1 ; 2402, 3°)
+//   40  hypothèques et gages immobiliers, rangés par date (2418, 2419)
+// Les privilèges généraux priment le gage immobilier et l'hypothèque et
+// s'exercent dans l'ordre de l'article 2377 (2378).
+//
+// SUBSIDIARITÉ (2376). Le privilège qui porte aussi sur les meubles ne
+// s'exerce sur les immeubles qu'à défaut de mobilier suffisant : fait du cas.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2375,
+    CC_ART2376,
+    CC_ART2377,
+    CC_ART2378,
+    CC_ART2379,
+    CC_ART2380,
+    CC_ART2381,
+    CC_ART2382,
+    CC_ART2383,
+    CC_ART2384,
+    CauseDePreference,
+    Collocation,
+    Distribution,
+    NatureDeSurete,
+    Personne,
+    PrivilegeImmobilier,
+    SureteReelle,
+    cause_de_preference,
+    classe_de_preference,
+    collocation_dans,
+    dette_entierement_payee,
+    distribution_non_calculee,
+    frais_de_justice_profitables_a,
+    fruits_imputes_sur_le_capital,
+    fruits_imputes_sur_les_interets,
+    fruits_percus,
+    indemnite_de_licenciement,
+    interets_dus,
+    nature_de_la_surete,
+    plafond_l3253_2,
+    portion_privilegiee_de_l_indemnite,
+    radiation_ou_restitution_exigible,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation privilege_immobilier_invoque(r: Collocation, x: PrivilegeImmobilier) kind empirical {
+    key(r);
+    label fr official "créance privilégiée sur la généralité des immeubles invoquée (article 2377)";
+    label en unofficial "general immovable preference relied on (Article 2377)";
+}
+pub relation privilege_general_aussi_sur_les_meubles(r: Collocation) kind empirical {
+    label fr official "le privilège porte aussi sur la généralité des meubles (article 2376)";
+    label en unofficial "the preference also bears on all the movables (Article 2376)";
+}
+pub relation mobilier_insuffisant(r: Collocation) kind empirical {
+    label fr official "le mobilier du débiteur est insuffisant (article 2376)";
+    label en unofficial "the debtor's movables are insufficient (Article 2376)";
+}
+pub relation gage_immobilier_constitue(s: SureteReelle, creancier_p: Personne, constituant: Personne) kind empirical {
+    key(s);
+    label fr official "gage immobilier : affectation d'un immeuble avec dépossession du constituant (article 2379)";
+    label en unofficial "immovable pledge: immovable assigned with dispossession of the grantor (Article 2379)";
+}
+pub relation conservation_et_entretien_negliges(s: SureteReelle) kind empirical {
+    label fr official "le créancier n'a pas pourvu à la conservation et à l'entretien de l'immeuble (article 2381)";
+    label en unofficial "the creditor failed to preserve and maintain the immovable (Article 2381)";
+}
+pub relation immeuble_conserve_et_entretenu(s: SureteReelle) kind empirical {
+    label fr official "le créancier pourvoit à la conservation et à l'entretien de l'immeuble (article 2381)";
+    label en unofficial "the creditor preserves and maintains the immovable (Article 2381)";
+}
+pub relation immeuble_restitue_par_le_creancier(s: SureteReelle) kind empirical {
+    label fr official "le créancier a restitué l'immeuble à son propriétaire (articles 2381, 2384)";
+    label en unofficial "the creditor returned the immovable to its owner (Articles 2381, 2384)";
+}
+pub relation bail_consenti_par_le_creancier(s: SureteReelle) kind empirical {
+    label fr official "le créancier a donné l'immeuble à bail à un tiers ou au débiteur (article 2382)";
+    label en unofficial "the creditor leased the immovable to a third party or to the debtor (Article 2382)";
+}
+pub relation obligation_principale_eteinte(s: SureteReelle) kind empirical {
+    label fr official "l'obligation principale est éteinte (articles 2384, 2474)";
+    label en unofficial "the principal obligation is extinguished (Articles 2384, 2474)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation surete_sur_les_immeubles(s: SureteReelle) kind derived {
+    label fr official "sûreté sur les immeubles (article 2375)";
+    label en unofficial "security over immovables (Article 2375)";
+}
+pub relation privilege_exercable_sur_les_immeubles(r: Collocation) kind derived {
+    label fr official "le privilège général s'exerce sur les immeubles, dispensé d'inscription et sans droit de suite (article 2376)";
+    label en unofficial "the general preference is exercised over immovables, without registration and without a right to follow (Article 2376)";
+}
+pub relation privilege_immobilier_differe(r: Collocation) kind derived {
+    label fr official "le privilège portant aussi sur les meubles ne s'exerce sur les immeubles qu'à défaut de mobilier suffisant (article 2376)";
+    label en unofficial "a preference that also bears on movables is exercised over immovables only if the movables are insufficient (Article 2376)";
+}
+pub relation dispositions_hypothecaires_applicables_au_gage_immobilier(s: SureteReelle) kind derived {
+    label fr official "les articles 2390, 2409 à 2413, 2415 et 2450 à 2453 s'appliquent au gage immobilier (article 2380)";
+    label en unofficial "Articles 2390, 2409 to 2413, 2415 and 2450 to 2453 apply to the immovable pledge (Article 2380)";
+}
+pub relation decheance_du_creancier_antichresiste(s: SureteReelle) kind derived {
+    label fr official "le créancier qui ne pourvoit pas à la conservation et à l'entretien de l'immeuble est déchu (article 2381, al. 2)";
+    label en unofficial "a creditor that fails to preserve and maintain the immovable forfeits its rights (Article 2381, para. 2)";
+}
+pub relation bail_sans_perte_de_possession(s: SureteReelle) kind derived {
+    label fr official "le créancier peut donner l'immeuble à bail sans en perdre la possession (article 2382)";
+    label en unofficial "the creditor may lease the immovable without losing possession (Article 2382)";
+}
+pub relation restitution_de_l_immeuble_refusee(s: SureteReelle) kind derived {
+    label fr official "le débiteur ne peut réclamer la restitution de l'immeuble avant l'entier acquittement de sa dette (article 2383)";
+    label en unofficial "the debtor cannot claim the immovable back before the debt is fully paid (Article 2383)";
+}
+pub relation gage_immobilier_eteint(s: SureteReelle) kind derived {
+    label fr official "les droits du créancier titulaire du gage immobilier sont éteints (article 2384)";
+    label en unofficial "the immovable pledgee's rights are extinguished (Article 2384)";
+}
+
+// --- Règles --------------------------------------------------------------------------------
+
+@source(CC_ART2375) {
+    rule SureteImmobilierePrivilege(s: SureteReelle) strict {
+        label fr official "Article 2375. Les sûretés sur les immeubles sont les privilèges";
+        label en unofficial "Article 2375. Securities over immovables are preferences";
+        when nature_de_la_surete(s, PrivilegeImmobilierNature);
+        then surete_sur_les_immeubles(s);
+    }
+    rule SureteImmobiliereGage(s: SureteReelle) strict {
+        label fr official "Article 2375. Les sûretés sur les immeubles sont le gage immobilier";
+        label en unofficial "Article 2375. Securities over immovables are the immovable pledge";
+        when nature_de_la_surete(s, GageImmobilierNature);
+        then surete_sur_les_immeubles(s);
+    }
+    rule SureteImmobiliereHypotheque(s: SureteReelle) strict {
+        label fr official "Article 2375. Les sûretés sur les immeubles sont les hypothèques";
+        label en unofficial "Article 2375. Securities over immovables are mortgages";
+        when nature_de_la_surete(s, Hypotheque);
+        then surete_sur_les_immeubles(s);
+    }
+    rule SureteImmobilierePropriete(s: SureteReelle) strict {
+        label fr official "Article 2375. La propriété de l'immeuble peut également être retenue ou cédée en garantie";
+        label en unofficial "Article 2375. Ownership of the immovable may also be retained or assigned as security";
+        when nature_de_la_surete(s, ProprieteImmobiliereRetenueOuCedee);
+        then surete_sur_les_immeubles(s);
+    }
+}
+
+@source(CC_ART2376) {
+    rule PrivilegeImmobilierExercable(r: Collocation, x: PrivilegeImmobilier) strict {
+        label fr official "Article 2376. Les privilèges immobiliers sont généraux, dispensés d'inscription, d'interprétation stricte ; ils donnent un droit de préférence sans droit de suite";
+        label en unofficial "Article 2376. Immovable preferences are general, exempt from registration, strictly construed; they give priority without a right to follow";
+        when cause_de_preference(r, PrivilegeImmobilierGeneral) and privilege_immobilier_invoque(r, x)
+            and not_known(privilege_immobilier_differe(r));
+        then privilege_exercable_sur_les_immeubles(r);
+    }
+    rule PrivilegeSubsidiaire(r: Collocation) strict {
+        label fr official "Article 2376. Lorsque le privilège porte aussi sur la généralité des meubles, il ne s'exerce sur les immeubles qu'à défaut de mobilier suffisant";
+        label en unofficial "Article 2376. Where the preference also bears on all movables, it is exercised over immovables only if the movables are insufficient";
+        when cause_de_preference(r, PrivilegeImmobilierGeneral) and privilege_general_aussi_sur_les_meubles(r)
+            and not_known(mobilier_insuffisant(r));
+        then privilege_immobilier_differe(r);
+    }
+}
+
+@source(CC_ART2377) {
+    rule ClasseFraisDeJusticeImmobiliers(r: Collocation) strict {
+        label fr official "Article 2377, 1°. Les frais de justice, sous la condition qu'ils aient profité au créancier auquel le privilège est opposé";
+        label en unofficial "Article 2377, 1°. Legal costs, provided they benefited the creditor against whom the preference is raised";
+        when privilege_exercable_sur_les_immeubles(r) and privilege_immobilier_invoque(r, FraisDeJusticeImmobiliers);
+        then classe_de_preference(r, 1);
+    }
+    rule ClasseRemunerationsImmobilieres(r: Collocation) strict {
+        label fr official "Article 2377, 2°. Les rémunérations et indemnités des salariés et apprentis, dans les mêmes limites qu'à l'article 2331";
+        label en unofficial "Article 2377, 2°. Employees' and apprentices' pay and indemnities, within the same limits as Article 2331";
+        when privilege_exercable_sur_les_immeubles(r) and privilege_immobilier_invoque(r, RemunerationsEtIndemnitesImmobilieres);
+        then classe_de_preference(r, 2);
+    }
+    rule FraisDeJusticeImmobiliersNonProfitables(x: Collocation, r: Collocation, d: Distribution, a: Integer, b: Integer) strict {
+        label fr official "Article 2377, 1°. Frais de justice qui n'ont pas profité à un créancier de rang inférieur : préférence relative — frontière";
+        label en unofficial "Article 2377, 1°. Legal costs that did not benefit a lower-ranked creditor: relative preference — boundary";
+        when privilege_immobilier_invoque(x, FraisDeJusticeImmobiliers) and collocation_dans(x, d) and collocation_dans(r, d)
+            and classe_de_preference(x, a) and classe_de_preference(r, b) and a < b
+            and not_known(frais_de_justice_profitables_a(x, r));
+        then distribution_non_calculee(d);
+    }
+    rule QuartAuDelaDuPlafondImmobilier(r: Collocation, m: Money, p: Money) strict {
+        label fr official "Article 2377, 2°. Indemnités de licenciement : totalité jusqu'au plafond de l'article L. 3253-2 du code du travail, quart au-delà (politique d'arrondi du paquet)";
+        label en unofficial "Article 2377, 2°. Severance pay: in full up to the ceiling of Article L. 3253-2 of the Labour Code, one quarter above (package rounding policy)";
+        when privilege_immobilier_invoque(r, RemunerationsEtIndemnitesImmobilieres) and indemnite_de_licenciement(r, m)
+            and plafond_l3253_2(r, p) and m > p;
+        then portion_privilegiee_de_l_indemnite(r, p + div_round(m - p, 4.0, 2, "HALF_UP"));
+    }
+    rule TotaliteSousLePlafondImmobilier(r: Collocation, m: Money, p: Money) strict {
+        label fr official "Article 2377, 2°. Indemnités de licenciement : totalité de la portion inférieure ou égale au plafond";
+        label en unofficial "Article 2377, 2°. Severance pay: the whole portion up to the ceiling";
+        when privilege_immobilier_invoque(r, RemunerationsEtIndemnitesImmobilieres) and indemnite_de_licenciement(r, m)
+            and plafond_l3253_2(r, p) and m <= p;
+        then portion_privilegiee_de_l_indemnite(r, m);
+    }
+}
+
+@source(CC_ART2378) {
+    rule HypothequeLegaleClasse(r: Collocation) strict {
+        label fr official "Article 2378. Les privilèges généraux priment le droit de préférence attaché à l'hypothèque (légale)";
+        label en unofficial "Article 2378. General preferences prevail over the priority of a (statutory) mortgage";
+        when cause_de_preference(r, HypothequeLegale);
+        then classe_de_preference(r, 40);
+    }
+    rule HypothequeJudiciaireClasse(r: Collocation) strict {
+        label fr official "Article 2378. Les privilèges généraux priment le droit de préférence attaché à l'hypothèque (judiciaire)";
+        label en unofficial "Article 2378. General preferences prevail over the priority of a (judicial) mortgage";
+        when cause_de_preference(r, HypothequeJudiciaire);
+        then classe_de_preference(r, 40);
+    }
+    rule HypothequeConventionnelleClasse(r: Collocation) strict {
+        label fr official "Article 2378. Les privilèges généraux priment le droit de préférence attaché à l'hypothèque (conventionnelle)";
+        label en unofficial "Article 2378. General preferences prevail over the priority of a (contractual) mortgage";
+        when cause_de_preference(r, HypothequeConventionnelle);
+        then classe_de_preference(r, 40);
+    }
+    rule GageImmobilierClasse(r: Collocation) strict {
+        label fr official "Article 2378. Les privilèges généraux priment le droit de préférence attaché au gage immobilier";
+        label en unofficial "Article 2378. General preferences prevail over the priority of the immovable pledge";
+        when cause_de_preference(r, GageImmobilier);
+        then classe_de_preference(r, 40);
+    }
+}
+
+@source(CC_ART2379)
+rule GageImmobilierSurImmeubles(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2379. Le gage immobilier est l'affectation d'un immeuble en garantie d'une obligation avec dépossession de celui qui la constitue";
+    label en unofficial "Article 2379. An immovable pledge is the assignment of an immovable to secure an obligation, with dispossession of the grantor";
+    when gage_immobilier_constitue(s, c, p);
+    then surete_sur_les_immeubles(s);
+}
+
+@source(CC_ART2380)
+rule RenvoiAuxHypotheques(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2380. Les dispositions relatives aux hypothèques prévues aux articles 2390, 2409 à 2413, 2415 et 2450 à 2453 sont applicables au gage immobilier";
+    label en unofficial "Article 2380. The mortgage provisions of Articles 2390, 2409 to 2413, 2415 and 2450 to 2453 apply to the immovable pledge";
+    when gage_immobilier_constitue(s, c, p);
+    then dispositions_hypothecaires_applicables_au_gage_immobilier(s);
+}
+
+@source(CC_ART2381) {
+    rule FruitsDeLImmeubleSurLesInterets(s: SureteReelle, c: Personne, p: Personne, f: Money, i: Money) strict {
+        label fr official "Article 2381, alinéa 1. Le créancier perçoit les fruits de l'immeuble à charge de les imputer sur les intérêts, s'il en est dû";
+        label en unofficial "Article 2381, paragraph 1. The creditor collects the immovable's fruits and charges them to interest, if any is owed";
+        when gage_immobilier_constitue(s, c, p) and fruits_percus(s, f) and interets_dus(s, i);
+        then fruits_imputes_sur_les_interets(s, min(f, i));
+    }
+    rule FruitsDeLImmeubleSurLeCapital(s: SureteReelle, c: Personne, p: Personne, f: Money, i: Money) strict {
+        label fr official "Article 2381, alinéa 1. Et subsidiairement sur le capital de la dette";
+        label en unofficial "Article 2381, paragraph 1. And subsidiarily to the capital of the debt";
+        when gage_immobilier_constitue(s, c, p) and fruits_percus(s, f) and interets_dus(s, i);
+        then fruits_imputes_sur_le_capital(s, max(0 EUR, f - i));
+    }
+    rule DecheanceFauteDEntretien(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2381, alinéa 2. Le créancier est tenu, à peine de déchéance, de pourvoir à la conservation et à l'entretien de l'immeuble ; il peut s'y soustraire en restituant le bien";
+        label en unofficial "Article 2381, paragraph 2. The creditor must, on pain of forfeiture, preserve and maintain the immovable; it may escape this by returning the asset";
+        when gage_immobilier_constitue(s, c, p) and conservation_et_entretien_negliges(s) and not_known(immeuble_restitue_par_le_creancier(s));
+        then decheance_du_creancier_antichresiste(s);
+    }
+
+    rule PositionDevoirConserverEntretenirImmeuble(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2381. Devoir du créancier de conserver et entretenir l'immeuble";
+        label en unofficial "Article 2381. Creditor's duty to preserve and maintain the immovable";
+        when gage_immobilier_constitue(s, c, p)
+            and not_known(conservation_et_entretien_negliges(s));
+        then duty DevoirConserverEntretenirImmeuble {
+            bearer c;
+            achieve immeuble_conserve_et_entretenu(s) during [@2022-01-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART2382)
+rule BailParLeCreancier(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2382. Le créancier peut, sans en perdre la possession, donner l'immeuble à bail, soit à un tiers, soit au débiteur lui-même";
+    label en unofficial "Article 2382. The creditor may, without losing possession, lease the immovable either to a third party or to the debtor";
+    when gage_immobilier_constitue(s, c, p) and bail_consenti_par_le_creancier(s);
+    then bail_sans_perte_de_possession(s);
+}
+
+@source(CC_ART2382)
+rule PositionLiberteDonnerImmeubleABail(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2382. Liberté du créancier de donner l'immeuble à bail";
+    label en unofficial "Article 2382. Creditor's liberty to lease the immovable";
+    when gage_immobilier_constitue(s, c, p)
+        and bail_consenti_par_le_creancier(s);
+    then liberty LiberteDonnerImmeubleABail {
+        holder c;
+        action bail_sans_perte_de_possession(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2383) {
+    rule PasDeRestitutionAvantPaiement(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2383. Le débiteur ne peut réclamer la restitution de l'immeuble avant l'entier acquittement de sa dette";
+        label en unofficial "Article 2383. The debtor cannot claim the immovable back before fully paying the debt";
+        when gage_immobilier_constitue(s, c, p) and not_known(dette_entierement_payee(s));
+        then restitution_de_l_immeuble_refusee(s);
+    }
+    rule RestitutionApresPaiementImmobilier(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2383. Après l'entier acquittement, le débiteur peut réclamer l'immeuble";
+        label en unofficial "Article 2383. Once the debt is fully paid, the debtor may claim the immovable back";
+        when gage_immobilier_constitue(s, c, p) and dette_entierement_payee(s);
+        then radiation_ou_restitution_exigible(s);
+    }
+
+    rule PositionLiberteReclamerRestitutionImmobilier(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2383. Liberté du débiteur de réclamer l'immeuble après paiement complet";
+        label en unofficial "Article 2383. Debtor's liberty to reclaim the immovable after full payment";
+        when gage_immobilier_constitue(s, c, p)
+            and dette_entierement_payee(s);
+        then liberty LiberteReclamerRestitutionImmobilier {
+            holder p;
+            action radiation_ou_restitution_exigible(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART2384) {
+    rule ExtinctionParLObligationPrincipale(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2384, 1°. Les droits du créancier s'éteignent par l'extinction de l'obligation principale";
+        label en unofficial "Article 2384, 1°. The creditor's rights end when the principal obligation ends";
+        when gage_immobilier_constitue(s, c, p) and obligation_principale_eteinte(s);
+        then gage_immobilier_eteint(s);
+    }
+    rule ExtinctionParRestitutionAnticipee(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2384, 2°. Les droits du créancier s'éteignent par la restitution anticipée de l'immeuble à son propriétaire";
+        label en unofficial "Article 2384, 2°. The creditor's rights end on early return of the immovable to its owner";
+        when gage_immobilier_constitue(s, c, p) and immeuble_restitue_par_le_creancier(s);
+        then gage_immobilier_eteint(s);
+    }
+
+}

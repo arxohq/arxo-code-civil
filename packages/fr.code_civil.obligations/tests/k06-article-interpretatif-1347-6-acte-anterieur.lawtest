@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Loi n° 2018-287, article 16, I, troisième phrase : la modification de l'article
+// 1347-6 a un caractère INTERPRÉTATIF — elle vaut depuis l'entrée en vigueur de
+// l'ordonnance de 2016, donc AUSSI pour l'acte du 30 septembre 2018. C'est le contraste
+// exact avec k03 sur la même date : la ratification n'y produit pas le même effet.
+test "urn:query:fr-code-civil-obligations-k06-article-interpretatif-1347-6-acte-anterieur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": situation_de_la_creance(entity_ref("urn:fr:cc:obligations:k6:s"), entity_ref("urn:fr:cc:obligations:k6:c")) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:obligations:k6:s"), @2018-09-30) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:obligations:k6:s"), "1347-6") { origin case_input; }
+    }
+    evaluate truth(article_interpretatif_de_2018_applicable(entity_ref("urn:fr:cc:obligations:k6:c"), "1347-6"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ArticleInterpretatifDe2018Applicable);
+}

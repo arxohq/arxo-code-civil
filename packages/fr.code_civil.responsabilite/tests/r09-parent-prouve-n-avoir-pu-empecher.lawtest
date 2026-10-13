@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1242 al. 7 : le parent qui prouve n avoir pu empêcher le fait n est pas responsable.
+test "urn:query:fr-code-civil-responsabilite-r09-parent-prouve-n-avoir-pu-empecher" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": enfant_mineur_sous_autorite_parentale(entity_ref("urn:fr:cc:resp:e:f"), entity_ref("urn:fr:cc:resp:e:mere"), entity_ref("urn:fr:cc:resp:e:enfant")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:e:f"), entity_ref("urn:fr:cc:resp:e:d")) { origin adjudicated; }
+        assert "f3": preuve_de_n_avoir_pu_empecher_le_fait(entity_ref("urn:fr:cc:resp:e:f"), entity_ref("urn:fr:cc:resp:e:mere")) { origin adjudicated; }
+    }
+    evaluate truth(responsabilite_du_fait_d_autrui(entity_ref("urn:fr:cc:resp:e:d"), entity_ref("urn:fr:cc:resp:e:mere"), entity_ref("urn:fr:cc:resp:e:enfant")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 515-7 al. 1 : mariage d un partenaire le 14 février 2026 — dissolution effective à cette date.
+test "urn:query:fr-code-civil-famille-s05-pacs-dissous-par-le-mariage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": mariage_des_partenaires_ou_de_l_un_le(entity_ref("urn:fr:cc:fam:cc:pacs"), @2026-02-14) { origin case_input; }
+    }
+    evaluate truth(pacs_dissous_le(entity_ref("urn:fr:cc:fam:cc:pacs"), @2026-02-14));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2402, 2° : emploi authentiquement constaté — hypothèque légale spéciale.
+test "urn:query:fr-code-civil-suretes-r31-preteur-emploi-constate" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:r31:S"), entity_ref("urn:fr:cc:suretes:r31:B"), entity_ref("urn:fr:cc:suretes:r31:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:r31:S"), Legale) { origin case_input; }
+        assert "f3": hypotheque_legale_speciale(entity_ref("urn:fr:cc:suretes:r31:S"), PreteurDeDeniers) { origin case_input; }
+        assert "f4": emploi_des_deniers_authentiquement_constate(entity_ref("urn:fr:cc:suretes:r31:S")) { origin case_input; }
+    }
+    evaluate truth(hypotheque_speciale(entity_ref("urn:fr:cc:suretes:r31:S")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(SpecialePreteur);
+}

@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1184 al. 1 : la cause de nullité n'affectant qu'une clause qui n'a pas été un élément déterminant, l'acte tout entier n'est pas nul.
+test "urn:query:fr-code-civil-contrat-s14-nullite-partielle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s14"), @2019-03-01) { origin case_input; }
+        assert "f2": cause_de_nullite_limitee_a_des_clauses(entity_ref("urn:fr:cc:contrat:s14"), entity_ref("urn:fr:cc:contrat:s14:clause")) { origin case_input; }
+    }
+    evaluate truth(nullite_partielle(entity_ref("urn:fr:cc:contrat:s14"), entity_ref("urn:fr:cc:contrat:s14:clause")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NullitePartielle);
+
+    evaluate truth(nullite_totale(entity_ref("urn:fr:cc:contrat:s14")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

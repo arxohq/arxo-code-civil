@@ -1,0 +1,29 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ACCORDHERITIERSPOURCHOSEINDIVISIBLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": chose_deposee_indivisible(entity_ref("urn:law:catalog:accordheritierspourchoseindivisible:v0")) { origin case_input; }
+        assert "cat-1": deces_deposant(entity_ref("urn:law:catalog:accordheritierspourchoseindivisible:v0")) { origin case_input; }
+    }
+    evaluate truth(accord_heritiers_requis(entity_ref("urn:law:catalog:accordheritierspourchoseindivisible:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-RESTITUTIONAUXHERITIERSDEPOSANT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": deces_deposant(entity_ref("urn:law:catalog:restitutionauxheritiersdeposant:v0")) { origin case_input; }
+    }
+    evaluate truth(remise_aux_heritiers_requise(entity_ref("urn:law:catalog:restitutionauxheritiersdeposant:v0")));
+    expect truth_status == TRUE_ONLY;
+}

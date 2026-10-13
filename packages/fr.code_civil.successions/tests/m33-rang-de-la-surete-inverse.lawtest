@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 796, alinéa 2 : le rang 3 ne passe pas avant le rang 1.
+test "urn:query:fr-code-civil-successions-m33-rang-de-la-surete-inverse" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m33:S"), entity_ref("urn:fr:cc:successions:adm:m33:P1"), CreancierInscrit) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m33:S"), entity_ref("urn:fr:cc:successions:adm:m33:P2"), CreancierInscrit) { origin case_input; }
+        assert "f3": rang_de_la_surete(entity_ref("urn:fr:cc:successions:adm:m33:S"), entity_ref("urn:fr:cc:successions:adm:m33:P1"), 3) { origin case_input; }
+        assert "f4": rang_de_la_surete(entity_ref("urn:fr:cc:successions:adm:m33:S"), entity_ref("urn:fr:cc:successions:adm:m33:P2"), 1) { origin case_input; }
+    }
+    evaluate truth(paye_avant(entity_ref("urn:fr:cc:successions:adm:m33:S"), entity_ref("urn:fr:cc:successions:adm:m33:P1"), entity_ref("urn:fr:cc:successions:adm:m33:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

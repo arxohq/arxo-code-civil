@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-9, alinéa 1 : recours du créancier tardif contre le légataire rempli.
+test "urn:query:fr-code-civil-successions-m41-recours-contre-le-legataire-rempli" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": compte_remis_le(entity_ref("urn:fr:cc:successions:adm:m41:S"), @2026-01-15) { origin case_input; }
+        assert "f2": creance_declaree_le(entity_ref("urn:fr:cc:successions:adm:m41:S"), entity_ref("urn:fr:cc:successions:adm:m41:P1"), @2026-01-16) { origin case_input; }
+        assert "f3": legataire_rempli_de_ses_droits(entity_ref("urn:fr:cc:successions:adm:m41:S"), entity_ref("urn:fr:cc:successions:adm:m41:P2")) { origin case_input; }
+    }
+    evaluate truth(recours_contre_les_legataires_ouvert(entity_ref("urn:fr:cc:successions:adm:m41:S"), entity_ref("urn:fr:cc:successions:adm:m41:P1"), entity_ref("urn:fr:cc:successions:adm:m41:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RecoursContreLeLegataireRempli);
+}

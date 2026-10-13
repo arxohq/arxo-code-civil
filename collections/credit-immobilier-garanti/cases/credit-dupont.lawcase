@@ -1,0 +1,62 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.credit_immobilier_garanti version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:credit-immobilier-garanti";
+
+case CreditDupont {
+    context {
+        legal_time @2026-06-01;
+        knowledge_time @2026-06-01T10:00:00Z;
+        decision_time @2026-06-01T10:00:00Z;
+        timezone "Europe/Paris";
+        deadline_policy fr.code_civil.suretes::CC_SURETES_MOIS_AN;
+    }
+
+    // Monsieur Dupont : cautionnement du 1er juin 2021 (loi ancienne, art. 37, II),
+    // l'information annuelle lui est néanmoins due depuis 2022 (art. 37, III).
+    assert "k1-date": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:dupont:k1"), @2021-06-01) { origin case_input; }
+    assert "k1-article": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:dupont:k1"), "2302") { origin case_input; }
+    assert "k1-caution": fr.code_civil.suretes::caution(entity_ref("urn:fr:dupont:k1"), entity_ref("urn:fr:dupont:monsieur")) { origin case_input; }
+    assert "k1-creancier": fr.code_civil.suretes::creancier_du_cautionnement(entity_ref("urn:fr:dupont:k1"), entity_ref("urn:fr:dupont:banque")) { origin case_input; }
+
+    // Madame Dupont : cautionnement du 1er février 2023, mention « cinquante mille euros » / 500 000.
+    assert "k2-date": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:dupont:k2"), @2023-02-01) { origin case_input; }
+    assert "k2-caution": fr.code_civil.suretes::caution(entity_ref("urn:fr:dupont:k2"), entity_ref("urn:fr:dupont:madame")) { origin case_input; }
+    assert "k2-creancier": fr.code_civil.suretes::creancier_du_cautionnement(entity_ref("urn:fr:dupont:k2"), entity_ref("urn:fr:dupont:banque")) { origin case_input; }
+    assert "k2-mention": fr.code_civil.suretes::mention_manuscrite_apposee(entity_ref("urn:fr:dupont:k2")) { origin case_input; }
+    assert "k2-lettres": fr.code_civil.suretes::montant_en_toutes_lettres(entity_ref("urn:fr:dupont:k2"), 50000 EUR) { origin case_input; }
+    assert "k2-chiffres": fr.code_civil.suretes::montant_en_chiffres(entity_ref("urn:fr:dupont:k2"), 500000 EUR) { origin case_input; }
+
+    // Personnes.
+    assert "monsieur": fr.code_civil.suretes::est_personne_physique(entity_ref("urn:fr:dupont:monsieur")) { origin case_input; }
+    assert "madame": fr.code_civil.suretes::est_personne_physique(entity_ref("urn:fr:dupont:madame")) { origin case_input; }
+    assert "banque-pro": fr.code_civil.suretes::creancier_professionnel(entity_ref("urn:fr:dupont:banque")) { origin case_input; }
+
+    // Inscription de l'hypothèque de la banque : 15 juin 2021, dernière échéance le 15 juin 2045.
+    assert "insc": fr.code_civil.suretes::inscription_de(entity_ref("urn:fr:dupont:inscription"), entity_ref("urn:fr:dupont:hypotheque")) { origin case_input; }
+    assert "insc-date": fr.code_civil.suretes::inscription_prise_le(entity_ref("urn:fr:dupont:inscription"), @2021-06-15) { origin case_input; }
+    assert "insc-echeance": fr.code_civil.suretes::derniere_echeance_de_la_creance(entity_ref("urn:fr:dupont:inscription"), entity_ref("urn:fr:dupont:pret"), @2045-06-15) { origin case_input; }
+
+    // Distribution du prix de l'immeuble : 250 000.
+    assert "prix": fr.code_civil.suretes::prix_a_distribuer(entity_ref("urn:fr:dupont:distribution"), 250000 EUR) { origin case_input; }
+    assert "p-dans": fr.code_civil.suretes::collocation_dans(entity_ref("urn:fr:dupont:salarie"), entity_ref("urn:fr:dupont:distribution")) { origin case_input; }
+    assert "p-cause": fr.code_civil.suretes::cause_de_preference(entity_ref("urn:fr:dupont:salarie"), fr.code_civil.suretes::PrivilegeImmobilierGeneral) { origin case_input; }
+    assert "p-privilege": fr.code_civil.suretes::privilege_immobilier_invoque(entity_ref("urn:fr:dupont:salarie"), fr.code_civil.suretes::RemunerationsEtIndemnitesImmobilieres) { origin case_input; }
+    assert "p-montant": fr.code_civil.suretes::creance_en_principal(entity_ref("urn:fr:dupont:salarie"), 12000 EUR) { origin case_input; }
+    assert "h-dans": fr.code_civil.suretes::collocation_dans(entity_ref("urn:fr:dupont:banque-hyp"), entity_ref("urn:fr:dupont:distribution")) { origin case_input; }
+    assert "h-cause": fr.code_civil.suretes::cause_de_preference(entity_ref("urn:fr:dupont:banque-hyp"), fr.code_civil.suretes::HypothequeConventionnelle) { origin case_input; }
+    assert "h-date": fr.code_civil.suretes::date_de_rang(entity_ref("urn:fr:dupont:banque-hyp"), @2021-06-15) { origin case_input; }
+    assert "h-principal": fr.code_civil.suretes::creance_en_principal(entity_ref("urn:fr:dupont:banque-hyp"), 150000 EUR) { origin case_input; }
+    assert "h-annuels": fr.code_civil.suretes::interets_annuels(entity_ref("urn:fr:dupont:banque-hyp"), 6000 EUR) { origin case_input; }
+    assert "h-echus": fr.code_civil.suretes::interets_echus_impayes(entity_ref("urn:fr:dupont:banque-hyp"), 20000 EUR) { origin case_input; }
+    assert "h2-dans": fr.code_civil.suretes::collocation_dans(entity_ref("urn:fr:dupont:second-hyp"), entity_ref("urn:fr:dupont:distribution")) { origin case_input; }
+    assert "h2-cause": fr.code_civil.suretes::cause_de_preference(entity_ref("urn:fr:dupont:second-hyp"), fr.code_civil.suretes::HypothequeConventionnelle) { origin case_input; }
+    assert "h2-date": fr.code_civil.suretes::date_de_rang(entity_ref("urn:fr:dupont:second-hyp"), @2022-01-10) { origin case_input; }
+    assert "h2-principal": fr.code_civil.suretes::creance_en_principal(entity_ref("urn:fr:dupont:second-hyp"), 100000 EUR) { origin case_input; }
+    assert "x-dans": fr.code_civil.suretes::collocation_dans(entity_ref("urn:fr:dupont:fournisseur"), entity_ref("urn:fr:dupont:distribution")) { origin case_input; }
+    assert "x-cause": fr.code_civil.suretes::cause_de_preference(entity_ref("urn:fr:dupont:fournisseur"), fr.code_civil.suretes::Chirographaire) { origin case_input; }
+    assert "x-montant": fr.code_civil.suretes::creance_en_principal(entity_ref("urn:fr:dupont:fournisseur"), 30000 EUR) { origin case_input; }
+
+    // Vente qui donne naissance au prix garanti.
+    assert "vente-chose": fr.code_civil.vente_louage::accord_sur_la_chose(entity_ref("urn:fr:dupont:vente")) { origin case_input; }
+    assert "vente-prix": fr.code_civil.vente_louage::accord_sur_le_prix(entity_ref("urn:fr:dupont:vente")) { origin case_input; }
+}

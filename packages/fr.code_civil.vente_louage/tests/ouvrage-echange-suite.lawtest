@@ -1,0 +1,306 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Échange (1704 à 1706) et louage d'ouvrage, suite (1780 à 1799).
+// Les deux prescriptions décennales sont gardées au jour d'échéance et au jour
+// suivant : réception le 10 mars 2015, action recevable le 10 mars 2025 et
+// forclose le 11 mars 2025.
+
+test "urn:query:fr-code-civil-vente-louage-1704-non-proprietaire-prouve" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "r": chose_recue_en_echange(entity_ref("urn:fr:cc12:e1:e")) { origin case_input; }
+        assert "n": autre_contractant_non_proprietaire_prouve(entity_ref("urn:fr:cc12:e1:e")) { origin adjudicated; }
+    }
+    evaluate truth(copermutant_non_force_de_livrer(entity_ref("urn:fr:cc12:e1:e")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1704-propriete-non-contestee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "r": chose_recue_en_echange(entity_ref("urn:fr:cc12:e2:e")) { origin case_input; }
+    }
+    evaluate truth(copermutant_non_force_de_livrer(entity_ref("urn:fr:cc12:e2:e")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1705-choix-du-copermutant-evince" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "ev": copermutant_evince(entity_ref("urn:fr:cc12:e3:e")) { origin adjudicated; }
+    }
+    evaluate truth(choix_entre_dommages_interets_et_repetition(entity_ref("urn:fr:cc12:e3:e")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1706-rescision-exclue-dans-l-echange" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": consentement_reciproque_a_l_echange(entity_ref("urn:fr:cc12:e4:e")) { origin case_input; }
+    }
+    evaluate truth(rescision_pour_lesion_exclue_dans_l_echange(entity_ref("urn:fr:cc12:e4:e")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(echange_parfait(entity_ref("urn:fr:cc12:e4:e")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1780-service-sans-duree-peut-cesser" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": louage_de_service_sans_determination_de_duree(entity_ref("urn:fr:cc12:o1:m")) { origin case_input; }
+    }
+    evaluate truth(louage_de_service_peut_cesser_par_volonte_unilaterale(entity_ref("urn:fr:cc12:o1:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1780-service-a-duree-determinee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": services_engages_a_temps_ou_pour_une_entreprise_determinee(entity_ref("urn:fr:cc12:o2:m")) { origin case_input; }
+    }
+    evaluate truth(louage_de_service_peut_cesser_par_volonte_unilaterale(entity_ref("urn:fr:cc12:o2:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1780-renonciation-anticipee-sans-effet" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "w": renonciation_anticipee_aux_dommages_interets(entity_ref("urn:fr:cc12:o3:m")) { origin case_input; }
+    }
+    evaluate truth(renonciation_anticipee_sans_effet(entity_ref("urn:fr:cc12:o3:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1784-voiturier-responsable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": voiturier_du_marche(entity_ref("urn:fr:cc12:o4:m"), entity_ref("urn:fr:cc12:o4:p")) { origin case_input; }
+        assert "c": chose_confiee_au_voiturier(entity_ref("urn:fr:cc12:o4:m")) { origin case_input; }
+        assert "l": perte_ou_avarie_de_la_chose_transportee(entity_ref("urn:fr:cc12:o4:m")) { origin case_input; }
+    }
+    evaluate truth(voiturier_responsable_de_la_perte_ou_de_l_avarie(entity_ref("urn:fr:cc12:o4:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1784-voiturier-prouve-la-force-majeure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": voiturier_du_marche(entity_ref("urn:fr:cc12:o5:m"), entity_ref("urn:fr:cc12:o5:p")) { origin case_input; }
+        assert "c": chose_confiee_au_voiturier(entity_ref("urn:fr:cc12:o5:m")) { origin case_input; }
+        assert "l": perte_ou_avarie_de_la_chose_transportee(entity_ref("urn:fr:cc12:o5:m")) { origin case_input; }
+        assert "fm": voiturier_prouve_cas_fortuit_ou_force_majeure(entity_ref("urn:fr:cc12:o5:m")) { origin adjudicated; }
+    }
+    evaluate truth(voiturier_responsable_de_la_perte_ou_de_l_avarie(entity_ref("urn:fr:cc12:o5:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1783-chose-remise-sur-le-port" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": voiturier_du_marche(entity_ref("urn:fr:cc12:o6:m"), entity_ref("urn:fr:cc12:o6:p")) { origin case_input; }
+        assert "q": chose_remise_sur_le_port_ou_dans_l_entrepot(entity_ref("urn:fr:cc12:o6:m")) { origin case_input; }
+    }
+    evaluate truth(voiturier_repond_des_choses_remises_avant_chargement(entity_ref("urn:fr:cc12:o6:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1791-verification-par-parties-payees" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": ouvrage_a_plusieurs_pieces_ou_a_la_mesure(entity_ref("urn:fr:cc12:o7:m")) { origin case_input; }
+        assert "pay": maitre_paye_en_proportion_de_l_ouvrage_fait(entity_ref("urn:fr:cc12:o7:m")) { origin case_input; }
+    }
+    evaluate truth(verification_censee_faite_pour_les_parties_payees(entity_ref("urn:fr:cc12:o7:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1791-sans-paiement-proportionnel" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": ouvrage_a_plusieurs_pieces_ou_a_la_mesure(entity_ref("urn:fr:cc12:o8:m")) { origin case_input; }
+    }
+    evaluate truth(verification_censee_faite_pour_les_parties_payees(entity_ref("urn:fr:cc12:o8:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-1-trois-voies-du-constructeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c1": lie_au_maitre_par_un_contrat_de_louage_d_ouvrage(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:a")) { origin case_input; }
+        assert "c2": vend_apres_achevement_un_ouvrage_construit(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:b")) { origin case_input; }
+        assert "c3": mandataire_accomplissant_mission_de_locateur(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:c")) { origin case_input; }
+    }
+    evaluate truth(repute_constructeur_de_l_ouvrage(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(repute_constructeur_de_l_ouvrage(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:b")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(repute_constructeur_de_l_ouvrage(entity_ref("urn:fr:cc12:o9:m"), entity_ref("urn:fr:cc12:o9:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-1-simple-tiers-non-constructeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c1": lie_au_maitre_par_un_contrat_de_louage_d_ouvrage(entity_ref("urn:fr:cc12:o10:m"), entity_ref("urn:fr:cc12:o10:a")) { origin case_input; }
+    }
+    evaluate truth(repute_constructeur_de_l_ouvrage(entity_ref("urn:fr:cc12:o10:m"), entity_ref("urn:fr:cc12:o10:z")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-2-element-indissociable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": dommage_affecte_la_solidite_d_un_element_d_equipement(entity_ref("urn:fr:cc12:o11:m")) { origin case_input; }
+        assert "i": element_indissociablement_incorpore(entity_ref("urn:fr:cc12:o11:m")) { origin case_input; }
+    }
+    evaluate truth(presomption_de_responsabilite_etendue_a_l_element(entity_ref("urn:fr:cc12:o11:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-7-element-professionnel-hors-du-champ" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": dommage_affecte_la_solidite_d_un_element_d_equipement(entity_ref("urn:fr:cc12:o12:m")) { origin case_input; }
+        assert "i": element_indissociablement_incorpore(entity_ref("urn:fr:cc12:o12:m")) { origin case_input; }
+        assert "pro": element_a_fonction_exclusivement_professionnelle(entity_ref("urn:fr:cc12:o12:m")) { origin case_input; }
+    }
+    evaluate truth(presomption_de_responsabilite_etendue_a_l_element(entity_ref("urn:fr:cc12:o12:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(element_hors_du_champ_des_garanties(entity_ref("urn:fr:cc12:o12:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-2-element-dissociable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": dommage_affecte_la_solidite_d_un_element_d_equipement(entity_ref("urn:fr:cc12:o13:m")) { origin case_input; }
+    }
+    evaluate truth(presomption_de_responsabilite_etendue_a_l_element(entity_ref("urn:fr:cc12:o13:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-fabricant-solidaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": fabricant_de_l_element_d_equipement(entity_ref("urn:fr:cc12:o14:m"), entity_ref("urn:fr:cc12:o14:f")) { origin case_input; }
+        assert "u": element_mis_en_oeuvre_sans_modification(entity_ref("urn:fr:cc12:o14:m")) { origin case_input; }
+    }
+    evaluate truth(fabricant_solidairement_responsable(entity_ref("urn:fr:cc12:o14:m"), entity_ref("urn:fr:cc12:o14:f")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-element-modifie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f": fabricant_de_l_element_d_equipement(entity_ref("urn:fr:cc12:o15:m"), entity_ref("urn:fr:cc12:o15:f")) { origin case_input; }
+    }
+    evaluate truth(fabricant_solidairement_responsable(entity_ref("urn:fr:cc12:o15:m"), entity_ref("urn:fr:cc12:o15:f")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-2-sous-traitant-dernier-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "st": sous_traitant_du_marche(entity_ref("urn:fr:cc12:o16:m"), entity_ref("urn:fr:cc12:o16:s")) { origin case_input; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:o16:m"), @2015-03-10) { origin case_input; }
+        assert "act": action_contre_sous_traitant_introduite_le(entity_ref("urn:fr:cc12:o16:m"), @2025-03-10) { origin case_input; }
+    }
+    evaluate truth(action_contre_sous_traitant_recevable(entity_ref("urn:fr:cc12:o16:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-2-sous-traitant-un-jour-trop-tard" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "st": sous_traitant_du_marche(entity_ref("urn:fr:cc12:o17:m"), entity_ref("urn:fr:cc12:o17:s")) { origin case_input; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:o17:m"), @2015-03-10) { origin case_input; }
+        assert "act": action_contre_sous_traitant_introduite_le(entity_ref("urn:fr:cc12:o17:m"), @2025-03-11) { origin case_input; }
+    }
+    evaluate truth(action_contre_sous_traitant_recevable(entity_ref("urn:fr:cc12:o17:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-3-constructeur-dernier-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "c": lie_au_maitre_par_un_contrat_de_louage_d_ouvrage(entity_ref("urn:fr:cc12:o18:m"), entity_ref("urn:fr:cc12:o18:c")) { origin case_input; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:o18:m"), @2015-03-10) { origin case_input; }
+        assert "act": action_contre_constructeur_introduite_le(entity_ref("urn:fr:cc12:o18:m"), @2025-03-10) { origin case_input; }
+    }
+    evaluate truth(action_contre_constructeur_recevable(entity_ref("urn:fr:cc12:o18:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-3-constructeur-un-jour-trop-tard" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "c": lie_au_maitre_par_un_contrat_de_louage_d_ouvrage(entity_ref("urn:fr:cc12:o19:m"), entity_ref("urn:fr:cc12:o19:c")) { origin case_input; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:o19:m"), @2015-03-10) { origin case_input; }
+        assert "act": action_contre_constructeur_introduite_le(entity_ref("urn:fr:cc12:o19:m"), @2025-03-11) { origin case_input; }
+    }
+    evaluate truth(action_contre_constructeur_recevable(entity_ref("urn:fr:cc12:o19:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1796-paiement-a-la-succession-des-ouvrages-utiles" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": deces_ouvrier_architecte_ou_entrepreneur(entity_ref("urn:fr:cc12:o20:m")) { origin case_input; }
+        assert "w": ouvrages_faits_et_materiaux_prepares(entity_ref("urn:fr:cc12:o20:m")) { origin case_input; }
+        assert "u": travaux_ou_materiaux_utiles_au_proprietaire(entity_ref("urn:fr:cc12:o20:m")) { origin case_input; }
+    }
+    evaluate truth(marche_dissous_par_deces(entity_ref("urn:fr:cc12:o20:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(paiement_a_la_succession_du(entity_ref("urn:fr:cc12:o20:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1796-ouvrages-inutiles-au-proprietaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": deces_ouvrier_architecte_ou_entrepreneur(entity_ref("urn:fr:cc12:o21:m")) { origin case_input; }
+        assert "w": ouvrages_faits_et_materiaux_prepares(entity_ref("urn:fr:cc12:o21:m")) { origin case_input; }
+    }
+    evaluate truth(paiement_a_la_succession_du(entity_ref("urn:fr:cc12:o21:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1798-action-directe-plafonnee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "w": ouvrier_employe_a_la_construction(entity_ref("urn:fr:cc12:o22:m"), entity_ref("urn:fr:cc12:o22:w")) { origin case_input; }
+        assert "d": maitre_debiteur_envers_l_entrepreneur(entity_ref("urn:fr:cc12:o22:m"), 7000 EUR) { origin case_input; }
+    }
+    evaluate truth(action_directe_de_l_ouvrier_limitee(entity_ref("urn:fr:cc12:o22:m"), entity_ref("urn:fr:cc12:o22:w"), 7000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(action_directe_de_l_ouvrier_limitee(entity_ref("urn:fr:cc12:o22:m"), entity_ref("urn:fr:cc12:o22:w"), 9000 EUR));
+    expect truth_status == NEITHER;
+}

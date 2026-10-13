@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1345, al. 1, canal §47.3 : le refus du créancier est constaté, mais le texte
+// exige qu'il soit SANS MOTIF LÉGITIME — appréciation du juge. Sans réponse, la
+// question reste ouverte et le cas porte une demande de jugement.
+test "urn:query:fr-code-civil-obligations-p16-refus-du-creancier-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": mise_en_demeure_du_creancier(entity_ref("urn:fr:cc:obl:o:md"), entity_ref("urn:fr:cc:obl:o:c"), entity_ref("urn:fr:cc:obl:o:CR")) { origin case_input; }
+        assert "f2": refus_ou_empechement_du_creancier(entity_ref("urn:fr:cc:obl:o:c")) { origin case_input; }
+        assert "f3": date_de_la_mise_en_demeure(entity_ref("urn:fr:cc:obl:o:md"), @2025-03-10) { origin case_input; }
+    }
+    evaluate truth(creancier_mis_en_demeure(entity_ref("urn:fr:cc:obl:o:c"), entity_ref("urn:fr:cc:obl:o:CR"), @2025-03-10));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(refus_sans_motif_legitime, Court);
+}

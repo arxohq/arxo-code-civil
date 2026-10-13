@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2427, al. 2 : prêt viager hypothécaire — la totalité des intérêts (10 000) vient au rang du principal, 110 000 EUR.
+test "urn:query:fr-code-civil-suretes-h16-pret-viager-totalite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:h16:H"), entity_ref("urn:fr:cc:suretes:h16:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:h16:H"), HypothequeConventionnelle) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:h16:H"), 100000 EUR) { origin case_input; }
+        assert "f4": date_de_rang(entity_ref("urn:fr:cc:suretes:h16:H"), @2015-01-01) { origin case_input; }
+        assert "f5": interets_annuels(entity_ref("urn:fr:cc:suretes:h16:H"), 3000 EUR) { origin case_input; }
+        assert "f6": interets_echus_impayes(entity_ref("urn:fr:cc:suretes:h16:H"), 10000 EUR) { origin case_input; }
+        assert "f7": pret_viager_hypothecaire(entity_ref("urn:fr:cc:suretes:h16:H")) { origin case_input; }
+    }
+    evaluate truth(montant_admis(entity_ref("urn:fr:cc:suretes:h16:H"), 110000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(InteretsDuPretViager);
+}

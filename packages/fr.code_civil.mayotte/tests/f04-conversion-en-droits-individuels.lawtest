@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2511, alinéa 4 : la conversion en droits individuels de propriété permet l'immatriculation.
+test "urn:query:fr-code-civil-mayotte-f04-conversion-en-droits-individuels" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": situe_a_mayotte(entity_ref("urn:fr:cc:may:r:imm")) { origin case_input; }
+        assert "f2": droit_collectif_coutumier(entity_ref("urn:fr:cc:may:r:imm")) { origin case_input; }
+        assert "f3": conversion_en_droits_individuels(entity_ref("urn:fr:cc:may:r:imm")) { origin case_input; }
+    }
+    evaluate truth(immatriculable(entity_ref("urn:fr:cc:may:r:imm")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(LaConversionOuvreLImmatriculation);
+}

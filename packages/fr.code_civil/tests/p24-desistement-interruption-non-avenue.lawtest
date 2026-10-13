@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2243 : le demandeur s'est désisté — l'interruption est non avenue.
+test "urn:query:fr-code-civil-p24-desistement-interruption-non-avenue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": demande_en_justice_le(entity_ref("urn:fr:cc:presc:p24"), @2015-03-01) { origin case_input; }
+        assert "f2": desistement_peremption_ou_rejet_definitif(entity_ref("urn:fr:cc:presc:p24")) { origin case_input; }
+    }
+    evaluate truth(interruption_non_avenue(entity_ref("urn:fr:cc:presc:p24")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InterruptionNonAvenue);
+}

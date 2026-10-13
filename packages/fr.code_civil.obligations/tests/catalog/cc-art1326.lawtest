@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-GARANTIEDELEXISTENCEDELACREANCE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cession_a_titre_onereux(entity_ref("urn:kz:catalog:garantiedelexistencedelacreance:v0")) { origin case_input; }
+        assert "cat-1": cession_de_creance(entity_ref("urn:kz:catalog:garantiedelexistencedelacreance:v0"), entity_ref("urn:kz:catalog:garantiedelexistencedelacreance:v1")) { origin case_input; }
+    }
+    evaluate truth(garantie_de_l_existence_de_la_creance(entity_ref("urn:kz:catalog:garantiedelexistencedelacreance:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-GARANTIELIMITEEALASOLVABILITEACTUELLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": garantie_de_solvabilite_stipulee(entity_ref("urn:kz:catalog:garantielimiteealasolvabiliteactuelle:v0")) { origin case_input; }
+    }
+    evaluate truth(garantie_limitee_a_la_solvabilite_actuelle(entity_ref("urn:kz:catalog:garantielimiteealasolvabiliteactuelle:v0")));
+    expect truth_status == TRUE_ONLY;
+}

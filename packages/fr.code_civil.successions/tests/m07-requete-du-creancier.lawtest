@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 809-1 : la requête émane d'un créancier.
+test "urn:query:fr-code-civil-successions-m07-requete-du-creancier" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": requete_presentee_par(entity_ref("urn:fr:cc:successions:adm:m07:S"), entity_ref("urn:fr:cc:successions:adm:m07:P"), Creancier) { origin case_input; }
+    }
+    evaluate truth(requete_recevable(entity_ref("urn:fr:cc:successions:adm:m07:S"), entity_ref("urn:fr:cc:successions:adm:m07:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RequeteDuCreancier);
+}

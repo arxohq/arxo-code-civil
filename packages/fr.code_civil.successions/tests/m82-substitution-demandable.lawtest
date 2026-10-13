@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 814-1 : l'acceptant à concurrence de l'actif net demande à être substitué.
+test "urn:query:fr-code-civil-successions-m82-substitution-demandable" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": option_exercee_le(entity_ref("urn:fr:cc:successions:adm:m82:S"), entity_ref("urn:fr:cc:successions:adm:m82:P"), AcceptationAConcurrenceDeLActifNet, @2026-04-01) { origin case_input; }
+    }
+    evaluate truth(substitution_du_mandataire_demandable(entity_ref("urn:fr:cc:successions:adm:m82:S"), entity_ref("urn:fr:cc:successions:adm:m82:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SubstitutionDemandable);
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 414 : la veille du dix-huitième anniversaire, la personne n est pas majeure.
+test "urn:query:fr-code-civil-personnes-p02-mineur-la-veille-n-est-pas-majeur" {
+    given {
+        context { decision_time @2026-03-14T09:00:00Z; knowledge_time @2026-03-14T09:00:00Z; legal_time @2026-03-14; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:pers:m:p"), @2008-03-15) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:pers:m:p"), @2026-03-14) { origin case_input; }
+    }
+    evaluate truth(majeur(entity_ref("urn:fr:cc:pers:m:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

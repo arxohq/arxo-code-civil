@@ -1,0 +1,642 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:query:fr-code-civil-vente-louage-cheptel-qualifie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bailleur_de_cheptel(entity_ref("urn:fr:cc12:c:x"), entity_ref("urn:fr:cc12:c:b")) { origin case_input; }
+        assert "p": preneur_de_cheptel(entity_ref("urn:fr:cc12:c:x"), entity_ref("urn:fr:cc12:c:p")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c:x")) { origin case_input; }
+    }
+    evaluate truth(cheptel_qualifie(entity_ref("urn:fr:cc12:c:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+// Bail à cheptel, section IV (articles 1801 à 1831). Le droit de cette section
+// est supplétif (1803) : chaque règle de partage est gardée par le cas où la
+// convention particulière la déplace.
+
+test "urn:query:fr-code-civil-vente-louage-1802-1803-regles-suppletives" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c1:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c1:c")) { origin case_input; }
+    }
+    evaluate truth(cheptel_qualifie(entity_ref("urn:fr:cc12:c1:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(regles_suppletives_du_cheptel_applicables(entity_ref("urn:fr:cc12:c1:c")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(laitages_fumier_et_travail_au_preneur(entity_ref("urn:fr:cc12:c1:c")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(laine_et_croit_partages(entity_ref("urn:fr:cc12:c1:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1803-conventions-particulieres-ecartent-le-suppletif" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c2:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c2:c")) { origin case_input; }
+        assert "p": conventions_particulieres_du_cheptel(entity_ref("urn:fr:cc12:c2:c")) { origin case_input; }
+    }
+    evaluate truth(regles_suppletives_du_cheptel_applicables(entity_ref("urn:fr:cc12:c2:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(laine_et_croit_partages(entity_ref("urn:fr:cc12:c2:c")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1805-etat-numeratif-sans-transfert-de-propriete" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "e": etat_numeratif_descriptif_et_estimatif_au_bail(entity_ref("urn:fr:cc12:c3:c")) { origin case_input; }
+    }
+    evaluate truth(propriete_non_transferee_au_preneur(entity_ref("urn:fr:cc12:c3:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1807-cas-fortuit-sans-faute-decharge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "cf": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:c4:c")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_decharge_par_le_cas_fortuit(entity_ref("urn:fr:cc12:c4:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_tenu_du_cas_fortuit(entity_ref("urn:fr:cc12:c4:c")));
+    expect truth_status == NEITHER;
+    evaluate truth(compte_des_peaux_du(entity_ref("urn:fr:cc12:c4:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1807-faute-prealable-prouvee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "cf": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:c5:c")) { origin adjudicated; }
+        assert "fa": faute_du_preneur_prealable_au_cas_fortuit(entity_ref("urn:fr:cc12:c5:c")) { origin adjudicated; }
+    }
+    evaluate truth(preneur_tenu_du_cas_fortuit(entity_ref("urn:fr:cc12:c5:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_decharge_par_le_cas_fortuit(entity_ref("urn:fr:cc12:c5:c")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1810-perte-totale-pour-le-bailleur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "cf": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:c6:c")) { origin adjudicated; }
+        assert "all": cheptel_peri_en_entier(entity_ref("urn:fr:cc12:c6:c")) { origin case_input; }
+    }
+    evaluate truth(perte_pour_le_bailleur_du_cheptel(entity_ref("urn:fr:cc12:c6:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1810-perte-partielle-en-commun" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "cf": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:c7:c")) { origin adjudicated; }
+        assert "part": cheptel_peri_en_partie(entity_ref("urn:fr:cc12:c7:c")) { origin case_input; }
+    }
+    evaluate truth(perte_supportee_en_commun(entity_ref("urn:fr:cc12:c7:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(perte_pour_le_bailleur_du_cheptel(entity_ref("urn:fr:cc12:c7:c")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1811-trois-stipulations-nulles" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s1": stipulation_de_perte_totale_a_la_charge_du_preneur(entity_ref("urn:fr:cc12:c8:c")) { origin case_input; }
+    }
+    evaluate truth(convention_de_cheptel_nulle(entity_ref("urn:fr:cc12:c8:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1811-part-de-perte-superieure-au-profit-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s2": stipulation_de_part_de_perte_superieure_au_profit(entity_ref("urn:fr:cc12:c9:c")) { origin case_input; }
+    }
+    evaluate truth(convention_de_cheptel_nulle(entity_ref("urn:fr:cc12:c9:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1811-stipulation-licite-non-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c10:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c10:c")) { origin case_input; }
+    }
+    evaluate truth(convention_de_cheptel_nulle(entity_ref("urn:fr:cc12:c10:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1817-1826-stipulation-de-valeur-egale-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": stipulation_de_valeur_egale_a_l_estimation(entity_ref("urn:fr:cc12:c11:c")) { origin case_input; }
+    }
+    evaluate truth(convention_de_cheptel_nulle(entity_ref("urn:fr:cc12:c11:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1812-disposition-sans-consentement-interdite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c12:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c12:c")) { origin case_input; }
+    }
+    evaluate truth(disposition_d_une_bete_interdite(entity_ref("urn:fr:cc12:c12:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1812-consentement-donne" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c13:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c13:c")) { origin case_input; }
+        assert "ok": consentement_de_l_autre_partie_a_la_disposition(entity_ref("urn:fr:cc12:c13:c")) { origin case_input; }
+    }
+    evaluate truth(disposition_d_une_bete_interdite(entity_ref("urn:fr:cc12:c13:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1813-defaut-de-notification-saisie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": cheptel_donne_au_fermier_d_autrui(entity_ref("urn:fr:cc12:c14:c")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_peut_saisir_et_faire_vendre(entity_ref("urn:fr:cc12:c14:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1813-notification-faite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": cheptel_donne_au_fermier_d_autrui(entity_ref("urn:fr:cc12:c15:c")) { origin case_input; }
+        assert "n": notification_au_proprietaire_du_fonds_faite(entity_ref("urn:fr:cc12:c15:c")) { origin case_input; }
+    }
+    evaluate truth(proprietaire_peut_saisir_et_faire_vendre(entity_ref("urn:fr:cc12:c15:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1815-trois-ans-a-defaut-de-convention" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c16:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c16:c")) { origin case_input; }
+    }
+    evaluate truth(duree_du_cheptel_applicable(entity_ref("urn:fr:cc12:c16:c"), 3));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(duree_du_cheptel_applicable(entity_ref("urn:fr:cc12:c16:c"), 5));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1815-duree-convenue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c17:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c17:c")) { origin case_input; }
+        assert "d": duree_du_cheptel_convenue(entity_ref("urn:fr:cc12:c17:c")) { origin case_input; }
+        assert "n": duree_du_cheptel_fixee_par_convention(entity_ref("urn:fr:cc12:c17:c"), 5) { origin case_input; }
+    }
+    evaluate truth(duree_du_cheptel_applicable(entity_ref("urn:fr:cc12:c17:c"), 5));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(duree_du_cheptel_applicable(entity_ref("urn:fr:cc12:c17:c"), 3));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1816-resolution-anticipee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "m": preneur_de_cheptel_manque_a_ses_obligations(entity_ref("urn:fr:cc12:c18:c")) { origin adjudicated; }
+    }
+    evaluate truth(bailleur_peut_demander_la_resolution_du_cheptel(entity_ref("urn:fr:cc12:c18:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1817-prelevement-et-partage-de-l-excedent" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "end": fin_du_cheptel_ou_resolution(entity_ref("urn:fr:cc12:c19:c")) { origin case_input; }
+        assert "enough": animaux_suffisants_pour_reconstituer_le_fonds(entity_ref("urn:fr:cc12:c19:c")) { origin case_input; }
+    }
+    evaluate truth(bailleur_preleve_le_fonds_et_partage_l_excedent(entity_ref("urn:fr:cc12:c19:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(reglement_sur_la_valeur_au_jour_de_la_fin(entity_ref("urn:fr:cc12:c19:c")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1817-deficit-reglement-sur-la-valeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "end": fin_du_cheptel_ou_resolution(entity_ref("urn:fr:cc12:c20:c")) { origin case_input; }
+    }
+    evaluate truth(reglement_sur_la_valeur_au_jour_de_la_fin(entity_ref("urn:fr:cc12:c20:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1818-1819-cheptel-a-moitie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "h": chacun_fournit_la_moitie_des_bestiaux(entity_ref("urn:fr:cc12:c21:c")) { origin case_input; }
+        assert "cc": convention_contraire_sur_les_laitages(entity_ref("urn:fr:cc12:c21:c")) { origin case_input; }
+    }
+    evaluate truth(cheptel_a_moitie_qualifie(entity_ref("urn:fr:cc12:c21:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(convention_contraire_sur_les_laitages_nulle(entity_ref("urn:fr:cc12:c21:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1819-bailleur-proprietaire-de-la-metairie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "h": chacun_fournit_la_moitie_des_bestiaux(entity_ref("urn:fr:cc12:c22:c")) { origin case_input; }
+        assert "cc": convention_contraire_sur_les_laitages(entity_ref("urn:fr:cc12:c22:c")) { origin case_input; }
+        assert "own": bailleur_proprietaire_de_la_metairie(entity_ref("urn:fr:cc12:c22:c")) { origin case_input; }
+    }
+    evaluate truth(convention_contraire_sur_les_laitages_nulle(entity_ref("urn:fr:cc12:c22:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1821-1825-cheptel-de-fer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "k": espece_du_cheptel(entity_ref("urn:fr:cc12:c23:c"), CheptelDonneAuFermier) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c23:c")) { origin case_input; }
+        assert "all": cheptel_peri_en_entier(entity_ref("urn:fr:cc12:c23:c")) { origin case_input; }
+    }
+    evaluate truth(cheptel_de_fer_qualifie(entity_ref("urn:fr:cc12:c23:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(perte_totale_pour_le_fermier(entity_ref("urn:fr:cc12:c23:c")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(profits_au_fermier_pendant_le_bail(entity_ref("urn:fr:cc12:c23:c")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(fumier_appartient_a_la_metairie(entity_ref("urn:fr:cc12:c23:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1825-convention-contraire-sur-la-perte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "k": espece_du_cheptel(entity_ref("urn:fr:cc12:c24:c"), CheptelDonneAuFermier) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c24:c")) { origin case_input; }
+        assert "all": cheptel_peri_en_entier(entity_ref("urn:fr:cc12:c24:c")) { origin case_input; }
+        assert "cc": convention_contraire_sur_la_perte_du_fermier(entity_ref("urn:fr:cc12:c24:c")) { origin case_input; }
+    }
+    evaluate truth(perte_totale_pour_le_fermier(entity_ref("urn:fr:cc12:c24:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1826-excedent-au-preneur-du-cheptel-de-fer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "k": espece_du_cheptel(entity_ref("urn:fr:cc12:c25:c"), CheptelDonneAuFermier) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c25:c")) { origin case_input; }
+        assert "end": fin_du_cheptel_ou_resolution(entity_ref("urn:fr:cc12:c25:c")) { origin case_input; }
+        assert "enough": animaux_suffisants_pour_reconstituer_le_fonds(entity_ref("urn:fr:cc12:c25:c")) { origin case_input; }
+    }
+    evaluate truth(excedent_appartient_au_preneur(entity_ref("urn:fr:cc12:c25:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(bailleur_preleve_le_fonds_et_partage_l_excedent(entity_ref("urn:fr:cc12:c25:c")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1827-1828-cheptel-du-metayer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "m": cheptel_donne_au_metayer(entity_ref("urn:fr:cc12:c26:c")) { origin case_input; }
+        assert "cf": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:c26:c")) { origin adjudicated; }
+        assert "all": cheptel_peri_en_entier(entity_ref("urn:fr:cc12:c26:c")) { origin case_input; }
+        assert "s": stipulation_de_toute_la_perte_a_la_charge_du_metayer(entity_ref("urn:fr:cc12:c26:c")) { origin case_input; }
+    }
+    evaluate truth(perte_pour_le_bailleur_du_cheptel(entity_ref("urn:fr:cc12:c26:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(convention_de_cheptel_nulle(entity_ref("urn:fr:cc12:c26:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1829-cheptel-finit-avec-le-metayage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "m": cheptel_donne_au_metayer(entity_ref("urn:fr:cc12:c27:c")) { origin case_input; }
+        assert "end": bail_de_metayage_fini(entity_ref("urn:fr:cc12:c27:c")) { origin case_input; }
+    }
+    evaluate truth(cheptel_du_metayer_fini(entity_ref("urn:fr:cc12:c27:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1831-vaches-donnees-a-loger-et-nourrir" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vaches_donnees_pour_loger_et_nourrir(entity_ref("urn:fr:cc12:c28:c")) { origin case_input; }
+    }
+    evaluate truth(bailleur_conserve_la_propriete_des_vaches(entity_ref("urn:fr:cc12:c28:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1814-tonte-sans-avertissement-interdite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c29:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c29:c")) { origin case_input; }
+    }
+    evaluate truth(tonte_interdite_sans_avertissement(entity_ref("urn:fr:cc12:c29:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1806-soins" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1806:c"), entity_ref("urn:fr:cc12:pos1806:p")) { origin case_input; }
+        assert "qualified": cheptel_qualifie(entity_ref("urn:fr:cc12:pos1806:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DonnerSoinsRaisonnablesCheptel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1806-soins-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1806b:c"), entity_ref("urn:fr:cc12:pos1806b:p")) { origin case_input; }
+        assert "qualified": cheptel_qualifie(entity_ref("urn:fr:cc12:pos1806b:c")) { origin case_input; }
+        assert "care": soins_du_cheptel_assures(entity_ref("urn:fr:cc12:pos1806b:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DonnerSoinsRaisonnablesCheptel, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1807-perte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1807:c"), entity_ref("urn:fr:cc12:pos1807:p")) { origin case_input; }
+        assert "fortuitous": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:pos1807:c")) { origin case_input; }
+        assert "fault": faute_du_preneur_prealable_au_cas_fortuit(entity_ref("urn:fr:cc12:pos1807:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(SupporterPerteFortuiteApresFaute, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-total" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811:c"), entity_ref("urn:fr:cc12:pos1811:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_perte_totale_a_la_charge_du_preneur(entity_ref("urn:fr:cc12:pos1811:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPerteTotale, ACTIVE);
+    expect position(MaintenirNullitePerteTotale, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-part" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811b:c"), entity_ref("urn:fr:cc12:pos1811b:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_part_de_perte_superieure_au_profit(entity_ref("urn:fr:cc12:pos1811b:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPartSuperieure, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-prelevement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811c:c"), entity_ref("urn:fr:cc12:pos1811c:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_prelevement_supplementaire_du_bailleur(entity_ref("urn:fr:cc12:pos1811c:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasPreleverSupplementCheptel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1807-perte-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1807b:c"), entity_ref("urn:fr:cc12:pos1807b:p")) { origin case_input; }
+        assert "fortuitous": cas_fortuit_du_cheptel(entity_ref("urn:fr:cc12:pos1807b:c")) { origin case_input; }
+        assert "fault": faute_du_preneur_prealable_au_cas_fortuit(entity_ref("urn:fr:cc12:pos1807b:c")) { origin case_input; }
+        assert "borne": perte_fortuite_supportee_par_preneur(entity_ref("urn:fr:cc12:pos1807b:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(SupporterPerteFortuiteApresFaute, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-total-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811d:c"), entity_ref("urn:fr:cc12:pos1811d:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_perte_totale_a_la_charge_du_preneur(entity_ref("urn:fr:cc12:pos1811d:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPerteTotale, ACTIVE);
+    expect position(MaintenirNullitePerteTotale, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-part-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811e:c"), entity_ref("urn:fr:cc12:pos1811e:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_part_de_perte_superieure_au_profit(entity_ref("urn:fr:cc12:pos1811e:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPartSuperieure, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-prelevement-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811e:c"), entity_ref("urn:fr:cc12:pos1811e:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_prelevement_supplementaire_du_bailleur(entity_ref("urn:fr:cc12:pos1811e:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasPreleverSupplementCheptel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1813-saisie" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1813:c"), entity_ref("urn:fr:cc12:pos1813:p")) { origin case_input; }
+        assert "kind": cheptel_donne_au_fermier_d_autrui(entity_ref("urn:fr:cc12:pos1813:c")) { origin case_input; } }
+    evaluate positions(); expect position(PouvoirSaisieCheptelSansNotification, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1813-saisie-exercee" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1813b:c"), entity_ref("urn:fr:cc12:pos1813b:p")) { origin case_input; }
+        assert "kind": cheptel_donne_au_fermier_d_autrui(entity_ref("urn:fr:cc12:pos1813b:c")) { origin case_input; }
+        assert "act": saisie_du_cheptel_exercee(entity_ref("urn:fr:cc12:pos1813b:c")) { origin case_input; } }
+    evaluate positions(); expect position(PouvoirSaisieCheptelSansNotification, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1814-tonte" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1814:c"), entity_ref("urn:fr:cc12:pos1814:p")) { origin case_input; }
+        assert "qualified": cheptel_qualifie(entity_ref("urn:fr:cc12:pos1814:c")) { origin case_input; } }
+    evaluate positions(); expect position(NePasTondreSansAvertissement, ACTIVE); expect position(MaintenirAvertissementTonte, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1814-tonte-exercee" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1814b:c"), entity_ref("urn:fr:cc12:pos1814b:p")) { origin case_input; }
+        assert "qualified": cheptel_qualifie(entity_ref("urn:fr:cc12:pos1814b:c")) { origin case_input; } }
+    evaluate positions(); expect position(NePasTondreSansAvertissement, ACTIVE); expect position(MaintenirAvertissementTonte, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1816-resolution" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1816:c"), entity_ref("urn:fr:cc12:pos1816:p")) { origin case_input; }
+        assert "missing": preneur_de_cheptel_manque_a_ses_obligations(entity_ref("urn:fr:cc12:pos1816:c")) { origin case_input; } }
+    evaluate positions(); expect position(PouvoirResolutionAnticipeeCheptel, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1816-resolution-exercee" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1816b:c"), entity_ref("urn:fr:cc12:pos1816b:p")) { origin case_input; }
+        assert "missing": preneur_de_cheptel_manque_a_ses_obligations(entity_ref("urn:fr:cc12:pos1816b:c")) { origin case_input; }
+        assert "act": demande_resolution_du_cheptel_exercee(entity_ref("urn:fr:cc12:pos1816b:c")) { origin case_input; } }
+    evaluate positions(); expect position(PouvoirResolutionAnticipeeCheptel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1817-fonds" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1817:c"), entity_ref("urn:fr:cc12:pos1817:p")) { origin case_input; }
+        assert "end": fin_du_cheptel_ou_resolution(entity_ref("urn:fr:cc12:pos1817:c")) { origin case_input; }
+        assert "enough": animaux_suffisants_pour_reconstituer_le_fonds(entity_ref("urn:fr:cc12:pos1817:c")) { origin case_input; } }
+    evaluate positions(); expect position(PreleverFondsPartagerExcedent, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1817-fonds-second" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": bailleur_de_cheptel(entity_ref("urn:fr:cc12:pos1817b:c"), entity_ref("urn:fr:cc12:pos1817b:p")) { origin case_input; }
+        assert "end": fin_du_cheptel_ou_resolution(entity_ref("urn:fr:cc12:pos1817b:c")) { origin case_input; }
+        assert "enough": animaux_suffisants_pour_reconstituer_le_fonds(entity_ref("urn:fr:cc12:pos1817b:c")) { origin case_input; }
+        assert "done": fonds_preleve_et_excedent_partage(entity_ref("urn:fr:cc12:pos1817b:c")) { origin case_input; } }
+    evaluate positions(); expect position(PreleverFondsPartagerExcedent, SATISFIED);
+}
+test "urn:positions:fr-code-civil-vente-louage-1824-fumier" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1824:c"), entity_ref("urn:fr:cc12:pos1824:p")) { origin case_input; }
+        assert "iron": cheptel_de_fer_qualifie(entity_ref("urn:fr:cc12:pos1824:c")) { origin case_input; } }
+    evaluate positions(); expect position(EmployerFumierExploitation, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1824-fumier-second" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1824b:c"), entity_ref("urn:fr:cc12:pos1824b:p")) { origin case_input; }
+        assert "iron": cheptel_de_fer_qualifie(entity_ref("urn:fr:cc12:pos1824b:c")) { origin case_input; }
+        assert "done": fumier_employe_a_l_exploitation(entity_ref("urn:fr:cc12:pos1824b:c")) { origin case_input; } }
+    evaluate positions(); expect position(EmployerFumierExploitation, SATISFIED);
+}
+test "urn:positions:fr-code-civil-vente-louage-1828-loss" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "metayer": cheptel_donne_au_metayer(entity_ref("urn:fr:cc12:pos1828:c")) { origin case_input; }
+        assert "stip": stipulation_de_toute_la_perte_a_la_charge_du_metayer(entity_ref("urn:fr:cc12:pos1828:c")) { origin case_input; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1828:c"), entity_ref("urn:fr:cc12:pos1828:p")) { origin case_input; } }
+    evaluate positions(); expect position(NePasStipulerPerteMetayer, ACTIVE);
+}
+test "urn:positions:fr-code-civil-vente-louage-1828-loss-second" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "metayer": cheptel_donne_au_metayer(entity_ref("urn:fr:cc12:pos1828b:c")) { origin case_input; }
+        assert "stip": stipulation_de_toute_la_perte_a_la_charge_du_metayer(entity_ref("urn:fr:cc12:pos1828b:c")) { origin case_input; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1828b:c"), entity_ref("urn:fr:cc12:pos1828b:p")) { origin case_input; } }
+    evaluate positions(); expect position(NePasStipulerPerteMetayer, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1814-bailleur-prevenu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c30:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c30:c")) { origin case_input; }
+        assert "w": bailleur_prevenu_de_la_tonte(entity_ref("urn:fr:cc12:c30:c")) { origin case_input; }
+    }
+    evaluate truth(tonte_interdite_sans_avertissement(entity_ref("urn:fr:cc12:c30:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-part-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811partv:c"), entity_ref("urn:fr:cc12:pos1811partv:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_part_de_perte_superieure_au_profit(entity_ref("urn:fr:cc12:pos1811partv:c")) { origin case_input; }
+        assert "act": stipulation_nulle_invoquee(entity_ref("urn:fr:cc12:pos1811partv:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPartSuperieure, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-total-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811totalv:c"), entity_ref("urn:fr:cc12:pos1811totalv:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_perte_totale_a_la_charge_du_preneur(entity_ref("urn:fr:cc12:pos1811totalv:c")) { origin case_input; }
+        assert "act": stipulation_nulle_invoquee(entity_ref("urn:fr:cc12:pos1811totalv:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPerteTotale, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1811-prelevement-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1811prev:c"), entity_ref("urn:fr:cc12:pos1811prev:p")) { origin case_input; }
+        assert "stipulation": stipulation_de_prelevement_supplementaire_du_bailleur(entity_ref("urn:fr:cc12:pos1811prev:c")) { origin case_input; }
+        assert "act": stipulation_nulle_invoquee(entity_ref("urn:fr:cc12:pos1811prev:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasPreleverSupplementCheptel, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1814-tonte-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1814v:c"), entity_ref("urn:fr:cc12:pos1814v:p")) { origin case_input; }
+        assert "qualified": cheptel_qualifie(entity_ref("urn:fr:cc12:pos1814v:c")) { origin case_input; }
+        assert "act": tonte_exercee_sans_avertissement(entity_ref("urn:fr:cc12:pos1814v:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasTondreSansAvertissement, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1828-loss-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "metayer": cheptel_donne_au_metayer(entity_ref("urn:fr:cc12:pos1828v:c")) { origin case_input; }
+        assert "stip": stipulation_de_toute_la_perte_a_la_charge_du_metayer(entity_ref("urn:fr:cc12:pos1828v:c")) { origin case_input; }
+        assert "lessee": preneur_de_cheptel(entity_ref("urn:fr:cc12:pos1828v:c"), entity_ref("urn:fr:cc12:pos1828v:p")) { origin case_input; }
+        assert "act": stipulation_metayer_nulle_invoquee(entity_ref("urn:fr:cc12:pos1828v:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasStipulerPerteMetayer, VIOLATED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1806-soins-raisonnables" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": animaux_susceptibles_de_croit_ou_de_profit(entity_ref("urn:fr:cc12:c31:c")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:c31:c")) { origin case_input; }
+    }
+    evaluate truth(soins_raisonnables_a_la_conservation(entity_ref("urn:fr:cc12:c31:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

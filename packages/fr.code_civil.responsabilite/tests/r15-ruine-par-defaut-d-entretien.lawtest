@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1244 : ruine du bâtiment par défaut d entretien — le propriétaire est responsable.
+test "urn:query:fr-code-civil-responsabilite-r15-ruine-par-defaut-d-entretien" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": ruine_du_batiment(entity_ref("urn:fr:cc:resp:j:f"), entity_ref("urn:fr:cc:resp:j:proprietaire")) { origin adjudicated; }
+        assert "f2": ruine_par_defaut_d_entretien_ou_vice(entity_ref("urn:fr:cc:resp:j:f")) { origin adjudicated; }
+        assert "f3": a_cause(entity_ref("urn:fr:cc:resp:j:f"), entity_ref("urn:fr:cc:resp:j:d")) { origin adjudicated; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:j:d"), entity_ref("urn:fr:cc:resp:j:proprietaire")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ResponsabiliteDuFaitDesBatiments);
+}

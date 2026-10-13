@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 706 et 707. Le témoin jumeau de s19, un jour plus tôt : au trentième
+// anniversaire même, le terme n'est pas accompli et la servitude subsiste.
+test "urn:query:fr-code-civil-biens-s20-servitude-non-eteinte-au-terme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": servitude_grevant(entity_ref("urn:fr:cc:biens:s20:S"), entity_ref("urn:fr:cc:biens:s20:SERV"), entity_ref("urn:fr:cc:biens:s20:DOM")) { origin case_input; }
+        assert "f2": usage_exigeant_le_fait_actuel_de_l_homme(entity_ref("urn:fr:cc:biens:s20:S")) { origin case_input; }
+        assert "f3": cessation_de_la_jouissance_le(entity_ref("urn:fr:cc:biens:s20:S"), @1990-05-10) { origin case_input; }
+        assert "f4": jour_de_reference_de_la_servitude(entity_ref("urn:fr:cc:biens:s20:S"), @2020-05-10) { origin case_input; }
+    }
+    evaluate truth(servitude_eteinte(entity_ref("urn:fr:cc:biens:s20:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == FALSE_ONLY;
+}

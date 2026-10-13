@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1341-1, canal §47.3 : l'action oblique suppose que la carence du débiteur
+// COMPROMETTE LES DROITS du créancier — appréciation que le texte délègue au juge.
+// Sans réponse, l'action n'est pas ouverte et le cas porte une demande de jugement.
+test "urn:query:fr-code-civil-obligations-o14-action-oblique-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:obl:c"), entity_ref("urn:fr:cc:obligations:obl:CR")) { origin case_input; }
+        assert "f2": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:obl:c"), entity_ref("urn:fr:cc:obligations:obl:D")) { origin case_input; }
+    }
+    evaluate truth(action_oblique_ouverte(entity_ref("urn:fr:cc:obligations:obl:c"), entity_ref("urn:fr:cc:obligations:obl:CR"), entity_ref("urn:fr:cc:obligations:obl:D")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(carence_compromettant_les_droits, Court);
+}

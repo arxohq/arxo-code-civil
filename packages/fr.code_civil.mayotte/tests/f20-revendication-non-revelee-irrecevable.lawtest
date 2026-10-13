@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2515 : le droit non révélé au cours de la procédure d'immatriculation ne peut plus être revendiqué.
+test "urn:query:fr-code-civil-mayotte-f20-revendication-non-revelee-irrecevable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": droit_sur(entity_ref("urn:fr:cc:may:ah:dr"), entity_ref("urn:fr:cc:may:ah:imm")) { origin case_input; }
+        assert "f2": immeuble_immatricule(entity_ref("urn:fr:cc:may:ah:imm")) { origin case_input; }
+        assert "f3": droit_non_revele_lors_de_l_immatriculation(entity_ref("urn:fr:cc:may:ah:dr")) { origin case_input; }
+    }
+    evaluate truth(revendication_irrecevable(entity_ref("urn:fr:cc:may:ah:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevendicationNonRevelee);
+}

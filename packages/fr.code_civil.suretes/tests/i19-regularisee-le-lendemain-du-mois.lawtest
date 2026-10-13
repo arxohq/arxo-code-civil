@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2303 : régularisée le 16 février 2023, hors du mois de l'exigibilité — l'incident demeure.
+test "urn:query:fr-code-civil-suretes-i19-regularisee-le-lendemain-du-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-03-01; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i19:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i19:K"), entity_ref("urn:fr:cc:suretes:i19:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i19:K"), entity_ref("urn:fr:cc:suretes:i19:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i19:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i19:B")) { origin case_input; }
+        assert "f6": echeance_du_principal(entity_ref("urn:fr:cc:suretes:i19:K"), entity_ref("urn:fr:cc:suretes:i19:P1")) { origin case_input; }
+        assert "f7": echue_le(entity_ref("urn:fr:cc:suretes:i19:P1"), @2023-01-15) { origin case_input; }
+        assert "f8": echeance_impayee(entity_ref("urn:fr:cc:suretes:i19:P1")) { origin case_input; }
+        assert "f9": regularisee_le(entity_ref("urn:fr:cc:suretes:i19:P1"), @2023-02-16) { origin case_input; }
+    }
+    evaluate truth(incident_non_regularise(entity_ref("urn:fr:cc:suretes:i19:K"), entity_ref("urn:fr:cc:suretes:i19:P1"), @2023-01-15));
+    expect truth_status == TRUE_ONLY;
+    expect applied(IncidentNonRegularise);
+}

@@ -1,0 +1,25 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1186 al. 3 : la caducité n'intervient que si le contractant contre lequel elle est invoquée connaissait l'opération d'ensemble — ici, il ne la connaissait pas.
+test "urn:query:fr-code-civil-contrat-s19-caducite-operation-d-ensemble-sans-connaissance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s19"), @2019-03-01) { origin case_input; }
+        assert "f2": prestation_possible(entity_ref("urn:fr:cc:contrat:s19")) { origin case_input; }
+        assert "f3": prestation_determinee(entity_ref("urn:fr:cc:contrat:s19")) { origin case_input; }
+        assert "f4": partie_au_contrat(entity_ref("urn:fr:cc:contrat:s19"), entity_ref("urn:fr:cc:contrat:s19:p1")) { origin case_input; }
+        assert "f5": personne_physique(entity_ref("urn:fr:cc:contrat:s19:p1")) { origin case_input; }
+        assert "f6": consentement_donne_par(entity_ref("urn:fr:cc:contrat:s19"), entity_ref("urn:fr:cc:contrat:s19:p1")) { origin case_input; }
+        assert "f7": sain_d_esprit(entity_ref("urn:fr:cc:contrat:s19"), entity_ref("urn:fr:cc:contrat:s19:p1")) { origin case_input; }
+        assert "f8": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:s19"), @2019-03-01) { origin case_input; }
+        assert "f9": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:s19"), "1145") { origin case_input; }
+        assert "f10": contrat_d_une_meme_operation(entity_ref("urn:fr:cc:contrat:s19"), entity_ref("urn:fr:cc:contrat:s19:autre")) { origin case_input; }
+        assert "f11": contrat_disparu(entity_ref("urn:fr:cc:contrat:s19:autre")) { origin case_input; }
+        assert "f12": execution_rendue_impossible_par_la_disparition(entity_ref("urn:fr:cc:contrat:s19"), entity_ref("urn:fr:cc:contrat:s19:autre")) { origin case_input; }
+    }
+    evaluate truth(contrat_caduc(entity_ref("urn:fr:cc:contrat:s19")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

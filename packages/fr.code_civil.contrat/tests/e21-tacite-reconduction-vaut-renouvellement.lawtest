@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1215 et 1214 al. 2 : les obligations poursuivies après le terme valent tacite reconduction, qui produit les effets du renouvellement — un nouveau contrat à durée indéterminée.
+test "urn:query:fr-code-civil-contrat-e21-tacite-reconduction-vaut-renouvellement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e21"), @2019-03-01) { origin case_input; }
+        assert "f2": duree_du_contrat(entity_ref("urn:fr:cc:contrat:e21"), DureeDeterminee) { origin case_input; }
+        assert "f3": terme_du_contrat(entity_ref("urn:fr:cc:contrat:e21"), @2020-12-31) { origin case_input; }
+        assert "f4": obligations_poursuivies_apres_le_terme(entity_ref("urn:fr:cc:contrat:e21")) { origin case_input; }
+    }
+    evaluate truth(tacite_reconduction(entity_ref("urn:fr:cc:contrat:e21")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TaciteReconduction);
+
+    evaluate truth(nouveau_contrat_a_duree_indeterminee(entity_ref("urn:fr:cc:contrat:e21")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RenouvellementDonneUnContratADureeIndeterminee);
+}

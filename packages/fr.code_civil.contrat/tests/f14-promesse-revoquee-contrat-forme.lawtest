@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1124 al. 2 : la révocation de la promesse pendant le temps de l'option n'empêche pas la formation du contrat promis quand le bénéficiaire lève l'option.
+test "urn:query:fr-code-civil-contrat-f14-promesse-revoquee-contrat-forme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f14"), @2019-03-01) { origin case_input; }
+        assert "f2": promesse_unilaterale(entity_ref("urn:fr:cc:contrat:f14"), entity_ref("urn:fr:cc:contrat:f14:promettant"), entity_ref("urn:fr:cc:contrat:f14:beneficiaire")) { origin case_input; }
+        assert "f3": revocation_de_la_promesse_pendant_le_temps_de_l_option(entity_ref("urn:fr:cc:contrat:f14")) { origin case_input; }
+        assert "f4": option_levee_par_le_beneficiaire(entity_ref("urn:fr:cc:contrat:f14")) { origin case_input; }
+    }
+    evaluate truth(contrat_promis_forme(entity_ref("urn:fr:cc:contrat:f14")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevocationDeLaPromesseSansEffet);
+}

@@ -1,0 +1,13 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 503: the day before the three-month term is not the statutory term.
+test "urn:query:fr-code-civil-personnes-tg07-inventaire-trois-mois-veille" {
+    given {
+        context { decision_time @2026-04-09T09:00:00Z; knowledge_time @2026-04-09T09:00:00Z; legal_time @2026-04-09; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg07:m"), entity_ref("urn:fr:cc:personnes:tg07:p"), entity_ref("urn:fr:cc:personnes:tg07:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate truth(echeance_inventaire_meubles(entity_ref("urn:fr:cc:personnes:tg07:m"), @2026-04-09));
+    expect truth_status == NEITHER;
+}

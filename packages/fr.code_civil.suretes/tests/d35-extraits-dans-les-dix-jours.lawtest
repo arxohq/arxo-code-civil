@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2443, al. 2 : réquisition le 1er mars 2024 — extraits dus au plus tard le 11 mars.
+test "urn:query:fr-code-civil-suretes-d35-extraits-dans-les-dix-jours" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_JOUR; }
+        assert "f1": demande_de_renseignements_sur_immeubles_designes(entity_ref("urn:fr:cc:suretes:d35:I")) { origin case_input; }
+        assert "f2": requisition_de_copie_le(entity_ref("urn:fr:cc:suretes:d35:I"), @2024-03-01) { origin case_input; }
+    }
+    evaluate truth(delai_de_delivrance_des_extraits(entity_ref("urn:fr:cc:suretes:d35:I"), @2024-03-11));
+    expect truth_status == TRUE_ONLY;
+}

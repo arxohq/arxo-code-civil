@@ -1,0 +1,137 @@
+// CODE CIVIL — LIVRE III, TITRE III : LES SOURCES D'OBLIGATIONS,
+// ARTICLES LIMINAIRES ET SOUS-TITRE Ier « LE CONTRAT » (CC-08).
+//
+// Cent cinquante et un articles en vigueur : 1100 à 1100-2 (les sources
+// d'obligations) et 1101 à 1231-7 (le contrat). C'est la vitrine de la
+// réforme du droit des obligations : l'ordonnance n° 2016-131 a réécrit
+// presque tout le sous-titre au 1er octobre 2016, et la loi n° 2018-287 de
+// ratification l'a retouché au 1er octobre 2018.
+//
+// L'AXE DU TEMPS EST UNE PRÉMISSE, PAS UN COMMENTAIRE. Aucune règle de ce
+// paquet ne s'applique à un contrat sans que le corridor de
+// `fr.code_civil.transitions` (CC-16) l'ait dit :
+//
+//   - régime ordinaire : `loi_applicable_au_contrat(c, LoiNouvelle)`, c'est-à-dire
+//     un contrat conclu à compter du 1er octobre 2016 ;
+//   - trois articles s'appliquent dès l'entrée en vigueur, même au contrat
+//     antérieur (ordonnance art. 9, troisième phrase) : 1123 alinéas 3 et 4,
+//     1158, 1183 — prémisse `applicable_des_l_entree_en_vigueur_2016` ;
+//   - sept articles « nouveaux » de la ratification (1110, 1117, 1137, 1145,
+//     1161, 1171, 1223) ont DEUX rédactions exécutables ici : celle de 2018
+//     pour l'acte conclu à compter du 1er octobre 2018, celle de 2016 pour
+//     l'acte antérieur — prémisse `loi_applicable_a_l_article_2018(c, "<n>", …)`,
+//     la seconde ancrée sur l'édition épinglée CC_REDACTION_2016 ;
+//   - contrat conclu avant le 1er octobre 2016 : le corridor rend
+//     `LoiAncienne` et le paquet s'arrête — frontière déclarée « régime
+//     antérieur non formalisé » (README).
+//
+// TROIS CANAUX (DECISION-0194). Le Code délègue ici beaucoup : le « délai
+// raisonnable » (1116, 1117, 1123, 1158, 1211, 1226, 1231), l'information
+// « dont l'importance est déterminante » (1112-1), l'« avantage manifestement
+// excessif » (1141, 1143), la contrepartie « illusoire ou dérisoire » (1169),
+// le « déséquilibre significatif » (1171), l'imprévisible et l'« excessivement
+// onéreuse » (1195), les trois caractères de la force majeure (1218),
+// l'inexécution « suffisamment grave » (1219, 1220, 1224), la « disproportion
+// manifeste » (1221), la « faute lourde ou dolosive » (1231-3), la pénalité
+// « manifestement excessive ou dérisoire » (1231-5). Chacun est un
+// `external judgment relation … { authority Court; }` déclaré à côté de sa
+// règle, dans le fichier de son chapitre.
+//
+// Fichiers :
+//   package.law                          — types, entrées communes, axe du temps
+//   temps.law                            — pont vers CC-16 et choix de rédaction
+//   chapitre-01-dispositions-liminaires.law  — art. 1100 à 1111-1
+//   chapitre-02-s1-conclusion.law        — art. 1112 à 1127-4
+//   chapitre-02-s2-validite.law          — art. 1128 à 1171
+//   chapitre-02-s3-forme.law             — art. 1172 à 1177
+//   chapitre-02-s4-sanctions.law         — art. 1178 à 1187
+//   chapitre-03-interpretation.law       — art. 1188 à 1192
+//   chapitre-04-s1-effets-parties.law    — art. 1193 à 1198
+//   chapitre-04-s2-effets-tiers.law      — art. 1199 à 1209
+//   chapitre-04-s3-duree.law             — art. 1210 à 1215
+//   chapitre-04-s4-cession.law           — art. 1216 à 1216-3
+//   chapitre-04-s5-inexecution.law       — art. 1217 à 1231-7
+//   sources.law                          — GÉNÉRÉ : source, éditions, publications, fragments
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+import fr.code_civil.core version "0.1.0";
+import fr.code_civil.transitions version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+type Creance = fr.code_civil.core::Creance;
+
+// Le contrat EST la situation juridique dont le corridor cherche la loi
+// applicable : l'alias permet de l'écrire en position de supertype (un nom
+// qualifié externe n'y est pas accepté par l'analyseur), et le fait de cas
+// `contrat_conclu_le(c, @…)` est alors lu directement par CC-16.
+type SituationJuridique = fr.code_civil.transitions::SituationJuridique;
+type LoiApplicable = fr.code_civil.transitions::LoiApplicable;
+
+pub entity Contrat : SituationJuridique {
+    label fr official "Contrat : accord de volontés destiné à créer, modifier, transmettre ou éteindre des obligations (article 1101)";
+    label en unofficial "Contract: agreement of wills intended to create, modify, transfer or extinguish obligations (Article 1101)";
+}
+
+// --- Entités du sous-titre ------------------------------------------------------------------
+
+pub entity Obligation {
+    label fr official "Obligation née du contrat : prestation due par un débiteur à un créancier";
+    label en unofficial "Obligation arising from the contract: performance owed by a debtor to a creditor";
+}
+pub entity Clause {
+    label fr official "Clause du contrat (articles 1170, 1171, 1184, 1225, 1230, 1231-5)";
+    label en unofficial "Clause of the contract (Articles 1170, 1171, 1184, 1225, 1230, 1231-5)";
+}
+pub entity Offre {
+    label fr official "Offre de contracter (articles 1114 à 1122)";
+    label en unofficial "Offer to contract (Articles 1114 to 1122)";
+}
+pub entity Negociation {
+    label fr official "Négociation précontractuelle (articles 1112 et 1112-2)";
+    label en unofficial "Pre-contractual negotiation (Articles 1112 and 1112-2)";
+}
+pub entity Information {
+    label fr official "Information litigieuse : celle qu'une partie détient et que l'autre ignore (articles 1112-1 et 1137)";
+    label en unofficial "Information at stake: held by one party and unknown to the other (Articles 1112-1 and 1137)";
+}
+pub entity Representation {
+    label fr official "Pouvoir de représentation, légal, judiciaire ou conventionnel (articles 1153 à 1161)";
+    label en unofficial "Power of representation, statutory, judicial or contractual (Articles 1153 to 1161)";
+}
+pub entity Stipulation {
+    label fr official "Porte-fort ou stipulation pour autrui (articles 1204 à 1209)";
+    label en unofficial "Promise of another's act or stipulation for a third party (Articles 1204 to 1209)";
+}
+pub entity Cession {
+    label fr official "Cession de contrat (articles 1216 à 1216-3)";
+    label en unofficial "Assignment of contract (Articles 1216 to 1216-3)";
+}
+
+// --- Entrées communes du cas --------------------------------------------------------------
+
+pub relation partie_au_contrat(c: Contrat, p: Personne) kind empirical {
+    label fr official "partie au contrat";
+    label en unofficial "party to the contract";
+}
+pub relation obligation_du_contrat(o: Obligation, c: Contrat) kind empirical {
+    key(o);
+    label fr official "obligation née de ce contrat";
+    label en unofficial "obligation arising from this contract";
+}
+pub relation debiteur_de_l_obligation(o: Obligation, p: Personne) kind empirical {
+    key(o);
+    label fr official "débiteur de l'obligation";
+    label en unofficial "debtor of the obligation";
+}
+pub relation creancier_de_l_obligation(o: Obligation, p: Personne) kind empirical {
+    key(o);
+    label fr official "créancier de l'obligation";
+    label en unofficial "creditor of the obligation";
+}
+pub relation clause_du_contrat(cl: Clause, c: Contrat) kind empirical {
+    key(cl);
+    label fr official "clause de ce contrat";
+    label en unofficial "clause of this contract";
+}

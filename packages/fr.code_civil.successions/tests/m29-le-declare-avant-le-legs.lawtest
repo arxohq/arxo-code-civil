@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 796, alinéa 4 : les legs de sommes d'argent sont délivrés après les créanciers.
+test "urn:query:fr-code-civil-successions-m29-le-declare-avant-le-legs" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m29:S"), entity_ref("urn:fr:cc:successions:adm:m29:P1"), CreancierDeclare) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m29:S"), entity_ref("urn:fr:cc:successions:adm:m29:P2"), LegataireDeSommeDArgent) { origin case_input; }
+    }
+    evaluate truth(paye_avant(entity_ref("urn:fr:cc:successions:adm:m29:S"), entity_ref("urn:fr:cc:successions:adm:m29:P1"), entity_ref("urn:fr:cc:successions:adm:m29:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

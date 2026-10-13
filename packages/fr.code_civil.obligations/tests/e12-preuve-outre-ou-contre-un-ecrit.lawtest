@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1359, al. 2 : il ne peut être prouvé OUTRE OU CONTRE un écrit établissant un acte
+// juridique, MÊME au-dessous du seuil, QUE PAR UN AUTRE ÉCRIT. La preuve offerte ici
+// n'est pas un écrit : elle est irrecevable.
+test "urn:query:fr-code-civil-obligations-e12-preuve-outre-ou-contre-un-ecrit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": ecrit_etablissant_l_acte(entity_ref("urn:fr:cc:obligations:ocr:a"), entity_ref("urn:fr:cc:obligations:ocr:e")) { origin case_input; }
+        assert "f2": preuve_offerte_outre_ou_contre_l_ecrit(entity_ref("urn:fr:cc:obligations:ocr:a")) { origin case_input; }
+    }
+    evaluate truth(preuve_outre_ou_contre_l_ecrit_irrecevable(entity_ref("urn:fr:cc:obligations:ocr:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PreuveOutreOuContreLEcritIrrecevable);
+}

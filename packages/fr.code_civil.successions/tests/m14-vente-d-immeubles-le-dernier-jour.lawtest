@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-1 : vente d'immeubles le 30 septembre 2024 — hors des pouvoirs.
+test "urn:query:fr-code-civil-successions-m14-vente-d-immeubles-le-dernier-jour" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:adm:m14:S"), @2024-03-31) { origin case_input; }
+        assert "f2": acte_du_curateur_le(entity_ref("urn:fr:cc:successions:adm:m14:S"), VenteDeBiensImmeubles, @2024-09-30) { origin case_input; }
+    }
+    evaluate truth(acte_du_curateur_interdit(entity_ref("urn:fr:cc:successions:adm:m14:S"), VenteDeBiensImmeubles));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(VenteDImmeublesInterditeAvantLeDelai);
+}

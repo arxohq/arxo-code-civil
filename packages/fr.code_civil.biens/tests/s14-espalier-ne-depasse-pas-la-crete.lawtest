@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 671, al. 2. L'espalier n'observe aucune distance, mais il ne peut
+// dépasser la crête du mur : à hauteur égale à la crête, il est dispensé.
+test "urn:query:fr-code-civil-biens-s14-espalier-ne-depasse-pas-la-crete" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": plantee_sur(entity_ref("urn:fr:cc:biens:s14:P"), entity_ref("urn:fr:cc:biens:s14:F")) { origin case_input; }
+        assert "f2": plantee_en_espalier_contre_le_mur_separatif(entity_ref("urn:fr:cc:biens:s14:P"), entity_ref("urn:fr:cc:biens:s14:M")) { origin case_input; }
+        assert "f3": hauteur_de_la_plantation(entity_ref("urn:fr:cc:biens:s14:P"), 25 dm) { origin case_input; }
+        assert "f4": hauteur_de_la_crete_du_mur(entity_ref("urn:fr:cc:biens:s14:M"), 25 dm) { origin case_input; }
+    }
+    evaluate truth(espalier_dispense_de_distance(entity_ref("urn:fr:cc:biens:s14:P"), entity_ref("urn:fr:cc:biens:s14:M")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 843, alinéa 2 : le testateur a exprimé la volonté contraire — le legs n'est plus réputé hors part.
+test "urn:query:fr-code-civil-successions-q04-legs-avec-volonte-contraire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": liberalite_recue(entity_ref("urn:fr:cc:successions:par:q04:S"), entity_ref("urn:fr:cc:successions:par:q04:H"), entity_ref("urn:fr:cc:successions:par:q04:L"), Legs) { origin case_input; }
+        assert "f2": rapport_expressement_exige(entity_ref("urn:fr:cc:successions:par:q04:S"), entity_ref("urn:fr:cc:successions:par:q04:L")) { origin case_input; }
+    }
+    evaluate truth(dispense_de_rapport(entity_ref("urn:fr:cc:successions:par:q04:S"), entity_ref("urn:fr:cc:successions:par:q04:L")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

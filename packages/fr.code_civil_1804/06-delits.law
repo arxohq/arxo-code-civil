@@ -1,0 +1,46 @@
+// LIVRE III TITRE IV — obligations without an agreement: any act of a person
+// that causes harm to another binds the one at fault to repair it (1382),
+// including by negligence (1383); one is also liable for persons for whom
+// one must answer: the father for minor children living with him, masters
+// and principals for servants and employees in the functions entrusted
+// (1384); the owner of an animal for the harm it caused (1385).
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART1370,
+    CC_ART1382,
+    CC_ART1383,
+    CC_ART1384,
+    CC_ART1385,
+    Causa,
+    Persona,
+    Res,
+    enfant_sous_autorite,
+};
+
+relation delit(auteur: Persona, victime: Persona, causa: Causa) kind institutional { label fr official "fait de l’homme qui cause à autrui un dommage"; label en unofficial "a person’s act caused harm to another (1382)"; }
+relation faute_prouvee_absente(causa: Causa) kind empirical { label fr official "absence de faute"; label en unofficial "the actor is without fault: neither intent nor negligence (1382–1383)"; }
+relation responsable(responsable: Persona, victime: Persona, causa: Causa) kind institutional { label fr official "responsable du dommage"; label en unofficial "the person is liable to the victim for the harm (1382–1385)"; }
+relation engagement_sans_convention(causa: Causa) kind institutional { label fr official "engagement qui se forme sans convention"; label en unofficial "the obligation arose without an agreement — from the obligor’s own act (1370)"; }
+relation prepose(prepose: Persona, commettant: Persona) kind institutional { label fr official "domestique ou préposé"; label en unofficial "servant or employee acting in the performance of the functions entrusted (1384)"; }
+
+@source(CC_ART1382, CC_ART1383)
+rule DelitOblige(a: Persona, l: Persona, c: Causa) defeasible { label fr official "Tout fait quelconque de l’homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé, à le réparer"; label en unofficial "Whoever caused harm by a wrongful act or by negligence must repair it (1382–1383)"; when doctrine.ius_privatum::damnum_datum(a, l, c); then responsable(a, l, c); }
+@source(CC_ART1382)
+rule SansFaute(a: Persona, l: Persona, c: Causa) defeasible { label fr official "par la faute duquel il est arrivé"; label en unofficial "Without fault there is no reparation (1382)"; when doctrine.ius_privatum::damnum_datum(a, l, c) and faute_prouvee_absente(c); then not responsable(a, l, c); }
+priority SansFauteSurDelit { label en unofficial "Absence of fault prevails over the general ground of liability (1382)"; prefer SansFaute over DelitOblige; reason explicit_exception; }
+@source(CC_ART1382)
+rule Delit(a: Persona, l: Persona, c: Causa) strict { label fr official "fait de l’homme qui cause à autrui un dommage"; label en unofficial "Causing harm is a delict (1382)"; when doctrine.ius_privatum::damnum_datum(a, l, c); then delit(a, l, c); }
+@source(CC_ART1370)
+rule EngagementSansConvention(a: Persona, l: Persona, c: Causa) strict { label fr official "Les autres naissent d’un fait personnel à celui qui se trouve obligé"; label en unofficial "The obligation from delict arises without an agreement (1370)"; when delit(a, l, c); then engagement_sans_convention(c); }
+@source(CC_ART1384)
+rule PereResponsable(s: Persona, p: Persona, l: Persona, c: Causa) strict { label fr official "Le père … est responsable du dommage causé par ses enfans mineurs habitant avec lui"; label en unofficial "The father is liable for harm caused by minor children living with him (1384)"; when doctrine.ius_privatum::damnum_datum(s, l, c) and enfant_sous_autorite(s, p); then responsable(p, l, c); }
+@source(CC_ART1384)
+rule Prepose(w: Persona, e: Persona) strict { label fr official "domestiques et préposés"; label en unofficial "The case’s employee is a servant or préposé acting in the functions entrusted (1384)"; when doctrine.ius_privatum::famulus(w, e); then prepose(w, e); }
+@source(CC_ART1384)
+rule CommettantResponsable(w: Persona, e: Persona, l: Persona, c: Causa) strict { label fr official "Les maîtres et les commettans, du dommage causé par leurs domestiques et préposés dans les fonctions auxquelles ils les ont employés"; label en unofficial "Masters and principals are liable for harm caused by servants and employees in the functions entrusted (1384)"; when doctrine.ius_privatum::damnum_datum(w, l, c) and prepose(w, e); then responsable(e, l, c); }
+@source(CC_ART1385)
+rule ProprietaireAnimalResponsable(an: Res, d: Persona, l: Persona, c: Causa) strict { label fr official "Le propriétaire d’un animal … est responsable du dommage que l’animal a causé"; label en unofficial "The owner of an animal is liable for the harm it caused — whether under his care or escaped (1385)"; when doctrine.ius_privatum::damnum_ab_animali(an, l, c) and doctrine.ius_privatum::animal_domini(an, d); then responsable(d, l, c); }

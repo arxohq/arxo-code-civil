@@ -1,0 +1,899 @@
+// CHAPITRE VII — DU RÉGIME LÉGAL DE L'INDIVISION (articles 815 à 815-18),
+// avec les durées du sursis et du maintien (820, 823).
+//
+// Le chapitre chiffre trois choses, et ce sont elles que le module calcule :
+//
+//   — les MAJORITÉS : les deux tiers des droits indivis suffisent aux actes
+//     d'administration, au mandat général, à la vente de meubles pour payer
+//     les dettes et aux baux ordinaires (815-3) ; tout le reste demande
+//     l'unanimité, et l'information des autres indivisaires conditionne
+//     l'opposabilité ;
+//   — les DÉLAIS : un mois pour signifier l'intention d'aliéner et trois mois
+//     d'opposition (815-5-1), un mois pour préempter, deux mois pour réaliser
+//     la vente et quinze jours après mise en demeure (815-14), un mois pour se
+//     substituer à l'adjudicataire (815-15), cinq ans pour l'action en nullité
+//     (815-16), cinq ans pour rechercher les fruits (815-10), deux ans de
+//     sursis au partage (820), cinq ans de maintien renouvelable (823) ;
+//   — les COMPTES : l'indemnité d'occupation privative (815-9), les bénéfices
+//     et pertes à proportion des droits (815-10), les produits nets de la
+//     gestion (815-12), l'indemnité d'amélioration « selon l'équité » — une
+//     appréciation, donc un canal de jugement (815-13).
+//
+// Les seuils de majorité se comptent en parts pour mille des droits indivis :
+// deux tiers valent 667 millièmes arrondis au plus proche, et le texte dit
+// « au moins deux tiers », donc le seuil est franchi à partir de 2/3 exactement.
+// Pour éviter toute division, la règle compare `3 × parts >= 2 × total`.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    ActeDuCurateur,
+    CC_ART815_10,
+    CC_ART815_13,
+    CC_ART815_14,
+    CC_ART815_15,
+    CC_ART815_16,
+    CC_ART815_3,
+    CC_ART815_5_1,
+    CC_ART815_9,
+    CC_ART820,
+    CC_ART821,
+    CC_ART822,
+    CC_ART823,
+    CC_ART824,
+    Personne,
+    Succession,
+};
+
+pub entity Indivision {
+    label fr official "Indivision entre les héritiers, régie par le chapitre VII (articles 815 et suivants)";
+    label en unofficial "Joint ownership between heirs, governed by Chapter VII (Articles 815 et seq.)";
+}
+
+@source(CC_ART815_3)
+rule P3PouvoirAccomplirActeMajoritaire(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-3. L'acte peut être accompli par la majorité des deux tiers";
+    label en unofficial "Article 815-3. The act may be performed by the two-thirds majority";
+    when acte_valablement_accompli(i) and acte_majoritaire_exerce(i, p);
+    then power P3PositionPouvoirAccomplirActeMajoritaire {
+        holder p;
+        over i;
+        exercise acte_majoritaire_exerce(i, p);
+        effect acte_majoritaire_accompli(i);
+        valid_when acte_valablement_accompli(i);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_13)
+rule P3PouvoirDemanderIndemniteAmelioration(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-13. Il doit être tenu compte à l'indivisaire de l'amélioration faite à ses frais";
+    label en unofficial "Article 815-13. The co-owner must be credited for the improvement made at his expense";
+    when indemnite_d_amelioration_selon_l_equite(i, p);
+    then power P3PositionPouvoirDemanderIndemniteAmelioration {
+        holder p;
+        over i;
+        exercise amelioration_indivisaire_exercee(i, p);
+        effect indemnite_d_amelioration_demandee(i, p);
+        valid_when indemnite_d_amelioration_selon_l_equite(i, p);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_10)
+rule P3PouvoirRechercherFruitsIndivision(i: Indivision, jour: Date) strict {
+    label fr official "Article 815-10. L'indivisaire peut rechercher les fruits et revenus";
+    label en unofficial "Article 815-10. A co-owner may claim fruits and income";
+    when fruits_percus_le(i, jour) and recherche_des_fruits_le(i, jour)
+        and not_known(recherche_des_fruits_irrecevable(i));
+    then power P3PositionPouvoirRechercherFruitsIndivision {
+        holder i;
+        over i;
+        exercise recherche_fruits_exercee(i);
+        effect fruits_et_revenus_recherches(i, jour);
+        valid_when recherche_des_fruits_le(i, jour);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_5_1)
+rule P3PouvoirDemanderAutorisationAlienation(i: Indivision) strict {
+    label fr official "Article 815-5-1. L'opposition ou le silence ouvre la voie à l'autorisation du tribunal";
+    label en unofficial "Article 815-5-1. Objection or silence opens the way to court authorisation";
+    when alienation_soumise_au_tribunal(i);
+    then power P3PositionPouvoirDemanderAutorisationAlienation {
+        holder i;
+        over i;
+        exercise autorisation_tribunal_alienation_exercee(i);
+        effect autorisation_d_alienation_demandee_au_tribunal(i);
+        valid_when alienation_soumise_au_tribunal(i);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_16)
+rule P3PouvoirDemanderNulliteCession(i: Indivision, jour: Date) strict {
+    label fr official "Article 815-16. L'action en nullité de la cession peut être exercée";
+    label en unofficial "Article 815-16. An action to annul the sale may be brought";
+    when cession_sans_notification(i) and action_en_nullite_de_la_cession_le(i, jour);
+    then power P3PositionPouvoirDemanderNulliteCession {
+        holder i;
+        over i;
+        exercise action_nullite_cession_exercee(i);
+        effect nullite_de_la_cession_demandee(i, jour);
+        valid_when cession_sans_notification(i);
+        window [@2007-01-01, infinity];
+    };
+}
+
+@source(CC_ART815_3)
+rule P3PouvoirMandatTaciteAdministration(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-3. L'indivisaire qui gère au su des autres est censé avoir reçu un mandat tacite";
+    label en unofficial "Article 815-3. A co-owner managing with the others' knowledge is deemed to hold a tacit mandate";
+    when mandat_tacite_d_administration(i, p);
+    then power P3PositionPouvoirMandatTaciteAdministration {
+        holder p;
+        over i;
+        exercise mandat_tacite_exerce(i, p);
+        effect acte_accompli_sous_mandat_tacite(i, p);
+        valid_when mandat_tacite_d_administration(i, p);
+        window [@2007-01-01, infinity];
+    };
+}
+
+pub enum ActeSurBienIndivis {
+    label fr official "Acte envisagé sur les biens indivis (article 815-3)";
+    label en unofficial "Act contemplated on the jointly owned property (Article 815-3)";
+    ActeDAdministration,
+    MandatGeneralDAdministration,
+    VenteDeMeublesPourPayerLesDettes,
+    BailOrdinaire,
+    BailRuralCommercialIndustrielOuArtisanal,
+    ActeDeDisposition,
+    ActeHorsExploitationNormale
+}
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation indivision_de(i: Indivision, s: Succession) kind empirical {
+    key(i);
+    label fr official "indivision née de cette succession";
+    label en unofficial "joint ownership arising from this estate";
+}
+pub relation droits_indivis(i: Indivision, p: Personne, parts: Integer) kind empirical {
+    key(i, p);
+    label fr official "droits de l'indivisaire, en parts de la masse indivise (article 815-3)";
+    label en unofficial "the co-owner's rights, in shares of the undivided mass (Article 815-3)";
+}
+pub relation total_des_parts(i: Indivision, total: Integer) kind empirical {
+    key(i);
+    label fr official "total des parts de l'indivision";
+    label en unofficial "total shares of the joint ownership";
+}
+pub relation acte_envisage(i: Indivision, acte: ActeSurBienIndivis) kind empirical {
+    key(i);
+    label fr official "acte que les indivisaires majoritaires entendent accomplir (article 815-3)";
+    label en unofficial "act the majority co-owners intend to perform (Article 815-3)";
+}
+pub relation parts_favorables(i: Indivision, parts: Integer) kind empirical {
+    key(i);
+    label fr official "parts détenues par les indivisaires favorables à l'acte (article 815-3)";
+    label en unofficial "shares held by the co-owners in favour of the act (Article 815-3)";
+}
+pub relation autres_indivisaires_informes(i: Indivision) kind empirical {
+    label fr official "les autres indivisaires ont été informés de la décision prise à la majorité des deux tiers (article 815-3, alinéa 6)";
+    label en unofficial "the other co-owners were informed of the two-thirds decision (Article 815-3, paragraph 6)";
+}
+pub relation consentement_de_tous(i: Indivision) kind empirical {
+    label fr official "tous les indivisaires ont consenti à l'acte (article 815-3, alinéa 7)";
+    label en unofficial "all co-owners consented to the act (Article 815-3, paragraph 7)";
+}
+pub relation gestion_au_su_et_sans_opposition(i: Indivision, p: Personne) kind empirical {
+    label fr official "un indivisaire a pris en main la gestion au su des autres et sans opposition (article 815-3, alinéa 8)";
+    label en unofficial "a co-owner took over management with the others' knowledge and without objection (Article 815-3, paragraph 8)";
+}
+pub relation intention_d_aliener_recueillie_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour où le notaire a recueilli l'intention d'aliéner des indivisaires titulaires des deux tiers (article 815-5-1)";
+    label en unofficial "day the notary recorded the two-thirds co-owners' intention to sell (Article 815-5-1)";
+}
+pub relation signification_aux_autres_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour de la signification de cette intention aux autres indivisaires (article 815-5-1)";
+    label en unofficial "day the intention was served on the other co-owners (Article 815-5-1)";
+}
+pub relation opposition_ou_silence_constate_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour du procès-verbal constatant l'opposition ou l'absence de réponse (article 815-5-1)";
+    label en unofficial "day of the record noting the objection or the absence of reply (Article 815-5-1)";
+}
+pub relation usage_privatif(i: Indivision, p: Personne) kind empirical {
+    label fr official "l'indivisaire use ou jouit privativement de la chose indivise (article 815-9, alinéa 2)";
+    label en unofficial "the co-owner uses or enjoys the jointly owned thing privately (Article 815-9, paragraph 2)";
+}
+pub relation convention_contraire_sur_l_indemnite(i: Indivision, p: Personne) kind empirical {
+    label fr official "une convention écarte l'indemnité d'occupation (article 815-9, alinéa 2)";
+    label en unofficial "an agreement sets aside the occupation indemnity (Article 815-9, paragraph 2)";
+}
+pub relation fruits_percus_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour où les fruits et revenus ont été perçus ou auraient pu l'être (article 815-10, alinéa 3)";
+    label en unofficial "day the fruits and income were, or could have been, collected (Article 815-10, paragraph 3)";
+}
+pub relation recherche_des_fruits_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour de la recherche relative aux fruits et revenus (article 815-10, alinéa 3)";
+    label en unofficial "day the claim relating to fruits and income is brought (Article 815-10, paragraph 3)";
+}
+pub relation fruits_et_revenus_recherches(i: Indivision, jour: Date) kind institutional {
+    label fr official "les fruits et revenus de l'indivision sont recherchés (article 815-10)";
+    label en unofficial "the fruits and income of the undivided property are claimed (Article 815-10)";
+}
+pub relation notification_de_la_cession_le(i: Indivision, cedant: Personne, jour: Date) kind empirical {
+    key(i, cedant);
+    label fr official "jour de la notification par acte extrajudiciaire du prix et des conditions de la cession projetée (article 815-14)";
+    label en unofficial "day the price and conditions of the contemplated sale were served (Article 815-14)";
+}
+pub relation preemption_notifiee_le(i: Indivision, preempteur: Personne, jour: Date) kind empirical {
+    key(i, preempteur);
+    label fr official "jour où l'indivisaire fait connaître qu'il exerce son droit de préemption (article 815-14, alinéa 2)";
+    label en unofficial "day the co-owner declares that he exercises his pre-emption right (Article 815-14, paragraph 2)";
+}
+pub relation vente_realisee_le(i: Indivision, preempteur: Personne, jour: Date) kind empirical {
+    key(i, preempteur);
+    label fr official "jour de la réalisation de l'acte de vente par le préempteur (article 815-14, alinéa 3)";
+    label en unofficial "day the pre-empting co-owner completed the sale (Article 815-14, paragraph 3)";
+}
+pub relation mise_en_demeure_le(i: Indivision, preempteur: Personne, jour: Date) kind empirical {
+    key(i, preempteur);
+    label fr official "jour de la mise en demeure restée sans effet (article 815-14, alinéa 3)";
+    label en unofficial "day of the formal notice that remained without effect (Article 815-14, paragraph 3)";
+}
+pub relation adjudication_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour de l'adjudication des droits indivis (article 815-15)";
+    label en unofficial "day the undivided rights were auctioned (Article 815-15)";
+}
+pub relation substitution_declaree_le(i: Indivision, p: Personne, jour: Date) kind empirical {
+    key(i, p);
+    label fr official "jour de la déclaration de substitution à l'acquéreur (article 815-15)";
+    label en unofficial "day the declaration of substitution for the buyer was made (Article 815-15)";
+}
+pub relation cession_operee_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour de la cession ou de la licitation des droits indivis (article 815-16)";
+    label en unofficial "day the undivided rights were sold or auctioned (Article 815-16)";
+}
+pub relation cession_sans_notification(i: Indivision) kind empirical {
+    label fr official "la cession ou la licitation a été opérée au mépris des articles 815-14 et 815-15 (article 815-16)";
+    label en unofficial "the sale or auction was made in disregard of Articles 815-14 and 815-15 (Article 815-16)";
+}
+pub relation action_en_nullite_de_la_cession_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour de l'action en nullité de la cession (article 815-16)";
+    label en unofficial "day the action to annul the sale was brought (Article 815-16)";
+}
+pub relation nullite_de_la_cession_demandee(i: Indivision, jour: Date) kind institutional {
+    label fr official "l'action en nullité de la cession est exercée (article 815-16)";
+    label en unofficial "the action for nullity of the assignment is brought (Article 815-16)";
+}
+pub relation date_d_appreciation_de_l_indivision(i: Indivision, p: Personne, jour: Date) kind empirical {
+    key(i, p);
+    label fr official "jour auquel la situation de cet indivisaire est appréciée";
+    label en unofficial "day on which this co-owner's situation is assessed";
+}
+pub relation sursis_au_partage_prononce_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour du jugement qui sursoit au partage (article 820)";
+    label en unofficial "day of the judgment staying the partition (Article 820)";
+}
+pub relation maintien_de_l_indivision_prononce_le(i: Indivision, jour: Date) kind empirical {
+    key(i);
+    label fr official "jour du jugement qui maintient l'indivision (articles 821, 823)";
+    label en unofficial "day of the judgment maintaining the joint ownership (Articles 821, 823)";
+}
+pub relation indivisaire_demandeur_sursis(i: Indivision, p: Personne) kind empirical {
+    label fr official "indivisaire demandeur du sursis au partage";
+    label en unofficial "co-owner requesting a stay of partition";
+}
+pub relation sursis_partage_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de sursis au partage exercée";
+    label en unofficial "request for a stay of partition exercised";
+}
+pub relation sursis_au_partage_demande(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a demandé au tribunal de surseoir au partage (article 820)";
+    label en unofficial "the co-owner has asked the court to stay the partition (Article 820)";
+}
+pub relation indivisaire_demandeur_maintien(i: Indivision, p: Personne) kind empirical {
+    label fr official "indivisaire demandeur du maintien dans l'indivision";
+    label en unofficial "co-owner requesting maintenance in joint ownership";
+}
+pub relation maintien_indivision_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de maintien dans l'indivision exercée";
+    label en unofficial "request to maintain joint ownership exercised";
+}
+pub relation maintien_dans_l_indivision_demande(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a demandé le maintien dans l'indivision (article 823)";
+    label en unofficial "the co-owner has sought maintenance of undivided ownership (Article 823)";
+}
+@source(CC_ART823)
+pub relation maintien_excessif_constate(i: Indivision, p: Personne) kind empirical {
+    label fr official "maintien dans l'indivision supérieur à cinq ans constaté";
+    label en unofficial "maintenance in joint ownership exceeding five years established";
+}
+pub relation maintien_admissible_article_822(i: Indivision, p: Personne) kind empirical {
+    label fr official "demandeur admissible au maintien selon l'article 822";
+    label en unofficial "applicant eligible for maintenance under Article 822";
+}
+pub relation maintien_article_822_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de maintien selon l'article 822 exercée";
+    label en unofficial "maintenance request under Article 822 exercised";
+}
+pub relation maintien_selon_l_article_822_demande(i: Indivision, p: Personne) kind institutional {
+    label fr official "le maintien dans l'indivision est demandé par une personne admissible (article 822)";
+    label en unofficial "maintenance of undivided ownership is sought by an eligible person (Article 822)";
+}
+pub relation maintien_entreprise_admissible(i: Indivision, p: Personne) kind empirical {
+    label fr official "demandeur admissible au maintien de l'entreprise dans l'indivision";
+    label en unofficial "applicant eligible to maintain the enterprise in joint ownership";
+}
+pub relation maintien_entreprise_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de maintien de l'entreprise exercée";
+    label en unofficial "request to maintain the enterprise exercised";
+}
+pub relation maintien_de_l_entreprise_demande(i: Indivision, p: Personne) kind institutional {
+    label fr official "le maintien de l'entreprise dans l'indivision est demandé (article 821)";
+    label en unofficial "maintenance of the business in undivided ownership is sought (Article 821)";
+}
+pub relation attribution_part_demande_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande d'attribution de la part exercée";
+    label en unofficial "request for attribution of the share exercised";
+}
+pub relation attribution_de_la_part_demandee(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a demandé l'attribution de sa part (article 824)";
+    label en unofficial "the co-owner has sought allocation of his or her share (Article 824)";
+}
+pub relation financement_complement_part_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "versement du complément de part exercé";
+    label en unofficial "payment of the supplementary amount exercised";
+}
+
+@source(CC_ART815_13)
+pub external judgment relation indemnite_d_amelioration_selon_l_equite(i: Indivision, p: Personne) {
+    authority Court;
+    label fr official "il doit être tenu compte à l'indivisaire, selon l'équité, de l'amélioration qu'il a faite à ses frais (article 815-13)";
+    label en unofficial "the co-owner must be credited, in equity, with the improvement he made at his own expense (Article 815-13)";
+}
+pub relation indemnite_d_amelioration_demandee(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a demandé qu'il lui soit tenu compte de l'amélioration faite à ses frais (article 815-13)";
+    label en unofficial "the co-owner has asked to be credited for the improvement made at his or her expense (Article 815-13)";
+}
+pub relation amelioration_indivisaire_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "demande de prise en compte de l'amélioration exercée";
+    label en unofficial "request to credit the co-owner's improvement exercised";
+}
+pub relation indemnity_occupation_exercee(i: Indivision, p: Personne) kind empirical {
+    label fr official "paiement de l'indemnité d'occupation exercé";
+    label en unofficial "occupation indemnity payment exercised";
+}
+pub relation recherche_fruits_exercee(i: Indivision) kind empirical {
+    label fr official "recherche des fruits et revenus exercée";
+    label en unofficial "claim for fruits and income exercised";
+}
+pub relation action_nullite_cession_exercee(i: Indivision) kind empirical {
+    label fr official "action en nullité de la cession exercée";
+    label en unofficial "action to annul the sale exercised";
+}
+pub relation autorisation_tribunal_alienation_exercee(i: Indivision) kind empirical {
+    label fr official "demande d'autorisation judiciaire d'aliénation exercée";
+    label en unofficial "request for court authorisation to alienate exercised";
+}
+
+// --- Résultats -------------------------------------------------------------------------------
+
+pub relation majorite_des_deux_tiers(i: Indivision) kind derived {
+    label fr official "les indivisaires favorables détiennent au moins deux tiers des droits indivis (article 815-3)";
+    label en unofficial "the co-owners in favour hold at least two thirds of the undivided rights (Article 815-3)";
+}
+pub relation acte_permis_a_la_majorite(i: Indivision) kind derived {
+    label fr official "l'acte relève des quatre catégories que la majorité des deux tiers peut accomplir (article 815-3, alinéas 1 à 5)";
+    label en unofficial "the act falls within the four categories the two-thirds majority may perform (Article 815-3, paragraphs 1 to 5)";
+}
+pub relation decision_opposable_aux_autres(i: Indivision) kind derived {
+    label fr official "la décision prise à la majorité est opposable aux autres indivisaires : ils en ont été informés (article 815-3, alinéa 6)";
+    label en unofficial "the majority decision is enforceable against the other co-owners: they were informed (Article 815-3, paragraph 6)";
+}
+pub relation unanimite_requise(i: Indivision) kind derived {
+    label fr official "l'acte demande le consentement de tous : acte de disposition ou hors exploitation normale (article 815-3, alinéa 7)";
+    label en unofficial "the act requires everyone's consent: an act of disposal or outside normal management (Article 815-3, paragraph 7)";
+}
+pub relation acte_valablement_accompli(i: Indivision) kind derived {
+    label fr official "l'acte peut être accompli : majorité suffisante ou consentement de tous (article 815-3)";
+    label en unofficial "the act may be performed: sufficient majority or everyone's consent (Article 815-3)";
+}
+pub relation acte_majoritaire_accompli(i: Indivision) kind institutional {
+    label fr official "l'acte est accompli par les indivisaires à la majorité requise (article 815-3)";
+    label en unofficial "the act is performed by the co-owners with the required majority (Article 815-3)";
+}
+pub relation acte_majoritaire_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "acte accompli par la majorité des indivisaires exercé";
+    label en unofficial "act performed by the majority of co-owners exercised";
+}
+pub relation mandat_tacite_exerce(i: Indivision, p: Personne) kind empirical {
+    label fr official "mandat tacite d'administration exercé";
+    label en unofficial "tacit administration mandate exercised";
+}
+pub relation mandat_tacite_d_administration(i: Indivision, p: Personne) kind derived {
+    label fr official "l'indivisaire qui gère au su des autres est censé avoir reçu un mandat tacite, couvrant les actes d'administration mais non les actes de disposition ni les baux (article 815-3, alinéa 8)";
+    label en unofficial "a co-owner managing with the others' knowledge is deemed to hold a tacit mandate covering management acts but not disposals or leases (Article 815-3, paragraph 8)";
+}
+pub relation acte_accompli_sous_mandat_tacite(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire a accompli un acte d'administration sous mandat tacite (article 815-3, alinéa 8)";
+    label en unofficial "the co-owner has performed an act of administration under a tacit mandate (Article 815-3, paragraph 8)";
+}
+pub relation fin_du_delai_de_signification(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour du mois pour signifier l'intention d'aliéner (article 815-5-1, alinéa 3)";
+    label en unofficial "last day of the month to serve the intention to sell (Article 815-5-1, paragraph 3)";
+}
+pub relation fin_du_delai_d_opposition(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour des trois mois d'opposition depuis la signification (article 815-5-1, alinéa 4)";
+    label en unofficial "last day of the three-month objection period from service (Article 815-5-1, paragraph 4)";
+}
+pub relation alienation_soumise_au_tribunal(i: Indivision) kind derived {
+    label fr official "l'opposition ou le silence constaté après les trois mois ouvre la voie à l'autorisation du tribunal (article 815-5-1, alinéas 4 et 5)";
+    label en unofficial "the objection or silence recorded after three months opens the way to the court's authorisation (Article 815-5-1, paragraphs 4 and 5)";
+}
+pub relation autorisation_d_alienation_demandee_au_tribunal(i: Indivision) kind institutional {
+    label fr official "l'autorisation d'aliéner le bien indivis est demandée au tribunal (article 815-5-1, alinéas 4 et 5)";
+    label en unofficial "the court is asked to authorise the alienation of the undivided asset (Article 815-5-1, paragraphs 4 and 5)";
+}
+pub relation indemnite_d_occupation_due(i: Indivision, p: Personne) kind derived {
+    label fr official "l'indivisaire qui use privativement de la chose est redevable d'une indemnité (article 815-9, alinéa 2)";
+    label en unofficial "a co-owner using the thing privately owes an indemnity (Article 815-9, paragraph 2)";
+}
+pub relation fin_de_la_recherche_des_fruits(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour des cinq ans pour rechercher les fruits et revenus (article 815-10, alinéa 3)";
+    label en unofficial "last day of the five years to claim fruits and income (Article 815-10, paragraph 3)";
+}
+pub relation recherche_des_fruits_irrecevable(i: Indivision) kind derived {
+    label fr official "aucune recherche relative aux fruits n'est recevable plus de cinq ans après leur perception (article 815-10, alinéa 3)";
+    label en unofficial "no claim for fruits is admissible more than five years after they were collected (Article 815-10, paragraph 3)";
+}
+pub relation fin_du_delai_de_preemption(i: Indivision, cedant: Personne, jour: Date) kind derived {
+    key(i, cedant);
+    label fr official "dernier jour du mois pour préempter depuis la notification (article 815-14, alinéa 2)";
+    label en unofficial "last day of the month to pre-empt from service (Article 815-14, paragraph 2)";
+}
+pub relation preemption_exercee_a_temps(i: Indivision, preempteur: Personne) kind derived {
+    label fr official "la préemption a été notifiée dans le mois de la notification de la cession (article 815-14, alinéa 2)";
+    label en unofficial "pre-emption was notified within the month of service of the sale (Article 815-14, paragraph 2)";
+}
+pub relation indivisaire_substitue_par_preemption(i: Indivision, preempteur: Personne) kind institutional {
+    label fr official "l'indivisaire a exercé son droit de préemption sur les droits cédés (article 815-14)";
+    label en unofficial "the co-owner has exercised the right of pre-emption over the assigned rights (Article 815-14)";
+}
+pub relation preemption_exercee(i: Indivision, preempteur: Personne) kind empirical {
+    key(i, preempteur);
+    label fr official "exercice du droit de préemption (article 815-14)";
+    label en unofficial "exercise of the pre-emption right (Article 815-14)";
+}
+pub relation fin_du_delai_de_realisation(i: Indivision, preempteur: Personne, jour: Date) kind derived {
+    key(i, preempteur);
+    label fr official "dernier jour des deux mois pour réaliser l'acte de vente (article 815-14, alinéa 3)";
+    label en unofficial "last day of the two months to complete the sale (Article 815-14, paragraph 3)";
+}
+pub relation preemption_nulle_de_plein_droit(i: Indivision, preempteur: Personne) kind derived {
+    label fr official "la déclaration de préemption est nulle de plein droit quinze jours après une mise en demeure restée sans effet (article 815-14, alinéa 3)";
+    label en unofficial "the pre-emption declaration is void by operation of law fifteen days after a formal notice that remained without effect (Article 815-14, paragraph 3)";
+}
+pub relation fin_du_delai_de_substitution(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour du mois pour se substituer à l'adjudicataire (article 815-15)";
+    label en unofficial "last day of the month to be substituted for the successful bidder (Article 815-15)";
+}
+pub relation substitution_recevable(i: Indivision, p: Personne) kind derived {
+    label fr official "la substitution est déclarée dans le mois de l'adjudication (article 815-15)";
+    label en unofficial "the substitution is declared within a month of the auction (Article 815-15)";
+}
+pub relation indivisaire_substitue_a_l_adjudicataire(i: Indivision, p: Personne) kind institutional {
+    label fr official "l'indivisaire s'est substitué à l'adjudicataire (article 815-15)";
+    label en unofficial "the co-owner has taken the place of the successful bidder (Article 815-15)";
+}
+pub relation substitution_exercee(i: Indivision, p: Personne) kind empirical {
+    key(i, p);
+    label fr official "exercice du droit de substitution (article 815-15)";
+    label en unofficial "exercise of the substitution right (Article 815-15)";
+}
+pub relation indemnite_occupation_exercee(i: Indivision, p: Personne) kind empirical {
+    key(i, p);
+    label fr official "paiement de l'indemnité d'occupation (article 815-9)";
+    label en unofficial "payment of the occupation indemnity (Article 815-9)";
+}
+pub relation nullite_de_la_cession_prescrite_le(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "l'action en nullité de la cession se prescrit par cinq ans (article 815-16)";
+    label en unofficial "the action to annul the sale is time-barred after five years (Article 815-16)";
+}
+pub relation nullite_de_la_cession_encourue(i: Indivision) kind derived {
+    label fr official "la cession opérée au mépris des articles 815-14 et 815-15 est nulle, l'action étant exercée dans les cinq ans (article 815-16)";
+    label en unofficial "a sale made in disregard of Articles 815-14 and 815-15 is void, the action being brought within five years (Article 815-16)";
+}
+pub relation fin_du_sursis_au_partage(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour des deux ans de sursis au partage (article 820)";
+    label en unofficial "last day of the two-year stay of partition (Article 820)";
+}
+pub relation fin_du_maintien_de_l_indivision(i: Indivision, jour: Date) kind derived {
+    key(i);
+    label fr official "dernier jour des cinq ans de maintien de l'indivision, renouvelable (article 823)";
+    label en unofficial "last day of the five-year maintenance of joint ownership, renewable (Article 823)";
+}
+
+// --- Article 815-3 : les majorités -----------------------------------------------------------
+
+@source(CC_ART815_3) {
+    rule MajoriteDesDeuxTiers(i: Indivision, parts: Integer, total: Integer) strict {
+        label fr official "Article 815-3, alinéa 1. Le ou les indivisaires titulaires d'au moins deux tiers des droits indivis peuvent agir à cette majorité ; le seuil se vérifie sans division : trois fois les parts favorables valent au moins deux fois le total";
+        label en unofficial "Article 815-3, paragraph 1. Co-owners holding at least two thirds of the undivided rights may act by that majority; the threshold is checked without division: three times the favourable shares is at least twice the total";
+        when parts_favorables(i, parts) and total_des_parts(i, total) and 3 * parts >= 2 * total;
+        then majorite_des_deux_tiers(i);
+    }
+    rule ActeDAdministrationALaMajorite(i: Indivision) strict {
+        label fr official "Article 815-3, 1°. Les actes d'administration relatifs aux biens indivis";
+        label en unofficial "Article 815-3, 1°. Acts of administration relating to the jointly owned property";
+        when acte_envisage(i, ActeDAdministration);
+        then acte_permis_a_la_majorite(i);
+    }
+    rule MandatGeneralALaMajorite(i: Indivision) strict {
+        label fr official "Article 815-3, 2°. Le mandat général d'administration donné à un indivisaire ou à un tiers";
+        label en unofficial "Article 815-3, 2°. A general management mandate given to a co-owner or a third party";
+        when acte_envisage(i, MandatGeneralDAdministration);
+        then acte_permis_a_la_majorite(i);
+    }
+    rule VenteDeMeublesALaMajorite(i: Indivision) strict {
+        label fr official "Article 815-3, 3°. La vente des meubles indivis pour payer les dettes et charges de l'indivision";
+        label en unofficial "Article 815-3, 3°. The sale of undivided movables to pay the debts and charges";
+        when acte_envisage(i, VenteDeMeublesPourPayerLesDettes);
+        then acte_permis_a_la_majorite(i);
+    }
+    rule BailOrdinaireALaMajorite(i: Indivision) strict {
+        label fr official "Article 815-3, 4°. La conclusion et le renouvellement des baux autres que ruraux, commerciaux, industriels ou artisanaux";
+        label en unofficial "Article 815-3, 4°. Concluding and renewing leases other than rural, commercial, industrial or craft leases";
+        when acte_envisage(i, BailOrdinaire);
+        then acte_permis_a_la_majorite(i);
+    }
+    rule UnanimiteHorsExploitationNormale(i: Indivision) strict {
+        label fr official "Article 815-3, alinéa 7. Le consentement de tous est requis pour tout acte hors exploitation normale et tout acte de disposition autre que la vente de meubles du 3°";
+        label en unofficial "Article 815-3, paragraph 7. Everyone's consent is needed for acts outside normal management and for disposals other than the sale of movables under 3°";
+        when acte_envisage(i, ActeHorsExploitationNormale);
+        then unanimite_requise(i);
+    }
+    rule UnanimitePourLesActesDeDisposition(i: Indivision) strict {
+        label fr official "Article 815-3, alinéa 7. De même pour les actes de disposition";
+        label en unofficial "Article 815-3, paragraph 7. Likewise for acts of disposal";
+        when acte_envisage(i, ActeDeDisposition);
+        then unanimite_requise(i);
+    }
+    rule UnanimitePourLesBauxRurauxEtCommerciaux(i: Indivision) strict {
+        label fr official "Article 815-3, 4°. Les baux ruraux, commerciaux, industriels ou artisanaux échappent à la majorité des deux tiers";
+        label en unofficial "Article 815-3, 4°. Rural, commercial, industrial and craft leases fall outside the two-thirds majority";
+        when acte_envisage(i, BailRuralCommercialIndustrielOuArtisanal);
+        then unanimite_requise(i);
+    }
+    rule ActeAccompliALaMajorite(i: Indivision) strict {
+        label fr official "Article 815-3. L'acte que la majorité des deux tiers peut accomplir est valablement accompli par elle";
+        label en unofficial "Article 815-3. An act within the two-thirds majority's powers is validly performed by it";
+        when majorite_des_deux_tiers(i) and acte_permis_a_la_majorite(i) and not_known(unanimite_requise(i));
+        then acte_valablement_accompli(i);
+    }
+    rule ActeAccompliALUnanimite(i: Indivision) strict {
+        label fr official "Article 815-3, alinéa 7. L'acte qui demande l'unanimité est valablement accompli si tous ont consenti";
+        label en unofficial "Article 815-3, paragraph 7. An act requiring unanimity is validly performed if all consented";
+        when unanimite_requise(i) and consentement_de_tous(i);
+        then acte_valablement_accompli(i);
+    }
+    rule DecisionOpposableApresInformation(i: Indivision) strict {
+        label fr official "Article 815-3, alinéa 6. Les majoritaires sont tenus d'informer les autres indivisaires ; à défaut, les décisions leur sont inopposables";
+        label en unofficial "Article 815-3, paragraph 6. The majority must inform the other co-owners; failing that, decisions are unenforceable against them";
+        when acte_valablement_accompli(i) and autres_indivisaires_informes(i);
+        then decision_opposable_aux_autres(i);
+    }
+    rule MandatTacite(i: Indivision, p: Personne) strict {
+        label fr official "Article 815-3, alinéa 8. L'indivisaire qui gère au su des autres et sans opposition est censé avoir reçu un mandat tacite d'administration";
+        label en unofficial "Article 815-3, paragraph 8. A co-owner managing with the others' knowledge and without objection is deemed to hold a tacit management mandate";
+        when gestion_au_su_et_sans_opposition(i, p);
+        then mandat_tacite_d_administration(i, p);
+    }
+}
+
+// --- Article 815-5-1 : l'aliénation autorisée ---------------------------------------------------
+
+@source(CC_ART815_5_1) {
+    rule UnMoisPourSignifier(i: Indivision, recueil: Date) strict {
+        label fr official "Article 815-5-1, alinéa 3. Dans le délai d'un mois suivant son recueil, le notaire fait signifier l'intention aux autres indivisaires";
+        label en unofficial "Article 815-5-1, paragraph 3. Within one month of recording it, the notary serves the intention on the other co-owners";
+        when intention_d_aliener_recueillie_le(i, recueil);
+        then fin_du_delai_de_signification(i, add_calendar_period(recueil, 1 calendar_month));
+    }
+    rule TroisMoisDOpposition(i: Indivision, signification: Date) strict {
+        label fr official "Article 815-5-1, alinéa 4. Les autres indivisaires disposent de trois mois à compter de la signification pour s'opposer ou se manifester";
+        label en unofficial "Article 815-5-1, paragraph 4. The other co-owners have three months from service to object or respond";
+        when signification_aux_autres_le(i, signification);
+        then fin_du_delai_d_opposition(i, add_calendar_period(signification, 3 calendar_month));
+    }
+    rule AlienationSoumiseAuTribunal(i: Indivision, fin: Date, constat: Date) strict {
+        label fr official "Article 815-5-1, alinéas 4 et 5. Le procès-verbal constatant l'opposition ou le silence après les trois mois ouvre l'autorisation judiciaire";
+        label en unofficial "Article 815-5-1, paragraphs 4 and 5. The record of objection or silence after three months opens the way to judicial authorisation";
+        when fin_du_delai_d_opposition(i, fin) and opposition_ou_silence_constate_le(i, constat) and constat > fin
+            and majorite_des_deux_tiers(i);
+        then alienation_soumise_au_tribunal(i);
+    }
+}
+
+// --- Articles 815-9 à 815-13 : les comptes ------------------------------------------------------
+
+@source(CC_ART815_9)
+rule IndemniteDOccupation(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-9, alinéa 2. L'indivisaire qui use ou jouit privativement de la chose indivise est, sauf convention contraire, redevable d'une indemnité";
+    label en unofficial "Article 815-9, paragraph 2. A co-owner who uses or enjoys the undivided thing privately owes, absent agreement to the contrary, an indemnity";
+    when usage_privatif(i, p) and not_known(convention_contraire_sur_l_indemnite(i, p));
+    then indemnite_d_occupation_due(i, p);
+}
+
+@source(CC_ART815_9)
+rule P3DevoirPayerIndemniteOccupation(i: Indivision, p: Personne) strict {
+    label fr official "Article 815-9. L'indivisaire qui jouit privativement de la chose indivise est redevable d'une indemnité";
+    label en unofficial "Article 815-9. A co-owner who privately enjoys the undivided thing owes an indemnity";
+    when usage_privatif(i, p) and not_known(convention_contraire_sur_l_indemnite(i, p));
+    then duty P3PositionDevoirPayerIndemniteOccupation {
+        bearer p;
+        goal achievement {
+            condition indemnite_occupation_exercee(i, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART815_10) {
+    rule CinqAnsPourRechercherLesFruits(i: Indivision, perception: Date) strict {
+        label fr official "Article 815-10, alinéa 3. Aucune recherche relative aux fruits et revenus n'est recevable plus de cinq ans après la date à laquelle ils ont été perçus ou auraient pu l'être";
+        label en unofficial "Article 815-10, paragraph 3. No claim for fruits and income is admissible more than five years after they were, or could have been, collected";
+        when fruits_percus_le(i, perception);
+        then fin_de_la_recherche_des_fruits(i, add_calendar_period(perception, 5 calendar_year));
+    }
+    rule RechercheTardiveDesFruits(i: Indivision, fin: Date, recherche: Date) strict {
+        label fr official "Article 815-10, alinéa 3. La recherche introduite après ce délai est irrecevable";
+        label en unofficial "Article 815-10, paragraph 3. A claim brought after that period is inadmissible";
+        when fin_de_la_recherche_des_fruits(i, fin) and recherche_des_fruits_le(i, recherche) and recherche > fin;
+        then recherche_des_fruits_irrecevable(i);
+    }
+}
+
+// --- Articles 815-14 à 815-16 : préemption, substitution, nullité -----------------------------------
+
+@source(CC_ART815_14) {
+    rule UnMoisPourPreempter(i: Indivision, cedant: Personne, notification: Date) strict {
+        label fr official "Article 815-14, alinéa 2. Tout indivisaire peut, dans le délai d'un mois qui suit la notification, faire connaître qu'il exerce son droit de préemption";
+        label en unofficial "Article 815-14, paragraph 2. Any co-owner may, within one month of service, declare that he exercises his pre-emption right";
+        when notification_de_la_cession_le(i, cedant, notification);
+        then fin_du_delai_de_preemption(i, cedant, add_calendar_period(notification, 1 calendar_month));
+    }
+    rule PreemptionDansLeMois(i: Indivision, cedant: Personne, preempteur: Personne, fin: Date, jour: Date) strict {
+        label fr official "Article 815-14, alinéa 2. La préemption notifiée dans le mois est exercée à temps";
+        label en unofficial "Article 815-14, paragraph 2. Pre-emption served within the month is exercised in time";
+        when fin_du_delai_de_preemption(i, cedant, fin) and preemption_notifiee_le(i, preempteur, jour) and jour <= fin;
+        then preemption_exercee_a_temps(i, preempteur);
+    }
+    rule DeuxMoisPourRealiserLaVente(i: Indivision, preempteur: Personne, jour: Date) strict {
+        label fr official "Article 815-14, alinéa 3. Le préempteur dispose de deux mois à compter de l'envoi de sa réponse pour réaliser l'acte de vente";
+        label en unofficial "Article 815-14, paragraph 3. The pre-empting co-owner has two months from sending his reply to complete the sale";
+        when preemption_notifiee_le(i, preempteur, jour);
+        then fin_du_delai_de_realisation(i, preempteur, add_calendar_period(jour, 2 calendar_month));
+    }
+    rule PreemptionNulleQuinzeJoursApresLaMiseEnDemeure(i: Indivision, preempteur: Personne,
+                                                        fin: Date, mise: Date, examen: Date) strict {
+        label fr official "Article 815-14, alinéa 3. Passé le délai de deux mois, la déclaration de préemption est nulle de plein droit quinze jours après une mise en demeure restée sans effet";
+        label en unofficial "Article 815-14, paragraph 3. After the two months, the pre-emption declaration is void by law fifteen days after a formal notice that remained without effect";
+        when fin_du_delai_de_realisation(i, preempteur, fin) and mise_en_demeure_le(i, preempteur, mise)
+            and mise > fin and date_d_appreciation_de_l_indivision(i, preempteur, examen)
+            and examen > add_calendar_period(mise, 15 calendar_day)
+            and not_known(vente_realisee(i, preempteur));
+        then preemption_nulle_de_plein_droit(i, preempteur);
+    }
+    rule VenteRealisee(i: Indivision, preempteur: Personne, jour: Date) strict {
+        label fr official "Article 815-14, alinéa 3. Le préempteur a réalisé l'acte de vente";
+        label en unofficial "Article 815-14, paragraph 3. The pre-empting co-owner completed the sale";
+        when vente_realisee_le(i, preempteur, jour);
+        then vente_realisee(i, preempteur);
+    }
+}
+
+@source(CC_ART815_14)
+rule P3PouvoirExercerPreemption(i: Indivision, preempteur: Personne, fin: Date, jour: Date) strict {
+    label fr official "Article 815-14. Tout indivisaire peut exercer son droit de préemption dans le délai d'un mois";
+    label en unofficial "Article 815-14. A co-owner may exercise pre-emption within one month";
+    when fin_du_delai_de_preemption(i, _, fin) and preemption_notifiee_le(i, preempteur, jour) and jour <= fin;
+    then power P3PositionPouvoirExercerPreemption {
+        holder preempteur;
+        over i;
+        exercise preemption_exercee(i, preempteur);
+        effect indivisaire_substitue_par_preemption(i, preempteur);
+        valid_when preemption_exercee_a_temps(i, preempteur);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub relation vente_realisee(i: Indivision, preempteur: Personne) kind derived {
+    label fr official "l'acte de vente a été réalisé par le préempteur (article 815-14)";
+    label en unofficial "the sale was completed by the pre-empting co-owner (Article 815-14)";
+}
+
+@source(CC_ART815_15) {
+    rule UnMoisPourSeSubstituer(i: Indivision, adjudication: Date) strict {
+        label fr official "Article 815-15. Chaque indivisaire peut se substituer à l'acquéreur dans un délai d'un mois à compter de l'adjudication";
+        label en unofficial "Article 815-15. Each co-owner may be substituted for the buyer within one month of the auction";
+        when adjudication_le(i, adjudication);
+        then fin_du_delai_de_substitution(i, add_calendar_period(adjudication, 1 calendar_month));
+    }
+    rule SubstitutionDansLeMois(i: Indivision, p: Personne, fin: Date, jour: Date) strict {
+        label fr official "Article 815-15. La substitution déclarée dans le mois est recevable";
+        label en unofficial "Article 815-15. A substitution declared within the month is admissible";
+        when fin_du_delai_de_substitution(i, fin) and substitution_declaree_le(i, p, jour) and jour <= fin;
+        then substitution_recevable(i, p);
+    }
+}
+
+@source(CC_ART815_15)
+rule P3PouvoirExercerSubstitution(i: Indivision, p: Personne, fin: Date, jour: Date) strict {
+    label fr official "Article 815-15. Chaque indivisaire peut se substituer à l'acquéreur dans un délai d'un mois";
+    label en unofficial "Article 815-15. Each co-owner may substitute for the buyer within one month";
+    when fin_du_delai_de_substitution(i, fin) and substitution_declaree_le(i, p, jour) and jour <= fin;
+    then power P3PositionPouvoirExercerSubstitution {
+        holder p;
+        over i;
+        exercise substitution_exercee(i, p);
+        effect indivisaire_substitue_a_l_adjudicataire(i, p);
+        valid_when substitution_recevable(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART815_16) {
+    rule CinqAnsPourLaNulliteDeLaCession(i: Indivision, cession: Date) strict {
+        label fr official "Article 815-16. L'action en nullité de la cession opérée au mépris des articles 815-14 et 815-15 se prescrit par cinq ans ; faute de notification, le délai se compte de la cession elle-même";
+        label en unofficial "Article 815-16. The action to annul a sale made in disregard of Articles 815-14 and 815-15 is time-barred after five years; absent service, the period runs from the sale itself";
+        when cession_sans_notification(i) and cession_operee_le(i, cession);
+        then nullite_de_la_cession_prescrite_le(i, add_calendar_period(cession, 5 calendar_year));
+    }
+    rule NulliteDeLaCessionEncourue(i: Indivision, fin: Date, demande: Date) strict {
+        label fr official "Article 815-16. La nullité est encourue lorsque l'action est exercée dans les cinq ans";
+        label en unofficial "Article 815-16. Nullity is incurred where the action is brought within five years";
+        when cession_sans_notification(i) and nullite_de_la_cession_prescrite_le(i, fin)
+            and action_en_nullite_de_la_cession_le(i, demande) and demande <= fin;
+        then nullite_de_la_cession_encourue(i);
+    }
+}
+
+// --- Articles 820 et 823 : sursis et maintien -------------------------------------------------------
+
+@source(CC_ART820)
+rule P3PouvoirDemanderSursisPartage(i: Indivision, p: Personne) strict {
+    label fr official "Article 820. L'indivisaire peut demander au tribunal de surseoir au partage";
+    label en unofficial "Article 820. A co-owner may ask the court to stay partition";
+    when indivisaire_demandeur_sursis(i, p);
+    then power P3PositionPouvoirDemanderSursisPartage {
+        holder p;
+        over i;
+        exercise sursis_partage_exerce(i, p);
+        effect sursis_au_partage_demande(i, p);
+        valid_when indivisaire_demandeur_sursis(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART823)
+rule P3PouvoirDemanderMaintienIndivision(i: Indivision, p: Personne) strict {
+    label fr official "Article 823. L'indivisaire peut demander le maintien dans l'indivision";
+    label en unofficial "Article 823. A co-owner may request maintenance in joint ownership";
+    when indivisaire_demandeur_maintien(i, p);
+    then power P3PositionPouvoirDemanderMaintienIndivision {
+        holder p;
+        over i;
+        exercise maintien_indivision_exerce(i, p);
+        effect maintien_dans_l_indivision_demande(i, p);
+        valid_when indivisaire_demandeur_maintien(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART822)
+rule P3PouvoirDemanderMaintienSelon822(i: Indivision, p: Personne) strict {
+    label fr official "Article 822. Les personnes admissibles peuvent demander le maintien dans l'indivision";
+    label en unofficial "Article 822. Eligible persons may request maintenance in joint ownership";
+    when maintien_admissible_article_822(i, p);
+    then power P3PositionPouvoirDemanderMaintienSelon822 {
+        holder p;
+        over i;
+        exercise maintien_article_822_exerce(i, p);
+        effect maintien_selon_l_article_822_demande(i, p);
+        valid_when maintien_admissible_article_822(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART821)
+rule P3PouvoirDemanderMaintienEntreprise(i: Indivision, p: Personne) strict {
+    label fr official "Article 821. Les personnes admissibles peuvent demander le maintien de l'entreprise dans l'indivision";
+    label en unofficial "Article 821. Eligible persons may request maintenance of the enterprise in joint ownership";
+    when maintien_entreprise_admissible(i, p);
+    then power P3PositionPouvoirDemanderMaintienEntreprise {
+        holder p;
+        over i;
+        exercise maintien_entreprise_exerce(i, p);
+        effect maintien_de_l_entreprise_demande(i, p);
+        valid_when maintien_entreprise_admissible(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART824)
+rule P3PouvoirDemanderAttributionPart(i: Indivision, p: Personne) strict {
+    label fr official "Article 824. L'indivisaire peut demander l'attribution de sa part";
+    label en unofficial "Article 824. A co-owner may request attribution of the share";
+    when attribution_part_demande_exercee(i, p);
+    then power P3PositionPouvoirDemanderAttributionPart {
+        holder p;
+        over i;
+        exercise attribution_part_demande_exercee(i, p);
+        effect attribution_de_la_part_demandee(i, p);
+        valid_when attribution_part_demande_exercee(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART824)
+rule P3DevoirVerserComplementPart(i: Indivision, p: Personne) strict {
+    label fr official "Article 824. Les indivisaires qui concourent à la demande versent le complément";
+    label en unofficial "Article 824. Co-owners joining the request pay the supplementary amount";
+    when attribution_part_demande_exercee(i, p);
+    then duty P3PositionDevoirVerserComplementPart {
+        bearer p;
+        goal achievement {
+            condition financement_complement_part_exerce(i, p);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART823)
+rule P3InterdictionMaintienAuDelaCinqAns(i: Indivision, p: Personne) strict {
+    label fr official "Article 823. Le maintien dans l'indivision ne peut excéder cinq ans";
+    label en unofficial "Article 823. Maintenance in joint ownership may not exceed five years";
+    when maintien_excessif_constate(i, p);
+    then prohibition P3PositionInterdictionMaintienAuDelaCinqAns {
+        bearer p;
+        action maintien_indivision_exerce(i, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART820)
+rule DeuxAnsDeSursis(i: Indivision, jour: Date) strict {
+    label fr official "Article 820. Le tribunal peut surseoir au partage pour deux années au plus";
+    label en unofficial "Article 820. The court may stay the partition for up to two years";
+    when sursis_au_partage_prononce_le(i, jour);
+    then fin_du_sursis_au_partage(i, add_calendar_period(jour, 2 calendar_year));
+}
+
+@source(CC_ART823)
+rule CinqAnsDeMaintien(i: Indivision, jour: Date) strict {
+    label fr official "Article 823. Le maintien dans l'indivision ne peut être prescrit pour une durée supérieure à cinq ans ; il peut être renouvelé";
+    label en unofficial "Article 823. Maintenance of joint ownership may not be ordered for more than five years; it may be renewed";
+    when maintien_de_l_indivision_prononce_le(i, jour);
+    then fin_du_maintien_de_l_indivision(i, add_calendar_period(jour, 5 calendar_year));
+}

@@ -1,0 +1,26 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1216-1 al. 1 : le cédé ayant expressément consenti, la cession libère le cédant pour l'avenir.
+test "urn:query:fr-code-civil-contrat-e26-cedant-libere-par-consentement-expres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e26"), @2019-03-01) { origin case_input; }
+        assert "f2": cession_du_contrat(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26")) { origin case_input; }
+        assert "f3": cedant(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26:p1")) { origin case_input; }
+        assert "f4": cessionnaire(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26:p2")) { origin case_input; }
+        assert "f5": cede(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26:cede")) { origin case_input; }
+        assert "f6": accord_du_cede(entity_ref("urn:fr:cc:contrat:e26:cess")) { origin case_input; }
+        assert "f7": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:contrat:e26:cess")) { origin case_input; }
+        assert "f8": consentement_expres_du_cede_a_la_liberation(entity_ref("urn:fr:cc:contrat:e26:cess")) { origin case_input; }
+    }
+    evaluate truth(cedant_libere(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CedantLibereParConsentementExpres);
+
+    evaluate truth(cedant_tenu_solidairement(entity_ref("urn:fr:cc:contrat:e26:cess"), entity_ref("urn:fr:cc:contrat:e26:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

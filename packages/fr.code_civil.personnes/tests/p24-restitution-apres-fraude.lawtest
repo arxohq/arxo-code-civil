@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 131 : la partie qui a obtenu la déclaration par fraude restitue les revenus et verse les intérêts légaux.
+test "urn:query:fr-code-civil-personnes-p24-restitution-apres-fraude" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": declaration_d_absence_obtenue_par_fraude(entity_ref("urn:fr:cc:pers:f2:p"), entity_ref("urn:fr:cc:pers:f2:neveu")) { origin adjudicated; }
+    }
+    evaluate truth(restitution_des_revenus_due(entity_ref("urn:fr:cc:pers:f2:p"), entity_ref("urn:fr:cc:pers:f2:neveu")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

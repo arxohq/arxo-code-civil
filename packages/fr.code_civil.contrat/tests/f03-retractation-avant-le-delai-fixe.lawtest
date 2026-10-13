@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1116 al. 1 et 2 : rétractation le 15 mars avant l'expiration du délai fixé au 31 mars — interdite, elle empêche la conclusion du contrat.
+test "urn:query:fr-code-civil-contrat-f03-retractation-avant-le-delai-fixe" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f03"), @2019-03-01) { origin case_input; }
+        assert "f2": offre_du_contrat(entity_ref("urn:fr:cc:contrat:f03:offre"), entity_ref("urn:fr:cc:contrat:f03")) { origin case_input; }
+        assert "f3": offre_comprend_les_elements_essentiels(entity_ref("urn:fr:cc:contrat:f03:offre")) { origin case_input; }
+        assert "f4": volonte_d_etre_lie(entity_ref("urn:fr:cc:contrat:f03:offre")) { origin case_input; }
+        assert "f5": auteur_de_l_offre(entity_ref("urn:fr:cc:contrat:f03:offre"), entity_ref("urn:fr:cc:contrat:f03:offrant")) { origin case_input; }
+        assert "f6": delai_fixe_par_l_auteur_de_l_offre(entity_ref("urn:fr:cc:contrat:f03:offre"), @2019-03-31) { origin case_input; }
+        assert "f7": retractation_de_l_offre_le(entity_ref("urn:fr:cc:contrat:f03:offre"), @2019-03-15) { origin case_input; }
+    }
+    evaluate truth(contrat_empeche_par_la_retractation(entity_ref("urn:fr:cc:contrat:f03:offre")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RetractationEmpecheLaConclusion);
+}

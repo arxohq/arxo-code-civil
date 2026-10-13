@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CONGESANSECRITSUITUSAGELOCAL" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": bail_sans_ecrit(entity_ref("urn:law:catalog:congesansecritsuitusagelocal:v0")) { origin case_input; }
+        assert "cat-1": usage_local_delai_de_conge(entity_ref("urn:law:catalog:congesansecritsuitusagelocal:v0"), 1) { origin case_input; }
+    }
+    evaluate truth(conge_soumis_a_l_usage_local(entity_ref("urn:law:catalog:congesansecritsuitusagelocal:v0")));
+    expect truth_status == TRUE_ONLY;
+}

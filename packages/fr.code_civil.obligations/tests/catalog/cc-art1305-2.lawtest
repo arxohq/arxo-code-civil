@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-EXIGIBILITEDIFFEREEJUSQUALECHEANCE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": echeance_du_terme(entity_ref("urn:kz:catalog:exigibilitediffereejusqualecheance:v1"), @2026-01-15) { origin case_input; }
+        assert "cat-1": terme_de_l_obligation(entity_ref("urn:kz:catalog:exigibilitediffereejusqualecheance:v0"), entity_ref("urn:kz:catalog:exigibilitediffereejusqualecheance:v1")) { origin case_input; }
+    }
+    evaluate truth(exigibilite_differee_jusqu_au(entity_ref("urn:kz:catalog:exigibilitediffereejusqualecheance:v0"), @2026-01-15));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-PASDEREPETITIONDUPAIEMENTANTICIPE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": terme_de_l_obligation(entity_ref("urn:kz:catalog:pasderepetitiondupaiementanticipe:v0"), entity_ref("urn:kz:catalog:pasderepetitiondupaiementanticipe:v1")) { origin case_input; }
+    }
+    evaluate truth(repetition_du_paiement_anticipe_exclue(entity_ref("urn:kz:catalog:pasderepetitiondupaiementanticipe:v0")));
+    expect truth_status == TRUE_ONLY;
+}

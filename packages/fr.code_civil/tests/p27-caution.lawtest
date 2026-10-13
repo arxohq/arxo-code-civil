@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2246 : l'acte d'exécution contre le débiteur principal interrompt contre la caution.
+test "urn:query:fr-code-civil-p27-caution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": mesure_conservatoire_ou_acte_d_execution_le(entity_ref("urn:fr:cc:presc:p27:principal"), @2023-01-10) { origin case_input; }
+        assert "f2": cautionnement_de(entity_ref("urn:fr:cc:presc:p27:caution"), entity_ref("urn:fr:cc:presc:p27:principal")) { origin case_input; }
+    }
+    evaluate truth(prescription_interrompue_le(entity_ref("urn:fr:cc:presc:p27:caution"), @2023-01-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InterruptionContreLaCaution);
+}

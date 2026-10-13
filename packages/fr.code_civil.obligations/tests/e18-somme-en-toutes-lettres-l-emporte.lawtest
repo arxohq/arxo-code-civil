@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1376 : l'acte sous signature privée par lequel une seule partie s'engage ne fait
+// preuve que s'il porte la signature du souscripteur et la mention, écrite par lui-même,
+// de la somme EN TOUTES LETTRES ET EN CHIFFRES ; EN CAS DE DIFFÉRENCE, il vaut preuve
+// pour la somme écrite EN TOUTES LETTRES — 1 200 EUR, et non 2 100 EUR.
+test "urn:query:fr-code-civil-obligations-e18-somme-en-toutes-lettres-l-emporte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": engagement_unilateral_de_payer_ou_de_livrer(entity_ref("urn:fr:cc:obligations:let:e"), entity_ref("urn:fr:cc:obligations:let:a")) { origin case_input; }
+        assert "f2": signature_du_souscripteur(entity_ref("urn:fr:cc:obligations:let:e")) { origin case_input; }
+        assert "f3": mention_en_toutes_lettres(entity_ref("urn:fr:cc:obligations:let:e"), 1200 EUR) { origin case_input; }
+        assert "f4": mention_en_chiffres(entity_ref("urn:fr:cc:obligations:let:e"), 2100 EUR) { origin case_input; }
+    }
+    evaluate truth(somme_retenue_en_cas_de_difference(entity_ref("urn:fr:cc:obligations:let:e"), 1200 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EngagementUnilateralProuve);
+    expect applied(SommeEnToutesLettresRetenue);
+}

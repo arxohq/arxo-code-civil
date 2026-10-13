@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1346-4, al. 1 : la subrogation transmet la créance et ses accessoires DANS LA
+// LIMITE DE CE QUE LE SUBROGÉ A PAYÉ — 7 000 EUR, non le montant de la créance.
+test "urn:query:fr-code-civil-obligations-c15-etendue-de-la-subrogation-limitee-au-paiement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": subrogation_de_la_creance(entity_ref("urn:fr:cc:obligations:set:s"), entity_ref("urn:fr:cc:obligations:set:c")) { origin case_input; }
+        assert "f2": subroge(entity_ref("urn:fr:cc:obligations:set:s"), entity_ref("urn:fr:cc:obligations:set:T")) { origin case_input; }
+        assert "f3": interet_legitime_au_paiement(entity_ref("urn:fr:cc:obligations:set:s"), entity_ref("urn:fr:cc:obligations:set:T")) { origin case_input; }
+        assert "f4": charge_definitive_pesant_sur(entity_ref("urn:fr:cc:obligations:set:c"), entity_ref("urn:fr:cc:obligations:set:D")) { origin case_input; }
+        assert "f5": montant_paye_par_le_subroge(entity_ref("urn:fr:cc:obligations:set:s"), 7000 EUR) { origin case_input; }
+        assert "f6": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obligations:set:c"), 10000 EUR) { origin case_input; }
+    }
+    evaluate truth(etendue_de_la_subrogation(entity_ref("urn:fr:cc:obligations:set:s"), 7000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EtendueDeLaSubrogation);
+}

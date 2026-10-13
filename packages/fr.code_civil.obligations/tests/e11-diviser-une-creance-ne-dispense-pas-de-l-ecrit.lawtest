@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1359, al. 4 : il en est de même de celui dont la demande, MÊME INFÉRIEURE au
+// montant, porte sur le solde ou sur une partie d'une créance supérieure à ce montant.
+test "urn:query:fr-code-civil-obligations-e11-diviser-une-creance-ne-dispense-pas-de-l-ecrit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": demande_portant_sur_le_solde_d_une_creance(entity_ref("urn:fr:cc:obligations:div:a"), 4000 EUR) { origin case_input; }
+        assert "f2": seuil_de_la_preuve_par_ecrit(entity_ref("urn:fr:cc:obligations:div:a"), 1500 EUR) { origin case_input; }
+    }
+    evaluate truth(dispense_par_division_de_la_creance_refusee(entity_ref("urn:fr:cc:obligations:div:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseParDivisionRefusee);
+}

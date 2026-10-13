@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.qui_herite version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:qui-herite";
+
+case Renonciation {
+    context {
+        deadline_policy fr.code_civil.successions::CC_SUCCESSIONS_CALENDRIER;
+        legal_time @2026-06-01;
+        knowledge_time @2026-06-01T10:00:00Z;
+        decision_time @2026-06-01T10:00:00Z;
+        timezone "Europe/Paris";
+    }
+    assert "defunt": fr.code_civil.successions::defunt(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:d")) { origin case_input; }
+    assert "ouverte": fr.code_civil.successions::ouverte_le(entity_ref("urn:fr:cc-p5:s"), @2026-03-01) { origin case_input; }
+    assert "corridor": fr.code_civil.transitions::succession_ouverte_le(entity_ref("urn:fr:cc-p5:s"), @2026-03-01) { origin case_input; }
+    assert "famille": fr.code_civil.successions::famille(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:f")) { origin case_input; }
+    assert "d-c1": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p5:f"), entity_ref("urn:fr:cc-p5:d"), entity_ref("urn:fr:cc-p5:c1")) { origin case_input; }
+    assert "d-c2": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p5:f"), entity_ref("urn:fr:cc-p5:d"), entity_ref("urn:fr:cc-p5:c2")) { origin case_input; }
+    assert "c1-g": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p5:f"), entity_ref("urn:fr:cc-p5:c1"), entity_ref("urn:fr:cc-p5:g")) { origin case_input; }
+    assert "vit-c1": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:c1")) { origin case_input; }
+    assert "vit-c2": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:c2")) { origin case_input; }
+    assert "vit-g": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:g")) { origin case_input; }
+    assert "ren": fr.code_civil.successions::renonce(entity_ref("urn:fr:cc-p5:s"), entity_ref("urn:fr:cc-p5:c1")) { origin case_input; }
+}

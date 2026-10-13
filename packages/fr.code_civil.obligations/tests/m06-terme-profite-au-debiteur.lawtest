@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1305-3, al. 1 : le terme profite au débiteur, s'il ne résulte de la loi, de la
+// volonté des parties ou des circonstances qu'il a été établi en faveur d'un autre.
+test "urn:query:fr-code-civil-obligations-m06-terme-profite-au-debiteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": terme_de_l_obligation(entity_ref("urn:fr:cc:obligations:ter:c"), entity_ref("urn:fr:cc:obligations:ter:t")) { origin case_input; }
+        assert "f2": echeance_du_terme(entity_ref("urn:fr:cc:obligations:ter:t"), @2026-11-30) { origin case_input; }
+        assert "f3": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:ter:c"), entity_ref("urn:fr:cc:obligations:ter:D")) { origin case_input; }
+    }
+    evaluate truth(terme_profitant_au_debiteur(entity_ref("urn:fr:cc:obligations:ter:c"), entity_ref("urn:fr:cc:obligations:ter:D")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TermeProfiteAuDebiteur);
+}

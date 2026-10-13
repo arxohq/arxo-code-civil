@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1327-2 : à défaut de consentement exprès du créancier à la décharge, et sauf
+// clause contraire, le débiteur originaire reste TENU SOLIDAIREMENT.
+test "urn:query:fr-code-civil-obligations-o07-debiteur-originaire-tenu-solidairement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": cession_de_dette(entity_ref("urn:fr:cc:obligations:dette:x"), entity_ref("urn:fr:cc:obligations:dette:c")) { origin case_input; }
+        assert "f2": cedant(entity_ref("urn:fr:cc:obligations:dette:x"), entity_ref("urn:fr:cc:obligations:dette:D1")) { origin case_input; }
+        assert "f3": cessionnaire(entity_ref("urn:fr:cc:obligations:dette:x"), entity_ref("urn:fr:cc:obligations:dette:D2")) { origin case_input; }
+        assert "f4": cession_constatee_par_ecrit(entity_ref("urn:fr:cc:obligations:dette:x")) { origin case_input; }
+        assert "f5": creancier_a_consenti_a_la_cession_de_dette(entity_ref("urn:fr:cc:obligations:dette:x")) { origin case_input; }
+    }
+    evaluate truth(debiteur_originaire_tenu_solidairement(entity_ref("urn:fr:cc:obligations:dette:x"), entity_ref("urn:fr:cc:obligations:dette:D1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CessionDeDetteValable);
+    expect applied(DebiteurOriginaireTenuSolidairement);
+}

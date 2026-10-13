@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2321, al. 4 : obligation garantie cédée, sans convention — la garantie ne suit pas.
+test "urn:query:fr-code-civil-suretes-r05-garantie-non-accessoire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": garantie_autonome(entity_ref("urn:fr:cc:suretes:r05:G"), entity_ref("urn:fr:cc:suretes:r05:A"), entity_ref("urn:fr:cc:suretes:r05:B")) { origin case_input; }
+        assert "f2": obligation_garantie_cedee(entity_ref("urn:fr:cc:suretes:r05:G")) { origin case_input; }
+    }
+    evaluate truth(garantie_ne_suit_pas_l_obligation(entity_ref("urn:fr:cc:suretes:r05:G")));
+    expect truth_status == TRUE_ONLY;
+}

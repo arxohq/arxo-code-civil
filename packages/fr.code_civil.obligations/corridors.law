@@ -1,0 +1,113 @@
+// RATTACHEMENT AUX RÉFORMES : QUELLE VERSION DU TITRE S'APPLIQUE.
+//
+// Le titre IV du livre III est issu de l'ordonnance n° 2016-131, entrée en
+// vigueur le 1er octobre 2016 ; la loi n° 2018-287 de ratification a modifié
+// certains de ses articles. Ce paquet n'épingle QUE la rédaction en vigueur au
+// 2026-09-16. Il ne dit donc pas ce que disait la loi ancienne : il dit
+// seulement QUAND elle s'applique, et s'arrête là (frontière déclarée).
+//
+// DEUX SEUILS, QUATRE RÉPONSES :
+//   1er octobre 2016 — contrat conclu avant : loi ancienne, non épinglée ;
+//                      contrat conclu à compter : ce paquet s'applique.
+//   1er octobre 2018 — pour les articles que la ratification a rendus NOUVEAUX
+//                      (ici 1327 et 1343-3), l'acte antérieur échappe à la
+//                      rédaction nouvelle ; pour les articles INTERPRÉTATIFS
+//                      (ici 1304-4, 1305-5, 1327-1, 1328-1, 1347-6, 1352-4),
+//                      la rédaction issue de la ratification vaut depuis le
+//                      1er octobre 2016.
+//
+// La situation juridique est une entité propre du cas, reliée à la créance par
+// `situation_de_la_creance` : le concentrateur est gelé et `Creance` ne peut
+// pas devenir un sous-type de `SituationJuridique` (D-CC10-01).
+//
+// L'ARTICLE 1323 est en vigueur dans sa rédaction issue de l'ordonnance
+// n° 2021-1192 depuis le 1er janvier 2022. Le corridor de 2021 de
+// `fr.code_civil.transitions` ne nomme que le cautionnement : le rattachement
+// d'une cession de créance antérieure n'y est pas modélisé, et ce paquet ne
+// touche pas au paquet voisin (D-CC10-03).
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    CC_ART1304,
+    CC_ART1304_4,
+    CC_ART1305_5,
+    CC_ART1327,
+    CC_ART1327_1,
+    CC_ART1328_1,
+    CC_ART1343_3,
+    CC_ART1347_6,
+    CC_ART1352_4,
+    Creance,
+    SituationJuridique,
+    situation_de_la_creance,
+};
+
+pub relation regime_general_de_la_loi_nouvelle(c: Creance) kind derived {
+    label fr official "la créance relève du régime général des obligations dans sa rédaction issue de l'ordonnance n° 2016-131 : c'est celle que ce paquet exécute";
+    label en unofficial "the claim falls under the general regime of obligations as worded by Ordinance No. 2016-131: the wording this package executes";
+}
+pub relation redaction_anterieure_a_2016_non_epinglee(c: Creance) kind derived {
+    label fr official "frontière : le contrat conclu avant le 1er octobre 2016 demeure soumis à la loi ancienne, y compris pour ses effets légaux et pour les dispositions d'ordre public (ordonnance n° 2016-131, article 9) ; cette rédaction n'est pas épinglée dans ce paquet";
+    label en unofficial "boundary: a contract concluded before 1 October 2016 remains governed by the former law, including as to its legal effects and public-policy provisions (Ordinance No. 2016-131, Article 9); that wording is not pinned in this package";
+}
+pub relation article_nouveau_de_2018_applicable(c: Creance, numero: Text) kind derived {
+    label fr official "l'article que la loi de ratification a rendu nouveau s'applique à cet acte : il a été conclu ou établi à compter du 1er octobre 2018 (loi n° 2018-287, article 16, I)";
+    label en unofficial "the article the ratifying act made new applies to this act: it was concluded or drawn up from 1 October 2018 (Act No. 2018-287, Article 16, I)";
+}
+pub relation article_nouveau_de_2018_inapplicable(c: Creance, numero: Text) kind derived {
+    label fr official "frontière : l'acte conclu ou établi avant le 1er octobre 2018 échappe à la rédaction nouvelle des articles 1327 et 1343-3 ; la rédaction antérieure n'est pas épinglée dans ce paquet";
+    label en unofficial "boundary: an act concluded or drawn up before 1 October 2018 escapes the new wording of Articles 1327 and 1343-3; the earlier wording is not pinned in this package";
+}
+pub relation article_interpretatif_de_2018_applicable(c: Creance, numero: Text) kind derived {
+    label fr official "l'article dont la modification a un caractère interprétatif vaut depuis l'entrée en vigueur de l'ordonnance de 2016, y compris pour l'acte antérieur au 1er octobre 2018 (loi n° 2018-287, article 16, I)";
+    label en unofficial "an article whose amendment is interpretative applies from the 2016 ordinance's entry into force, including to an act earlier than 1 October 2018 (Act No. 2018-287, Article 16, I)";
+}
+
+@source(CC_ART1304) {
+    rule CreanceRegieParLaLoiNouvelle(s: SituationJuridique, c: Creance) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Le contrat conclu à compter du 1er octobre 2016 relève de la loi nouvelle : les règles de ce paquet lui sont applicables";
+        label en unofficial "Ordinance No. 2016-131, Article 9. A contract concluded from 1 October 2016 falls under the new law: this package's rules apply to it";
+        when situation_de_la_creance(s, c)
+            and fr.code_civil.transitions::loi_applicable_au_contrat(s, fr.code_civil.transitions::LoiNouvelle);
+        then regime_general_de_la_loi_nouvelle(c);
+    }
+    rule CreanceRegieParLaLoiAncienne(s: SituationJuridique, c: Creance) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne, y compris pour leurs effets légaux et pour les dispositions d'ordre public : le paquet s'arrête là";
+        label en unofficial "Ordinance No. 2016-131, Article 9. Contracts concluded before 1 October 2016 remain governed by the former law, including as to their legal effects and public-policy provisions: the package stops there";
+        when situation_de_la_creance(s, c)
+            and fr.code_civil.transitions::loi_applicable_au_contrat(s, fr.code_civil.transitions::LoiAncienne);
+        then redaction_anterieure_a_2016_non_epinglee(c);
+    }
+}
+
+@source(CC_ART1327, CC_ART1343_3) {
+    rule ArticleNouveauDe2018Applicable(s: SituationJuridique, c: Creance, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. Les articles 1327 et 1343-3, dans leur rédaction résultant de la loi de ratification, sont applicables aux actes juridiques conclus ou établis à compter du 1er octobre 2018";
+        label en unofficial "Act No. 2018-287, Article 16, I. Articles 1327 and 1343-3, as worded by the ratifying act, apply to legal acts concluded or drawn up from 1 October 2018";
+        when situation_de_la_creance(s, c)
+            and fr.code_civil.transitions::article_nouveau_2018(s, n)
+            and fr.code_civil.transitions::loi_applicable_a_l_article_2018(s, n, fr.code_civil.transitions::LoiNouvelle);
+        then article_nouveau_de_2018_applicable(c, n);
+    }
+    rule ArticleNouveauDe2018Inapplicable(s: SituationJuridique, c: Creance, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. L'acte juridique conclu ou établi avant le 1er octobre 2018 échappe à la rédaction nouvelle des articles énumérés : la rédaction antérieure n'est pas épinglée ici";
+        label en unofficial "Act No. 2018-287, Article 16, I. A legal act concluded or drawn up before 1 October 2018 escapes the new wording of the listed articles: the earlier wording is not pinned here";
+        when situation_de_la_creance(s, c)
+            and fr.code_civil.transitions::article_nouveau_2018(s, n)
+            and fr.code_civil.transitions::loi_applicable_a_l_article_2018(s, n, fr.code_civil.transitions::LoiAncienne);
+        then article_nouveau_de_2018_inapplicable(c, n);
+    }
+}
+
+@source(CC_ART1304_4, CC_ART1305_5, CC_ART1327_1, CC_ART1328_1, CC_ART1347_6, CC_ART1352_4)
+rule ArticleInterpretatifDe2018Applicable(s: SituationJuridique, c: Creance, n: Text) strict {
+    label fr official "Loi n° 2018-287, article 16, I, troisième phrase. Les modifications apportées aux articles 1304-4, 1305-5, 1327-1, 1328-1, 1347-6 et 1352-4 ont un caractère interprétatif : elles valent depuis le 1er octobre 2016, y compris pour l'acte antérieur au 1er octobre 2018";
+    label en unofficial "Act No. 2018-287, Article 16, I, third sentence. The amendments to Articles 1304-4, 1305-5, 1327-1, 1328-1, 1347-6 and 1352-4 are interpretative: they apply from 1 October 2016, including to an act earlier than 1 October 2018";
+    when situation_de_la_creance(s, c)
+        and fr.code_civil.transitions::article_interpretatif_2018(s, n)
+        and fr.code_civil.transitions::loi_applicable_a_l_article_2018(s, n, fr.code_civil.transitions::LoiNouvelle);
+    then article_interpretatif_de_2018_applicable(c, n);
+}

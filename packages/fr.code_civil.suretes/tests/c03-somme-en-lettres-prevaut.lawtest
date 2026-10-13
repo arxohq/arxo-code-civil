@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2297 : « dix mille euros » en lettres, 100 000 en chiffres — le cautionnement vaut pour 10 000 EUR.
+test "urn:query:fr-code-civil-suretes-c03-somme-en-lettres-prevaut" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c03:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c03:K"), entity_ref("urn:fr:cc:suretes:c03:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c03:K"), entity_ref("urn:fr:cc:suretes:c03:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:c03:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c03:B")) { origin case_input; }
+        assert "f6": mention_manuscrite_apposee(entity_ref("urn:fr:cc:suretes:c03:K")) { origin case_input; }
+        assert "f7": montant_en_toutes_lettres(entity_ref("urn:fr:cc:suretes:c03:K"), 10000 EUR) { origin case_input; }
+        assert "f8": montant_en_chiffres(entity_ref("urn:fr:cc:suretes:c03:K"), 100000 EUR) { origin case_input; }
+    }
+    evaluate truth(plafond_du_cautionnement(entity_ref("urn:fr:cc:suretes:c03:K"), 10000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(PlafondEnToutesLettres);
+}

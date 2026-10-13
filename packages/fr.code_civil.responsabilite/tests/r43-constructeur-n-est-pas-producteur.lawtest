@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-5, dernier alinéa : le constructeur tenu des articles 1792 à 1792-6 n'est pas producteur.
+test "urn:query:fr-code-civil-responsabilite-r43-constructeur-n-est-pas-producteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": qualite_invoquee(entity_ref("urn:fr:cc:resp:v2e:p"), entity_ref("urn:fr:cc:resp:v2e:c"), FabricantDUnProduitFini) { origin case_input; }
+        assert "f2": agit_a_titre_professionnel(entity_ref("urn:fr:cc:resp:v2e:c")) { origin case_input; }
+        assert "f3": responsabilite_des_constructeurs_ouverte(entity_ref("urn:fr:cc:resp:v2e:p"), entity_ref("urn:fr:cc:resp:v2e:c")) { origin case_input; }
+    }
+    evaluate truth(producteur_au_sens_du_chapitre(entity_ref("urn:fr:cc:resp:v2e:p"), entity_ref("urn:fr:cc:resp:v2e:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

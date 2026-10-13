@@ -1,0 +1,25 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1207 al. 1 et 2 : la révocation du 2 juin 2020, après l'expiration des trois mois, est valable et profite aux héritiers faute de nouveau bénéficiaire.
+test "urn:query:fr-code-civil-contrat-e15-revocation-des-heritiers-valable" {
+    given {
+        context { deadline_policy CC_CONTRAT_MOIS; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e15"), @2019-03-01) { origin case_input; }
+        assert "f2": stipulation_pour_autrui(entity_ref("urn:fr:cc:contrat:e15:s"), entity_ref("urn:fr:cc:contrat:e15"), entity_ref("urn:fr:cc:contrat:e15:p1"), entity_ref("urn:fr:cc:contrat:e15:p2"), entity_ref("urn:fr:cc:contrat:e15:beneficiaire")) { origin case_input; }
+        assert "f3": beneficiaire_precisement_designe_ou_determinable(entity_ref("urn:fr:cc:contrat:e15:s")) { origin case_input; }
+        assert "f4": mise_en_demeure_d_accepter_le(entity_ref("urn:fr:cc:contrat:e15:s"), @2020-03-01) { origin case_input; }
+        assert "f5": heritier_du_stipulant(entity_ref("urn:fr:cc:contrat:e15:s"), entity_ref("urn:fr:cc:contrat:e15:heritier")) { origin case_input; }
+        assert "f6": revocation_par_les_heritiers_le(entity_ref("urn:fr:cc:contrat:e15:s"), @2020-06-02) { origin case_input; }
+    }
+    evaluate truth(revocation_des_heritiers_valable(entity_ref("urn:fr:cc:contrat:e15:s")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevocationDesHeritiersValable);
+
+    evaluate truth(revocation_profite_au_stipulant_ou_a_ses_heritiers(entity_ref("urn:fr:cc:contrat:e15:s")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevocationProfiteAuStipulant);
+}

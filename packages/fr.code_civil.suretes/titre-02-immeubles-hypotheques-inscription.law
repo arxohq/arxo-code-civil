@@ -1,0 +1,897 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRE IV, SECTION 3, SOUS-SECTIONS 2
+// À 4 : INSCRIPTION DES HYPOTHÈQUES, DURÉE ET RADIATION (articles 2421 à 2449).
+//
+// DURÉE DE L'INSCRIPTION (2429), calculée sous `CC_SURETES_MOIS_AN` :
+//   — échéance déterminée postérieure à l'inscription : au plus un an après la
+//     dernière échéance, sans que la durée excède cinquante ans ;
+//   — échéance indéterminée ou clause de rechargement : cinquante ans au plus ;
+//   — échéance antérieure ou concomitante à l'inscription : dix ans au plus ;
+//   — plusieurs créances : inscription unique jusqu'à la date la plus éloignée.
+// Ce ne sont pas des délais §86 courant d'un événement mais des DATES EXTRÊMES :
+// la date requise par le créancier vaut si elle ne dépasse pas la date légale ;
+// au-delà, l'inscription n'a pas d'effet (2431).
+//
+// DIX JOURS ET CINQUANTE ANS (2443) : le pas en jours ne lit pas `month_end`
+// (E-0187), les deux se calculent sous la même politique si besoin.
+//
+// SEUIL DE L'ARTICLE 2439. « Une somme égale au double du montant des créances
+// […], augmenté du tiers de ce montant » : « ce montant » renvoie au montant
+// des créances (lecture syntaxique et doctrinale, D-CC14-09) — seuil de sept
+// tiers, comparé sans division (`valeur × 3 > montant × 7`).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2421,
+    CC_ART2422,
+    CC_ART2423,
+    CC_ART2424,
+    CC_ART2425,
+    CC_ART2426,
+    CC_ART2428,
+    CC_ART2429,
+    CC_ART2430,
+    CC_ART2431,
+    CC_ART2432,
+    CC_ART2433,
+    CC_ART2434,
+    CC_ART2435,
+    CC_ART2436,
+    CC_ART2437,
+    CC_ART2438,
+    CC_ART2439,
+    CC_ART2440,
+    CC_ART2441,
+    CC_ART2442,
+    CC_ART2443,
+    CC_ART2444,
+    CC_ART2445,
+    CC_ART2446,
+    CC_ART2447,
+    CC_ART2448,
+    CC_ART2449,
+    Creance,
+    EspeceDHypotheque,
+    Personne,
+    SureteReelle,
+    cession_de_rang_permise,
+    clause_du_contrat_de_mariage_interdisant_2395,
+    faculte_d_inscrire_la_participation,
+    frais_d_inscription_a_la_charge_des_debiteurs,
+    hypotheque_d_espece,
+    hypotheque_generale,
+};
+
+pub entity Inscription {
+    label fr official "Inscription d'une hypothèque au fichier immobilier";
+    label en unofficial "Registration of a mortgage in the land register";
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation inscription_de(i: Inscription, s: SureteReelle) kind empirical {
+    key(i);
+    label fr official "inscription de cette hypothèque (article 2421)";
+    label en unofficial "registration of this mortgage (Article 2421)";
+}
+pub relation inscription_pour_une_somme(i: Inscription, m: Money) kind empirical {
+    key(i);
+    label fr official "somme pour laquelle l'inscription est requise (articles 2421, 2423)";
+    label en unofficial "sum for which registration is requested (Articles 2421, 2423)";
+}
+pub relation immeubles_individuellement_designes(i: Inscription) kind empirical {
+    label fr official "les immeubles sont individuellement désignés avec indication de la commune (articles 2421, 2423)";
+    label en unofficial "the immovables are individually identified with their municipality (Articles 2421, 2423)";
+}
+pub relation mutation_publiee_avant_l_inscription(i: Inscription) kind empirical {
+    label fr official "la mutation au profit d'un tiers a été publiée avant l'inscription (article 2422, al. 1)";
+    label en unofficial "the transfer to a third party was published before the registration (Article 2422, para. 1)";
+}
+pub relation succession_acceptee_a_concurrence_ou_vacante(i: Inscription) kind empirical {
+    label fr official "la succession n'est acceptée qu'à concurrence de l'actif net ou est déclarée vacante (article 2422, al. 2)";
+    label en unofficial "the estate is accepted only up to the net assets or declared vacant (Article 2422, para. 2)";
+}
+pub relation inscription_prise_apres_le_deces(i: Inscription) kind empirical {
+    label fr official "l'inscription a été faite depuis le décès (article 2422, al. 2)";
+    label en unofficial "the registration was made after the death (Article 2422, para. 2)";
+}
+pub relation procedure_collective_ou_saisie_immobiliere(i: Inscription) kind empirical {
+    label fr official "saisie immobilière, procédure collective ou de surendettement en cours (article 2422, al. 3)";
+    label en unofficial "immovable seizure, insolvency or over-indebtedness proceedings under way (Article 2422, para. 3)";
+}
+pub relation immeuble_en_alsace_moselle(i: Inscription) kind empirical {
+    label fr official "l'immeuble est situé dans le Bas-Rhin, le Haut-Rhin ou la Moselle (article 2422, al. 4)";
+    label en unofficial "the immovable is in Bas-Rhin, Haut-Rhin or Moselle (Article 2422, para. 4)";
+}
+pub relation bordereaux_deposes(i: Inscription) kind empirical {
+    label fr official "deux bordereaux datés, signés et certifiés conformes ont été déposés (article 2423)";
+    label en unofficial "two dated, signed and certified bordereaux were filed (Article 2423)";
+}
+pub relation titre_generateur_presente(i: Inscription) kind empirical {
+    label fr official "le titre générateur de la sûreté est présenté (article 2423, dépôt refusé 1°)";
+    label en unofficial "the instrument creating the security is produced (Article 2423, refusal 1°)";
+}
+pub relation certification_d_identite_portee(i: Inscription) kind empirical {
+    label fr official "la mention visée de la certification de l'identité des parties est portée (article 2423, dépôt refusé 2°)";
+    label en unofficial "the certification of the parties' identity is included (Article 2423, refusal 2°)";
+}
+pub relation montant_du_bordereau(i: Inscription, m: Money) kind empirical {
+    key(i);
+    label fr official "montant de créance garantie porté au bordereau (article 2423, dernier alinéa)";
+    label en unofficial "amount of secured claim stated in the bordereau (Article 2423, last paragraph)";
+}
+pub relation montant_du_titre(i: Inscription, m: Money) kind empirical {
+    key(i);
+    label fr official "montant figurant dans le titre (article 2423)";
+    label en unofficial "amount stated in the instrument (Article 2423)";
+}
+pub relation mention_omise_constatee(i: Inscription) kind empirical {
+    label fr official "le service constate l'omission d'une mention prescrite ou une discordance (article 2423)";
+    label en unofficial "the registry finds a required entry missing or a discrepancy (Article 2423)";
+}
+pub relation bordereau_regularise_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date de remise du bordereau régularisé (article 2423)";
+    label en unofficial "date the corrected bordereau was filed (Article 2423)";
+}
+pub relation lot_de_copropriete(i: Inscription) kind empirical {
+    label fr official "l'hypothèque porte sur un lot dépendant d'un immeuble en copropriété (article 2424)";
+    label en unofficial "the mortgage bears on a lot of a co-owned building (Article 2424)";
+}
+pub relation modification_n_aggravant_pas_la_situation(i: Inscription, x: Text) kind empirical {
+    label fr official "subrogation, mainlevée, réduction, cession d'antériorité, transfert, prorogation, changement de domicile ou autre modification qui n'aggrave pas la situation du débiteur (article 2425)";
+    label en unofficial "subrogation, release, reduction, priority assignment, transfer, extension, change of address or other change that does not worsen the debtor's position (Article 2425)";
+}
+pub relation mention_au_registre_des_depots_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date portée sur le registre des dépôts (article 2426)";
+    label en unofficial "date entered in the filing register (Article 2426)";
+}
+pub relation inscription_prise_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date à laquelle l'inscription est prise (articles 2429, 2432)";
+    label en unofficial "date the registration is taken (Articles 2429, 2432)";
+}
+pub relation inscription_definitive_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date de l'inscription définitive succédant à une inscription provisoire d'hypothèque judiciaire (article 2432)";
+    label en unofficial "date of the final registration following a provisional judicial mortgage registration (Article 2432)";
+}
+pub relation derniere_echeance_de_la_creance(i: Inscription, c: Creance, jour: Date) kind empirical {
+    label fr official "dernière échéance prévue du principal de la créance garantie (article 2429, al. 2)";
+    label en unofficial "last scheduled maturity of the secured claim's principal (Article 2429, para. 2)";
+}
+pub relation echeance_indeterminee(i: Inscription, c: Creance) kind empirical {
+    label fr official "l'échéance ou la dernière échéance est indéterminée, notamment dans le cas du prêt viager (article 2429, al. 3)";
+    label en unofficial "the maturity or last maturity is indeterminate, in particular for the life loan (Article 2429, para. 3)";
+}
+pub relation clause_de_rechargement_2416(i: Inscription) kind empirical {
+    label fr official "l'hypothèque est assortie d'une clause de rechargement prévue à l'article 2416 (article 2429, al. 3)";
+    label en unofficial "the mortgage carries the reloading clause of Article 2416 (Article 2429, para. 3)";
+}
+pub relation date_d_effet_requise(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date que le créancier fixe pour l'effet de l'inscription (article 2429, al. 1)";
+    label en unofficial "date the creditor sets for the registration's effect (Article 2429, para. 1)";
+}
+pub relation creancier_de_l_inscription(i: Inscription, p: Personne) kind empirical {
+    key(i);
+    label fr official "créancier qui fixe la date d'effet de l'inscription (article 2429)";
+    label en unofficial "creditor setting the registration's effective date (Article 2429)";
+}
+pub relation renouvellement_requis_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date à laquelle le renouvellement de l'inscription est requis (article 2430)";
+    label en unofficial "date the renewal of the registration is requested (Article 2430)";
+}
+pub relation effet_legal_realise(i: Inscription) kind empirical {
+    label fr official "l'inscription a produit son effet légal, notamment en cas de réalisation du gage, sans que le prix soit payé ou consigné (article 2430, al. 3)";
+    label en unofficial "the registration produced its legal effect, in particular on enforcement, without the price being paid or deposited (Article 2430, para. 3)";
+}
+pub relation radiation_consentie(i: Inscription) kind empirical {
+    label fr official "les parties intéressées et capables consentent à la radiation, ou un jugement en dernier ressort l'ordonne (article 2435)";
+    label en unofficial "the interested and capable parties consent to removal, or a final judgment orders it (Article 2435)";
+}
+pub relation mention_de_rechargement_non_publiee(i: Inscription) kind empirical {
+    label fr official "le créancier n'a pas procédé à la publication en marge prévue au quatrième alinéa de l'article 2416 (article 2435)";
+    label en unofficial "the creditor did not carry out the marginal publication required by Article 2416, paragraph 4 (Article 2435)";
+}
+pub relation expedition_deposee(i: Inscription) kind empirical {
+    label fr official "l'expédition de l'acte authentique ou du jugement est déposée au service (article 2436)";
+    label en unofficial "the certified copy of the notarial deed or judgment is filed with the registry (Article 2436)";
+}
+pub relation inscription_sans_loi_ni_titre(i: Inscription) kind empirical {
+    label fr official "l'inscription a été faite sans être fondée ni sur la loi ni sur un titre, ou sur un titre irrégulier, éteint ou soldé, ou les droits sont effacés (article 2438)";
+    label en unofficial "the registration rests on neither law nor instrument, or on an irregular, extinguished or settled one, or the rights are wiped out (Article 2438)";
+}
+pub relation inscription_sur_plusieurs_immeubles(i: Inscription) kind empirical {
+    label fr official "l'inscription d'une hypothèque légale générale grève plusieurs immeubles (article 2439)";
+    label en unofficial "a general statutory mortgage is registered over several immovables (Article 2439)";
+}
+pub relation valeur_des_immeubles_consideres(i: Inscription, m: Money) kind empirical {
+    key(i);
+    label fr official "valeur d'un seul ou de quelques-uns des immeubles grevés (article 2439)";
+    label en unofficial "value of one or some of the encumbered immovables (Article 2439)";
+}
+pub relation montant_des_creances_garanties(i: Inscription, m: Money) kind empirical {
+    key(i);
+    label fr official "montant des créances en capital et accessoires légaux (article 2439)";
+    label en unofficial "amount of the claims in principal and statutory accessories (Article 2439)";
+}
+pub relation demande_de_reduction_du_tuteur(i: Inscription) kind empirical {
+    label fr official "le tuteur ou l'administrateur légal demande la réduction de l'inscription ou de l'évaluation (article 2441)";
+    label en unofficial "the guardian or statutory administrator requests reduction of the registration or valuation (Article 2441)";
+}
+pub relation reduction_prononcee_a_certains_immeubles(i: Inscription) kind empirical {
+    label fr official "le tribunal prononce la réduction de l'hypothèque à certains immeubles (article 2442)";
+    label en unofficial "the court reduces the mortgage to certain immovables (Article 2442)";
+}
+pub relation requisition_de_copie_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date de la réquisition de copie ou d'extrait (article 2443)";
+    label en unofficial "date of the request for a copy or extract (Article 2443)";
+}
+pub relation premier_janvier_de_l_annee_de_requisition(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "1er janvier de l'année de la réquisition (article 2443, al. 1)";
+    label en unofficial "1 January of the year of the request (Article 2443, paragraph 1)";
+}
+pub relation document_depose_le(i: Inscription, jour: Date) kind empirical {
+    label fr official "date de dépôt du document dont la copie est requise (article 2443)";
+    label en unofficial "filing date of the document whose copy is requested (Article 2443)";
+}
+pub relation faute_du_service_commise_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date de la faute commise par le service chargé de la publicité foncière (article 2444)";
+    label en unofficial "date of the fault committed by the land registry service (Article 2444)";
+}
+pub relation action_en_responsabilite_le(i: Inscription, jour: Date) kind empirical {
+    key(i);
+    label fr official "date à laquelle l'action en responsabilité de l'État est exercée (article 2444, II)";
+    label en unofficial "date the action against the State is brought (Article 2444, II)";
+}
+pub relation certificat_omettant_une_inscription(i: Inscription) kind empirical {
+    label fr official "le service a omis une inscription d'hypothèque dans le certificat délivré au nouveau titulaire (article 2445)";
+    label en unofficial "the registry omitted a mortgage registration from the certificate issued to the new holder (Article 2445)";
+}
+pub relation certificat_requis_apres_publication_du_titre(i: Inscription) kind empirical {
+    label fr official "la délivrance du certificat a été requise en conséquence de la publication du titre (article 2445)";
+    label en unofficial "the certificate was requested following publication of the title (Article 2445)";
+}
+pub relation prix_paye_par_l_acquereur(i: Inscription) kind empirical {
+    label fr official "le prix a été payé par l'acquéreur (article 2445)";
+    label en unofficial "the price was paid by the buyer (Article 2445)";
+}
+pub relation refus_ou_retard_injustifie(i: Inscription) kind empirical {
+    label fr official "le service refuse ou retarde l'exécution d'une formalité hors des cas où il peut le faire (article 2446)";
+    label en unofficial "the registry refuses or delays a formality outside the cases where it may (Article 2446)";
+}
+pub relation registre_informatique(i: Inscription) kind empirical {
+    label fr official "le registre est tenu sous forme de document informatique écrit (article 2448, al. 2)";
+    label en unofficial "the register is kept as a written electronic document (Article 2448, paragraph 2)";
+}
+pub relation demande_de_renseignements_sur_immeubles_designes(i: Inscription) kind empirical {
+    label fr official "demande de renseignements sur des immeubles individuellement désignés (article 2449)";
+    label en unofficial "request for information on individually identified immovables (Article 2449)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation inscription_reguliere(i: Inscription) kind derived {
+    label fr official "l'inscription est requise pour une somme et sur des immeubles déterminés, individuellement désignés (article 2421)";
+    label en unofficial "the registration is requested for a fixed sum over identified, individually designated immovables (Article 2421)";
+}
+pub relation inscription_irreguliere(i: Inscription) kind derived {
+    label fr official "l'inscription ne satisfait pas aux exigences de désignation ou de somme (article 2421)";
+    label en unofficial "the registration does not meet the designation or sum requirements (Article 2421)";
+}
+pub relation inscription_sans_effet_utile(i: Inscription) kind derived {
+    label fr official "les créanciers hypothécaires ne peuvent prendre utilement inscription sur le précédent propriétaire à partir de la publication de la mutation (article 2422, al. 1)";
+    label en unofficial "mortgagees cannot usefully register against the previous owner once the transfer is published (Article 2422, para. 1)";
+}
+pub relation inscription_sans_effet_entre_creanciers_successoraux(i: Inscription) kind derived {
+    label fr official "l'inscription ne produit aucun effet entre les créanciers d'une succession acceptée à concurrence de l'actif net ou vacante (article 2422, al. 2)";
+    label en unofficial "the registration has no effect between creditors of an estate accepted up to net assets or declared vacant (Article 2422, para. 2)";
+}
+pub relation effets_regles_par_les_procedures(i: Inscription) kind derived {
+    label fr official "frontière : les effets de l'inscription sont réglés par le code des procédures civiles d'exécution, le code de la consommation ou le code de commerce (article 2422, al. 3) ; en Alsace-Moselle, par la loi du 1er juin 1924 (al. 4)";
+    label en unofficial "boundary: the registration's effects are governed by the Enforcement, Consumer or Commercial Codes (Article 2422, para. 3); in Alsace-Moselle, by the Act of 1 June 1924 (para. 4)";
+}
+pub relation depot_refuse(i: Inscription) kind derived {
+    label fr official "le dépôt est refusé (article 2423)";
+    label en unofficial "the filing is refused (Article 2423)";
+}
+pub relation formalite_rejetee(i: Inscription) kind derived {
+    label fr official "la formalité est rejetée (article 2423)";
+    label en unofficial "the formality is rejected (Article 2423)";
+}
+pub relation formalite_prend_rang_le(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "régularisé, le bordereau fait prendre rang à la formalité à la date de sa remise (article 2423)";
+    label en unofficial "once corrected, the bordereau gives the formality rank as of its filing date (Article 2423)";
+}
+pub relation quote_part_de_parties_communes_grevee(i: Inscription) kind derived {
+    label fr official "les créanciers inscrits exercent leurs droits sur la quote-part de parties communes, tenue pour grevée des mêmes sûretés que les parties privatives (article 2424)";
+    label en unofficial "registered creditors exercise their rights over the share of common parts, deemed encumbered by the same securities as the private parts (Article 2424)";
+}
+pub relation publiee_en_marge(i: Inscription, x: Text) kind derived {
+    label fr official "la modification est publiée sous forme de mention en marge de l'inscription existante (article 2425)";
+    label en unofficial "the change is published as a marginal note to the existing registration (Article 2425)";
+}
+pub relation date_de_l_inscription(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "la date de l'inscription est déterminée par la mention portée sur le registre des dépôts (article 2426)";
+    label en unofficial "the registration date is set by the entry in the filing register (Article 2426)";
+}
+pub relation point_de_depart_des_delais(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "point de départ des durées de l'article 2429 : l'inscription, ou l'inscription définitive après une inscription provisoire (articles 2429, 2432)";
+    label en unofficial "starting point of the Article 2429 periods: the registration, or the final registration after a provisional one (Articles 2429, 2432)";
+}
+pub relation limite_par_creance(i: Inscription, c: Creance, jour: Date) kind derived {
+    label fr official "date extrême d'effet que l'inscription peut recevoir pour cette créance (article 2429)";
+    label en unofficial "latest effective date the registration may bear for this claim (Article 2429)";
+}
+pub relation limite_plus_eloignee_existe(i: Inscription, c: Creance) kind derived {
+    label fr official "une autre créance de la même inscription porte une date extrême plus éloignée (article 2429, al. 5)";
+    label en unofficial "another claim under the same registration bears a later extreme date (Article 2429, para. 5)";
+}
+pub relation date_extreme_d_effet(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "date extrême d'effet de l'inscription unique : la plus éloignée des dates par créance (article 2429)";
+    label en unofficial "latest effective date of the single registration: the furthest of the per-claim dates (Article 2429)";
+}
+pub relation date_d_effet_admise(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "date d'effet effectivement acquise : celle que fixe le créancier si elle n'excède pas la date extrême, sinon la date extrême (articles 2429, 2431)";
+    label en unofficial "effective date actually obtained: the one set by the creditor if within the extreme date, otherwise the extreme date (Articles 2429, 2431)";
+}
+pub relation inscription_perimee(i: Inscription) kind derived {
+    label fr official "l'inscription cesse de produire effet faute de renouvellement au plus tard à sa date extrême (article 2430)";
+    label en unofficial "the registration ceases to have effect for want of renewal by its extreme date (Article 2430)";
+}
+pub relation inscription_renouvelee(i: Inscription) kind derived {
+    label fr official "l'inscription a été renouvelée dans le délai (article 2430)";
+    label en unofficial "the registration was renewed in time (Article 2430)";
+}
+pub relation renouvellement_obligatoire(i: Inscription) kind derived {
+    label fr official "le renouvellement est obligatoire lorsque l'inscription a produit son effet légal, jusqu'au paiement ou à la consignation du prix (article 2430, al. 3)";
+    label en unofficial "renewal is mandatory once the registration produced its legal effect, until the price is paid or deposited (Article 2430, para. 3)";
+}
+pub relation radiation_ordonnee(i: Inscription) kind derived {
+    label fr official "la radiation doit être ordonnée par les tribunaux (article 2438)";
+    label en unofficial "removal must be ordered by the courts (Article 2438)";
+}
+pub relation radiation_par_consentement(i: Inscription) kind derived {
+    label fr official "l'inscription est rayée du consentement des parties ou en vertu d'un jugement (articles 2435, 2436)";
+    label en unofficial "the registration is removed by consent of the parties or under a judgment (Articles 2435, 2436)";
+}
+pub relation radiation_imposee_au_creancier(i: Inscription) kind derived {
+    label fr official "la radiation s'impose au créancier qui n'a pas publié la mention de rechargement (article 2435)";
+    label en unofficial "removal is imposed on a creditor that did not publish the reloading note (Article 2435)";
+}
+pub relation inscriptions_excessives(i: Inscription) kind derived {
+    label fr official "inscriptions réputées excessives, dont le débiteur peut demander la réduction (article 2439)";
+    label en unofficial "registrations deemed excessive, whose reduction the debtor may seek (Article 2439)";
+}
+pub relation reduction_demandable_par_le_tuteur(i: Inscription) kind derived {
+    label fr official "le tuteur ou l'administrateur légal peut demander la réduction de l'inscription ou de l'évaluation, ou la mainlevée totale (article 2441)";
+    label en unofficial "the guardian or administrator may seek reduction of the registration or valuation, or full release (Article 2441)";
+}
+pub relation inscriptions_sur_les_autres_immeubles_radiees(i: Inscription) kind derived {
+    label fr official "la réduction prononcée, les inscriptions prises sur tous les autres immeubles sont radiées (article 2442)";
+    label en unofficial "once reduction is ordered, the registrations over all the other immovables are removed (Article 2442)";
+}
+pub relation copie_delivrable(i: Inscription, jour: Date) kind derived {
+    label fr official "document dans la limite des cinquante années précédant celle de la réquisition : copie ou extrait délivrable (article 2443)";
+    label en unofficial "document within the fifty years preceding the year of the request: copy or extract to be issued (Article 2443)";
+}
+pub relation copie_hors_limite(i: Inscription, jour: Date) kind derived {
+    label fr official "document antérieur aux cinquante années précédant celle de la réquisition (article 2443)";
+    label en unofficial "document older than the fifty years preceding the year of the request (Article 2443)";
+}
+pub relation delai_de_delivrance_des_extraits(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "terme du délai de dix jours pour délivrer les copies ou extraits du fichier immobilier (article 2443, al. 2)";
+    label en unofficial "end of the ten-day period to deliver copies or extracts of the land file (Article 2443, para. 2)";
+}
+pub relation action_en_responsabilite_recevable(i: Inscription) kind derived {
+    label fr official "l'action en responsabilité de l'État est exercée dans le délai de dix ans suivant la faute (article 2444, II)";
+    label en unofficial "the action against the State is brought within ten years of the fault (Article 2444, II)";
+}
+pub relation action_en_responsabilite_forclose(i: Inscription) kind derived {
+    label fr official "l'action est forclose : plus de dix ans après la faute (article 2444, II)";
+    label en unofficial "the action is time-barred: more than ten years after the fault (Article 2444, II)";
+}
+pub relation droit_affranchi_de_l_hypotheque(i: Inscription) kind derived {
+    label fr official "le droit demeure au nouveau titulaire affranchi de l'hypothèque non révélée (article 2445)";
+    label en unofficial "the right remains with the new holder free of the undisclosed mortgage (Article 2445)";
+}
+pub relation creancier_conserve_son_rang(i: Inscription) kind derived {
+    label fr official "le créancier de l'inscription omise ne perd pas le droit de se prévaloir de son rang tant que le prix n'est pas payé (article 2445)";
+    label en unofficial "the creditor of the omitted registration keeps the right to rely on its rank while the price is unpaid (Article 2445)";
+}
+pub relation dommages_interets_pour_refus(i: Inscription) kind derived {
+    label fr official "le refus ou le retard injustifié engage le service, sous peine des dommages et intérêts des parties (article 2446)";
+    label en unofficial "an unjustified refusal or delay exposes the registry to the parties' damages (Article 2446)";
+}
+pub relation formalites_dans_l_ordre_des_remises(i: Inscription) kind derived {
+    label fr official "les formalités ne peuvent être exécutées qu'à la date et dans l'ordre des remises inscrites au registre (article 2447)";
+    label en unofficial "formalities may be carried out only on the date and in the order of the filings entered in the register (Article 2447)";
+}
+pub relation registre_cote_et_paraphe(i: Inscription) kind derived {
+    label fr official "le registre est coté et paraphé, ou tenu sous forme de document informatique identifié, numéroté et daté (article 2448)";
+    label en unofficial "the register is initialled and paginated, or kept as an identified, numbered and dated electronic document (Article 2448)";
+}
+pub relation certificat_des_formalites_en_instance(i: Inscription) kind derived {
+    label fr official "un certificat des formalités acceptées au dépôt et en instance est délivré (article 2449)";
+    label en unofficial "a certificate of formalities filed and pending is issued (Article 2449)";
+}
+
+// --- 2421 à 2426 ----------------------------------------------------------------------------
+
+@source(CC_ART2421) {
+    rule InscriptionReguliere(i: Inscription, s: SureteReelle, m: Money) strict {
+        label fr official "Article 2421. L'inscription ne peut avoir lieu que pour une somme et sur des immeubles déterminés, individuellement désignés";
+        label en unofficial "Article 2421. Registration may take place only for a fixed sum over identified, individually designated immovables";
+        when inscription_de(i, s) and inscription_pour_une_somme(i, m) and immeubles_individuellement_designes(i);
+        then inscription_reguliere(i);
+    }
+    rule InscriptionIrreguliere(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2421. A défaut de désignation individuelle des immeubles, l'inscription ne peut avoir lieu";
+        label en unofficial "Article 2421. Without individual designation of the immovables, registration cannot take place";
+        when inscription_de(i, s) and not_known(immeubles_individuellement_designes(i));
+        then inscription_irreguliere(i);
+    }
+}
+
+@source(CC_ART2422) {
+    rule InscriptionApresMutation(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2422, alinéa 1. Les créanciers hypothécaires ne peuvent prendre utilement inscription sur le précédent propriétaire à partir de la publication de la mutation";
+        label en unofficial "Article 2422, paragraph 1. Mortgagees cannot usefully register against the previous owner once the transfer is published";
+        when inscription_de(i, s) and mutation_publiee_avant_l_inscription(i);
+        then inscription_sans_effet_utile(i);
+    }
+    rule InscriptionApresLeDeces(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2422, alinéa 2. L'inscription faite depuis le décès ne produit aucun effet entre les créanciers d'une succession acceptée à concurrence de l'actif net ou vacante";
+        label en unofficial "Article 2422, paragraph 2. A registration made after the death has no effect between creditors of an estate accepted up to net assets or vacant";
+        when inscription_de(i, s) and succession_acceptee_a_concurrence_ou_vacante(i) and inscription_prise_apres_le_deces(i);
+        then inscription_sans_effet_entre_creanciers_successoraux(i);
+    }
+    rule EffetsRenvoyesAuxProcedures(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2422, alinéa 3. En cas de saisie immobilière ou de procédure collective, l'inscription produit les effets réglés par d'autres codes";
+        label en unofficial "Article 2422, paragraph 3. On seizure or insolvency proceedings, the registration has the effects set by other codes";
+        when inscription_de(i, s) and procedure_collective_ou_saisie_immobiliere(i);
+        then effets_regles_par_les_procedures(i);
+    }
+    rule EffetsEnAlsaceMoselle(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2422, alinéa 4. Dans le Bas-Rhin, le Haut-Rhin et la Moselle, l'inscription produit les effets réglés par la loi du 1er juin 1924";
+        label en unofficial "Article 2422, paragraph 4. In Bas-Rhin, Haut-Rhin and Moselle, the registration has the effects set by the Act of 1 June 1924";
+        when inscription_de(i, s) and immeuble_en_alsace_moselle(i);
+        then effets_regles_par_les_procedures(i);
+    }
+}
+
+@source(CC_ART2423) {
+    rule DepotRefuseFauteDeTitre(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2423. Le dépôt est refusé à défaut de présentation du titre générateur pour l'hypothèque légale attachée aux jugements et pour l'hypothèque judiciaire";
+        label en unofficial "Article 2423. Filing is refused without the instrument creating a judgment-based statutory mortgage or a judicial mortgage";
+        when inscription_de(i, s) and hypotheque_conventionnelle_ou_judiciaire_collocation_absente(i)
+            and not_known(titre_generateur_presente(i));
+        then depot_refuse(i);
+    }
+    rule DepotRefuseFauteDeCertification(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2423. Le dépôt est refusé à défaut de la certification de l'identité des parties, ou si les immeubles ne sont pas individuellement désignés";
+        label en unofficial "Article 2423. Filing is refused without certification of the parties' identity, or if the immovables are not individually designated";
+        when inscription_de(i, s) and bordereaux_deposes(i) and not_known(certification_d_identite_portee(i));
+        then depot_refuse(i);
+    }
+    rule FormaliteRejeteeMontantSuperieur(i: Inscription, b: Money, t: Money) strict {
+        label fr official "Article 2423. La formalité est rejetée lorsque les bordereaux comportent un montant de créance garantie supérieur à celui figurant dans le titre";
+        label en unofficial "Article 2423. The formality is rejected where the bordereaux state a secured amount higher than the instrument's";
+        when montant_du_bordereau(i, b) and montant_du_titre(i, t) and b > t;
+        then formalite_rejetee(i);
+    }
+    rule RangApresRegularisation(i: Inscription, jour: Date) strict {
+        label fr official "Article 2423. Le requérant régularisant le bordereau, la formalité prend rang à la date de la remise constatée au registre de dépôts";
+        label en unofficial "Article 2423. Where the applicant corrects the bordereau, the formality ranks from the filing date recorded in the register";
+        when mention_omise_constatee(i) and bordereau_regularise_le(i, jour);
+        then formalite_prend_rang_le(i, jour);
+    }
+}
+
+pub relation hypotheque_conventionnelle_ou_judiciaire_collocation_absente(i: Inscription) kind derived {
+    label fr official "l'inscription porte sur une hypothèque judiciaire ou légale attachée à un jugement, pour laquelle le titre doit être présenté (article 2423)";
+    label en unofficial "the registration concerns a judicial or judgment-based statutory mortgage, for which the instrument must be produced (Article 2423)";
+}
+
+@source(CC_ART2423)
+rule TitreExigePourLHypothequeJudiciaire(i: Inscription, s: SureteReelle) strict {
+    label fr official "Article 2423. Pour l'hypothèque légale attachée aux jugements de condamnation et l'hypothèque judiciaire, le créancier présente le titre";
+    label en unofficial "Article 2423. For judgment-based statutory mortgages and judicial mortgages, the creditor produces the instrument";
+    when inscription_de(i, s) and hypotheque_d_espece(s, Judiciaire);
+    then hypotheque_conventionnelle_ou_judiciaire_collocation_absente(i);
+}
+
+@source(CC_ART2424)
+rule QuotePartDePartiesCommunes(i: Inscription, s: SureteReelle) strict {
+    label fr official "Article 2424. Les créanciers inscrits exercent leurs droits sur la quote-part de parties communes comprise dans le lot, tenue pour grevée des mêmes sûretés que les parties privatives";
+    label en unofficial "Article 2424. Registered creditors exercise their rights over the share of common parts in the lot, deemed encumbered by the same securities as the private parts";
+    when inscription_de(i, s) and lot_de_copropriete(i);
+    then quote_part_de_parties_communes_grevee(i);
+}
+
+@source(CC_ART2425)
+rule MentionEnMarge(i: Inscription, x: Text) strict {
+    label fr official "Article 2425. Sont publiées sous forme de mentions en marge les subrogations, mainlevées, réductions, cessions d'antériorité, transferts et, en général, toutes modifications qui n'aggravent pas la situation du débiteur";
+    label en unofficial "Article 2425. Subrogations, releases, reductions, priority assignments, transfers and generally all changes that do not worsen the debtor's position are published as marginal notes";
+    when modification_n_aggravant_pas_la_situation(i, x);
+    then publiee_en_marge(i, x);
+}
+
+@source(CC_ART2426)
+rule DateDeLInscription(i: Inscription, jour: Date) strict {
+    label fr official "Article 2426. La date de l'inscription est déterminée par la mention portée sur le registre des dépôts";
+    label en unofficial "Article 2426. The registration date is set by the entry in the filing register";
+    when mention_au_registre_des_depots_le(i, jour);
+    then date_de_l_inscription(i, jour);
+}
+
+// --- 2429 à 2432 : durée de l'inscription ------------------------------------------------------
+
+@source(CC_ART2429, CC_ART2432) {
+    rule PointDeDepartInscriptionSimple(i: Inscription, d: Date) strict {
+        label fr official "Article 2429. Les durées se comptent de l'inscription";
+        label en unofficial "Article 2429. The periods run from the registration";
+        when inscription_prise_le(i, d) and not_known(inscription_definitive(i));
+        then point_de_depart_des_delais(i, d);
+    }
+    rule PointDeDepartInscriptionDefinitive(i: Inscription, d: Date) strict {
+        label fr official "Article 2432. Quand il a été pris inscription provisoire d'hypothèque judiciaire, la date retenue pour point de départ des délais est celle de l'inscription définitive ou de son renouvellement";
+        label en unofficial "Article 2432. Where a provisional judicial mortgage was registered, the periods run from the final registration or its renewal";
+        when inscription_definitive_le(i, d);
+        then point_de_depart_des_delais(i, d);
+    }
+    rule InscriptionDefinitive(i: Inscription, d: Date) strict {
+        label fr official "Article 2432. Une inscription définitive succède à l'inscription provisoire";
+        label en unofficial "Article 2432. A final registration follows the provisional one";
+        when inscription_definitive_le(i, d);
+        then inscription_definitive(i);
+    }
+}
+
+pub relation inscription_definitive(i: Inscription) kind derived {
+    label fr official "l'inscription est définitive, après une inscription provisoire (article 2432)";
+    label en unofficial "the registration is final, after a provisional one (Article 2432)";
+}
+
+@source(CC_ART2429) {
+    rule LimiteEcheanceDeterminee(i: Inscription, c: Creance, d: Date, e: Date) strict {
+        label fr official "Article 2429, alinéa 2. Si le principal doit être acquitté à des dates déterminées, la date extrême est au plus postérieure d'un an à la dernière échéance, sans que la durée excède cinquante années";
+        label en unofficial "Article 2429, paragraph 2. Where the principal falls due on set dates, the extreme date is at most one year after the last maturity, the duration not exceeding fifty years";
+        when point_de_depart_des_delais(i, d) and derniere_echeance_de_la_creance(i, c, e) and e > d
+            and not_known(clause_de_rechargement_2416(i))
+            and add_calendar_period(e, 1 calendar_year) <= add_calendar_period(d, 50 calendar_year);
+        then limite_par_creance(i, c, add_calendar_period(e, 1 calendar_year));
+    }
+    rule LimiteEcheanceDetermineeAuPlafond(i: Inscription, c: Creance, d: Date, e: Date) strict {
+        label fr official "Article 2429, alinéa 2. La durée de l'inscription ne peut en toute hypothèse excéder cinquante années";
+        label en unofficial "Article 2429, paragraph 2. The registration's duration may in no case exceed fifty years";
+        when point_de_depart_des_delais(i, d) and derniere_echeance_de_la_creance(i, c, e) and e > d
+            and not_known(clause_de_rechargement_2416(i))
+            and add_calendar_period(e, 1 calendar_year) > add_calendar_period(d, 50 calendar_year);
+        then limite_par_creance(i, c, add_calendar_period(d, 50 calendar_year));
+    }
+    rule LimiteEcheanceIndeterminee(i: Inscription, c: Creance, d: Date) strict {
+        label fr official "Article 2429, alinéa 3. Si l'échéance est indéterminée, la durée de l'inscription est au plus de cinquante années au jour de la formalité";
+        label en unofficial "Article 2429, paragraph 3. If the maturity is indeterminate, the registration lasts at most fifty years from the formality";
+        when point_de_depart_des_delais(i, d) and echeance_indeterminee(i, c);
+        then limite_par_creance(i, c, add_calendar_period(d, 50 calendar_year));
+    }
+    rule LimiteClauseDeRechargement(i: Inscription, c: Creance, d: Date, e: Date) strict {
+        label fr official "Article 2429, alinéa 3. Si l'hypothèque est assortie d'une clause de rechargement, la durée est au plus de cinquante années au jour de la formalité";
+        label en unofficial "Article 2429, paragraph 3. If the mortgage carries a reloading clause, the duration is at most fifty years from the formality";
+        when point_de_depart_des_delais(i, d) and derniere_echeance_de_la_creance(i, c, e) and clause_de_rechargement_2416(i);
+        then limite_par_creance(i, c, add_calendar_period(d, 50 calendar_year));
+    }
+    rule LimiteEcheanceAnterieure(i: Inscription, c: Creance, d: Date, e: Date) strict {
+        label fr official "Article 2429, alinéa 4. Si l'échéance est antérieure ou concomitante à l'inscription, la durée est au plus de dix années au jour de la formalité";
+        label en unofficial "Article 2429, paragraph 4. If the maturity precedes or coincides with the registration, the duration is at most ten years from the formality";
+        when point_de_depart_des_delais(i, d) and derniere_echeance_de_la_creance(i, c, e) and e <= d
+            and not_known(clause_de_rechargement_2416(i));
+        then limite_par_creance(i, c, add_calendar_period(d, 10 calendar_year));
+    }
+    rule LimitePlusEloignee(i: Inscription, c: Creance, f: Creance, a: Date, b: Date) strict {
+        label fr official "Article 2429, alinéa 5. Une autre créance de l'inscription unique porte une date extrême plus éloignée";
+        label en unofficial "Article 2429, paragraph 5. Another claim of the single registration bears a later extreme date";
+        when limite_par_creance(i, c, a) and limite_par_creance(i, f, b) and b > a;
+        then limite_plus_eloignee_existe(i, c);
+    }
+    rule DateExtremeDEffet(i: Inscription, c: Creance, a: Date) strict {
+        label fr official "Article 2429, alinéa 5. Le créancier peut requérir une inscription unique pour l'ensemble jusqu'à la date la plus éloignée";
+        label en unofficial "Article 2429, paragraph 5. The creditor may request a single registration for the whole up to the furthest date";
+        when limite_par_creance(i, c, a) and not_known(limite_plus_eloignee_existe(i, c));
+        then date_extreme_d_effet(i, a);
+    }
+    rule DateRequiseAdmise(i: Inscription, x: Date, l: Date) strict {
+        label fr official "Article 2429, alinéa 1. L'inscription conserve l'hypothèque jusqu'à la date que fixe le créancier en se conformant aux règles qui suivent";
+        label en unofficial "Article 2429, paragraph 1. The registration preserves the mortgage until the date the creditor sets in accordance with the following rules";
+        when date_extreme_d_effet(i, l) and date_d_effet_requise(i, x) and x <= l;
+        then date_d_effet_admise(i, x);
+    }
+    rule PositionLiberteFixerDateEffet(i: Inscription, p: Personne, x: Date, l: Date) strict {
+        label fr official "Article 2429, alinéa 1. Le créancier peut fixer la date d'effet de l'inscription dans la limite légale";
+        label en unofficial "Article 2429, paragraph 1. The creditor may set the registration's effective date within the legal limit";
+        when creancier_de_l_inscription(i, p) and date_extreme_d_effet(i, l)
+            and date_d_effet_requise(i, x) and x <= l;
+        then liberty LiberteFixerDateEffet {
+            holder p;
+            action date_d_effet_requise(i, x);
+            window [@2020-01-01, infinity);
+        }
+    }
+    rule DateRequiseExcessive(i: Inscription, x: Date, l: Date) strict {
+        label fr official "Articles 2429 et 2431. Si le délai n'a pas été respecté, l'inscription n'a pas d'effet au-delà de la date d'expiration de ce délai";
+        label en unofficial "Articles 2429 and 2431. If the period was not observed, the registration has no effect beyond its expiry";
+        when date_extreme_d_effet(i, l) and date_d_effet_requise(i, x) and x > l;
+        then date_d_effet_admise(i, l);
+    }
+}
+
+@source(CC_ART2430) {
+    rule InscriptionRenouvelee(i: Inscription, l: Date, r: Date) strict {
+        label fr official "Article 2430, alinéa 1. L'inscription renouvelée au plus tard à la date visée au premier alinéa de l'article 2429 continue de produire effet";
+        label en unofficial "Article 2430, paragraph 1. A registration renewed by the date in Article 2429, paragraph 1, continues to have effect";
+        when date_d_effet_admise(i, l) and renouvellement_requis_le(i, r) and r <= l;
+        then inscription_renouvelee(i);
+    }
+    rule InscriptionPerimee(i: Inscription, l: Date, r: Date) strict {
+        label fr official "Article 2430, alinéa 1. L'inscription cesse de produire effet si elle n'a pas été renouvelée au plus tard à cette date";
+        label en unofficial "Article 2430, paragraph 1. The registration ceases to have effect if it was not renewed by that date";
+        when date_d_effet_admise(i, l) and renouvellement_requis_le(i, r) and r > l;
+        then inscription_perimee(i);
+    }
+    rule RenouvellementObligatoire(i: Inscription) strict {
+        label fr official "Article 2430, alinéa 3. Le renouvellement est obligatoire lorsque l'inscription a produit son effet légal, jusqu'au paiement ou à la consignation du prix";
+        label en unofficial "Article 2430, paragraph 3. Renewal is mandatory once the registration has produced its legal effect, until the price is paid or deposited";
+        when effet_legal_realise(i);
+        then renouvellement_obligatoire(i);
+    }
+}
+
+@source(CC_ART2431)
+rule InscriptionSansEffetAuDelaDuDelai(i: Inscription, l: Date, x: Date) strict {
+    label fr official "Article 2431. Si l'un des délais prévus aux articles 2428 et 2429 n'a pas été respecté, l'inscription n'a pas d'effet au-delà de la date d'expiration de ce délai";
+    label en unofficial "Article 2431. If one of the periods of Articles 2428 and 2429 was not observed, the registration has no effect beyond its expiry date";
+    when date_extreme_d_effet(i, l) and date_d_effet_requise(i, x) and x > l;
+    then inscription_sans_effet_au_dela(i, l);
+}
+
+pub relation inscription_sans_effet_au_dela(i: Inscription, jour: Date) kind derived {
+    key(i);
+    label fr official "l'inscription n'a pas d'effet au-delà de cette date (article 2431)";
+    label en unofficial "the registration has no effect beyond this date (Article 2431)";
+}
+
+// --- 2428, 2433, 2434 -------------------------------------------------------------------------
+
+pub relation domicile_elu_change(i: Inscription) kind empirical {
+    label fr official "l'inscrivant change le domicile élu, en choisissant un autre situé en France métropolitaine, outre-mer ou à Saint-Pierre-et-Miquelon (article 2428)";
+    label en unofficial "the registrant changes the elected address, choosing another in metropolitan France, the overseas departments or Saint-Pierre-et-Miquelon (Article 2428)";
+}
+pub relation stipulation_contraire_sur_les_frais(i: Inscription) kind empirical {
+    label fr official "stipulation contraire sur la charge des frais d'inscription (article 2433)";
+    label en unofficial "contrary stipulation on who bears the registration costs (Article 2433)";
+}
+pub relation action_contre_le_creancier_inscrit(i: Inscription) kind empirical {
+    label fr official "une action à laquelle l'inscription donne lieu est intentée contre le créancier (article 2434)";
+    label en unofficial "an action arising from the registration is brought against the creditor (Article 2434)";
+}
+pub relation changement_de_domicile_admis(i: Inscription) kind derived {
+    label fr official "le changement de domicile élu est admis (article 2428)";
+    label en unofficial "the change of elected address is allowed (Article 2428)";
+}
+pub relation action_portee_au_domicile_elu(i: Inscription) kind derived {
+    label fr official "l'action est intentée à la personne du créancier ou au dernier des domiciles élus sur les bordereaux (article 2434)";
+    label en unofficial "the action is brought against the creditor in person or at the last elected address on the bordereaux (Article 2434)";
+}
+
+@source(CC_ART2428)
+rule ChangementDeDomicileElu(i: Inscription) strict {
+    label fr official "Article 2428. Il est loisible à celui qui a requis une inscription de changer le domicile par lui élu, à la charge d'en choisir un autre situé en France";
+    label en unofficial "Article 2428. Whoever requested a registration may change the address it elected, provided it chooses another one in France";
+    when domicile_elu_change(i);
+    then changement_de_domicile_admis(i);
+}
+
+@source(CC_ART2433)
+rule FraisALaChargeDuDebiteur(i: Inscription, s: SureteReelle) strict {
+    label fr official "Article 2433. S'il n'y a stipulation contraire, les frais des inscriptions sont à la charge du débiteur";
+    label en unofficial "Article 2433. Absent a contrary stipulation, registration costs are borne by the debtor";
+    when inscription_de(i, s) and not_known(stipulation_contraire_sur_les_frais(i));
+    then frais_d_inscription_a_la_charge_des_debiteurs(s);
+}
+
+@source(CC_ART2434)
+rule ActionAuDomicileElu(i: Inscription) strict {
+    label fr official "Article 2434. Les actions auxquelles les inscriptions donnent lieu contre les créanciers sont intentées à leur personne ou au dernier des domiciles élus sur les bordereaux";
+    label en unofficial "Article 2434. Actions arising from registrations against creditors are brought against them in person or at the last elected address on the bordereaux";
+    when action_contre_le_creancier_inscrit(i);
+    then action_portee_au_domicile_elu(i);
+}
+
+// --- 2435 à 2442 : radiation et réduction ---------------------------------------------------------
+
+@source(CC_ART2435) {
+    rule RadiationParConsentement(i: Inscription) strict {
+        label fr official "Article 2435. Les inscriptions sont rayées du consentement des parties intéressées et capables, ou en vertu d'un jugement en dernier ressort ou passé en force de chose jugée";
+        label en unofficial "Article 2435. Registrations are removed by consent of the interested and capable parties, or under a final judgment";
+        when radiation_consentie(i);
+        then radiation_par_consentement(i);
+    }
+    rule RadiationImposee(i: Inscription) strict {
+        label fr official "Article 2435. La radiation s'impose au créancier qui n'a pas procédé à la publication en marge prévue au quatrième alinéa de l'article 2416";
+        label en unofficial "Article 2435. Removal is imposed on a creditor that failed to publish the marginal note required by Article 2416, paragraph 4";
+        when mention_de_rechargement_non_publiee(i);
+        then radiation_imposee_au_creancier(i);
+    }
+}
+
+@source(CC_ART2436)
+rule DepotDeLExpedition(i: Inscription) strict {
+    label fr official "Article 2436. Ceux qui requièrent la radiation déposent l'expédition de l'acte authentique portant consentement, ou celle du jugement ; le contrôle se limite à la régularité formelle";
+    label en unofficial "Article 2436. Those seeking removal file the certified copy of the deed of consent or of the judgment; the check is limited to formal regularity";
+    when radiation_consentie(i) and expedition_deposee(i);
+    then radiation_par_consentement(i);
+}
+
+@source(CC_ART2437, CC_ART2438)
+rule RadiationOrdonnee(i: Inscription) strict {
+    label fr official "Articles 2437 et 2438. La radiation non consentie est demandée au tribunal dans le ressort duquel l'inscription a été faite ; elle doit être ordonnée lorsque l'inscription n'est fondée ni sur la loi ni sur un titre, ou sur un titre irrégulier, éteint ou soldé";
+    label en unofficial "Articles 2437 and 2438. Removal without consent is sought from the court of the place of registration; it must be ordered where the registration rests on neither law nor instrument, or on an irregular, extinguished or settled one";
+    when inscription_sans_loi_ni_titre(i);
+    then radiation_ordonnee(i);
+}
+
+// --- 2439 : inscriptions excessives — deux lectures (§152) -----------------------------------------
+
+@source(CC_ART2439) {
+    rule InscriptionsExcessives(i: Inscription, v: Money, m: Money) strict {
+        label fr official "Article 2439, alinéa 2. Sont excessives les inscriptions dont la valeur des immeubles considérés excède le double du montant des créances augmenté du tiers de ce montant, soit sept tiers du montant";
+        label en unofficial "Article 2439, paragraph 2. Registrations are excessive where the immovables' value exceeds twice the claims plus one third of that amount, i.e. seven thirds";
+        when inscription_sur_plusieurs_immeubles(i) and hypotheque_legale_generale_inscrite(i)
+            and valeur_des_immeubles_consideres(i, v) and montant_des_creances_garanties(i, m) and v * 3 > m * 7;
+        then inscriptions_excessives(i);
+    }
+    rule HypothequeLegaleGeneraleInscrite(i: Inscription, s: SureteReelle) strict {
+        label fr official "Article 2439, alinéa 1. L'inscription est prise en vertu d'une hypothèque légale générale";
+        label en unofficial "Article 2439, paragraph 1. The registration is taken under a general statutory mortgage";
+        when inscription_de(i, s) and hypotheque_generale(s);
+        then hypotheque_legale_generale_inscrite(i);
+    }
+}
+
+pub relation hypotheque_legale_generale_inscrite(i: Inscription) kind derived {
+    label fr official "l'inscription est prise en vertu d'une hypothèque légale générale (article 2439)";
+    label en unofficial "the registration is taken under a general statutory mortgage (Article 2439)";
+}
+
+@source(CC_ART2440)
+rule MainleveeParLEpoux(s: SureteReelle) strict {
+    label fr official "Article 2440. Quand l'hypothèque légale a été inscrite par application de l'article 2394, l'époux bénéficiaire peut en donner mainlevée totale ou partielle, sauf clause expresse du contrat de mariage ; les juges peuvent l'autoriser";
+    label en unofficial "Article 2440. Where the statutory mortgage was registered under Article 2394, the beneficiary spouse may grant full or partial release, save an express marriage-contract clause; the court may authorise it";
+    when faculte_d_inscrire_la_participation(s) and not_known(clause_du_contrat_de_mariage_interdisant_2395(s));
+    then cession_de_rang_permise(s);
+}
+
+@source(CC_ART2441)
+rule ReductionDemandeeParLeTuteur(i: Inscription) strict {
+    label fr official "Article 2441. Si la valeur des immeubles excède notablement ce qui est nécessaire pour garantir la gestion du tuteur, celui-ci peut demander la réduction de l'inscription, de l'évaluation, ou la mainlevée totale";
+    label en unofficial "Article 2441. If the immovables' value notably exceeds what is needed to secure the guardian's management, the guardian may seek reduction of the registration, of the valuation, or full release";
+    when demande_de_reduction_du_tuteur(i) and hypotheque_legale_generale_inscrite(i);
+    then reduction_demandable_par_le_tuteur(i);
+}
+
+@source(CC_ART2442)
+rule RadiationDesAutresInscriptions(i: Inscription) strict {
+    label fr official "Article 2442. Si le tribunal prononce la réduction de l'hypothèque à certains immeubles, les inscriptions prises sur tous les autres sont radiées";
+    label en unofficial "Article 2442. If the court reduces the mortgage to certain immovables, the registrations over all the others are removed";
+    when reduction_prononcee_a_certains_immeubles(i);
+    then inscriptions_sur_les_autres_immeubles_radiees(i);
+}
+
+// --- 2443 à 2449 : délivrance des documents et responsabilité -----------------------------------
+
+@source(CC_ART2443) {
+    rule CopieDelivrable(i: Inscription, j: Date, q: Date, x: Date) strict {
+        label fr official "Article 2443, alinéa 1. Les copies sont délivrées dans la limite des cinquante années précédant celle de la réquisition";
+        label en unofficial "Article 2443, paragraph 1. Copies are issued within the fifty years preceding the year of the request";
+        when premier_janvier_de_l_annee_de_requisition(i, j) and document_depose_le(i, x) and requisition_de_copie_le(i, q)
+            and add_calendar_period(x, 50 calendar_year) >= j;
+        then copie_delivrable(i, x);
+    }
+    rule CopieHorsLimite(i: Inscription, j: Date, q: Date, x: Date) strict {
+        label fr official "Article 2443, alinéa 1. Le document antérieur à ces cinquante années n'est pas délivré";
+        label en unofficial "Article 2443, paragraph 1. A document older than those fifty years is not issued";
+        when premier_janvier_de_l_annee_de_requisition(i, j) and document_depose_le(i, x) and requisition_de_copie_le(i, q)
+            and add_calendar_period(x, 50 calendar_year) < j;
+        then copie_hors_limite(i, x);
+    }
+    rule DelaiDeDixJours(i: Inscription, q: Date) strict {
+        label fr official "Article 2443, alinéa 2. Les copies ou extraits du fichier immobilier sont délivrés sur réquisition dans un délai de dix jours";
+        label en unofficial "Article 2443, paragraph 2. Copies or extracts of the land file are issued on request within ten days";
+        when demande_de_renseignements_sur_immeubles_designes(i) and requisition_de_copie_le(i, q);
+        then delai_de_delivrance_des_extraits(i, add_calendar_period(q, 10 calendar_day));
+    }
+}
+
+@source(CC_ART2444) {
+    rule ResponsabiliteRecevable(i: Inscription, f: Date, a: Date) strict {
+        label fr official "Article 2444, II. L'action en responsabilité de l'État est exercée, sous peine de forclusion, dans le délai de dix ans suivant le jour où la faute a été commise";
+        label en unofficial "Article 2444, II. The action against the State is brought, on pain of foreclosure, within ten years of the day the fault was committed";
+        when faute_du_service_commise_le(i, f) and action_en_responsabilite_le(i, a) and a <= add_calendar_period(f, 10 calendar_year);
+        then action_en_responsabilite_recevable(i);
+    }
+    rule ResponsabiliteForclose(i: Inscription, f: Date, a: Date) strict {
+        label fr official "Article 2444, II. Passé ce délai de dix ans, l'action est forclose";
+        label en unofficial "Article 2444, II. After that ten-year period, the action is time-barred";
+        when faute_du_service_commise_le(i, f) and action_en_responsabilite_le(i, a) and a > add_calendar_period(f, 10 calendar_year);
+        then action_en_responsabilite_forclose(i);
+    }
+}
+
+@source(CC_ART2445) {
+    rule DroitAffranchi(i: Inscription) strict {
+        label fr official "Article 2445. Lorsque le service omet une inscription dans le certificat délivré au nouveau titulaire, le droit demeure affranchi de l'hypothèque non révélée, pourvu que la délivrance ait été requise en conséquence de la publication du titre";
+        label en unofficial "Article 2445. Where the registry omits a registration from the certificate issued to the new holder, the right stays free of the undisclosed mortgage, provided the certificate was requested following publication of the title";
+        when certificat_omettant_une_inscription(i) and certificat_requis_apres_publication_du_titre(i);
+        then droit_affranchi_de_l_hypotheque(i);
+    }
+    rule CreancierConserveSonRang(i: Inscription) strict {
+        label fr official "Article 2445. Le créancier bénéficiaire de l'inscription omise ne perd pas le droit de se prévaloir de son rang tant que le prix n'a pas été payé par l'acquéreur";
+        label en unofficial "Article 2445. The creditor of the omitted registration keeps the right to rely on its rank while the buyer has not paid the price";
+        when certificat_omettant_une_inscription(i) and not_known(prix_paye_par_l_acquereur(i));
+        then creancier_conserve_son_rang(i);
+    }
+}
+
+@source(CC_ART2446)
+rule RefusOuRetard(i: Inscription) strict {
+    label fr official "Article 2446. Hors des cas où ils peuvent refuser le dépôt ou rejeter la formalité, les services ne peuvent refuser ni retarder l'exécution d'une formalité, sous peine des dommages et intérêts des parties";
+    label en unofficial "Article 2446. Outside the cases where they may refuse filing or reject the formality, the services may not refuse or delay a formality, on pain of the parties' damages";
+    when refus_ou_retard_injustifie(i) and not_known(depot_refuse(i)) and not_known(formalite_rejetee(i));
+    then dommages_interets_pour_refus(i);
+}
+
+@source(CC_ART2447)
+rule OrdreDesRemises(i: Inscription, jour: Date) strict {
+    label fr official "Article 2447. Les services tiennent un registre des remises, jour par jour et par ordre numérique, et ne peuvent exécuter les formalités qu'à la date et dans l'ordre de ces remises";
+    label en unofficial "Article 2447. The services keep a register of filings, day by day and in numerical order, and may carry out formalities only on the date and in the order of those filings";
+    when mention_au_registre_des_depots_le(i, jour);
+    then formalites_dans_l_ordre_des_remises(i);
+}
+
+@source(CC_ART2448) {
+    rule RegistreCoteEtParaphe(i: Inscription, jour: Date) strict {
+        label fr official "Article 2448, alinéa 1. Le registre est coté et paraphé à chaque page par le juge et arrêté chaque jour";
+        label en unofficial "Article 2448, paragraph 1. The register is initialled and paginated on each page by the judge and closed each day";
+        when mention_au_registre_des_depots_le(i, jour) and not_known(registre_informatique(i));
+        then registre_cote_et_paraphe(i);
+    }
+    rule RegistreInformatique(i: Inscription) strict {
+        label fr official "Article 2448, alinéa 2. Un document informatique écrit peut tenir lieu de registre, s'il est identifié, numéroté et daté dès son établissement";
+        label en unofficial "Article 2448, paragraph 2. A written electronic document may serve as the register if identified, numbered and dated when created";
+        when registre_informatique(i);
+        then registre_cote_et_paraphe(i);
+    }
+}
+
+@source(CC_ART2449)
+rule CertificatDesFormalitesEnInstance(i: Inscription) strict {
+    label fr official "Article 2449. Dans les services dont le registre est informatique, il est délivré un certificat des formalités acceptées au dépôt et en instance d'enregistrement sur les immeubles désignés";
+    label en unofficial "Article 2449. In services with an electronic register, a certificate of formalities filed and pending registration over the designated immovables is issued";
+    when registre_informatique(i) and demande_de_renseignements_sur_immeubles_designes(i);
+    then certificat_des_formalites_en_instance(i);
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2278, alinéa 2 : le détenteur n'est pas protégé contre celui de qui il tient ses droits.
+test "urn:query:fr-code-civil-v23-detenteur-contre-son-auteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": trouble_a_la_possession(entity_ref("urn:fr:cc:presc:v23"), entity_ref("urn:fr:cc:presc:v23:bailleur")) { origin adjudicated; }
+        assert "f2": detenteur_tenant_ses_droits_de(entity_ref("urn:fr:cc:presc:v23"), entity_ref("urn:fr:cc:presc:v23:bailleur")) { origin case_input; }
+    }
+    evaluate truth(protection_possessoire(entity_ref("urn:fr:cc:presc:v23"), entity_ref("urn:fr:cc:presc:v23:bailleur")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

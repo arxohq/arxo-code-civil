@@ -1,0 +1,186 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1832_2,
+    CC_ART1833,
+    CC_ART1839,
+    CC_ART1840,
+    CC_ART1843_2,
+    CC_ART1844_13,
+    CC_ART1844_14,
+    CC_ART1844_17,
+    CC_ART1844_5,
+    CC_ART1844_6,
+    CC_ART1844_8,
+    Personne,
+    Societe,
+    acte_modificatif_publie_le,
+    action_nullite_introduite_le,
+    action_nullite_recevable,
+    action_regularisation_introduite_le,
+    action_regularisation_recevable,
+    action_responsabilite_fondateurs_introduite_le,
+    action_responsabilite_fondateurs_recevable,
+    action_responsabilite_nullite_introduite_le,
+    action_responsabilite_nullite_recevable,
+    apport_en_capital,
+    apport_en_industrie,
+    apport_industrie_hors_capital,
+    associe,
+    cause_nullite_survenue_le,
+    conjoint_notifie_associe,
+    constituee_dans_interet_commun,
+    consultation_prorogation_en_temps,
+    consultation_prorogation_le,
+    contrat_de_societe,
+    decision_nullite_passee_force_le,
+    delai_judiciaire_admissible,
+    delai_judiciaire_regularisation_mois,
+    demande_dissolution_introduite_le,
+    dissolution_demandable_reunion_parts,
+    dissolution_societe_le,
+    droit_dans_le_capital,
+    expiration_societe_le,
+    formalite_regularisee_le,
+    geree_dans_interet_social,
+    interet_commun_des_associes,
+    interet_social_de_la_societe,
+    liquidation_non_close,
+    mois_ecoules_depuis_action_nullite,
+    nullite_peut_etre_prononcee,
+    parts_reconnues_au_conjoint,
+    saisine_liquidation_le,
+    saisine_liquidation_possible,
+    situation_parts_non_regularisee,
+    societe_immatriculee_le,
+    toutes_parts_en_une_main_depuis,
+};
+
+@source(CC_ART1832_2)
+rule MoitieDesPartsAuConjoint(s: Societe, p: Personne, n: Integer) strict {
+    label fr official "Article 1832-2, alinéa 3. La qualité d'associé est reconnue au conjoint pour la moitié des parts souscrites ou acquises";
+    label en unofficial "Article 1832-2, paragraph 3. The spouse is recognized as a member for half the subscribed or acquired shares";
+    when conjoint_notifie_associe(s, p, n);
+    then parts_reconnues_au_conjoint(s, p, (n / 1) * (1 / 2));
+}
+
+@source(CC_ART1833) {
+    rule ConstitutionDansInteretCommun(s: Societe) strict {
+        label fr official "Article 1833, alinéa 1. La société est constituée dans l'intérêt commun des associés";
+        label en unofficial "Article 1833, paragraph 1. The company is formed in the common interest of its members";
+        when contrat_de_societe(s) and interet_commun_des_associes(s);
+        then constituee_dans_interet_commun(s);
+    }
+    rule GestionDansInteretSocial(s: Societe) strict {
+        label fr official "Article 1833, alinéa 2. La société est gérée dans son intérêt social";
+        label en unofficial "Article 1833, paragraph 2. The company is managed in its corporate interest";
+        when contrat_de_societe(s) and interet_social_de_la_societe(s);
+        then geree_dans_interet_social(s);
+    }
+}
+
+@source(CC_ART1839) {
+    rule RegularisationDansTroisAnsImmatriculation(s: Societe, depart: Date, saisine: Date) strict {
+        label fr official "Article 1839, alinéa 3. L'action en régularisation se prescrit par trois ans à compter de l'immatriculation";
+        label en unofficial "Article 1839, paragraph 3. The regularization action is time-barred three years after registration";
+        when societe_immatriculee_le(s, depart) and action_regularisation_introduite_le(s, saisine)
+            and saisine <= add_calendar_period(depart, 3 calendar_year);
+        then action_regularisation_recevable(s);
+    }
+    rule RegularisationDansTroisAnsPublication(s: Societe, depart: Date, saisine: Date) strict {
+        label fr official "Article 1839, alinéa 3. L'action en régularisation se prescrit par trois ans à compter de la publication de l'acte modificatif";
+        label en unofficial "Article 1839, paragraph 3. The regularization action is time-barred three years after publication of the amending act";
+        when acte_modificatif_publie_le(s, depart) and action_regularisation_introduite_le(s, saisine)
+            and saisine <= add_calendar_period(depart, 3 calendar_year);
+        then action_regularisation_recevable(s);
+    }
+}
+
+@source(CC_ART1840)
+rule ResponsabiliteFondateursDansDixAns(s: Societe, depart: Date, saisine: Date) strict {
+    label fr official "Article 1840, alinéa 3. L'action contre les fondateurs se prescrit par dix ans à compter de la formalité";
+    label en unofficial "Article 1840, paragraph 3. The action against founders is time-barred ten years after the formality";
+    when formalite_regularisee_le(s, depart) and action_responsabilite_fondateurs_introduite_le(s, saisine)
+        and saisine <= add_calendar_period(depart, 10 calendar_year);
+    then action_responsabilite_fondateurs_recevable(s);
+}
+
+@source(CC_ART1843_2) {
+    rule DroitsProportionnelsAuxApports(s: Societe, p: Personne, m: Money) strict {
+        label fr official "Article 1843-2, alinéa 1. Les droits de chaque associé dans le capital social sont proportionnels à ses apports";
+        label en unofficial "Article 1843-2, paragraph 1. Each member's rights in the capital are proportional to contributions";
+        when associe(s, p) and apport_en_capital(s, p, m);
+        then droit_dans_le_capital(s, p, m);
+    }
+    rule IndustrieHorsCapital(s: Societe, p: Personne) strict {
+        label fr official "Article 1843-2, alinéa 2. Les apports en industrie ne concourent pas à la formation du capital social";
+        label en unofficial "Article 1843-2, paragraph 2. Contributions of services do not form part of the share capital";
+        when associe(s, p) and apport_en_industrie(s, p);
+        then apport_industrie_hors_capital(s, p);
+    }
+}
+
+@source(CC_ART1844_5) {
+    rule DissolutionApresUnAnSansRegularisation(s: Societe, depart: Date, saisine: Date) strict {
+        label fr official "Article 1844-5, alinéa 1. La dissolution peut être demandée si la réunion des parts n'a pas été régularisée dans un délai d'un an";
+        label en unofficial "Article 1844-5, paragraph 1. Dissolution may be sought if sole ownership of all shares has not been corrected within one year";
+        when toutes_parts_en_une_main_depuis(s, depart) and situation_parts_non_regularisee(s)
+            and demande_dissolution_introduite_le(s, saisine)
+            and saisine > add_calendar_period(depart, 1 calendar_year);
+        then dissolution_demandable_reunion_parts(s);
+    }
+    rule DelaiJudiciaireSixMoisMaximum(s: Societe, n: Integer) strict {
+        label fr official "Article 1844-5, alinéa 1. Le tribunal peut accorder un délai maximal de six mois";
+        label en unofficial "Article 1844-5, paragraph 1. The court may grant no more than six months";
+        when delai_judiciaire_regularisation_mois(s, n) and n <= 6;
+        then delai_judiciaire_admissible(s);
+    }
+}
+
+@source(CC_ART1844_6)
+rule ConsultationUnAnAvantExpiration(s: Societe, expiration: Date, consultation: Date) strict {
+    label fr official "Article 1844-6, alinéa 2. Les associés sont consultés au moins un an avant l'expiration";
+    label en unofficial "Article 1844-6, paragraph 2. Members are consulted at least one year before expiry";
+    when expiration_societe_le(s, expiration) and consultation_prorogation_le(s, consultation)
+        and add_calendar_period(consultation, 1 calendar_year) <= expiration;
+    then consultation_prorogation_en_temps(s);
+}
+
+@source(CC_ART1844_8)
+rule SaisineApresTroisAnsDeLiquidation(s: Societe, depart: Date, jour: Date) strict {
+    label fr official "Article 1844-8, alinéa 4. Le tribunal peut être saisi si la clôture n'est pas intervenue dans les trois ans de la dissolution";
+    label en unofficial "Article 1844-8, paragraph 4. The court may be seized if liquidation has not closed within three years after dissolution";
+    when dissolution_societe_le(s, depart) and liquidation_non_close(s)
+        and saisine_liquidation_le(s, jour) and jour > add_calendar_period(depart, 3 calendar_year);
+    then saisine_liquidation_possible(s);
+}
+
+@source(CC_ART1844_13)
+rule NullitePasAvantDeuxMois(s: Societe, n: Integer) strict {
+    label fr official "Article 1844-13. Le tribunal ne peut prononcer la nullité moins de deux mois après l'introduction de la demande";
+    label en unofficial "Article 1844-13. The court may not declare nullity less than two months after the claim was filed";
+    when mois_ecoules_depuis_action_nullite(s, n) and n >= 2;
+    then nullite_peut_etre_prononcee(s);
+}
+
+@source(CC_ART1844_14)
+rule ActionNulliteDansDeuxAns(s: Societe, cause: Date, saisine: Date) strict {
+    label fr official "Article 1844-14. Les actions en nullité se prescrivent par deux ans à compter du jour où la cause de nullité est survenue";
+    label en unofficial "Article 1844-14. Nullity actions are time-barred two years after the ground arose";
+    effective [@2025-10-01, infinity);
+    when cause_nullite_survenue_le(s, cause) and action_nullite_introduite_le(s, saisine)
+        and saisine <= add_calendar_period(cause, 2 calendar_year);
+    then action_nullite_recevable(s);
+}
+
+@source(CC_ART1844_17)
+rule ResponsabiliteNulliteDansTroisAns(s: Societe, force: Date, saisine: Date) strict {
+    label fr official "Article 1844-17. L'action en responsabilité fondée sur l'annulation se prescrit par trois ans à compter du jour où la décision a acquis force de chose jugée";
+    label en unofficial "Article 1844-17. A liability action based on nullity is time-barred three years after the decision became final";
+    effective [@2025-10-01, infinity);
+    when decision_nullite_passee_force_le(s, force) and action_responsabilite_nullite_introduite_le(s, saisine)
+        and saisine <= add_calendar_period(force, 3 calendar_year);
+    then action_responsabilite_nullite_recevable(s);
+}

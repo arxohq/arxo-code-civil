@@ -1,0 +1,129 @@
+// TITRE IX — DE L'AUTORITÉ PARENTALE (noyau : articles 371-1, 372, 373).
+//
+// Ce qui se lit sans juge : la durée (jusqu'à la majorité ou l'émancipation),
+// l'exercice commun par principe, l'exercice exclusif du premier parent
+// lorsque la seconde filiation est établie PLUS D'UN AN après la naissance, le
+// rétablissement de l'exercice commun par déclaration conjointe, la privation
+// d'exercice du parent hors d'état de manifester sa volonté. L'intérêt de
+// l'enfant, que le juge apprécie (371-1, 373-2), reste hors calcul.
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART371_1,
+    CC_ART372,
+    CC_ART373,
+    Personne,
+    date_d_appreciation,
+    declaration_conjointe_d_exercice_commun,
+    emancipe,
+    filiation_etablie_le,
+    hors_d_etat_de_manifester_sa_volonte,
+    ne_le,
+};
+
+pub relation autorite_parentale(parent: Personne, enfant: Personne) kind derived {
+    label fr official "l'autorité parentale appartient à ce parent jusqu'à la majorité ou l'émancipation de l'enfant (article 371-1)";
+    label en unofficial "parental authority belongs to this parent until the child's majority or emancipation (Article 371-1)";
+}
+pub relation exercice_de_l_autorite(parent: Personne, enfant: Personne) kind derived {
+    label fr official "ce parent exerce l'autorité parentale (articles 372, 373)";
+    label en unofficial "this parent exercises parental authority (Articles 372, 373)";
+}
+pub relation filiation_tardive(parent: Personne, enfant: Personne) kind derived {
+    label fr official "la filiation a été établie à l'égard de ce parent plus d'un an après la naissance, celle de l'autre l'étant déjà (article 372, alinéa 2)";
+    label en unofficial "filiation was established towards this parent more than a year after birth, the other's already being established (Article 372, paragraph 2)";
+}
+
+@source(CC_ART371_1)
+rule AutoriteJusquALaMajorite(parent: Personne, enfant: Personne, naissance: Date, jour: Date,
+                              etablie: Date) defeasible {
+    label fr official "Article 371-1, alinéa 2. L'autorité parentale appartient aux parents jusqu'à la majorité ou l'émancipation de l'enfant";
+    label en unofficial "Article 371-1, paragraph 2. Parental authority belongs to the parents until the child's majority or emancipation";
+    when filiation_etablie_le(parent, enfant, etablie) and ne_le(enfant, naissance)
+        and date_d_appreciation(enfant, jour) and jour < add_calendar_period(naissance, 18 calendar_year)
+        and not_known(emancipe(enfant));
+    then autorite_parentale(parent, enfant);
+}
+
+@source(CC_ART371_1)
+rule PositionPouvoirExercerAutorite(parent: Personne, enfant: Personne, naissance: Date, jour: Date,
+                                    etablie: Date) strict {
+    label fr official "Article 371-1. Le parent exerce l'autorité parentale jusqu'à la majorité ou l'émancipation";
+    label en unofficial "Article 371-1. The parent exercises parental authority until majority or emancipation";
+    when filiation_etablie_le(parent, enfant, etablie) and ne_le(enfant, naissance)
+        and date_d_appreciation(enfant, jour) and jour < add_calendar_period(naissance, 18 calendar_year)
+        and not_known(emancipe(enfant)) and exercice_de_l_autorite(parent, enfant);
+    then liberty PouvoirExercerAutorite {
+        holder parent;
+        action exercice_de_l_autorite(parent, enfant);
+        window [@2022-01-01, infinity];
+    }
+}
+
+@source(CC_ART372, CC_ART373) {
+    rule ExerciceCommun(parent: Personne, enfant: Personne) defeasible {
+        label fr official "Article 372, alinéa 1. Les père et mère exercent en commun l'autorité parentale";
+        label en unofficial "Article 372, paragraph 1. The father and mother exercise parental authority jointly";
+        when autorite_parentale(parent, enfant);
+        then exercice_de_l_autorite(parent, enfant);
+    }
+    @source(CC_ART372)
+    rule PositionPouvoirExerciceCommun(parent: Personne, enfant: Personne) strict {
+        label fr official "Article 372. Les père et mère peuvent exercer en commun l'autorité parentale";
+        label en unofficial "Article 372. The parents may jointly exercise parental authority";
+        when autorite_parentale(parent, enfant) and exercice_de_l_autorite(parent, enfant);
+        then liberty PouvoirExerciceCommun {
+            holder parent;
+            action exercice_de_l_autorite(parent, enfant);
+            window [@2022-01-01, infinity];
+        }
+    }
+    rule FiliationEtablieTardivement(parent: Personne, enfant: Personne, naissance: Date,
+                                      etablie: Date) defeasible {
+        label fr official "Article 372, alinéa 2. La filiation établie à l'égard d'un parent plus d'un an après la naissance d'un enfant dont la filiation est déjà établie à l'égard de l'autre";
+        label en unofficial "Article 372, paragraph 2. Filiation established towards a parent more than a year after the birth of a child whose filiation is already established towards the other";
+        when filiation_etablie_le(parent, enfant, etablie) and ne_le(enfant, naissance)
+            and etablie > add_calendar_period(naissance, 1 calendar_year);
+        then filiation_tardive(parent, enfant);
+    }
+    rule PremierParentSeulInvesti(parent: Personne, enfant: Personne) defeater {
+        label fr official "Article 372, alinéa 2. Lorsque la filiation est établie tardivement à l'égard du second parent, le premier reste seul investi de l'exercice de l'autorité parentale";
+        label en unofficial "Article 372, paragraph 2. Where filiation is established late towards the second parent, the first alone remains vested with the exercise of parental authority";
+        when filiation_tardive(parent, enfant) and not_known(declaration_conjointe_d_exercice_commun(parent, enfant));
+        defeat exercice_de_l_autorite(parent, enfant);
+    }
+    rule ParentHorsDEtatPriveDeLExercice(parent: Personne, enfant: Personne) defeater {
+        label fr official "Article 373. Est privé de l'exercice de l'autorité parentale le père ou la mère qui est hors d'état de manifester sa volonté";
+        label en unofficial "Article 373. A parent unable to express his will is deprived of the exercise of parental authority";
+        when autorite_parentale(parent, enfant) and hors_d_etat_de_manifester_sa_volonte(parent);
+        defeat exercice_de_l_autorite(parent, enfant);
+    }
+    @source(CC_ART373)
+    rule PositionInterdictionExerciceHorsEtat(parent: Personne, enfant: Personne) strict {
+        label fr official "Article 373. Le parent hors d'état de manifester sa volonté ne peut exercer l'autorité parentale";
+        label en unofficial "Article 373. A parent unable to express a will may not exercise parental authority";
+        when autorite_parentale(parent, enfant) and hors_d_etat_de_manifester_sa_volonte(parent);
+        then prohibition InterdictionExerciceHorsEtat {
+            bearer parent;
+            action exercice_de_l_autorite(parent, enfant);
+            window [@2022-01-01, infinity];
+        }
+    }
+@source(CC_ART373)
+rule MaintenanceInterdictionExerciceHorsEtat(parent: Personne, enfant: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionExerciceHorsEtat";
+    label en unofficial "Maintain prohibition InterdictionExerciceHorsEtat";
+    when autorite_parentale(parent, enfant) and hors_d_etat_de_manifester_sa_volonte(parent);
+    then duty MaintenanceInterdictionExerciceHorsEtatDuty {
+        bearer parent;
+        goal maintenance {
+            condition not exercice_de_l_autorite(parent, enfant);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+
+}

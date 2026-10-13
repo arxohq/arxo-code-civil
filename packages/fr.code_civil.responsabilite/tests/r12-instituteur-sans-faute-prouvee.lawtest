@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1242 al. 8 : la faute de l instituteur doit être prouvée par le demandeur ; sans elle, il ne répond pas.
+test "urn:query:fr-code-civil-responsabilite-r12-instituteur-sans-faute-prouvee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": eleve_ou_apprenti_sous_surveillance(entity_ref("urn:fr:cc:resp:h:f"), entity_ref("urn:fr:cc:resp:h:maitre"), entity_ref("urn:fr:cc:resp:h:eleve")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:h:f"), entity_ref("urn:fr:cc:resp:h:d")) { origin adjudicated; }
+        assert "f3": instituteur(entity_ref("urn:fr:cc:resp:h:f"), entity_ref("urn:fr:cc:resp:h:maitre")) { origin case_input; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:h:d"), entity_ref("urn:fr:cc:resp:h:maitre")));
+    expect truth_status == NEITHER;
+}

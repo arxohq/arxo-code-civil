@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1133 al. 3 : l'acceptation d'un aléa sur une qualité de la prestation exclut l'erreur relative à cette qualité.
+test "urn:query:fr-code-civil-contrat-v06-alea-accepte-exclut-l-erreur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v06"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v06"), entity_ref("urn:fr:cc:contrat:v06:p1")) { origin case_input; }
+        assert "f3": erreur_de_droit_ou_de_fait(entity_ref("urn:fr:cc:contrat:v06"), entity_ref("urn:fr:cc:contrat:v06:p1")) { origin case_input; }
+        assert "f4": erreur_sur_les_qualites_essentielles_de_la_prestation(entity_ref("urn:fr:cc:contrat:v06"), entity_ref("urn:fr:cc:contrat:v06:p1")) { origin case_input; }
+        assert "f5": qualites_convenues_expressement_ou_tacitement(entity_ref("urn:fr:cc:contrat:v06")) { origin case_input; }
+        assert "f6": caractere_determinant_du_vice(entity_ref("urn:fr:cc:contrat:v06"), entity_ref("urn:fr:cc:contrat:v06:p1")) { origin adjudicated; }
+        assert "f7": alea_accepte_sur_une_qualite(entity_ref("urn:fr:cc:contrat:v06")) { origin case_input; }
+    }
+    evaluate truth(erreur_indifferente(entity_ref("urn:fr:cc:contrat:v06"), entity_ref("urn:fr:cc:contrat:v06:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(AleaAccepteExclutLErreur);
+}

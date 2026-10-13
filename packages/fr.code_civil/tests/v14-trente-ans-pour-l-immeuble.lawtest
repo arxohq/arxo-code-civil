@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2272, alinéa 1 : possession utile depuis le 1er avril 1990 — propriété acquise le 1er avril 2020.
+test "urn:query:fr-code-civil-v14-trente-ans-pour-l-immeuble" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": chose_possedee(entity_ref("urn:fr:cc:presc:v14"), Immeuble) { origin case_input; }
+        assert "f2": possesseur(entity_ref("urn:fr:cc:presc:v14"), entity_ref("urn:fr:cc:presc:v14:pers")) { origin case_input; }
+        assert "f3": possession_commencee_le(entity_ref("urn:fr:cc:presc:v14"), @1990-04-01) { origin case_input; }
+        assert "f4": possession_continue_et_non_interrompue(entity_ref("urn:fr:cc:presc:v14")) { origin adjudicated; }
+        assert "f5": possession_paisible(entity_ref("urn:fr:cc:presc:v14")) { origin adjudicated; }
+        assert "f6": possession_publique(entity_ref("urn:fr:cc:presc:v14")) { origin adjudicated; }
+        assert "f7": possession_non_equivoque(entity_ref("urn:fr:cc:presc:v14")) { origin adjudicated; }
+    }
+    evaluate truth(propriete_acquise_le(entity_ref("urn:fr:cc:presc:v14"), @2020-04-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TrenteAnsPourLaProprieteImmobiliere);
+}

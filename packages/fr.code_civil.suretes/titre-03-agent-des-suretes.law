@@ -1,0 +1,259 @@
+// LIVRE IV, TITRE III : DE L'AGENT DES SÛRETÉS (articles 2488-6 à 2488-12).
+//
+// L'agent des sûretés agit en son nom propre au profit des créanciers de
+// l'obligation garantie ; les droits et biens acquis dans sa mission forment
+// un patrimoine affecté, distinct du sien. Le paquet exécute la conséquence de
+// chaque article sur l'état du cas ; le « manquement à ses devoirs » et la
+// « mise en péril des intérêts » (2488-11) et la faute de l'agent (2488-12)
+// sont des appréciations du juge (§47.3).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2488_10,
+    CC_ART2488_11,
+    CC_ART2488_12,
+    CC_ART2488_6,
+    CC_ART2488_7,
+    CC_ART2488_8,
+    CC_ART2488_9,
+    Personne,
+    SureteReelle,
+};
+
+pub entity MissionDAgent {
+    label fr official "Mission d'agent des sûretés (article 2488-6)";
+    label en unofficial "Security agent appointment (Article 2488-6)";
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation agent_des_suretes(m: MissionDAgent, agent: Personne) kind empirical {
+    key(m);
+    label fr official "l'agent désigné par les créanciers de l'obligation garantie (article 2488-6)";
+    label en unofficial "the agent appointed by the creditors of the secured obligation (Article 2488-6)";
+}
+pub relation creancier_de_l_obligation_garantie(m: MissionDAgent, p: Personne) kind empirical {
+    label fr official "créancier de l'obligation garantie au profit duquel l'agent agit (article 2488-6)";
+    label en unofficial "creditor of the secured obligation for whose benefit the agent acts (Article 2488-6)";
+}
+pub relation surete_geree_par_l_agent(m: MissionDAgent, s: SureteReelle) kind empirical {
+    label fr official "sûreté ou garantie prise, inscrite, gérée ou réalisée par l'agent (article 2488-6)";
+    label en unofficial "security or guarantee taken, registered, managed or enforced by the agent (Article 2488-6)";
+}
+pub relation convention_de_designation_ecrite(m: MissionDAgent) kind empirical {
+    label fr official "la convention de désignation est constatée par écrit (article 2488-7)";
+    label en unofficial "the appointment agreement is in writing (Article 2488-7)";
+}
+pub relation ecrit_mentionne_qualite_objet_duree_pouvoirs(m: MissionDAgent) kind empirical {
+    label fr official "l'écrit mentionne la qualité de l'agent, l'objet et la durée de sa mission et l'étendue de ses pouvoirs (article 2488-7)";
+    label en unofficial "the writing states the agent's capacity, the purpose and duration of the appointment and the extent of its powers (Article 2488-7)";
+}
+pub relation qualite_mentionnee_dans_l_acte(m: MissionDAgent) kind empirical {
+    label fr official "l'agent fait expressément mention de sa qualité lorsqu'il agit (article 2488-8)";
+    label en unofficial "the agent expressly states its capacity when acting (Article 2488-8)";
+}
+pub relation acte_accompli_par_l_agent(m: MissionDAgent, x: Text) kind empirical {
+    label fr official "acte accompli par l'agent au profit des créanciers : action en défense de leurs intérêts ou déclaration de créance (articles 2488-8, 2488-9)";
+    label en unofficial "act done by the agent for the creditors: action to defend their interests or proof of claim (Articles 2488-8, 2488-9)";
+}
+pub relation saisissant(m: MissionDAgent, p: Personne) kind empirical {
+    label fr official "personne qui entend saisir les droits et biens du patrimoine affecté (article 2488-10)";
+    label en unofficial "person seeking to attach the rights and assets of the dedicated estate (Article 2488-10)";
+}
+pub relation creance_nee_de_la_conservation_ou_gestion(m: MissionDAgent, p: Personne) kind empirical {
+    label fr official "le saisissant est titulaire d'une créance née de la conservation ou de la gestion des droits et biens de la mission (article 2488-10)";
+    label en unofficial "the attaching party holds a claim arising from preserving or managing the appointment's rights and assets (Article 2488-10)";
+}
+pub relation droit_de_suite_ou_fraude(m: MissionDAgent, p: Personne) kind empirical {
+    label fr official "le saisissant exerce un droit de suite ou invoque un cas de fraude (article 2488-10)";
+    label en unofficial "the attaching party exercises a right to follow or invokes fraud (Article 2488-10)";
+}
+pub relation procedure_ouverte_contre_l_agent(m: MissionDAgent) kind empirical {
+    label fr official "procédure de sauvegarde, redressement, liquidation, rétablissement professionnel, surendettement ou résolution bancaire ouverte à l'égard de l'agent (articles 2488-10, 2488-11)";
+    label en unofficial "safeguard, reorganisation, liquidation, professional recovery, over-indebtedness or bank resolution proceedings opened against the agent (Articles 2488-10, 2488-11)";
+}
+pub relation stipulations_de_remplacement(m: MissionDAgent) kind empirical {
+    label fr official "le contrat prévoit les conditions du remplacement de l'agent (article 2488-11)";
+    label en unofficial "the contract provides for how the agent is replaced (Article 2488-11)";
+}
+pub relation remplacement_de_l_agent(m: MissionDAgent, nouvel_agent: Personne) kind empirical {
+    key(m);
+    label fr official "l'agent est remplacé, conventionnellement ou judiciairement, par un nouvel agent (article 2488-11)";
+    label en unofficial "the agent is replaced, by agreement or by the court, by a new agent (Article 2488-11)";
+}
+pub relation prejudice_cause_par_l_agent(m: MissionDAgent, x: Money) kind empirical {
+    key(m);
+    label fr official "préjudice causé par la faute de l'agent dans l'exercice de sa mission, fixé par le juge (article 2488-12)";
+    label en unofficial "loss caused by the agent's fault in performing its appointment, set by the court (Article 2488-12)";
+}
+
+@source(CC_ART2488_11)
+pub external judgment relation agent_manque_a_ses_devoirs(m: MissionDAgent) {
+    authority Court;
+    label fr official "l'agent des sûretés manque à ses devoirs ou met en péril les intérêts qui lui sont confiés (article 2488-11)";
+    label en unofficial "the security agent breaches its duties or endangers the interests entrusted to it (Article 2488-11)";
+}
+@source(CC_ART2488_12)
+pub external judgment relation faute_de_l_agent(m: MissionDAgent) {
+    authority Court;
+    label fr official "l'agent des sûretés a commis une faute dans l'exercice de sa mission (article 2488-12)";
+    label en unofficial "the security agent committed a fault in performing its appointment (Article 2488-12)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation agent_titulaire_des_suretes(m: MissionDAgent, s: SureteReelle) kind derived {
+    label fr official "l'agent des sûretés est titulaire des sûretés et garanties, qu'il gère en son nom propre au profit des créanciers (article 2488-6)";
+    label en unofficial "the security agent holds the securities and guarantees, managing them in its own name for the creditors (Article 2488-6)";
+}
+pub relation patrimoine_affecte_distinct(m: MissionDAgent) kind derived {
+    label fr official "les droits et biens acquis dans la mission forment un patrimoine affecté, distinct du patrimoine propre de l'agent (article 2488-6)";
+    label en unofficial "rights and assets acquired in the appointment form a dedicated estate, separate from the agent's own (Article 2488-6)";
+}
+pub relation qualites_appreciees_chez_le_creancier(m: MissionDAgent, p: Personne) kind derived {
+    label fr official "les qualités requises du bénéficiaire de la sûreté s'apprécient en la personne du créancier de l'obligation garantie (article 2488-6)";
+    label en unofficial "the qualities required of the security's beneficiary are assessed in the creditor of the secured obligation (Article 2488-6)";
+}
+pub relation designation_valable(m: MissionDAgent) kind derived {
+    label fr official "la convention de désignation est valable : écrit mentionnant qualité, objet, durée et pouvoirs (article 2488-7)";
+    label en unofficial "the appointment agreement is valid: writing stating capacity, purpose, duration and powers (Article 2488-7)";
+}
+pub relation designation_nulle(m: MissionDAgent) kind derived {
+    label fr official "nullité de la convention de désignation (article 2488-7)";
+    label en unofficial "nullity of the appointment agreement (Article 2488-7)";
+}
+pub relation acte_accompli_en_qualite(m: MissionDAgent, x: Text) kind derived {
+    label fr official "l'agent a agi en faisant mention de sa qualité et peut, sans mandat spécial, agir et déclarer les créances (articles 2488-8, 2488-9)";
+    label en unofficial "the agent acted stating its capacity and may, without a special mandate, sue and prove claims (Articles 2488-8, 2488-9)";
+}
+pub relation saisie_permise(m: MissionDAgent, p: Personne) kind derived {
+    label fr official "le saisissant peut saisir les droits et biens du patrimoine affecté (article 2488-10)";
+    label en unofficial "the attaching party may attach the rights and assets of the dedicated estate (Article 2488-10)";
+}
+pub relation saisie_interdite(m: MissionDAgent, p: Personne) kind derived {
+    label fr official "les droits et biens du patrimoine affecté ne peuvent être saisis par ce créancier (article 2488-10)";
+    label en unofficial "the dedicated estate's rights and assets cannot be attached by this creditor (Article 2488-10)";
+}
+pub relation patrimoine_affecte_hors_procedure(m: MissionDAgent) kind derived {
+    label fr official "l'ouverture d'une procédure collective ou de résolution à l'égard de l'agent est sans effet sur le patrimoine affecté (article 2488-10, al. 2)";
+    label en unofficial "opening insolvency or resolution proceedings against the agent has no effect on the dedicated estate (Article 2488-10, para. 2)";
+}
+pub relation remplacement_judiciaire_demandable(m: MissionDAgent) kind derived {
+    label fr official "tout créancier bénéficiaire peut demander en justice la désignation d'un agent provisoire ou le remplacement de l'agent (article 2488-11)";
+    label en unofficial "any beneficiary creditor may ask the court to appoint an interim agent or replace the agent (Article 2488-11)";
+}
+pub relation patrimoine_transmis_au_nouvel_agent(m: MissionDAgent, p: Personne) kind derived {
+    label fr official "tout remplacement emporte de plein droit transmission du patrimoine affecté au nouvel agent (article 2488-11, al. 2)";
+    label en unofficial "any replacement automatically transfers the dedicated estate to the new agent (Article 2488-11, para. 2)";
+}
+pub relation agent_responsable_sur_son_patrimoine_propre(m: MissionDAgent, x: Money) kind derived {
+    key(m);
+    label fr official "l'agent est responsable, sur son patrimoine propre, des fautes qu'il commet dans sa mission (article 2488-12)";
+    label en unofficial "the agent is liable, out of its own estate, for faults committed in its appointment (Article 2488-12)";
+}
+
+// --- Règles --------------------------------------------------------------------------------
+
+@source(CC_ART2488_6) {
+    rule AgentTitulaire(m: MissionDAgent, a: Personne, s: SureteReelle) strict {
+        label fr official "Article 2488-6, alinéas 1 et 2. Toute sûreté peut être prise, inscrite, gérée et réalisée par un agent des sûretés, qui en est titulaire et agit en son nom propre au profit des créanciers";
+        label en unofficial "Article 2488-6, paragraphs 1 and 2. Any security may be taken, registered, managed and enforced by a security agent, which holds it and acts in its own name for the creditors";
+        when agent_des_suretes(m, a) and surete_geree_par_l_agent(m, s) and designation_valable(m);
+        then agent_titulaire_des_suretes(m, s);
+    }
+    rule PatrimoineAffecte(m: MissionDAgent, a: Personne) strict {
+        label fr official "Article 2488-6, alinéa 3. Les droits et biens acquis par l'agent dans l'exercice de sa mission forment un patrimoine affecté, distinct de son patrimoine propre";
+        label en unofficial "Article 2488-6, paragraph 3. Rights and assets acquired by the agent in its appointment form a dedicated estate, separate from its own";
+        when agent_des_suretes(m, a) and designation_valable(m);
+        then patrimoine_affecte_distinct(m);
+    }
+    rule QualitesDuBeneficiaire(m: MissionDAgent, p: Personne) strict {
+        label fr official "Article 2488-6, alinéa 4. Les qualités requises du bénéficiaire de la sûreté s'apprécient en la personne du créancier de l'obligation garantie";
+        label en unofficial "Article 2488-6, paragraph 4. The qualities required of the security's beneficiary are assessed in the creditor of the secured obligation";
+        when designation_valable(m) and creancier_de_l_obligation_garantie(m, p);
+        then qualites_appreciees_chez_le_creancier(m, p);
+    }
+}
+
+@source(CC_ART2488_7) {
+    rule DesignationValable(m: MissionDAgent, a: Personne) strict {
+        label fr official "Article 2488-7. La convention de désignation est constatée par un écrit qui mentionne la qualité de l'agent, l'objet et la durée de sa mission et l'étendue de ses pouvoirs";
+        label en unofficial "Article 2488-7. The appointment agreement is recorded in writing stating the agent's capacity, the purpose and duration of its appointment and the extent of its powers";
+        when agent_des_suretes(m, a) and convention_de_designation_ecrite(m) and ecrit_mentionne_qualite_objet_duree_pouvoirs(m);
+        then designation_valable(m);
+    }
+    rule DesignationNulleSansEcrit(m: MissionDAgent, a: Personne) strict {
+        label fr official "Article 2488-7. A peine de nullité, la convention doit être constatée par un écrit comportant ces mentions";
+        label en unofficial "Article 2488-7. On pain of nullity, the agreement must be recorded in writing with those statements";
+        when agent_des_suretes(m, a) and not_known(designation_valable(m));
+        then designation_nulle(m);
+    }
+}
+
+@source(CC_ART2488_8, CC_ART2488_9)
+rule ActeEnQualite(m: MissionDAgent, x: Text) strict {
+    label fr official "Articles 2488-8 et 2488-9. L'agent qui agit au profit des créanciers fait expressément mention de sa qualité ; il peut, sans mandat spécial, exercer toute action pour défendre leurs intérêts et déclarer les créances";
+    label en unofficial "Articles 2488-8 and 2488-9. An agent acting for the creditors expressly states its capacity; it may, without a special mandate, bring any action to defend their interests and prove claims";
+    when designation_valable(m) and acte_accompli_par_l_agent(m, x) and qualite_mentionnee_dans_l_acte(m);
+    then acte_accompli_en_qualite(m, x);
+}
+
+@source(CC_ART2488_10) {
+    rule SaisieParLeCreancierDeGestion(m: MissionDAgent, p: Personne) strict {
+        label fr official "Article 2488-10, alinéa 1. Les droits et biens de la mission ne peuvent être saisis que par les titulaires de créances nées de leur conservation ou de leur gestion";
+        label en unofficial "Article 2488-10, paragraph 1. The appointment's rights and assets may be attached only by holders of claims arising from their preservation or management";
+        when patrimoine_affecte_distinct(m) and saisissant(m, p) and creance_nee_de_la_conservation_ou_gestion(m, p);
+        then saisie_permise(m, p);
+    }
+    rule SaisieParDroitDeSuiteOuFraude(m: MissionDAgent, p: Personne) strict {
+        label fr official "Article 2488-10, alinéa 1. Sous réserve de l'exercice d'un droit de suite et hors les cas de fraude";
+        label en unofficial "Article 2488-10, paragraph 1. Subject to a right to follow and save in cases of fraud";
+        when patrimoine_affecte_distinct(m) and saisissant(m, p) and droit_de_suite_ou_fraude(m, p);
+        then saisie_permise(m, p);
+    }
+    rule SaisieInterdite(m: MissionDAgent, p: Personne) strict {
+        label fr official "Article 2488-10, alinéa 1. Les autres créanciers ne peuvent saisir le patrimoine affecté";
+        label en unofficial "Article 2488-10, paragraph 1. Other creditors cannot attach the dedicated estate";
+        when patrimoine_affecte_distinct(m) and saisissant(m, p) and not_known(creance_nee_de_la_conservation_ou_gestion(m, p))
+            and not_known(droit_de_suite_ou_fraude(m, p));
+        then saisie_interdite(m, p);
+    }
+    rule ProcedureSansEffet(m: MissionDAgent) strict {
+        label fr official "Article 2488-10, alinéa 2. L'ouverture d'une procédure collective, de surendettement ou de résolution bancaire à l'égard de l'agent est sans effet sur le patrimoine affecté";
+        label en unofficial "Article 2488-10, paragraph 2. Insolvency, over-indebtedness or bank resolution proceedings against the agent have no effect on the dedicated estate";
+        when patrimoine_affecte_distinct(m) and procedure_ouverte_contre_l_agent(m);
+        then patrimoine_affecte_hors_procedure(m);
+    }
+}
+
+@source(CC_ART2488_11) {
+    rule RemplacementPourManquement(m: MissionDAgent) strict {
+        label fr official "Article 2488-11. En l'absence de stipulations sur son remplacement, si l'agent manque à ses devoirs ou met en péril les intérêts confiés, tout créancier peut demander en justice son remplacement";
+        label en unofficial "Article 2488-11. Absent stipulations on replacement, if the agent breaches its duties or endangers the interests entrusted, any creditor may ask the court to replace it";
+        when designation_valable(m) and not_known(stipulations_de_remplacement(m)) and agent_manque_a_ses_devoirs(m);
+        then remplacement_judiciaire_demandable(m);
+    }
+    rule RemplacementPourProcedure(m: MissionDAgent) strict {
+        label fr official "Article 2488-11. De même lorsque l'agent fait l'objet de l'ouverture d'une procédure collective, de surendettement ou de résolution bancaire";
+        label en unofficial "Article 2488-11. Likewise where insolvency, over-indebtedness or bank resolution proceedings are opened against the agent";
+        when designation_valable(m) and not_known(stipulations_de_remplacement(m)) and procedure_ouverte_contre_l_agent(m);
+        then remplacement_judiciaire_demandable(m);
+    }
+    rule TransmissionAuNouvelAgent(m: MissionDAgent, n: Personne) strict {
+        label fr official "Article 2488-11, alinéa 2. Tout remplacement conventionnel ou judiciaire emporte de plein droit transmission du patrimoine affecté au nouvel agent";
+        label en unofficial "Article 2488-11, paragraph 2. Any replacement, by agreement or by the court, automatically transfers the dedicated estate to the new agent";
+        when patrimoine_affecte_distinct(m) and remplacement_de_l_agent(m, n);
+        then patrimoine_transmis_au_nouvel_agent(m, n);
+    }
+}
+
+@source(CC_ART2488_12)
+rule ResponsabiliteDeLAgent(m: MissionDAgent, x: Money) strict {
+    label fr official "Article 2488-12. L'agent des sûretés est responsable, sur son patrimoine propre, des fautes qu'il commet dans l'exercice de sa mission";
+    label en unofficial "Article 2488-12. The security agent is liable, out of its own estate, for faults committed in performing its appointment";
+    when designation_valable(m) and faute_de_l_agent(m) and prejudice_cause_par_l_agent(m, x);
+    then agent_responsable_sur_son_patrimoine_propre(m, x);
+}

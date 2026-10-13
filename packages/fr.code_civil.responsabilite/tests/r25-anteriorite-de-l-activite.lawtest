@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1253 : activité antérieure, conforme et poursuivie sans aggravation — responsabilité non engagée.
+test "urn:query:fr-code-civil-responsabilite-r25-anteriorite-de-l-activite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": origine_du_trouble(entity_ref("urn:fr:cc:resp:s:f"), entity_ref("urn:fr:cc:resp:s:voisin")) { origin case_input; }
+        assert "f2": trouble_excedant_les_inconvenients_normaux(entity_ref("urn:fr:cc:resp:s:f")) { origin adjudicated; }
+        assert "f3": a_cause(entity_ref("urn:fr:cc:resp:s:f"), entity_ref("urn:fr:cc:resp:s:d")) { origin adjudicated; }
+        assert "f4": activite_anterieure_conforme_et_poursuivie(entity_ref("urn:fr:cc:resp:s:f")) { origin adjudicated; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:s:d"), entity_ref("urn:fr:cc:resp:s:voisin")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

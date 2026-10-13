@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 757-1 al. 1 : conjoint moitié.
+test "urn:query:fr-code-civil-successions-e01-conjoint-moitie-avec-pere-et-mere" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:e:S"), @2026-03-01) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:e:F"), entity_ref("urn:fr:cc:successions:e:P"), entity_ref("urn:fr:cc:successions:e:D")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:e:F"), entity_ref("urn:fr:cc:successions:e:M"), entity_ref("urn:fr:cc:successions:e:D")) { origin case_input; }
+        assert "f6": mariage(entity_ref("urn:fr:cc:successions:e:F"), entity_ref("urn:fr:cc:successions:e:D"), entity_ref("urn:fr:cc:successions:e:E")) { origin case_input; }
+        assert "f7": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:E")) { origin case_input; }
+        assert "f8": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:P")) { origin case_input; }
+        assert "f9": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:M")) { origin case_input; }
+    }
+    evaluate truth(part_hereditaire(entity_ref("urn:fr:cc:successions:e:S"), entity_ref("urn:fr:cc:successions:e:E"), 1 / 2));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConjointAvecPereEtMere);
+}

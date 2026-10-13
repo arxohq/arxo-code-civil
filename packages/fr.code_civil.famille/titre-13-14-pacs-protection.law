@@ -1,0 +1,199 @@
+// TITRE XIII — DU PACTE CIVIL DE SOLIDARITÉ (articles 515-1 à 515-7)
+// et TITRE XIV — DES MESURES DE PROTECTION DES VICTIMES DE VIOLENCES
+// (articles 515-9 à 515-13 ; noyau : 515-12).
+//
+// Les empêchements du pacte (515-2) se lisent comme ceux du mariage, par le
+// graphe : ligne directe, alliance en ligne directe, collatéraux JUSQU'AU
+// TROISIÈME DEGRÉ INCLUS — un seuil que le texte chiffre et que le compte
+// romain de `calc.kinship` mesure. L'ordonnance de protection (515-11) suppose
+// la vraisemblance des violences, appréciée par le juge ; sa durée maximale de
+// douze mois depuis la notification (515-12) se calcule.
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART515_12,
+    CC_ART515_2,
+    CC_ART515_7,
+    Famille,
+    OrdonnanceDeProtection,
+    Pacs,
+    Personne,
+    deces_d_un_partenaire_le,
+    demande_en_divorce_pendant_l_ordonnance,
+    graphe_familial,
+    mariage_anterieur_non_dissous,
+    mariage_des_partenaires_ou_de_l_un_le,
+    ordonnance_notifiee_le,
+    pacs_anterieur_non_dissous,
+    partenaires,
+};
+
+pub relation empechement_au_pacs(pacs: Pacs) kind derived {
+    label fr official "le pacte se heurte à un empêchement de l'article 515-2 : il est nul";
+    label en unofficial "the pact meets an Article 515-2 impediment: it is void";
+}
+pub relation pacte_conclu_malgre_empechement(pacs: Pacs, a: Personne, b: Personne) kind empirical {
+    label fr official "pacte conclu malgré l'empêchement de l'article 515-2";
+    label en unofficial "pact concluded despite the Article 515-2 impediment";
+}
+pub relation pacs_dissous_le(pacs: Pacs, jour: Date) kind derived {
+    label fr official "le pacte est dissous et la dissolution prend effet à la date de l'événement : décès ou mariage (article 515-7, alinéa 1)";
+    label en unofficial "the pact is dissolved, effective on the date of the event: death or marriage (Article 515-7, paragraph 1)";
+}
+pub relation mesures_de_protection_jusqu_au(o: OrdonnanceDeProtection, jour: Date) kind derived {
+    key(o);
+    label fr official "terme de la durée maximale des mesures : douze mois depuis la notification (article 515-12)";
+    label en unofficial "end of the maximum duration of the measures: twelve months from service (Article 515-12)";
+}
+pub relation prolongation_possible(o: OrdonnanceDeProtection) kind derived {
+    label fr official "les mesures peuvent être prolongées : une demande en divorce ou en séparation de corps a été déposée durant le délai (article 515-12)";
+    label en unofficial "the measures may be extended: a divorce or legal-separation petition was filed during the period (Article 515-12)";
+}
+pub relation partenaire_demande_prolongation(o: OrdonnanceDeProtection, p: Personne) kind empirical {
+    label fr official "personne déposant la demande prolongeant les mesures de protection";
+    label en unofficial "person filing the petition extending the protection measures";
+}
+
+@source(CC_ART515_2) {
+    rule EmpechementLigneDirecteAscendante(pacs: Pacs, f: Famille, a: Personne, b: Personne,
+                                            degre: Integer) defeasible {
+        label fr official "Article 515-2, 1°. Il ne peut y avoir de pacte civil de solidarité entre ascendant et descendant en ligne directe";
+        label en unofficial "Article 515-2, 1°. There may be no civil solidarity pact between ascendant and descendant in the direct line";
+        when partenaires(pacs, a, b) and graphe_familial(f)
+            and calc.kinship::kin_line(f, a, b, calc.kinship::Ascending)
+            and calc.kinship::kin_degree(f, a, b, degre) and degre >= 1;
+        then empechement_au_pacs(pacs);
+    }
+    rule EmpechementLigneDirecteDescendante(pacs: Pacs, f: Famille, a: Personne, b: Personne,
+                                             degre: Integer) defeasible {
+        label fr official "Article 515-2, 1°. L'empêchement de la ligne directe joue dans les deux sens";
+        label en unofficial "Article 515-2, 1°. The direct-line impediment works both ways";
+        when partenaires(pacs, a, b) and graphe_familial(f)
+            and calc.kinship::kin_line(f, a, b, calc.kinship::Descending)
+            and calc.kinship::kin_degree(f, a, b, degre) and degre >= 1;
+        then empechement_au_pacs(pacs);
+    }
+    rule EmpechementCollaterauxJusquAuTroisiemeDegre(pacs: Pacs, f: Famille, a: Personne, b: Personne,
+                                                      degre: Integer) defeasible {
+        label fr official "Article 515-2, 1°. Il ne peut y avoir de pacte entre collatéraux jusqu'au troisième degré inclus";
+        label en unofficial "Article 515-2, 1°. There may be no pact between collaterals up to and including the third degree";
+        when partenaires(pacs, a, b) and graphe_familial(f)
+            and calc.kinship::kin_line(f, a, b, calc.kinship::Collateral)
+            and calc.kinship::kin_degree(f, a, b, degre) and degre <= 3;
+        then empechement_au_pacs(pacs);
+    }
+    rule EmpechementDuMariage(pacs: Pacs, a: Personne, b: Personne) defeasible {
+        label fr official "Article 515-2, 2°. Il ne peut y avoir de pacte entre deux personnes dont l'une au moins est engagée dans les liens du mariage";
+        label en unofficial "Article 515-2, 2°. There may be no pact where at least one person is bound by marriage";
+        when partenaires(pacs, a, b) and mariage_anterieur_non_dissous(a);
+        then empechement_au_pacs(pacs);
+    }
+    rule EmpechementDuMariageSecondPartenaire(pacs: Pacs, a: Personne, b: Personne) defeasible {
+        label fr official "Article 515-2, 2°. L'empêchement vaut pour l'un comme pour l'autre partenaire";
+        label en unofficial "Article 515-2, 2°. The impediment applies to either partner";
+        when partenaires(pacs, a, b) and mariage_anterieur_non_dissous(b);
+        then empechement_au_pacs(pacs);
+    }
+    rule EmpechementDUnPacsAnterieur(pacs: Pacs, a: Personne, b: Personne) defeasible {
+        label fr official "Article 515-2, 3°. Il ne peut y avoir de pacte entre deux personnes dont l'une au moins est déjà liée par un pacte civil de solidarité";
+        label en unofficial "Article 515-2, 3°. There may be no pact where at least one person is already bound by a civil solidarity pact";
+        when partenaires(pacs, a, b) and pacs_anterieur_non_dissous(a);
+        then empechement_au_pacs(pacs);
+    }
+}
+
+@source(CC_ART515_2)
+rule PositionInterdictionPacsEmpechement(pacs: Pacs, a: Personne, b: Personne) strict {
+    label fr official "Article 515-2. Il ne peut y avoir de pacte civil de solidarité en cas d'empêchement";
+    label en unofficial "Article 515-2. There may be no civil solidarity pact where an impediment exists";
+    when partenaires(pacs, a, b) and empechement_au_pacs(pacs);
+    then prohibition InterdictionPacsEmpechement {
+        bearer a;
+        action pacte_conclu_malgre_empechement(pacs, a, b);
+        window [@2022-01-01, infinity];
+    }
+}
+@source(CC_ART515_2)
+rule MaintenanceInterdictionPacsEmpechement(pacs: Pacs, a: Personne, b: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionPacsEmpechement";
+    label en unofficial "Maintain prohibition InterdictionPacsEmpechement";
+    when partenaires(pacs, a, b) and empechement_au_pacs(pacs);
+    then duty MaintenanceInterdictionPacsEmpechementDuty {
+        bearer a;
+        goal maintenance {
+            condition not pacte_conclu_malgre_empechement(pacs, a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART515_2)
+rule PositionInterdictionPacsSecondPartenaire(pacs: Pacs, a: Personne, b: Personne) strict {
+    label fr official "Article 515-2. L'empêchement de mariage vaut pour le second partenaire";
+    label en unofficial "Article 515-2. The marriage impediment applies to the second partner";
+    when partenaires(pacs, a, b) and mariage_anterieur_non_dissous(b);
+    then prohibition InterdictionPacsSecondPartenaire {
+        bearer b;
+        action pacte_conclu_malgre_empechement(pacs, a, b);
+        window [@2022-01-01, infinity];
+    }
+}
+@source(CC_ART515_2)
+rule MaintenanceInterdictionPacsSecondPartenaire(pacs: Pacs, a: Personne, b: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionPacsSecondPartenaire";
+    label en unofficial "Maintain prohibition InterdictionPacsSecondPartenaire";
+    when partenaires(pacs, a, b) and mariage_anterieur_non_dissous(b);
+    then duty MaintenanceInterdictionPacsSecondPartenaireDuty {
+        bearer b;
+        goal maintenance {
+            condition not pacte_conclu_malgre_empechement(pacs, a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+
+
+@source(CC_ART515_7) {
+    rule DissolutionParLeDeces(pacs: Pacs, jour: Date) defeasible {
+        label fr official "Article 515-7, alinéa 1. Le pacte se dissout par la mort de l'un des partenaires, avec effet à la date de l'événement";
+        label en unofficial "Article 515-7, paragraph 1. The pact dissolves on the death of a partner, effective on the date of the event";
+        when deces_d_un_partenaire_le(pacs, jour);
+        then pacs_dissous_le(pacs, jour);
+    }
+    rule DissolutionParLeMariage(pacs: Pacs, jour: Date) defeasible {
+        label fr official "Article 515-7, alinéa 1. Le pacte se dissout par le mariage des partenaires ou de l'un d'eux, avec effet à la date de l'événement";
+        label en unofficial "Article 515-7, paragraph 1. The pact dissolves on the marriage of the partners or of one of them, effective on the date of the event";
+        when mariage_des_partenaires_ou_de_l_un_le(pacs, jour);
+        then pacs_dissous_le(pacs, jour);
+    }
+}
+
+@source(CC_ART515_12) {
+    rule DureeMaximaleDesMesures(o: OrdonnanceDeProtection, jour: Date) defeasible {
+        label fr official "Article 515-12. Les mesures de l'ordonnance de protection sont prises pour une durée maximale de douze mois à compter de la notification de l'ordonnance";
+        label en unofficial "Article 515-12. The measures of the protection order are taken for a maximum of twelve months from service of the order";
+        when ordonnance_notifiee_le(o, jour);
+        then mesures_de_protection_jusqu_au(o, add_calendar_period(jour, 12 calendar_month));
+    }
+    rule ProlongationParLaDemandeEnDivorce(o: OrdonnanceDeProtection) defeasible {
+        label fr official "Article 515-12. Les mesures peuvent être prolongées au-delà si, durant ce délai, une demande en divorce ou en séparation de corps a été déposée";
+        label en unofficial "Article 515-12. The measures may be extended beyond that if, during the period, a divorce or legal-separation petition was filed";
+        when ordonnance_notifiee_le(o, _) and demande_en_divorce_pendant_l_ordonnance(o);
+        then prolongation_possible(o);
+    }
+    @source(CC_ART515_12)
+    rule PositionPouvoirProlongerProtection(o: OrdonnanceDeProtection, p: Personne) strict {
+        label fr official "Article 515-12. Les mesures peuvent être prolongées sur demande en divorce ou séparation";
+        label en unofficial "Article 515-12. The measures may be extended upon a divorce or separation petition";
+        when ordonnance_notifiee_le(o, _) and demande_en_divorce_pendant_l_ordonnance(o)
+            and partenaire_demande_prolongation(o, p);
+        then liberty PouvoirProlongerProtection {
+            holder p;
+            action partenaire_demande_prolongation(o, p);
+            window [@2022-01-01, infinity];
+        }
+    }
+}

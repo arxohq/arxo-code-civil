@@ -1,0 +1,99 @@
+# Manifeste §10 — racine du paquet (DECISION-0033). Les en-têtes §22 des
+# fichiers .law font foi ; le manifeste doit y correspondre (LDC-E1109).
+[package]
+name = "fr.code_civil.famille"
+version = "0.1.0"
+language = "0.2"
+namespace = "urn:fr:corpus:clir:code-civil-famille"
+
+# Métadonnées de catalogue (DECISION-0051 ; docs/PACKAGE-METADATA.ru.md).
+[metadata]
+act = "fr-code-civil-famille"
+title = "Code civil — Livre Ier, titres V à IX, XIII et XIV : mariage (âge, consentement, empêchements de parenté, nullités), divorce et séparation de corps, filiation (présomption de paternité, période légale de conception, contestation), adoption, autorité parentale, pacte civil de solidarité, ordonnance de protection"
+primarySource = "CODE_CIVIL"
+jurisdiction = "FR"
+instrument = "code"
+sourceFidelity = "pinned_unofficial_copy"
+legalStatus = "in_force"
+issuer = "République française ; données ouvertes LEGI diffusées par la DILA"
+verifiedAgainstSource = true
+
+# Importations §23 (E-0122) : le concentrateur des personnes et le calculateur
+# de parenté par graphe — les empêchements des articles 161 à 163 et 515-2
+# se lisent en degrés et en lignes, non en faits plats.
+[dependencies]
+"fr.code_civil.core" = "0.1.0"
+"calc.kinship" = "0.1.0"
+
+# Scénarios déclaratifs (DECISION-0127) : chaque âge et chaque délai du texte
+# des deux côtés (veille et jour du dix-huitième anniversaire, 179e et 180e,
+# 300e et 301e jours de la période de conception, jour et lendemain du
+# vingt-sixième anniversaire) ; les empêchements lus sur de vrais graphes.
+[[tests]]
+family = "fr.code_civil.famille#famille"
+regression = true
+suites = [
+  "tests/m01-dix-huit-ans-veille.lawtest",
+  "tests/m01-dix-huit-ans-jour-meme.lawtest",
+  "tests/m02-dispense-d-age.lawtest",
+  "tests/m03-bigamie.lawtest",
+  "tests/positions-146-205-218.lawtest",
+  "tests/m04-frere-et-soeur.lawtest",
+  "tests/m05-oncle-et-niece.lawtest",
+  "tests/m06-dispense-presidentielle.lawtest",
+  "tests/m07-cousins-germains-permis.lawtest",
+  "tests/m08-ligne-directe.lawtest",
+  "tests/m09-conditions-reunies.lawtest",
+  "tests/m10-vice-forclusion-cinq-ans.lawtest",
+  "tests/m11-vice-demande-dans-le-delai.lawtest",
+  "tests/m12-vice-demande-tardive.lawtest",
+  "tests/m13-bigamie-trente-ans.lawtest",
+  "tests/d01-separation-un-jour-de-moins.lawtest",
+  "tests/d01-separation-un-an-jour-pour-jour.lawtest",
+  "tests/d02-faute-examinee-en-premier.lawtest",
+  "tests/f01-periode-de-conception-179e-jour.lawtest",
+  "tests/f01-periode-de-conception-180e-jour.lawtest",
+  "tests/f01-periode-de-conception-300e-jour.lawtest",
+  "tests/f01-periode-de-conception-301e-jour.lawtest",
+  "tests/f02-presomption-de-paternite.lawtest",
+  "tests/f03-ecartee-faute-de-designation.lawtest",
+  "tests/f04-retablie-par-la-possession-d-etat.lawtest",
+  "tests/f05-trois-cents-jours-apres-la-demande.lawtest",
+  "tests/f06-concu-pendant-le-mariage-dissous.lawtest",
+  "tests/f07-prescription-suspendue-pendant-la-minorite.lawtest",
+  "tests/f08-prescription-dix-ans-du-majeur.lawtest",
+  "tests/f09-contestation-fermee-apres-cinq-ans.lawtest",
+  "tests/f10-contestation-ouverte-avant-cinq-ans.lawtest",
+  "tests/a01-adoptant-seul-jour-du-26e-anniversaire.lawtest",
+  "tests/a01-adoptant-seul-lendemain.lawtest",
+  "tests/a02-couple-sans-condition.lawtest",
+  "tests/a03-couple-un-an-de-communaute.lawtest",
+  "tests/a04-pleniere-six-mois-d-accueil.lawtest",
+  "tests/a05-pleniere-cinq-mois-d-accueil.lawtest",
+  "tests/a06-pleniere-enfant-de-quinze-ans.lawtest",
+  "tests/p01-exercice-commun.lawtest",
+  "tests/p02-filiation-tardive-pas-d-exercice.lawtest",
+  "tests/p03-declaration-conjointe.lawtest",
+  "tests/p04-parent-hors-d-etat.lawtest",
+  "tests/p05-fin-a-la-majorite.lawtest",
+  "tests/s01-pacs-frere-et-soeur.lawtest",
+  "tests/s02-pacs-oncle-et-niece.lawtest",
+  "tests/s03-pacs-cousins-germains-permis.lawtest",
+  "tests/s04-pacs-personne-mariee.lawtest",
+  "tests/s05-pacs-dissous-par-le-mariage.lawtest",
+  "tests/s06-ordonnance-douze-mois.lawtest",
+  "tests/s07-prolongation-par-la-demande-en-divorce.lawtest",
+]
+world = ["fr.code_civil.famille", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.famille#mariage-devoirs"
+regression = true
+suites = ["tests/c01-mariage-devoirs.lawtest"]
+world = ["fr.code_civil.famille", "fr.code_civil.core", "calc.kinship"]
+
+[[tests]]
+family = "fr.code_civil.famille#positions-prohibitions-137"
+regression = true
+suites = ["tests/positions-prohibitions-137.lawtest"]
+world = ["fr.code_civil.famille", "fr.code_civil.core", "calc.kinship"]

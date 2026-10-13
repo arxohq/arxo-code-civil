@@ -1,0 +1,480 @@
+// TITRE V — DU MARIAGE (articles 144 à 191).
+//
+// Trois conditions de fond que le texte chiffre ou nomme : l'âge de dix-huit
+// ans révolus (144), le consentement (146, 180), l'absence de mariage
+// antérieur non dissous (147) ; et les empêchements de parenté et d'alliance
+// (161 à 163), lus en degrés et en lignes par `calc.kinship` plutôt que
+// donnés en faits plats. Deux dispenses viennent d'ailleurs et restent des
+// entrées du cas : celle du procureur pour l'âge (145), celle du Président
+// pour les prohibitions (164).
+//
+// Les délais des nullités sont dans le texte : cinq ans depuis le mariage
+// pour le vice du consentement (181), trente ans depuis la célébration pour
+// les nullités absolues (184) et pour le défaut de publicité ou
+// d'officier compétent (191).
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART144,
+    CC_ART145,
+    CC_ART146,
+    CC_ART147,
+    CC_ART161,
+    CC_ART162,
+    CC_ART163,
+    CC_ART164,
+    CC_ART180,
+    CC_ART181,
+    CC_ART184,
+    CC_ART191,
+    Famille,
+    Mariage,
+    Personne,
+    celebre_le,
+    consentement_libre,
+    consentement_vicie,
+    date_d_appreciation,
+    demande_en_nullite_le,
+    demandeur_nullite,
+    dispense_d_age_du_procureur,
+    dispense_presidentielle,
+    epoux,
+    filiation_etablie,
+    graphe_familial,
+    mariage_anterieur_non_dissous,
+    mariage_entre_freres_soeurs_conclu,
+    mariage_entre_oncle_niece_conclu,
+    mariage_non_public_ou_officier_incompetent,
+    ne_le,
+    president_accorde_dispense,
+    union,
+};
+
+// --- Pont vers le calculateur de parenté ------------------------------------------------------
+
+@source(CC_ART161) {
+    rule CompteDesDegresDeParente(f: Famille) strict {
+        label fr official "Articles 161 à 163. Les empêchements se lisent en lignes et en degrés : compte romain, comme pour la parenté successorale";
+        label en unofficial "Articles 161 to 163. Impediments are read in lines and degrees: Roman count, as for succession kinship";
+        when graphe_familial(f);
+        then calc.kinship::family_degree_count(f, calc.kinship::Roman);
+    }
+    rule AdoptionRemplaceLaBrancheDOrigine(f: Famille) strict {
+        label fr official "Article 356. L'adoption plénière confère une filiation qui se substitue à la filiation d'origine, sous réserve des prohibitions au mariage des articles 161 à 164";
+        label en unofficial "Article 356. Full adoption confers a filiation replacing the original one, subject to the marriage impediments of Articles 161 to 164";
+        when graphe_familial(f);
+        then calc.kinship::family_adoption_effect(f, calc.kinship::ReplacesBlood);
+    }
+    rule ProfondeurDeParente(f: Famille) strict {
+        label fr official "Articles 161 à 163 et 515-2. La parenté utile aux empêchements est celle des premiers degrés : le graphe est parcouru jusqu'à la sixième génération";
+        label en unofficial "Articles 161 to 163 and 515-2. The kinship relevant to impediments is that of the first degrees: the graph is walked to the sixth generation";
+        when graphe_familial(f);
+        then calc.kinship::family_depth_cap(f, 6);
+    }
+    rule AreteDeFiliation(f: Famille, parent: Personne, enfant: Personne) strict {
+        label fr official "Article 161. La filiation établie est une arête du graphe de parenté";
+        label en unofficial "Article 161. Established filiation is an edge of the kinship graph";
+        when filiation_etablie(f, parent, enfant);
+        then calc.kinship::parent_edge(f, parent, enfant, calc.kinship::Blood);
+    }
+    rule AreteDAlliance(f: Famille, a: Personne, b: Personne) strict {
+        label fr official "Article 161. Le mariage crée l'alliance : arête d'union du graphe";
+        label en unofficial "Article 161. Marriage creates affinity: union edge of the graph";
+        when union(f, a, b);
+        then calc.kinship::spouse_edge(f, a, b);
+    }
+}
+
+// --- Conditions du mariage --------------------------------------------------------------------
+
+pub relation age_requis_pour_le_mariage(p: Personne) kind derived {
+    label fr official "la personne a dix-huit ans révolus, ou bénéficie d'une dispense d'âge (articles 144, 145)";
+    label en unofficial "the person has reached eighteen full years, or holds an age dispensation (Articles 144, 145)";
+}
+pub relation empechement_de_parente(m: Mariage) kind derived {
+    label fr official "le mariage se heurte à un empêchement de parenté ou d'alliance (articles 161 à 163)";
+    label en unofficial "the marriage meets an impediment of kinship or affinity (Articles 161 to 163)";
+}
+pub relation empechement_de_bigamie(m: Mariage) kind derived {
+    label fr official "l'un des futurs époux est déjà engagé dans les liens d'un mariage non dissous (article 147)";
+    label en unofficial "one of the intended spouses is already bound by an undissolved marriage (Article 147)";
+}
+pub relation second_mariage_conclu(a: Personne, b: Personne, m: Mariage) kind empirical {
+    label fr official "second mariage conclu avant dissolution du premier";
+    label en unofficial "second marriage concluded before dissolution of the first";
+}
+pub relation mariage_parente_conclu(a: Personne, b: Personne, m: Mariage) kind empirical {
+    label fr official "mariage conclu malgré un empêchement de parenté";
+    label en unofficial "marriage concluded despite a kinship impediment";
+}
+pub relation conditions_du_mariage_reunies(m: Mariage) kind derived {
+    label fr official "les conditions de fond du mariage sont réunies : âge, consentement, absence d'empêchement (articles 144 à 163)";
+    label en unofficial "the substantive conditions of marriage are met: age, consent, no impediment (Articles 144 to 163)";
+}
+pub relation nullite_encourue(m: Mariage) kind derived {
+    label fr official "le mariage encourt la nullité (articles 180, 184, 191)";
+    label en unofficial "the marriage is liable to annulment (Articles 180, 184, 191)";
+}
+pub relation demande_en_nullite_recevable(m: Mariage) kind derived {
+    label fr official "la demande en nullité est présentée dans le délai du texte (articles 181, 184, 191)";
+    label en unofficial "the application to annul is brought within the statutory period (Articles 181, 184, 191)";
+}
+pub relation forclusion_le(m: Mariage, jour: Date) kind derived {
+    key(m);
+    label fr official "dernier jour où la nullité du mariage peut être demandée";
+    label en unofficial "last day on which the marriage may be challenged";
+}
+
+@source(CC_ART144, CC_ART145) {
+    rule AgeDuMariage(p: Personne, naissance: Date, jour: Date) defeasible {
+        label fr official "Article 144. Le mariage ne peut être contracté avant dix-huit ans révolus";
+        label en unofficial "Article 144. Marriage may not be contracted before eighteen full years";
+        when ne_le(p, naissance) and date_d_appreciation(p, jour)
+            and jour >= add_calendar_period(naissance, 18 calendar_year);
+        then age_requis_pour_le_mariage(p);
+    }
+    rule DispenseDAge(p: Personne) defeasible {
+        label fr official "Article 145. Il est loisible au procureur de la République d'accorder des dispenses d'âge pour des motifs graves";
+        label en unofficial "Article 145. The public prosecutor may grant age dispensations for serious reasons";
+        when dispense_d_age_du_procureur(p);
+        then age_requis_pour_le_mariage(p);
+    }
+}
+
+@source(CC_ART145)
+rule PositionPouvoirDispenseAge(p: Personne) strict {
+    label fr official "Article 145. Le procureur peut accorder une dispense d'âge pour motifs graves";
+    label en unofficial "Article 145. The public prosecutor may grant an age dispensation for serious reasons";
+    when dispense_d_age_du_procureur(p);
+    then liberty PouvoirDispenseAge {
+        holder p;
+        action dispense_d_age_du_procureur(p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART164)
+rule PositionPouvoirDispensePresident(president: Personne, m: Mariage) strict {
+    label fr official "Article 164. Le Président peut lever certaines prohibitions pour causes graves";
+    label en unofficial "Article 164. The President may lift certain impediments for serious causes";
+    when dispense_presidentielle(m) and president_accorde_dispense(president, m);
+    then liberty PouvoirDispensePresident {
+        holder president;
+        action president_accorde_dispense(president, m);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART144)
+rule PositionPouvoirContracterApresAge(p: Personne, m: Mariage, autre: Personne) strict {
+    label fr official "Article 144. La personne majeure peut contracter mariage";
+    label en unofficial "Article 144. An adult may enter into marriage";
+    when age_requis_pour_le_mariage(p) and epoux(m, p, autre);
+    then liberty PouvoirContracterApresAge {
+        holder p;
+        action epoux(m, p, autre);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART147)
+rule EmpechementDeBigamie(m: Mariage, a: Personne, b: Personne) defeasible {
+    label fr official "Article 147. On ne peut contracter un second mariage avant la dissolution du premier";
+    label en unofficial "Article 147. No second marriage may be contracted before the first is dissolved";
+    when epoux(m, a, b) and mariage_anterieur_non_dissous(a);
+    then empechement_de_bigamie(m);
+}
+
+@source(CC_ART147)
+rule EmpechementDeBigamieSecondEpoux(m: Mariage, a: Personne, b: Personne) defeasible {
+    label fr official "Article 147. L'empêchement vaut pour l'un comme pour l'autre des futurs époux";
+    label en unofficial "Article 147. The impediment applies to either of the intended spouses";
+    when epoux(m, a, b) and mariage_anterieur_non_dissous(b);
+    then empechement_de_bigamie(m);
+}
+
+@source(CC_ART147)
+rule PositionInterdictionSecondMariage(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Article 147. Nul ne peut contracter un second mariage avant dissolution du premier";
+    label en unofficial "Article 147. No one may enter a second marriage before dissolution of the first";
+    when epoux(m, a, b) and mariage_anterieur_non_dissous(a);
+    then prohibition InterdictionSecondMariage {
+        bearer a;
+        action second_mariage_conclu(a, b, m);
+        window [@2022-01-01, infinity);
+    }
+}
+@source(CC_ART147)
+rule MaintenanceInterdictionSecondMariage(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Maintenir l'interdiction InterdictionSecondMariage";
+    label en unofficial "Maintain prohibition InterdictionSecondMariage";
+    when epoux(m, a, b) and mariage_anterieur_non_dissous(a);
+    then duty MaintenanceInterdictionSecondMariageDuty {
+        bearer a;
+        goal maintenance {
+            condition not second_mariage_conclu(a, b, m);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+@source(CC_ART161, CC_ART162, CC_ART163, CC_ART164) {
+    rule ProhibitionEnLigneDirecte(m: Mariage, f: Famille, a: Personne, b: Personne,
+                                    degre: Integer) defeasible {
+        label fr official "Article 161. En ligne directe, le mariage est prohibé entre tous les ascendants et descendants";
+        label en unofficial "Article 161. In the direct line, marriage is prohibited between all ascendants and descendants";
+        when epoux(m, a, b) and graphe_familial(f)
+            and calc.kinship::kin_line(f, a, b, calc.kinship::Ascending)
+            and calc.kinship::kin_degree(f, a, b, degre) and degre >= 1;
+        then empechement_de_parente(m);
+    }
+    rule ProhibitionEnLigneDirecteDescendante(m: Mariage, f: Famille, a: Personne, b: Personne,
+                                               degre: Integer) defeasible {
+        label fr official "Article 161. La prohibition de la ligne directe joue dans les deux sens : ascendants et descendants";
+        label en unofficial "Article 161. The direct-line prohibition works both ways: ascendants and descendants";
+        when epoux(m, a, b) and graphe_familial(f)
+            and calc.kinship::kin_line(f, a, b, calc.kinship::Descending)
+            and calc.kinship::kin_degree(f, a, b, degre) and degre >= 1;
+        then empechement_de_parente(m);
+    }
+    rule ProhibitionEntreFrereEtSoeur(m: Mariage, f: Famille, a: Personne, b: Personne) defeasible {
+        label fr official "Article 162. En ligne collatérale, le mariage est prohibé entre le frère et la sœur, entre frères et entre sœurs";
+        label en unofficial "Article 162. In the collateral line, marriage is prohibited between siblings";
+        when epoux(m, a, b) and graphe_familial(f) and calc.kinship::sibling(f, a, b);
+        then empechement_de_parente(m);
+    }
+    rule ProhibitionEntreOncleEtNiece(m: Mariage, f: Famille, a: Personne, b: Personne) defeasible {
+        label fr official "Article 163. Le mariage est prohibé entre l'oncle et la nièce ou le neveu, et entre la tante et le neveu ou la nièce";
+        label en unofficial "Article 163. Marriage is prohibited between uncle and niece or nephew, and between aunt and nephew or niece";
+        when epoux(m, a, b) and graphe_familial(f) and calc.kinship::uncle_or_aunt(f, a, b);
+        then empechement_de_parente(m);
+    }
+    rule ProhibitionEntreNeveuEtTante(m: Mariage, f: Famille, a: Personne, b: Personne) defeasible {
+        label fr official "Article 163. La prohibition vaut dans les deux sens : le neveu ou la nièce et l'oncle ou la tante";
+        label en unofficial "Article 163. The prohibition works both ways: nephew or niece and uncle or aunt";
+        when epoux(m, a, b) and graphe_familial(f) and calc.kinship::nephew_or_niece(f, a, b);
+        then empechement_de_parente(m);
+    }
+    rule DispensePresidentielle(m: Mariage) defeater {
+        label fr official "Article 164. Le Président de la République peut lever, pour causes graves, les prohibitions de l'article 161 entre alliés en ligne directe lorsque la personne qui a créé l'alliance est décédée, et celles de l'article 163";
+        label en unofficial "Article 164. The President may lift, for serious causes, the impediments of Article 161 between relatives by marriage in the direct line where the person creating the affinity has died, and those of Article 163";
+        when dispense_presidentielle(m);
+        defeat empechement_de_parente(m);
+    }
+}
+
+@source(CC_ART161)
+rule PositionInterdictionMariageParente(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Article 161. Le mariage est prohibé entre ascendants et descendants";
+    label en unofficial "Article 161. Marriage is prohibited between ascendants and descendants";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then prohibition InterdictionMariageParente {
+        bearer a;
+        action mariage_parente_conclu(a, b, m);
+        window [@2022-01-01, infinity);
+    }
+}
+@source(CC_ART161)
+rule MaintenanceInterdictionMariageParente(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Maintenir l'interdiction InterdictionMariageParente";
+    label en unofficial "Maintain prohibition InterdictionMariageParente";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then duty MaintenanceInterdictionMariageParenteDuty {
+        bearer a;
+        goal maintenance {
+            condition not mariage_parente_conclu(a, b, m);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+@source(CC_ART162)
+rule PositionInterdictionMariageFratrie(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Article 162. Le mariage est prohibé entre frères et sœurs";
+    label en unofficial "Article 162. Marriage is prohibited between siblings";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then prohibition InterdictionMariageFratrie {
+        bearer a;
+        action mariage_entre_freres_soeurs_conclu(a, b, m);
+        window [@2022-01-01, infinity);
+    }
+}
+@source(CC_ART162)
+rule MaintenanceInterdictionMariageFratrie(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Maintenir l'interdiction InterdictionMariageFratrie";
+    label en unofficial "Maintain prohibition InterdictionMariageFratrie";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then duty MaintenanceInterdictionMariageFratrieDuty {
+        bearer a;
+        goal maintenance {
+            condition not mariage_entre_freres_soeurs_conclu(a, b, m);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+@source(CC_ART163)
+rule PositionInterdictionMariageOncleNiece(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Article 163. Le mariage est prohibé entre oncle et nièce ou neveu";
+    label en unofficial "Article 163. Marriage is prohibited between uncle and niece or nephew";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then prohibition InterdictionMariageOncleNiece {
+        bearer a;
+        action mariage_entre_oncle_niece_conclu(a, b, m);
+        window [@2022-01-01, infinity);
+    }
+}
+@source(CC_ART163)
+rule MaintenanceInterdictionMariageOncleNiece(a: Personne, b: Personne, m: Mariage) strict {
+    label fr official "Maintenir l'interdiction InterdictionMariageOncleNiece";
+    label en unofficial "Maintain prohibition InterdictionMariageOncleNiece";
+    when epoux(m, a, b) and empechement_de_parente(m);
+    then duty MaintenanceInterdictionMariageOncleNieceDuty {
+        bearer a;
+        goal maintenance {
+            condition not mariage_entre_oncle_niece_conclu(a, b, m);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+@source(CC_ART146, CC_ART144, CC_ART147, CC_ART161)
+rule ConditionsReunies(m: Mariage, a: Personne, b: Personne) defeasible {
+    label fr official "Articles 144, 146, 147 et 161 à 163. Les conditions de fond sont réunies : l'âge pour chacun, le consentement libre de chacun, ni bigamie ni empêchement de parenté";
+    label en unofficial "Articles 144, 146, 147 and 161 to 163. The substantive conditions are met: age for each, free consent of each, neither bigamy nor kinship impediment";
+    when epoux(m, a, b) and age_requis_pour_le_mariage(a) and age_requis_pour_le_mariage(b)
+        and consentement_libre(m, a) and consentement_libre(m, b)
+        and not_known(empechement_de_bigamie(m)) and not_known(empechement_de_parente(m));
+    then conditions_du_mariage_reunies(m);
+}
+
+@source(CC_ART146)
+rule PositionPouvoirConsentementLibre(m: Mariage, p: Personne) strict {
+    label fr official "Article 146. Il n'y a pas de mariage sans consentement libre";
+    label en unofficial "Article 146. There is no marriage without free consent";
+    when consentement_libre(m, p);
+    then liberty PouvoirConsentementLibre {
+        holder p;
+        action consentement_libre(m, p);
+        window [@2022-01-01, infinity];
+    };
+}
+
+// --- Nullités et leurs délais --------------------------------------------------------------------
+
+@source(CC_ART180, CC_ART181) {
+    // L'ABSENCE d'un fait de consentement libre n'est pas un vice : dans un
+    // monde ouvert elle ne dit rien. Le vice — contrainte, crainte
+    // révérencielle, erreur sur la personne — s'établit devant le juge et
+    // vient au cas avec l'origine `adjudicated` (DECISION-0194, second canal).
+    rule NullitePourViceDuConsentement(m: Mariage, e: Personne) defeasible {
+        label fr official "Article 180, alinéa 1. Le mariage contracté sans le consentement libre des deux époux, ou de l'un d'eux, peut être attaqué";
+        label en unofficial "Article 180, paragraph 1. A marriage contracted without the free consent of both spouses, or of one of them, may be challenged";
+        when consentement_vicie(m, e);
+        then nullite_encourue(m);
+    }
+    rule ForclusionCinqAnsDuVice(m: Mariage, jour: Date, e: Personne) defeasible {
+        label fr official "Article 181. Dans le cas de l'article 180, la demande en nullité n'est plus recevable à l'issue d'un délai de cinq ans à compter du mariage";
+        label en unofficial "Article 181. In the case of Article 180, the application to annul is no longer admissible after five years from the marriage";
+        when celebre_le(m, jour) and consentement_vicie(m, e);
+        then forclusion_le(m, add_calendar_period(jour, 5 calendar_year));
+    }
+}
+@source(CC_ART180)
+rule PositionPouvoirAttaquerNulliteConsentement(m: Mariage, p: Personne, e: Personne) strict {
+    label fr official "Article 180. Le mariage sans consentement libre peut être attaqué";
+    label en unofficial "Article 180. A marriage without free consent may be challenged";
+    when consentement_vicie(m, e) and demandeur_nullite(m, p);
+    then liberty PouvoirAttaquerNulliteConsentement {
+        holder p;
+        action demandeur_nullite(m, p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART181)
+rule PositionPouvoirAttaquerNulliteAvantForclusion(m: Mariage, p: Personne, e: Personne) strict {
+    label fr official "Article 181. La nullité pour vice du consentement peut être demandée dans les cinq ans";
+    label en unofficial "Article 181. Annulment for defective consent may be sought within five years";
+    when consentement_vicie(m, e) and demandeur_nullite(m, p)
+        and forclusion_cinq_ans_applicable(m);
+    then liberty PouvoirAttaquerNulliteAvantForclusion {
+        holder p;
+        action demandeur_nullite(m, p);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART184, CC_ART191) {
+    rule NullitePourEmpechement(m: Mariage) defeasible {
+        label fr official "Article 184. Tout mariage contracté en contravention aux articles 144, 146, 146-1, 147, 161, 162 et 163 peut être attaqué";
+        label en unofficial "Article 184. Any marriage contracted in breach of Articles 144, 146, 146-1, 147, 161, 162 and 163 may be challenged";
+        when empechement_de_parente(m);
+        then nullite_encourue(m);
+    }
+    rule NullitePourBigamie(m: Mariage) defeasible {
+        label fr official "Article 184. Le mariage contracté en contravention à l'article 147 peut être attaqué";
+        label en unofficial "Article 184. A marriage contracted in breach of Article 147 may be challenged";
+        when empechement_de_bigamie(m);
+        then nullite_encourue(m);
+    }
+    rule ForclusionTrenteAns(m: Mariage, jour: Date) defeasible {
+        label fr official "Articles 184 et 191. Le mariage peut être attaqué dans un délai de trente ans à compter de sa célébration";
+        label en unofficial "Articles 184 and 191. The marriage may be challenged within thirty years of its celebration";
+        when celebre_le(m, jour) and nullite_encourue(m)
+            and not_known(forclusion_cinq_ans_applicable(m));
+        then forclusion_le(m, add_calendar_period(jour, 30 calendar_year));
+    }
+    rule NullitePourDefautDePubliciteOuDOfficier(m: Mariage) defeasible {
+        label fr official "Article 191. Tout mariage qui n'a point été contracté publiquement, et qui n'a point été célébré devant l'officier public compétent, peut être attaqué";
+        label en unofficial "Article 191. Any marriage not publicly contracted and not celebrated before the competent registrar may be challenged";
+        when mariage_non_public_ou_officier_incompetent(m);
+        then nullite_encourue(m);
+    }
+    rule DemandeDansLeDelai(m: Mariage, demande: Date, forclusion: Date) defeasible {
+        label fr official "Articles 181, 184 et 191. La demande en nullité est recevable si elle est présentée au plus tard le dernier jour du délai";
+        label en unofficial "Articles 181, 184 and 191. The application to annul is admissible if brought no later than the last day of the period";
+        when demande_en_nullite_le(m, demande) and forclusion_le(m, forclusion) and demande <= forclusion;
+        then demande_en_nullite_recevable(m);
+    }
+}
+@source(CC_ART184)
+rule PositionPouvoirAttaquerNulliteEmpechement(m: Mariage, p: Personne) strict {
+    label fr official "Article 184. Le mariage contracté en contravention aux empêchements peut être attaqué";
+    label en unofficial "Article 184. A marriage contracted in breach of the impediments may be challenged";
+    when nullite_encourue(m) and demandeur_nullite(m, p);
+    then liberty PouvoirAttaquerNulliteEmpechement {
+        holder p;
+        action demandeur_nullite(m, p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART191)
+rule PositionPouvoirAttaquerNullitePublicite(m: Mariage, p: Personne) strict {
+    label fr official "Article 191. Le mariage non public ou célébré par un officier incompétent peut être attaqué";
+    label en unofficial "Article 191. A non-public marriage or one before an incompetent officer may be challenged";
+    when mariage_non_public_ou_officier_incompetent(m) and demandeur_nullite(m, p);
+    then liberty PouvoirAttaquerNullitePublicite {
+        holder p;
+        action demandeur_nullite(m, p);
+        window [@2022-01-01, infinity];
+    };
+}
+
+pub relation forclusion_cinq_ans_applicable(m: Mariage) kind derived {
+    label fr official "le délai propre au vice du consentement (cinq ans, article 181) s'applique à ce mariage";
+    label en unofficial "the period specific to defective consent (five years, Article 181) applies to this marriage";
+}
+
+@source(CC_ART181)
+rule ForclusionCinqAnsApplicable(m: Mariage, e: Personne) defeasible {
+    label fr official "Article 181. Le délai de cinq ans est celui du vice du consentement : il écarte le délai de trente ans de l'article 184";
+    label en unofficial "Article 181. The five-year period is that of defective consent: it displaces the thirty-year period of Article 184";
+    when consentement_vicie(m, e);
+    then forclusion_cinq_ans_applicable(m);
+}

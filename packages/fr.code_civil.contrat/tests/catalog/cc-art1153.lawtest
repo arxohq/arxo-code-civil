@@ -1,0 +1,35 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ENGAGEMENTDUREPRESENTE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": represente(entity_ref("urn:law:catalog:engagementdurepresente:v0"), entity_ref("urn:law:catalog:engagementdurepresente:v2")) { origin case_input; }
+        assert "cat-1": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:engagementdurepresente:v1")) { origin case_input; }
+        assert "cat-2": acte_dans_la_limite_des_pouvoirs(entity_ref("urn:law:catalog:engagementdurepresente:v0")) { origin case_input; }
+        assert "cat-3": agit_au_nom_et_pour_le_compte_du_represente(entity_ref("urn:law:catalog:engagementdurepresente:v0")) { origin case_input; }
+        assert "cat-4": representation_pour_le_contrat(entity_ref("urn:law:catalog:engagementdurepresente:v0"), entity_ref("urn:law:catalog:engagementdurepresente:v1")) { origin case_input; }
+    }
+    evaluate truth(engagement_du_represente(entity_ref("urn:law:catalog:engagementdurepresente:v1"), entity_ref("urn:law:catalog:engagementdurepresente:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-ENGAGEMENTPERSONNELDUREPRESENTANT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v1")) { origin case_input; }
+        assert "cat-1": representant(entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v0"), entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v2")) { origin case_input; }
+        assert "cat-2": representation_pour_le_contrat(entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v0"), entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v1")) { origin case_input; }
+        assert "cat-3": contracte_en_son_propre_nom_pour_le_compte_d_autrui(entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v0")) { origin case_input; }
+    }
+    evaluate truth(engagement_personnel_du_representant(entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v1"), entity_ref("urn:law:catalog:engagementpersonneldurepresentant:v2")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1220 : l'inexécution future manifeste, ses conséquences suffisamment graves et la notification dans les meilleurs délais fondent la suspension.
+test "urn:query:fr-code-civil-contrat-positions-1220-suspension-active" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:i09"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:i09"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:i09"), "1145") { origin case_input; }
+        assert "f4": accord_de_volontes(entity_ref("urn:fr:cc:contrat:i09")) { origin case_input; }
+        assert "f5": prestation_possible(entity_ref("urn:fr:cc:contrat:i09")) { origin case_input; }
+        assert "f6": prestation_determinee(entity_ref("urn:fr:cc:contrat:i09")) { origin case_input; }
+        assert "f7": partie_au_contrat(entity_ref("urn:fr:cc:contrat:i09"), entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f8": personne_physique(entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f9": consentement_donne_par(entity_ref("urn:fr:cc:contrat:i09"), entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f10": sain_d_esprit(entity_ref("urn:fr:cc:contrat:i09"), entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f11": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i09:autre"), entity_ref("urn:fr:cc:contrat:i09")) { origin case_input; }
+        assert "f12": creancier_de_l_obligation(entity_ref("urn:fr:cc:contrat:i09:autre"), entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f13": debiteur_de_l_obligation(entity_ref("urn:fr:cc:contrat:i09:autre"), entity_ref("urn:fr:cc:contrat:i09:debiteur")) { origin case_input; }
+        assert "f14": engagement_non_execute(entity_ref("urn:fr:cc:contrat:i09:autre")) { origin case_input; }
+        assert "f15": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i09:o"), entity_ref("urn:fr:cc:contrat:i09")) { origin case_input; }
+        assert "f16": debiteur_de_l_obligation(entity_ref("urn:fr:cc:contrat:i09:o"), entity_ref("urn:fr:cc:contrat:i09:creancier")) { origin case_input; }
+        assert "f17": inexecution_future_manifeste(entity_ref("urn:fr:cc:contrat:i09:autre")) { origin adjudicated; }
+        assert "f18": consequences_suffisamment_graves_1220(entity_ref("urn:fr:cc:contrat:i09:autre")) { origin adjudicated; }
+        assert "f19": suspension_notifiee_dans_les_meilleurs_delais(entity_ref("urn:fr:cc:contrat:i09:o")) { origin case_input; }
+        assert "f20": mise_en_demeure_de_satisfaire_le(entity_ref("urn:fr:cc:contrat:i09:o"), @2020-02-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P3PositionLiberteSuspendreExecution, ACTIVE);
+}

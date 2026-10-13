@@ -1,0 +1,171 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:query:fr-code-civil-vente-louage-vente-accord-parfait" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": accord_sur_la_chose(entity_ref("urn:fr:cc12:f:v")) { origin case_input; }
+        assert "p": accord_sur_le_prix(entity_ref("urn:fr:cc12:f:v")) { origin case_input; }
+    }
+    evaluate truth(vente_parfaite(entity_ref("urn:fr:cc12:f:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-garantie-vice-ouvert" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:g:v"), entity_ref("urn:fr:cc12:g:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:g:v"), entity_ref("urn:fr:cc12:g:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:g:v"), entity_ref("urn:fr:cc12:g:x")) { origin case_input; }
+        assert "decision": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:g:v"), entity_ref("urn:fr:cc12:g:x")) { origin case_input; }
+    }
+    evaluate truth(garantie_des_vices_ouverte(entity_ref("urn:fr:cc12:g:v"), entity_ref("urn:fr:cc12:g:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-garantie-sans-evaluation-explicite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:g1:v"), entity_ref("urn:fr:cc12:g1:x")) { origin case_input; }
+        assert "u": vice_diminue_tellement_l_usage(entity_ref("urn:fr:cc12:g1:v"), entity_ref("urn:fr:cc12:g1:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:g1:v"), entity_ref("urn:fr:cc12:g1:x")) { origin case_input; }
+    }
+    evaluate truth(garantie_des_vices_ouverte(entity_ref("urn:fr:cc12:g1:v"), entity_ref("urn:fr:cc12:g1:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-garantie-deux-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:g2:v"), entity_ref("urn:fr:cc12:g2:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:g2:v"), entity_ref("urn:fr:cc12:g2:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:g2:v"), entity_ref("urn:fr:cc12:g2:x")) { origin case_input; }
+        assert "decision": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:g2:v"), entity_ref("urn:fr:cc12:g2:x")) { origin case_input; }
+        assert "sale": vente_non_judiciaire(entity_ref("urn:fr:cc12:g2:v")) { origin case_input; }
+        assert "d": vice_decouvert_le(entity_ref("urn:fr:cc12:g2:v"), entity_ref("urn:fr:cc12:g2:x"), @2024-01-10) { origin case_input; }
+        assert "i": action_en_garantie_introduite_le(entity_ref("urn:fr:cc12:g2:v"), @2026-01-10) { origin case_input; }
+    }
+    evaluate truth(action_en_garantie_recevable(entity_ref("urn:fr:cc12:g2:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-garantie-apres-deux-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:g3:v"), entity_ref("urn:fr:cc12:g3:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:g3:v"), entity_ref("urn:fr:cc12:g3:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:g3:v"), entity_ref("urn:fr:cc12:g3:x")) { origin case_input; }
+        assert "decision": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:g3:v"), entity_ref("urn:fr:cc12:g3:x")) { origin case_input; }
+        assert "sale": vente_non_judiciaire(entity_ref("urn:fr:cc12:g3:v")) { origin case_input; }
+        assert "d": vice_decouvert_le(entity_ref("urn:fr:cc12:g3:v"), entity_ref("urn:fr:cc12:g3:x"), @2024-01-10) { origin case_input; }
+        assert "i": action_en_garantie_introduite_le(entity_ref("urn:fr:cc12:g3:v"), @2026-01-11) { origin case_input; }
+    }
+    evaluate truth(action_en_garantie_recevable(entity_ref("urn:fr:cc12:g3:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-garantie-exclue-vente-judiciaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sale": vente_judiciaire(entity_ref("urn:fr:cc12:g4:v")) { origin case_input; }
+    }
+    evaluate truth(garantie_des_vices_exclue(entity_ref("urn:fr:cc12:g4:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-immeuble-decharge-un-mois-et-action-un-an" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:g5:v")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:g5:v"), @2024-01-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:g5:v"), @2024-01-10) { origin case_input; }
+        assert "claim": action_vices_apparents_introduite_le(entity_ref("urn:fr:cc12:g5:v"), @2025-02-10) { origin case_input; }
+    }
+    evaluate truth(vendeur_peut_etre_decharge_le(entity_ref("urn:fr:cc12:g5:v"), @2024-02-10));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(action_vices_apparents_recevable(entity_ref("urn:fr:cc12:g5:v")));
+    expect truth_status == TRUE_ONLY;
+}
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-decharge-un-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:a:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:a:v"), entity_ref("urn:fr:cc12:p1642:a:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:a:v"), entity_ref("urn:fr:cc12:p1642:a:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:p1642:a:v"), @2024-01-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:p1642:a:v"), @2024-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantDelai1642_1Actif, ACTIVE);
+}
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-decharge-reception" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:b:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:b:v"), entity_ref("urn:fr:cc12:p1642:b:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:b:v"), entity_ref("urn:fr:cc12:p1642:b:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:p1642:b:v"), @2024-03-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:p1642:b:v"), @2024-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantReception1642_1Actif, ACTIVE);
+}
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-reparation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:c:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:c:v"), entity_ref("urn:fr:cc12:p1642:c:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:c:v"), entity_ref("urn:fr:cc12:p1642:c:p")) { origin case_input; }
+        assert "repair": vendeur_s_oblige_a_reparer_vices_apparents(entity_ref("urn:fr:cc12:p1642:c:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionResolutionMalgreReparation1642_1Actif, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-decharge-un-mois-violated-wave" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:wave:a:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:wave:a:v"), entity_ref("urn:fr:cc12:p1642:wave:a:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:wave:a:v"), entity_ref("urn:fr:cc12:p1642:wave:a:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:p1642:wave:a:v"), @2024-01-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:p1642:wave:a:v"), @2024-01-10) { origin case_input; }
+        assert "action": decharge_vendeur_avant_delai_exercee(entity_ref("urn:fr:cc12:p1642:wave:a:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantDelai1642_1Actif, VIOLATED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-decharge-reception-violated-wave" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:wave:b:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:wave:b:v"), entity_ref("urn:fr:cc12:p1642:wave:b:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:wave:b:v"), entity_ref("urn:fr:cc12:p1642:wave:b:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:p1642:wave:b:v"), @2024-03-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:p1642:wave:b:v"), @2024-01-10) { origin case_input; }
+        assert "action": decharge_vendeur_avant_delai_exercee(entity_ref("urn:fr:cc12:p1642:wave:b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantReception1642_1Actif, VIOLATED);
+}
+
+test "urn:query:fr-code-civil-vente-louage-pos1642-1-reparation-violated-wave" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:p1642:wave:c:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:p1642:wave:c:v"), entity_ref("urn:fr:cc12:p1642:wave:c:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:p1642:wave:c:v"), entity_ref("urn:fr:cc12:p1642:wave:c:p")) { origin case_input; }
+        assert "repair": vendeur_s_oblige_a_reparer_vices_apparents(entity_ref("urn:fr:cc12:p1642:wave:c:v")) { origin case_input; }
+        assert "action": resolution_ou_diminution_malgre_reparation_exercee(entity_ref("urn:fr:cc12:p1642:wave:c:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionResolutionMalgreReparation1642_1Actif, VIOLATED);
+}

@@ -1,0 +1,11 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 465(2): omission of required assistance is annullable only on proved loss.
+test "urn:query:fr-code-civil-personnes-mp04-465-assistance-prejudice" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; } assert "f1": categorie_acte_465(entity_ref("urn:fr:cc:personnes:mp04:a"), AssistanceRequise) { origin adjudicated; } assert "f2": prejudice_acte_sans_assistance_465(entity_ref("urn:fr:cc:personnes:mp04:a")) { origin adjudicated; } }
+    evaluate truth(sanction_annulation_si_prejudice(entity_ref("urn:fr:cc:personnes:mp04:a")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(AssistanceOmissionAnnulationSiPrejudice);
+}

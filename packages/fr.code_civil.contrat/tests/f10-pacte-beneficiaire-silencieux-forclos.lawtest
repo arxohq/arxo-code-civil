@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1123 al. 3 et 4, applicables dès 2016 au pacte de 2015 : sans réponse dans le délai raisonnable fixé par le tiers, le bénéficiaire ne peut plus agir en substitution ni en nullité.
+test "urn:query:fr-code-civil-contrat-f10-pacte-beneficiaire-silencieux-forclos" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f10"), @2015-06-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:f10"), "1123") { origin case_input; }
+        assert "f3": pacte_de_preference(entity_ref("urn:fr:cc:contrat:f10"), entity_ref("urn:fr:cc:contrat:f10:beneficiaire"), entity_ref("urn:fr:cc:contrat:f10:promettant")) { origin case_input; }
+        assert "f4": demande_ecrite_de_confirmation_du_pacte(entity_ref("urn:fr:cc:contrat:f10"), entity_ref("urn:fr:cc:contrat:f10:tiers"), @2017-06-30) { origin case_input; }
+        assert "f5": mention_de_l_effet_du_silence(entity_ref("urn:fr:cc:contrat:f10")) { origin case_input; }
+        assert "f6": delai_de_la_demande_raisonnable_1123(entity_ref("urn:fr:cc:contrat:f10")) { origin adjudicated; }
+    }
+    evaluate truth(beneficiaire_forclos(entity_ref("urn:fr:cc:contrat:f10"), entity_ref("urn:fr:cc:contrat:f10:beneficiaire")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ForclusionDuBeneficiaireSilencieux);
+}

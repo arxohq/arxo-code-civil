@@ -1,0 +1,42 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+test "oecd-same-debt-current-transition" {
+    given {
+        context { decision_time @2015-01-01T12:00:00Z; knowledge_time @2015-01-01T12:00:00Z; legal_time @2015-01-01; timezone "UTC"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "cc-t1-due": creance_exigible_depuis(entity_ref("urn:fr:oecd:debt:2000"), @2000-01-01) { origin case_input; }
+        assert "cc-t1-action": action_introduite_le(entity_ref("urn:fr:oecd:debt:2000"), @2015-01-01) { origin case_input; }
+        assert "cc-t1-clean": prescription_non_interrompue(entity_ref("urn:fr:oecd:debt:2000")) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:oecd:debt:2000"), @2015-01-01));
+    expect truth_status == TRUE_ONLY;
+}
+
+// Cass. 1re civ., 12 décembre 2018, n° 17-25.697 : le délai transitoire ouvert
+// le 19 juin 2008 (loi n° 2008-561, art. 26 II) a expiré le 18 juin 2013 à
+// vingt-quatre heures ; l'assignation du 19 juin 2013 est tardive. Les deux
+// côtés de la borne sont gardés.
+test "cass-2018-transition-action-le-19-juin-2013-prescrite" {
+    given {
+        context { decision_time @2018-12-12T12:00:00Z; knowledge_time @2018-12-12T12:00:00Z; legal_time @2018-12-12; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "cc-t5-due": creance_exigible_depuis(entity_ref("urn:fr:cass:17-25697:commission"), @2006-07-01) { origin case_input; }
+        assert "cc-t5-action": action_introduite_le(entity_ref("urn:fr:cass:17-25697:commission"), @2013-06-19) { origin case_input; }
+        assert "cc-t5-clean": prescription_non_interrompue(entity_ref("urn:fr:cass:17-25697:commission")) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:cass:17-25697:commission"), @2013-06-19));
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceTransitoireCinqAns);
+}
+
+test "cass-2018-transition-action-le-18-juin-2013-recevable" {
+    given {
+        context { decision_time @2018-12-12T12:00:00Z; knowledge_time @2018-12-12T12:00:00Z; legal_time @2018-12-12; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "cc-t6-due": creance_exigible_depuis(entity_ref("urn:fr:cass:17-25697:veille"), @2006-07-01) { origin case_input; }
+        assert "cc-t6-action": action_introduite_le(entity_ref("urn:fr:cass:17-25697:veille"), @2013-06-18) { origin case_input; }
+        assert "cc-t6-clean": prescription_non_interrompue(entity_ref("urn:fr:cass:17-25697:veille")) { origin case_input; }
+    }
+    evaluate truth(action_prescrite_le(entity_ref("urn:fr:cass:17-25697:veille"), @2013-06-18));
+    expect truth_status == FALSE_ONLY;
+    expect applied(ActionNonPrescriteAvantOuAEcheance);
+}

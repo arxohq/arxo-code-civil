@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 37, II : sans invocation de l'article 2302, le cautionnement de 2020 reste à la loi ancienne — aucune obligation calculée.
+test "urn:query:fr-code-civil-suretes-i13-caution-anterieure-sans-article-invoque" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-02-15; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i13:K"), @2020-06-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i13:K"), entity_ref("urn:fr:cc:suretes:i13:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i13:K"), entity_ref("urn:fr:cc:suretes:i13:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i13:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i13:B")) { origin case_input; }
+        assert "f6": arrete_annuel(entity_ref("urn:fr:cc:suretes:i13:K"), @2022-12-31) { origin case_input; }
+    }
+    evaluate truth(article_2302_applicable(entity_ref("urn:fr:cc:suretes:i13:K")));
+    expect truth_status == NEITHER;
+}

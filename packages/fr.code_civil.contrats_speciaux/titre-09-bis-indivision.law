@@ -1,0 +1,113 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1873_14,
+    CC_ART1873_18,
+    CC_ART1873_3,
+    CC_ART1873_4,
+    CC_ART1873_8,
+    ConventionIndivision,
+    Personne,
+    accord_tous_indivisaires,
+    alienation_immeuble_autorisee,
+    alienation_immeuble_indivis,
+    decision_excede_pouvoirs_gerant_indivision,
+    decision_indivision_valide,
+    duree_convention_indivision_admissible,
+    duree_convention_indivision_ans,
+    justes_motifs_de_partage,
+    majorite_atteinte_le,
+    mise_en_demeure_option_le,
+    option_acquisition_encore_ouverte,
+    option_exercee_le,
+    partage_avant_terme_autorise,
+    parts_soumises_vote_majoritaire,
+    renouvellement_expres,
+    renouvellement_valide,
+    sortie_du_majeur_en_temps,
+    sortie_majeur_exercee,
+    sortie_notifiee_le,
+    unanimite_indivisaires,
+    voix_nue_propriete,
+    voix_usufruit,
+};
+
+@source(CC_ART1873_3) {
+    rule ConventionIndivisionAuPlusCinqAns(c: ConventionIndivision, n: Integer) strict {
+        label fr official "Article 1873-3, alinéa 1. La convention à durée déterminée ne dépasse pas cinq ans";
+        label en unofficial "Article 1873-3, paragraph 1. A fixed-term co-ownership agreement may not exceed five years";
+        when duree_convention_indivision_ans(c, n) and n <= 5; then duree_convention_indivision_admissible(c);
+    }
+    rule RenouvellementIndivisionExpres(c: ConventionIndivision) strict {
+        label fr official "Article 1873-3, alinéa 1. Le renouvellement résulte d'une décision expresse";
+        label en unofficial "Article 1873-3, paragraph 1. Renewal requires an express decision";
+        when renouvellement_expres(c); then renouvellement_valide(c);
+    }
+    rule PartageAvantTermePourJustesMotifs(c: ConventionIndivision) strict {
+        label fr official "Article 1873-3, alinéa 1. Le partage avant terme exige de justes motifs";
+        label en unofficial "Article 1873-3, paragraph 1. Partition before term requires proper grounds";
+        when justes_motifs_de_partage(c); then partage_avant_terme_autorise(c);
+    }
+}
+
+@source(CC_ART1873_4)
+rule SortieMineurDansAnneeMajorite(c: ConventionIndivision, p: Personne, majorite: Date, sortie: Date) strict {
+    label fr official "Article 1873-4, alinéa 2. Le mineur devenu majeur peut mettre fin à la convention dans l'année suivant sa majorité";
+    label en unofficial "Article 1873-4, paragraph 2. A minor who reaches majority may leave within the following year";
+    when majorite_atteinte_le(c, p, majorite) and sortie_notifiee_le(c, p, sortie)
+        and sortie <= add_calendar_period(majorite, 1 calendar_year);
+    then sortie_du_majeur_en_temps(c, p);
+}
+
+@source(CC_ART1873_4)
+rule P3PouvoirSortirConventionApresMajorite(c: ConventionIndivision, p: Personne, majorite: Date, sortie: Date) strict {
+    label fr official "Article 1873-4. Le majeur peut mettre fin à la convention dans l'année suivant sa majorité";
+    label en unofficial "Article 1873-4. An adult may end the agreement within one year after majority";
+    when majorite_atteinte_le(c, p, majorite) and sortie_notifiee_le(c, p, sortie)
+        and sortie <= add_calendar_period(majorite, 1 calendar_year);
+    then power P3PositionPouvoirSortirConventionApresMajorite {
+        holder p;
+        over c;
+        exercise sortie_majeur_exercee(c, p);
+        effect sortie_du_majeur_en_temps(c, p);
+        valid_when sortie_notifiee_le(c, p, sortie);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1873_8) {
+    rule DecisionIndivisionHorsPouvoirsUnanime(c: ConventionIndivision) strict {
+        label fr official "Article 1873-8, alinéa 1. Les décisions excédant les pouvoirs du gérant sont unanimes";
+        label en unofficial "Article 1873-8, paragraph 1. Decisions beyond the manager's powers are unanimous";
+        when decision_excede_pouvoirs_gerant_indivision(c) and unanimite_indivisaires(c); then decision_indivision_valide(c);
+    }
+    rule ImmeubleIndivisAccordDeTous(c: ConventionIndivision) strict {
+        label fr official "Article 1873-8, alinéa 3. Aucun immeuble indivis n'est aliéné sans l'accord de tous";
+        label en unofficial "Article 1873-8, paragraph 3. No co-owned immovable is transferred without everyone's consent";
+        when alienation_immeuble_indivis(c) and accord_tous_indivisaires(c); then alienation_immeuble_autorisee(c);
+    }
+}
+
+@source(CC_ART1873_14)
+rule OptionExerceeDansUnMois(c: ConventionIndivision, mise: Date, exercice: Date) strict {
+    label fr official "Article 1873-14, alinéa 1. La faculté est exercée dans le mois de la mise en demeure";
+    label en unofficial "Article 1873-14, paragraph 1. The option must be exercised within one month after formal notice";
+    when mise_en_demeure_option_le(c, mise) and option_exercee_le(c, exercice)
+        and exercice <= add_calendar_period(mise, 1 calendar_month);
+    then option_acquisition_encore_ouverte(c);
+}
+
+@source(CC_ART1873_18) {
+    rule MoitieVoixUsufruit(c: ConventionIndivision, n: Rational) strict {
+        label fr official "Article 1873-18, alinéa 1. La moitié du droit de vote revient à l'usufruit";
+        label en unofficial "Article 1873-18, paragraph 1. Half of the voting right belongs to the usufruct";
+        when parts_soumises_vote_majoritaire(c, n); then voix_usufruit(c, n * (1 / 2));
+    }
+    rule MoitieVoixNuePropriete(c: ConventionIndivision, n: Rational) strict {
+        label fr official "Article 1873-18, alinéa 1. La moitié du droit de vote revient à la nue-propriété";
+        label en unofficial "Article 1873-18, paragraph 1. Half of the voting right belongs to bare ownership";
+        when parts_soumises_vote_majoritaire(c, n); then voix_nue_propriete(c, n * (1 / 2));
+    }
+}

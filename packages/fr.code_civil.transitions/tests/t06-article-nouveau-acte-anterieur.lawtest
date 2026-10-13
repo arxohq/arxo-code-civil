@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Loi 2018-287 art. 16 I : article 1137 (rédaction nouvelle), acte du 30 septembre 2018 → loi ancienne.
+test "urn:query:fr-code-civil-transitions-t06-article-nouveau-acte-anterieur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:transitions:c18"), @2018-09-30) { origin case_input; }
+        assert "f2": article_invoque(entity_ref("urn:fr:cc:transitions:c18"), "1137") { origin case_input; }
+    }
+    evaluate truth(loi_applicable_a_l_article_2018(entity_ref("urn:fr:cc:transitions:c18"), "1137", LoiAncienne));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

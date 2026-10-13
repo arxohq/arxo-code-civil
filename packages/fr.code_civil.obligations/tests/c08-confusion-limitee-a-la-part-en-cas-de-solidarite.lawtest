@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1349-1, al. 1 : lorsqu'il y a solidarité et que la confusion ne concerne que
+// l'un d'eux, l'extinction n'a lieu, à l'égard des autres, QUE POUR SA PART — et non
+// pour le tout (art. 1349).
+test "urn:query:fr-code-civil-obligations-c08-confusion-limitee-a-la-part-en-cas-de-solidarite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": reunion_des_qualites_dans_la_meme_personne(entity_ref("urn:fr:cc:obligations:cfs:c"), entity_ref("urn:fr:cc:obligations:cfs:P")) { origin case_input; }
+        assert "f2": obligation_solidaire_entre_debiteurs(entity_ref("urn:fr:cc:obligations:cfs:c")) { origin case_input; }
+        assert "f3": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:cfs:c"), entity_ref("urn:fr:cc:obligations:cfs:P")) { origin case_input; }
+        assert "f4": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:cfs:c"), entity_ref("urn:fr:cc:obligations:cfs:B")) { origin case_input; }
+    }
+    evaluate truth(extinction_par_confusion(entity_ref("urn:fr:cc:obligations:cfs:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(ConfusionLimiteeALaPartDuCodebiteur);
+}

@@ -1,0 +1,39 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+test "urn:query:fr-code-civil-biens-p4-674-a" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": auteur_ouvrage(entity_ref("urn:p4:674:a:M"), entity_ref("urn:p4:674:a:F"), entity_ref("urn:p4:674:a:P")) { origin case_input; }
+        assert "f2": ouvrage_pres_du_mur(entity_ref("urn:p4:674:a:M"), entity_ref("urn:p4:674:a:F"), PuitsOuFosseDAisance) { origin case_input; }
+        assert "f3": distance_ou_ouvrages_prescrits_par_les_reglements(entity_ref("urn:p4:674:a:M"), PuitsOuFosseDAisance) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRespecterDistance674Actif, ACTIVE);
+    expect position(P4MaintenanceRespecterDistance674Duty, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-biens-p4-674-b" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": auteur_ouvrage(entity_ref("urn:p4:674:b:M"), entity_ref("urn:p4:674:b:F"), entity_ref("urn:p4:674:b:P")) { origin case_input; }
+        assert "f2": ouvrage_pres_du_mur(entity_ref("urn:p4:674:b:M"), entity_ref("urn:p4:674:b:F"), Etable) { origin case_input; }
+        assert "f3": distance_ou_ouvrages_prescrits_par_les_reglements(entity_ref("urn:p4:674:b:M"), Etable) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRespecterDistance674Actif, ACTIVE);
+    expect position(P4MaintenanceRespecterDistance674Duty, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-biens-p4-674-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": auteur_ouvrage(entity_ref("urn:p4:674:v:M"), entity_ref("urn:p4:674:v:F"), entity_ref("urn:p4:674:v:P")) { origin case_input; }
+        assert "f2": ouvrage_pres_du_mur(entity_ref("urn:p4:674:v:M"), entity_ref("urn:p4:674:v:F"), PuitsOuFosseDAisance) { origin case_input; }
+        assert "f3": distance_ou_ouvrages_prescrits_par_les_reglements(entity_ref("urn:p4:674:v:M"), PuitsOuFosseDAisance) { origin case_input; }
+        assert "f4": not ouvrages_mis_en_conformite(entity_ref("urn:p4:674:v:M"), entity_ref("urn:p4:674:v:F"), PuitsOuFosseDAisance) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4MaintenanceRespecterDistance674Duty, VIOLATED);
+}

@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Arts. 510-512: the annual account falls due one calendar year after opening.
+test "urn:query:fr-code-civil-personnes-tg11-compte-annuel-jour" {
+    given {
+        context { decision_time @2026-01-10T09:00:00Z; knowledge_time @2026-01-10T09:00:00Z; legal_time @2026-01-10; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg11:m"), entity_ref("urn:fr:cc:personnes:tg11:p"), entity_ref("urn:fr:cc:personnes:tg11:t"), @2025-01-10) { origin adjudicated; }
+    }
+    evaluate truth(echeance_compte_annuel(entity_ref("urn:fr:cc:personnes:tg11:m"), @2026-01-10));
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceCompteAnnuel);
+}

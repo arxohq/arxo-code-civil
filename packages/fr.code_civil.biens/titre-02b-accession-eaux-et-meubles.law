@@ -1,0 +1,881 @@
+// TITRE II, suite — ACCESSION PAR LES EAUX (556 à 564) ET ACCESSION
+// MOBILIÈRE (565 à 577).
+//
+// LES EAUX. L'alluvion profite au riverain (556, 557) ; elle n'a pas lieu
+// pour les lacs et étangs (558) ni pour les relais de la mer (557,
+// alinéa 2). L'avulsion (559) donne au propriétaire dépouillé UN AN pour
+// réclamer, et cet an est le seul délai chiffré du titre II. Les îles (560
+// à 562) se partagent selon le caractère domanial du cours d'eau et le côté
+// de formation ; l'ancien lit abandonné (563) s'acquiert sur déclaration
+// dans les TROIS MOIS de la notification.
+//
+// L'article 564 renvoie aux articles L. 431-6 et L. 431-7 du code de
+// l'environnement pour la définition du plan d'eau : le cas fournit le fait
+// « plan d'eau visé par ces articles » (SOURCES.json → external, disposition
+// `input`), le paquet n'interprète pas le code de l'environnement.
+//
+// LES MEUBLES. Le texte se donne lui-même pour subsidiaire : « entièrement
+// subordonné aux principes de l'équité naturelle » (565, alinéa 1) et les
+// règles « serviront d'exemple au juge » dans les cas NON PRÉVUS (alinéa 2).
+// Le cas non prévu est donc une demande de jugement §47.3, et les rapports
+// de valeur que le texte laisse en appréciation le sont aussi.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Alluvion,
+    Bien,
+    CC_ART556,
+    CC_ART557,
+    CC_ART558,
+    CC_ART559,
+    CC_ART560,
+    CC_ART561,
+    CC_ART562,
+    CC_ART563,
+    CC_ART564,
+    CC_ART565,
+    CC_ART566,
+    CC_ART567,
+    CC_ART568,
+    CC_ART569,
+    CC_ART570,
+    CC_ART571,
+    CC_ART572,
+    CC_ART573,
+    CC_ART574,
+    CC_ART575,
+    CC_ART576,
+    CC_ART577,
+    Fonds,
+    Personne,
+    proprietaire_du_bien,
+};
+
+// --- Entrées : les eaux -------------------------------------------------------------------------
+
+pub enum EspeceDEau {
+    label fr official "Espèce d'eau au bord de laquelle l'accession se produit (articles 556 à 563)";
+    label en unofficial "Kind of water along which accession occurs (Articles 556 to 563)";
+    CoursDEauDomanial,
+    CoursDEauNonDomanial,
+    LacOuEtang,
+    Mer
+}
+pub enum CoteDeFormation {
+    label fr official "Côté du cours d'eau où l'île ou l'atterrissement s'est formé (article 561)";
+    label en unofficial "Side of the watercourse on which the island or accretion formed (Article 561)";
+    UnSeulCote,
+    LesDeuxCotes
+}
+
+pub relation fonds_riverain(f: Fonds, espece: EspeceDEau) kind empirical {
+    label fr official "le fonds borde une eau de cette espèce (articles 556 à 563)";
+    label en unofficial "the land borders water of that kind (Articles 556 to 563)";
+}
+pub relation atterrissement_successif_et_imperceptible(a: Alluvion, f: Fonds) kind empirical {
+    label fr official "atterrissement ou accroissement qui se forme successivement et imperceptiblement au fonds riverain (article 556, alinéa 1)";
+    label en unofficial "accretion forming successively and imperceptibly on the riparian land (Article 556, paragraph 1)";
+}
+pub relation relais_de_l_eau_courante(a: Alluvion, f: Fonds) kind empirical {
+    label fr official "relais que forme l'eau courante qui se retire insensiblement de l'une de ses rives (article 557, alinéa 1)";
+    label en unofficial "land exposed by running water withdrawing imperceptibly from one of its banks (Article 557, paragraph 1)";
+}
+pub relation partie_emportee_par_force_subite(a: Alluvion, origine: Fonds, arrivee: Fonds) kind empirical {
+    label fr official "un cours d'eau a enlevé par une force subite une partie d'un champ riverain et l'a portée vers un champ inférieur ou sur la rive opposée (article 559)";
+    label en unofficial "a watercourse carried away by sudden force part of a riparian field and brought it to a lower field or to the opposite bank (Article 559)";
+}
+pub relation jour_de_l_enlevement(a: Alluvion, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour où la partie du champ a été enlevée par la force subite (article 559)";
+    label en unofficial "day on which the part of the field was carried away by sudden force (Article 559)";
+}
+pub relation demande_formee_le(a: Alluvion, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour où le propriétaire de la partie enlevée a formé sa demande (article 559)";
+    label en unofficial "day on which the owner of the carried-away part brought his claim (Article 559)";
+}
+pub relation possession_prise_par_le_proprietaire_du_champ_d_arrivee(a: Alluvion) kind empirical {
+    label fr official "le propriétaire du champ auquel la partie enlevée a été unie en a pris possession (article 559)";
+    label en unofficial "the owner of the field to which the carried-away part was joined has taken possession of it (Article 559)";
+}
+pub relation ile_formee_dans_le_lit(a: Alluvion, espece: EspeceDEau, cote: CoteDeFormation) kind empirical {
+    key(a);
+    label fr official "île, îlot ou atterrissement formé dans le lit d'un cours d'eau, avec le côté de sa formation (articles 560, 561)";
+    label en unofficial "island, islet or accretion formed in the bed of a watercourse, with the side of its formation (Articles 560, 561)";
+}
+pub relation titre_ou_prescription_contraire(a: Alluvion) kind empirical {
+    label fr official "un titre ou une prescription contraire existe sur l'île ou l'atterrissement (article 560)";
+    label en unofficial "a contrary title or prescription exists over the island or accretion (Article 560)";
+}
+pub relation champ_coupe_et_embrasse_par_un_bras_nouveau(a: Alluvion, f: Fonds) kind empirical {
+    label fr official "un cours d'eau, en se formant un bras nouveau, a coupé et embrassé le champ d'un propriétaire riverain et en a fait une île (article 562)";
+    label en unofficial "a watercourse, forming a new arm, cut off and surrounded the field of a riparian owner and made it an island (Article 562)";
+}
+pub relation ancien_lit_abandonne(a: Alluvion, f: Fonds) kind empirical {
+    label fr official "un cours d'eau domanial a formé un nouveau cours en abandonnant son ancien lit, que borde le fonds (article 563, alinéa 1)";
+    label en unofficial "a State-owned watercourse formed a new course, abandoning its old bed, which the land borders (Article 563, paragraph 1)";
+}
+pub relation notification_de_l_autorite_le(a: Alluvion, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour de la notification faite aux propriétaires riverains par l'autorité compétente (article 563, alinéa 2)";
+    label en unofficial "day of the notice given to the riparian owners by the competent authority (Article 563, paragraph 2)";
+}
+pub relation declaration_d_intention_d_acquerir_le(a: Alluvion, f: Fonds, jour: Date) kind empirical {
+    key(a, f);
+    label fr official "jour où le propriétaire riverain a déclaré l'intention de faire l'acquisition aux prix fixés par les experts (article 563, alinéa 2)";
+    label en unofficial "day on which the riparian owner declared his intention to acquire at the prices set by the experts (Article 563, paragraph 2)";
+}
+pub relation passe_dans_un_colombier_garenne_ou_plan_d_eau(b: Bien, f: Fonds) kind empirical {
+    label fr official "pigeon, lapin ou poisson passé dans un autre colombier, garenne ou plan d'eau visé aux articles L. 431-6 et L. 431-7 du code de l'environnement (article 564)";
+    label en unofficial "pigeon, rabbit or fish that passed into another dovecote, warren or water body referred to in Articles L. 431-6 and L. 431-7 of the Environment Code (Article 564)";
+}
+pub relation animal_acquis_par_le_proprietaire_du_lieu(b: Bien, p: Personne) kind derived {
+    label fr official "le pigeon, lapin ou poisson appartient au propriétaire du colombier, de la garenne ou du plan d'eau où il est passé (article 564)";
+    label en unofficial "the pigeon, rabbit or fish belongs to the owner of the dovecote, warren or water body into which it passed (Article 564)";
+}
+pub relation attire_par_fraude_ou_artifice(b: Bien) kind empirical {
+    label fr official "l'animal y a été attiré par fraude et artifice (article 564)";
+    label en unofficial "the animal was lured there by fraud and artifice (Article 564)";
+}
+
+// --- Dérivés : les eaux --------------------------------------------------------------------------
+
+pub relation alluvion_profite_au_riverain(a: Alluvion, f: Fonds) kind derived {
+    label fr official "l'alluvion profite au propriétaire riverain (articles 556, alinéa 2, et 557, alinéa 1)";
+    label en unofficial "the alluvion accrues to the riparian owner (Articles 556, paragraph 2, and 557, paragraph 1)";
+}
+pub relation alluvion_exclue(a: Alluvion) kind derived {
+    label fr official "l'alluvion n'a pas lieu : relais de la mer, lac ou étang (articles 557, alinéa 2, et 558)";
+    label en unofficial "no alluvion arises: sea-exposed land, lake or pond (Articles 557, paragraph 2, and 558)";
+}
+pub relation charge_de_laisser_le_marchepied(f: Fonds) kind derived {
+    label fr official "charge de laisser le marchepied ou chemin de halage, conformément aux règlements, sur un cours d'eau domanial (article 556, alinéa 2)";
+    label en unofficial "duty to leave the towpath or footway, in accordance with the regulations, along a State-owned watercourse (Article 556, paragraph 2)";
+}
+pub relation marchepied_laisse(f: Fonds, p: Personne) kind empirical {
+    label fr official "marchepied ou chemin de halage laissé";
+    label en unofficial "towpath or footway left";
+}
+pub relation revendication_recevable(a: Alluvion) kind derived {
+    label fr official "la demande du propriétaire de la partie enlevée est recevable (article 559)";
+    label en unofficial "the claim of the owner of the carried-away part is admissible (Article 559)";
+}
+pub relation propriete_partie_enlevee_reclamee(a: Alluvion, p: Personne) kind empirical {
+    label fr official "propriété de la partie enlevée réclamée";
+    label en unofficial "ownership of carried-away part claimed";
+}
+pub relation revendication_non_recevable(a: Alluvion) kind derived {
+    label fr official "la demande n'est plus recevable : l'année est écoulée et le propriétaire du champ d'arrivée a pris possession (article 559)";
+    label en unofficial "the claim is no longer admissible: the year has elapsed and the owner of the receiving field has taken possession (Article 559)";
+}
+pub relation echeance_de_la_revendication_le(a: Alluvion, jour: Date) kind derived {
+    label fr official "dernier jour de l'année pour former la demande de la partie enlevée (article 559)";
+    label en unofficial "last day of the year within which to bring the claim for the carried-away part (Article 559)";
+}
+pub relation ile_appartient_a_la_personne_publique(a: Alluvion) kind derived {
+    label fr official "l'île formée dans le lit d'un cours d'eau domanial appartient à la personne publique propriétaire du domaine (article 560)";
+    label en unofficial "an island formed in the bed of a State-owned watercourse belongs to the public body owning the domain (Article 560)";
+}
+pub relation ile_appartient_aux_riverains_d_un_cote(a: Alluvion) kind derived {
+    label fr official "l'île formée dans un cours d'eau non domanial d'un seul côté appartient aux propriétaires riverains de ce côté (article 561)";
+    label en unofficial "an island formed on one side of a non-State watercourse belongs to the riparian owners on that side (Article 561)";
+}
+pub relation ile_partagee_a_la_ligne_mediane(a: Alluvion) kind derived {
+    label fr official "l'île qui n'est pas formée d'un seul côté appartient aux riverains des deux côtés, à partir de la ligne supposée tracée au milieu du cours d'eau (article 561)";
+    label en unofficial "an island not formed on a single side belongs to the riparian owners on both sides, from the line supposed drawn in the middle of the watercourse (Article 561)";
+}
+pub relation champ_reste_au_riverain(a: Alluvion, f: Fonds) kind derived {
+    label fr official "le propriétaire conserve la propriété de son champ devenu île, encore que l'île se soit formée dans un cours d'eau domanial (article 562)";
+    label en unofficial "the owner keeps ownership of his field turned into an island, even though the island formed in a State-owned watercourse (Article 562)";
+}
+pub relation acquisition_de_l_ancien_lit_ouverte(a: Alluvion, f: Fonds) kind derived {
+    label fr official "le propriétaire riverain a déclaré dans les trois mois : l'acquisition de l'ancien lit lui est ouverte, chacun en droit soi jusqu'à la ligne médiane (article 563)";
+    label en unofficial "the riparian owner declared within three months: acquisition of the old bed is open to him, each up to the middle line (Article 563)";
+}
+pub relation alienation_de_l_ancien_lit(a: Alluvion) kind derived {
+    label fr official "à défaut de déclaration dans les trois mois, il est procédé à l'aliénation de l'ancien lit selon les règles du domaine des personnes publiques (article 563, alinéa 2)";
+    label en unofficial "failing a declaration within three months, the old bed is alienated under the rules governing public bodies' domain (Article 563, paragraph 2)";
+}
+pub relation echeance_de_la_declaration_le(a: Alluvion, jour: Date) kind derived {
+    label fr official "dernier jour des trois mois pour déclarer l'intention d'acquérir l'ancien lit (article 563, alinéa 2)";
+    label en unofficial "last day of the three months within which to declare the intention to acquire the old bed (Article 563, paragraph 2)";
+}
+
+external judgment relation partie_considerable_et_reconnaissable(a: Alluvion) {
+    authority Court;
+    label fr official "la partie enlevée est considérable et reconnaissable (article 559)";
+    label en unofficial "the carried-away part is considerable and recognisable (Article 559)";
+}
+
+@source(CC_ART556) {
+    rule AlluvionAuRiverain(a: Alluvion, f: Fonds, espece: EspeceDEau) strict {
+        label fr official "Article 556. Les atterrissements et accroissements qui se forment successivement et imperceptiblement aux fonds riverains d'un cours d'eau s'appellent alluvion ; l'alluvion profite au propriétaire riverain, qu'il s'agisse d'un cours d'eau domanial ou non";
+        label en unofficial "Article 556. Accretions forming successively and imperceptibly on land bordering a watercourse are called alluvion; the alluvion accrues to the riparian owner, whether the watercourse is State-owned or not";
+        when atterrissement_successif_et_imperceptible(a, f)
+            and fonds_riverain(f, espece)
+            and not_known(alluvion_exclue(a));
+        then alluvion_profite_au_riverain(a, f);
+    }
+    rule ChargeDuMarchepiedSurCoursDEauDomanial(f: Fonds) strict {
+        label fr official "Article 556, alinéa 2. Sur un cours d'eau domanial, l'alluvion profite au riverain à la charge de laisser le marchepied ou chemin de halage, conformément aux règlements";
+        label en unofficial "Article 556, paragraph 2. On a State-owned watercourse, the alluvion accrues to the riparian owner subject to leaving the towpath, in accordance with the regulations";
+        when fonds_riverain(f, CoursDEauDomanial);
+        then charge_de_laisser_le_marchepied(f);
+    }
+    rule P4DevoirLaisserMarchepied556(f: Fonds, p: Personne) strict {
+        label fr official "Article 556, alinéa 2. Le riverain doit laisser le marchepied";
+        label en unofficial "Article 556, paragraph 2. The riparian owner must leave the towpath";
+        when fonds_riverain(f, CoursDEauDomanial)
+            and proprietaire_du_bien(f, p);
+        then duty P4DevoirLaisserMarchepied556Actif {
+            bearer p;
+            goal achievement {
+                condition marchepied_laisse(f, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+@source(CC_ART557) {
+    rule RelaisAuRiverainDeLaRiveDecouverte(a: Alluvion, f: Fonds, espece: EspeceDEau) strict {
+        label fr official "Article 557, alinéa 1. Il en est de même des relais que forme l'eau courante qui se retire insensiblement de l'une de ses rives : le propriétaire de la rive découverte profite de l'alluvion, sans que le riverain du côté opposé puisse réclamer le terrain qu'il a perdu";
+        label en unofficial "Article 557, paragraph 1. The same applies to land exposed by running water withdrawing imperceptibly from one of its banks: the owner of the exposed bank takes the alluvion, and the owner opposite may not claim the land he lost";
+        when relais_de_l_eau_courante(a, f)
+            and fonds_riverain(f, espece)
+            and not_known(alluvion_exclue(a));
+        then alluvion_profite_au_riverain(a, f);
+    }
+    rule PasDAlluvionPourLesRelaisDeLaMer(a: Alluvion, f: Fonds) strict {
+        label fr official "Article 557, alinéa 2. Ce droit n'a pas lieu à l'égard des relais de la mer";
+        label en unofficial "Article 557, paragraph 2. This right does not apply to land exposed by the sea";
+        when relais_de_l_eau_courante(a, f)
+            and fonds_riverain(f, Mer);
+        then alluvion_exclue(a);
+    }
+}
+
+@source(CC_ART558)
+rule PasDAlluvionPourLesLacsEtEtangs(a: Alluvion, f: Fonds) strict {
+    label fr official "Article 558. L'alluvion n'a pas lieu à l'égard des lacs et étangs, dont le propriétaire conserve toujours le terrain que l'eau couvre quand elle est à la hauteur de la décharge ; réciproquement, le propriétaire de l'étang n'acquiert aucun droit sur les terres riveraines que son eau couvre dans des crues extraordinaires";
+    label en unofficial "Article 558. There is no alluvion as regards lakes and ponds, whose owner always keeps the land the water covers when at the level of the outlet; conversely, the owner of the pond acquires no right over riparian land his water covers in extraordinary floods";
+    when atterrissement_successif_et_imperceptible(a, f)
+        and fonds_riverain(f, LacOuEtang);
+    then alluvion_exclue(a);
+}
+
+@source(CC_ART559) {
+    pub relation revendication_partie_emportee_exercee(a: Alluvion, p: Personne) kind empirical {
+        label fr official "revendication de la partie emportée exercée";
+        label en unofficial "claim to carried-away part exercised";
+    }
+    rule P4PouvoirRevendicationPartieEmportee559(a: Alluvion, origine: Fonds, arrivee: Fonds, p: Personne, demande: Date, echeance: Date) strict {
+        label fr official "Article 559. Le propriétaire peut réclamer la partie emportée dans l'année";
+        label en unofficial "Article 559. The owner may claim the carried-away part within one year";
+        when proprietaire_du_bien(origine, p)
+            and partie_emportee_par_force_subite(a, origine, arrivee)
+            and partie_considerable_et_reconnaissable(a)
+            and demande_formee_le(a, demande)
+            and echeance_de_la_revendication_le(a, echeance)
+            and demande <= echeance;
+        then power P4PouvoirRevendicationPartieEmportee559Actif {
+            holder p;
+            over a;
+            exercise revendication_partie_emportee_exercee(a, p);
+            effect revendication_recevable(a);
+            valid_when echeance_de_la_revendication_le(a, echeance);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule EcheanceDeLaRevendicationDeLaPartieEnlevee(a: Alluvion, jour: Date) strict {
+        label fr official "Article 559. Le propriétaire de la partie enlevée est tenu de former sa demande dans l'année : le dernier jour du terme est l'anniversaire du jour de l'enlèvement";
+        label en unofficial "Article 559. The owner of the carried-away part must bring his claim within the year: the last day of the term is the anniversary of the day of removal";
+        when jour_de_l_enlevement(a, jour);
+        then echeance_de_la_revendication_le(a, add_calendar_period(jour, 1 calendar_year));
+    }
+    rule RevendicationDansLAnnee(a: Alluvion, origine: Fonds, arrivee: Fonds, demande: Date, echeance: Date) strict {
+        label fr official "Article 559. Si un cours d'eau enlève par une force subite une partie considérable et reconnaissable d'un champ riverain, le propriétaire de la partie enlevée peut réclamer sa propriété, la demande étant formée dans l'année";
+        label en unofficial "Article 559. If a watercourse carries away by sudden force a considerable and recognisable part of a riparian field, the owner of the part carried away may claim it, the claim being brought within the year";
+        when partie_emportee_par_force_subite(a, origine, arrivee)
+            and partie_considerable_et_reconnaissable(a)
+            and demande_formee_le(a, demande)
+            and echeance_de_la_revendication_le(a, echeance)
+            and demande <= echeance;
+        then revendication_recevable(a);
+    }
+    rule RevendicationApresLAnneeSansPossession(a: Alluvion, origine: Fonds, arrivee: Fonds, demande: Date, echeance: Date) strict {
+        label fr official "Article 559. Après ce délai, la demande n'est plus recevable, à moins que le propriétaire du champ auquel la partie enlevée a été unie n'eût pas encore pris possession de celle-ci";
+        label en unofficial "Article 559. After that period the claim is no longer admissible, unless the owner of the field to which the carried-away part was joined had not yet taken possession of it";
+        when partie_emportee_par_force_subite(a, origine, arrivee)
+            and partie_considerable_et_reconnaissable(a)
+            and demande_formee_le(a, demande)
+            and echeance_de_la_revendication_le(a, echeance)
+            and demande > echeance
+            and not_known(possession_prise_par_le_proprietaire_du_champ_d_arrivee(a));
+        then revendication_recevable(a);
+    }
+    rule RevendicationForcloseApresLAnnee(a: Alluvion, origine: Fonds, arrivee: Fonds, demande: Date, echeance: Date) strict {
+        label fr official "Article 559. Après le délai d'un an, le propriétaire du champ d'arrivée ayant pris possession, la demande n'est plus recevable";
+        label en unofficial "Article 559. After the one-year period, the owner of the receiving field having taken possession, the claim is no longer admissible";
+        when partie_emportee_par_force_subite(a, origine, arrivee)
+            and demande_formee_le(a, demande)
+            and echeance_de_la_revendication_le(a, echeance)
+            and demande > echeance
+            and possession_prise_par_le_proprietaire_du_champ_d_arrivee(a);
+        then revendication_non_recevable(a);
+    }
+}
+
+@source(CC_ART560)
+rule IleDuCoursDEauDomanial(a: Alluvion, cote: CoteDeFormation) strict {
+    label fr official "Article 560. Les îles, îlots et atterrissements qui se forment dans le lit des cours d'eau domaniaux appartiennent à la personne publique propriétaire du domaine concerné, en l'absence de titre ou de prescription contraire";
+    label en unofficial "Article 560. Islands, islets and accretions forming in the bed of State-owned watercourses belong to the public body owning the domain, absent a contrary title or prescription";
+    when ile_formee_dans_le_lit(a, CoursDEauDomanial, cote)
+        and not_known(titre_ou_prescription_contraire(a));
+    then ile_appartient_a_la_personne_publique(a);
+}
+
+@source(CC_ART561) {
+    rule IleFormeeDUnSeulCote(a: Alluvion) strict {
+        label fr official "Article 561. Les îles et atterrissements qui se forment dans les cours d'eau non domaniaux appartiennent aux propriétaires riverains du côté où l'île s'est formée";
+        label en unofficial "Article 561. Islands and accretions forming in non-State watercourses belong to the riparian owners on the side where the island formed";
+        when ile_formee_dans_le_lit(a, CoursDEauNonDomanial, UnSeulCote);
+        then ile_appartient_aux_riverains_d_un_cote(a);
+    }
+    rule IleFormeeDesDeuxCotes(a: Alluvion) strict {
+        label fr official "Article 561. Si l'île n'est pas formée d'un seul côté, elle appartient aux propriétaires riverains des deux côtés, à partir de la ligne qu'on suppose tracée au milieu du cours d'eau";
+        label en unofficial "Article 561. If the island did not form on a single side, it belongs to the riparian owners on both sides, from the line supposed drawn in the middle of the watercourse";
+        when ile_formee_dans_le_lit(a, CoursDEauNonDomanial, LesDeuxCotes);
+        then ile_partagee_a_la_ligne_mediane(a);
+    }
+}
+
+@source(CC_ART562)
+rule ChampDevenuIleResteAuProprietaire(a: Alluvion, f: Fonds) strict {
+    label fr official "Article 562. Si un cours d'eau, en se formant un bras nouveau, coupe et embrasse le champ d'un propriétaire riverain et en fait une île, ce propriétaire conserve la propriété de son champ, encore que l'île se soit formée dans un cours d'eau domanial";
+    label en unofficial "Article 562. If a watercourse, forming a new arm, cuts off and surrounds the field of a riparian owner and makes it an island, that owner keeps ownership of his field, even though the island formed in a State-owned watercourse";
+    when champ_coupe_et_embrasse_par_un_bras_nouveau(a, f);
+    then champ_reste_au_riverain(a, f);
+}
+
+@source(CC_ART563) {
+    pub relation declaration_acquisition_ancien_lit_exercee(a: Alluvion, f: Fonds, p: Personne) kind empirical {
+        label fr official "déclaration d'acquisition de l'ancien lit exercée";
+        label en unofficial "old bed acquisition declaration exercised";
+    }
+    rule P4PouvoirAcquerirAncienLit563(a: Alluvion, f: Fonds, p: Personne, declaration: Date, echeance: Date) strict {
+        label fr official "Article 563. Le riverain peut acquérir l'ancien lit dans le délai";
+        label en unofficial "Article 563. The riparian owner may acquire the old bed within the time limit";
+        when proprietaire_du_bien(f, p)
+            and ancien_lit_abandonne(a, f)
+            and declaration_d_intention_d_acquerir_le(a, f, declaration)
+            and echeance_de_la_declaration_le(a, echeance)
+            and declaration <= echeance;
+        then power P4PouvoirAcquerirAncienLit563Actif {
+            holder p;
+            over a;
+            exercise declaration_acquisition_ancien_lit_exercee(a, f, p);
+            effect acquisition_de_l_ancien_lit_ouverte(a, f);
+            valid_when echeance_de_la_declaration_le(a, echeance);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule EcheanceDeLaDeclarationSurLAncienLit(a: Alluvion, jour: Date) strict {
+        label fr official "Article 563, alinéa 2. Les propriétaires riverains disposent de trois mois à compter de la notification faite par l'autorité compétente";
+        label en unofficial "Article 563, paragraph 2. The riparian owners have three months from the notice given by the competent authority";
+        when notification_de_l_autorite_le(a, jour);
+        then echeance_de_la_declaration_le(a, add_calendar_period(jour, 3 calendar_month));
+    }
+    rule AcquisitionDeLAncienLitDeclareeEnTemps(a: Alluvion, f: Fonds, declaration: Date, echeance: Date) strict {
+        label fr official "Article 563, alinéa 1. Si un cours d'eau domanial forme un nouveau cours en abandonnant son ancien lit, les propriétaires riverains peuvent acquérir la propriété de cet ancien lit, chacun en droit soi, jusqu'à une ligne supposée tracée au milieu du cours d'eau";
+        label en unofficial "Article 563, paragraph 1. If a State-owned watercourse forms a new course abandoning its old bed, the riparian owners may acquire ownership of that old bed, each opposite his own land, up to a line supposed drawn in the middle of the watercourse";
+        when ancien_lit_abandonne(a, f)
+            and declaration_d_intention_d_acquerir_le(a, f, declaration)
+            and echeance_de_la_declaration_le(a, echeance)
+            and declaration <= echeance;
+        then acquisition_de_l_ancien_lit_ouverte(a, f);
+    }
+    rule AlienationDeLAncienLitFauteDeDeclaration(a: Alluvion, f: Fonds, declaration: Date, echeance: Date) strict {
+        label fr official "Article 563, alinéa 2. À défaut de déclaration dans les trois mois de la notification, il est procédé à l'aliénation de l'ancien lit selon les règles qui président aux aliénations du domaine des personnes publiques";
+        label en unofficial "Article 563, paragraph 2. Failing a declaration within three months of the notice, the old bed is alienated under the rules governing alienations of public bodies' domain";
+        when ancien_lit_abandonne(a, f)
+            and declaration_d_intention_d_acquerir_le(a, f, declaration)
+            and echeance_de_la_declaration_le(a, echeance)
+            and declaration > echeance;
+        then alienation_de_l_ancien_lit(a);
+    }
+}
+
+@source(CC_ART564)
+rule AnimauxPassesDansUnAutreColombier(b: Bien, f: Fonds, p: Personne) strict {
+    label fr official "Article 564. Les pigeons, lapins et poissons qui passent dans un autre colombier, garenne ou plan d'eau visé aux articles L. 431-6 et L. 431-7 du code de l'environnement appartiennent au propriétaire de ces derniers, pourvu qu'ils n'y aient point été attirés par fraude et artifice";
+    label en unofficial "Article 564. Pigeons, rabbits and fish that pass into another dovecote, warren or water body referred to in Articles L. 431-6 and L. 431-7 of the Environment Code belong to the owner of the latter, provided they were not lured there by fraud and artifice";
+    when passe_dans_un_colombier_garenne_ou_plan_d_eau(b, f)
+        and proprietaire_du_bien(f, p)
+        and not_known(attire_par_fraude_ou_artifice(b));
+    then animal_acquis_par_le_proprietaire_du_lieu(b, p);
+}
+
+// --- Accession mobilière (565 à 577) ---------------------------------------------------------------
+
+pub relation choses_unies_separables(principale: Bien, unie: Bien) kind empirical {
+    label fr official "deux choses appartenant à différents maîtres ont été unies de manière à former un tout, et restent néanmoins séparables, l'une pouvant subsister sans l'autre (article 566)";
+    label en unofficial "two things belonging to different owners were joined so as to form a whole, yet remain separable, one being able to subsist without the other (Article 566)";
+}
+pub relation unie_pour_l_usage_l_ornement_ou_le_complement(unie: Bien, principale: Bien) kind empirical {
+    label fr official "la chose n'a été unie à l'autre que pour l'usage, l'ornement ou le complément de celle-ci (article 567)";
+    label en unofficial "the thing was joined to the other only for the use, ornament or completion of the latter (Article 567)";
+}
+pub relation valeur_de_la_chose(b: Bien, montant: Money) kind empirical {
+    key(b);
+    label fr official "valeur de la chose, estimée à la date du paiement (articles 566, 569, 574, 576)";
+    label en unofficial "value of the thing, assessed at the date of payment (Articles 566, 569, 574, 576)";
+}
+pub relation employee_a_l_insu_du_proprietaire(unie: Bien) kind empirical {
+    label fr official "la chose a été employée à l'insu de son propriétaire (articles 568, 570, 573, 576, 577)";
+    label en unofficial "the thing was used without its owner's knowledge (Articles 568, 570, 573, 576, 577)";
+}
+pub relation matiere_employee_a_former_une_chose_nouvelle(matiere: Bien, nouvelle: Bien, ouvrier: Personne) kind empirical {
+    label fr official "un artisan ou une personne quelconque a employé une matière qui ne lui appartenait pas à former une chose d'une nouvelle espèce (article 570)";
+    label en unofficial "a craftsman or any person used material not belonging to him to form a thing of a new kind (Article 570)";
+}
+pub relation prix_de_la_main_d_oeuvre(nouvelle: Bien, montant: Money) kind empirical {
+    key(nouvelle);
+    label fr official "prix de la main-d'œuvre, estimé à la date du remboursement (articles 570, 571, 572)";
+    label en unofficial "price of the labour, assessed at the date of reimbursement (Articles 570, 571, 572)";
+}
+pub relation matieres_melangees(nouvelle: Bien, matiere: Bien) kind empirical {
+    label fr official "la chose a été formée par le mélange de plusieurs matières appartenant à différents propriétaires (article 573)";
+    label en unofficial "the thing was formed by mixing several materials belonging to different owners (Article 573)";
+}
+pub relation matieres_separables_sans_inconvenient(nouvelle: Bien) kind empirical {
+    label fr official "les matières mélangées peuvent être séparées sans inconvénient (article 573)";
+    label en unofficial "the mixed materials can be separated without inconvenience (Article 573)";
+}
+pub relation deux_matieres_partiellement_propres(nouvelle: Bien, p: Personne) kind empirical {
+    label fr official "une personne a employé en partie la matière qui lui appartenait et en partie celle qui ne lui appartenait pas, sans qu'aucune soit entièrement détruite, et sans qu'elles puissent se séparer sans inconvénient (article 572)";
+    label en unofficial "a person used partly his own material and partly material not his own, neither being wholly destroyed, and they cannot be separated without inconvenience (Article 572)";
+}
+pub relation cas_non_prevu_par_les_articles_566_a_577(nouvelle: Bien) kind empirical {
+    label fr official "le cas d'accession mobilière n'est prévu par aucune des règles des articles 566 à 577 (article 565, alinéa 2)";
+    label en unofficial "the case of movable accession is provided for by none of the rules of Articles 566 to 577 (Article 565, paragraph 2)";
+}
+
+pub relation partie_principale(b: Bien) kind derived {
+    label fr official "la chose est réputée partie principale (articles 567, 569, 571)";
+    label en unofficial "the thing is deemed the principal part (Articles 567, 569, 571)";
+}
+pub relation le_tout_appartient_au_maitre_de_la_principale(principale: Bien, p: Personne) kind derived {
+    label fr official "le tout appartient au maître de la chose qui forme la partie principale, à la charge de payer à l'autre la valeur de la chose unie (article 566)";
+    label en unofficial "the whole belongs to the owner of the thing forming the principal part, subject to paying the other the value of the joined thing (Article 566)";
+}
+pub relation separation_de_la_chose_unie_peut_etre_demandee(unie: Bien, p: Personne) kind derived {
+    label fr official "le propriétaire peut demander que la chose unie soit séparée pour lui être rendue, même s'il en résulte quelque dégradation (article 568)";
+    label en unofficial "the owner may ask that the joined thing be separated and returned to him, even if some damage results (Article 568)";
+}
+pub relation separation_chose_unie_demandee(unie: Bien, p: Personne) kind empirical {
+    label fr official "séparation de la chose unie demandée";
+    label en unofficial "separation of joined thing requested";
+}
+pub relation chose_nouvelle_reclamable_par_le_proprietaire_de_la_matiere(nouvelle: Bien, p: Personne, montant: Money) kind derived {
+    label fr official "le propriétaire de la matière a le droit de réclamer la chose formée en remboursant le prix de la main-d'œuvre (article 570)";
+    label en unofficial "the owner of the material has the right to claim the thing formed, reimbursing the price of the labour (Article 570)";
+}
+pub relation chose_nouvelle_reclamee(nouvelle: Bien, p: Personne) kind empirical {
+    label fr official "chose nouvelle réclamée";
+    label en unofficial "new thing claimed";
+}
+pub relation droit_de_reclamer_chose_nouvelle(nouvelle: Bien, p: Personne) kind derived {
+    label fr official "droit de réclamer la chose nouvelle";
+    label en unofficial "right to claim the new thing";
+}
+pub relation ouvrier_retient_la_chose_travaillee(nouvelle: Bien, ouvrier: Personne, montant: Money) kind derived {
+    label fr official "l'industrie étant réputée partie principale, l'ouvrier a le droit de retenir la chose travaillée en remboursant au propriétaire le prix de la matière (article 571)";
+    label en unofficial "the labour being deemed the principal part, the workman may keep the thing worked, reimbursing the owner the price of the material (Article 571)";
+}
+pub relation chose_travaillee_retenue(nouvelle: Bien, ouvrier: Personne) kind empirical {
+    label fr official "chose travaillée retenue";
+    label en unofficial "worked thing retained";
+}
+pub relation droit_retenir_chose_travaillee(nouvelle: Bien, ouvrier: Personne) kind derived {
+    label fr official "droit de retenir la chose travaillée";
+    label en unofficial "right to retain the worked thing";
+}
+pub relation chose_commune_aux_deux_proprietaires(nouvelle: Bien) kind derived {
+    label fr official "la chose est commune aux deux propriétaires (articles 572, 573, alinéa 2)";
+    label en unofficial "the thing is common to both owners (Articles 572, 573, paragraph 2)";
+}
+pub relation division_des_matieres_peut_etre_demandee(nouvelle: Bien, p: Personne) kind derived {
+    label fr official "celui à l'insu duquel les matières ont été mélangées peut en demander la division (article 573, alinéa 1)";
+    label en unofficial "the person without whose knowledge the materials were mixed may ask for their division (Article 573, paragraph 1)";
+}
+pub relation division_matieres_demandee(nouvelle: Bien, p: Personne) kind empirical {
+    label fr official "division des matières demandée";
+    label en unofficial "division of materials requested";
+}
+pub relation chose_du_melange_reclamable(nouvelle: Bien, p: Personne, montant: Money) kind derived {
+    label fr official "le propriétaire de la matière de beaucoup supérieure en quantité et en prix peut réclamer la chose provenue du mélange en remboursant à l'autre la valeur de sa matière (article 574)";
+    label en unofficial "the owner of the material far superior in quantity and price may claim the thing resulting from the mixture, reimbursing the other the value of his material (Article 574)";
+}
+pub relation chose_du_melange_reclamee(nouvelle: Bien, p: Personne) kind empirical {
+    label fr official "chose du mélange réclamée";
+    label en unofficial "thing resulting from mixture claimed";
+}
+pub relation droit_reclamer_chose_du_melange(nouvelle: Bien, p: Personne) kind derived {
+    label fr official "droit de réclamer la chose du mélange";
+    label en unofficial "right to claim the thing resulting from the mixture";
+}
+pub relation licitation_au_profit_commun(nouvelle: Bien) kind derived {
+    label fr official "la chose restée en commun doit être licitée au profit commun (article 575)";
+    label en unofficial "the thing remaining in common must be sold by auction for the common benefit (Article 575)";
+}
+pub relation licitation_exercee(nouvelle: Bien) kind empirical {
+    label fr official "licitation de la chose commune exercée";
+    label en unofficial "auction of the common thing exercised";
+}
+pub relation coproprietaire_chose_commune(nouvelle: Bien, p: Personne) kind empirical {
+    label fr official "copropriétaire de la chose commune";
+    label en unofficial "co-owner of the common thing";
+}
+pub relation option_de_restitution_en_nature_ou_en_valeur(matiere: Bien, p: Personne) kind derived {
+    label fr official "le propriétaire dont la matière a été employée à son insu a le choix de demander la restitution de sa matière en même nature, quantité, poids, mesure et bonté, ou sa valeur estimée à la date de la restitution (article 576)";
+    label en unofficial "the owner whose material was used without his knowledge may choose to have his material returned in the same kind, quantity, weight, measure and quality, or its value assessed at the date of return (Article 576)";
+}
+pub relation restitution_matiere_choisie(matiere: Bien, p: Personne) kind empirical {
+    label fr official "option de restitution de la matière choisie";
+    label en unofficial "material restitution option chosen";
+}
+pub relation dommages_et_interets_encourus(nouvelle: Bien, ouvrier: Personne) kind derived {
+    label fr official "celui qui a employé des matières appartenant à d'autres, à leur insu, peut être condamné à des dommages et intérêts (article 577)";
+    label en unofficial "a person who used others' materials without their knowledge may be ordered to pay damages (Article 577)";
+}
+pub relation dommages_et_interets_payes(nouvelle: Bien, ouvrier: Personne) kind empirical {
+    label fr official "dommages-intérêts payés";
+    label en unofficial "damages paid";
+}
+pub relation accession_mobiliere_reglee_en_equite(nouvelle: Bien) kind derived {
+    label fr official "le cas non prévu est réglé par le juge suivant les principes de l'équité naturelle et les circonstances particulières (article 565)";
+    label en unofficial "the case not provided for is settled by the judge according to the principles of natural equity and the particular circumstances (Article 565)";
+}
+
+external judgment relation chose_unie_beaucoup_plus_precieuse(unie: Bien, principale: Bien) {
+    authority Court;
+    label fr official "la chose unie est beaucoup plus précieuse que la chose principale (article 568)";
+    label en unofficial "the joined thing is far more precious than the principal thing (Article 568)";
+}
+external judgment relation valeurs_a_peu_pres_egales(a: Bien, b: Bien) {
+    authority Court;
+    label fr official "les valeurs des deux choses unies sont à peu près égales (article 569)";
+    label en unofficial "the values of the two joined things are approximately equal (Article 569)";
+}
+external judgment relation main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle: Bien, matiere: Bien) {
+    authority Court;
+    label fr official "la main-d'œuvre est tellement importante qu'elle surpasse de beaucoup la valeur de la matière employée (article 571)";
+    label en unofficial "the labour is so substantial that it far exceeds the value of the material used (Article 571)";
+}
+external judgment relation matiere_de_beaucoup_superieure(superieure: Bien, autre: Bien) {
+    authority Court;
+    label fr official "la matière est de beaucoup supérieure à l'autre par la quantité et le prix (article 574)";
+    label en unofficial "the material is far superior to the other in quantity and price (Article 574)";
+}
+external judgment relation equite_naturelle_du_cas_non_prevu(nouvelle: Bien) {
+    authority Court;
+    label fr official "le cas non prévu est déterminé par le juge suivant les principes de l'équité naturelle et les circonstances particulières (article 565)";
+    label en unofficial "the case not provided for is determined by the judge according to the principles of natural equity and the particular circumstances (Article 565)";
+}
+
+@source(CC_ART565)
+rule AccessionMobiliereNonPrevueRegleeParLeJuge(nouvelle: Bien) strict {
+    label fr official "Article 565. Le droit d'accession, quand il a pour objet deux choses mobilières appartenant à deux maîtres différents, est entièrement subordonné aux principes de l'équité naturelle ; les règles suivantes servent d'exemple au juge pour se déterminer dans les cas non prévus";
+    label en unofficial "Article 565. The right of accession, where it concerns two movable things belonging to two different owners, is wholly subject to the principles of natural equity; the following rules serve as an example for the judge in cases not provided for";
+    when cas_non_prevu_par_les_articles_566_a_577(nouvelle)
+        and equite_naturelle_du_cas_non_prevu(nouvelle);
+    then accession_mobiliere_reglee_en_equite(nouvelle);
+}
+
+@source(CC_ART567)
+rule PartiePrincipaleParDestination(principale: Bien, unie: Bien) strict {
+    label fr official "Article 567. Est réputée partie principale celle à laquelle l'autre n'a été unie que pour l'usage, l'ornement ou le complément de la première";
+    label en unofficial "Article 567. The principal part is deemed to be that to which the other was joined only for the use, ornament or completion of the former";
+    when unie_pour_l_usage_l_ornement_ou_le_complement(unie, principale);
+    then partie_principale(principale);
+}
+
+@source(CC_ART569) {
+    rule PartiePrincipaleParLaValeur(a: Bien, b: Bien, va: Money, vb: Money) strict {
+        label fr official "Article 569. Si de deux choses unies l'une ne peut être regardée comme l'accessoire de l'autre, est réputée principale celle qui est la plus considérable en valeur";
+        label en unofficial "Article 569. If of two joined things neither can be regarded as accessory to the other, the principal is deemed to be the more considerable in value";
+        when choses_unies_separables(a, b)
+            and valeur_de_la_chose(a, va)
+            and valeur_de_la_chose(b, vb)
+            and va > vb
+            and not_known(unie_pour_l_usage_l_ornement_ou_le_complement(b, a));
+        then partie_principale(a);
+    }
+    rule PartiePrincipaleParLeVolume(a: Bien, b: Bien) strict {
+        label fr official "Article 569. Ou en volume, si les valeurs sont à peu près égales";
+        label en unofficial "Article 569. Or in volume, if the values are approximately equal";
+        when choses_unies_separables(a, b)
+            and valeurs_a_peu_pres_egales(a, b)
+            and plus_considerable_en_volume(a, b);
+        then partie_principale(a);
+    }
+}
+
+pub relation plus_considerable_en_volume(a: Bien, b: Bien) kind empirical {
+    label fr official "la chose est la plus considérable en volume (article 569)";
+    label en unofficial "the thing is the more considerable in volume (Article 569)";
+}
+
+@source(CC_ART566)
+pub relation valeur_chose_unie_payee(principale: Bien, unie: Bien, p: Personne) kind empirical {
+    label fr official "valeur de la chose unie payée";
+    label en unofficial "value of the joined thing paid";
+}
+@source(CC_ART566)
+rule P4DevoirPayerChoseUnie566(principale: Bien, unie: Bien, p: Personne) strict {
+    label fr official "Article 566. Le maître de la partie principale doit payer la valeur de la chose unie";
+    label en unofficial "Article 566. The owner of the principal part must pay the value of the joined thing";
+    when choses_unies_separables(principale, unie)
+        and partie_principale(principale)
+        and proprietaire_du_bien(principale, p);
+    then duty P4DevoirPayerChoseUnie566Actif {
+        bearer p;
+        goal achievement {
+            condition valeur_chose_unie_payee(principale, unie, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+@source(CC_ART566)
+rule LeToutAuMaitreDeLaPartiePrincipale(principale: Bien, unie: Bien, p: Personne) strict {
+    label fr official "Article 566. Lorsque deux choses appartenant à différents maîtres ont été unies de manière à former un tout et sont néanmoins séparables, le tout appartient au maître de la chose qui forme la partie principale, à la charge de payer à l'autre la valeur, estimée à la date du paiement, de la chose qui a été unie";
+    label en unofficial "Article 566. Where two things belonging to different owners were joined so as to form a whole and are nonetheless separable, the whole belongs to the owner of the thing forming the principal part, subject to paying the other the value, assessed at the date of payment, of the thing joined";
+    when choses_unies_separables(principale, unie)
+        and partie_principale(principale)
+        and proprietaire_du_bien(principale, p);
+    then le_tout_appartient_au_maitre_de_la_principale(principale, p);
+}
+
+@source(CC_ART568)
+rule SeparationDeLaChoseUniePlusPrecieuse(unie: Bien, principale: Bien, p: Personne) strict {
+    label fr official "Article 568. Quand la chose unie est beaucoup plus précieuse que la chose principale, et qu'elle a été employée à l'insu du propriétaire, celui-ci peut demander que la chose unie soit séparée pour lui être rendue, même quand il pourrait en résulter quelque dégradation";
+    label en unofficial "Article 568. Where the joined thing is far more precious than the principal thing, and was used without the owner's knowledge, that owner may ask for it to be separated and returned, even if some damage may result";
+    when chose_unie_beaucoup_plus_precieuse(unie, principale)
+        and employee_a_l_insu_du_proprietaire(unie)
+        and proprietaire_du_bien(unie, p);
+    then separation_de_la_chose_unie_peut_etre_demandee(unie, p);
+}
+@source(CC_ART568)
+rule P4PouvoirDemanderSeparation568(unie: Bien, principale: Bien, p: Personne) strict {
+    label fr official "Article 568. Le propriétaire peut demander la séparation de la chose unie";
+    label en unofficial "Article 568. The owner may request separation of the joined thing";
+    when chose_unie_beaucoup_plus_precieuse(unie, principale)
+        and employee_a_l_insu_du_proprietaire(unie)
+        and proprietaire_du_bien(unie, p);
+    then power P4PouvoirDemanderSeparation568Actif {
+        holder p;
+        over unie;
+        exercise separation_chose_unie_demandee(unie, p);
+        effect separation_de_la_chose_unie_peut_etre_demandee(unie, p);
+        valid_when proprietaire_du_bien(unie, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART570)
+rule SpecificationLaMatiereEmporteLaChose(matiere: Bien, nouvelle: Bien, ouvrier: Personne, p: Personne, prix: Money) strict {
+    label fr official "Article 570. Si un artisan ou une personne quelconque a employé une matière qui ne lui appartenait pas à former une chose d'une nouvelle espèce, celui qui en était propriétaire a le droit de réclamer la chose formée en remboursant le prix de la main-d'œuvre, estimé à la date du remboursement";
+    label en unofficial "Article 570. If a craftsman or any person used material not belonging to him to form a thing of a new kind, the owner of the material may claim the thing formed, reimbursing the price of the labour, assessed at the date of reimbursement";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and proprietaire_du_bien(matiere, p)
+        and prix_de_la_main_d_oeuvre(nouvelle, prix)
+        and not_known(main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle, matiere));
+    then chose_nouvelle_reclamable_par_le_proprietaire_de_la_matiere(nouvelle, p, prix);
+}
+@source(CC_ART570)
+rule P4PouvoirReclamerChoseNouvelle570(matiere: Bien, nouvelle: Bien, ouvrier: Personne, p: Personne) strict {
+    label fr official "Article 570. Le propriétaire de la matière peut réclamer la chose formée";
+    label en unofficial "Article 570. The owner of the material may claim the thing formed";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and proprietaire_du_bien(matiere, p)
+        and not_known(main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle, matiere));
+    then power P4PouvoirReclamerChoseNouvelle570Actif {
+        holder p;
+        over nouvelle;
+        exercise chose_nouvelle_reclamee(nouvelle, p);
+        effect droit_de_reclamer_chose_nouvelle(nouvelle, p);
+        valid_when proprietaire_du_bien(matiere, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART571)
+rule SpecificationLIndustrieEmporteLaChose(matiere: Bien, nouvelle: Bien, ouvrier: Personne, valeur: Money) strict {
+    label fr official "Article 571. Si la main-d'œuvre était tellement importante qu'elle surpassât de beaucoup la valeur de la matière employée, l'industrie serait réputée la partie principale, et l'ouvrier aurait le droit de retenir la chose travaillée en remboursant au propriétaire le prix de la matière, estimée à la date du remboursement";
+    label en unofficial "Article 571. If the labour were so substantial that it far exceeded the value of the material used, the labour would be deemed the principal part, and the workman would be entitled to keep the thing worked, reimbursing the owner the price of the material, assessed at the date of reimbursement";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle, matiere)
+        and valeur_de_la_chose(matiere, valeur);
+    then ouvrier_retient_la_chose_travaillee(nouvelle, ouvrier, valeur);
+}
+@source(CC_ART571)
+rule P4PouvoirRetenirChoseTravaillee571(matiere: Bien, nouvelle: Bien, ouvrier: Personne) strict {
+    label fr official "Article 571. L'ouvrier peut retenir la chose travaillée";
+    label en unofficial "Article 571. The workman may retain the worked thing";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle, matiere);
+    then power P4PouvoirRetenirChoseTravaillee571Actif {
+        holder ouvrier;
+        over nouvelle;
+        exercise chose_travaillee_retenue(nouvelle, ouvrier);
+        effect droit_retenir_chose_travaillee(nouvelle, ouvrier);
+        valid_when main_d_oeuvre_surpassant_de_beaucoup_la_matiere(nouvelle, matiere);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART572)
+rule MatiereEnPartiePropreChoseCommune(nouvelle: Bien, p: Personne) strict {
+    label fr official "Article 572. Lorsqu'une personne a employé en partie la matière qui lui appartenait et en partie celle qui ne lui appartenait pas à former une chose d'une espèce nouvelle, sans que ni l'une ni l'autre soit entièrement détruite, mais de manière qu'elles ne puissent se séparer sans inconvénient, la chose est commune aux deux propriétaires, à raison de la matière pour l'un, et à raison de la matière et du prix de la main-d'œuvre pour l'autre";
+    label en unofficial "Article 572. Where a person used partly his own material and partly material not his own to form a thing of a new kind, neither being wholly destroyed but unable to be separated without inconvenience, the thing is common to both owners, in proportion to the material for one, and to the material and the price of the labour for the other";
+    when deux_matieres_partiellement_propres(nouvelle, p);
+    then chose_commune_aux_deux_proprietaires(nouvelle);
+}
+
+@source(CC_ART573) {
+    rule DivisionDesMatieresMelangeesSeparables(nouvelle: Bien, matiere: Bien, p: Personne) strict {
+        label fr official "Article 573, alinéa 1. Lorsqu'une chose a été formée par le mélange de plusieurs matières appartenant à différents propriétaires, mais dont aucune ne peut être regardée comme la matière principale, si les matières peuvent être séparées, celui à l'insu duquel elles ont été mélangées peut en demander la division";
+        label en unofficial "Article 573, paragraph 1. Where a thing was formed by mixing several materials belonging to different owners, none of which can be regarded as the principal material, if the materials can be separated, the person without whose knowledge they were mixed may ask for their division";
+        when matieres_melangees(nouvelle, matiere)
+            and matieres_separables_sans_inconvenient(nouvelle)
+            and employee_a_l_insu_du_proprietaire(matiere)
+            and proprietaire_du_bien(matiere, p);
+        then division_des_matieres_peut_etre_demandee(nouvelle, p);
+    }
+    rule P4PouvoirDemanderDivision573(nouvelle: Bien, matiere: Bien, p: Personne) strict {
+        label fr official "Article 573. Le propriétaire peut demander la division des matières";
+        label en unofficial "Article 573. The owner may request division of the materials";
+        when matieres_melangees(nouvelle, matiere)
+            and matieres_separables_sans_inconvenient(nouvelle)
+            and employee_a_l_insu_du_proprietaire(matiere)
+            and proprietaire_du_bien(matiere, p);
+        then power P4PouvoirDemanderDivision573Actif {
+            holder p;
+            over nouvelle;
+            exercise division_matieres_demandee(nouvelle, p);
+            effect division_des_matieres_peut_etre_demandee(nouvelle, p);
+            valid_when proprietaire_du_bien(matiere, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ProprieteCommuneDuMelangeInseparable(nouvelle: Bien, matiere: Bien) strict {
+        label fr official "Article 573, alinéa 2. Si les matières ne peuvent plus être séparées sans inconvénient, les propriétaires en acquièrent en commun la propriété dans la proportion de la quantité, de la qualité et de la valeur des matières appartenant à chacun d'eux";
+        label en unofficial "Article 573, paragraph 2. If the materials can no longer be separated without inconvenience, the owners acquire common ownership in proportion to the quantity, quality and value of the materials belonging to each";
+        when matieres_melangees(nouvelle, matiere)
+            and not_known(matieres_separables_sans_inconvenient(nouvelle));
+        then chose_commune_aux_deux_proprietaires(nouvelle);
+    }
+}
+
+@source(CC_ART574)
+rule MelangeMatiereSuperieure(nouvelle: Bien, superieure: Bien, autre: Bien, p: Personne, valeur: Money) strict {
+    label fr official "Article 574. Si la matière appartenant à l'un des propriétaires était de beaucoup supérieure à l'autre par la quantité et le prix, le propriétaire de la matière supérieure en valeur pourrait réclamer la chose provenue du mélange en remboursant à l'autre la valeur de sa matière, estimée à la date du remboursement";
+    label en unofficial "Article 574. If the material belonging to one owner was far superior to the other in quantity and price, the owner of the superior material could claim the thing resulting from the mixture, reimbursing the other the value of his material, assessed at the date of reimbursement";
+    when matieres_melangees(nouvelle, superieure)
+        and matieres_melangees(nouvelle, autre)
+        and matiere_de_beaucoup_superieure(superieure, autre)
+        and proprietaire_du_bien(superieure, p)
+        and valeur_de_la_chose(autre, valeur);
+    then chose_du_melange_reclamable(nouvelle, p, valeur);
+}
+@source(CC_ART574)
+rule P4PouvoirReclamerChoseMelange574(nouvelle: Bien, superieure: Bien, autre: Bien, p: Personne) strict {
+    label fr official "Article 574. Le propriétaire de la matière supérieure peut réclamer la chose du mélange";
+    label en unofficial "Article 574. The owner of the superior material may claim the thing resulting from the mixture";
+    when matieres_melangees(nouvelle, superieure)
+        and matieres_melangees(nouvelle, autre)
+        and matiere_de_beaucoup_superieure(superieure, autre)
+        and proprietaire_du_bien(superieure, p);
+    then power P4PouvoirReclamerChoseMelange574Actif {
+        holder p;
+        over nouvelle;
+        exercise chose_du_melange_reclamee(nouvelle, p);
+        effect droit_reclamer_chose_du_melange(nouvelle, p);
+        valid_when proprietaire_du_bien(superieure, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART575)
+rule LicitationDeLaChoseCommune(nouvelle: Bien) strict {
+    label fr official "Article 575. Lorsque la chose reste en commun entre les propriétaires des matières dont elle a été formée, elle doit être licitée au profit commun";
+    label en unofficial "Article 575. Where the thing remains in common between the owners of the materials from which it was formed, it must be sold by auction for the common benefit";
+    when chose_commune_aux_deux_proprietaires(nouvelle);
+    then licitation_au_profit_commun(nouvelle);
+}
+@source(CC_ART575)
+rule P4DevoirLiciterChoseCommune575(nouvelle: Bien, p: Personne) strict {
+    label fr official "Article 575. La chose commune doit être licitée";
+    label en unofficial "Article 575. The common thing must be sold by auction";
+    when chose_commune_aux_deux_proprietaires(nouvelle)
+        and coproprietaire_chose_commune(nouvelle, p);
+    then duty P4DevoirLiciterChoseCommune575Actif {
+        bearer p;
+        goal achievement {
+            condition licitation_exercee(nouvelle);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART576)
+rule OptionDeRestitutionDeLaMatiere(matiere: Bien, nouvelle: Bien, p: Personne, montant: Money) strict {
+    label fr official "Article 576. Dans tous les cas où le propriétaire dont la matière a été employée à son insu peut réclamer la propriété de la chose, il a le choix de demander la restitution de sa matière en même nature, quantité, poids, mesure et bonté, ou sa valeur estimée à la date de la restitution";
+    label en unofficial "Article 576. In all cases where the owner whose material was used without his knowledge may claim ownership of the thing, he may choose the return of his material in the same kind, quantity, weight, measure and quality, or its value assessed at the date of return";
+    when chose_nouvelle_reclamable_par_le_proprietaire_de_la_matiere(nouvelle, p, montant)
+        and proprietaire_du_bien(matiere, p)
+        and employee_a_l_insu_du_proprietaire(matiere);
+    then option_de_restitution_en_nature_ou_en_valeur(matiere, p);
+}
+@source(CC_ART576)
+rule P4PouvoirChoisirRestitution576(matiere: Bien, nouvelle: Bien, p: Personne) strict {
+    label fr official "Article 576. Le propriétaire peut choisir la restitution de sa matière";
+    label en unofficial "Article 576. The owner may choose restitution of the material";
+    when proprietaire_du_bien(matiere, p)
+        and employee_a_l_insu_du_proprietaire(matiere);
+    then power P4PouvoirChoisirRestitution576Actif {
+        holder p;
+        over matiere;
+        exercise restitution_matiere_choisie(matiere, p);
+        effect option_de_restitution_en_nature_ou_en_valeur(matiere, p);
+        valid_when proprietaire_du_bien(matiere, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART577)
+rule DommagesInteretsDeLEmploiAlInsu(matiere: Bien, nouvelle: Bien, ouvrier: Personne) strict {
+    label fr official "Article 577. Ceux qui auront employé des matières appartenant à d'autres, et à leur insu, pourront aussi être condamnés à des dommages et intérêts, s'il y a lieu, sans préjudice des poursuites par voie extraordinaire";
+    label en unofficial "Article 577. Those who used materials belonging to others, without their knowledge, may also be ordered to pay damages, if appropriate, without prejudice to extraordinary proceedings";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and employee_a_l_insu_du_proprietaire(matiere);
+    then dommages_et_interets_encourus(nouvelle, ouvrier);
+}
+@source(CC_ART577)
+rule P4DevoirPayerDommagesEmploi577(matiere: Bien, nouvelle: Bien, ouvrier: Personne) strict {
+    label fr official "Article 577. Celui qui emploie la matière d'autrui doit payer les dommages-intérêts";
+    label en unofficial "Article 577. One who uses another's material must pay damages";
+    when matiere_employee_a_former_une_chose_nouvelle(matiere, nouvelle, ouvrier)
+        and employee_a_l_insu_du_proprietaire(matiere);
+    then duty P4DevoirPayerDommagesEmploi577Actif {
+        bearer ouvrier;
+        goal achievement {
+            condition dommages_et_interets_payes(nouvelle, ouvrier);
+            window [@2016-10-01, infinity];
+        };
+    };
+}

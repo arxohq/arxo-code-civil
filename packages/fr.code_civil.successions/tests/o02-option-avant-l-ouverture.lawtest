@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 770 : acceptation le 10 janvier 2026, succession ouverte le 1er février 2026.
+test "urn:query:fr-code-civil-successions-o02-option-avant-l-ouverture" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o02:S"), @2026-02-01) { origin case_input; }
+        assert "f2": option_exercee_le(entity_ref("urn:fr:cc:successions:opt:o02:S"), entity_ref("urn:fr:cc:successions:opt:o02:H"), AcceptationPureEtSimple, @2026-01-10) { origin case_input; }
+    }
+    evaluate truth(option_prematuree_sans_effet(entity_ref("urn:fr:cc:successions:opt:o02:S"), entity_ref("urn:fr:cc:successions:opt:o02:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(OptionAvantLOuverture);
+}

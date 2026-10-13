@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-14, alinéa 2 : entre professionnels, pour un bien hors usage privé, la clause est valable.
+test "urn:query:fr-code-civil-responsabilite-r52-clause-entre-professionnels-valable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": clause_limitative(entity_ref("urn:fr:cc:resp:v2n:cl"), entity_ref("urn:fr:cc:resp:v2n:p")) { origin case_input; }
+        assert "f2": clause_stipulee_entre_professionnels(entity_ref("urn:fr:cc:resp:v2n:cl")) { origin case_input; }
+        assert "f3": dommage_a_un_bien_hors_usage_prive(entity_ref("urn:fr:cc:resp:v2n:cl")) { origin case_input; }
+    }
+    evaluate truth(clause_valable_entre_professionnels(entity_ref("urn:fr:cc:resp:v2n:cl")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ClauseEntreProfessionnels);
+}

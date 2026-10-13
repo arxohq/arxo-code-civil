@@ -1,0 +1,46 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+test "urn:query:fr-code-civil-biens-p4-683-a" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": proprietaire_fonds_enclave(entity_ref("urn:p4:683:a:D"), entity_ref("urn:p4:683:a:P")) { origin case_input; }
+        assert "f2": aucune_issue_sur_la_voie_publique(entity_ref("urn:p4:683:a:D")) { origin case_input; }
+        assert "f3": voisin(entity_ref("urn:p4:683:a:D"), entity_ref("urn:p4:683:a:S")) { origin case_input; }
+        assert "f4": longueur_du_trajet_par(entity_ref("urn:p4:683:a:D"), entity_ref("urn:p4:683:a:S"), 10 m) { origin case_input; }
+        assert "f5": voisin(entity_ref("urn:p4:683:a:D"), entity_ref("urn:p4:683:a:S2")) { origin case_input; }
+        assert "f6": longueur_du_trajet_par(entity_ref("urn:p4:683:a:D"), entity_ref("urn:p4:683:a:S2"), 20 m) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirPrendrePassageCourt683Actif, ACTIVE);
+    expect position(P4MaintenancePrendrePassageCourt683Duty, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-biens-p4-683-b" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": proprietaire_fonds_enclave(entity_ref("urn:p4:683:b:D"), entity_ref("urn:p4:683:b:P")) { origin case_input; }
+        assert "f2": aucune_issue_sur_la_voie_publique(entity_ref("urn:p4:683:b:D")) { origin case_input; }
+        assert "f3": voisin(entity_ref("urn:p4:683:b:D"), entity_ref("urn:p4:683:b:S")) { origin case_input; }
+        assert "f4": longueur_du_trajet_par(entity_ref("urn:p4:683:b:D"), entity_ref("urn:p4:683:b:S"), 15 m) { origin case_input; }
+        assert "f5": voisin(entity_ref("urn:p4:683:b:D"), entity_ref("urn:p4:683:b:S2")) { origin case_input; }
+        assert "f6": longueur_du_trajet_par(entity_ref("urn:p4:683:b:D"), entity_ref("urn:p4:683:b:S2"), 25 m) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirPrendrePassageCourt683Actif, ACTIVE);
+    expect position(P4MaintenancePrendrePassageCourt683Duty, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-biens-p4-683-violated" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": proprietaire_fonds_enclave(entity_ref("urn:p4:683:v:D"), entity_ref("urn:p4:683:v:P")) { origin case_input; }
+        assert "f2": aucune_issue_sur_la_voie_publique(entity_ref("urn:p4:683:v:D")) { origin case_input; }
+        assert "f3": voisin(entity_ref("urn:p4:683:v:D"), entity_ref("urn:p4:683:v:S")) { origin case_input; }
+        assert "f4": longueur_du_trajet_par(entity_ref("urn:p4:683:v:D"), entity_ref("urn:p4:683:v:S"), 10 m) { origin case_input; }
+        assert "f5": not passage_pris_par_le_proprietaire(entity_ref("urn:p4:683:v:D"), entity_ref("urn:p4:683:v:S"), entity_ref("urn:p4:683:v:P")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4MaintenancePrendrePassageCourt683Duty, VIOLATED);
+}

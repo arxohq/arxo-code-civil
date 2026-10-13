@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 671, al. 1. « dépasse » est strict : deux mètres tout juste ne
+// dépassent pas deux mètres, donc c'est le demi-mètre qui s'applique.
+test "urn:query:fr-code-civil-biens-s02-plantation-deux-metres-exactement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": plantee_sur(entity_ref("urn:fr:cc:biens:s02:P"), entity_ref("urn:fr:cc:biens:s02:F")) { origin case_input; }
+        assert "f2": voisin(entity_ref("urn:fr:cc:biens:s02:F"), entity_ref("urn:fr:cc:biens:s02:V")) { origin case_input; }
+        assert "f3": aucun_reglement_ni_usage_sur_les_distances(entity_ref("urn:fr:cc:biens:s02:F")) { origin case_input; }
+        assert "f4": hauteur_de_la_plantation(entity_ref("urn:fr:cc:biens:s02:P"), 2 m) { origin case_input; }
+        assert "f5": distance_a_la_ligne_separative(entity_ref("urn:fr:cc:biens:s02:P"), 1.5 m) { origin case_input; }
+    }
+    evaluate truth(distance_legale_de_plantation(entity_ref("urn:fr:cc:biens:s02:P"), 0.5 m));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

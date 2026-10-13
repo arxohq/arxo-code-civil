@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 517 et 524. L'ustensile aratoire que le propriétaire a placé pour le
+// service et l'exploitation du fonds est immeuble par destination.
+test "urn:query:fr-code-civil-biens-d02-ustensile-par-destination" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": place_par_le_proprietaire_pour_le_service_et_l_exploitation(entity_ref("urn:fr:cc:biens:d02:B"), entity_ref("urn:fr:cc:biens:d02:F")) { origin case_input; }
+    }
+    evaluate truth(immeuble(entity_ref("urn:fr:cc:biens:d02:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

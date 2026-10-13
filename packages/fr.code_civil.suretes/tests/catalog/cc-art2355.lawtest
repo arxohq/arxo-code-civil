@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-NANTISSEMENTDAUTRESMEUBLES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": nantissement_d_autres_meubles_incorporels(entity_ref("urn:law:catalog:nantissementdautresmeubles:v0")) { origin case_input; }
+        assert "cat-1": nature_de_la_surete(entity_ref("urn:law:catalog:nantissementdautresmeubles:v0"), NantissementDeMeublesIncorporels) { origin case_input; }
+    }
+    evaluate truth(regles_du_gage_applicables_sauf_retention(entity_ref("urn:law:catalog:nantissementdautresmeubles:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-NANTISSEMENTJUDICIAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": nantissement_judiciaire(entity_ref("urn:law:catalog:nantissementjudiciaire:v0")) { origin case_input; }
+        assert "cat-1": nature_de_la_surete(entity_ref("urn:law:catalog:nantissementjudiciaire:v0"), NantissementDeMeublesIncorporels) { origin case_input; }
+    }
+    evaluate truth(nantissement_regi_par_les_procedures_civiles_d_execution(entity_ref("urn:law:catalog:nantissementjudiciaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}

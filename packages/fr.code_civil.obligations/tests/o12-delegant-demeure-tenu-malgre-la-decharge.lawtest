@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1337, al. 2 : TOUTEFOIS le délégant demeure tenu s'il s'est expressément engagé
+// à garantir la solvabilité future du délégué — et la délégation n'opère alors pas
+// la novation de l'alinéa 1.
+test "urn:query:fr-code-civil-obligations-o12-delegant-demeure-tenu-malgre-la-decharge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": delegation_consentie(entity_ref("urn:fr:cc:obligations:dtg:g")) { origin case_input; }
+        assert "f2": delegant(entity_ref("urn:fr:cc:obligations:dtg:g"), entity_ref("urn:fr:cc:obligations:dtg:DG")) { origin case_input; }
+        assert "f3": delegue(entity_ref("urn:fr:cc:obligations:dtg:g"), entity_ref("urn:fr:cc:obligations:dtg:DU")) { origin case_input; }
+        assert "f4": delegataire(entity_ref("urn:fr:cc:obligations:dtg:g"), entity_ref("urn:fr:cc:obligations:dtg:DT")) { origin case_input; }
+        assert "f5": delegant_debiteur_du_delegataire(entity_ref("urn:fr:cc:obligations:dtg:g"), entity_ref("urn:fr:cc:obligations:dtg:c")) { origin case_input; }
+        assert "f6": volonte_expresse_de_decharger_le_delegant(entity_ref("urn:fr:cc:obligations:dtg:g")) { origin case_input; }
+        assert "f7": engagement_de_garantir_la_solvabilite_future(entity_ref("urn:fr:cc:obligations:dtg:g")) { origin case_input; }
+    }
+    evaluate truth(delegant_demeure_tenu(entity_ref("urn:fr:cc:obligations:dtg:g"), entity_ref("urn:fr:cc:obligations:dtg:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DelegantDemeureTenu);
+    expect applied(DelegantTenuMalgreLaDechargeParGarantie);
+}

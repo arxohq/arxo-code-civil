@@ -1,0 +1,42 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-EFFETSENALSACEMOSELLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": immeuble_en_alsace_moselle(entity_ref("urn:law:catalog:effetsenalsacemoselle:v0")) { origin case_input; }
+        assert "cat-1": inscription_de(entity_ref("urn:law:catalog:effetsenalsacemoselle:v0"), entity_ref("urn:law:catalog:effetsenalsacemoselle:v1")) { origin case_input; }
+    }
+    evaluate truth(effets_regles_par_les_procedures(entity_ref("urn:law:catalog:effetsenalsacemoselle:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-INSCRIPTIONAPRESLEDECES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": succession_acceptee_a_concurrence_ou_vacante(entity_ref("urn:law:catalog:inscriptionapresledeces:v0")) { origin case_input; }
+        assert "cat-1": inscription_de(entity_ref("urn:law:catalog:inscriptionapresledeces:v0"), entity_ref("urn:law:catalog:inscriptionapresledeces:v1")) { origin case_input; }
+        assert "cat-2": inscription_prise_apres_le_deces(entity_ref("urn:law:catalog:inscriptionapresledeces:v0")) { origin case_input; }
+    }
+    evaluate truth(inscription_sans_effet_entre_creanciers_successoraux(entity_ref("urn:law:catalog:inscriptionapresledeces:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-INSCRIPTIONAPRESMUTATION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mutation_publiee_avant_l_inscription(entity_ref("urn:law:catalog:inscriptionapresmutation:v0")) { origin case_input; }
+        assert "cat-1": inscription_de(entity_ref("urn:law:catalog:inscriptionapresmutation:v0"), entity_ref("urn:law:catalog:inscriptionapresmutation:v1")) { origin case_input; }
+    }
+    evaluate truth(inscription_sans_effet_utile(entity_ref("urn:law:catalog:inscriptionapresmutation:v0")));
+    expect truth_status == TRUE_ONLY;
+}

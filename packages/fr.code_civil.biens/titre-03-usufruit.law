@@ -1,0 +1,792 @@
+// TITRE III — DE L'USUFRUIT, DE L'USAGE ET DE L'HABITATION (578 à 636).
+//
+// Trois nombres portent tout le titre. NEUF ANS : le bail que l'usufruitier
+// a fait seul n'oblige le nu-propriétaire, après la cessation de l'usufruit,
+// que jusqu'au terme de la période de neuf ans en cours (595, alinéa 2). Le
+// paquet calcule cette période PAR RÉCURRENCE — première période, puis la
+// suivante tant que la cessation la dépasse — et non par une soustraction de
+// dates, parce que le texte raisonne en périodes successives et non en
+// durée écoulée. TRENTE ANS : l'usufruit qui n'est pas accordé à des
+// particuliers ne dure que trente ans (619), et le non-usage du droit
+// pendant trente ans l'éteint (617, alinéa 5). TROIS ANS et DEUX ANS : le
+// bail de neuf ans ou au-dessous renouvelé trop tôt avant l'expiration du
+// bail courant est sans effet (595, alinéa 3), plus de trois ans pour les
+// biens ruraux, plus de deux ans pour les maisons.
+//
+// LES RÉPARATIONS SONT UNE LISTE FERMÉE. L'article 606 énumère les grosses
+// réparations — gros murs, voûtes, poutres et couvertures ENTIÈRES, digues et
+// murs de soutènement et de clôture AUSSI EN ENTIER — et ajoute que « toutes
+// les autres réparations sont d'entretien ». C'est une partition : elle est
+// exécutée par une règle par espèce, et le reste tombe dans l'entretien.
+// L'article 605 met l'entretien sur l'usufruitier et les grosses réparations
+// sur le propriétaire, SAUF si elles ont été occasionnées par le défaut
+// d'entretien depuis l'ouverture — auquel cas l'usufruitier en est AUSSI
+// tenu, et non à la place du propriétaire : le texte dit « aussi ».
+//
+// L'ABUS DE JOUISSANCE (618) EST UN JUGEMENT. Le texte donne au juge le
+// choix entre l'extinction absolue et la rentrée du propriétaire sous charge
+// d'une somme annuelle « suivant la gravité des circonstances » : ni le
+// choix ni la somme ne sont calculables ici.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Alluvion,
+    Bail,
+    Bien,
+    CC_ART578,
+    CC_ART582,
+    CC_ART585,
+    CC_ART586,
+    CC_ART587,
+    CC_ART588,
+    CC_ART589,
+    CC_ART595,
+    CC_ART596,
+    CC_ART597,
+    CC_ART599,
+    EspeceDeFruit,
+    Fonds,
+    Personne,
+    Usufruit,
+    alluvion_profite_au_riverain,
+    fruit_de,
+};
+
+// --- Entrées communes du titre III ------------------------------------------------------------
+
+pub relation usufruit_sur(u: Usufruit, chose: Bien) kind empirical {
+    key(u);
+    label fr official "l'usufruit porte sur cette chose (articles 578, 581)";
+    label en unofficial "the usufruct bears on this thing (Articles 578, 581)";
+}
+pub relation usufruitier(u: Usufruit, p: Personne) kind empirical {
+    label fr official "titulaire de l'usufruit (article 578)";
+    label en unofficial "holder of the usufruct (Article 578)";
+}
+pub relation nu_proprietaire(u: Usufruit, p: Personne) kind empirical {
+    label fr official "nu-propriétaire de la chose soumise à l'usufruit (articles 578, 599)";
+    label en unofficial "bare owner of the thing subject to the usufruct (Articles 578, 599)";
+}
+pub relation ouverture_de_l_usufruit_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour de l'ouverture de l'usufruit (articles 585, 598, 604, 605)";
+    label en unofficial "day on which the usufruct opened (Articles 585, 598, 604, 605)";
+}
+pub relation usufruit_etabli_par_la_loi(u: Usufruit) kind empirical {
+    label fr official "l'usufruit est établi par la loi (article 579)";
+    label en unofficial "the usufruct is established by statute (Article 579)";
+}
+pub relation usufruit_etabli_par_la_volonte_de_l_homme(u: Usufruit) kind empirical {
+    label fr official "l'usufruit est établi par la volonté de l'homme (article 579)";
+    label en unofficial "the usufruct is established by the will of man (Article 579)";
+}
+pub relation usufruit_a_certain_jour(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "l'usufruit est établi à certain jour (article 580)";
+    label en unofficial "the usufruct is established as from a certain day (Article 580)";
+}
+pub relation condition_de_l_usufruit_accomplie(u: Usufruit) kind empirical {
+    label fr official "la condition sous laquelle l'usufruit a été établi est accomplie (article 580)";
+    label en unofficial "the condition under which the usufruct was established is fulfilled (Article 580)";
+}
+pub relation personne_morale(p: Personne) kind empirical {
+    label fr official "le titulaire n'est pas un particulier : c'est une personne morale (article 619)";
+    label en unofficial "the holder is not a private individual: it is a legal person (Article 619)";
+}
+pub relation terme_convenu_de_l_usufruit_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour auquel expire le temps pour lequel l'usufruit a été accordé (article 617, alinéa 3)";
+    label en unofficial "day on which the time for which the usufruct was granted expires (Article 617, paragraph 3)";
+}
+pub relation mort_de_l_usufruitier_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour de la mort de l'usufruitier (article 617, alinéa 2)";
+    label en unofficial "day of the usufructuary's death (Article 617, paragraph 2)";
+}
+pub relation consolidation_sur_la_meme_tete(u: Usufruit) kind empirical {
+    label fr official "consolidation ou réunion sur la même tête des deux qualités d'usufruitier et de propriétaire (article 617, alinéa 4)";
+    label en unofficial "consolidation or merger in the same person of the two capacities of usufructuary and owner (Article 617, paragraph 4)";
+}
+pub relation dernier_usage_du_droit_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "dernier jour où le droit d'usufruit a été exercé, point de départ du non-usage (article 617, alinéa 5)";
+    label en unofficial "last day on which the usufruct was exercised, the starting point of non-use (Article 617, paragraph 5)";
+}
+pub relation perte_totale_de_la_chose(u: Usufruit) kind empirical {
+    label fr official "perte totale de la chose sur laquelle l'usufruit est établi (article 617, alinéa 6)";
+    label en unofficial "total loss of the thing on which the usufruct is established (Article 617, paragraph 6)";
+}
+pub relation perte_partielle_de_la_chose(u: Usufruit) kind empirical {
+    label fr official "une partie seulement de la chose soumise à l'usufruit est détruite (article 623)";
+    label en unofficial "only part of the thing subject to the usufruct is destroyed (Article 623)";
+}
+pub relation usufruit_sur_un_batiment_seul(u: Usufruit) kind empirical {
+    label fr official "l'usufruit n'est établi que sur un bâtiment (article 624, alinéa 1)";
+    label en unofficial "the usufruct is established on a building alone (Article 624, paragraph 1)";
+}
+pub relation usufruit_sur_un_domaine_dont_le_batiment_fait_partie(u: Usufruit) kind empirical {
+    label fr official "l'usufruit est établi sur un domaine dont le bâtiment faisait partie (article 624, alinéa 2)";
+    label en unofficial "the usufruct is established on an estate of which the building formed part (Article 624, paragraph 2)";
+}
+pub relation batiment_detruit_par_incendie_accident_ou_vetuste(u: Usufruit) kind empirical {
+    label fr official "le bâtiment est détruit par un incendie ou autre accident, ou s'écroule de vétusté (article 624)";
+    label en unofficial "the building is destroyed by fire or other accident, or collapses from age (Article 624)";
+}
+pub relation jour_de_reference(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour auquel la question de l'extinction est posée (articles 617, 619)";
+    label en unofficial "day as at which the question of extinction is asked (Articles 617, 619)";
+}
+
+// --- Droits de l'usufruitier (582 à 599) ---------------------------------------------------------
+
+pub relation droit_de_jouir_des_fruits(u: Usufruit, p: Personne) kind derived {
+    label fr official "l'usufruitier a le droit de jouir de toute espèce de fruits que peut produire l'objet dont il a l'usufruit (articles 578, 582)";
+    label en unofficial "the usufructuary has the right to enjoy every kind of fruit the object of his usufruct may produce (Articles 578, 582)";
+}
+pub relation substance_usufruit_preservee(u: Usufruit, chose: Bien, p: Personne) kind empirical {
+    label fr official "substance de la chose conservée par l'usufruitier";
+    label en unofficial "substance of the thing preserved by the usufructuary";
+}
+pub relation fruits_usufruit_exerces(u: Usufruit, p: Personne) kind empirical {
+    label fr official "jouissance des fruits exercée";
+    label en unofficial "usufructuary fruit enjoyment exercised";
+}
+pub relation fruit_pendant_a_l_ouverture_appartient_a_l_usufruitier(fruit: Bien, u: Usufruit) kind derived {
+    label fr official "les fruits naturels et industriels pendants par branches ou par racines au moment où l'usufruit est ouvert appartiennent à l'usufruitier (article 585, alinéa 1)";
+    label en unofficial "natural and industrial fruits hanging by branches or roots when the usufruct opens belong to the usufructuary (Article 585, paragraph 1)";
+}
+pub relation fruits_pendants_ouverture_exerces(fruit: Bien, u: Usufruit, p: Personne) kind empirical {
+    label fr official "fruits pendants à l'ouverture perçus par l'usufruitier";
+    label en unofficial "fruits hanging at opening received by usufructuary";
+}
+pub relation fruit_pendant_a_la_fin_appartient_au_proprietaire(fruit: Bien, u: Usufruit) kind derived {
+    label fr official "les fruits pendants au moment où finit l'usufruit appartiennent au propriétaire, sans récompense de part ni d'autre des labours et des semences (article 585, alinéa 2)";
+    label en unofficial "fruits hanging when the usufruct ends belong to the owner, with no compensation on either side for ploughing and seed (Article 585, paragraph 2)";
+}
+pub relation fruit_civil_acquis_jour_par_jour(u: Usufruit, fruit: Bien) kind derived {
+    label fr official "les fruits civils sont réputés s'acquérir jour par jour et appartiennent à l'usufruitier à proportion de la durée de son usufruit (article 586)";
+    label en unofficial "civil fruits are deemed acquired day by day and belong to the usufructuary in proportion to the duration of his usufruct (Article 586)";
+}
+pub relation fruits_civils_usufruit_exerces(u: Usufruit, fruit: Bien, p: Personne) kind empirical {
+    label fr official "fruits civils acquis par l'usufruitier exercés";
+    label en unofficial "civil fruits acquired by usufructuary exercised";
+}
+pub relation quasi_usufruit_avec_charge_de_rendre(u: Usufruit, chose: Bien) kind derived {
+    label fr official "l'usufruitier de choses consomptibles a le droit de s'en servir, à la charge de rendre à la fin de l'usufruit des choses de même quantité et qualité ou leur valeur estimée à la date de la restitution (article 587)";
+    label en unofficial "the usufructuary of consumable things may use them, subject to returning at the end of the usufruct things of the same quantity and quality or their value assessed at the date of return (Article 587)";
+}
+pub relation restitution_quasi_usufruit_exercee(u: Usufruit, chose: Bien, p: Personne) kind empirical {
+    label fr official "restitution du quasi-usufruit exercée";
+    label en unofficial "quasi-usufruct restitution exercised";
+}
+pub relation arrerages_percus_sans_restitution(u: Usufruit, chose: Bien) kind derived {
+    label fr official "l'usufruit d'une rente viagère donne le droit d'en percevoir les arrérages sans être tenu à aucune restitution (article 588)";
+    label en unofficial "the usufruct of a life annuity gives the right to receive its instalments without being liable to any return (Article 588)";
+}
+pub relation arrerages_usufruit_percus(u: Usufruit, chose: Bien, p: Personne) kind empirical {
+    label fr official "arrérages de la rente viagère perçus";
+    label en unofficial "life annuity instalments received";
+}
+pub relation restitution_en_l_etat_des_choses_qui_se_deteriorent(u: Usufruit, chose: Bien) kind derived {
+    label fr official "l'usufruitier de choses qui se détériorent peu à peu par l'usage n'est obligé de les rendre que dans l'état où elles se trouvent, non détériorées par son dol ou par sa faute (article 589)";
+    label en unofficial "the usufructuary of things deteriorating gradually by use need only return them in the state they are in, not damaged by his fraud or fault (Article 589)";
+}
+pub relation chose_deteriorable_restituee(u: Usufruit, chose: Bien, p: Personne) kind empirical {
+    label fr official "chose détériorable restituée";
+    label en unofficial "deteriorating thing returned";
+}
+pub relation droit_de_bailler_de_vendre_ou_de_ceder(u: Usufruit, p: Personne) kind derived {
+    label fr official "l'usufruitier peut jouir par lui-même, donner à bail à un autre, même vendre ou céder son droit à titre gratuit (article 595, alinéa 1)";
+    label en unofficial "the usufructuary may enjoy the thing himself, lease it to another, or even sell or transfer his right gratuitously (Article 595, paragraph 1)";
+}
+pub relation jouissance_bail_cession_usufruit_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "jouissance, bail ou cession du droit d'usufruit exercé";
+    label en unofficial "usufruct enjoyment, lease or transfer exercised";
+}
+pub relation jouissance_des_servitudes_et_droits_du_proprietaire(u: Usufruit, p: Personne) kind derived {
+    label fr official "l'usufruitier jouit des droits de servitude, de passage, et généralement de tous les droits dont le propriétaire peut jouir, et il en jouit comme le propriétaire lui-même (article 597)";
+    label en unofficial "the usufructuary enjoys servitudes, rights of way, and generally all the rights the owner may enjoy, and enjoys them as the owner himself (Article 597)";
+}
+pub relation jouissance_de_l_augmentation_par_alluvion(u: Usufruit, a: Alluvion) kind derived {
+    label fr official "l'usufruitier jouit de l'augmentation survenue par alluvion à l'objet dont il a l'usufruit (article 596)";
+    label en unofficial "the usufructuary enjoys the increase by alluvion of the object of his usufruct (Article 596)";
+}
+pub relation augmentation_alluvion_exercee(u: Usufruit, a: Alluvion, p: Personne) kind empirical {
+    label fr official "jouissance de l'augmentation par alluvion exercée";
+    label en unofficial "enjoyment of alluvial increase exercised";
+}
+pub relation droit_d_enlever_glaces_tableaux_et_ornements(u: Usufruit, p: Personne) kind derived {
+    label fr official "l'usufruitier ou ses héritiers peuvent enlever les glaces, tableaux et autres ornements qu'il aurait fait placer, à la charge de rétablir les lieux dans leur premier état (article 599, alinéa 3)";
+    label en unofficial "the usufructuary or his heirs may remove the mirrors, paintings and other ornaments he had placed, subject to restoring the premises to their former state (Article 599, paragraph 3)";
+}
+pub relation ornements_usufruit_enleves_et_lieux_retablis(u: Usufruit, p: Personne) kind empirical {
+    label fr official "ornements enlevés et lieux rétablis";
+    label en unofficial "ornaments removed and premises restored";
+}
+pub relation aucune_indemnite_pour_les_ameliorations(u: Usufruit, p: Personne) kind derived {
+    label fr official "l'usufruitier ne peut, à la cessation de l'usufruit, réclamer aucune indemnité pour les améliorations qu'il prétendrait avoir faites, encore que la valeur de la chose en fût augmentée (article 599, alinéa 2)";
+    label en unofficial "the usufructuary may not, when the usufruct ends, claim any indemnity for improvements he claims to have made, even though the value of the thing was increased (Article 599, paragraph 2)";
+}
+pub relation indemnisation_ameliorations_reclamee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "indemnité pour améliorations réclamée";
+    label en unofficial "improvement indemnity claimed";
+}
+pub relation droits_servitude_usufruit_exerces(u: Usufruit, p: Personne) kind empirical {
+    label fr official "droits de servitude de l'usufruit exercés";
+    label en unofficial "usufruct servitude rights exercised";
+}
+pub relation le_proprietaire_ne_peut_nuire_aux_droits_de_l_usufruitier(u: Usufruit, p: Personne) kind derived {
+    label fr official "le propriétaire ne peut, par son fait ni de quelque manière que ce soit, nuire aux droits de l'usufruitier (article 599, alinéa 1)";
+    label en unofficial "the owner may not, by his own act or in any way, harm the usufructuary's rights (Article 599, paragraph 1)";
+}
+pub relation nuire_droits_usufruit_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "atteinte aux droits de l'usufruitier exercée";
+    label en unofficial "harm to the usufructuary's rights exercised";
+}
+
+pub relation chose_consomptible(chose: Bien) kind empirical {
+    label fr official "chose dont on ne peut faire usage sans la consommer, comme l'argent, les grains, les liqueurs (article 587)";
+    label en unofficial "thing that cannot be used without being consumed, such as money, grain or liquor (Article 587)";
+}
+pub relation chose_qui_se_deteriore_par_l_usage(chose: Bien) kind empirical {
+    label fr official "chose qui, sans se consommer de suite, se détériore peu à peu par l'usage, comme le linge et les meubles meublants (article 589)";
+    label en unofficial "thing that, without being immediately consumed, deteriorates gradually by use, such as linen and furnishing movables (Article 589)";
+}
+pub relation rente_viagere(chose: Bien) kind empirical {
+    label fr official "l'usufruit porte sur une rente viagère (article 588)";
+    label en unofficial "the usufruct bears on a life annuity (Article 588)";
+}
+pub relation pendant_a_l_ouverture(fruit: Bien, u: Usufruit) kind empirical {
+    label fr official "le fruit naturel ou industriel est pendant par branches ou par racines au moment où l'usufruit est ouvert (article 585, alinéa 1)";
+    label en unofficial "the natural or industrial fruit is hanging by branches or roots when the usufruct opens (Article 585, paragraph 1)";
+}
+pub relation pendant_a_la_cessation(fruit: Bien, u: Usufruit) kind empirical {
+    label fr official "le fruit naturel ou industriel est dans le même état au moment où finit l'usufruit (article 585, alinéa 2)";
+    label en unofficial "the natural or industrial fruit is in the same state when the usufruct ends (Article 585, paragraph 2)";
+}
+
+@source(CC_ART578)
+rule DroitDeJouirDeLUsufruitier(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 578. L'usufruit est le droit de jouir des choses dont un autre a la propriété, comme le propriétaire lui-même, mais à la charge d'en conserver la substance";
+    label en unofficial "Article 578. Usufruct is the right to enjoy things owned by another, as the owner himself does, but subject to preserving their substance";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then droit_de_jouir_des_fruits(u, p);
+}
+
+@source(CC_ART578)
+rule P4DevoirConserverSubstance578(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 578. L'usufruitier doit conserver la substance de la chose";
+    label en unofficial "Article 578. The usufructuary must preserve the substance of the thing";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then duty P4DevoirConserverSubstance578Actif {
+        bearer p;
+        goal achievement {
+            condition substance_usufruit_preservee(u, chose, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART582)
+rule JouissanceDeTouteEspeceDeFruits(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 582. L'usufruitier a le droit de jouir de toute espèce de fruits, soit naturels, soit industriels, soit civils, que peut produire l'objet dont il a l'usufruit";
+    label en unofficial "Article 582. The usufructuary has the right to enjoy every kind of fruit, natural, industrial or civil, that the object of his usufruct may produce";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then droit_de_jouir_des_fruits(u, p);
+}
+
+@source(CC_ART582)
+rule P4LiberteJouirFruits582(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 582. L'usufruitier peut jouir des fruits";
+    label en unofficial "Article 582. The usufructuary may enjoy the fruits";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then liberty P4LiberteJouirFruits582Actif {
+        holder p;
+        action fruits_usufruit_exerces(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART585) {
+    rule FruitsPendantsALOuverture(fruit: Bien, chose: Bien, espece: EspeceDeFruit, u: Usufruit) strict {
+        label fr official "Article 585, alinéa 1. Les fruits naturels et industriels, pendants par branches ou par racines au moment où l'usufruit est ouvert, appartiennent à l'usufruitier";
+        label en unofficial "Article 585, paragraph 1. Natural and industrial fruits hanging by branches or roots when the usufruct opens belong to the usufructuary";
+        when usufruit_sur(u, chose)
+            and fruit_de(fruit, chose, espece)
+            and pendant_a_l_ouverture(fruit, u);
+        then fruit_pendant_a_l_ouverture_appartient_a_l_usufruitier(fruit, u);
+    }
+    rule P4LiberteFruitsPendantsOuverture585(fruit: Bien, chose: Bien, espece: EspeceDeFruit, u: Usufruit, p: Personne) strict {
+        label fr official "Article 585. L'usufruitier peut percevoir les fruits pendants à l'ouverture";
+        label en unofficial "Article 585. The usufructuary may receive fruits hanging at opening";
+        when usufruit_sur(u, chose)
+            and usufruitier(u, p)
+            and fruit_de(fruit, chose, espece)
+            and pendant_a_l_ouverture(fruit, u);
+        then liberty P4LiberteFruitsPendantsOuverture585Actif {
+            holder p;
+            action fruits_pendants_ouverture_exerces(fruit, u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule FruitsPendantsALaCessation(fruit: Bien, chose: Bien, espece: EspeceDeFruit, u: Usufruit) strict {
+        label fr official "Article 585, alinéa 2. Ceux qui sont dans le même état au moment où finit l'usufruit appartiennent au propriétaire, sans récompense de part ni d'autre des labours et des semences, mais sans préjudice de la portion des fruits qui pourrait être acquise au métayer";
+        label en unofficial "Article 585, paragraph 2. Those in the same state when the usufruct ends belong to the owner, with no compensation on either side for ploughing and seed, but without prejudice to the share of the fruits a sharecropper may have acquired";
+        when usufruit_sur(u, chose)
+            and fruit_de(fruit, chose, espece)
+            and pendant_a_la_cessation(fruit, u);
+        then fruit_pendant_a_la_fin_appartient_au_proprietaire(fruit, u);
+    }
+}
+
+@source(CC_ART586)
+rule FruitsCivilsJourParJour(u: Usufruit, chose: Bien, fruit: Bien) strict {
+    label fr official "Article 586. Les fruits civils sont réputés s'acquérir jour par jour et appartiennent à l'usufruitier à proportion de la durée de son usufruit ; cette règle s'applique aux prix des baux à ferme comme aux loyers des maisons";
+    label en unofficial "Article 586. Civil fruits are deemed acquired day by day and belong to the usufructuary in proportion to the duration of his usufruct; this rule applies to farm rents as to house rents";
+    when usufruit_sur(u, chose)
+        and fruit_de(fruit, chose, FruitCivil);
+    then fruit_civil_acquis_jour_par_jour(u, fruit);
+}
+@source(CC_ART586)
+rule P4LiberteFruitsCivils586(u: Usufruit, chose: Bien, fruit: Bien, p: Personne) strict {
+    label fr official "Article 586. L'usufruitier peut percevoir les fruits civils";
+    label en unofficial "Article 586. The usufructuary may receive civil fruits";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p)
+        and fruit_de(fruit, chose, FruitCivil);
+    then liberty P4LiberteFruitsCivils586Actif {
+        holder p;
+        action fruits_civils_usufruit_exerces(u, fruit, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART587)
+rule QuasiUsufruitDesChosesConsomptibles(u: Usufruit, chose: Bien) strict {
+    label fr official "Article 587. Si l'usufruit comprend des choses dont on ne peut faire usage sans les consommer, l'usufruitier a le droit de s'en servir, mais à la charge de rendre à la fin de l'usufruit des choses de même quantité et qualité, ou leur valeur estimée à la date de la restitution";
+    label en unofficial "Article 587. If the usufruct includes things that cannot be used without being consumed, the usufructuary may use them, but must return at the end of the usufruct things of the same quantity and quality, or their value assessed at the date of return";
+    when usufruit_sur(u, chose)
+        and chose_consomptible(chose);
+    then quasi_usufruit_avec_charge_de_rendre(u, chose);
+}
+
+@source(CC_ART587)
+rule P4DevoirRestituerQuasiUsufruit587(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 587. L'usufruitier doit restituer les choses consomptibles à la fin de l'usufruit";
+    label en unofficial "Article 587. The usufructuary must return consumable things at the end of the usufruct";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p)
+        and chose_consomptible(chose);
+    then duty P4DevoirRestituerQuasiUsufruit587Actif {
+        bearer p;
+        goal achievement {
+            condition restitution_quasi_usufruit_exercee(u, chose, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART588)
+rule UsufruitDUneRenteViagere(u: Usufruit, chose: Bien) strict {
+    label fr official "Article 588. L'usufruit d'une rente viagère donne à l'usufruitier, pendant la durée de son usufruit, le droit d'en percevoir les arrérages, sans être tenu à aucune restitution";
+    label en unofficial "Article 588. The usufruct of a life annuity gives the usufructuary, during the term of his usufruct, the right to receive its instalments, without being liable to any return";
+    when usufruit_sur(u, chose)
+        and rente_viagere(chose);
+    then arrerages_percus_sans_restitution(u, chose);
+}
+
+@source(CC_ART588)
+rule P4LibertePercevoirArrerages588(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 588. L'usufruitier peut percevoir les arrérages de la rente viagère";
+    label en unofficial "Article 588. The usufructuary may receive life annuity instalments";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p)
+        and rente_viagere(chose);
+    then liberty P4LibertePercevoirArrerages588Actif {
+        holder p;
+        action arrerages_usufruit_percus(u, chose, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART589)
+rule ChosesQuiSeDeteriorentParLUsage(u: Usufruit, chose: Bien) strict {
+    label fr official "Article 589. Si l'usufruit comprend des choses qui, sans se consommer de suite, se détériorent peu à peu par l'usage, l'usufruitier a le droit de s'en servir pour l'usage auquel elles sont destinées, et n'est obligé de les rendre à la fin de l'usufruit que dans l'état où elles se trouvent, non détériorées par son dol ou par sa faute";
+    label en unofficial "Article 589. If the usufruct includes things that, without being immediately consumed, deteriorate gradually by use, the usufructuary may use them for their intended purpose, and need only return them at the end of the usufruct in the state they are in, not damaged by his fraud or fault";
+    when usufruit_sur(u, chose)
+        and chose_qui_se_deteriore_par_l_usage(chose);
+    then restitution_en_l_etat_des_choses_qui_se_deteriorent(u, chose);
+}
+
+@source(CC_ART589)
+rule P4DevoirRestituerChoseDeteriorable589(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 589. L'usufruitier doit restituer la chose détériorable dans son état légal";
+    label en unofficial "Article 589. The usufructuary must return the deteriorating thing in its lawful state";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p)
+        and chose_qui_se_deteriore_par_l_usage(chose);
+    then duty P4DevoirRestituerChoseDeteriorable589Actif {
+        bearer p;
+        goal achievement {
+            condition chose_deteriorable_restituee(u, chose, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART595) {
+    rule FaculteDeBaillerDeVendreOuDeCeder(u: Usufruit, p: Personne) strict {
+        label fr official "Article 595, alinéa 1. L'usufruitier peut jouir par lui-même, donner à bail à un autre, même vendre ou céder son droit à titre gratuit";
+        label en unofficial "Article 595, paragraph 1. The usufructuary may enjoy the thing himself, lease it to another, or even sell or transfer his right gratuitously";
+        when usufruitier(u, p);
+        then droit_de_bailler_de_vendre_ou_de_ceder(u, p);
+    }
+}
+
+@source(CC_ART595)
+rule P4LiberteJouirBaillerCeder595(u: Usufruit, p: Personne) strict {
+    label fr official "Article 595, alinéa 1. L'usufruitier peut jouir, donner à bail ou céder son droit";
+    label en unofficial "Article 595, paragraph 1. The usufructuary may enjoy, lease or transfer the right";
+    when usufruitier(u, p);
+    then liberty P4LiberteJouirBaillerCeder595Actif {
+        holder p;
+        action jouissance_bail_cession_usufruit_exercee(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART596)
+rule UsufruitierJouitDeLAlluvion(u: Usufruit, chose: Bien, a: Alluvion, f: Fonds) strict {
+    label fr official "Article 596. L'usufruitier jouit de l'augmentation survenue par alluvion à l'objet dont il a l'usufruit";
+    label en unofficial "Article 596. The usufructuary enjoys the increase by alluvion of the object of his usufruct";
+    when usufruit_sur(u, chose)
+        and alluvion_profite_au_riverain(a, f);
+    then jouissance_de_l_augmentation_par_alluvion(u, a);
+}
+@source(CC_ART596)
+rule P4LiberteJouirAlluvion596(u: Usufruit, chose: Bien, a: Alluvion, f: Fonds, p: Personne) strict {
+    label fr official "Article 596. L'usufruitier peut jouir de l'augmentation par alluvion";
+    label en unofficial "Article 596. The usufructuary may enjoy the increase by alluvion";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p)
+        and alluvion_profite_au_riverain(a, f);
+    then liberty P4LiberteJouirAlluvion596Actif {
+        holder p;
+        action augmentation_alluvion_exercee(u, a, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART597)
+rule UsufruitierJouitDesServitudes(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 597. L'usufruitier jouit des droits de servitude, de passage, et généralement de tous les droits dont le propriétaire peut jouir, et il en jouit comme le propriétaire lui-même";
+    label en unofficial "Article 597. The usufructuary enjoys servitudes, rights of way, and generally all the rights the owner may enjoy, and enjoys them as the owner himself";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then jouissance_des_servitudes_et_droits_du_proprietaire(u, p);
+}
+
+@source(CC_ART597)
+rule P4LiberteExercerDroitsServitude597(u: Usufruit, chose: Bien, p: Personne) strict {
+    label fr official "Article 597. L'usufruitier peut jouir des droits de servitude et de passage";
+    label en unofficial "Article 597. The usufructuary may enjoy servitude and way rights";
+    when usufruit_sur(u, chose)
+        and usufruitier(u, p);
+    then liberty P4LiberteExercerDroitsServitude597Actif {
+        holder p;
+        action droits_servitude_usufruit_exerces(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART599) {
+    rule ProprietaireNeNuitPasALUsufruitier(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599, alinéa 1. Le propriétaire ne peut, par son fait ni de quelque manière que ce soit, nuire aux droits de l'usufruitier";
+        label en unofficial "Article 599, paragraph 1. The owner may not, by his own act or in any way, harm the usufructuary's rights";
+        when nu_proprietaire(u, p);
+        then le_proprietaire_ne_peut_nuire_aux_droits_de_l_usufruitier(u, p);
+    }
+    rule P4InterdictionNuireUsufruit599(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599. Le propriétaire ne peut nuire aux droits de l'usufruitier";
+        label en unofficial "Article 599. The owner may not harm the usufructuary's rights";
+        when nu_proprietaire(u, p);
+        then prohibition P4InterdictionNuireUsufruit599Actif {
+            bearer p;
+            action nuire_droits_usufruit_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionNuireUsufruit599(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599. Le propriétaire doit maintenir les droits de l'usufruitier";
+        label en unofficial "Article 599. The owner must maintain the usufructuary's rights";
+        when nu_proprietaire(u, p);
+        then duty MaintenanceInterdictionNuireUsufruit599Duty {
+            bearer p;
+            goal maintenance {
+                condition not nuire_droits_usufruit_exercee(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule PasDIndemnitePourLesAmeliorations(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599, alinéa 2. L'usufruitier ne peut, à la cessation de l'usufruit, réclamer aucune indemnité pour les améliorations qu'il prétendrait avoir faites, encore que la valeur de la chose en fût augmentée";
+        label en unofficial "Article 599, paragraph 2. The usufructuary may not, when the usufruct ends, claim any indemnity for improvements he claims to have made, even though the value of the thing was increased";
+        when usufruitier(u, p);
+        then aucune_indemnite_pour_les_ameliorations(u, p);
+    }
+    rule P4InterdictionReclamerIndemniteAmeliorations599(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599, alinéa 2. L'usufruitier ne peut réclamer une indemnité pour ses améliorations";
+        label en unofficial "Article 599, paragraph 2. The usufructuary may not claim improvement indemnity";
+        when usufruitier(u, p);
+        then prohibition P4InterdictionReclamerIndemniteAmeliorations599Actif {
+            bearer p;
+            action indemnisation_ameliorations_reclamee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionReclamerIndemniteAmeliorations599(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599. L'usufruitier doit maintenir l'absence de réclamation d'indemnité";
+        label en unofficial "Article 599. The usufructuary must maintain the absence of an improvement claim";
+        when usufruitier(u, p);
+        then duty MaintenanceInterdictionReclamerIndemniteAmeliorations599Duty {
+            bearer p;
+            goal maintenance {
+                condition not indemnisation_ameliorations_reclamee(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule DroitDEnleverLesOrnementsPlaces(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599, alinéa 3. L'usufruitier, ou ses héritiers, peut enlever les glaces, tableaux et autres ornements qu'il aurait fait placer, mais à la charge de rétablir les lieux dans leur premier état";
+        label en unofficial "Article 599, paragraph 3. The usufructuary, or his heirs, may remove the mirrors, paintings and other ornaments he had placed, but must restore the premises to their former state";
+        when usufruitier(u, p);
+        then droit_d_enlever_glaces_tableaux_et_ornements(u, p);
+    }
+    rule P4LiberteEnleverOrnements599(u: Usufruit, p: Personne) strict {
+        label fr official "Article 599, alinéa 3. L'usufruitier peut enlever les ornements qu'il a placés";
+        label en unofficial "Article 599, paragraph 3. The usufructuary may remove ornaments he placed";
+        when usufruitier(u, p);
+        then liberty P4LiberteEnleverOrnements599Actif {
+            holder p;
+            action ornements_usufruit_enleves_et_lieux_retablis(u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+// --- Article 595 : le bail de l'usufruitier, la période de neuf ans -------------------------------
+
+pub enum EspeceDeBien {
+    label fr official "Espèce du bien donné à bail par l'usufruitier (article 595, alinéas 3 et 4)";
+    label en unofficial "Kind of asset leased by the usufructuary (Article 595, paragraphs 3 and 4)";
+    BienRural,
+    Maison,
+    ImmeubleCommercialIndustrielOuArtisanal
+}
+
+pub relation bail_de_l_usufruitier(b: Bail, u: Usufruit) kind empirical {
+    key(b);
+    label fr official "bail que l'usufruitier seul a fait sur la chose soumise à l'usufruit (article 595, alinéa 2)";
+    label en unofficial "lease made by the usufructuary alone over the thing subject to the usufruct (Article 595, paragraph 2)";
+}
+pub relation debut_du_bail(b: Bail, jour: Date) kind empirical {
+    key(b);
+    label fr official "jour où le bail a commencé à courir (article 595, alinéa 2)";
+    label en unofficial "day on which the lease began to run (Article 595, paragraph 2)";
+}
+pub relation duree_du_bail_en_annees(b: Bail, annees: Integer) kind empirical {
+    key(b);
+    label fr official "durée du bail, en années (article 595, alinéas 2 et 3)";
+    label en unofficial "duration of the lease, in years (Article 595, paragraphs 2 and 3)";
+}
+pub relation espece_du_bien_baille(b: Bail, espece: EspeceDeBien) kind empirical {
+    key(b);
+    label fr official "espèce du bien donné à bail (article 595, alinéas 3 et 4)";
+    label en unofficial "kind of asset leased (Article 595, paragraphs 3 and 4)";
+}
+pub relation cessation_de_l_usufruit_le(u: Usufruit, jour: Date) kind empirical {
+    key(u);
+    label fr official "jour de la cessation de l'usufruit (article 595, alinéa 2)";
+    label en unofficial "day on which the usufruct ceased (Article 595, paragraph 2)";
+}
+pub relation expiration_du_bail_courant_le(b: Bail, jour: Date) kind empirical {
+    key(b);
+    label fr official "jour de l'expiration du bail courant que le bail nouveau renouvelle (article 595, alinéa 3)";
+    label en unofficial "day on which the current lease renewed by the new lease expires (Article 595, paragraph 3)";
+}
+pub relation bail_passe_ou_renouvele_le(b: Bail, jour: Date) kind empirical {
+    key(b);
+    label fr official "jour où le bail de neuf ans ou au-dessous a été passé ou renouvelé (article 595, alinéa 3)";
+    label en unofficial "day on which the lease of nine years or less was made or renewed (Article 595, paragraph 3)";
+}
+pub relation execution_commencee_avant_la_cessation(b: Bail) kind empirical {
+    label fr official "l'exécution du bail a commencé avant la cessation de l'usufruit (article 595, alinéa 3)";
+    label en unofficial "performance of the lease began before the usufruct ceased (Article 595, paragraph 3)";
+}
+pub relation concours_du_nu_proprietaire(b: Bail) kind empirical {
+    label fr official "le nu-propriétaire a concouru à l'acte, ou l'usufruitier y a été autorisé par justice (article 595, alinéa 4)";
+    label en unofficial "the bare owner joined in the act, or the usufructuary was judicially authorised (Article 595, paragraph 4)";
+}
+
+pub relation bail_excede_neuf_ans(b: Bail) kind derived {
+    label fr official "le bail que l'usufruitier seul a fait est pour un temps qui excède neuf ans (article 595, alinéa 2)";
+    label en unofficial "the lease made by the usufructuary alone is for a period exceeding nine years (Article 595, paragraph 2)";
+}
+pub relation bail_de_neuf_ans_ou_au_dessous(b: Bail) kind derived {
+    label fr official "le bail est de neuf ans ou au-dessous (article 595, alinéa 3)";
+    label en unofficial "the lease is of nine years or less (Article 595, paragraph 3)";
+}
+pub relation fin_de_periode_de_neuf_ans(b: Bail, rang: Integer, jour: Date) kind derived {
+    label fr official "dernier jour de la période de neuf ans de rang donné, comptée depuis le début du bail (article 595, alinéa 2)";
+    label en unofficial "last day of the nine-year period of the given rank, counted from the start of the lease (Article 595, paragraph 2)";
+}
+pub relation bail_opposable_au_nu_proprietaire_jusqu_au(b: Bail, jour: Date) kind derived {
+    label fr official "le bail n'est obligatoire à l'égard du nu-propriétaire que jusqu'au terme de la période de neuf ans où le preneur se trouve à la cessation de l'usufruit (article 595, alinéa 2)";
+    label en unofficial "the lease binds the bare owner only until the end of the nine-year period in which the tenant finds himself when the usufruct ceases (Article 595, paragraph 2)";
+}
+pub relation bail_sans_effet(b: Bail) kind derived {
+    label fr official "le bail renouvelé trop tôt avant l'expiration du bail courant est sans effet (article 595, alinéa 3)";
+    label en unofficial "a lease renewed too early before the expiry of the current lease is of no effect (Article 595, paragraph 3)";
+}
+pub relation bail_nul_faute_de_concours(b: Bail) kind derived {
+    label fr official "l'usufruitier ne peut, sans le concours du nu-propriétaire, donner à bail un fonds rural ou un immeuble à usage commercial, industriel ou artisanal (article 595, alinéa 4)";
+    label en unofficial "the usufructuary may not, without the bare owner joining in, lease rural land or premises for commercial, industrial or craft use (Article 595, paragraph 4)";
+}
+pub relation bail_agricole_ou_commercial_exerce_sans_concours(b: Bail, u: Usufruit, p: Personne) kind empirical {
+    label fr official "bail rural ou commercial exercé sans concours du nu-propriétaire";
+    label en unofficial "rural or commercial lease exercised without bare owner's joinder";
+}
+pub relation bail_rural_ou_commercial(b: Bail) kind derived {
+    label fr official "bail rural ou commercial soumis au concours du nu-propriétaire";
+    label en unofficial "rural or commercial lease requiring bare owner's joinder";
+}
+
+@source(CC_ART595) {
+    rule BailExcedantNeufAns(b: Bail, u: Usufruit, annees: Integer) strict {
+        label fr official "Article 595, alinéa 2. Les baux que l'usufruitier seul a faits pour un temps qui excède neuf ans ne sont, en cas de cessation de l'usufruit, obligatoires à l'égard du nu-propriétaire que pour le temps qui reste à courir de la période de neuf ans où le preneur se trouve";
+        label en unofficial "Article 595, paragraph 2. Leases made by the usufructuary alone for a period exceeding nine years bind the bare owner, when the usufruct ceases, only for the time remaining of the nine-year period in which the tenant finds himself";
+        when bail_de_l_usufruitier(b, u)
+            and duree_du_bail_en_annees(b, annees)
+            and annees > 9;
+        then bail_excede_neuf_ans(b);
+    }
+    rule BailDeNeufAnsOuAuDessous(b: Bail, u: Usufruit, annees: Integer) strict {
+        label fr official "Article 595, alinéa 3. Les baux de neuf ans ou au-dessous que l'usufruitier seul a passés ou renouvelés";
+        label en unofficial "Article 595, paragraph 3. Leases of nine years or less made or renewed by the usufructuary alone";
+        when bail_de_l_usufruitier(b, u)
+            and duree_du_bail_en_annees(b, annees)
+            and annees <= 9;
+        then bail_de_neuf_ans_ou_au_dessous(b);
+    }
+    rule PremierePeriodeDeNeufAns(b: Bail, debut: Date) strict {
+        label fr official "Article 595, alinéa 2. La première période de neuf ans court du début du bail";
+        label en unofficial "Article 595, paragraph 2. The first nine-year period runs from the start of the lease";
+        when bail_excede_neuf_ans(b)
+            and debut_du_bail(b, debut);
+        then fin_de_periode_de_neuf_ans(b, 1, add_calendar_period(debut, 9 calendar_year));
+    }
+    rule PeriodeDeNeufAnsSuivante(b: Bail, u: Usufruit, rang: Integer, jour: Date, cessation: Date) strict {
+        label fr official "Article 595, alinéa 2. Et ainsi de suite, de la seconde période et des suivantes, tant que la cessation de l'usufruit les dépasse";
+        label en unofficial "Article 595, paragraph 2. And so on, for the second and following periods, as long as the cessation of the usufruct goes beyond them";
+        when monotone(fin_de_periode_de_neuf_ans(b, rang, jour))
+            and bail_de_l_usufruitier(b, u)
+            and cessation_de_l_usufruit_le(u, cessation)
+            and cessation > jour;
+        then fin_de_periode_de_neuf_ans(b, rang + 1, add_calendar_period(jour, 9 calendar_year));
+    }
+    rule TermeOpposableAuNuProprietaire(b: Bail, u: Usufruit, rang: Integer, jour: Date, cessation: Date) strict {
+        label fr official "Article 595, alinéa 2. De manière que le preneur n'ait que le droit d'achever la jouissance de la période de neuf ans où il se trouve";
+        label en unofficial "Article 595, paragraph 2. So that the tenant has only the right to complete the enjoyment of the nine-year period in which he finds himself";
+        when fin_de_periode_de_neuf_ans(b, rang, jour)
+            and bail_de_l_usufruitier(b, u)
+            and cessation_de_l_usufruit_le(u, cessation)
+            and cessation <= jour;
+        then bail_opposable_au_nu_proprietaire_jusqu_au(b, jour);
+    }
+    rule RenouvellementTropTotBienRural(b: Bail, passe: Date, expiration: Date) strict {
+        label fr official "Article 595, alinéa 3. Les baux de neuf ans ou au-dessous passés ou renouvelés plus de trois ans avant l'expiration du bail courant, s'il s'agit de biens ruraux, sont sans effet, à moins que leur exécution n'ait commencé avant la cessation de l'usufruit";
+        label en unofficial "Article 595, paragraph 3. Leases of nine years or less made or renewed more than three years before the expiry of the current lease, in the case of rural property, are of no effect, unless their performance began before the usufruct ceased";
+        when bail_de_neuf_ans_ou_au_dessous(b)
+            and espece_du_bien_baille(b, BienRural)
+            and bail_passe_ou_renouvele_le(b, passe)
+            and expiration_du_bail_courant_le(b, expiration)
+            and add_calendar_period(passe, 3 calendar_year) < expiration
+            and not_known(execution_commencee_avant_la_cessation(b));
+        then bail_sans_effet(b);
+    }
+    rule RenouvellementTropTotMaison(b: Bail, passe: Date, expiration: Date) strict {
+        label fr official "Article 595, alinéa 3. Et plus de deux ans avant la même époque s'il s'agit de maisons";
+        label en unofficial "Article 595, paragraph 3. And more than two years before the same time in the case of houses";
+        when bail_de_neuf_ans_ou_au_dessous(b)
+            and espece_du_bien_baille(b, Maison)
+            and bail_passe_ou_renouvele_le(b, passe)
+            and expiration_du_bail_courant_le(b, expiration)
+            and add_calendar_period(passe, 2 calendar_year) < expiration
+            and not_known(execution_commencee_avant_la_cessation(b));
+        then bail_sans_effet(b);
+    }
+    rule BailRuralOuCommercialSansConcours(b: Bail, u: Usufruit) strict {
+        label fr official "Article 595, alinéa 4. L'usufruitier ne peut, sans le concours du nu-propriétaire, donner à bail un fonds rural ou un immeuble à usage commercial, industriel ou artisanal ; à défaut d'accord, il peut être autorisé par justice à passer seul cet acte";
+        label en unofficial "Article 595, paragraph 4. The usufructuary may not, without the bare owner joining in, lease rural land or premises for commercial, industrial or craft use; failing agreement, he may be judicially authorised to make the act alone";
+        when bail_de_l_usufruitier(b, u)
+            and espece_du_bien_baille(b, ImmeubleCommercialIndustrielOuArtisanal)
+            and not_known(concours_du_nu_proprietaire(b));
+        then bail_nul_faute_de_concours(b);
+    }
+    rule BailRuralSansConcours(b: Bail, u: Usufruit) strict {
+        label fr official "Article 595, alinéa 4. La même règle s'applique au bail d'un fonds rural";
+        label en unofficial "Article 595, paragraph 4. The same rule applies to a lease of rural land";
+        when bail_de_l_usufruitier(b, u)
+            and espece_du_bien_baille(b, BienRural)
+            and not_known(concours_du_nu_proprietaire(b));
+        then bail_nul_faute_de_concours(b);
+    }
+    rule BailRuralOuCommercial(b: Bail) strict {
+        label fr official "Article 595, alinéa 4. Bail rural ou commercial";
+        label en unofficial "Article 595, paragraph 4. Rural or commercial lease";
+        when espece_du_bien_baille(b, BienRural);
+        then bail_rural_ou_commercial(b);
+    }
+    rule BailCommercialOuArtisanal(b: Bail) strict {
+        label fr official "Article 595, alinéa 4. Bail commercial, industriel ou artisanal";
+        label en unofficial "Article 595, paragraph 4. Commercial, industrial or craft lease";
+        when espece_du_bien_baille(b, ImmeubleCommercialIndustrielOuArtisanal);
+        then bail_rural_ou_commercial(b);
+    }
+    rule P4InterdictionBailSansConcours595(b: Bail, u: Usufruit, p: Personne) strict {
+        label fr official "Article 595, alinéa 4. L'usufruitier ne peut donner certains baux sans concours";
+        label en unofficial "Article 595, paragraph 4. The usufructuary may not make certain leases without joinder";
+        when bail_de_l_usufruitier(b, u)
+            and usufruitier(u, p)
+            and not_known(concours_du_nu_proprietaire(b))
+            and bail_rural_ou_commercial(b);
+        then prohibition P4InterdictionBailSansConcours595Actif {
+            bearer p;
+            action bail_agricole_ou_commercial_exerce_sans_concours(b, u, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionBailSansConcours595(b: Bail, u: Usufruit, p: Personne) strict {
+        label fr official "Article 595. L'usufruitier doit maintenir l'absence de bail sans concours";
+        label en unofficial "Article 595. The usufructuary must maintain the absence of a lease without joinder";
+        when bail_de_l_usufruitier(b, u)
+            and usufruitier(u, p)
+            and not_known(concours_du_nu_proprietaire(b))
+            and bail_rural_ou_commercial(b);
+        then duty MaintenanceInterdictionBailSansConcours595Duty {
+            bearer p;
+            goal maintenance {
+                condition not bail_agricole_ou_commercial_exerce_sans_concours(b, u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}

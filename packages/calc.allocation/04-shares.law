@@ -1,0 +1,217 @@
+// Доли: усечение, остаток округления, ранги и раздача по наибольшим остаткам.
+//
+// УСЕЧЕНИЕ — ОДНА ОПЕРАЦИЯ, А НЕ ДВЕ. Точная доля `pool * w / W` может быть
+// непредставима (`Money * Rational` даёт INEXACT_DIVISION на 1/3), поэтому
+// деление и округление здесь — терм `div_round` §50 (errata E-0036): он
+// округляет ТОЧНОЕ частное вниз к объявленной точности и не вычисляет
+// непредставимого промежуточного значения.
+//
+// ОТБРОШЕННАЯ ДРОБНАЯ ЧАСТЬ БЕЗ ДЕЛЕНИЯ. Сравнивать остатки получателей нужно
+// между собой, а не с чем-то ещё, поэтому достаточно величины, монотонной по
+// дробной части: `pool * w - floor * W` есть дробная часть, умноженная на
+// положительную сумму весов W. Она денежная, точная и не требует деления.
+//
+// РАНГ НА ОСТАТОК — СЧЁТ ПРЕДШЕСТВЕННИКОВ: сколько получателей очереди несут
+// больший остаток, плюс сколько несут равный остаток и меньший приоритет.
+// Получатель без приоритета вторых не считает вовсе; равный остаток без
+// приоритетов даёт РАВНЫЕ ранги — и это видно, а не спрятано.
+//
+// РАЗДАЧА. Остаток очереди L есть целое число единиц u (сумма и усечённые
+// доли представимы при точности). Единицу получает тот, чей ранг n
+// удовлетворяет n·u < L. Группа равных рангов размера g получает единицы
+// ТОЛЬКО целиком: либо (n + g - 1)·u < L и единицу берёт каждый, либо
+// n·u >= L и не берёт никто. Если граница проходит внутри группы — ни одно
+// правило доли не срабатывает, и на этом получателе стоит названное
+// неразрешённое равенство: победителя пакет не назначает.
+
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+use self::{
+    Allocation,
+    Recipient,
+    RemainderPolicy,
+    allocation_precision,
+    allocation_remainder_policy,
+    allocation_unit,
+    allocation_unresolved_tie,
+    class_floor_sum,
+    class_leftover,
+    class_pool,
+    class_weight,
+    class_weight_sum,
+    recipient_priority,
+    share_amount,
+    share_floor,
+    share_rank,
+    share_scaled_remainder,
+    share_tie_size,
+};
+
+// --- Усечённая доля ----------------------------------------------------------
+
+rule ShareFloor(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    pool: Money,
+    w: Decimal,
+    sumw: Decimal,
+    p: Integer,
+) strict {
+    label ru official "усечённая доля есть фонд очереди, умноженный на вес и делённый на сумму весов, усечённый вниз к точности";
+    when class_pool(a, k, pool) and class_weight(a, k, r, w)
+        and class_weight_sum(a, k, sumw) and sumw > 0.0
+        and allocation_precision(a, p);
+    then share_floor(a, r, div_round(pool * w, sumw, p, "DOWN"));
+}
+
+rule ShareScaledRemainder(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    pool: Money,
+    w: Decimal,
+    sumw: Decimal,
+    floor: Money,
+) strict {
+    label ru official "отброшенная дробная часть доли, умноженная на сумму весов очереди";
+    when class_pool(a, k, pool) and class_weight(a, k, r, w)
+        and class_weight_sum(a, k, sumw) and share_floor(a, r, floor);
+    then share_scaled_remainder(a, r, pool * w - floor * sumw);
+}
+
+// --- Остаток очереди ---------------------------------------------------------
+
+rule ClassFloorSum(a: Allocation, k: Integer, pool: Money) strict {
+    label ru official "сумма усечённых долей очереди";
+    when class_pool(a, k, pool)
+        and (count all f: Money for r: Recipient, w: Decimal where class_weight(a, k, r, w) and share_floor(a, r, f)) >= 1;
+    then class_floor_sum(a, k, (sum all f: Money for r: Recipient, w: Decimal where class_weight(a, k, r, w) and share_floor(a, r, f)));
+}
+
+rule ClassLeftover(a: Allocation, k: Integer, pool: Money, floors: Money) strict {
+    label ru official "остаток округления очереди есть её фонд минус сумма усечённых долей";
+    when class_pool(a, k, pool) and class_floor_sum(a, k, floors);
+    then class_leftover(a, k, pool - floors);
+}
+
+// --- Ранг на остаток ---------------------------------------------------------
+
+rule ShareRankWithPriority(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    x: Money,
+    q: Integer,
+) strict {
+    label ru official "ранг получателя с приоритетом: получатели с большим остатком плюс получатели с равным остатком и меньшим приоритетом";
+    when class_weight(a, k, r, w) and share_scaled_remainder(a, r, x)
+        and recipient_priority(r, q);
+    then share_rank(a, r,
+            (count distinct r2: Recipient for w2: Decimal, x2: Money where class_weight(a, k, r2, w2) and share_scaled_remainder(a, r2, x2)
+                and x2 > x)
+            + (count distinct r2: Recipient for w2: Decimal, x2: Money, q2: Integer where class_weight(a, k, r2, w2) and share_scaled_remainder(a, r2, x2)
+                and x2 == x and recipient_priority(r2, q2) and q2 < q));
+}
+
+rule ShareRankWithoutPriority(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    x: Money,
+) strict {
+    label ru official "ранг получателя без приоритета: только получатели с большим остатком";
+    when class_weight(a, k, r, w) and share_scaled_remainder(a, r, x)
+        and (count all q: Integer where recipient_priority(r, q)) == 0;
+    then share_rank(a, r,
+            (count distinct r2: Recipient for w2: Decimal, x2: Money where class_weight(a, k, r2, w2) and share_scaled_remainder(a, r2, x2)
+                and x2 > x));
+}
+
+// Размер группы равных считается ВКЛЮЧАЯ самого получателя: единица — норма,
+// двойка и выше — равенство, которое приоритет не развёл.
+rule ShareTieSize(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    x: Money,
+    n: Integer,
+) strict {
+    label ru official "число получателей очереди с тем же остатком и тем же рангом, включая самого получателя";
+    when class_weight(a, k, r, w) and share_scaled_remainder(a, r, x)
+        and share_rank(a, r, n);
+    then share_tie_size(a, r,
+            (count distinct r2: Recipient for w2: Decimal, x2: Money, n2: Integer where class_weight(a, k, r2, w2) and share_scaled_remainder(a, r2, x2)
+                and x2 == x and share_rank(a, r2, n2) and n2 == n));
+}
+
+// --- Раздача остатка ---------------------------------------------------------
+
+rule ShareWithUnit(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    f: Money,
+    u: Money,
+    n: Integer,
+    g: Integer,
+    left: Money,
+) strict {
+    label ru official "при раздаче по наибольшим остаткам получатель, вся группа которого умещается до границы, получает усечённую долю и одну единицу";
+    when allocation_remainder_policy(a, LargestRemainder)
+        and class_weight(a, k, r, w) and class_leftover(a, k, left)
+        and share_floor(a, r, f) and allocation_unit(a, u)
+        and share_rank(a, r, n) and share_tie_size(a, r, g)
+        and (n + g - 1) * u < left;
+    then share_amount(a, r, f + u);
+}
+
+rule ShareWithoutUnit(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    f: Money,
+    u: Money,
+    n: Integer,
+    left: Money,
+) strict {
+    label ru official "при раздаче по наибольшим остаткам получатель, чей ранг стоит на границе или за ней, получает усечённую долю";
+    when allocation_remainder_policy(a, LargestRemainder)
+        and class_weight(a, k, r, w) and class_leftover(a, k, left)
+        and share_floor(a, r, f) and allocation_unit(a, u)
+        and share_rank(a, r, n)
+        and n * u >= left;
+    then share_amount(a, r, f);
+}
+
+rule ShareWithheld(a: Allocation, r: Recipient, f: Money) strict {
+    label ru official "при удержании остатка доля получателя есть усечённая доля";
+    when allocation_remainder_policy(a, Withheld) and share_floor(a, r, f);
+    then share_amount(a, r, f);
+}
+
+rule UnresolvedTie(
+    a: Allocation,
+    r: Recipient,
+    k: Integer,
+    w: Decimal,
+    u: Money,
+    n: Integer,
+    g: Integer,
+    left: Money,
+) strict {
+    label ru official "граница раздачи проходит внутри группы равных остатков, не разведённых приоритетом";
+    when allocation_remainder_policy(a, LargestRemainder)
+        and class_weight(a, k, r, w) and class_leftover(a, k, left)
+        and allocation_unit(a, u)
+        and share_rank(a, r, n) and share_tie_size(a, r, g)
+        and n * u < left and (n + g - 1) * u >= left;
+    then allocation_unresolved_tie(a, r);
+}

@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1352-9 : les sûretés constituées pour le paiement de l'obligation sont reportées
+// DE PLEIN DROIT sur l'obligation de restituer.
+test "urn:query:fr-code-civil-obligations-r12-suretes-reportees-sur-l-obligation-de-restituer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": restitution_due(entity_ref("urn:fr:cc:obligations:rsu:r"), entity_ref("urn:fr:cc:obligations:rsu:D"), entity_ref("urn:fr:cc:obligations:rsu:CR")) { origin case_input; }
+        assert "f2": surete_constituee_pour_le_paiement(entity_ref("urn:fr:cc:obligations:rsu:r"), entity_ref("urn:fr:cc:obligations:rsu:c")) { origin case_input; }
+    }
+    evaluate truth(surete_reportee_sur_l_obligation_de_restituer(entity_ref("urn:fr:cc:obligations:rsu:r"), entity_ref("urn:fr:cc:obligations:rsu:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SuretesReporteesSurLObligationDeRestituer);
+}

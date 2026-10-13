@@ -1,0 +1,27 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1128 : consentement des deux parties, capacité des deux parties, contenu licite et certain — le contrat est légalement formé.
+test "urn:query:fr-code-civil-contrat-v01-trois-conditions-contrat-legalement-forme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v01"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:v01"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:v01"), "1145") { origin case_input; }
+        assert "f4": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p1")) { origin case_input; }
+        assert "f5": personne_physique(entity_ref("urn:fr:cc:contrat:v01:p1")) { origin case_input; }
+        assert "f6": consentement_donne_par(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p1")) { origin case_input; }
+        assert "f7": sain_d_esprit(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p1")) { origin case_input; }
+        assert "f8": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p2")) { origin case_input; }
+        assert "f9": personne_physique(entity_ref("urn:fr:cc:contrat:v01:p2")) { origin case_input; }
+        assert "f10": consentement_donne_par(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p2")) { origin case_input; }
+        assert "f11": sain_d_esprit(entity_ref("urn:fr:cc:contrat:v01"), entity_ref("urn:fr:cc:contrat:v01:p2")) { origin case_input; }
+        assert "f12": prestation_possible(entity_ref("urn:fr:cc:contrat:v01")) { origin case_input; }
+        assert "f13": prestation_determinee(entity_ref("urn:fr:cc:contrat:v01")) { origin case_input; }
+    }
+    evaluate truth(contrat_legalement_forme(entity_ref("urn:fr:cc:contrat:v01")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ContratLegalementForme);
+}

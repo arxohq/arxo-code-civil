@@ -1,0 +1,290 @@
+// CHAPITRE V — EXÉCUTEURS TESTAMENTAIRES, RÉVOCATION ET CADUCITÉ (1025 à 1047).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART1025,
+    CC_ART1026,
+    CC_ART1027,
+    CC_ART1028,
+    CC_ART1029,
+    CC_ART1030,
+    CC_ART1030_1,
+    CC_ART1030_2,
+    CC_ART1031,
+    CC_ART1032,
+    CC_ART1033,
+    CC_ART1033_1,
+    CC_ART1034,
+    CC_ART1035,
+    CC_ART1036,
+    CC_ART1037,
+    CC_ART1038,
+    CC_ART1039,
+    CC_ART1040,
+    CC_ART1041,
+    CC_ART1042,
+    CC_ART1043,
+    CC_ART1044,
+    CC_ART1045,
+    CC_ART1046,
+    CC_ART1047,
+    Liberalite,
+};
+
+pub relation executeur_capable_nomme_et_accepte(l: Liberalite) kind empirical { label fr official "un exécuteur capable est nommé et accepte sa mission"; label en unofficial "a capable executor is appointed and accepts the mission"; }
+pub relation mission_executeur_obligatoire_non_transmissible(l: Liberalite) kind derived { label fr official "mission obligatoire et non transmissible de l'exécuteur"; label en unofficial "executor's mandatory and non-transferable mission"; }
+pub relation motifs_graves_releves_par_tribunal(l: Liberalite) kind empirical { label fr official "le tribunal relève des motifs graves"; label en unofficial "the court finds serious grounds"; }
+pub relation executeur_releve_mission(l: Liberalite) kind derived { label fr official "exécuteur relevé de sa mission"; label en unofficial "executor discharged from the mission"; }
+pub relation plusieurs_executeurs_acceptants(l: Liberalite) kind empirical { label fr official "plusieurs exécuteurs ont accepté"; label en unofficial "several executors have accepted"; }
+pub relation un_executeur_peut_agir_defaut_autres(l: Liberalite) kind derived { label fr official "un exécuteur peut agir à défaut des autres"; label en unofficial "one executor may act in the others' absence"; }
+pub relation contestation_validite_ou_execution(l: Liberalite) kind empirical { label fr official "la validité ou l'exécution du testament ou du legs est contestée"; label en unofficial "validity or performance of the will or legacy is disputed"; }
+pub relation executeur_intervient_soutien_execution(l: Liberalite) kind derived { label fr official "l'exécuteur intervient pour soutenir la validité ou exiger l'exécution"; label en unofficial "the executor intervenes to uphold validity or require performance"; }
+pub relation mesure_conservatoire_inventaire_ou_vente_urgente(l: Liberalite) kind empirical { label fr official "une mesure conservatoire, un inventaire ou une vente urgente est nécessaire"; label en unofficial "a protective measure, inventory or urgent sale is necessary"; }
+pub relation executeur_habilite_mesure_conservatoire(l: Liberalite) kind derived { label fr official "exécuteur habilité à la mesure conservatoire"; label en unofficial "executor empowered to take the protective measure"; }
+pub relation habilitation_mobilier_pour_legs_particuliers(l: Liberalite) kind empirical { label fr official "le testament habilite à prendre et vendre le mobilier pour acquitter les legs particuliers"; label en unofficial "the will empowers taking and selling movables to satisfy particular legacies"; }
+pub relation pouvoir_mobilier_limite_quotite_disponible(l: Liberalite) kind derived { label fr official "pouvoir sur le mobilier limité à la quotité disponible"; label en unofficial "power over movables limited to the disposable share"; }
+pub relation aucun_reservataire_acceptant_et_habilitation_etendue(l: Liberalite) kind empirical { label fr official "aucun réservataire n'accepte et le testament donne une habilitation étendue"; label en unofficial "no forced heir accepts and the will grants extended authority"; }
+pub relation pouvoir_disposition_immeubles_et_partage(l: Liberalite) kind derived { label fr official "pouvoir de disposer des immeubles, payer et partager après information"; label en unofficial "power to dispose of immovables, pay and distribute after notice"; }
+pub relation testament_authentique(l: Liberalite) kind empirical { label fr official "le testament est authentique"; label en unofficial "the will is authentic"; }
+pub relation envoi_possession_non_requis(l: Liberalite) kind derived { label fr official "envoi en possession non requis"; label en unofficial "order placing in possession not required"; }
+pub relation ouverture_testament_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date d'ouverture du testament"; label en unofficial "date the will was opened"; }
+pub relation exercice_habilitation_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date d'exercice de l'habilitation"; label en unofficial "date the authority is exercised"; }
+pub relation habilitation_dans_deux_ans(l: Liberalite) kind derived { label fr official "habilitation exercée dans la durée maximale de deux ans"; label en unofficial "authority exercised within the maximum two-year period"; }
+pub relation mission_executeur_en_cours_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date d'appréciation de la mission de l'exécuteur"; label en unofficial "date on which the executor's mission is assessed"; }
+pub relation mission_executeur_encore_valable(l: Liberalite) kind derived { label fr official "mission de l'exécuteur encore valable"; label en unofficial "executor's mission still valid"; }
+pub relation fin_mission_executeur_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de fin de la mission de l'exécuteur"; label en unofficial "date the executor's mission ended"; }
+pub relation compte_rendu_executeur_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de reddition des comptes par l'exécuteur"; label en unofficial "date the executor renders accounts"; }
+pub relation compte_rendu_dans_six_mois(l: Liberalite) kind derived { label fr official "comptes rendus dans les six mois"; label en unofficial "accounts rendered within six months"; }
+pub relation liberalite_particuliere_executeur_services(l: Liberalite) kind empirical { label fr official "une libéralité particulière rémunère l'exécuteur selon les facultés et services"; label en unofficial "a particular gift rewards the executor according to means and services"; }
+pub relation remuneration_executeur_admise(l: Liberalite) kind derived { label fr official "rémunération particulière de l'exécuteur admise"; label en unofficial "particular remuneration of the executor permitted"; }
+pub relation frais_executeur_exercice_mission(l: Liberalite) kind empirical { label fr official "l'exécuteur supporte des frais dans sa mission"; label en unofficial "the executor incurs expenses in the mission"; }
+pub relation frais_executeur_charge_succession(l: Liberalite) kind derived { label fr official "frais de l'exécuteur à la charge de la succession"; label en unofficial "executor's expenses borne by the estate"; }
+pub relation testament_posterieur_ou_acte_notarie_changement(l: Liberalite) kind empirical { label fr official "un testament postérieur ou un acte notarié déclare le changement de volonté"; label en unofficial "a later will or notarized instrument declares a change of intent"; }
+pub relation testament_revoque(l: Liberalite) kind derived { label fr official "testament révoqué en tout ou partie"; label en unofficial "will revoked in whole or part"; }
+pub relation dispositions_anciennes_incompatibles_nouvelles(l: Liberalite) kind empirical { label fr official "les dispositions anciennes sont incompatibles avec les nouvelles"; label en unofficial "the former dispositions are incompatible with the new ones"; }
+pub relation seules_dispositions_incompatibles_revoquees(l: Liberalite) kind derived { label fr official "seules les dispositions incompatibles sont révoquées"; label en unofficial "only incompatible dispositions are revoked"; }
+pub relation nouvel_acte_inexecute_incapacite_ou_refus(l: Liberalite) kind empirical { label fr official "le nouvel acte reste inexécuté par incapacité ou refus du bénéficiaire"; label en unofficial "the new instrument remains unperformed because of incapacity or refusal"; }
+pub relation revocation_nouvel_acte_conserve_effet(l: Liberalite) kind derived { label fr official "révocation du nouvel acte conservant son effet"; label en unofficial "revocation in the new instrument remains effective"; }
+pub relation chose_leguee_alienee_par_testateur(l: Liberalite) kind empirical { label fr official "la chose léguée est aliénée par le testateur"; label en unofficial "the devised thing is alienated by the testator"; }
+pub relation legs_revoque_partie_alienee(l: Liberalite) kind derived { label fr official "legs révoqué pour la partie aliénée"; label en unofficial "legacy revoked as to the alienated part"; }
+pub relation beneficiaire_ne_survit_pas_testateur(l: Liberalite) kind empirical { label fr official "le bénéficiaire ne survit pas au testateur"; label en unofficial "the beneficiary does not survive the testator"; }
+pub relation disposition_testamentaire_caduque(l: Liberalite) kind derived { label fr official "disposition testamentaire caduque"; label en unofficial "testamentary disposition lapsed"; }
+pub relation beneficiaire_decede_avant_condition_incertaine(l: Liberalite) kind empirical { label fr official "le bénéficiaire décède avant l'événement conditionnant l'exécution"; label en unofficial "the beneficiary dies before the event conditioning performance"; }
+pub relation condition_suspend_seulement_execution(l: Liberalite) kind empirical { label fr official "la condition ne suspend que l'exécution"; label en unofficial "the condition merely suspends performance"; }
+pub relation droit_acquis_transmissible_sous_condition(l: Liberalite) kind derived { label fr official "droit acquis transmissible malgré la condition"; label en unofficial "acquired right transmissible despite the condition"; }
+pub relation chose_leguee_totalement_perie_sans_faute(l: Liberalite) kind empirical { label fr official "la chose léguée périt totalement sans faute pertinente"; label en unofficial "the devised thing wholly perishes without relevant fault"; }
+pub relation beneficiaire_repudie_ou_incapable(l: Liberalite) kind empirical { label fr official "le bénéficiaire répudie ou est incapable de recueillir"; label en unofficial "the beneficiary disclaims or is incapable of taking"; }
+pub relation legs_conjoint_sans_parts_assignees(l: Liberalite) kind empirical { label fr official "le legs est conjoint sans parts assignées"; label en unofficial "the legacy is joint without assigned shares"; }
+pub relation accroissement_colegataires(l: Liberalite) kind derived { label fr official "accroissement au profit des colégataires"; label en unofficial "accrual in favor of co-legatees"; }
+pub relation chose_indivisible_leguee_plusieurs(l: Liberalite) kind empirical { label fr official "une chose indivisible sans détérioration est léguée à plusieurs"; label en unofficial "a thing indivisible without deterioration is devised to several persons"; }
+pub relation cause_revocation_donation_applicable_testament(l: Liberalite) kind empirical { label fr official "une cause de révocation des donations visée par l'article 1046 existe"; label en unofficial "a gift-revocation ground identified by Article 1046 exists"; }
+pub relation revocation_disposition_testamentaire_demandable(l: Liberalite) kind derived { label fr official "révocation de la disposition testamentaire demandable"; label en unofficial "revocation of the testamentary disposition may be sought"; }
+pub relation injure_memoire_commise_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de l'injure grave à la mémoire du testateur"; label en unofficial "date of the serious insult to the testator's memory"; }
+pub relation demande_revocation_testament_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de la demande de révocation testamentaire"; label en unofficial "date of the testamentary revocation claim"; }
+pub relation action_injure_memoire_dans_un_an(l: Liberalite) kind derived { label fr official "action pour injure à la mémoire introduite dans l'année"; label en unofficial "claim for insult to memory brought within one year"; }
+
+@source(CC_ART1025) rule MissionExecuteur(l: Liberalite) strict { label fr official "Article 1025. L'exécuteur capable qui accepte accomplit une mission non transmissible"; label en unofficial "Article 1025. A capable executor who accepts performs a non-transferable mission"; when executeur_capable_nomme_et_accepte(l); then mission_executeur_obligatoire_non_transmissible(l); }
+pub relation accomplir_mission_executeur_1025(l: Liberalite) kind empirical { label fr official "l'exécuteur accomplit sa mission"; label en unofficial "the executor performs the mission"; }
+@source(CC_ART1025)
+rule PositionDevoirAccomplirMissionExecuteur(l: Liberalite) strict {
+    label fr official "Article 1025. L'exécuteur doit accomplir sa mission";
+    label en unofficial "Article 1025. The executor must perform the mission";
+    when executeur_capable_nomme_et_accepte(l);
+    then duty DevoirAccomplirMissionExecuteur {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition accomplir_mission_executeur_1025(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation demander_releve_executeur_1026(l: Liberalite) kind empirical { label fr official "le tribunal relève l'exécuteur pour motifs graves"; label en unofficial "the court discharges the executor for serious grounds"; }
+@source(CC_ART1026)
+rule PositionPouvoirReleverExecuteur(l: Liberalite) strict {
+    label fr official "Article 1026. Le tribunal peut relever l'exécuteur";
+    label en unofficial "Article 1026. The court may discharge the executor";
+    when motifs_graves_releves_par_tribunal(l) and demander_releve_executeur_1026(l);
+    then liberty PouvoirReleverExecuteur {
+        holder entity_ref("urn:fr:cc:liberalites:tribunal");
+        action demander_releve_executeur_1026(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation agir_executeur_defaut_1027(l: Liberalite) kind empirical { label fr official "un exécuteur agit à défaut des autres"; label en unofficial "an executor acts in the others' absence"; }
+@source(CC_ART1027)
+rule PositionPouvoirAgirExecuteurDefaut(l: Liberalite) strict {
+    label fr official "Article 1027. Un exécuteur peut agir à défaut des autres";
+    label en unofficial "Article 1027. An executor may act in the others' absence";
+    when plusieurs_executeurs_acceptants(l) and agir_executeur_defaut_1027(l);
+    then liberty PouvoirAgirExecuteurDefaut {
+        holder entity_ref("urn:fr:cc:liberalites:executeur");
+        action agir_executeur_defaut_1027(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation intervenir_contestation_1028(l: Liberalite) kind empirical { label fr official "l'exécuteur intervient dans la contestation"; label en unofficial "the executor intervenes in the dispute"; }
+@source(CC_ART1028)
+rule PositionDevoirIntervenirContestation(l: Liberalite) strict {
+    label fr official "Article 1028. L'exécuteur doit intervenir pour soutenir ou exiger l'exécution";
+    label en unofficial "Article 1028. The executor must intervene to uphold or require performance";
+    when contestation_validite_ou_execution(l);
+    then duty DevoirIntervenirContestation {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition intervenir_contestation_1028(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation prendre_mesure_conservatoire_1029(l: Liberalite) kind empirical { label fr official "l'exécuteur prend les mesures conservatoires utiles"; label en unofficial "the executor takes useful protective measures"; }
+@source(CC_ART1029)
+rule PositionDevoirPrendreMesureConservatoire(l: Liberalite) strict {
+    label fr official "Article 1029. L'exécuteur doit prendre les mesures conservatoires utiles";
+    label en unofficial "Article 1029. The executor must take useful protective measures";
+    when mesure_conservatoire_inventaire_ou_vente_urgente(l);
+    then duty DevoirPrendreMesureConservatoire {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition prendre_mesure_conservatoire_1029(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation exercer_habilitation_mobilier_1030(l: Liberalite) kind empirical { label fr official "l'exécuteur exerce l'habilitation mobilière"; label en unofficial "the executor exercises authority over movables"; }
+@source(CC_ART1030)
+rule PositionPouvoirExercerHabilitationMobilier(l: Liberalite) strict {
+    label fr official "Article 1030. L'exécuteur peut exercer l'habilitation mobilière";
+    label en unofficial "Article 1030. The executor may exercise authority over movables";
+    when habilitation_mobilier_pour_legs_particuliers(l) and exercer_habilitation_mobilier_1030(l);
+    then liberty PouvoirExercerHabilitationMobilier {
+        holder entity_ref("urn:fr:cc:liberalites:executeur");
+        action exercer_habilitation_mobilier_1030(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation exercer_habilitation_etendue_1030_1(l: Liberalite) kind empirical { label fr official "l'exécuteur exerce l'habilitation étendue"; label en unofficial "the executor exercises extended authority"; }
+@source(CC_ART1030_1)
+rule PositionPouvoirExercerHabilitationEtendue(l: Liberalite) strict {
+    label fr official "Article 1030-1. L'exécuteur peut exercer l'habilitation étendue";
+    label en unofficial "Article 1030-1. The executor may exercise extended authority";
+    when aucun_reservataire_acceptant_et_habilitation_etendue(l)
+        and exercer_habilitation_etendue_1030_1(l);
+    then liberty PouvoirExercerHabilitationEtendue {
+        holder entity_ref("urn:fr:cc:liberalites:executeur");
+        action exercer_habilitation_etendue_1030_1(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART1026) rule ReleveMotifsGraves(l: Liberalite) strict { label fr official "Article 1026. Le tribunal peut relever l'exécuteur pour motifs graves"; label en unofficial "Article 1026. The court may discharge the executor for serious grounds"; when motifs_graves_releves_par_tribunal(l); then executeur_releve_mission(l); }
+@source(CC_ART1027) rule ExecuteurAgitDefautAutres(l: Liberalite) strict { label fr official "Article 1027. Un exécuteur peut agir à défaut des autres, sauf volonté ou division contraire"; label en unofficial "Article 1027. One executor may act in the others' absence unless intent or division provides otherwise"; when plusieurs_executeurs_acceptants(l); then un_executeur_peut_agir_defaut_autres(l); }
+@source(CC_ART1028) rule InterventionExecuteur(l: Liberalite) strict { label fr official "Article 1028. L'exécuteur intervient dans la contestation pour soutenir ou exiger l'exécution"; label en unofficial "Article 1028. The executor intervenes in a dispute to uphold or require performance"; when contestation_validite_ou_execution(l); then executeur_intervient_soutien_execution(l); }
+@source(CC_ART1029) rule MesuresConservatoiresExecuteur(l: Liberalite) strict { label fr official "Article 1029. L'exécuteur prend les mesures conservatoires, d'inventaire ou de vente urgente utiles"; label en unofficial "Article 1029. The executor takes useful protective, inventory or urgent-sale measures"; when mesure_conservatoire_inventaire_ou_vente_urgente(l); then executeur_habilite_mesure_conservatoire(l); }
+@source(CC_ART1030) rule PouvoirMobilierExecuteur(l: Liberalite) strict { label fr official "Article 1030. L'habilitation sur le mobilier est limitée à l'acquittement des legs dans la quotité disponible"; label en unofficial "Article 1030. Authority over movables is limited to satisfying legacies within the disposable share"; when habilitation_mobilier_pour_legs_particuliers(l); then pouvoir_mobilier_limite_quotite_disponible(l); }
+@source(CC_ART1030_1) rule PouvoirEtenduSansReservataire(l: Liberalite) strict { label fr official "Article 1030-1. Sans réservataire acceptant, l'habilitation étendue permet disposition, paiement et partage après information"; label en unofficial "Article 1030-1. Without an accepting forced heir, extended authority permits disposal, payment and distribution after notice"; when aucun_reservataire_acceptant_et_habilitation_etendue(l); then pouvoir_disposition_immeubles_et_partage(l); }
+@source(CC_ART1030_2) rule AuthentiqueSansEnvoiPossession(l: Liberalite) strict { label fr official "Article 1030-2. Le testament authentique dispense d'envoi en possession pour ces pouvoirs"; label en unofficial "Article 1030-2. An authentic will dispenses with an order placing in possession for these powers"; when testament_authentique(l); then envoi_possession_non_requis(l); }
+@source(CC_ART1031) rule HabilitationDeuxAns(l: Liberalite, ouverture: Date, exercice: Date) strict { label fr official "Article 1031. L'habilitation s'exerce au plus pendant deux ans, hors prorogation judiciaire"; label en unofficial "Article 1031. Authority is exercised for at most two years, excluding judicial extension"; when ouverture_testament_le(l, ouverture) and exercice_habilitation_le(l, exercice) and exercice <= add_calendar_period(ouverture, 2 calendar_year); then habilitation_dans_deux_ans(l); }
+@source(CC_ART1032) rule MissionDeuxAns(l: Liberalite, ouverture: Date, examen: Date) strict { label fr official "Article 1032. La mission prend fin au plus tard deux ans après l'ouverture, hors prorogation"; label en unofficial "Article 1032. The mission ends no later than two years after opening, excluding extension"; when ouverture_testament_le(l, ouverture) and mission_executeur_en_cours_le(l, examen) and examen <= add_calendar_period(ouverture, 2 calendar_year); then mission_executeur_encore_valable(l); }
+@source(CC_ART1033) rule ComptesSixMois(l: Liberalite, fin: Date, compte: Date) strict { label fr official "Article 1033. Les comptes sont rendus dans les six mois suivant la fin de mission"; label en unofficial "Article 1033. Accounts are rendered within six months after the mission ends"; when fin_mission_executeur_le(l, fin) and compte_rendu_executeur_le(l, compte) and compte <= add_calendar_period(fin, 6 calendar_month); then compte_rendu_dans_six_mois(l); }
+pub relation exercer_habilitation_1031(l: Liberalite) kind empirical { label fr official "l'exécuteur exerce l'habilitation dans le délai"; label en unofficial "the executor exercises authority within the time limit"; }
+pub relation habilitation_executeur_donnee_1030(l: Liberalite) kind empirical { label fr official "le testateur a donné à l'exécuteur une habilitation visée aux articles 1030 et 1030-1"; label en unofficial "the testator has given the executor an authorization referred to in Articles 1030 and 1030-1"; }
+@source(CC_ART1031)
+rule PositionDevoirExercerHabilitationDeuxAns(l: Liberalite) strict {
+    label fr official "Article 1031. L'exécuteur doit exercer l'habilitation dans les deux ans";
+    label en unofficial "Article 1031. The executor must exercise authority within two years";
+    when habilitation_executeur_donnee_1030(l);
+    then duty DevoirExercerHabilitationDeuxAns {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition exercer_habilitation_1031(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation maintenir_mission_1032(l: Liberalite) kind empirical { label fr official "l'exécuteur maintient la mission dans le délai"; label en unofficial "the executor maintains the mission within the time limit"; }
+@source(CC_ART1032)
+rule PositionDevoirMaintenirMissionDeuxAns(l: Liberalite) strict {
+    label fr official "Article 1032. La mission doit rester dans les deux ans";
+    label en unofficial "Article 1032. The mission must remain within two years";
+    when executeur_capable_nomme_et_accepte(l);
+    then duty DevoirMaintenirMissionDeuxAns {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition maintenir_mission_1032(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation rendre_comptes_1033(l: Liberalite) kind empirical { label fr official "l'exécuteur rend les comptes"; label en unofficial "the executor renders the accounts"; }
+pub relation mission_executeur_terminee(l: Liberalite) kind empirical { label fr official "la mission de l'exécuteur testamentaire a pris fin"; label en unofficial "the executor's mission has ended"; }
+@source(CC_ART1033)
+rule PositionDevoirRendreComptes(l: Liberalite) strict {
+    label fr official "Article 1033. L'exécuteur doit rendre les comptes";
+    label en unofficial "Article 1033. The executor must render the accounts";
+    when mission_executeur_terminee(l);
+    then duty DevoirRendreComptes {
+        bearer entity_ref("urn:fr:cc:liberalites:executeur");
+        goal achievement { condition rendre_comptes_1033(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART1033_1) rule GratuiteSaufLiberalite(l: Liberalite) strict { label fr official "Article 1033-1. La mission est gratuite sauf libéralité particulière proportionnée"; label en unofficial "Article 1033-1. The mission is unpaid except for a proportionate particular gift"; when liberalite_particuliere_executeur_services(l); then remuneration_executeur_admise(l); }
+pub relation accepter_remuneration_executeur_1033_1(l: Liberalite) kind empirical { label fr official "l'exécuteur accepte la libéralité proportionnée"; label en unofficial "the executor accepts the proportionate gift"; }
+@source(CC_ART1033_1)
+rule PositionPouvoirAccepterRemunerationExecuteur(l: Liberalite) strict {
+    label fr official "Article 1033-1. L'exécuteur peut accepter une libéralité proportionnée";
+    label en unofficial "Article 1033-1. The executor may accept a proportionate gift";
+    when liberalite_particuliere_executeur_services(l) and accepter_remuneration_executeur_1033_1(l);
+    then liberty PouvoirAccepterRemunerationExecuteur {
+        holder entity_ref("urn:fr:cc:liberalites:executeur");
+        action accepter_remuneration_executeur_1033_1(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART1034) rule FraisChargeSuccession(l: Liberalite) strict { label fr official "Article 1034. Les frais de mission de l'exécuteur sont à la charge de la succession"; label en unofficial "Article 1034. The executor's mission expenses are borne by the estate"; when frais_executeur_exercice_mission(l); then frais_executeur_charge_succession(l); }
+pub relation supporter_frais_executeur_1034(l: Liberalite) kind empirical { label fr official "la succession supporte les frais de mission"; label en unofficial "the estate bears the mission expenses"; }
+@source(CC_ART1034)
+rule PositionDevoirSupporterFraisExecuteur(l: Liberalite) strict {
+    label fr official "Article 1034. La succession doit supporter les frais de mission";
+    label en unofficial "Article 1034. The estate must bear the mission expenses";
+    when frais_executeur_exercice_mission(l);
+    then duty DevoirSupporterFraisExecuteur {
+        bearer entity_ref("urn:fr:cc:liberalites:succession");
+        goal achievement { condition supporter_frais_executeur_1034(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART1035) rule FormesRevocationTestament(l: Liberalite) strict { label fr official "Article 1035. La révocation résulte d'un testament postérieur ou d'un acte notarié de changement"; label en unofficial "Article 1035. Revocation results from a later will or notarized declaration of change"; when testament_posterieur_ou_acte_notarie_changement(l); then testament_revoque(l); }
+pub relation exercer_revocation_1035(l: Liberalite) kind empirical { label fr official "le testateur exerce la révocation par la forme légale"; label en unofficial "the testator exercises revocation in the statutory form"; }
+@source(CC_ART1035)
+rule PositionPouvoirExercerRevocation(l: Liberalite) strict {
+    label fr official "Article 1035. Le testateur peut exercer la révocation dans la forme légale";
+    label en unofficial "Article 1035. The testator may exercise revocation in the statutory form";
+    when testament_posterieur_ou_acte_notarie_changement(l) and exercer_revocation_1035(l);
+    then liberty PouvoirExercerRevocation {
+        holder entity_ref("urn:fr:cc:liberalites:testateur");
+        action exercer_revocation_1035(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART1036) rule RevocationTaciteIncompatibilite(l: Liberalite) strict { label fr official "Article 1036. Sans révocation expresse, seules les anciennes dispositions incompatibles sont annulées"; label en unofficial "Article 1036. Absent express revocation, only incompatible former dispositions are cancelled"; when dispositions_anciennes_incompatibles_nouvelles(l); then seules_dispositions_incompatibles_revoquees(l); }
+@source(CC_ART1037) rule RevocationMalgreInexecution(l: Liberalite) strict { label fr official "Article 1037. La révocation conserve effet malgré l'inexécution du nouvel acte par incapacité ou refus"; label en unofficial "Article 1037. Revocation remains effective despite nonperformance of the new instrument because of incapacity or refusal"; when nouvel_acte_inexecute_incapacite_ou_refus(l); then revocation_nouvel_acte_conserve_effet(l); }
+@source(CC_ART1038) rule AlienationRevoqueLegs(l: Liberalite) strict { label fr official "Article 1038. L'aliénation par le testateur révoque le legs pour la partie aliénée"; label en unofficial "Article 1038. Alienation by the testator revokes the legacy as to the alienated part"; when chose_leguee_alienee_par_testateur(l); then legs_revoque_partie_alienee(l); }
+@source(CC_ART1039) rule PredecesBeneficiaireCaducite(l: Liberalite) strict { label fr official "Article 1039. La disposition est caduque si le bénéficiaire ne survit pas"; label en unofficial "Article 1039. The disposition lapses if the beneficiary does not survive"; when beneficiaire_ne_survit_pas_testateur(l); then disposition_testamentaire_caduque(l); }
+@source(CC_ART1040) rule DecesAvantConditionCaducite(l: Liberalite) strict { label fr official "Article 1040. Le décès avant l'événement conditionnant l'exécution rend la disposition caduque"; label en unofficial "Article 1040. Death before the event conditioning performance causes the disposition to lapse"; when beneficiaire_decede_avant_condition_incertaine(l); then disposition_testamentaire_caduque(l); }
+@source(CC_ART1041) rule ConditionExecutionDroitTransmissible(l: Liberalite) strict { label fr official "Article 1041. La condition qui suspend seulement l'exécution laisse un droit acquis transmissible"; label en unofficial "Article 1041. A condition merely suspending performance leaves an acquired transmissible right"; when condition_suspend_seulement_execution(l); then droit_acquis_transmissible_sous_condition(l); }
+@source(CC_ART1042) rule PerteTotaleCaducite(l: Liberalite) strict { label fr official "Article 1042. La perte totale de la chose dans les cas légaux rend le legs caduc"; label en unofficial "Article 1042. Total loss of the thing in statutory circumstances causes the legacy to lapse"; when chose_leguee_totalement_perie_sans_faute(l); then disposition_testamentaire_caduque(l); }
+@source(CC_ART1043) rule RepudiationOuIncapaciteCaducite(l: Liberalite) strict { label fr official "Article 1043. La répudiation ou l'incapacité du bénéficiaire rend la disposition caduque"; label en unofficial "Article 1043. Disclaimer or incapacity of the beneficiary causes the disposition to lapse"; when beneficiaire_repudie_ou_incapable(l); then disposition_testamentaire_caduque(l); }
+@source(CC_ART1044) rule AccroissementLegsConjoint(l: Liberalite) strict { label fr official "Article 1044. Le legs conjoint sans parts assignées accroît aux colégataires"; label en unofficial "Article 1044. A joint legacy without assigned shares accrues to co-legatees"; when legs_conjoint_sans_parts_assignees(l); then accroissement_colegataires(l); }
+@source(CC_ART1045) rule IndivisibiliteReputeeConjointe(l: Liberalite) strict { label fr official "Article 1045. Le legs d'une chose indivisible à plusieurs est réputé conjoint"; label en unofficial "Article 1045. A devise of an indivisible thing to several persons is deemed joint"; when chose_indivisible_leguee_plusieurs(l); then accroissement_colegataires(l); }
+@source(CC_ART1046) rule CausesRevocationEtendues(l: Liberalite) strict { label fr official "Article 1046. Certaines causes de révocation des donations s'appliquent aux dispositions testamentaires"; label en unofficial "Article 1046. Certain grounds for revoking gifts apply to testamentary dispositions"; when cause_revocation_donation_applicable_testament(l); then revocation_disposition_testamentaire_demandable(l); }
+@source(CC_ART1047) rule InjureMemoireUnAn(l: Liberalite, injure: Date, demande: Date) strict { label fr official "Article 1047. L'action fondée sur l'injure à la mémoire est intentée dans l'année du délit"; label en unofficial "Article 1047. A claim based on insult to the testator's memory is brought within one year of the offence"; when injure_memoire_commise_le(l, injure) and demande_revocation_testament_le(l, demande) and demande <= add_calendar_period(injure, 1 calendar_year); then action_injure_memoire_dans_un_an(l); }
+pub relation demander_revocation_testament_1046(l: Liberalite) kind empirical { label fr official "le bénéficiaire demande la révocation de la disposition testamentaire"; label en unofficial "the beneficiary seeks revocation of the testamentary disposition"; }
+@source(CC_ART1046)
+rule PositionPouvoirDemanderRevocationTestamentaire(l: Liberalite) strict {
+    label fr official "Article 1046. Le bénéficiaire peut demander la révocation testamentaire";
+    label en unofficial "Article 1046. The beneficiary may seek testamentary revocation";
+    when cause_revocation_donation_applicable_testament(l) and demander_revocation_testament_1046(l);
+    then liberty PouvoirDemanderRevocationTestamentaire {
+        holder entity_ref("urn:fr:cc:liberalites:beneficiaire");
+        action demander_revocation_testament_1046(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation former_action_injure_memoire_1047(l: Liberalite) kind empirical { label fr official "le bénéficiaire forme l'action pour injure à la mémoire"; label en unofficial "the beneficiary files the insult-to-memory action"; }
+pub relation injure_grave_a_la_memoire_du_testateur(l: Liberalite) kind empirical { label fr official "la demande de révocation est fondée sur une injure grave faite à la mémoire du testateur"; label en unofficial "the revocation claim rests on a grave insult to the testator's memory"; }
+@source(CC_ART1047)
+rule PositionDevoirFormerActionInjureMemoire(l: Liberalite) strict {
+    label fr official "Article 1047. L'action pour injure à la mémoire doit être intentée dans l'année";
+    label en unofficial "Article 1047. The insult-to-memory action must be brought within one year";
+    when injure_grave_a_la_memoire_du_testateur(l);
+    then duty DevoirFormerActionInjureMemoire {
+        bearer entity_ref("urn:fr:cc:liberalites:beneficiaire");
+        goal achievement { condition former_action_injure_memoire_1047(l); window [@1804-01-01, infinity); };
+    };
+}

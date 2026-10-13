@@ -1,0 +1,1465 @@
+// CHAPITRE II, SECTION 2 — LA VALIDITÉ DU CONTRAT (art. 1128 à 1171).
+//
+// Trois conditions (1128), puis trois sous-sections : le consentement et ses
+// vices (1129 à 1144), la capacité et la représentation (1145 à 1161), le
+// contenu du contrat (1162 à 1171).
+//
+// CE QUE LA SECTION NE FAIT PAS. Les articles 1144 et 1152 ne donnent que le
+// POINT DE DÉPART de la prescription de l'action en nullité ; la durée est
+// celle du droit commun (article 2224, paquet `fr.code_civil`). Ce paquet
+// produit donc la date de départ et s'arrête là — frontière déclarée. De même,
+// l'article 1129 renvoie à l'article 414-1 (insanité d'esprit) et l'article
+// 1150 aux articles 435, 465 et 494-9 : matière des personnes protégées
+// (CC-03), entrée typée du cas ici.
+//
+// QUATRE ARTICLES À DEUX RÉDACTIONS dans cette section : 1137 (le dol),
+// 1145 (la capacité des personnes morales), 1161 (le conflit d'intérêts) et
+// 1171 (le déséquilibre significatif). La différence est substantielle à
+// chaque fois — la réticence sur la valeur n'est pas un dol depuis 2018 ;
+// la capacité des personnes morales n'est plus limitée à leur objet ; le
+// conflit d'intérêts ne vise plus que la représentation des personnes
+// physiques ; le déséquilibre significatif ne frappe plus que la clause NON
+// NÉGOCIABLE. L'article 1143 (abus de dépendance), lui, est interprétatif :
+// sa rédaction de 2018 vaut pour les actes conclus dès 2016.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_2016_ART1137,
+    CC_2016_ART1145,
+    CC_2016_ART1161,
+    CC_2016_ART1171,
+    CC_ART1128,
+    CC_ART1129,
+    CC_ART1130,
+    CC_ART1131,
+    CC_ART1132,
+    CC_ART1133,
+    CC_ART1134,
+    CC_ART1135,
+    CC_ART1136,
+    CC_ART1137,
+    CC_ART1138,
+    CC_ART1139,
+    CC_ART1140,
+    CC_ART1141,
+    CC_ART1142,
+    CC_ART1143,
+    CC_ART1144,
+    CC_ART1145,
+    CC_ART1146,
+    CC_ART1147,
+    CC_ART1148,
+    CC_ART1149,
+    CC_ART1150,
+    CC_ART1151,
+    CC_ART1152,
+    CC_ART1153,
+    CC_ART1154,
+    CC_ART1155,
+    CC_ART1156,
+    CC_ART1157,
+    CC_ART1158,
+    CC_ART1159,
+    CC_ART1160,
+    CC_ART1161,
+    CC_ART1162,
+    CC_ART1163,
+    CC_ART1164,
+    CC_ART1165,
+    CC_ART1166,
+    CC_ART1167,
+    CC_ART1168,
+    CC_ART1169,
+    CC_ART1170,
+    CC_ART1171,
+    Clause,
+    Contrat,
+    Information,
+    Personne,
+    Qualification,
+    Representation,
+    article_applicable_des_2016,
+    clause_du_contrat,
+    contrat_a_titre_onereux,
+    information_porte_sur_l_estimation_de_la_valeur,
+    partie_au_contrat,
+    qualification_du_contrat,
+    redaction_2016_applicable,
+    redaction_2018_applicable,
+    regi_par_le_droit_nouveau,
+};
+
+pub enum NatureDeLaNullite {
+    label fr official "Nature de la nullité (articles 1179 à 1181)";
+    label en unofficial "Nature of the nullity (Articles 1179 to 1181)";
+    Absolue,
+    Relative
+}
+
+pub enum ViceDuConsentement {
+    label fr official "Vice du consentement (article 1130)";
+    label en unofficial "Defect of consent (Article 1130)";
+    Erreur,
+    Dol,
+    Violence
+}
+
+// --- Entrées du cas : le consentement -----------------------------------------------------------
+
+pub relation consentement_donne_par(c: Contrat, p: Personne) kind empirical {
+    label fr official "consentement donné par cette partie (article 1128, 1°)";
+    label en unofficial "consent given by this party (Article 1128, item 1)";
+}
+pub relation sain_d_esprit(c: Contrat, p: Personne) kind empirical {
+    label fr official "cette partie était saine d'esprit lors du contrat, au sens de l'article 414-1 auquel l'article 1129 renvoie (entrée typée : matière de fr.code_civil.personnes)";
+    label en unofficial "this party was of sound mind when contracting, within Article 414-1 referred to by Article 1129 (typed input: matter of fr.code_civil.personnes)";
+}
+pub relation erreur_de_droit_ou_de_fait(c: Contrat, victime: Personne) kind empirical {
+    label fr official "erreur de droit ou de fait commise par cette partie (article 1132)";
+    label en unofficial "mistake of law or of fact made by this party (Article 1132)";
+}
+pub relation erreur_inexcusable(c: Contrat, victime: Personne) kind empirical {
+    label fr official "l'erreur est inexcusable (article 1132)";
+    label en unofficial "the mistake is inexcusable (Article 1132)";
+}
+pub relation erreur_sur_les_qualites_essentielles_de_la_prestation(c: Contrat, victime: Personne) kind empirical {
+    label fr official "l'erreur porte sur les qualités essentielles de la prestation due (articles 1132 et 1133)";
+    label en unofficial "the mistake bears on the essential qualities of the performance owed (Articles 1132 and 1133)";
+}
+pub relation erreur_sur_les_qualites_essentielles_du_cocontractant(c: Contrat, victime: Personne) kind empirical {
+    label fr official "l'erreur porte sur les qualités essentielles du cocontractant (articles 1132 et 1134)";
+    label en unofficial "the mistake bears on the essential qualities of the other party (Articles 1132 and 1134)";
+}
+pub relation qualites_convenues_expressement_ou_tacitement(c: Contrat) kind empirical {
+    label fr official "les qualités de la prestation ont été expressément ou tacitement convenues et les parties ont contracté en leur considération (article 1133, alinéa 1)";
+    label en unofficial "the qualities of the performance were expressly or tacitly agreed and the parties contracted in view of them (Article 1133, paragraph 1)";
+}
+pub relation alea_accepte_sur_une_qualite(c: Contrat) kind empirical {
+    label fr official "les parties ont accepté un aléa sur cette qualité de la prestation (article 1133, alinéa 3)";
+    label en unofficial "the parties accepted a risk as to that quality of the performance (Article 1133, paragraph 3)";
+}
+pub relation contrat_conclu_en_consideration_de_la_personne(c: Contrat) kind empirical {
+    label fr official "contrat conclu en considération de la personne (article 1134)";
+    label en unofficial "contract concluded in consideration of the person (Article 1134)";
+}
+pub relation erreur_sur_un_simple_motif(c: Contrat, victime: Personne) kind empirical {
+    label fr official "l'erreur porte sur un simple motif étranger aux qualités essentielles (article 1135, alinéa 1)";
+    label en unofficial "the mistake bears on a mere motive unrelated to the essential qualities (Article 1135, paragraph 1)";
+}
+pub relation motif_erige_expressement_en_element_determinant(c: Contrat) kind empirical {
+    label fr official "les parties ont expressément fait de ce motif un élément déterminant de leur consentement (article 1135, alinéa 1)";
+    label en unofficial "the parties expressly made that motive a decisive element of their consent (Article 1135, paragraph 1)";
+}
+pub relation liberalite_dont_le_motif_a_manque(c: Contrat, victime: Personne) kind empirical {
+    label fr official "libéralité dont l'auteur n'aurait pas disposé en l'absence de ce motif (article 1135, alinéa 2)";
+    label en unofficial "gift whose author would not have disposed absent that motive (Article 1135, paragraph 2)";
+}
+pub relation erreur_sur_la_valeur(c: Contrat, victime: Personne) kind empirical {
+    label fr official "appréciation économique inexacte de la prestation, sans erreur sur ses qualités essentielles (article 1136)";
+    label en unofficial "inaccurate economic appraisal of the performance, without mistake as to its essential qualities (Article 1136)";
+}
+pub relation manoeuvres_ou_mensonges(c: Contrat, auteur: Personne, victime: Personne) kind empirical {
+    label fr official "manœuvres ou mensonges par lesquels un contractant obtient le consentement de l'autre (article 1137, alinéa 1)";
+    label en unofficial "schemes or lies by which one party obtains the other's consent (Article 1137, paragraph 1)";
+}
+pub relation dissimulation_intentionnelle(c: Contrat, i: Information, auteur: Personne, victime: Personne) kind empirical {
+    label fr official "dissimulation intentionnelle d'une information dont l'auteur sait le caractère déterminant pour l'autre partie (article 1137, alinéa 2)";
+    label en unofficial "intentional concealment of information whose decisive character for the other party the author knows (Article 1137, paragraph 2)";
+}
+pub relation dol_du_representant_ou_du_porte_fort(c: Contrat, auteur: Personne, contractant: Personne) kind empirical {
+    label fr official "le dol émane du représentant, gérant d'affaires, préposé ou porte-fort du contractant (article 1138, alinéa 1)";
+    label en unofficial "the fraud comes from the party's representative, manager, employee or promisor for another (Article 1138, paragraph 1)";
+}
+pub relation dol_d_un_tiers_de_connivence(c: Contrat, tiers: Personne, contractant: Personne) kind empirical {
+    label fr official "le dol émane d'un tiers de connivence (article 1138, alinéa 2)";
+    label en unofficial "the fraud comes from a colluding third party (Article 1138, paragraph 2)";
+}
+pub relation contrainte_inspirant_la_crainte_d_un_mal_considerable(c: Contrat, victime: Personne) kind empirical {
+    label fr official "pression d'une contrainte inspirant la crainte d'exposer sa personne, sa fortune ou celles de ses proches à un mal considérable (article 1140)";
+    label en unofficial "pressure of duress inspiring fear of exposing oneself, one's fortune or one's relatives to considerable harm (Article 1140)";
+}
+pub relation menace_d_une_voie_de_droit(c: Contrat, auteur: Personne, victime: Personne) kind empirical {
+    label fr official "menace d'une voie de droit (article 1141)";
+    label en unofficial "threat of legal proceedings (Article 1141)";
+}
+pub relation voie_de_droit_detournee_de_son_but(c: Contrat, auteur: Personne) kind empirical {
+    label fr official "la voie de droit est détournée de son but (article 1141)";
+    label en unofficial "the legal process is diverted from its purpose (Article 1141)";
+}
+pub relation violence_exercee_par_un_tiers(c: Contrat, tiers: Personne, victime: Personne) kind empirical {
+    label fr official "la violence a été exercée par un tiers (article 1142)";
+    label en unofficial "the duress was exercised by a third party (Article 1142)";
+}
+pub relation etat_de_dependance(c: Contrat, victime: Personne, auteur: Personne) kind empirical {
+    label fr official "état de dépendance du cocontractant à l'égard de l'autre partie (article 1143)";
+    label en unofficial "the other party's state of dependence towards this party (Article 1143)";
+}
+pub relation engagement_non_souscrit_sans_la_contrainte(c: Contrat, victime: Personne) kind empirical {
+    label fr official "engagement que la partie n'aurait pas souscrit en l'absence d'une telle contrainte (article 1143)";
+    label en unofficial "undertaking the party would not have given absent such constraint (Article 1143)";
+}
+pub relation erreur_decouverte_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où l'erreur a été découverte (article 1144)";
+    label en unofficial "day the mistake was discovered (Article 1144)";
+}
+pub relation dol_decouvert_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le dol a été découvert (article 1144)";
+    label en unofficial "day the fraud was discovered (Article 1144)";
+}
+pub relation violence_cessee_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où la violence a cessé (article 1144)";
+    label en unofficial "day the duress ceased (Article 1144)";
+}
+
+// --- Entrées du cas : la capacité et la représentation --------------------------------------------
+
+pub relation personne_physique(p: Personne) kind empirical {
+    label fr official "la partie est une personne physique (article 1145, alinéa 1)";
+    label en unofficial "the party is a natural person (Article 1145, paragraph 1)";
+}
+pub relation personne_morale(p: Personne) kind empirical {
+    label fr official "la partie est une personne morale (article 1145, alinéa 2)";
+    label en unofficial "the party is a legal person (Article 1145, paragraph 2)";
+}
+pub relation incapacite_prevue_par_la_loi(p: Personne) kind empirical {
+    label fr official "incapacité prévue par la loi (article 1145, alinéa 1)";
+    label en unofficial "incapacity provided by statute (Article 1145, paragraph 1)";
+}
+pub relation mineur_non_emancipe(p: Personne) kind empirical {
+    label fr official "mineur non émancipé (article 1146, 1°)";
+    label en unofficial "unemancipated minor (Article 1146, item 1)";
+}
+pub relation majeur_protege(p: Personne) kind empirical {
+    label fr official "majeur protégé au sens de l'article 425 (article 1146, 2°)";
+    label en unofficial "protected adult within Article 425 (Article 1146, item 2)";
+}
+pub relation acte_utile_a_la_realisation_de_l_objet_statutaire(c: Contrat, p: Personne) kind empirical {
+    label fr official "l'acte est utile à la réalisation de l'objet de la personne morale tel que défini par ses statuts, ou lui est accessoire (article 1145, alinéa 2, rédaction de 2016)";
+    label en unofficial "the act serves the legal person's objects as defined by its constitution, or is ancillary to them (Article 1145, paragraph 2, 2016 wording)";
+}
+pub relation regles_propres_a_la_personne_morale_respectees(c: Contrat, p: Personne) kind empirical {
+    label fr official "les règles applicables à cette personne morale sont respectées (article 1145, alinéa 2, rédaction de 2018)";
+    label en unofficial "the rules applicable to this legal person are complied with (Article 1145, paragraph 2, 2018 wording)";
+}
+pub relation acte_courant_autorise_par_la_loi_ou_l_usage(c: Contrat) kind empirical {
+    label fr official "acte courant autorisé par la loi ou l'usage (article 1148)";
+    label en unofficial "everyday act authorized by statute or usage (Article 1148)";
+}
+pub relation conditions_normales(c: Contrat) kind empirical {
+    label fr official "l'acte est conclu à des conditions normales (article 1148)";
+    label en unofficial "the act is concluded on normal terms (Article 1148)";
+}
+pub relation lesion_du_mineur(c: Contrat, p: Personne) kind empirical {
+    label fr official "l'acte courant accompli par le mineur lui cause une lésion (article 1149, alinéa 1)";
+    label en unofficial "the everyday act done by the minor causes him injury (Article 1149, paragraph 1)";
+}
+pub relation lesion_resultant_d_un_evenement_imprevisible(c: Contrat, p: Personne) kind empirical {
+    label fr official "la lésion résulte d'un événement imprévisible (article 1149, alinéa 1, seconde phrase)";
+    label en unofficial "the injury results from an unforeseeable event (Article 1149, paragraph 1, second sentence)";
+}
+pub relation declaration_de_majorite_faite_par_le_mineur(c: Contrat, p: Personne) kind empirical {
+    label fr official "simple déclaration de majorité faite par le mineur (article 1149, alinéa 2 du texte épinglé)";
+    label en unofficial "mere declaration of majority made by the minor (Article 1149, paragraph 2 of the pinned text)";
+}
+pub relation engagement_pris_dans_l_exercice_de_sa_profession(c: Contrat, p: Personne) kind empirical {
+    label fr official "engagement pris par le mineur dans l'exercice de sa profession (article 1149, dernier alinéa)";
+    label en unofficial "undertaking given by the minor in the exercise of his profession (Article 1149, last paragraph)";
+}
+pub relation acte_du_majeur_protege_regi_par_les_articles_speciaux(c: Contrat, p: Personne) kind empirical {
+    label fr official "l'acte accompli par le majeur protégé est régi par les articles 435, 465 et 494-9 (article 1150 ; entrée typée : matière de fr.code_civil.personnes)";
+    label en unofficial "the act done by the protected adult is governed by Articles 435, 465 and 494-9 (Article 1150; typed input: matter of fr.code_civil.personnes)";
+}
+pub relation acte_utile_et_exempt_de_lesion(c: Contrat, protege: Personne) kind empirical {
+    label fr official "l'acte était utile à la personne protégée et exempt de lésion, ou a profité à celle-ci (article 1151, alinéa 1)";
+    label en unofficial "the act was useful to the protected person and free of injury, or benefited that person (Article 1151, paragraph 1)";
+}
+pub relation confirmation_par_le_cocontractant_redevenu_capable(c: Contrat, protege: Personne) kind empirical {
+    label fr official "confirmation de l'acte par le cocontractant devenu ou redevenu capable (article 1151, alinéa 2)";
+    label en unofficial "confirmation of the act by the other party having become or regained capacity (Article 1151, paragraph 2)";
+}
+pub relation majorite_ou_emancipation_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour de la majorité ou de l'émancipation (article 1152, 1°)";
+    label en unofficial "day of majority or emancipation (Article 1152, item 1)";
+}
+pub relation majeur_protege_a_eu_connaissance_le(c: Contrat, p: Personne, jour: Date) kind empirical {
+    label fr official "jour où le majeur protégé a eu connaissance des actes alors qu'il était en situation de les refaire valablement (article 1152, 2°)";
+    label en unofficial "day the protected adult learned of the acts while able to redo them validly (Article 1152, item 2)";
+}
+pub relation deces_de_la_personne_protegee_le(p: Personne, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour du décès de la personne en tutelle, en curatelle ou sous habilitation familiale (article 1152, 3°)";
+    label en unofficial "day of death of the person under guardianship, curatorship or family authorization (Article 1152, item 3)";
+}
+pub relation heritier_de_la_personne_protegee(heritier: Personne, protege: Personne) kind empirical {
+    label fr official "héritier de la personne protégée (article 1152, 3°)";
+    label en unofficial "heir of the protected person (Article 1152, item 3)";
+}
+
+pub relation representation_pour_le_contrat(r: Representation, c: Contrat) kind empirical {
+    key(r);
+    label fr official "pouvoir de représentation exercé pour ce contrat";
+    label en unofficial "power of representation exercised for this contract";
+}
+pub relation representant(r: Representation, p: Personne) kind empirical {
+    key(r);
+    label fr official "représentant";
+    label en unofficial "representative";
+}
+pub relation represente(r: Representation, p: Personne) kind empirical {
+    key(r);
+    label fr official "représenté";
+    label en unofficial "person represented";
+}
+pub relation representation_conventionnelle(r: Representation) kind empirical {
+    label fr official "représentation conventionnelle (articles 1158 et 1159)";
+    label en unofficial "contractual representation (Articles 1158 and 1159)";
+}
+pub relation representation_legale_ou_judiciaire(r: Representation) kind empirical {
+    label fr official "représentation légale ou judiciaire (article 1159, alinéa 1)";
+    label en unofficial "statutory or judicial representation (Article 1159, paragraph 1)";
+}
+pub relation acte_dans_la_limite_des_pouvoirs(r: Representation) kind empirical {
+    label fr official "le représentant agit dans la limite des pouvoirs qui lui ont été conférés (articles 1153 et 1154)";
+    label en unofficial "the representative acts within the powers conferred on him (Articles 1153 and 1154)";
+}
+pub relation agit_au_nom_et_pour_le_compte_du_represente(r: Representation) kind empirical {
+    label fr official "le représentant agit au nom et pour le compte du représenté (article 1154, alinéa 1)";
+    label en unofficial "the representative acts in the name and on behalf of the person represented (Article 1154, paragraph 1)";
+}
+pub relation contracte_en_son_propre_nom_pour_le_compte_d_autrui(r: Representation) kind empirical {
+    label fr official "le représentant déclare agir pour le compte d'autrui mais contracte en son propre nom (article 1154, alinéa 2)";
+    label en unofficial "the representative states that he acts for another but contracts in his own name (Article 1154, paragraph 2)";
+}
+pub relation pouvoir_defini_en_termes_generaux(r: Representation) kind empirical {
+    label fr official "le pouvoir du représentant est défini en termes généraux (article 1155, alinéa 1)";
+    label en unofficial "the representative's power is defined in general terms (Article 1155, paragraph 1)";
+}
+pub relation acte_conservatoire_ou_d_administration(c: Contrat) kind empirical {
+    label fr official "acte conservatoire ou d'administration (article 1155, alinéa 1)";
+    label en unofficial "act of preservation or of administration (Article 1155, paragraph 1)";
+}
+pub relation pouvoir_specialement_determine(r: Representation) kind empirical {
+    label fr official "le pouvoir du représentant est spécialement déterminé (article 1155, alinéa 2)";
+    label en unofficial "the representative's power is specially determined (Article 1155, paragraph 2)";
+}
+pub relation acte_habilite_ou_accessoire(r: Representation, c: Contrat) kind empirical {
+    label fr official "l'acte est de ceux pour lesquels le représentant est habilité, ou en est l'accessoire (article 1155, alinéa 2)";
+    label en unofficial "the act is one the representative is empowered to do, or is ancillary to it (Article 1155, paragraph 2)";
+}
+pub relation tiers_a_legitimement_cru_aux_pouvoirs(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers contractant a légitimement cru en la réalité des pouvoirs du représentant, notamment en raison du comportement ou des déclarations du représenté (article 1156, alinéa 1)";
+    label en unofficial "the contracting third party legitimately believed in the reality of the representative's powers, in particular through the conduct or statements of the person represented (Article 1156, paragraph 1)";
+}
+pub relation tiers_ignorait_le_defaut_de_pouvoir(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers contractant ignorait que l'acte était accompli sans pouvoir ou au-delà des pouvoirs (article 1156, alinéa 2)";
+    label en unofficial "the contracting third party did not know the act was done without or beyond the powers (Article 1156, paragraph 2)";
+}
+pub relation acte_ratifie_par_le_represente(c: Contrat) kind empirical {
+    label fr official "le représenté a ratifié l'acte (article 1156, alinéa 3)";
+    label en unofficial "the person represented ratified the act (Article 1156, paragraph 3)";
+}
+pub relation detournement_de_pouvoirs(r: Representation) kind empirical {
+    label fr official "le représentant détourne ses pouvoirs au détriment du représenté (article 1157)";
+    label en unofficial "the representative misuses his powers to the detriment of the person represented (Article 1157)";
+}
+pub relation tiers_connaissait_le_detournement(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers avait connaissance du détournement ou ne pouvait l'ignorer (article 1157)";
+    label en unofficial "the third party knew of the misuse or could not have been unaware of it (Article 1157)";
+}
+pub relation demande_ecrite_de_confirmation_du_pouvoir(r: Representation, tiers: Personne, echeance: Date) kind empirical {
+    label fr official "demande écrite du tiers au représenté de confirmer, dans le délai qu'il fixe, que le représentant est habilité (article 1158, alinéa 1)";
+    label en unofficial "third party's written request that the person represented confirm, within the period it sets, that the representative is empowered (Article 1158, paragraph 1)";
+}
+pub relation mention_de_l_habilitation_reputee(r: Representation) kind empirical {
+    label fr official "l'écrit mentionne qu'à défaut de réponse dans ce délai le représentant est réputé habilité (article 1158, alinéa 2)";
+    label en unofficial "the writing states that failing a reply within that period the representative is deemed empowered (Article 1158, paragraph 2)";
+}
+pub relation reponse_du_represente_le(r: Representation, jour: Date) kind empirical {
+    key(r);
+    label fr official "jour de la réponse du représenté à la demande de confirmation";
+    label en unofficial "day of the reply of the person represented to the request for confirmation";
+}
+pub relation incapacite_ou_interdiction_du_representant(r: Representation) kind empirical {
+    label fr official "le représentant est atteint d'une incapacité ou frappé d'une interdiction (article 1160)";
+    label en unofficial "the representative is under an incapacity or a prohibition (Article 1160)";
+}
+pub relation agit_pour_plusieurs_parties_en_opposition_d_interets(r: Representation, c: Contrat) kind empirical {
+    label fr official "le représentant agit pour le compte de plusieurs parties au contrat en opposition d'intérêts (article 1161, rédaction de 2018)";
+    label en unofficial "the representative acts on behalf of several parties to the contract with conflicting interests (Article 1161, 2018 wording)";
+}
+pub relation agit_pour_les_deux_parties(r: Representation, c: Contrat) kind empirical {
+    label fr official "le représentant agit pour le compte des deux parties au contrat (article 1161, rédaction de 2016)";
+    label en unofficial "the representative acts on behalf of both parties to the contract (Article 1161, 2016 wording)";
+}
+pub relation contracte_pour_son_propre_compte_avec_le_represente(r: Representation, c: Contrat) kind empirical {
+    label fr official "le représentant contracte pour son propre compte avec le représenté (article 1161)";
+    label en unofficial "the representative contracts on his own behalf with the person represented (Article 1161)";
+}
+pub relation acte_autorise_par_la_loi_ou_par_le_represente(r: Representation, c: Contrat) kind empirical {
+    label fr official "la loi autorise l'acte, ou le représenté l'a autorisé ou ratifié (article 1161, alinéa 2)";
+    label en unofficial "statute authorizes the act, or the person represented authorized or ratified it (Article 1161, paragraph 2)";
+}
+
+// --- Entrées du cas : le contenu -------------------------------------------------------------------
+
+pub relation derogation_a_l_ordre_public(c: Contrat) kind empirical {
+    label fr official "le contrat déroge à l'ordre public par ses stipulations ou par son but (article 1162)";
+    label en unofficial "the contract derogates from public policy by its terms or its purpose (Article 1162)";
+}
+pub relation prestation_possible(c: Contrat) kind empirical {
+    label fr official "la prestation objet de l'obligation est possible (article 1163, alinéa 2)";
+    label en unofficial "the performance that is the object of the obligation is possible (Article 1163, paragraph 2)";
+}
+pub relation prestation_determinee(c: Contrat) kind empirical {
+    label fr official "la prestation est déterminée (article 1163, alinéa 2)";
+    label en unofficial "the performance is determined (Article 1163, paragraph 2)";
+}
+pub relation prestation_deductible_du_contrat_ou_des_usages(c: Contrat) kind empirical {
+    label fr official "la prestation peut être déduite du contrat, des usages ou des relations antérieures des parties, sans nouvel accord (article 1163, alinéa 3)";
+    label en unofficial "the performance can be deduced from the contract, usage or the parties' previous dealings, without a new agreement (Article 1163, paragraph 3)";
+}
+pub relation prix_fixe_unilateralement_convenu(c: Contrat) kind empirical {
+    label fr official "il a été convenu, dans un contrat cadre, que le prix serait fixé unilatéralement par l'une des parties (article 1164, alinéa 1)";
+    label en unofficial "it was agreed, in a framework contract, that the price would be fixed unilaterally by one party (Article 1164, paragraph 1)";
+}
+pub relation montant_du_prix_motive(c: Contrat) kind empirical {
+    label fr official "la partie qui fixe le prix en a motivé le montant en cas de contestation (articles 1164 et 1165)";
+    label en unofficial "the party fixing the price gave reasons for its amount in case of challenge (Articles 1164 and 1165)";
+}
+pub relation contrat_de_prestation_de_service(c: Contrat) kind empirical {
+    label fr official "contrat de prestation de service (article 1165)";
+    label en unofficial "contract for the provision of services (Article 1165)";
+}
+pub relation accord_sur_le_prix_avant_execution(c: Contrat) kind empirical {
+    label fr official "les parties se sont accordées sur le prix avant l'exécution (article 1165)";
+    label en unofficial "the parties agreed on the price before performance (Article 1165)";
+}
+pub relation prix_fixe_par_le_creancier(c: Contrat) kind empirical {
+    label fr official "le prix a été fixé par le créancier (article 1165)";
+    label en unofficial "the price was fixed by the creditor (Article 1165)";
+}
+pub relation qualite_de_la_prestation_non_determinee(c: Contrat) kind empirical {
+    label fr official "la qualité de la prestation n'est pas déterminée ni déterminable en vertu du contrat (article 1166)";
+    label en unofficial "the quality of the performance is neither determined nor determinable under the contract (Article 1166)";
+}
+pub relation prestation_conforme_aux_attentes_legitimes(c: Contrat) kind empirical {
+    label fr official "le débiteur offre une prestation de qualité conforme aux attentes légitimes des parties, eu égard à sa nature, aux usages et au montant de la contrepartie (article 1166)";
+    label en unofficial "the debtor offers a performance of a quality meeting the parties' legitimate expectations, given its nature, usage and the amount of the counterpart (Article 1166)";
+}
+pub relation indice_disparu_ou_inaccessible(c: Contrat) kind empirical {
+    label fr official "l'indice de référence n'existe pas, a cessé d'exister ou d'être accessible (article 1167)";
+    label en unofficial "the reference index does not exist, or has ceased to exist or to be accessible (Article 1167)";
+}
+pub relation indice_le_plus_proche(c: Contrat) kind empirical {
+    label fr official "indice qui se rapproche le plus de l'indice disparu (article 1167)";
+    label en unofficial "index closest to the one that disappeared (Article 1167)";
+}
+pub relation defaut_d_equivalence_des_prestations(c: Contrat) kind empirical {
+    label fr official "défaut d'équivalence des prestations dans un contrat synallagmatique (article 1168)";
+    label en unofficial "lack of equivalence of the performances in a synallagmatic contract (Article 1168)";
+}
+pub relation loi_speciale_sanctionne_la_lesion(c: Contrat) kind empirical {
+    label fr official "la loi en dispose autrement et sanctionne la lésion (article 1168)";
+    label en unofficial "statute provides otherwise and sanctions the injury (Article 1168)";
+}
+pub relation clause_prive_l_obligation_essentielle_de_sa_substance(cl: Clause) kind empirical {
+    label fr official "la clause prive de sa substance l'obligation essentielle du débiteur (article 1170)";
+    label en unofficial "the clause deprives the debtor's essential obligation of its substance (Article 1170)";
+}
+pub relation clause_non_negociable_predeterminee(cl: Clause) kind empirical {
+    label fr official "clause non négociable, déterminée à l'avance par l'une des parties (article 1171, alinéa 1, rédaction de 2018)";
+    label en unofficial "non-negotiable clause determined in advance by one party (Article 1171, paragraph 1, 2018 wording)";
+}
+pub relation clause_porte_sur_l_objet_principal_ou_l_adequation_du_prix(cl: Clause) kind empirical {
+    label fr official "la clause porte sur l'objet principal du contrat ou sur l'adéquation du prix à la prestation (article 1171, alinéa 2)";
+    label en unofficial "the clause concerns the main subject-matter of the contract or the adequacy of the price to the performance (Article 1171, paragraph 2)";
+}
+
+// --- Canaux §47.3 de la section --------------------------------------------------------------------
+
+@source(CC_ART1130)
+pub external judgment relation caractere_determinant_du_vice(c: Contrat, victime: Personne) {
+    authority Court;
+    label fr official "sans le vice, cette partie n'aurait pas contracté ou aurait contracté à des conditions substantiellement différentes ; le caractère déterminant s'apprécie eu égard aux personnes et aux circonstances (article 1130)";
+    label en unofficial "without the defect this party would not have contracted, or would have contracted on substantially different terms; the decisive character is assessed with regard to the persons and circumstances (Article 1130)";
+}
+
+@source(CC_ART1141)
+pub external judgment relation avantage_manifestement_excessif_1141(c: Contrat, auteur: Personne) {
+    authority Court;
+    label fr official "la voie de droit est invoquée ou exercée pour obtenir un avantage manifestement excessif (article 1141)";
+    label en unofficial "the legal process is invoked or used to obtain a manifestly excessive advantage (Article 1141)";
+}
+
+@source(CC_ART1143)
+pub external judgment relation avantage_manifestement_excessif_1143(c: Contrat, auteur: Personne) {
+    authority Court;
+    label fr official "la partie qui abuse de l'état de dépendance de son cocontractant en tire un avantage manifestement excessif (article 1143)";
+    label en unofficial "the party abusing the other's state of dependence derives from it a manifestly excessive advantage (Article 1143)";
+}
+
+@source(CC_ART1164)
+pub external judgment relation abus_dans_la_fixation_du_prix(c: Contrat) {
+    authority Court;
+    label fr official "il y a abus dans la fixation unilatérale du prix (articles 1164 et 1165)";
+    label en unofficial "there is abuse in the unilateral fixing of the price (Articles 1164 and 1165)";
+}
+
+@source(CC_ART1169)
+pub external judgment relation contrepartie_illusoire_ou_derisoire(c: Contrat) {
+    authority Court;
+    label fr official "la contrepartie convenue au profit de celui qui s'engage était, au moment de la formation, illusoire ou dérisoire (article 1169)";
+    label en unofficial "the counterpart agreed in favour of the party undertaking was, at formation, illusory or derisory (Article 1169)";
+}
+
+@source(CC_ART1171)
+pub external judgment relation desequilibre_significatif(cl: Clause) {
+    authority Court;
+    label fr official "la clause crée un déséquilibre significatif entre les droits et obligations des parties au contrat (article 1171, alinéa 1)";
+    label en unofficial "the clause creates a significant imbalance between the parties' rights and obligations (Article 1171, paragraph 1)";
+}
+
+// --- Têtes produites ---------------------------------------------------------------------------------
+
+pub relation condition_de_validite_remplie(c: Contrat, rang: Integer) kind derived {
+    label fr official "condition de validité de l'article 1128 remplie (1° consentement, 2° capacité, 3° contenu licite et certain)";
+    label en unofficial "condition of validity of Article 1128 met (1 consent, 2 capacity, 3 lawful and certain content)";
+}
+pub relation consentement_valable(c: Contrat, p: Personne) kind derived {
+    label fr official "cette partie a consenti valablement, saine d'esprit (articles 1128, 1°, et 1129)";
+    label en unofficial "this party validly consented, being of sound mind (Articles 1128, item 1, and 1129)";
+}
+pub relation partie_sans_consentement_valable(c: Contrat) kind derived {
+    label fr official "une partie au moins n'a pas valablement consenti (article 1128, 1°)";
+    label en unofficial "at least one party has not validly consented (Article 1128, item 1)";
+}
+pub relation partie_sans_capacite(c: Contrat) kind derived {
+    label fr official "une partie au moins n'a pas la capacité de contracter (article 1128, 2°)";
+    label en unofficial "at least one party lacks capacity to contract (Article 1128, item 2)";
+}
+pub relation contrat_legalement_forme(c: Contrat) kind derived {
+    label fr official "le contrat réunit les trois conditions de l'article 1128 : il est légalement formé";
+    label en unofficial "the contract meets the three conditions of Article 1128: it is lawfully formed";
+}
+pub relation vice_du_consentement(c: Contrat, victime: Personne, v: ViceDuConsentement) kind derived {
+    label fr official "le consentement de cette partie est vicié (articles 1130 à 1143)";
+    label en unofficial "this party's consent is vitiated (Articles 1130 to 1143)";
+}
+pub relation cause_de_nullite(c: Contrat, nature: NatureDeLaNullite) kind derived {
+    label fr official "le contrat est affecté d'une cause de nullité (articles 1131, 1147, 1169, 1161)";
+    label en unofficial "the contract is affected by a ground of nullity (Articles 1131, 1147, 1169, 1161)";
+}
+pub relation erreur_provoquee_par_un_dol(c: Contrat, victime: Personne) kind derived {
+    label fr official "l'erreur qui résulte d'un dol est toujours excusable et reste une cause de nullité (article 1139)";
+    label en unofficial "a mistake resulting from fraud is always excusable and remains a ground of nullity (Article 1139)";
+}
+pub relation erreur_indifferente(c: Contrat, victime: Personne) kind derived {
+    label fr official "l'erreur n'est pas une cause de nullité (articles 1132, 1133 alinéa 3, 1135 et 1136)";
+    label en unofficial "the mistake is not a ground of nullity (Articles 1132, 1133 paragraph 3, 1135 and 1136)";
+}
+pub relation point_de_depart_de_l_action_en_nullite(c: Contrat, jour: Date) kind derived {
+    label fr official "point de départ du délai de l'action en nullité (articles 1144 et 1152) ; la durée relève du droit commun de la prescription — article 2224, paquet fr.code_civil (frontière déclarée)";
+    label en unofficial "starting point of the period for the action for nullity (Articles 1144 and 1152); the duration belongs to the general law of limitation — Article 2224, package fr.code_civil (declared boundary)";
+}
+pub relation capacite_de_contracter(c: Contrat, p: Personne) kind derived {
+    label fr official "cette partie a la capacité de contracter (articles 1145 à 1148)";
+    label en unofficial "this party has capacity to contract (Articles 1145 to 1148)";
+}
+pub relation incapable_de_contracter(p: Personne) kind derived {
+    label fr official "personne incapable de contracter dans la mesure définie par la loi (article 1146)";
+    label en unofficial "person incapable of contracting to the extent defined by statute (Article 1146)";
+}
+pub relation acte_courant_valablement_accompli(c: Contrat, p: Personne) kind derived {
+    label fr official "l'incapable peut néanmoins accomplir seul les actes courants autorisés par la loi ou l'usage, conclus à des conditions normales (article 1148)";
+    label en unofficial "the incapable person may nonetheless do alone everyday acts authorized by statute or usage, concluded on normal terms (Article 1148)";
+}
+pub relation acte_courant_annulable_pour_lesion(c: Contrat, p: Personne) kind derived {
+    label fr official "l'acte courant accompli par le mineur peut être annulé pour simple lésion (article 1149, alinéa 1)";
+    label en unofficial "an everyday act done by a minor may be annulled for mere injury (Article 1149, paragraph 1)";
+}
+pub relation annulation_non_empechee_par_la_declaration_de_majorite(c: Contrat, p: Personne) kind derived {
+    label fr official "la simple déclaration de majorité faite par le mineur ne fait pas obstacle à l'annulation (article 1149)";
+    label en unofficial "the minor's mere declaration of majority does not preclude annulment (Article 1149)";
+}
+pub relation mineur_tenu_par_son_engagement_professionnel(c: Contrat, p: Personne) kind derived {
+    label fr official "le mineur ne peut se soustraire aux engagements qu'il a pris dans l'exercice de sa profession (article 1149)";
+    label en unofficial "the minor cannot escape undertakings given in the exercise of his profession (Article 1149)";
+}
+pub relation acte_du_majeur_protege_renvoye(c: Contrat, p: Personne) kind derived {
+    label fr official "renvoi de l'article 1150 : les actes accomplis par les majeurs protégés sont régis par les articles 435, 465 et 494-9 — matière de fr.code_civil.personnes (frontière déclarée), sans préjudice des articles 1148, 1151 et 1352-4";
+    label en unofficial "Article 1150 referral: acts done by protected adults are governed by Articles 435, 465 and 494-9 — matter of fr.code_civil.personnes (declared boundary), without prejudice to Articles 1148, 1151 and 1352-4";
+}
+pub relation prescription_commencee_avant_le_deces(c: Contrat, protege: Personne) kind derived {
+    label fr official "la prescription avait commencé à courir du vivant de la personne protégée (article 1152, 3°)";
+    label en unofficial "the limitation period had begun to run during the protected person's lifetime (Article 1152, item 3)";
+}
+pub relation obstacle_a_l_action_en_nullite(c: Contrat, protege: Personne) kind derived {
+    label fr official "le contractant capable fait obstacle à l'action en nullité engagée contre lui (article 1151)";
+    label en unofficial "the party with capacity blocks the action for nullity brought against him (Article 1151)";
+}
+pub relation engagement_du_represente(c: Contrat, represente: Personne) kind derived {
+    label fr official "le représenté est seul tenu de l'engagement contracté en son nom et pour son compte dans la limite des pouvoirs (articles 1153 et 1154, alinéa 1)";
+    label en unofficial "the person represented is alone bound by the undertaking made in his name and on his behalf within the powers (Articles 1153 and 1154, paragraph 1)";
+}
+pub relation engagement_personnel_du_representant(c: Contrat, representant: Personne) kind derived {
+    label fr official "le représentant qui contracte en son propre nom est seul engagé à l'égard du cocontractant (article 1154, alinéa 2)";
+    label en unofficial "a representative who contracts in his own name is alone bound towards the other party (Article 1154, paragraph 2)";
+}
+pub relation acte_couvert_par_le_pouvoir(r: Representation, c: Contrat) kind derived {
+    label fr official "l'acte est couvert par le pouvoir du représentant (article 1155)";
+    label en unofficial "the act is covered by the representative's power (Article 1155)";
+}
+pub relation acte_inopposable_au_represente(c: Contrat, represente: Personne) kind derived {
+    label fr official "l'acte accompli sans pouvoir ou au-delà des pouvoirs est inopposable au représenté (article 1156, alinéa 1)";
+    label en unofficial "an act done without or beyond the powers cannot be set up against the person represented (Article 1156, paragraph 1)";
+}
+pub relation nullite_invocable_par_le_tiers(c: Contrat, tiers: Personne) kind derived {
+    label fr official "le tiers contractant peut invoquer la nullité de l'acte accompli sans pouvoir (article 1156, alinéa 2)";
+    label en unofficial "the contracting third party may invoke the nullity of the act done without power (Article 1156, paragraph 2)";
+}
+pub relation nullite_couverte_par_la_ratification(c: Contrat) kind derived {
+    label fr official "l'inopposabilité comme la nullité ne peuvent plus être invoquées dès lors que le représenté a ratifié l'acte (article 1156, alinéa 3)";
+    label en unofficial "neither unenforceability nor nullity may be invoked once the person represented has ratified the act (Article 1156, paragraph 3)";
+}
+pub relation nullite_pour_detournement_de_pouvoirs(c: Contrat, represente: Personne) kind derived {
+    label fr official "le représenté peut invoquer la nullité de l'acte accompli par détournement de pouvoirs (article 1157)";
+    label en unofficial "the person represented may invoke the nullity of an act done by misuse of powers (Article 1157)";
+}
+pub relation represente_a_repondu(r: Representation) kind derived {
+    label fr official "le représenté a répondu à la demande de confirmation, quelle qu'en soit la date (article 1158)";
+    label en unofficial "the person represented replied to the request for confirmation, whatever its date (Article 1158)";
+}
+pub relation representant_repute_habilite(r: Representation) kind derived {
+    label fr official "à défaut de réponse dans le délai, le représentant est réputé habilité à conclure cet acte (article 1158, alinéa 2)";
+    label en unofficial "failing a reply within the period, the representative is deemed empowered to conclude the act (Article 1158, paragraph 2)";
+}
+pub relation represente_dessaisi(r: Representation, represente: Personne) kind derived {
+    label fr official "l'établissement d'une représentation légale ou judiciaire dessaisit le représenté des pouvoirs transférés (article 1159, alinéa 1)";
+    label en unofficial "the establishment of statutory or judicial representation divests the person represented of the transferred powers (Article 1159, paragraph 1)";
+}
+pub relation represente_conserve_l_exercice_de_ses_droits(r: Representation, represente: Personne) kind derived {
+    label fr official "la représentation conventionnelle laisse au représenté l'exercice de ses droits (article 1159, alinéa 2)";
+    label en unofficial "contractual representation leaves the person represented the exercise of his rights (Article 1159, paragraph 2)";
+}
+pub relation pouvoirs_du_representant_cesses(r: Representation) kind derived {
+    label fr official "les pouvoirs du représentant cessent s'il est atteint d'une incapacité ou frappé d'une interdiction (article 1160)";
+    label en unofficial "the representative's powers cease if he is under an incapacity or a prohibition (Article 1160)";
+}
+pub relation contenu_licite(c: Contrat) kind derived {
+    label fr official "le contrat ne déroge pas à l'ordre public : son contenu est licite (article 1162)";
+    label en unofficial "the contract does not derogate from public policy: its content is lawful (Article 1162)";
+}
+pub relation contenu_certain(c: Contrat) kind derived {
+    label fr official "la prestation est possible et déterminée ou déterminable : le contenu est certain (article 1163)";
+    label en unofficial "the performance is possible and determined or determinable: the content is certain (Article 1163)";
+}
+pub relation dommages_et_interets_pour_abus_de_prix(c: Contrat) kind derived {
+    label fr official "en cas d'abus dans la fixation du prix, le juge peut être saisi d'une demande de dommages et intérêts et, le cas échéant, de la résolution du contrat (articles 1164 et 1165)";
+    label en unofficial "in case of abuse in fixing the price, the court may be seised of a claim for damages and, where appropriate, for termination (Articles 1164 and 1165)";
+}
+pub relation qualite_conforme_aux_attentes_due(c: Contrat) kind derived {
+    label fr official "le débiteur doit offrir une prestation de qualité conforme aux attentes légitimes des parties (article 1166)";
+    label en unofficial "the debtor must offer a performance of a quality meeting the parties' legitimate expectations (Article 1166)";
+}
+pub relation indice_remplace(c: Contrat) kind derived {
+    label fr official "l'indice disparu est remplacé par celui qui s'en rapproche le plus (article 1167)";
+    label en unofficial "the vanished index is replaced by the closest one (Article 1167)";
+}
+pub relation lesion_indifferente(c: Contrat) kind derived {
+    label fr official "dans les contrats synallagmatiques, le défaut d'équivalence des prestations n'est pas une cause de nullité (article 1168)";
+    label en unofficial "in synallagmatic contracts, the lack of equivalence of the performances is not a ground of nullity (Article 1168)";
+}
+pub relation clause_reputee_non_ecrite(cl: Clause) kind derived {
+    label fr official "clause réputée non écrite (articles 1170 et 1171)";
+    label en unofficial "clause deemed unwritten (Articles 1170 and 1171)";
+}
+
+// --- Article 1128 : les trois conditions ---------------------------------------------------------------
+
+@source(CC_ART1128, CC_ART1129) {
+    rule ConsentementValableDUnePartie(c: Contrat, p: Personne) strict {
+        label fr official "Article 1128, 1°, et article 1129. Le consentement des parties est nécessaire à la validité du contrat ; conformément à l'article 414-1, il faut être sain d'esprit pour consentir valablement";
+        label en unofficial "Article 1128, item 1, and Article 1129. The parties' consent is necessary for the contract's validity; under Article 414-1, one must be of sound mind to consent validly";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p)
+            and consentement_donne_par(c, p) and sain_d_esprit(c, p);
+        then consentement_valable(c, p);
+    }
+    rule PartieSansConsentementValable(c: Contrat, p: Personne) strict {
+        label fr official "Article 1128, 1°. Le consentement DES parties : il suffit qu'une partie n'ait pas valablement consenti pour que la condition manque";
+        label en unofficial "Article 1128, item 1. The consent OF THE parties: the condition fails if a single party has not validly consented";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p)
+            and not_known(consentement_valable(c, p));
+        then partie_sans_consentement_valable(c);
+    }
+    rule PartieSansCapacite(c: Contrat, p: Personne) strict {
+        label fr official "Article 1128, 2°. Leur capacité de contracter : il suffit qu'une partie soit sans capacité pour que la condition manque";
+        label en unofficial "Article 1128, item 2. Their capacity to contract: the condition fails if a single party lacks capacity";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p)
+            and not_known(capacite_de_contracter(c, p));
+        then partie_sans_capacite(c);
+    }
+    rule ConsentementDesParties(c: Contrat, p: Personne) strict {
+        label fr official "Article 1128, 1°. Toutes les parties ont valablement consenti";
+        label en unofficial "Article 1128, item 1. All parties validly consented";
+        when consentement_valable(c, p) and not_known(partie_sans_consentement_valable(c));
+        then condition_de_validite_remplie(c, 1);
+    }
+    rule CapaciteDeContracterCondition(c: Contrat, p: Personne) strict {
+        label fr official "Article 1128, 2°. Toutes les parties ont la capacité de contracter";
+        label en unofficial "Article 1128, item 2. All parties have capacity to contract";
+        when capacite_de_contracter(c, p) and not_known(partie_sans_capacite(c));
+        then condition_de_validite_remplie(c, 2);
+    }
+    rule ContenuLiciteEtCertain(c: Contrat) strict {
+        label fr official "Article 1128, 3°. Un contenu licite et certain est nécessaire à la validité du contrat";
+        label en unofficial "Article 1128, item 3. Lawful and certain content is necessary for the contract's validity";
+        when contenu_licite(c) and contenu_certain(c);
+        then condition_de_validite_remplie(c, 3);
+    }
+    rule ContratLegalementForme(c: Contrat) strict {
+        label fr official "Article 1128. Le contrat qui réunit le consentement, la capacité et un contenu licite et certain est légalement formé";
+        label en unofficial "Article 1128. A contract combining consent, capacity and lawful and certain content is lawfully formed";
+        when condition_de_validite_remplie(c, 1)
+            and condition_de_validite_remplie(c, 2)
+            and condition_de_validite_remplie(c, 3);
+        then contrat_legalement_forme(c);
+    }
+}
+
+// --- Articles 1130 à 1144 : les vices du consentement ----------------------------------------------------
+
+@source(CC_ART1131)
+rule ViceEntraineNulliteRelative(c: Contrat, victime: Personne, v: ViceDuConsentement) strict {
+    label fr official "Article 1131. Les vices du consentement sont une cause de nullité relative du contrat";
+    label en unofficial "Article 1131. Defects of consent are a ground of relative nullity of the contract";
+    when vice_du_consentement(c, victime, v);
+    then cause_de_nullite(c, Relative);
+}
+
+@source(CC_ART1130, CC_ART1132, CC_ART1133) {
+    rule ErreurViceDuConsentement(c: Contrat, victime: Personne) strict {
+        label fr official "Articles 1130 et 1132. L'erreur de droit ou de fait, à moins qu'elle ne soit inexcusable, est une cause de nullité lorsqu'elle porte sur les qualités essentielles de la prestation due et qu'elle a été déterminante";
+        label en unofficial "Articles 1130 and 1132. A mistake of law or fact, unless inexcusable, is a ground of nullity where it bears on the essential qualities of the performance owed and was decisive";
+        when regi_par_le_droit_nouveau(c) and erreur_de_droit_ou_de_fait(c, victime)
+            and erreur_sur_les_qualites_essentielles_de_la_prestation(c, victime)
+            and qualites_convenues_expressement_ou_tacitement(c)
+            and not_known(erreur_inexcusable(c, victime))
+            and not_known(alea_accepte_sur_une_qualite(c))
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Erreur);
+    }
+    rule ErreurInexcusableIndifferente(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1132. L'erreur inexcusable n'est pas une cause de nullité";
+        label en unofficial "Article 1132. An inexcusable mistake is not a ground of nullity";
+        when regi_par_le_droit_nouveau(c) and erreur_de_droit_ou_de_fait(c, victime)
+            and erreur_inexcusable(c, victime);
+        then erreur_indifferente(c, victime);
+    }
+    rule AleaAccepteExclutLErreur(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1133, alinéa 3. L'acceptation d'un aléa sur une qualité de la prestation exclut l'erreur relative à cette qualité";
+        label en unofficial "Article 1133, paragraph 3. Acceptance of a risk as to a quality of the performance excludes the mistake relating to that quality";
+        when regi_par_le_droit_nouveau(c) and erreur_sur_les_qualites_essentielles_de_la_prestation(c, victime)
+            and alea_accepte_sur_une_qualite(c);
+        then erreur_indifferente(c, victime);
+    }
+}
+
+@source(CC_ART1130, CC_ART1134) {
+    rule ErreurSurLaPersonneDansUnContratIntuituPersonae(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1134. L'erreur sur les qualités essentielles du cocontractant n'est une cause de nullité que dans les contrats conclus en considération de la personne";
+        label en unofficial "Article 1134. A mistake as to the essential qualities of the other party is a ground of nullity only in contracts concluded in consideration of the person";
+        when regi_par_le_droit_nouveau(c) and erreur_sur_les_qualites_essentielles_du_cocontractant(c, victime)
+            and contrat_conclu_en_consideration_de_la_personne(c)
+            and not_known(erreur_inexcusable(c, victime))
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Erreur);
+    }
+    rule ErreurSurLaPersonneHorsIntuituPersonae(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1134. Hors les contrats conclus en considération de la personne, l'erreur sur les qualités du cocontractant n'est pas une cause de nullité";
+        label en unofficial "Article 1134. Outside contracts concluded in consideration of the person, a mistake as to the other party's qualities is not a ground of nullity";
+        when regi_par_le_droit_nouveau(c) and erreur_sur_les_qualites_essentielles_du_cocontractant(c, victime)
+            and not_known(contrat_conclu_en_consideration_de_la_personne(c));
+        then erreur_indifferente(c, victime);
+    }
+}
+
+@source(CC_ART1135) {
+    rule ErreurSurUnSimpleMotifIndifferente(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1135, alinéa 1. L'erreur sur un simple motif, étranger aux qualités essentielles, n'est pas une cause de nullité, à moins que les parties n'en aient fait expressément un élément déterminant";
+        label en unofficial "Article 1135, paragraph 1. A mistake as to a mere motive, unrelated to the essential qualities, is not a ground of nullity unless the parties expressly made it a decisive element";
+        when regi_par_le_droit_nouveau(c) and erreur_sur_un_simple_motif(c, victime)
+            and not_known(motif_erige_expressement_en_element_determinant(c));
+        then erreur_indifferente(c, victime);
+    }
+    rule MotifErigeEnElementDeterminant(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1135, alinéa 1. L'erreur sur un motif dont les parties ont expressément fait un élément déterminant de leur consentement est une cause de nullité";
+        label en unofficial "Article 1135, paragraph 1. A mistake as to a motive the parties expressly made a decisive element of their consent is a ground of nullity";
+        when regi_par_le_droit_nouveau(c) and erreur_sur_un_simple_motif(c, victime)
+            and motif_erige_expressement_en_element_determinant(c)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Erreur);
+    }
+    rule ErreurSurLeMotifDUneLiberalite(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1135, alinéa 2. L'erreur sur le motif d'une libéralité, en l'absence duquel son auteur n'aurait pas disposé, est une cause de nullité";
+        label en unofficial "Article 1135, paragraph 2. A mistake as to the motive of a gift, absent which its author would not have disposed, is a ground of nullity";
+        when regi_par_le_droit_nouveau(c) and liberalite_dont_le_motif_a_manque(c, victime);
+        then vice_du_consentement(c, victime, Erreur);
+    }
+}
+
+@source(CC_ART1136)
+rule ErreurSurLaValeurIndifferente(c: Contrat, victime: Personne) strict {
+    label fr official "Article 1136. L'erreur sur la valeur, par laquelle un contractant fait seulement une appréciation économique inexacte de la prestation sans se tromper sur ses qualités essentielles, n'est pas une cause de nullité";
+    label en unofficial "Article 1136. A mistake as to value, by which a party merely makes an inaccurate economic appraisal of the performance without erring as to its essential qualities, is not a ground of nullity";
+    when regi_par_le_droit_nouveau(c) and erreur_sur_la_valeur(c, victime);
+    then erreur_indifferente(c, victime);
+}
+
+// L'article 1137 dans ses deux rédactions. La ratification de 2018 a ajouté
+// l'alinéa 3 : ne pas révéler son estimation de la valeur de la prestation
+// n'est pas un dol. L'acte de 2017 n'a pas cet alinéa.
+
+@source(CC_ART1137) {
+    rule DolParManoeuvresOuMensonges2018(c: Contrat, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1137, alinéa 1 (rédaction de 2018). Le dol est le fait pour un contractant d'obtenir le consentement de l'autre par des manœuvres ou des mensonges";
+        label en unofficial "Article 1137, paragraph 1 (2018 wording). Fraud is the act of a party in obtaining the other's consent by schemes or lies";
+        when redaction_2018_applicable(c, "1137") and manoeuvres_ou_mensonges(c, auteur, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+    rule DolParDissimulationIntentionnelle2018(c: Contrat, i: Information, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1137, alinéas 2 et 3 (rédaction de 2018). Constitue un dol la dissimulation intentionnelle d'une information dont l'auteur sait le caractère déterminant ; ne constitue pas un dol le fait de ne pas révéler son estimation de la valeur de la prestation";
+        label en unofficial "Article 1137, paragraphs 2 and 3 (2018 wording). Intentional concealment of information whose decisive character the author knows is fraud; failing to reveal one's estimate of the value of the performance is not";
+        when redaction_2018_applicable(c, "1137")
+            and dissimulation_intentionnelle(c, i, auteur, victime)
+            and not_known(information_porte_sur_l_estimation_de_la_valeur(i))
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+}
+
+@source(CC_2016_ART1137, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule DolParManoeuvresOuMensonges2016(c: Contrat, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1137, alinéa 1 (rédaction de l'ordonnance de 2016). Le dol est le fait pour un contractant d'obtenir le consentement de l'autre par des manœuvres ou des mensonges";
+        label en unofficial "Article 1137, paragraph 1 (2016 ordinance wording). Fraud is the act of a party in obtaining the other's consent by schemes or lies";
+        when redaction_2016_applicable(c, "1137") and manoeuvres_ou_mensonges(c, auteur, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+    rule DolParDissimulationIntentionnelle2016(c: Contrat, i: Information, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1137, alinéa 2 (rédaction de l'ordonnance de 2016). Constitue un dol la dissimulation intentionnelle par l'un des contractants d'une information dont il sait le caractère déterminant pour l'autre partie — sans l'exception de l'estimation de la valeur, ajoutée en 2018";
+        label en unofficial "Article 1137, paragraph 2 (2016 ordinance wording). Intentional concealment by one party of information whose decisive character for the other it knows is fraud — without the value-estimate exception added in 2018";
+        when redaction_2016_applicable(c, "1137")
+            and dissimulation_intentionnelle(c, i, auteur, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+}
+
+@source(CC_ART1138) {
+    rule DolDuRepresentant(c: Contrat, auteur: Personne, contractant: Personne, victime: Personne) strict {
+        label fr official "Article 1138, alinéa 1. Le dol est également constitué s'il émane du représentant, gérant d'affaires, préposé ou porte-fort du contractant";
+        label en unofficial "Article 1138, paragraph 1. Fraud is also established where it comes from the party's representative, manager, employee or promisor for another";
+        when regi_par_le_droit_nouveau(c) and dol_du_representant_ou_du_porte_fort(c, auteur, contractant)
+            and manoeuvres_ou_mensonges(c, auteur, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+    rule DolDuTiersDeConnivence(c: Contrat, tiers: Personne, contractant: Personne, victime: Personne) strict {
+        label fr official "Article 1138, alinéa 2. Le dol est encore constitué lorsqu'il émane d'un tiers de connivence";
+        label en unofficial "Article 1138, paragraph 2. Fraud is further established where it comes from a colluding third party";
+        when regi_par_le_droit_nouveau(c) and dol_d_un_tiers_de_connivence(c, tiers, contractant)
+            and manoeuvres_ou_mensonges(c, tiers, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Dol);
+    }
+}
+
+@source(CC_ART1139) {
+    rule ErreurProvoqueeParUnDolToujoursExcusable(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1139. L'erreur qui résulte d'un dol est toujours excusable";
+        label en unofficial "Article 1139. A mistake resulting from fraud is always excusable";
+        when vice_du_consentement(c, victime, Dol) and erreur_de_droit_ou_de_fait(c, victime);
+        then erreur_provoquee_par_un_dol(c, victime);
+    }
+    rule ErreurProvoqueeCauseDeNullite(c: Contrat, victime: Personne) strict {
+        label fr official "Article 1139. L'erreur qui résulte d'un dol est une cause de nullité alors même qu'elle porterait sur la valeur de la prestation ou sur un simple motif du contrat";
+        label en unofficial "Article 1139. A mistake resulting from fraud is a ground of nullity even if it bears on the value of the performance or a mere motive";
+        when erreur_provoquee_par_un_dol(c, victime);
+        then cause_de_nullite(c, Relative);
+    }
+}
+
+@source(CC_ART1140, CC_ART1142) {
+    rule ViolenceParContrainte(c: Contrat, victime: Personne) strict {
+        label fr official "Articles 1140 et 1142. Il y a violence lorsqu'une partie s'engage sous la pression d'une contrainte qui lui inspire la crainte d'exposer sa personne, sa fortune ou celles de ses proches à un mal considérable ; la violence est une cause de nullité qu'elle ait été exercée par une partie ou par un tiers";
+        label en unofficial "Articles 1140 and 1142. There is duress where a party undertakes under pressure inspiring fear of exposing himself, his fortune or his relatives to considerable harm; duress is a ground of nullity whether exercised by a party or a third party";
+        when regi_par_le_droit_nouveau(c) and contrainte_inspirant_la_crainte_d_un_mal_considerable(c, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Violence);
+    }
+    rule ViolenceDuTiers(c: Contrat, tiers: Personne, victime: Personne) strict {
+        label fr official "Article 1142. La violence est une cause de nullité qu'elle ait été exercée par une partie ou par un tiers";
+        label en unofficial "Article 1142. Duress is a ground of nullity whether exercised by a party or by a third party";
+        when regi_par_le_droit_nouveau(c) and violence_exercee_par_un_tiers(c, tiers, victime)
+            and contrainte_inspirant_la_crainte_d_un_mal_considerable(c, victime)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Violence);
+    }
+}
+
+@source(CC_ART1141) {
+    rule MenaceDUneVoieDeDroitDetournee(c: Contrat, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1141. La menace d'une voie de droit ne constitue pas une violence, sauf lorsque la voie de droit est détournée de son but";
+        label en unofficial "Article 1141. The threat of legal proceedings is not duress, except where the process is diverted from its purpose";
+        when regi_par_le_droit_nouveau(c) and menace_d_une_voie_de_droit(c, auteur, victime)
+            and voie_de_droit_detournee_de_son_but(c, auteur)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Violence);
+    }
+    rule MenaceDUneVoieDeDroitPourUnAvantageExcessif(c: Contrat, auteur: Personne, victime: Personne) strict {
+        label fr official "Article 1141. Il en va autrement lorsque la voie de droit est invoquée ou exercée pour obtenir un avantage manifestement excessif";
+        label en unofficial "Article 1141. It is otherwise where the process is invoked or used to obtain a manifestly excessive advantage";
+        when regi_par_le_droit_nouveau(c) and menace_d_une_voie_de_droit(c, auteur, victime)
+            and avantage_manifestement_excessif_1141(c, auteur)
+            and caractere_determinant_du_vice(c, victime);
+        then vice_du_consentement(c, victime, Violence);
+    }
+}
+
+// L'article 1143 est INTERPRÉTATIF (loi n° 2018-287, article 16, I) : sa
+// rédaction ratifiée vaut pour les actes conclus dès le 1er octobre 2016.
+// Une seule règle, donc, ancrée sur le texte en vigueur.
+
+@source(CC_ART1143)
+rule AbusDeLEtatDeDependance(c: Contrat, victime: Personne, auteur: Personne) strict {
+    label fr official "Article 1143. Il y a également violence lorsqu'une partie, abusant de l'état de dépendance dans lequel se trouve son cocontractant à son égard, obtient de lui un engagement qu'il n'aurait pas souscrit en l'absence d'une telle contrainte et en tire un avantage manifestement excessif";
+    label en unofficial "Article 1143. There is also duress where a party, abusing the state of dependence in which the other finds itself, obtains an undertaking the latter would not have given absent such constraint and derives from it a manifestly excessive advantage";
+    when regi_par_le_droit_nouveau(c) and etat_de_dependance(c, victime, auteur)
+        and engagement_non_souscrit_sans_la_contrainte(c, victime)
+        and avantage_manifestement_excessif_1143(c, auteur);
+    then vice_du_consentement(c, victime, Violence);
+}
+
+@source(CC_ART1144) {
+    rule DepartDuDelaiErreur(c: Contrat, jour: Date) strict {
+        label fr official "Article 1144. Le délai de l'action en nullité ne court, en cas d'erreur, que du jour où elle a été découverte";
+        label en unofficial "Article 1144. The period for the action for nullity runs, in case of mistake, only from the day it was discovered";
+        when regi_par_le_droit_nouveau(c) and erreur_decouverte_le(c, jour);
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+    rule DepartDuDelaiDol(c: Contrat, jour: Date) strict {
+        label fr official "Article 1144. Le délai de l'action en nullité ne court, en cas de dol, que du jour où il a été découvert";
+        label en unofficial "Article 1144. The period for the action for nullity runs, in case of fraud, only from the day it was discovered";
+        when regi_par_le_droit_nouveau(c) and dol_decouvert_le(c, jour);
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+    rule DepartDuDelaiViolence(c: Contrat, jour: Date) strict {
+        label fr official "Article 1144. Le délai de l'action en nullité ne court, en cas de violence, que du jour où elle a cessé";
+        label en unofficial "Article 1144. The period for the action for nullity runs, in case of duress, only from the day it ceased";
+        when regi_par_le_droit_nouveau(c) and violence_cessee_le(c, jour);
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+}
+
+// --- Articles 1145 à 1152 : la capacité --------------------------------------------------------------------
+
+@source(CC_ART1145) {
+    rule CapaciteDeLaPersonnePhysique2018(c: Contrat, p: Personne) strict {
+        label fr official "Article 1145, alinéa 1 (rédaction de 2018). Toute personne physique peut contracter sauf en cas d'incapacité prévue par la loi";
+        label en unofficial "Article 1145, paragraph 1 (2018 wording). Any natural person may contract save in case of an incapacity provided by statute";
+        when redaction_2018_applicable(c, "1145") and partie_au_contrat(c, p)
+            and personne_physique(p) and not_known(incapacite_prevue_par_la_loi(p));
+        then capacite_de_contracter(c, p);
+    }
+    rule CapaciteDeLaPersonneMorale2018(c: Contrat, p: Personne) strict {
+        label fr official "Article 1145, alinéa 2 (rédaction de 2018). La capacité des personnes morales est limitée par les règles applicables à chacune d'entre elles";
+        label en unofficial "Article 1145, paragraph 2 (2018 wording). The capacity of legal persons is limited by the rules applicable to each of them";
+        when redaction_2018_applicable(c, "1145") and partie_au_contrat(c, p)
+            and personne_morale(p) and regles_propres_a_la_personne_morale_respectees(c, p);
+        then capacite_de_contracter(c, p);
+    }
+}
+
+@source(CC_2016_ART1145, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule CapaciteDeLaPersonnePhysique2016(c: Contrat, p: Personne) strict {
+        label fr official "Article 1145, alinéa 1 (rédaction de l'ordonnance de 2016). Toute personne physique peut contracter sauf en cas d'incapacité prévue par la loi";
+        label en unofficial "Article 1145, paragraph 1 (2016 ordinance wording). Any natural person may contract save in case of an incapacity provided by statute";
+        when redaction_2016_applicable(c, "1145") and partie_au_contrat(c, p)
+            and personne_physique(p) and not_known(incapacite_prevue_par_la_loi(p));
+        then capacite_de_contracter(c, p);
+    }
+    rule CapaciteDeLaPersonneMorale2016(c: Contrat, p: Personne) strict {
+        label fr official "Article 1145, alinéa 2 (rédaction de l'ordonnance de 2016). La capacité des personnes morales est limitée aux actes utiles à la réalisation de leur objet tel que défini par leurs statuts et aux actes qui leur sont accessoires";
+        label en unofficial "Article 1145, paragraph 2 (2016 ordinance wording). The capacity of legal persons is limited to acts useful for achieving their objects as defined by their constitution and to ancillary acts";
+        when redaction_2016_applicable(c, "1145") and partie_au_contrat(c, p)
+            and personne_morale(p) and acte_utile_a_la_realisation_de_l_objet_statutaire(c, p);
+        then capacite_de_contracter(c, p);
+    }
+}
+
+@source(CC_ART1146) {
+    rule MineurIncapable(p: Personne) strict {
+        label fr official "Article 1146, 1°. Les mineurs non émancipés sont incapables de contracter dans la mesure définie par la loi";
+        label en unofficial "Article 1146, item 1. Unemancipated minors are incapable of contracting to the extent defined by statute";
+        when mineur_non_emancipe(p);
+        then incapable_de_contracter(p);
+    }
+    rule MajeurProtegeIncapable(p: Personne) strict {
+        label fr official "Article 1146, 2°. Les majeurs protégés au sens de l'article 425 sont incapables de contracter dans la mesure définie par la loi";
+        label en unofficial "Article 1146, item 2. Protected adults within Article 425 are incapable of contracting to the extent defined by statute";
+        when majeur_protege(p);
+        then incapable_de_contracter(p);
+    }
+}
+
+@source(CC_ART1147)
+rule IncapaciteCauseDeNulliteRelative(c: Contrat, p: Personne) strict {
+    label fr official "Article 1147. L'incapacité de contracter est une cause de nullité relative";
+    label en unofficial "Article 1147. Incapacity to contract is a ground of relative nullity";
+    when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p) and incapable_de_contracter(p)
+        and not_known(acte_courant_valablement_accompli(c, p));
+    then cause_de_nullite(c, Relative);
+}
+
+@source(CC_ART1148)
+rule ActeCourantDeLIncapable(c: Contrat, p: Personne) strict {
+    label fr official "Article 1148. Toute personne incapable de contracter peut néanmoins accomplir seule les actes courants autorisés par la loi ou l'usage, pourvu qu'ils soient conclus à des conditions normales";
+    label en unofficial "Article 1148. Any person incapable of contracting may nonetheless do alone everyday acts authorized by statute or usage, provided they are concluded on normal terms";
+    when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p) and incapable_de_contracter(p)
+        and acte_courant_autorise_par_la_loi_ou_l_usage(c) and conditions_normales(c);
+    then acte_courant_valablement_accompli(c, p);
+}
+
+@source(CC_ART1149) {
+    rule ActeCourantDuMineurAnnulablePourLesion(c: Contrat, p: Personne) strict {
+        label fr official "Article 1149, alinéa 1. Les actes courants accomplis par le mineur peuvent être annulés pour simple lésion ; toutefois, la nullité n'est pas encourue lorsque la lésion résulte d'un événement imprévisible";
+        label en unofficial "Article 1149, paragraph 1. Everyday acts done by a minor may be annulled for mere injury; however, nullity is not incurred where the injury results from an unforeseeable event";
+        when regi_par_le_droit_nouveau(c) and mineur_non_emancipe(p)
+            and acte_courant_valablement_accompli(c, p)
+            and lesion_du_mineur(c, p)
+            and not_known(lesion_resultant_d_un_evenement_imprevisible(c, p));
+        then acte_courant_annulable_pour_lesion(c, p);
+    }
+    rule DeclarationDeMajoriteSansEffet(c: Contrat, p: Personne) strict {
+        label fr official "Article 1149. La simple déclaration de majorité faite par le mineur ne fait pas obstacle à l'annulation";
+        label en unofficial "Article 1149. The minor's mere declaration of majority does not preclude annulment";
+        when regi_par_le_droit_nouveau(c) and mineur_non_emancipe(p)
+            and declaration_de_majorite_faite_par_le_mineur(c, p);
+        then annulation_non_empechee_par_la_declaration_de_majorite(c, p);
+    }
+    rule EngagementProfessionnelDuMineur(c: Contrat, p: Personne) strict {
+        label fr official "Article 1149. Le mineur ne peut se soustraire aux engagements qu'il a pris dans l'exercice de sa profession";
+        label en unofficial "Article 1149. The minor cannot escape undertakings given in the exercise of his profession";
+        when regi_par_le_droit_nouveau(c) and mineur_non_emancipe(p)
+            and engagement_pris_dans_l_exercice_de_sa_profession(c, p);
+        then mineur_tenu_par_son_engagement_professionnel(c, p);
+    }
+}
+
+@source(CC_ART1150)
+rule ActesDesMajeursProtegesRenvoyes(c: Contrat, p: Personne) strict {
+    label fr official "Article 1150. Les actes accomplis par les majeurs protégés sont régis par les articles 435, 465 et 494-9 sans préjudice des articles 1148, 1151 et 1352-4 : régime hors de ce paquet (frontière déclarée)";
+    label en unofficial "Article 1150. Acts done by protected adults are governed by Articles 435, 465 and 494-9 without prejudice to Articles 1148, 1151 and 1352-4: regime outside this package (declared boundary)";
+    when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p) and majeur_protege(p)
+        and acte_du_majeur_protege_regi_par_les_articles_speciaux(c, p);
+    then acte_du_majeur_protege_renvoye(c, p);
+}
+
+@source(CC_ART1151) {
+    rule ObstacleParLUtiliteDeLActe(c: Contrat, protege: Personne) strict {
+        label fr official "Article 1151, alinéa 1. Le contractant capable peut faire obstacle à l'action en nullité en établissant que l'acte était utile à la personne protégée et exempt de lésion ou qu'il a profité à celle-ci";
+        label en unofficial "Article 1151, paragraph 1. The party with capacity may block the action for nullity by showing the act was useful to the protected person and free of injury, or benefited that person";
+        when regi_par_le_droit_nouveau(c) and incapable_de_contracter(protege)
+            and acte_utile_et_exempt_de_lesion(c, protege);
+        then obstacle_a_l_action_en_nullite(c, protege);
+    }
+    rule ObstacleParLaConfirmation(c: Contrat, protege: Personne) strict {
+        label fr official "Article 1151, alinéa 2. Le contractant capable peut aussi opposer à l'action en nullité la confirmation de l'acte par son cocontractant devenu ou redevenu capable";
+        label en unofficial "Article 1151, paragraph 2. The party with capacity may also oppose to the action the confirmation of the act by the other party having become or regained capacity";
+        when regi_par_le_droit_nouveau(c) and incapable_de_contracter(protege)
+            and confirmation_par_le_cocontractant_redevenu_capable(c, protege);
+        then obstacle_a_l_action_en_nullite(c, protege);
+    }
+}
+
+@source(CC_ART1152) {
+    rule DepartDuDelaiMineur(c: Contrat, p: Personne, jour: Date) strict {
+        label fr official "Article 1152, 1°. A l'égard des actes faits par un mineur, la prescription de l'action court du jour de la majorité ou de l'émancipation";
+        label en unofficial "Article 1152, item 1. As to acts done by a minor, the period runs from the day of majority or emancipation";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p) and mineur_non_emancipe(p)
+            and majorite_ou_emancipation_le(p, jour);
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+    rule DepartDuDelaiMajeurProtege(c: Contrat, p: Personne, jour: Date) strict {
+        label fr official "Article 1152, 2°. A l'égard des actes faits par un majeur protégé, la prescription court du jour où il en a eu connaissance alors qu'il était en situation de les refaire valablement";
+        label en unofficial "Article 1152, item 2. As to acts done by a protected adult, the period runs from the day he learned of them while able to redo them validly";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p) and majeur_protege(p)
+            and majeur_protege_a_eu_connaissance_le(c, p, jour);
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+    rule PrescriptionCommenceeAvantLeDeces(c: Contrat, protege: Personne, connaissance: Date, deces: Date) strict {
+        label fr official "Article 1152, 3°. La prescription a commencé à courir auparavant lorsque le majeur protégé a eu connaissance de l'acte, en situation de le refaire valablement, avant son décès";
+        label en unofficial "Article 1152, item 3. The period began earlier where the protected adult learned of the act, while able to redo it validly, before death";
+        when majeur_protege_a_eu_connaissance_le(c, protege, connaissance)
+            and deces_de_la_personne_protegee_le(protege, deces)
+            and connaissance < deces;
+        then prescription_commencee_avant_le_deces(c, protege);
+    }
+    rule DepartDuDelaiHeritiers(c: Contrat, protege: Personne, heritier: Personne, jour: Date) strict {
+        label fr official "Article 1152, 3°. A l'égard des héritiers de la personne en tutelle, en curatelle ou sous habilitation familiale, la prescription court du jour du décès si elle n'a commencé à courir auparavant";
+        label en unofficial "Article 1152, item 3. As to the heirs of a person under guardianship, curatorship or family authorization, the period runs from the day of death if it has not begun earlier";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, protege) and majeur_protege(protege)
+            and heritier_de_la_personne_protegee(heritier, protege)
+            and deces_de_la_personne_protegee_le(protege, jour)
+            and not_known(prescription_commencee_avant_le_deces(c, protege));
+        then point_de_depart_de_l_action_en_nullite(c, jour);
+    }
+}
+
+// --- Articles 1153 à 1161 : la représentation ------------------------------------------------------------
+
+@source(CC_ART1153, CC_ART1154) {
+    rule EngagementDuRepresente(r: Representation, c: Contrat, represente: Personne) strict {
+        label fr official "Articles 1153 et 1154, alinéa 1. Lorsque le représentant agit dans la limite de ses pouvoirs au nom et pour le compte du représenté, celui-ci est seul tenu de l'engagement ainsi contracté";
+        label en unofficial "Articles 1153 and 1154, paragraph 1. Where the representative acts within his powers in the name and on behalf of the person represented, the latter alone is bound by the undertaking";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and represente(r, represente)
+            and acte_dans_la_limite_des_pouvoirs(r)
+            and agit_au_nom_et_pour_le_compte_du_represente(r);
+        then engagement_du_represente(c, represente);
+    }
+    rule EngagementPersonnelDuRepresentant(r: Representation, c: Contrat, representant: Personne) strict {
+        label fr official "Article 1154, alinéa 2. Lorsque le représentant déclare agir pour le compte d'autrui mais contracte en son propre nom, il est seul engagé à l'égard du cocontractant";
+        label en unofficial "Article 1154, paragraph 2. Where the representative states he acts for another but contracts in his own name, he alone is bound towards the other party";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and representant(r, representant)
+            and contracte_en_son_propre_nom_pour_le_compte_d_autrui(r);
+        then engagement_personnel_du_representant(c, representant);
+    }
+}
+
+@source(CC_ART1155) {
+    rule PouvoirGeneralCouvreLesActesDAdministration(r: Representation, c: Contrat) strict {
+        label fr official "Article 1155, alinéa 1. Lorsque le pouvoir du représentant est défini en termes généraux, il ne couvre que les actes conservatoires et d'administration";
+        label en unofficial "Article 1155, paragraph 1. Where the representative's power is defined in general terms, it covers only acts of preservation and administration";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and pouvoir_defini_en_termes_generaux(r) and acte_conservatoire_ou_d_administration(c);
+        then acte_couvert_par_le_pouvoir(r, c);
+    }
+    rule PouvoirSpecialCouvreLesActesHabilites(r: Representation, c: Contrat) strict {
+        label fr official "Article 1155, alinéa 2. Lorsque le pouvoir est spécialement déterminé, le représentant ne peut accomplir que les actes pour lesquels il est habilité et ceux qui en sont l'accessoire";
+        label en unofficial "Article 1155, paragraph 2. Where the power is specially determined, the representative may do only the acts he is empowered to do and those ancillary to them";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and pouvoir_specialement_determine(r) and acte_habilite_ou_accessoire(r, c);
+        then acte_couvert_par_le_pouvoir(r, c);
+    }
+}
+
+@source(CC_ART1156) {
+    rule ActeSansPouvoirInopposable(r: Representation, c: Contrat, represente: Personne, tiers: Personne) strict {
+        label fr official "Article 1156, alinéa 1. L'acte accompli par un représentant sans pouvoir ou au-delà de ses pouvoirs est inopposable au représenté, sauf si le tiers contractant a légitimement cru en la réalité des pouvoirs";
+        label en unofficial "Article 1156, paragraph 1. An act done by a representative without or beyond his powers cannot be set up against the person represented, unless the contracting third party legitimately believed in the reality of the powers";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and represente(r, represente) and partie_au_contrat(c, tiers)
+            and not_known(acte_dans_la_limite_des_pouvoirs(r))
+            and not_known(tiers_a_legitimement_cru_aux_pouvoirs(c, tiers))
+            and not_known(acte_ratifie_par_le_represente(c));
+        then acte_inopposable_au_represente(c, represente);
+    }
+    rule NulliteInvocableParLeTiersIgnorant(r: Representation, c: Contrat, tiers: Personne) strict {
+        label fr official "Article 1156, alinéa 2. Lorsqu'il ignorait que l'acte était accompli par un représentant sans pouvoir ou au-delà de ses pouvoirs, le tiers contractant peut en invoquer la nullité";
+        label en unofficial "Article 1156, paragraph 2. Where he did not know the act was done without or beyond the powers, the contracting third party may invoke its nullity";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and partie_au_contrat(c, tiers)
+            and not_known(acte_dans_la_limite_des_pouvoirs(r))
+            and tiers_ignorait_le_defaut_de_pouvoir(c, tiers)
+            and not_known(acte_ratifie_par_le_represente(c));
+        then nullite_invocable_par_le_tiers(c, tiers);
+    }
+    rule RatificationCouvreLActe(c: Contrat) strict {
+        label fr official "Article 1156, alinéa 3. L'inopposabilité comme la nullité de l'acte ne peuvent plus être invoquées dès lors que le représenté l'a ratifié";
+        label en unofficial "Article 1156, paragraph 3. Neither unenforceability nor nullity may be invoked once the person represented has ratified the act";
+        when regi_par_le_droit_nouveau(c) and acte_ratifie_par_le_represente(c);
+        then nullite_couverte_par_la_ratification(c);
+    }
+}
+
+@source(CC_ART1157)
+rule DetournementDePouvoirsConnuDuTiers(r: Representation, c: Contrat, represente: Personne, tiers: Personne) strict {
+    label fr official "Article 1157. Lorsque le représentant détourne ses pouvoirs au détriment du représenté, ce dernier peut invoquer la nullité de l'acte accompli si le tiers avait connaissance du détournement ou ne pouvait l'ignorer";
+    label en unofficial "Article 1157. Where the representative misuses his powers to the detriment of the person represented, the latter may invoke the nullity of the act if the third party knew of the misuse or could not have been unaware of it";
+    when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+        and represente(r, represente) and partie_au_contrat(c, tiers)
+        and detournement_de_pouvoirs(r) and tiers_connaissait_le_detournement(c, tiers);
+    then nullite_pour_detournement_de_pouvoirs(c, represente);
+}
+
+// L'article 1158 s'applique dès l'entrée en vigueur de l'ordonnance, même au
+// contrat antérieur (ordonnance art. 9, troisième phrase).
+
+@source(CC_ART1158) {
+    rule RepresentantReputeHabiliteFauteDeReponse(r: Representation, c: Contrat, tiers: Personne, echeance: Date) strict {
+        label fr official "Article 1158, alinéas 1 et 2. Le tiers qui doute de l'étendue du pouvoir du représentant conventionnel peut demander par écrit au représenté de confirmer, dans un délai qu'il fixe et qui doit être raisonnable ; à défaut de réponse dans ce délai, le représentant est réputé habilité";
+        label en unofficial "Article 1158, paragraphs 1 and 2. A third party doubting the extent of a contractual representative's power may request in writing that the person represented confirm, within a period it sets which must be reasonable; failing a reply the representative is deemed empowered";
+        when article_applicable_des_2016(c, "1158") and representation_pour_le_contrat(r, c)
+            and representation_conventionnelle(r)
+            and demande_ecrite_de_confirmation_du_pouvoir(r, tiers, echeance)
+            and mention_de_l_habilitation_reputee(r)
+            and delai_de_la_demande_raisonnable_1158(r)
+            and not_known(represente_a_repondu(r));
+        then representant_repute_habilite(r);
+    }
+    rule RepresentantReputeHabiliteReponseTardive(r: Representation, c: Contrat, tiers: Personne, echeance: Date, reponse: Date) strict {
+        label fr official "Article 1158, alinéa 2. La réponse parvenue après l'expiration du délai ne fait pas obstacle à l'habilitation réputée";
+        label en unofficial "Article 1158, paragraph 2. A reply arriving after the period has expired does not prevent the deemed empowerment";
+        when article_applicable_des_2016(c, "1158") and representation_pour_le_contrat(r, c)
+            and representation_conventionnelle(r)
+            and demande_ecrite_de_confirmation_du_pouvoir(r, tiers, echeance)
+            and mention_de_l_habilitation_reputee(r)
+            and delai_de_la_demande_raisonnable_1158(r)
+            and reponse_du_represente_le(r, reponse)
+            and reponse > echeance;
+        then representant_repute_habilite(r);
+    }
+}
+
+@source(CC_ART1158)
+rule RepresenteARepondu(r: Representation, jour: Date) strict {
+    label fr official "Article 1158, alinéa 2. Constat d'une réponse du représenté, quelle qu'en soit la date";
+    label en unofficial "Article 1158, paragraph 2. Finding that the person represented replied, whatever the date";
+    when reponse_du_represente_le(r, jour);
+    then represente_a_repondu(r);
+}
+
+@source(CC_ART1158)
+pub external judgment relation delai_de_la_demande_raisonnable_1158(r: Representation) {
+    authority Court;
+    label fr official "le délai que le tiers a fixé dans sa demande écrite au représenté était raisonnable (article 1158, alinéa 1)";
+    label en unofficial "the period the third party set in its written request to the person represented was reasonable (Article 1158, paragraph 1)";
+}
+
+@source(CC_ART1159) {
+    rule RepresentationLegaleDessaisitLeRepresente(r: Representation, c: Contrat, represente: Personne) strict {
+        label fr official "Article 1159, alinéa 1. L'établissement d'une représentation légale ou judiciaire dessaisit pendant sa durée le représenté des pouvoirs transférés au représentant";
+        label en unofficial "Article 1159, paragraph 1. The establishment of statutory or judicial representation divests the person represented, for its duration, of the powers transferred";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and represente(r, represente) and representation_legale_ou_judiciaire(r);
+        then represente_dessaisi(r, represente);
+    }
+    rule RepresentationConventionnelleLaisseLExercice(r: Representation, c: Contrat, represente: Personne) strict {
+        label fr official "Article 1159, alinéa 2. La représentation conventionnelle laisse au représenté l'exercice de ses droits";
+        label en unofficial "Article 1159, paragraph 2. Contractual representation leaves the person represented the exercise of his rights";
+        when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+            and represente(r, represente) and representation_conventionnelle(r);
+        then represente_conserve_l_exercice_de_ses_droits(r, represente);
+    }
+}
+
+@source(CC_ART1160)
+rule CessationDesPouvoirs(r: Representation, c: Contrat) strict {
+    label fr official "Article 1160. Les pouvoirs du représentant cessent s'il est atteint d'une incapacité ou frappé d'une interdiction";
+    label en unofficial "Article 1160. The representative's powers cease if he is under an incapacity or a prohibition";
+    when regi_par_le_droit_nouveau(c) and representation_pour_le_contrat(r, c)
+        and incapacite_ou_interdiction_du_representant(r);
+    then pouvoirs_du_representant_cesses(r);
+}
+
+// L'article 1161 dans ses deux rédactions : celle de 2016 vise TOUTE
+// représentation et l'action « pour le compte des deux parties » ; celle de
+// 2018 ne vise que la représentation des personnes physiques et l'opposition
+// d'intérêts. Un mandataire de société de 2017 tombe sous la première.
+
+@source(CC_ART1161) {
+    rule ConflitDInteretsPersonnePhysique2018(r: Representation, c: Contrat, represente_physique: Personne) strict {
+        label fr official "Article 1161 (rédaction de 2018). En matière de représentation des personnes physiques, un représentant ne peut agir pour le compte de plusieurs parties au contrat en opposition d'intérêts ; l'acte accompli est nul à moins que la loi ne l'autorise ou que le représenté ne l'ait autorisé ou ratifié";
+        label en unofficial "Article 1161 (2018 wording). In the representation of natural persons, a representative may not act for several parties with conflicting interests; the act is void unless statute allows it or the person represented authorized or ratified it";
+        when redaction_2018_applicable(c, "1161") and representation_pour_le_contrat(r, c)
+            and represente(r, represente_physique) and personne_physique(represente_physique)
+            and agit_pour_plusieurs_parties_en_opposition_d_interets(r, c)
+            and not_known(acte_autorise_par_la_loi_ou_par_le_represente(r, c));
+        then cause_de_nullite(c, Relative);
+    }
+    rule ContratAvecSoiMeme2018(r: Representation, c: Contrat, represente_physique: Personne) strict {
+        label fr official "Article 1161 (rédaction de 2018). Le représentant d'une personne physique ne peut contracter pour son propre compte avec le représenté";
+        label en unofficial "Article 1161 (2018 wording). The representative of a natural person may not contract on his own behalf with the person represented";
+        when redaction_2018_applicable(c, "1161") and representation_pour_le_contrat(r, c)
+            and represente(r, represente_physique) and personne_physique(represente_physique)
+            and contracte_pour_son_propre_compte_avec_le_represente(r, c)
+            and not_known(acte_autorise_par_la_loi_ou_par_le_represente(r, c));
+        then cause_de_nullite(c, Relative);
+    }
+}
+
+@source(CC_2016_ART1161, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule DoubleRepresentation2016(r: Representation, c: Contrat) strict {
+        label fr official "Article 1161 (rédaction de l'ordonnance de 2016). Un représentant ne peut agir pour le compte des deux parties au contrat — sans distinction selon que le représenté est une personne physique ou morale";
+        label en unofficial "Article 1161 (2016 ordinance wording). A representative may not act on behalf of both parties to the contract — without distinguishing natural from legal persons";
+        when redaction_2016_applicable(c, "1161") and representation_pour_le_contrat(r, c)
+            and agit_pour_les_deux_parties(r, c)
+            and not_known(acte_autorise_par_la_loi_ou_par_le_represente(r, c));
+        then cause_de_nullite(c, Relative);
+    }
+    rule ContratAvecSoiMeme2016(r: Representation, c: Contrat) strict {
+        label fr official "Article 1161 (rédaction de l'ordonnance de 2016). Le représentant ne peut contracter pour son propre compte avec le représenté";
+        label en unofficial "Article 1161 (2016 ordinance wording). The representative may not contract on his own behalf with the person represented";
+        when redaction_2016_applicable(c, "1161") and representation_pour_le_contrat(r, c)
+            and contracte_pour_son_propre_compte_avec_le_represente(r, c)
+            and not_known(acte_autorise_par_la_loi_ou_par_le_represente(r, c));
+        then cause_de_nullite(c, Relative);
+    }
+}
+
+// --- Articles 1162 à 1171 : le contenu du contrat -----------------------------------------------------------
+
+@source(CC_ART1162)
+rule ContenuLiciteSansDerogationALOrdrePublic(c: Contrat) strict {
+    label fr official "Article 1162. Le contrat ne peut déroger à l'ordre public ni par ses stipulations, ni par son but, que ce dernier ait été connu ou non par toutes les parties";
+    label en unofficial "Article 1162. A contract may not derogate from public policy either by its terms or by its purpose, whether or not the latter was known to all parties";
+    when regi_par_le_droit_nouveau(c) and not_known(derogation_a_l_ordre_public(c));
+    then contenu_licite(c);
+}
+
+@source(CC_ART1162)
+rule DerogationALOrdrePublicCauseDeNulliteAbsolue(c: Contrat) strict {
+    label fr official "Article 1162, rapproché de l'article 1179. La règle qui interdit de déroger à l'ordre public a pour objet la sauvegarde de l'intérêt général : sa violation est une cause de nullité absolue";
+    label en unofficial "Article 1162, read with Article 1179. The rule forbidding derogation from public policy protects the general interest: its breach is a ground of absolute nullity";
+    when regi_par_le_droit_nouveau(c) and derogation_a_l_ordre_public(c);
+    then cause_de_nullite(c, Absolue);
+}
+
+@source(CC_ART1163) {
+    rule ContenuCertainParDetermination(c: Contrat) strict {
+        label fr official "Article 1163, alinéas 1 et 2. L'obligation a pour objet une prestation présente ou future, qui doit être possible et déterminée";
+        label en unofficial "Article 1163, paragraphs 1 and 2. The obligation has as its object a present or future performance, which must be possible and determined";
+        when regi_par_le_droit_nouveau(c) and prestation_possible(c) and prestation_determinee(c);
+        then contenu_certain(c);
+    }
+    rule ContenuCertainParDeterminabilite(c: Contrat) strict {
+        label fr official "Article 1163, alinéa 3. La prestation est déterminable lorsqu'elle peut être déduite du contrat ou par référence aux usages ou aux relations antérieures des parties, sans qu'un nouvel accord soit nécessaire";
+        label en unofficial "Article 1163, paragraph 3. The performance is determinable where it can be deduced from the contract or by reference to usage or the parties' previous dealings, without a new agreement";
+        when regi_par_le_droit_nouveau(c) and prestation_possible(c)
+            and prestation_deductible_du_contrat_ou_des_usages(c);
+        then contenu_certain(c);
+    }
+}
+
+@source(CC_ART1164) {
+    rule PrixFixeUnilateralementDansLeContratCadre(c: Contrat) strict {
+        label fr official "Article 1164, alinéa 1. Dans les contrats cadre, il peut être convenu que le prix sera fixé unilatéralement par l'une des parties, à charge pour elle d'en motiver le montant en cas de contestation";
+        label en unofficial "Article 1164, paragraph 1. In framework contracts it may be agreed that the price will be fixed unilaterally by one party, which must give reasons for the amount if challenged";
+        when regi_par_le_droit_nouveau(c) and qualification_du_contrat(c, Cadre)
+            and prix_fixe_unilateralement_convenu(c) and montant_du_prix_motive(c);
+        then contenu_certain(c);
+    }
+    rule AbusDansLaFixationDuPrixDuContratCadre(c: Contrat) strict {
+        label fr official "Article 1164, alinéa 2. En cas d'abus dans la fixation du prix, le juge peut être saisi d'une demande tendant à obtenir des dommages et intérêts et le cas échéant la résolution du contrat";
+        label en unofficial "Article 1164, paragraph 2. In case of abuse in fixing the price, the court may be seised of a claim for damages and, where appropriate, for termination";
+        when regi_par_le_droit_nouveau(c) and qualification_du_contrat(c, Cadre)
+            and prix_fixe_unilateralement_convenu(c) and abus_dans_la_fixation_du_prix(c);
+        then dommages_et_interets_pour_abus_de_prix(c);
+    }
+}
+
+// L'article 1165 est INTERPRÉTATIF (loi n° 2018-287, article 16, I) : sa
+// rédaction ratifiée vaut pour les actes conclus dès le 1er octobre 2016.
+
+@source(CC_ART1165) {
+    rule PrixFixeParLeCreancierDansLaPrestationDeService(c: Contrat) strict {
+        label fr official "Article 1165, alinéa 1. Dans les contrats de prestation de service, à défaut d'accord des parties avant leur exécution, le prix peut être fixé par le créancier, à charge pour lui d'en motiver le montant en cas de contestation";
+        label en unofficial "Article 1165, paragraph 1. In service contracts, absent agreement before performance, the price may be fixed by the creditor, who must give reasons for the amount if challenged";
+        when regi_par_le_droit_nouveau(c) and contrat_de_prestation_de_service(c)
+            and not_known(accord_sur_le_prix_avant_execution(c))
+            and prix_fixe_par_le_creancier(c) and montant_du_prix_motive(c);
+        then contenu_certain(c);
+    }
+    rule AbusDansLaFixationDuPrixDuServiceRendu(c: Contrat) strict {
+        label fr official "Article 1165, alinéa 2. En cas d'abus dans la fixation du prix, le juge peut être saisi d'une demande tendant à obtenir des dommages et intérêts et, le cas échéant, la résolution du contrat";
+        label en unofficial "Article 1165, paragraph 2. In case of abuse in fixing the price, the court may be seised of a claim for damages and, where appropriate, for termination";
+        when regi_par_le_droit_nouveau(c) and contrat_de_prestation_de_service(c)
+            and prix_fixe_par_le_creancier(c) and abus_dans_la_fixation_du_prix(c);
+        then dommages_et_interets_pour_abus_de_prix(c);
+    }
+}
+
+@source(CC_ART1166)
+rule QualiteConformeAuxAttentesLegitimes(c: Contrat) strict {
+    label fr official "Article 1166. Lorsque la qualité de la prestation n'est pas déterminée ou déterminable en vertu du contrat, le débiteur doit offrir une prestation de qualité conforme aux attentes légitimes des parties en considération de sa nature, des usages et du montant de la contrepartie";
+    label en unofficial "Article 1166. Where the quality of the performance is neither determined nor determinable under the contract, the debtor must offer a performance of a quality meeting the parties' legitimate expectations given its nature, usage and the amount of the counterpart";
+    when regi_par_le_droit_nouveau(c) and qualite_de_la_prestation_non_determinee(c)
+        and prestation_conforme_aux_attentes_legitimes(c);
+    then qualite_conforme_aux_attentes_due(c);
+}
+
+@source(CC_ART1167)
+rule IndiceDisparuRemplace(c: Contrat) strict {
+    label fr official "Article 1167. Lorsque le prix ou tout autre élément du contrat doit être déterminé par référence à un indice qui n'existe pas ou a cessé d'exister ou d'être accessible, celui-ci est remplacé par l'indice qui s'en rapproche le plus";
+    label en unofficial "Article 1167. Where the price or any other element must be determined by reference to an index that does not exist or has ceased to exist or to be accessible, it is replaced by the closest index";
+    when regi_par_le_droit_nouveau(c) and indice_disparu_ou_inaccessible(c) and indice_le_plus_proche(c);
+    then indice_remplace(c);
+}
+
+@source(CC_ART1168)
+rule DefautDEquivalenceIndifferent(c: Contrat) strict {
+    label fr official "Article 1168. Dans les contrats synallagmatiques, le défaut d'équivalence des prestations n'est pas une cause de nullité du contrat, à moins que la loi n'en dispose autrement";
+    label en unofficial "Article 1168. In synallagmatic contracts, the lack of equivalence of the performances is not a ground of nullity, unless statute provides otherwise";
+    when regi_par_le_droit_nouveau(c) and qualification_du_contrat(c, Synallagmatique)
+        and defaut_d_equivalence_des_prestations(c)
+        and not_known(loi_speciale_sanctionne_la_lesion(c));
+    then lesion_indifferente(c);
+}
+
+@source(CC_ART1169)
+rule ContrepartieIllusoireOuDerisoire(c: Contrat) strict {
+    label fr official "Article 1169. Un contrat à titre onéreux est nul lorsque, au moment de sa formation, la contrepartie convenue au profit de celui qui s'engage est illusoire ou dérisoire";
+    label en unofficial "Article 1169. An onerous contract is void where, at its formation, the counterpart agreed in favour of the party undertaking is illusory or derisory";
+    when regi_par_le_droit_nouveau(c) and contrat_a_titre_onereux(c)
+        and contrepartie_illusoire_ou_derisoire(c);
+    then cause_de_nullite(c, Relative);
+}
+
+@source(CC_ART1170)
+rule ClausePrivantDeSaSubstanceLObligationEssentielle(cl: Clause, c: Contrat) strict {
+    label fr official "Article 1170. Toute clause qui prive de sa substance l'obligation essentielle du débiteur est réputée non écrite";
+    label en unofficial "Article 1170. Any clause depriving the debtor's essential obligation of its substance is deemed unwritten";
+    when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c)
+        and clause_prive_l_obligation_essentielle_de_sa_substance(cl);
+    then clause_reputee_non_ecrite(cl);
+}
+
+// L'article 1171 dans ses deux rédactions : celle de 2016 frappe TOUTE clause
+// du contrat d'adhésion ; celle de 2018 ne frappe que la clause NON
+// NÉGOCIABLE, déterminée à l'avance. Une clause négociée d'un contrat
+// d'adhésion de 2019 échappe donc au texte ; la même clause en 2017 n'y
+// échappait pas.
+
+@source(CC_ART1171) {
+    rule DesequilibreSignificatif2018(cl: Clause, c: Contrat) strict {
+        label fr official "Article 1171, alinéa 1 (rédaction de 2018). Dans un contrat d'adhésion, toute clause non négociable, déterminée à l'avance par l'une des parties, qui crée un déséquilibre significatif entre les droits et obligations des parties est réputée non écrite";
+        label en unofficial "Article 1171, paragraph 1 (2018 wording). In a contract of adhesion, any non-negotiable clause determined in advance by one party which creates a significant imbalance between the parties' rights and obligations is deemed unwritten";
+        when redaction_2018_applicable(c, "1171") and qualification_du_contrat(c, Adhesion)
+            and clause_du_contrat(cl, c) and clause_non_negociable_predeterminee(cl)
+            and not_known(clause_porte_sur_l_objet_principal_ou_l_adequation_du_prix(cl))
+            and desequilibre_significatif(cl);
+        then clause_reputee_non_ecrite(cl);
+    }
+}
+
+@source(CC_2016_ART1171, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule DesequilibreSignificatif2016(cl: Clause, c: Contrat) strict {
+        label fr official "Article 1171, alinéa 1 (rédaction de l'ordonnance de 2016). Dans un contrat d'adhésion, TOUTE clause qui crée un déséquilibre significatif entre les droits et obligations des parties est réputée non écrite — la clause négociée n'y échappe pas";
+        label en unofficial "Article 1171, paragraph 1 (2016 ordinance wording). In a contract of adhesion, ANY clause creating a significant imbalance between the parties' rights and obligations is deemed unwritten — a negotiated clause is not excluded";
+        when redaction_2016_applicable(c, "1171") and qualification_du_contrat(c, Adhesion)
+            and clause_du_contrat(cl, c)
+            and not_known(clause_porte_sur_l_objet_principal_ou_l_adequation_du_prix(cl))
+            and desequilibre_significatif(cl);
+        then clause_reputee_non_ecrite(cl);
+    }
+}

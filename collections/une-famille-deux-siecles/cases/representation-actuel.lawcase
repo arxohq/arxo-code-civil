@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.une_famille_deux_siecles version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:une-famille-deux-siecles";
+
+case Representation_Actuel {
+    context {
+        deadline_policy fr.code_civil.successions::CC_SUCCESSIONS_CALENDRIER;
+        legal_time @2026-06-01;
+        knowledge_time @2026-06-01T10:00:00Z;
+        decision_time @2026-06-01T10:00:00Z;
+        timezone "Europe/Paris";
+    }
+    assert "defunt": fr.code_civil.successions::defunt(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:d")) { origin case_input; }
+    assert "ouverte": fr.code_civil.successions::ouverte_le(entity_ref("urn:fr:cc-p11:s"), @2026-03-01) { origin case_input; }
+    assert "corridor": fr.code_civil.transitions::succession_ouverte_le(entity_ref("urn:fr:cc-p11:s"), @2026-03-01) { origin case_input; }
+    assert "famille": fr.code_civil.successions::famille(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:f")) { origin case_input; }
+    assert "mariage": fr.code_civil.successions::mariage(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:d"), entity_ref("urn:fr:cc-p11:e")) { origin case_input; }
+    assert "d-c1": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:d"), entity_ref("urn:fr:cc-p11:c1")) { origin case_input; }
+    assert "e-c1": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:e"), entity_ref("urn:fr:cc-p11:c1")) { origin case_input; }
+    assert "d-c2": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:d"), entity_ref("urn:fr:cc-p11:c2")) { origin case_input; }
+    assert "e-c2": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:e"), entity_ref("urn:fr:cc-p11:c2")) { origin case_input; }
+    assert "c2-g": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc-p11:f"), entity_ref("urn:fr:cc-p11:c2"), entity_ref("urn:fr:cc-p11:g")) { origin case_input; }
+    assert "vit-e": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:e")) { origin case_input; }
+    assert "vit-c1": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:c1")) { origin case_input; }
+    assert "vit-g": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:g")) { origin case_input; }
+    assert "pred": fr.code_civil.successions::predecede(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:c2")) { origin case_input; }
+    assert "opt": fr.code_civil.successions::option_du_conjoint(entity_ref("urn:fr:cc-p11:s"), entity_ref("urn:fr:cc-p11:e"), fr.code_civil.successions::QuartEnPropriete) { origin case_input; }
+}

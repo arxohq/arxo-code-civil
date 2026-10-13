@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1244 : ruine sans défaut d entretien ni vice de construction établis — pas de responsabilité sur ce fondement ; la faute personnelle (1240) reste une voie adressée au juge (E-0101).
+test "urn:query:fr-code-civil-responsabilite-r16-ruine-sans-cause-legale" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": ruine_du_batiment(entity_ref("urn:fr:cc:resp:k:f"), entity_ref("urn:fr:cc:resp:k:proprietaire")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:k:f"), entity_ref("urn:fr:cc:resp:k:d")) { origin adjudicated; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:k:d"), entity_ref("urn:fr:cc:resp:k:proprietaire")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+}

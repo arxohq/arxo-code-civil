@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 812-6, alinéa 2 : notification le 30 novembre 2025, effet au 28 février 2026.
+test "urn:query:fr-code-civil-successions-m70-renonciation-effective-trois-mois-apres" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": mandat_de_la_succession(entity_ref("urn:fr:cc:successions:adm:m70:M"), entity_ref("urn:fr:cc:successions:adm:m70:S")) { origin case_input; }
+        assert "f2": mandataire_jouit_de_la_pleine_capacite_civile(entity_ref("urn:fr:cc:successions:adm:m70:M")) { origin case_input; }
+        assert "f3": mandat_donne_le(entity_ref("urn:fr:cc:successions:adm:m70:M"), @2024-01-15) { origin case_input; }
+        assert "f4": renonciation_notifiee_le(entity_ref("urn:fr:cc:successions:adm:m70:M"), @2025-11-30) { origin case_input; }
+    }
+    evaluate truth(renonciation_effective_le(entity_ref("urn:fr:cc:successions:adm:m70:M"), @2026-02-28));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TroisMoisApresLaNotificationDeLaRenonciation);
+}

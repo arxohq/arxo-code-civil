@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2521, dernier alinéa : la servitude établie par la loi est dispensée de publicité et reste opposable.
+test "urn:query:fr-code-civil-mayotte-f09-servitude-legale-dispensee-de-publicite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:w:dr"), Servitude) { origin case_input; }
+        assert "f2": servitude_naturelle_ou_legale(entity_ref("urn:fr:cc:may:w:dr")) { origin case_input; }
+    }
+    evaluate truth(opposable_aux_tiers(entity_ref("urn:fr:cc:may:w:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseDePubliciteEtOpposabilite);
+}

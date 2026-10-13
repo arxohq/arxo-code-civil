@@ -1,0 +1,263 @@
+// CODE CIVIL — PRESCRIPTION EXTINCTIVE, AXE 2008 → TEXTE ACTUEL.
+//
+// Le cas de démonstration porte sur une action personnelle née avant la
+// réforme. L'article 26 II de la loi n° 2008-561 fait courir le nouveau délai
+// à compter du 19 juin 2008 sans que la durée totale puisse dépasser l'ancien
+// délai. Les deux bornes sont donc calculées et la plus proche est retenue.
+//
+// Deux manières de compter le même « cinq ans à compter du jour » (art. 2228,
+// 2229). Le délai qui court d'un événement survenu dans la journée (la
+// connaissance des faits, art. 2224) ne compte pas ce jour : il expire le même
+// quantième cinq ans plus tard. Le délai transitoire court de l'entrée en
+// vigueur de la loi, à 0 heure : son premier jour compte en entier, et il
+// expire la veille du même quantième. Cass. 1re civ., 12 décembre 2018,
+// n° 17-25.697 (visa des articles 1er, 2222 al. 2, 2228 et 2229 et de
+// l'article 26 II) : le délai ouvert le 19 juin 2008 a expiré le 18 juin 2013
+// à vingt-quatre heures ; les articles 641 et 642 du code de procédure civile
+// ne s'appliquent pas à la prescription. Confirmé par Cass. 1re civ.,
+// 23 octobre 2024, n° 22-19.365. Le point de départ transitoire a donc sa
+// propre relation et sa propre règle d'échéance. La veille du premier jour
+// n'est pas obtenue en reculant d'un jour (le pas calendaire §86 n'admet pas
+// de compte négatif) : c'est le jour de la publication au Journal officiel,
+// dont la loi entre en vigueur le lendemain (art. 1er), et la règle vérifie
+// ce lien au lieu de le supposer.
+//
+// « Aurait dû connaître » (art. 2224) n'est pas une horloge mécanique : le
+// jugement reste visible par le canal §47.3. Le cas principal donne la date de
+// connaissance réelle et n'invente aucun jugement.
+
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+use self::{
+    CC_POST_ART2219,
+    CC_POST_ART2222,
+    CC_POST_ART2224,
+    CC_POST_ART2228,
+    CC_POST_ART2229,
+    CC_POST_ART2230,
+    CC_POST_ART2231,
+    CC_POST_ART2240,
+    CC_PRE_ART2262,
+    Causa,
+    REFORM_ART26,
+};
+
+deadline policy OECD_CODE_CIVIL_PRESCRIPTION {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub relation creance_exigible_depuis(causa: Causa, jour: Date) kind empirical {
+    label fr official "créance exigible depuis ce jour";
+    label en unofficial "claim enforceable from this date";
+}
+
+pub relation titulaire_connait_les_faits_le(causa: Causa, jour: Date) kind empirical {
+    label fr official "le titulaire a connu les faits lui permettant d'exercer son droit ce jour";
+    label en unofficial "the right-holder knew the facts permitting the claim on this date";
+}
+
+pub external judgment relation titulaire_aurait_du_connaitre_les_faits_le(causa: Causa, jour: Date) {
+    authority Court;
+    label fr official "le titulaire aurait dû connaître les faits lui permettant d'exercer son droit ce jour";
+    label en unofficial "the court finds that the right-holder should have known the relevant facts on this date";
+}
+
+pub relation action_introduite_le(causa: Causa, jour: Date) kind empirical {
+    label fr official "action introduite ce jour";
+    label en unofficial "action brought on this date";
+}
+
+pub relation prescription_non_interrompue(causa: Causa) kind empirical {
+    label fr official "prescription non interrompue et non suspendue";
+    label en unofficial "limitation period neither interrupted nor suspended";
+}
+
+pub relation reconnaissance_du_debiteur_le(causa: Causa, jour: Date) kind empirical {
+    label fr official "reconnaissance par le débiteur ce jour";
+    label en unofficial "debtor acknowledged the right on this date";
+}
+
+// Cette entrée de cas est volontairement étroite : la suspension commence au
+// point de départ applicable. Elle permet d'exécuter exactement art. 2230 sans
+// prétendre calculer ici le reliquat d'une suspension survenue en cours de délai.
+pub relation prescription_suspendue_des_le_depart_jusquau(causa: Causa, depart: Date, reprise: Date) kind empirical {
+    label fr official "prescription suspendue dès son point de départ jusqu'à cette reprise";
+    label en unofficial "limitation suspended from its starting point until this resumption date";
+}
+
+pub relation point_de_depart_cinq_ans_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "point de départ du délai quinquennal";
+    label en unofficial "starting point of the five-year period";
+}
+
+pub relation prescription_interrompue_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "prescription interrompue ce jour";
+    label en unofficial "limitation interrupted on this date";
+}
+
+pub relation echeance_prescription_le(causa: Causa, jour: Date) kind institutional {
+    key(causa);
+    label fr official "échéance du délai de prescription";
+    label en unofficial "limitation deadline";
+}
+
+pub relation action_prescrite_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "action prescrite à cette date";
+    label en unofficial "claim time-barred on this date";
+}
+
+relation reforme_2008_entree_en_vigueur(jour: Date) kind institutional {
+    label fr official "entrée en vigueur de la réforme de 2008";
+    label en unofficial "2008 reform entered into force";
+}
+
+relation reforme_2008_publiee_le(jour: Date) kind institutional {
+    label fr official "publication de la loi n° 2008-561 au Journal officiel, la veille de son entrée en vigueur (article 1er)";
+    label en unofficial "Act No. 2008-561 published in the Journal officiel, the day before it entered into force (Article 1)";
+}
+
+relation delai_transitoire_court_des_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "le nouveau délai quinquennal court dès ce jour, à 0 heure, ce premier jour compté en entier";
+    label en unofficial "the new five-year period runs from midnight at the start of this day, which counts in full";
+}
+
+@source(REFORM_ART26)
+assert reforme_2008_entree_en_vigueur(@2008-06-19);
+
+// JORF n° 0141 du 18 juin 2008.
+@source(REFORM_ART26)
+assert reforme_2008_publiee_le(@2008-06-18);
+
+@source(CC_POST_ART2224)
+rule PointDepartConnaissanceReelle(c: Causa, exigible: Date, jour: Date) strict {
+    label fr official "cinq ans à compter du jour où le titulaire a connu les faits";
+    label en unofficial "five years from the date of actual knowledge";
+    when creance_exigible_depuis(c, exigible)
+        and exigible >= @2008-06-19
+        and titulaire_connait_les_faits_le(c, jour);
+    then point_de_depart_cinq_ans_le(c, jour);
+}
+
+@source(CC_POST_ART2224)
+rule PointDepartConnaissanceRaisonnable(c: Causa, exigible: Date, jour: Date) strict {
+    label fr official "cinq ans à compter du jour où le titulaire aurait dû connaître les faits";
+    label en unofficial "five years from the court-determined constructive-knowledge date";
+    when creance_exigible_depuis(c, exigible)
+        and exigible >= @2008-06-19
+        and titulaire_aurait_du_connaitre_les_faits_le(c, jour);
+    then point_de_depart_cinq_ans_le(c, jour);
+}
+
+@source(CC_PRE_ART2262, REFORM_ART26)
+rule TransitionNouveauDelaiPlusCourt(c: Causa, exigible: Date, reforme: Date, parution: Date) strict {
+    label fr official "le nouveau délai court de l'entrée en vigueur sans dépasser la durée antérieure";
+    label en unofficial "the new period runs from commencement and is capped by the former total duration";
+    when reforme_2008_entree_en_vigueur(reforme)
+        and reforme_2008_publiee_le(parution)
+        and add_calendar_period(parution, 1 calendar_day) == reforme
+        and creance_exigible_depuis(c, exigible)
+        and exigible < reforme
+        and add_calendar_period(parution, 5 calendar_year) < add_calendar_period(exigible, 30 calendar_year);
+    then delai_transitoire_court_des_le(c, reforme);
+}
+
+@source(CC_POST_ART2224, CC_POST_ART2228, CC_POST_ART2229)
+rule EcheanceCinqAns(c: Causa, depart: Date) strict {
+    label fr official "délai de cinq ans, compté par jours";
+    label en unofficial "five-year deadline counted by days";
+    when point_de_depart_cinq_ans_le(c, depart)
+        and prescription_non_interrompue(c);
+    then echeance_prescription_le(c, add_calendar_period(depart, 5 calendar_year));
+}
+
+// Le premier jour compte : le terme se calcule depuis la veille, dernière
+// journée qui n'appartient pas au délai — le jour de la publication.
+// 18 juin 2008 + cinq ans → 18 juin 2013 à vingt-quatre heures.
+@source(CC_POST_ART2222, CC_POST_ART2228, CC_POST_ART2229, REFORM_ART26)
+rule EcheanceTransitoireCinqAns(c: Causa, premier: Date, veille: Date) strict {
+    label fr official "le délai transitoire de cinq ans expire à la fin de la veille du même quantième";
+    label en unofficial "the five-year transitional period ends at the close of the day before the same date";
+    when delai_transitoire_court_des_le(c, premier)
+        and reforme_2008_publiee_le(veille)
+        and add_calendar_period(veille, 1 calendar_day) == premier
+        and prescription_non_interrompue(c);
+    then echeance_prescription_le(c, add_calendar_period(veille, 5 calendar_year));
+}
+
+@source(CC_PRE_ART2262, REFORM_ART26)
+rule EcheanceAnciennePlusCourte(c: Causa, exigible: Date, reforme: Date, parution: Date) strict {
+    label fr official "la durée totale ne peut excéder la durée prévue par la loi antérieure";
+    label en unofficial "the former-law total duration remains the earlier cap";
+    when reforme_2008_entree_en_vigueur(reforme)
+        and reforme_2008_publiee_le(parution)
+        and add_calendar_period(parution, 1 calendar_day) == reforme
+        and creance_exigible_depuis(c, exigible)
+        and exigible < reforme
+        and prescription_non_interrompue(c)
+        and add_calendar_period(exigible, 30 calendar_year) <= add_calendar_period(parution, 5 calendar_year);
+    then echeance_prescription_le(c, add_calendar_period(exigible, 30 calendar_year));
+}
+
+@source(CC_POST_ART2240)
+rule ReconnaissanceInterrompt(c: Causa, jour: Date) strict {
+    label fr official "la reconnaissance par le débiteur interrompt le délai";
+    label en unofficial "the debtor's acknowledgment interrupts the period";
+    when reconnaissance_du_debiteur_le(c, jour);
+    then prescription_interrompue_le(c, jour);
+}
+
+@source(CC_POST_ART2231, CC_POST_ART2240)
+rule EcheanceApresInterruption(c: Causa, reprise: Date) strict {
+    label fr official "l'interruption efface le délai acquis et fait courir un nouveau délai de même durée";
+    label en unofficial "interruption erases elapsed time and starts a fresh period of the same length";
+    when prescription_interrompue_le(c, reprise)
+        and reprise >= @2008-06-19;
+    then echeance_prescription_le(c, add_calendar_period(reprise, 5 calendar_year));
+}
+
+@source(CC_POST_ART2230, CC_POST_ART2224)
+rule EcheanceApresSuspensionAuDepart(c: Causa, depart: Date, reprise: Date) strict {
+    label fr official "la suspension arrête temporairement le cours sans effacer le délai déjà couru";
+    label en unofficial "a suspension beginning at the start point moves the five-year deadline to resumption plus five years";
+    when point_de_depart_cinq_ans_le(c, depart)
+        and prescription_suspendue_des_le_depart_jusquau(c, depart, reprise)
+        and reprise >= depart;
+    then echeance_prescription_le(c, add_calendar_period(reprise, 5 calendar_year));
+}
+
+// La même suspension, ouverte dès l'entrée en vigueur : le délai transitoire
+// n'a pas couru, il court de la reprise comme d'un événement de la journée.
+@source(CC_POST_ART2230, REFORM_ART26)
+rule EcheanceApresSuspensionDesLEntreeEnVigueur(c: Causa, premier: Date, reprise: Date) strict {
+    label fr official "la suspension ouverte dès l'entrée en vigueur reporte le délai transitoire à la reprise";
+    label en unofficial "a suspension beginning at commencement moves the transitional five-year deadline to resumption plus five years";
+    when delai_transitoire_court_des_le(c, premier)
+        and prescription_suspendue_des_le_depart_jusquau(c, premier, reprise)
+        and reprise >= premier;
+    then echeance_prescription_le(c, add_calendar_period(reprise, 5 calendar_year));
+}
+
+@source(CC_POST_ART2219, CC_POST_ART2229)
+rule ActionPrescriteApresEcheance(c: Causa, echeance: Date, saisine: Date) strict {
+    label fr official "la prescription est acquise lorsque le dernier jour du terme est accompli";
+    label en unofficial "the claim is time-barred after the last day has elapsed";
+    when action_introduite_le(c, saisine)
+        and echeance_prescription_le(c, echeance)
+        and saisine > echeance;
+    then action_prescrite_le(c, saisine);
+}
+
+@source(CC_POST_ART2219, CC_POST_ART2229)
+rule ActionNonPrescriteAvantOuAEcheance(c: Causa, echeance: Date, saisine: Date) strict {
+    label fr official "le dernier jour du terme n'est pas encore accompli";
+    label en unofficial "the claim is not time-barred before or on the final day";
+    when action_introduite_le(c, saisine)
+        and echeance_prescription_le(c, echeance)
+        and saisine <= echeance;
+    then not action_prescrite_le(c, saisine);
+}

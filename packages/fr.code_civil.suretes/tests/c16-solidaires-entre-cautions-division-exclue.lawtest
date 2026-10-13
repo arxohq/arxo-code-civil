@@ -1,0 +1,31 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2306 : cautions solidaires entre elles — la caution poursuivie ne peut opposer la division.
+test "urn:query:fr-code-civil-suretes-c16-solidaires-entre-cautions-division-exclue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c16:K1"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c16:K1"), entity_ref("urn:fr:cc:suretes:c16:C1")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c16:K1"), entity_ref("urn:fr:cc:suretes:c16:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c16:C1")) { origin case_input; }
+        assert "f5": dette_garantie(entity_ref("urn:fr:cc:suretes:c16:K1"), entity_ref("urn:fr:cc:suretes:c16:D")) { origin case_input; }
+        assert "f6": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c16:K2"), @2022-03-01) { origin case_input; }
+        assert "f7": caution(entity_ref("urn:fr:cc:suretes:c16:K2"), entity_ref("urn:fr:cc:suretes:c16:C2")) { origin case_input; }
+        assert "f8": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c16:K2"), entity_ref("urn:fr:cc:suretes:c16:B")) { origin case_input; }
+        assert "f9": est_personne_morale(entity_ref("urn:fr:cc:suretes:c16:C2")) { origin case_input; }
+        assert "f10": dette_garantie(entity_ref("urn:fr:cc:suretes:c16:K2"), entity_ref("urn:fr:cc:suretes:c16:D")) { origin case_input; }
+        assert "f11": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c16:K3"), @2022-03-01) { origin case_input; }
+        assert "f12": caution(entity_ref("urn:fr:cc:suretes:c16:K3"), entity_ref("urn:fr:cc:suretes:c16:C3")) { origin case_input; }
+        assert "f13": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c16:K3"), entity_ref("urn:fr:cc:suretes:c16:B")) { origin case_input; }
+        assert "f14": est_personne_morale(entity_ref("urn:fr:cc:suretes:c16:C3")) { origin case_input; }
+        assert "f15": dette_garantie(entity_ref("urn:fr:cc:suretes:c16:K3"), entity_ref("urn:fr:cc:suretes:c16:D")) { origin case_input; }
+        assert "f16": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:c16:K1"), @2023-05-02) { origin case_input; }
+        assert "f17": benefice_de_division_invoque_le(entity_ref("urn:fr:cc:suretes:c16:K1"), @2023-05-02) { origin case_input; }
+        assert "f18": montant_de_la_dette_garantie(entity_ref("urn:fr:cc:suretes:c16:K1"), 10000 EUR) { origin case_input; }
+        assert "f19": solidarite_stipulee(entity_ref("urn:fr:cc:suretes:c16:K1"), EntreCautions) { origin case_input; }
+    }
+    evaluate truth(benefice_de_division(entity_ref("urn:fr:cc:suretes:c16:K1")));
+    expect truth_status == NEITHER;
+}

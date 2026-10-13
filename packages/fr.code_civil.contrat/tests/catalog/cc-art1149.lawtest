@@ -1,0 +1,45 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-ACTECOURANTDUMINEURANNULABLEPOURLESION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v0")) { origin case_input; }
+        assert "cat-1": acte_courant_valablement_accompli(entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v0"), entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v1")) { origin case_input; }
+        assert "cat-2": lesion_du_mineur(entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v0"), entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v1")) { origin case_input; }
+        assert "cat-3": mineur_non_emancipe(entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v1")) { origin case_input; }
+    }
+    evaluate truth(acte_courant_annulable_pour_lesion(entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v0"), entity_ref("urn:law:catalog:actecourantdumineurannulablepourlesion:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DECLARATIONDEMAJORITESANSEFFET" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v0")) { origin case_input; }
+        assert "cat-1": declaration_de_majorite_faite_par_le_mineur(entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v0"), entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v1")) { origin case_input; }
+        assert "cat-2": mineur_non_emancipe(entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v1")) { origin case_input; }
+    }
+    evaluate truth(annulation_non_empechee_par_la_declaration_de_majorite(entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v0"), entity_ref("urn:law:catalog:declarationdemajoritesanseffet:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-ENGAGEMENTPROFESSIONNELDUMINEUR" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:engagementprofessionneldumineur:v0")) { origin case_input; }
+        assert "cat-1": engagement_pris_dans_l_exercice_de_sa_profession(entity_ref("urn:law:catalog:engagementprofessionneldumineur:v0"), entity_ref("urn:law:catalog:engagementprofessionneldumineur:v1")) { origin case_input; }
+        assert "cat-2": mineur_non_emancipe(entity_ref("urn:law:catalog:engagementprofessionneldumineur:v1")) { origin case_input; }
+    }
+    evaluate truth(mineur_tenu_par_son_engagement_professionnel(entity_ref("urn:law:catalog:engagementprofessionneldumineur:v0"), entity_ref("urn:law:catalog:engagementprofessionneldumineur:v1")));
+    expect truth_status == TRUE_ONLY;
+}

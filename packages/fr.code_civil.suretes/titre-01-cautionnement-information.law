@@ -1,0 +1,519 @@
+// LIVRE IV, TITRE Ier, CHAPITRE Ier, SECTION 3, SOUS-SECTION 1 : LES
+// OBLIGATIONS D'INFORMATION (articles 2302 à 2304).
+//
+// POSITIONS DÉONTIQUES. Les trois devoirs sont des obligations de résultat à
+// fenêtre (§124.1) : porteur, bénéficiaire, condition d'exécution, fenêtre.
+//   2302 — le créancier professionnel informe la caution avant le 31 mars de
+//          chaque année de la dette au 31 décembre précédent : fenêtre
+//          (31 décembre, 31 mars), bornes calculées sous `CC_SURETES_MOIS_AN` ;
+//   2303 — il informe la caution de la défaillance dès le premier incident non
+//          régularisé dans le mois de l'exigibilité : fenêtre ouverte à la fin
+//          de ce mois, sans terme — le texte ne fixe aucun délai, la sanction
+//          croît avec le retard ;
+//   2304 — la caution transmet à la sous-caution, dans le mois de leur
+//          réception, les informations reçues.
+// La condition d'exécution est une conclusion calculée (communication dans la
+// fenêtre) ; une communication tardive en produit la négation explicite, ce
+// qui fait passer l'obligation en VIOLATED après la fenêtre (§136).
+//
+// SANCTION. La déchéance porte sur les intérêts et pénalités échus pendant la
+// période que le texte délimite ; la somme en est calculée, et les paiements
+// du débiteur pendant la même période sont imputés d'abord sur le principal.
+//
+// CORRIDOR. L'article 37, III de l'ordonnance n° 2021-1192 rend les articles
+// 2302 à 2304 applicables dès le 1er janvier 2022 aux cautionnements
+// antérieurs : ces règles portent `effective [@2022-01-01, infinity)` et
+// acceptent soit la loi nouvelle, soit la conclusion du corridor
+// `applicable_des_l_entree_en_vigueur_2021` pour le numéro invoqué.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2302,
+    CC_ART2303,
+    CC_ART2304,
+    Cautionnement,
+    Echeance,
+    Paiement,
+    Personne,
+    caution,
+    caution_personne_morale,
+    caution_personne_physique,
+    creancier_du_cautionnement,
+    creancier_professionnel_du_cautionnement,
+    est_personne_physique,
+    etablissement_de_credit_ou_societe_de_financement,
+    regi_par_la_loi_nouvelle,
+    sous_cautionnement,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation concours_financier_a_une_entreprise(k: Cautionnement) kind empirical {
+    label fr official "le cautionnement garantit un concours financier accordé à une entreprise (article 2302, alinéa 4)";
+    label en unofficial "the suretyship secures financing granted to a business (Article 2302, paragraph 4)";
+}
+pub relation arrete_annuel(k: Cautionnement, arrete: Date) kind empirical {
+    label fr official "31 décembre de l'année précédente, date à laquelle la dette est arrêtée pour l'information annuelle (article 2302)";
+    label en unofficial "31 December of the previous year, date on which the debt is stated for the annual information (Article 2302)";
+}
+pub relation information_annuelle_communiquee_le(k: Cautionnement, arrete: Date, jour: Date) kind empirical {
+    key(k, arrete);
+    label fr official "date à laquelle le créancier a fait connaître à la caution le montant dû au 31 décembre (article 2302)";
+    label en unofficial "date on which the creditor told the surety the amount owed at 31 December (Article 2302)";
+}
+pub relation rappel_du_terme_ou_de_la_faculte_de_resiliation(k: Cautionnement, arrete: Date) kind empirical {
+    label fr official "le créancier a rappelé à la caution le terme de son engagement ou sa faculté de résiliation (article 2302, alinéa 3)";
+    label en unofficial "the creditor reminded the surety of the term of its undertaking or of its right to terminate (Article 2302, paragraph 3)";
+}
+pub relation precedente_information_le(k: Cautionnement, arrete: Date, jour: Date) kind empirical {
+    key(k, arrete);
+    label fr official "date de la précédente information de la caution (article 2302)";
+    label en unofficial "date the surety was last informed (Article 2302)";
+}
+pub relation defaut_d_information_constate_le(k: Cautionnement, arrete: Date, jour: Date) kind empirical {
+    key(k, arrete);
+    label fr official "aucune information annuelle n'a été communiquée à cette date d'appréciation (article 2302)";
+    label en unofficial "no annual information had been given at this assessment date (Article 2302)";
+}
+pub relation echeance_accessoire(k: Cautionnement, e: Echeance) kind empirical {
+    label fr official "échéance d'intérêts ou de pénalités de la dette garantie";
+    label en unofficial "instalment of interest or penalties on the guaranteed debt";
+}
+pub relation echeance_du_principal(k: Cautionnement, e: Echeance) kind empirical {
+    label fr official "échéance de paiement du principal de la dette garantie (article 2303)";
+    label en unofficial "principal payment instalment on the guaranteed debt (Article 2303)";
+}
+pub relation echue_le(e: Echeance, jour: Date) kind empirical {
+    key(e);
+    label fr official "date d'échéance (exigibilité)";
+    label en unofficial "due date";
+}
+pub relation montant_de_l_echeance(e: Echeance, m: Money) kind empirical {
+    key(e);
+    label fr official "montant de l'échéance";
+    label en unofficial "amount of the instalment";
+}
+pub relation echeance_impayee(e: Echeance) kind empirical {
+    label fr official "l'échéance n'a pas été payée à son exigibilité (article 2303)";
+    label en unofficial "the instalment was not paid when due (Article 2303)";
+}
+pub relation regularisee_le(e: Echeance, jour: Date) kind empirical {
+    key(e);
+    label fr official "date de régularisation de l'incident de paiement (article 2303)";
+    label en unofficial "date the payment incident was cured (Article 2303)";
+}
+pub relation caution_informee_de_la_defaillance_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date à laquelle le créancier a informé la caution de la défaillance du débiteur (article 2303)";
+    label en unofficial "date the creditor informed the surety of the debtor's default (Article 2303)";
+}
+pub relation defaillance_non_notifiee_constatee_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "la caution n'avait pas été informée de la défaillance à cette date d'appréciation (article 2303)";
+    label en unofficial "the surety had not been told of the default at this assessment date (Article 2303)";
+}
+pub relation paiement_du_debiteur(k: Cautionnement, x: Paiement) kind empirical {
+    label fr official "paiement effectué par le débiteur principal au titre de la dette garantie";
+    label en unofficial "payment made by the principal debtor on the guaranteed debt";
+}
+pub relation paye_le(x: Paiement, jour: Date) kind empirical {
+    key(x);
+    label fr official "date du paiement";
+    label en unofficial "date of payment";
+}
+pub relation information_recue_par_la_caution_le(k: Cautionnement, jour: Date) kind empirical {
+    label fr official "date à laquelle la caution a reçu une information en application des articles 2302 ou 2303 (article 2304)";
+    label en unofficial "date the surety received information under Articles 2302 or 2303 (Article 2304)";
+}
+pub relation information_transmise_a_la_sous_caution_le(s: Cautionnement, recue: Date, jour: Date) kind empirical {
+    key(s, recue);
+    label fr official "date à laquelle la caution a communiqué à la sous-caution l'information reçue (article 2304)";
+    label en unofficial "date the surety passed the information received on to the sub-surety (Article 2304)";
+}
+
+// --- Champ d'application et corridor ------------------------------------------------------------
+
+pub relation article_2302_applicable(k: Cautionnement) kind derived {
+    label fr official "l'article 2302 régit ce cautionnement (rédaction nouvelle, ou article 37, III de l'ordonnance n° 2021-1192)";
+    label en unofficial "Article 2302 governs this suretyship (new wording, or Article 37, III of Ordinance No. 2021-1192)";
+}
+pub relation article_2303_applicable(k: Cautionnement) kind derived {
+    label fr official "l'article 2303 régit ce cautionnement (rédaction nouvelle, ou article 37, III de l'ordonnance n° 2021-1192)";
+    label en unofficial "Article 2303 governs this suretyship (new wording, or Article 37, III of Ordinance No. 2021-1192)";
+}
+pub relation article_2304_applicable(k: Cautionnement) kind derived {
+    label fr official "l'article 2304 régit ce sous-cautionnement (rédaction nouvelle, ou article 37, III de l'ordonnance n° 2021-1192)";
+    label en unofficial "Article 2304 governs this sub-suretyship (new wording, or Article 37, III of Ordinance No. 2021-1192)";
+}
+pub relation caution_protegee_par_l_information(k: Cautionnement) kind derived {
+    label fr official "caution à laquelle le créancier professionnel doit l'information annuelle (article 2302, alinéas 1 et 4)";
+    label en unofficial "surety to which the professional creditor owes the annual information (Article 2302, paragraphs 1 and 4)";
+}
+
+@source(CC_ART2302) {
+    rule Article2302LoiNouvelle(k: Cautionnement) strict {
+        label fr official "Article 2302. Applicable au cautionnement conclu à compter du 1er janvier 2022";
+        label en unofficial "Article 2302. Applies to a suretyship concluded from 1 January 2022";
+        effective [@2022-01-01, infinity);
+        when regi_par_la_loi_nouvelle(k);
+        then article_2302_applicable(k);
+    }
+    rule Article2302CautionnementAnterieur(k: Cautionnement) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, III. L'article 2302 est applicable dès le 1er janvier 2022, y compris aux cautionnements constitués antérieurement";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, III. Article 2302 applies from 1 January 2022, including to suretyships created earlier";
+        effective [@2022-01-01, infinity);
+        when fr.code_civil.transitions::applicable_des_l_entree_en_vigueur_2021(k, "2302");
+        then article_2302_applicable(k);
+    }
+    rule CautionPersonnePhysiqueInformee(k: Cautionnement) strict {
+        label fr official "Article 2302, alinéa 1. Le créancier professionnel est tenu d'informer toute caution personne physique";
+        label en unofficial "Article 2302, paragraph 1. A professional creditor must inform every natural-person surety";
+        when article_2302_applicable(k) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k);
+        then caution_protegee_par_l_information(k);
+    }
+    rule CautionPersonneMoraleInformee(k: Cautionnement, b: Personne) strict {
+        label fr official "Article 2302, alinéa 4. Le présent article est également applicable au cautionnement souscrit par une personne morale envers un établissement de crédit ou une société de financement en garantie d'un concours financier accordé à une entreprise";
+        label en unofficial "Article 2302, paragraph 4. This article also applies to a suretyship given by a legal person to a credit institution or financing company to secure financing granted to a business";
+        when article_2302_applicable(k) and caution_personne_morale(k) and creancier_du_cautionnement(k, b)
+            and etablissement_de_credit_ou_societe_de_financement(b) and concours_financier_a_une_entreprise(k);
+        then caution_protegee_par_l_information(k);
+    }
+}
+
+@source(CC_ART2303) {
+    rule Article2303LoiNouvelle(k: Cautionnement) strict {
+        label fr official "Article 2303. Applicable au cautionnement conclu à compter du 1er janvier 2022";
+        label en unofficial "Article 2303. Applies to a suretyship concluded from 1 January 2022";
+        effective [@2022-01-01, infinity);
+        when regi_par_la_loi_nouvelle(k);
+        then article_2303_applicable(k);
+    }
+    rule Article2303CautionnementAnterieur(k: Cautionnement) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, III. L'article 2303 est applicable dès le 1er janvier 2022, y compris aux cautionnements constitués antérieurement";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, III. Article 2303 applies from 1 January 2022, including to suretyships created earlier";
+        effective [@2022-01-01, infinity);
+        when fr.code_civil.transitions::applicable_des_l_entree_en_vigueur_2021(k, "2303");
+        then article_2303_applicable(k);
+    }
+}
+
+@source(CC_ART2304) {
+    rule Article2304LoiNouvelle(s: Cautionnement) strict {
+        label fr official "Article 2304. Applicable au sous-cautionnement conclu à compter du 1er janvier 2022";
+        label en unofficial "Article 2304. Applies to a sub-suretyship concluded from 1 January 2022";
+        effective [@2022-01-01, infinity);
+        when regi_par_la_loi_nouvelle(s);
+        then article_2304_applicable(s);
+    }
+    rule Article2304CautionnementAnterieur(s: Cautionnement) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, III. L'article 2304 est applicable dès le 1er janvier 2022, y compris aux cautionnements constitués antérieurement";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, III. Article 2304 applies from 1 January 2022, including to suretyships created earlier";
+        effective [@2022-01-01, infinity);
+        when fr.code_civil.transitions::applicable_des_l_entree_en_vigueur_2021(s, "2304");
+        then article_2304_applicable(s);
+    }
+}
+
+// --- 2302 : information annuelle ---------------------------------------------------------------
+
+pub relation date_limite_de_l_information_annuelle(k: Cautionnement, arrete: Date, limite: Date) kind derived {
+    key(k, arrete);
+    label fr official "31 mars qui suit l'arrêté du 31 décembre : l'information est due avant cette date (article 2302)";
+    label en unofficial "31 March following the 31 December statement: the information is due before that date (Article 2302)";
+}
+pub relation information_annuelle_en_temps_utile(k: Cautionnement, arrete: Date) kind derived {
+    label fr official "l'information annuelle et le rappel du terme ont été donnés avant le 31 mars (article 2302)";
+    label en unofficial "the annual information and the reminder of the term were given before 31 March (Article 2302)";
+}
+pub relation periode_de_decheance_2302(k: Cautionnement, debut: Date, fin: Date) kind derived {
+    label fr official "période depuis la précédente information jusqu'à la communication de la nouvelle (ou la date d'appréciation) : les intérêts et pénalités qui y échoient sont déchus (article 2302)";
+    label en unofficial "period from the previous information until the new one is given (or the assessment date): interest and penalties falling due in it are forfeited (Article 2302)";
+}
+
+@source(CC_ART2302) {
+    rule DateLimiteDeLInformationAnnuelle(k: Cautionnement, a: Date) strict {
+        label fr official "Article 2302. Le créancier professionnel est tenu, avant le 31 mars de chaque année, de faire connaître le montant restant dû au 31 décembre de l'année précédente";
+        label en unofficial "Article 2302. The professional creditor must, before 31 March each year, disclose the amount outstanding at 31 December of the previous year";
+        when caution_protegee_par_l_information(k) and arrete_annuel(k, a);
+        then date_limite_de_l_information_annuelle(k, a, add_calendar_period(a, 3 calendar_month));
+    }
+    rule InformationAnnuelleEnTempsUtile(k: Cautionnement, a: Date, l: Date, c: Date) strict {
+        label fr official "Article 2302. Information communiquée après l'arrêté et avant le 31 mars, avec le rappel du terme ou de la faculté de résiliation";
+        label en unofficial "Article 2302. Information given after the statement date and before 31 March, with the reminder of the term or of the right to terminate";
+        when date_limite_de_l_information_annuelle(k, a, l) and information_annuelle_communiquee_le(k, a, c)
+            and c > a and c < l and rappel_du_terme_ou_de_la_faculte_de_resiliation(k, a);
+        then information_annuelle_en_temps_utile(k, a);
+    }
+    rule InformationAnnuelleTardive(k: Cautionnement, a: Date, l: Date, c: Date) strict {
+        label fr official "Article 2302. L'information communiquée le 31 mars ou après ne satisfait pas à l'obligation";
+        label en unofficial "Article 2302. Information given on or after 31 March does not discharge the duty";
+        when date_limite_de_l_information_annuelle(k, a, l) and information_annuelle_communiquee_le(k, a, c) and c >= l;
+        then not information_annuelle_en_temps_utile(k, a);
+    }
+    rule RappelDuTermeOmis(k: Cautionnement, a: Date, l: Date) strict {
+        label fr official "Article 2302, alinéa 3. Le créancier qui omet le rappel du terme ou de la faculté de résiliation encourt la même sanction";
+        label en unofficial "Article 2302, paragraph 3. A creditor that omits the reminder of the term or of the right to terminate incurs the same penalty";
+        when date_limite_de_l_information_annuelle(k, a, l) and not rappel_du_terme_ou_de_la_faculte_de_resiliation(k, a);
+        then not information_annuelle_en_temps_utile(k, a);
+    }
+    rule InformationAnnuelleOmise(k: Cautionnement, a: Date, l: Date, x: Date) strict {
+        label fr official "Article 2302. Aucune information à la date d'appréciation, postérieure au 31 mars";
+        label en unofficial "Article 2302. No information at the assessment date, after 31 March";
+        when date_limite_de_l_information_annuelle(k, a, l) and defaut_d_information_constate_le(k, a, x) and x >= l;
+        then not information_annuelle_en_temps_utile(k, a);
+    }
+
+    rule InformationAnnuelleDeLaCaution(k: Cautionnement, a: Date, l: Date, b: Personne, p: Personne) strict {
+        label fr official "Article 2302. Obligation du créancier professionnel d'informer la caution avant le 31 mars de chaque année, à ses frais";
+        label en unofficial "Article 2302. Duty of the professional creditor to inform the surety before 31 March each year, at its own cost";
+        effective [@2022-01-01, infinity);
+        when date_limite_de_l_information_annuelle(k, a, l) and creancier_du_cautionnement(k, b) and caution(k, p);
+        then duty DevoirDInformationAnnuelle {
+            bearer b;
+            beneficiary p;
+            goal achievement {
+                condition information_annuelle_en_temps_utile(k, a);
+                window (a, l);
+            }
+        };
+    }
+
+    rule PeriodeDeDecheanceInformationTardive(k: Cautionnement, a: Date, l: Date, p: Date, c: Date) strict {
+        label fr official "Article 2302. Sous peine de déchéance de la garantie des intérêts et pénalités échus depuis la date de la précédente information et jusqu'à celle de la communication de la nouvelle information";
+        label en unofficial "Article 2302. On pain of losing the guarantee of interest and penalties due from the date of the previous information until the new information is given";
+        when date_limite_de_l_information_annuelle(k, a, l) and information_annuelle_communiquee_le(k, a, c) and c >= l
+            and precedente_information_le(k, a, p);
+        then periode_de_decheance_2302(k, p, c);
+    }
+    rule PeriodeDeDecheanceSansRappel(k: Cautionnement, a: Date, l: Date, p: Date, c: Date) strict {
+        label fr official "Article 2302, alinéa 3. Même sanction faute de rappel du terme ou de la faculté de résiliation";
+        label en unofficial "Article 2302, paragraph 3. Same penalty for want of a reminder of the term or of the right to terminate";
+        when date_limite_de_l_information_annuelle(k, a, l) and information_annuelle_communiquee_le(k, a, c) and c < l
+            and not rappel_du_terme_ou_de_la_faculte_de_resiliation(k, a) and precedente_information_le(k, a, p);
+        then periode_de_decheance_2302(k, p, c);
+    }
+    rule PeriodeDeDecheanceInformationOmise(k: Cautionnement, a: Date, l: Date, p: Date, x: Date) strict {
+        label fr official "Article 2302. Sans nouvelle information, la déchéance court de la précédente information jusqu'à la date d'appréciation";
+        label en unofficial "Article 2302. Without new information, forfeiture runs from the previous information until the assessment date";
+        when date_limite_de_l_information_annuelle(k, a, l) and defaut_d_information_constate_le(k, a, x) and x >= l
+            and precedente_information_le(k, a, p);
+        then periode_de_decheance_2302(k, p, x);
+    }
+}
+
+// --- 2303 : défaillance du débiteur ---------------------------------------------------------------
+
+pub relation incident_non_regularise(k: Cautionnement, e: Echeance, exigible: Date) kind derived {
+    label fr official "incident de paiement non régularisé dans le mois de l'exigibilité (article 2303)";
+    label en unofficial "payment incident not cured within the month of the due date (Article 2303)";
+}
+pub relation incident_anterieur_existe(k: Cautionnement, e: Echeance) kind derived {
+    label fr official "un incident non régularisé plus ancien précède celui-ci";
+    label en unofficial "an older uncured incident precedes this one";
+}
+pub relation premier_incident(k: Cautionnement, e: Echeance, exigible: Date) kind derived {
+    label fr official "premier incident de paiement non régularisé (article 2303)";
+    label en unofficial "first uncured payment incident (Article 2303)";
+}
+pub relation fin_du_mois_de_regularisation(k: Cautionnement, fin: Date) kind derived {
+    key(k);
+    label fr official "terme du mois qui suit l'exigibilité du premier incident : l'information est due dès cette date (article 2303)";
+    label en unofficial "end of the month following the due date of the first incident: the information is due from that date (Article 2303)";
+}
+pub relation defaillance_notifiee_a_la_caution(k: Cautionnement) kind derived {
+    label fr official "la caution a été informée de la défaillance du débiteur principal (article 2303)";
+    label en unofficial "the surety was informed of the principal debtor's default (Article 2303)";
+}
+pub relation periode_de_decheance_2303(k: Cautionnement, debut: Date, fin: Date) kind derived {
+    label fr official "période entre l'incident et l'information de la caution : les intérêts et pénalités qui y échoient sont déchus (article 2303)";
+    label en unofficial "period between the incident and the surety being informed: interest and penalties falling due in it are forfeited (Article 2303)";
+}
+
+@source(CC_ART2303) {
+    rule IncidentNonRegularise(k: Cautionnement, e: Echeance, d: Date) strict {
+        label fr official "Article 2303. Incident de paiement non régularisé dans le mois de l'exigibilité de ce paiement";
+        label en unofficial "Article 2303. Payment incident not cured within the month of the payment's due date";
+        when article_2303_applicable(k) and echeance_du_principal(k, e) and echeance_impayee(e) and echue_le(e, d)
+            and not_known(regularisee_dans_le_mois(e));
+        then incident_non_regularise(k, e, d);
+    }
+    rule RegulariseeDansLeMois(e: Echeance, d: Date, r: Date) strict {
+        label fr official "Article 2303. L'incident régularisé dans le mois de l'exigibilité n'oblige pas à informer";
+        label en unofficial "Article 2303. An incident cured within the month of the due date does not trigger the duty to inform";
+        when echue_le(e, d) and regularisee_le(e, r) and r <= add_calendar_period(d, 1 calendar_month);
+        then regularisee_dans_le_mois(e);
+    }
+    rule IncidentAnterieur(k: Cautionnement, e: Echeance, f: Echeance, d: Date, g: Date) strict {
+        label fr official "Article 2303. Un incident plus ancien précède celui-ci";
+        label en unofficial "Article 2303. An older incident precedes this one";
+        when incident_non_regularise(k, e, d) and incident_non_regularise(k, f, g) and g < d;
+        then incident_anterieur_existe(k, e);
+    }
+    rule PremierIncident(k: Cautionnement, e: Echeance, d: Date) strict {
+        label fr official "Article 2303. Dès le premier incident de paiement non régularisé";
+        label en unofficial "Article 2303. As from the first uncured payment incident";
+        when incident_non_regularise(k, e, d) and not_known(incident_anterieur_existe(k, e));
+        then premier_incident(k, e, d);
+    }
+    rule FinDuMoisDeRegularisation(k: Cautionnement, e: Echeance, d: Date) strict {
+        label fr official "Article 2303. Le mois de l'exigibilité écoulé sans régularisation";
+        label en unofficial "Article 2303. The month of the due date elapsed without cure";
+        when premier_incident(k, e, d) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k);
+        then fin_du_mois_de_regularisation(k, add_calendar_period(d, 1 calendar_month));
+    }
+    rule DefaillanceNotifiee(k: Cautionnement, f: Date, i: Date) strict {
+        label fr official "Article 2303. La caution est informée de la défaillance";
+        label en unofficial "Article 2303. The surety is informed of the default";
+        when fin_du_mois_de_regularisation(k, f) and caution_informee_de_la_defaillance_le(k, i);
+        then defaillance_notifiee_a_la_caution(k);
+    }
+    rule InformationDeLaDefaillance(k: Cautionnement, f: Date, b: Personne, p: Personne) strict {
+        label fr official "Article 2303. Le créancier professionnel est tenu d'informer toute caution personne physique de la défaillance du débiteur principal dès le premier incident de paiement non régularisé dans le mois de l'exigibilité";
+        label en unofficial "Article 2303. A professional creditor must inform every natural-person surety of the principal debtor's default from the first payment incident not cured within the month of the due date";
+        effective [@2022-01-01, infinity);
+        when fin_du_mois_de_regularisation(k, f) and creancier_du_cautionnement(k, b) and caution(k, p);
+        then duty DevoirDInformerDeLaDefaillance {
+            bearer b;
+            beneficiary p;
+            goal achievement {
+                condition defaillance_notifiee_a_la_caution(k);
+                window [f, infinity);
+            }
+        };
+    }
+    rule PeriodeDeDecheanceDefaillance(k: Cautionnement, e: Echeance, d: Date, i: Date) strict {
+        label fr official "Article 2303. A peine de déchéance de la garantie des intérêts et pénalités échus entre la date de cet incident et celle à laquelle elle en a été informée";
+        label en unofficial "Article 2303. On pain of losing the guarantee of interest and penalties due between the incident date and the date the surety was informed";
+        when premier_incident(k, e, d) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k)
+            and caution_informee_de_la_defaillance_le(k, i);
+        then periode_de_decheance_2303(k, d, i);
+    }
+    rule PeriodeDeDecheanceDefaillanceNonNotifiee(k: Cautionnement, e: Echeance, d: Date, x: Date) strict {
+        label fr official "Article 2303. Sans information, la déchéance court de l'incident jusqu'à la date d'appréciation";
+        label en unofficial "Article 2303. Without information, forfeiture runs from the incident until the assessment date";
+        when premier_incident(k, e, d) and creancier_professionnel_du_cautionnement(k) and caution_personne_physique(k)
+            and defaillance_non_notifiee_constatee_le(k, x);
+        then periode_de_decheance_2303(k, d, x);
+    }
+}
+
+pub relation regularisee_dans_le_mois(e: Echeance) kind derived {
+    label fr official "l'incident a été régularisé dans le mois de l'exigibilité (article 2303)";
+    label en unofficial "the incident was cured within the month of the due date (Article 2303)";
+}
+
+// --- Sanctions communes : déchéance et imputation (2302, 2303) --------------------------------
+
+pub relation echeance_dechue(k: Cautionnement, e: Echeance) kind derived {
+    label fr official "intérêts ou pénalités dont la caution n'est plus garante (articles 2302, 2303)";
+    label en unofficial "interest or penalties the surety no longer guarantees (Articles 2302, 2303)";
+}
+pub relation presence_d_echeance_dechue(k: Cautionnement) kind derived {
+    label fr official "au moins une échéance d'intérêts ou de pénalités est déchue";
+    label en unofficial "at least one interest or penalty instalment is forfeited";
+}
+pub relation interets_et_penalites_dechus(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "montant total des intérêts et pénalités dont le créancier est déchu à l'égard de la caution (articles 2302, 2303)";
+    label en unofficial "total interest and penalties the creditor forfeits as against the surety (Articles 2302, 2303)";
+}
+pub relation paiement_impute_d_abord_sur_le_principal(k: Cautionnement, x: Paiement) kind derived {
+    label fr official "dans les rapports entre le créancier et la caution, le paiement du débiteur fait pendant la période est imputé prioritairement sur le principal (articles 2302, 2303)";
+    label en unofficial "between creditor and surety, the debtor's payment made during the period is charged first to principal (Articles 2302, 2303)";
+}
+
+@source(CC_ART2302) {
+    rule EcheanceDechue2302(k: Cautionnement, e: Echeance, p: Date, c: Date, d: Date) strict {
+        label fr official "Article 2302. Intérêts et pénalités échus pendant la période de déchéance";
+        label en unofficial "Article 2302. Interest and penalties falling due during the forfeiture period";
+        when periode_de_decheance_2302(k, p, c) and echeance_accessoire(k, e) and echue_le(e, d) and d > p and d <= c;
+        then echeance_dechue(k, e);
+    }
+    rule Imputation2302(k: Cautionnement, x: Paiement, p: Date, c: Date, d: Date) strict {
+        label fr official "Article 2302. Dans les rapports entre le créancier et la caution, les paiements effectués par le débiteur pendant cette période sont imputés prioritairement sur le principal de la dette";
+        label en unofficial "Article 2302. Between creditor and surety, payments made by the debtor during that period are charged first to the principal";
+        when periode_de_decheance_2302(k, p, c) and paiement_du_debiteur(k, x) and paye_le(x, d) and d > p and d <= c;
+        then paiement_impute_d_abord_sur_le_principal(k, x);
+    }
+}
+
+@source(CC_ART2303) {
+    rule EcheanceDechue2303(k: Cautionnement, e: Echeance, p: Date, c: Date, d: Date) strict {
+        label fr official "Article 2303. Intérêts et pénalités échus entre l'incident et l'information";
+        label en unofficial "Article 2303. Interest and penalties falling due between the incident and the information";
+        when periode_de_decheance_2303(k, p, c) and echeance_accessoire(k, e) and echue_le(e, d) and d >= p and d <= c;
+        then echeance_dechue(k, e);
+    }
+    rule Imputation2303(k: Cautionnement, x: Paiement, p: Date, c: Date, d: Date) strict {
+        label fr official "Article 2303. Dans les rapports entre le créancier et la caution, les paiements effectués par le débiteur pendant cette période sont imputés prioritairement sur le principal de la dette";
+        label en unofficial "Article 2303. Between creditor and surety, payments made by the debtor during that period are charged first to the principal";
+        when periode_de_decheance_2303(k, p, c) and paiement_du_debiteur(k, x) and paye_le(x, d) and d >= p and d <= c;
+        then paiement_impute_d_abord_sur_le_principal(k, x);
+    }
+}
+
+@source(CC_ART2302, CC_ART2303) {
+    rule PresenceDEcheanceDechue(k: Cautionnement, e: Echeance) strict {
+        label fr official "Articles 2302 et 2303. Présence d'intérêts ou de pénalités déchus";
+        label en unofficial "Articles 2302 and 2303. Presence of forfeited interest or penalties";
+        when echeance_dechue(k, e);
+        then presence_d_echeance_dechue(k);
+    }
+    rule TotalDesInteretsDechus(k: Cautionnement) strict {
+        label fr official "Articles 2302 et 2303. Total des intérêts et pénalités dont la garantie est perdue";
+        label en unofficial "Articles 2302 and 2303. Total interest and penalties whose guarantee is lost";
+        when presence_d_echeance_dechue(k);
+        then interets_et_penalites_dechus(k, (sum all m: Money for e: Echeance where echeance_dechue(k, e) and montant_de_l_echeance(e, m)));
+    }
+}
+
+// --- 2304 : transmission à la sous-caution -----------------------------------------------------------
+
+pub relation date_limite_de_transmission(s: Cautionnement, recue: Date, limite: Date) kind derived {
+    key(s, recue);
+    label fr official "terme du mois qui suit la réception de l'information par la caution (article 2304)";
+    label en unofficial "end of the month following the surety's receipt of the information (Article 2304)";
+}
+pub relation transmission_en_temps_utile(s: Cautionnement, recue: Date) kind derived {
+    label fr official "la caution a communiqué l'information à la sous-caution dans le mois de sa réception (article 2304)";
+    label en unofficial "the surety passed the information to the sub-surety within the month of receiving it (Article 2304)";
+}
+
+@source(CC_ART2304) {
+    rule DateLimiteDeTransmission(s: Cautionnement, k: Cautionnement, r: Date, q: Personne) strict {
+        label fr official "Article 2304. Dans le mois qui suit la réception, la caution communique à la sous-caution personne physique les informations reçues";
+        label en unofficial "Article 2304. Within the month following receipt, the surety passes to a natural-person sub-surety the information received";
+        when article_2304_applicable(s) and sous_cautionnement(s, k) and caution(s, q) and est_personne_physique(q)
+            and information_recue_par_la_caution_le(k, r);
+        then date_limite_de_transmission(s, r, add_calendar_period(r, 1 calendar_month));
+    }
+    rule TransmissionEnTempsUtile(s: Cautionnement, r: Date, l: Date, t: Date) strict {
+        label fr official "Article 2304. Transmission faite dans le mois";
+        label en unofficial "Article 2304. Information passed on within the month";
+        when date_limite_de_transmission(s, r, l) and information_transmise_a_la_sous_caution_le(s, r, t) and t >= r and t <= l;
+        then transmission_en_temps_utile(s, r);
+    }
+    rule TransmissionTardive(s: Cautionnement, r: Date, l: Date, t: Date) strict {
+        label fr official "Article 2304. Transmission faite après le mois";
+        label en unofficial "Article 2304. Information passed on after the month";
+        when date_limite_de_transmission(s, r, l) and information_transmise_a_la_sous_caution_le(s, r, t) and t > l;
+        then not transmission_en_temps_utile(s, r);
+    }
+    rule TransmissionALaSousCaution(s: Cautionnement, k: Cautionnement, r: Date, l: Date, a: Personne, q: Personne) strict {
+        label fr official "Article 2304. Obligation de la caution de communiquer à ses frais à la sous-caution personne physique les informations reçues en application des articles 2302 et 2303";
+        label en unofficial "Article 2304. Duty of the surety to pass on, at its own cost, to a natural-person sub-surety the information received under Articles 2302 and 2303";
+        effective [@2022-01-01, infinity);
+        when date_limite_de_transmission(s, r, l) and sous_cautionnement(s, k) and caution(k, a) and caution(s, q);
+        then duty DevoirDeTransmettreALaSousCaution {
+            bearer a;
+            beneficiary q;
+            goal achievement {
+                condition transmission_en_temps_utile(s, r);
+                window [r, l];
+            }
+        };
+    }
+}

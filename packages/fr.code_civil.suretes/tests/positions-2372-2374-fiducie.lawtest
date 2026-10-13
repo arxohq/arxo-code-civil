@@ -1,0 +1,73 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2372-report-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:f2372:S"), entity_ref("urn:fr:cc:suretes:f2372:C"), entity_ref("urn:fr:cc:suretes:f2372:P"), entity_ref("urn:fr:cc:suretes:f2372:B")) { origin case_input; }
+        assert "clause": clause_de_reserve_de_propriete(entity_ref("urn:fr:cc:suretes:f2372:S"), entity_ref("urn:fr:cc:suretes:f2372:B")) { origin case_input; }
+        assert "lost": bien_aliene_ou_perdu(entity_ref("urn:fr:cc:suretes:f2372:S")) { origin case_input; }
+        assert "claim": creance_contre_le_sous_acquereur_ou_l_assureur(entity_ref("urn:fr:cc:suretes:f2372:S"), entity_ref("urn:fr:cc:suretes:f2372:Q")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteReporterPropriete, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-report-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:f2372b:S"), entity_ref("urn:fr:cc:suretes:f2372b:C"), entity_ref("urn:fr:cc:suretes:f2372b:P"), entity_ref("urn:fr:cc:suretes:f2372b:B")) { origin case_input; }
+        assert "clause": clause_de_reserve_de_propriete(entity_ref("urn:fr:cc:suretes:f2372b:S"), entity_ref("urn:fr:cc:suretes:f2372b:B")) { origin case_input; }
+        assert "lost": bien_aliene_ou_perdu(entity_ref("urn:fr:cc:suretes:f2372b:S")) { origin case_input; }
+        assert "claim": creance_contre_le_sous_acquereur_ou_l_assureur(entity_ref("urn:fr:cc:suretes:f2372b:S"), entity_ref("urn:fr:cc:suretes:f2372b:Q")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteReporterPropriete, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-3-disposition-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fiducie": fiducie_surete(entity_ref("urn:fr:cc:suretes:f23723:S"), entity_ref("urn:fr:cc:suretes:f23723:C"), entity_ref("urn:fr:cc:suretes:f23723:C")) { origin case_input; }
+        assert "unpaid": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:f23723:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteDispositionFiduciaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-3-disposition-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fiducie": fiducie_surete(entity_ref("urn:fr:cc:suretes:f23723b:S"), entity_ref("urn:fr:cc:suretes:f23723b:C"), entity_ref("urn:fr:cc:suretes:f23723b:C")) { origin case_input; }
+        assert "unpaid": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:f23723b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteDispositionFiduciaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-4-surplus-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fiducie": fiducie_surete(entity_ref("urn:fr:cc:suretes:f23724:S"), entity_ref("urn:fr:cc:suretes:f23724:F"), entity_ref("urn:fr:cc:suretes:f23724:C")) { origin case_input; }
+        assert "free": libre_disposition_du_fiduciaire_creancier(entity_ref("urn:fr:cc:suretes:f23724:S")) { origin case_input; }
+        assert "value": valeur_au_jour_du_transfert(entity_ref("urn:fr:cc:suretes:f23724:S"), 12000 EUR) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:f23724:S"), 10000 EUR) { origin case_input; }
+        assert "costs": dettes_de_conservation_ou_gestion_payees(entity_ref("urn:fr:cc:suretes:f23724:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirVerserExcedentFiducie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2372-4-surplus-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "fiducie": fiducie_surete(entity_ref("urn:fr:cc:suretes:f23724b:S"), entity_ref("urn:fr:cc:suretes:f23724b:F"), entity_ref("urn:fr:cc:suretes:f23724b:C")) { origin case_input; }
+        assert "free": libre_disposition_du_fiduciaire_creancier(entity_ref("urn:fr:cc:suretes:f23724b:S")) { origin case_input; }
+        assert "value": valeur_au_jour_du_transfert(entity_ref("urn:fr:cc:suretes:f23724b:S"), 15000 EUR) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:f23724b:S"), 10000 EUR) { origin case_input; }
+        assert "costs": dettes_de_conservation_ou_gestion_payees(entity_ref("urn:fr:cc:suretes:f23724b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirVerserExcedentFiducie, ACTIVE);
+}

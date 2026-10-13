@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DEMEURERAVECSAFAMILLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": droit_d_usage_ou_d_habitation_sur(entity_ref("urn:law:catalog:demeureravecsafamille:v0"), entity_ref("urn:law:catalog:demeureravecsafamille:v1"), Habitation) { origin case_input; }
+        assert "cat-1": titulaire_du_droit(entity_ref("urn:law:catalog:demeureravecsafamille:v0"), entity_ref("urn:law:catalog:demeureravecsafamille:v2")) { origin case_input; }
+    }
+    evaluate truth(droit_d_y_demeurer_avec_sa_famille(entity_ref("urn:law:catalog:demeureravecsafamille:v0"), entity_ref("urn:law:catalog:demeureravecsafamille:v2")));
+    expect truth_status == TRUE_ONLY;
+}

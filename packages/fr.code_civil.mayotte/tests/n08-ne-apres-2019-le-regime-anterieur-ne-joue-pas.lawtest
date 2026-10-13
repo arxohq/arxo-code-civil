@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2494 : enfant né le 1er janvier 2020, après l'entrée en vigueur de la loi n° 2018-778 à Mayotte — le régime antérieur ne lui est pas ouvert.
+test "urn:query:fr-code-civil-mayotte-n08-ne-apres-2019-le-regime-anterieur-ne-joue-pas" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": ne_a_mayotte(entity_ref("urn:fr:cc:may:h:enf")) { origin case_input; }
+        assert "f2": naissance_le(entity_ref("urn:fr:cc:may:h:enf"), @2020-01-01) { origin case_input; }
+        assert "f3": parents_etrangers(entity_ref("urn:fr:cc:may:h:enf")) { origin case_input; }
+    }
+    evaluate truth(regime_anterieur_applicable(entity_ref("urn:fr:cc:may:h:enf")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

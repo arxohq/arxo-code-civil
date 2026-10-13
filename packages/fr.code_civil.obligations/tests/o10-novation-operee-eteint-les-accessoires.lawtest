@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1329 à 1331 et 1334, al. 1 : la volonté de nover résultant clairement de l'acte
+// et les deux obligations étant valables, la novation est opérée et l'extinction de
+// l'obligation ancienne s'étend à TOUS SES ACCESSOIRES.
+test "urn:query:fr-code-civil-obligations-o10-novation-operee-eteint-les-accessoires" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": novation_convenue(entity_ref("urn:fr:cc:obligations:nvo:n"), entity_ref("urn:fr:cc:obligations:nvo:anc"), entity_ref("urn:fr:cc:obligations:nvo:nou")) { origin case_input; }
+        assert "f2": volonte_de_nover_resultant_clairement_de_l_acte(entity_ref("urn:fr:cc:obligations:nvo:n")) { origin case_input; }
+        assert "f3": obligation_valable(entity_ref("urn:fr:cc:obligations:nvo:anc")) { origin case_input; }
+        assert "f4": obligation_valable(entity_ref("urn:fr:cc:obligations:nvo:nou")) { origin case_input; }
+    }
+    evaluate truth(extinction_etendue_aux_accessoires(entity_ref("urn:fr:cc:obligations:nvo:n"), entity_ref("urn:fr:cc:obligations:nvo:anc")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NovationOperee);
+    expect applied(ExtinctionEtendueAuxAccessoires);
+}

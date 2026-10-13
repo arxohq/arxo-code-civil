@@ -1,0 +1,183 @@
+// CHAPITRE I — DISPOSITIONS GÉNÉRALES (articles 893 à 911).
+// Les décisions de révision des charges restent un canal judiciaire. Les
+// procédures contentieuses des articles 900-3 et 900-6 et les autorisations
+// administratives des articles 910 et 910-1 sont des frontières externes.
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART893,
+    CC_ART894,
+    CC_ART895,
+    CC_ART896,
+    CC_ART898,
+    CC_ART899,
+    CC_ART900,
+    CC_ART900_1,
+    CC_ART900_2,
+    CC_ART900_5,
+    CC_ART900_7,
+    CC_ART900_8,
+    CC_ART901,
+    CC_ART902,
+    CC_ART903,
+    CC_ART904,
+    CC_ART906,
+    CC_ART907,
+    CC_ART909,
+    CC_ART911,
+    Liberalite,
+    NatureDeLiberalite,
+    acte_a_titre_gratuit,
+    age_du_disposant,
+    aucun_parent_jusqu_au_sixieme_degre,
+    beneficiaire_concu_au_jour_requis,
+    beneficiaire_incapable_de_recevoir,
+    beneficiaire_mandataire_de_protection,
+    beneficiaire_ne_viable,
+    beneficiaire_parent_jusqu_au_sixieme_degre_ou_conjoint,
+    beneficiaire_professionnel_de_sante_ayant_soigne_la_maladie_mortelle,
+    charge_de_conserver_et_rendre_a_un_tiers,
+    clause_d_inalienabilite,
+    clause_prive_contestataire,
+    compte_de_tutelle_rendu_et_apure,
+    condition_impossible_ou_illicite,
+    consentement_vicie,
+    demande_de_revision_le,
+    depouillement_actuel_et_irrevocable,
+    disposant_emancipe,
+    disposant_sain_d_esprit,
+    disposition_pour_apres_le_deces,
+    donation_acceptee,
+    exception_remuneratoire_ou_parentale_909,
+    execution_extremement_difficile_ou_domageable,
+    execution_originaire_redevenue_possible,
+    inalienabilite_temporaire,
+    interet_serieux_et_legitime,
+    jugement_de_revision_precedent_le,
+    liberalite_au_profit_du_tuteur,
+    liberalite_deguisee_ou_interposee,
+    mineur_appele_sous_les_drapeaux,
+    mort_du_disposant_le,
+    nature,
+    personne_declaree_incapable_par_la_loi,
+    proche_de_l_incapable_au_sens_de_911,
+    substitution_autorisee_par_la_loi,
+    testament_revocable,
+    tiers_appele_a_defaut_du_premier_beneficiaire,
+    tuteur_ascendant_du_mineur,
+    usufruit_et_nue_propriete_attribues_separement,
+};
+
+pub relation liberalite_qualifiee(l: Liberalite) kind derived { label fr official "acte qualifié de libéralité au sens de l'article 893"; label en unofficial "act classified as a gratuitous disposition under Article 893"; }
+pub relation donation_entre_vifs_qualifiee(l: Liberalite) kind derived { label fr official "donation entre vifs répondant à la définition de l'article 894"; label en unofficial "inter vivos gift meeting the definition in Article 894"; }
+pub relation testament_qualifie(l: Liberalite) kind derived { label fr official "testament répondant à la définition de l'article 895"; label en unofficial "will meeting the definition in Article 895"; }
+pub relation clause_reputee_non_ecrite(l: Liberalite) kind derived { label fr official "clause de la libéralité réputée non écrite"; label en unofficial "clause of the disposition deemed unwritten"; }
+pub relation clause_d_inalienabilite_valable(l: Liberalite) kind derived { label fr official "clause d'inaliénabilité valable"; label en unofficial "valid non-alienation clause"; }
+pub relation demande_de_revision_ouverte(l: Liberalite) kind derived { label fr official "le gratifié peut demander la révision judiciaire des conditions et charges"; label en unofficial "the beneficiary may seek judicial revision of conditions and charges"; }
+pub relation demande_de_revision_recevable(l: Liberalite) kind derived { label fr official "demande en révision recevable au regard du délai décennal"; label en unofficial "revision application admissible under the ten-year period"; }
+pub relation retablissement_des_charges_demandable(l: Liberalite) kind derived { label fr official "les héritiers peuvent demander le rétablissement des conditions ou charges originaires"; label en unofficial "the heirs may seek restoration of the original conditions or charges"; }
+pub relation liberalite_nulle(l: Liberalite) kind derived { label fr official "libéralité nulle"; label en unofficial "void gratuitous disposition"; }
+pub relation disposant_capable(l: Liberalite) kind derived { label fr official "disposant capable de consentir cette libéralité"; label en unofficial "disposer capable of making this disposition"; }
+pub relation beneficiaire_capable_de_recevoir(l: Liberalite) kind derived { label fr official "bénéficiaire capable de recevoir la libéralité"; label en unofficial "beneficiary capable of receiving the disposition"; }
+pub relation forme_legale_de_liberalite(l: Liberalite) kind derived { label fr official "forme légale de libéralité : donation entre vifs ou testament"; label en unofficial "statutory form of gratuitous disposition: inter vivos gift or will"; }
+pub relation disposition_valable(l: Liberalite) kind derived { label fr official "disposition valable au regard des articles 896 à 899"; label en unofficial "valid disposition under Articles 896 to 899"; }
+pub relation disposition_produit_effet(l: Liberalite) kind derived { label fr official "disposition produisant effet"; label en unofficial "effective disposition"; }
+pub relation personne_interposee_presumee(l: Liberalite) kind derived { label fr official "personne interposée présumée jusqu'à preuve contraire"; label en unofficial "person presumed to be an intermediary until proven otherwise"; }
+
+@source(CC_ART893) {
+    rule DefinitionLiberalite(l: Liberalite) strict { label fr official "Article 893, alinéa 1. L'acte à titre gratuit au profit d'autrui est une libéralité"; label en unofficial "Article 893, paragraph 1. A gratuitous act for another person's benefit is a gratuitous disposition"; when acte_a_titre_gratuit(l); then liberalite_qualifiee(l); }
+    rule FormesExclusivesDeLiberalite(l: Liberalite, n: NatureDeLiberalite) strict { label fr official "Article 893, alinéa 2. Une libéralité ne peut être faite que par donation entre vifs ou par testament"; label en unofficial "Article 893, paragraph 2. A gratuitous disposition may be made only by inter vivos gift or will"; when liberalite_qualifiee(l) and nature(l, n); then forme_legale_de_liberalite(l); }
+}
+@source(CC_ART894)
+rule DefinitionDonationEntreVifs(l: Liberalite) strict { label fr official "Article 894. Le dépouillement actuel et irrévocable accepté par le donataire qualifie la donation entre vifs"; label en unofficial "Article 894. Present and irrevocable divestment accepted by the donee classifies an inter vivos gift"; when depouillement_actuel_et_irrevocable(l) and donation_acceptee(l); then donation_entre_vifs_qualifiee(l); }
+@source(CC_ART895)
+rule DefinitionTestament(l: Liberalite) strict { label fr official "Article 895. La disposition révocable pour le temps après le décès qualifie le testament"; label en unofficial "Article 895. A revocable disposition for the time after death classifies a will"; when disposition_pour_apres_le_deces(l) and testament_revocable(l); then testament_qualifie(l); }
+@source(CC_ART896)
+rule SubstitutionAutoriseeProduitEffet(l: Liberalite) strict { label fr official "Article 896. La charge de conserver et rendre ne produit effet que si la substitution est autorisée par la loi"; label en unofficial "Article 896. A duty to preserve and transfer takes effect only where the substitution is authorized by law"; when charge_de_conserver_et_rendre_a_un_tiers(l) and substitution_autorisee_par_la_loi(l); then disposition_produit_effet(l); }
+@source(CC_ART898)
+rule BeneficiaireSubsidiaireValable(l: Liberalite) strict { label fr official "Article 898. L'appel d'un tiers à défaut du premier bénéficiaire n'est pas une substitution et est valable"; label en unofficial "Article 898. Calling a third party if the first beneficiary does not take is not a substitution and is valid"; when tiers_appele_a_defaut_du_premier_beneficiaire(l); then disposition_valable(l); }
+@source(CC_ART899)
+rule DemembrementValable(l: Liberalite) strict { label fr official "Article 899. L'attribution de l'usufruit à l'un et de la nue-propriété à l'autre est valable"; label en unofficial "Article 899. Granting usufruct to one person and bare ownership to another is valid"; when usufruit_et_nue_propriete_attribues_separement(l); then disposition_valable(l); }
+@source(CC_ART900)
+rule ConditionImpossibleOuIlliciteNonEcrite(l: Liberalite) strict { label fr official "Article 900. Toute condition impossible, contraire aux lois ou aux mœurs, est réputée non écrite"; label en unofficial "Article 900. Any impossible condition or condition contrary to law or morality is deemed unwritten"; when condition_impossible_ou_illicite(l); then clause_reputee_non_ecrite(l); }
+@source(CC_ART900_1)
+rule InalienabiliteValable(l: Liberalite) strict { label fr official "Article 900-1, alinéa 1. La clause d'inaliénabilité est valable si elle est temporaire et justifiée par un intérêt sérieux et légitime"; label en unofficial "Article 900-1, paragraph 1. A non-alienation clause is valid if temporary and justified by a serious and legitimate interest"; when clause_d_inalienabilite(l) and inalienabilite_temporaire(l) and interet_serieux_et_legitime(l); then clause_d_inalienabilite_valable(l); }
+@source(CC_ART900_2)
+rule RevisionDesChargesOuverte(l: Liberalite) strict { label fr official "Article 900-2. Le changement de circonstances rendant l'exécution extrêmement difficile ou dommageable ouvre la demande en révision"; label en unofficial "Article 900-2. Changed circumstances making performance extremely difficult or harmful open an application for revision"; when execution_extremement_difficile_ou_domageable(l); then demande_de_revision_ouverte(l); }
+pub relation demander_revision_900_2(l: Liberalite) kind empirical { label fr official "le bénéficiaire demande la révision des charges"; label en unofficial "the beneficiary seeks revision of the charges"; }
+@source(CC_ART900_2)
+pub relation execution_extremement_difficile_ou_dommageable(l: Liberalite) kind empirical { label fr official "l'exécution est devenue extrêmement difficile ou dommageable"; label en unofficial "performance has become extremely difficult or harmful"; }
+@source(CC_ART900_2)
+rule PositionPouvoirDemanderRevision(l: Liberalite) strict {
+    label fr official "Article 900-2. Le bénéficiaire peut demander la révision";
+    label en unofficial "Article 900-2. The beneficiary may seek revision";
+    when execution_extremement_difficile_ou_dommageable(l) and demander_revision_900_2(l);
+    then liberty PouvoirDemanderRevision {
+        holder entity_ref("urn:fr:cc:liberalites:beneficiaire");
+        action demander_revision_900_2(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART900_5) {
+    rule RevisionDixAnsApresLeDeces(l: Liberalite, deces: Date, demande: Date) strict { label fr official "Article 900-5, alinéa 1. La première demande est recevable dix ans après la mort du disposant"; label en unofficial "Article 900-5, paragraph 1. A first application is admissible ten years after the disposer's death"; when mort_du_disposant_le(l, deces) and demande_de_revision_le(l, demande) and demande >= add_calendar_period(deces, 10 calendar_year); then demande_de_revision_recevable(l); }
+    rule RevisionDixAnsApresLeJugement(l: Liberalite, jugement: Date, demande: Date) strict { label fr official "Article 900-5, alinéa 1. Une demande successive est recevable dix ans après le précédent jugement de révision"; label en unofficial "Article 900-5, paragraph 1. A successive application is admissible ten years after the previous revision judgment"; when jugement_de_revision_precedent_le(l, jugement) and demande_de_revision_le(l, demande) and demande >= add_calendar_period(jugement, 10 calendar_year); then demande_de_revision_recevable(l); }
+}
+pub relation former_demande_revision_900_5(l: Liberalite) kind empirical { label fr official "le bénéficiaire forme la demande de révision dans le délai"; label en unofficial "the beneficiary files the revision application within the time limit"; }
+@source(CC_ART900_5)
+rule PositionDevoirFormerDemandeRevision9005(l: Liberalite) strict {
+    label fr official "Article 900-5. La demande de révision doit être formée dans le délai légal";
+    label en unofficial "Article 900-5. The revision application must be filed within the statutory period";
+    when demander_revision_900_2(l);
+    then duty DevoirFormerDemandeRevision9005 {
+        bearer entity_ref("urn:fr:cc:liberalites:beneficiaire");
+        goal achievement { condition former_demande_revision_900_5(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART900_7)
+rule RetablissementDesCharges(l: Liberalite) strict { label fr official "Article 900-7. Les héritiers peuvent demander l'exécution originaire redevenue possible"; label en unofficial "Article 900-7. The heirs may seek original performance when it becomes possible again"; when execution_originaire_redevenue_possible(l); then retablissement_des_charges_demandable(l); }
+pub relation demander_retablissement_charges_900_7(l: Liberalite) kind empirical { label fr official "les héritiers demandent le rétablissement des charges"; label en unofficial "the heirs seek restoration of the charges"; }
+@source(CC_ART900_7)
+rule PositionPouvoirDemanderRetablissementCharges(l: Liberalite) strict {
+    label fr official "Article 900-7. Les héritiers peuvent demander le rétablissement";
+    label en unofficial "Article 900-7. The heirs may seek restoration";
+    when execution_originaire_redevenue_possible(l) and demander_retablissement_charges_900_7(l);
+    then liberty PouvoirDemanderRetablissementCharges {
+        holder entity_ref("urn:fr:cc:liberalites:heritiers");
+        action demander_retablissement_charges_900_7(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART900_8)
+rule ClausePriveContestataireNonEcrite(l: Liberalite) strict { label fr official "Article 900-8. La clause privant celui qui conteste l'inaliénabilité ou demande à aliéner est réputée non écrite"; label en unofficial "Article 900-8. A clause depriving a person who challenges non-alienation or seeks to alienate is deemed unwritten"; when clause_prive_contestataire(l); then clause_reputee_non_ecrite(l); }
+@source(CC_ART901) {
+    rule CapacitePourSaniteEsprit(l: Liberalite) strict { label fr official "Article 901. La libéralité exige que le disposant soit sain d'esprit"; label en unofficial "Article 901. A gratuitous disposition requires the disposer to be of sound mind"; when disposant_sain_d_esprit(l) and not_known(consentement_vicie(l)); then disposant_capable(l); }
+    rule NullitePourViceDuConsentement(l: Liberalite) strict { label fr official "Article 901. La libéralité est nulle si le consentement est vicié par l'erreur, le dol ou la violence"; label en unofficial "Article 901. The disposition is void if consent is vitiated by mistake, fraud or duress"; when consentement_vicie(l); then liberalite_nulle(l); }
+}
+@source(CC_ART902)
+rule CapaciteGeneraleDeDisposerEtRecevoir(l: Liberalite) strict { label fr official "Article 902. Toute personne peut disposer et recevoir sauf incapacité déclarée par la loi"; label en unofficial "Article 902. Every person may dispose and receive unless declared incapable by law"; when liberalite_qualifiee(l) and not_known(personne_declaree_incapable_par_la_loi(l)); then disposant_capable(l); }
+@source(CC_ART903)
+rule MineurMoinsDeSeizeAnsIncapable(l: Liberalite, age: Integer) strict { label fr official "Article 903. Le mineur de moins de seize ans ne peut disposer, sous réserve du chapitre IX"; label en unofficial "Article 903. A minor under sixteen may not dispose, subject to Chapter IX"; when age_du_disposant(l, age) and age < 16; then liberalite_nulle(l); }
+@source(CC_ART904)
+rule MineurSeizeAnsTestamentMoitie(l: Liberalite, age: Integer) strict { label fr official "Article 904, alinéa 1. Le mineur non émancipé âgé d'au moins seize ans ne dispose que par testament et dans la limite de moitié"; label en unofficial "Article 904, paragraph 1. A non-emancipated minor aged at least sixteen disposes only by will and within the one-half limit"; when age_du_disposant(l, age) and age >= 16 and age < 18 and not_known(disposant_emancipe(l)) and nature(l, Legs); then disposant_capable(l); }
+@source(CC_ART904) {
+    rule MineurSousLesDrapeauxAuProfitDeLaFamille(l: Liberalite, age: Integer) strict { label fr official "Article 904, alinéa 2. Le mineur d'au moins seize ans sous les drapeaux dispose comme un majeur au profit d'un parent jusqu'au sixième degré ou du conjoint"; label en unofficial "Article 904, paragraph 2. A minor aged at least sixteen on wartime service disposes as an adult for a relative up to the sixth degree or the spouse"; when age_du_disposant(l, age) and age >= 16 and mineur_appele_sous_les_drapeaux(l) and beneficiaire_parent_jusqu_au_sixieme_degre_ou_conjoint(l); then disposant_capable(l); }
+    rule MineurSousLesDrapeauxSansParent(l: Liberalite, age: Integer) strict { label fr official "Article 904, alinéa 3. Sans parent jusqu'au sixième degré, le mineur sous les drapeaux dispose comme un majeur"; label en unofficial "Article 904, paragraph 3. With no relative up to the sixth degree, a minor on wartime service disposes as an adult"; when age_du_disposant(l, age) and age >= 16 and mineur_appele_sous_les_drapeaux(l) and aucun_parent_jusqu_au_sixieme_degre(l); then disposant_capable(l); }
+}
+@source(CC_ART906)
+rule EnfantConcuNeViableCapable(l: Liberalite) strict { label fr official "Article 906. L'enfant conçu au jour requis ne reçoit que s'il naît viable"; label en unofficial "Article 906. A child conceived on the required date receives only if born viable"; when beneficiaire_concu_au_jour_requis(l) and beneficiaire_ne_viable(l); then beneficiaire_capable_de_recevoir(l); }
+@source(CC_ART907) {
+    rule LiberaliteAuTuteurNulle(l: Liberalite) strict { label fr official "Article 907, alinéas 1 et 2. La libéralité au tuteur est nulle tant que le compte définitif n'est pas rendu et apuré"; label en unofficial "Article 907, paragraphs 1 and 2. A disposition to the guardian is void until the final account is rendered and settled"; when liberalite_au_profit_du_tuteur(l) and not_known(compte_de_tutelle_rendu_et_apure(l)) and not_known(tuteur_ascendant_du_mineur(l)); then liberalite_nulle(l); }
+    rule ExceptionTuteurAscendant(l: Liberalite) strict { label fr official "Article 907, alinéa 3. L'ascendant qui est ou a été tuteur échappe à l'incapacité"; label en unofficial "Article 907, paragraph 3. An ascendant who is or was guardian is exempt from the incapacity"; when liberalite_au_profit_du_tuteur(l) and tuteur_ascendant_du_mineur(l); then beneficiaire_capable_de_recevoir(l); }
+}
+@source(CC_ART909) {
+    rule IncapaciteProfessionnelDeSante(l: Liberalite) strict { label fr official "Article 909, alinéa 1. Le professionnel ayant soigné la maladie mortelle ne peut profiter de la libéralité consentie pendant celle-ci"; label en unofficial "Article 909, paragraph 1. A professional who treated the fatal illness may not benefit from a disposition made during it"; when beneficiaire_professionnel_de_sante_ayant_soigne_la_maladie_mortelle(l) and not_known(exception_remuneratoire_ou_parentale_909(l)); then liberalite_nulle(l); }
+    rule IncapaciteMandataireDeProtection(l: Liberalite) strict { label fr official "Article 909, alinéa 2. Le mandataire judiciaire de protection ne peut profiter de la libéralité du protégé"; label en unofficial "Article 909, paragraph 2. A judicial protection representative may not benefit from the protected person's disposition"; when beneficiaire_mandataire_de_protection(l) and not_known(exception_remuneratoire_ou_parentale_909(l)); then liberalite_nulle(l); }
+    rule ExceptionArticle909(l: Liberalite) strict { label fr official "Article 909, alinéas 3 à 5. L'exception rémunératoire ou parentale maintient la capacité de recevoir"; label en unofficial "Article 909, paragraphs 3 to 5. The remuneratory or kinship exception preserves capacity to receive"; when exception_remuneratoire_ou_parentale_909(l); then beneficiaire_capable_de_recevoir(l); }
+}
+@source(CC_ART911)
+rule NulliteIncapaciteMemeDeguisee(l: Liberalite) strict { label fr official "Article 911, alinéa 1. L'incapacité de recevoir entraîne la nullité, même si la libéralité est déguisée ou interposée"; label en unofficial "Article 911, paragraph 1. Incapacity to receive entails nullity even for a disguised or intermediary disposition"; when beneficiaire_incapable_de_recevoir(l) and liberalite_deguisee_ou_interposee(l); then liberalite_nulle(l); }
+@source(CC_ART911)
+rule PresomptionDePersonneInterposee(l: Liberalite) strict { label fr official "Article 911, alinéa 2. Les père, mère, descendants et époux de l'incapable sont présumés personnes interposées jusqu'à preuve contraire"; label en unofficial "Article 911, paragraph 2. Parents, descendants and spouse of the incapable person are presumed intermediaries until proven otherwise"; when proche_de_l_incapable_au_sens_de_911(l); then personne_interposee_presumee(l); }

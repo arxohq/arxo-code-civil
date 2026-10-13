@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1301-1 : gestion utile, faute du gérant retenue par le juge — l'indemnité due au maître est modérable.
+test "urn:query:fr-code-civil-responsabilite-r61-moderation-de-l-indemnite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": gestion_sans_y_etre_tenu(entity_ref("urn:fr:cc:resp:v2w:g")) { origin case_input; }
+        assert "f2": gestion_utile(entity_ref("urn:fr:cc:resp:v2w:g")) { origin adjudicated; }
+        assert "f3": faute_ou_negligence_du_gerant(entity_ref("urn:fr:cc:resp:v2w:g")) { origin adjudicated; }
+    }
+    evaluate truth(indemnite_moderable_par_le_juge(entity_ref("urn:fr:cc:resp:v2w:g")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ModerationDeLIndemnite);
+}

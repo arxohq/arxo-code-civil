@@ -1,0 +1,244 @@
+// CHAPITRE V — NATURE ET EFFETS DES LEGS (articles 1002 à 1024).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART1002,
+    CC_ART1002_1,
+    CC_ART1003,
+    CC_ART1004,
+    CC_ART1005,
+    CC_ART1006,
+    CC_ART1007,
+    CC_ART1009,
+    CC_ART1010,
+    CC_ART1011,
+    CC_ART1012,
+    CC_ART1013,
+    CC_ART1014,
+    CC_ART1015,
+    CC_ART1016,
+    CC_ART1017,
+    CC_ART1018,
+    CC_ART1019,
+    CC_ART1020,
+    CC_ART1021,
+    CC_ART1022,
+    CC_ART1023,
+    CC_ART1024,
+    Liberalite,
+    liberalite_nulle,
+};
+
+pub relation disposition_universelle_titre_universel_ou_particulier(l: Liberalite) kind empirical { label fr official "la disposition est universelle, à titre universel ou à titre particulier"; label en unofficial "the disposition is universal, by universal title or by particular title"; }
+pub relation regime_du_legs_correspondant_applicable(l: Liberalite) kind derived { label fr official "régime du legs correspondant applicable"; label en unofficial "corresponding legacy regime applies"; }
+pub relation succession_acceptee_par_heritier_legal(l: Liberalite) kind empirical { label fr official "la succession est acceptée par au moins un héritier désigné par la loi"; label en unofficial "the estate is accepted by at least one statutory heir"; }
+pub relation legataire_cantonne_emolument(l: Liberalite) kind empirical { label fr official "le légataire cantonne son émolument à une partie des biens légués"; label en unofficial "the legatee limits the benefit to part of the devised property"; }
+pub relation cantonnement_non_liberalite(l: Liberalite) kind derived { label fr official "cantonnement ne constituant pas une libéralité aux autres successibles"; label en unofficial "limitation does not constitute a gift to the other successors"; }
+pub relation universalite_biens_au_deces_leguee(l: Liberalite) kind empirical { label fr official "l'universalité des biens laissés au décès est léguée"; label en unofficial "the entirety of property left at death is devised"; }
+pub relation legs_universel(l: Liberalite) kind derived { label fr official "legs universel"; label en unofficial "universal legacy"; }
+pub relation heritier_reservataire_existe(l: Liberalite) kind empirical { label fr official "il existe un héritier réservataire"; label en unofficial "a forced heir exists"; }
+pub relation demande_delivrance_formee(l: Liberalite) kind empirical { label fr official "la demande en délivrance du legs est formée"; label en unofficial "delivery of the legacy is requested"; }
+pub relation legataire_doit_demander_delivrance(l: Liberalite) kind derived { label fr official "le légataire doit demander la délivrance"; label en unofficial "the legatee must request delivery"; }
+pub relation deces_testateur_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date du décès du testateur"; label en unofficial "date of the testator's death"; }
+pub relation demande_delivrance_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de la demande en délivrance"; label en unofficial "date of the request for delivery"; }
+pub relation jouissance_depuis_deces(l: Liberalite) kind derived { label fr official "jouissance du legs depuis le décès"; label en unofficial "enjoyment of the legacy from death"; }
+pub relation absence_heritier_reservataire(l: Liberalite) kind empirical { label fr official "aucun héritier réservataire n'existe"; label en unofficial "no forced heir exists"; }
+pub relation legataire_universel_saisi_de_plein_droit(l: Liberalite) kind derived { label fr official "légataire universel saisi de plein droit"; label en unofficial "universal legatee vested by operation of law"; }
+pub relation testament_olographe_ou_mystique_depose_notaire(l: Liberalite) kind empirical { label fr official "le testament olographe ou mystique est déposé chez un notaire avec procès-verbal"; label en unofficial "the holographic or mystic will is deposited with a notary with an official record"; }
+pub relation formalites_depot_testament_accomplies(l: Liberalite) kind derived { label fr official "formalités de dépôt du testament accomplies"; label en unofficial "will-deposit formalities completed"; }
+pub relation legataire_universel_en_concours_reservataire(l: Liberalite) kind empirical { label fr official "le légataire universel est en concours avec un héritier réservataire"; label en unofficial "the universal legatee competes with a forced heir"; }
+pub relation dettes_charges_et_legs_a_acquitter(l: Liberalite) kind derived { label fr official "dettes, charges et legs à acquitter dans les proportions légales"; label en unofficial "debts, charges and legacies payable in statutory proportions"; }
+pub relation quote_part_ou_categorie_universelle_leguee(l: Liberalite) kind empirical { label fr official "une quote-part ou une catégorie universelle de biens est léguée"; label en unofficial "a share or universal category of property is devised"; }
+pub relation legs_a_titre_universel(l: Liberalite) kind derived { label fr official "legs à titre universel"; label en unofficial "legacy by universal title"; }
+pub relation legataire_titre_universel_doit_demander_delivrance(l: Liberalite) kind derived { label fr official "le légataire à titre universel doit demander la délivrance dans l'ordre légal"; label en unofficial "the legatee by universal title must request delivery in statutory order"; }
+pub relation dette_proportionnelle_legataire_titre_universel(l: Liberalite) kind derived { label fr official "dette proportionnelle du légataire à titre universel"; label en unofficial "proportional debt liability of a legatee by universal title"; }
+pub relation quotite_disponible_partielle_leguee_titre_universel(l: Liberalite) kind empirical { label fr official "seule une quotité de la portion disponible est léguée à titre universel"; label en unofficial "only a share of the disposable portion is devised by universal title"; }
+pub relation contribution_aux_legs_particuliers(l: Liberalite) kind derived { label fr official "contribution à l'acquittement des legs particuliers"; label en unofficial "contribution to payment of particular legacies"; }
+pub relation legs_pur_et_simple(l: Liberalite) kind empirical { label fr official "le legs est pur et simple"; label en unofficial "the legacy is unconditional"; }
+pub relation droit_transmissible_des_deces(l: Liberalite) kind derived { label fr official "droit à la chose léguée acquis et transmissible dès le décès"; label en unofficial "right to the devised thing acquired and transmissible from death"; }
+pub relation fruits_des_deces_voulus_ou_alimentaires(l: Liberalite) kind empirical { label fr official "les fruits dès le décès sont expressément voulus ou le legs est alimentaire"; label en unofficial "fruits from death are expressly intended or the legacy is for maintenance"; }
+pub relation fruits_interets_depuis_deces(l: Liberalite) kind derived { label fr official "fruits ou intérêts courent depuis le décès"; label en unofficial "fruits or interest accrue from death"; }
+pub relation frais_delivrance_supportes_succession(l: Liberalite) kind derived { label fr official "frais de délivrance à la charge de la succession sans réduction de la réserve"; label en unofficial "delivery costs borne by the estate without reducing the forced share"; }
+pub relation debiteur_du_legs_profite_succession(l: Liberalite) kind empirical { label fr official "le débiteur du legs profite d'une part de la succession"; label en unofficial "the debtor of the legacy benefits from a share of the estate"; }
+pub relation obligation_acquitter_legs_prorata(l: Liberalite) kind derived { label fr official "obligation personnelle d'acquitter le legs au prorata"; label en unofficial "personal duty to satisfy the legacy pro rata"; }
+pub relation chose_leguee_avec_accessoires_etat_deces(l: Liberalite) kind derived { label fr official "chose léguée délivrée avec ses accessoires dans son état au décès"; label en unofficial "devised thing delivered with accessories in its condition at death"; }
+pub relation acquisition_ulterieure_contigue(l: Liberalite) kind empirical { label fr official "une acquisition ultérieure est contiguë à l'immeuble légué"; label en unofficial "a later acquisition adjoins the devised immovable"; }
+pub relation embellissement_construction_ou_extension_enclos(l: Liberalite) kind empirical { label fr official "un embellissement, une construction ou une extension d'enclos affecte le fonds légué"; label en unofficial "an improvement, construction or enclosure extension affects the devised land"; }
+pub relation acquisition_exclue_du_legs(l: Liberalite) kind derived { label fr official "acquisition ultérieure exclue du legs sans nouvelle disposition"; label en unofficial "later acquisition excluded from the legacy absent a new disposition"; }
+pub relation amelioration_comprise_dans_legs(l: Liberalite) kind derived { label fr official "amélioration comprise dans le legs"; label en unofficial "improvement included in the legacy"; }
+pub relation chose_leguee_hypothequee_ou_grevee(l: Liberalite) kind empirical { label fr official "la chose léguée est hypothéquée ou grevée d'usufruit"; label en unofficial "the devised thing is mortgaged or burdened by usufruct"; }
+pub relation ordre_expres_de_degrever(l: Liberalite) kind empirical { label fr official "le testament ordonne expressément de dégager la chose"; label en unofficial "the will expressly orders discharge of the thing"; }
+pub relation debiteur_non_tenu_de_degrever(l: Liberalite) kind derived { label fr official "débiteur du legs non tenu de dégager la chose"; label en unofficial "legacy debtor not bound to discharge the thing"; }
+pub relation chose_d_autrui_leguee(l: Liberalite) kind empirical { label fr official "le testament lègue la chose d'autrui"; label en unofficial "the will devises another person's thing"; }
+pub relation chose_indeterminee_leguee(l: Liberalite) kind empirical { label fr official "le legs porte sur une chose indéterminée"; label en unofficial "the legacy concerns an unspecified thing"; }
+pub relation qualite_moyenne_exigible(l: Liberalite) kind derived { label fr official "qualité ni meilleure exigible ni pire admissible"; label en unofficial "neither best quality demandable nor worst quality permissible"; }
+pub relation legs_fait_creancier_ou_domestique(l: Liberalite) kind empirical { label fr official "le legs est fait au créancier ou au domestique"; label en unofficial "the legacy is made to a creditor or domestic employee"; }
+pub relation legs_non_compensatoire(l: Liberalite) kind derived { label fr official "legs non présumé compenser créance ou gages"; label en unofficial "legacy not presumed to offset a claim or wages"; }
+pub relation legataire_particulier(l: Liberalite) kind empirical { label fr official "le bénéficiaire est légataire à titre particulier"; label en unofficial "the beneficiary is a particular legatee"; }
+pub relation legataire_particulier_non_tenu_dettes(l: Liberalite) kind derived { label fr official "légataire particulier non tenu des dettes hors réduction et action hypothécaire"; label en unofficial "particular legatee not liable for debts except reduction and mortgage action"; }
+
+@source(CC_ART1002) rule CategoriesDeLegs(l: Liberalite) strict { label fr official "Article 1002. La disposition suit le régime de sa catégorie, indépendamment de sa dénomination"; label en unofficial "Article 1002. The disposition follows its category's regime regardless of its name"; when disposition_universelle_titre_universel_ou_particulier(l); then regime_du_legs_correspondant_applicable(l); }
+@source(CC_ART1002_1) rule CantonnementDuLegataire(l: Liberalite) strict { label fr official "Article 1002-1. Le cantonnement après acceptation d'un héritier légal n'est pas une libéralité"; label en unofficial "Article 1002-1. Limitation after acceptance by a statutory heir is not a gift"; when succession_acceptee_par_heritier_legal(l) and legataire_cantonne_emolument(l); then cantonnement_non_liberalite(l); }
+@source(CC_ART1003) rule DefinitionLegsUniversel(l: Liberalite) strict { label fr official "Article 1003. Le legs de l'universalité des biens laissés au décès est universel"; label en unofficial "Article 1003. A devise of all property left at death is universal"; when universalite_biens_au_deces_leguee(l); then legs_universel(l); }
+@source(CC_ART1004) rule DelivranceAvecReservataire(l: Liberalite) strict { label fr official "Article 1004. En présence d'un réservataire, le légataire universel demande la délivrance"; label en unofficial "Article 1004. Where a forced heir exists, the universal legatee requests delivery"; when legs_universel(l) and heritier_reservataire_existe(l); then legataire_doit_demander_delivrance(l); }
+@source(CC_ART1005) rule JouissanceSiDemandeDansAnnee(l: Liberalite, deces: Date, demande: Date) strict { label fr official "Article 1005. La demande dans l'année fait courir la jouissance depuis le décès"; label en unofficial "Article 1005. A request within one year makes enjoyment run from death"; when deces_testateur_le(l, deces) and demande_delivrance_le(l, demande) and demande <= add_calendar_period(deces, 1 calendar_year); then jouissance_depuis_deces(l); }
+pub relation demander_delivrance_1004(l: Liberalite) kind empirical { label fr official "le légataire universel demande la délivrance"; label en unofficial "the universal legatee requests delivery"; }
+@source(CC_ART1004)
+rule PositionDevoirDemanderDelivrance(l: Liberalite) strict {
+    label fr official "Article 1004. Le légataire universel doit demander la délivrance";
+    label en unofficial "Article 1004. The universal legatee must request delivery";
+    when legs_universel(l) and heritier_reservataire_existe(l);
+    then duty DevoirDemanderDelivrance {
+        bearer entity_ref("urn:fr:cc:liberalites:legataire-universel");
+        goal achievement { condition demander_delivrance_1004(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation demander_jouissance_1005(l: Liberalite, deces: Date, demande: Date) kind empirical { key(l); label fr official "le légataire demande la délivrance dans l'année"; label en unofficial "the legatee requests delivery within one year"; }
+@source(CC_ART1005)
+rule PositionPouvoirDemanderJouissanceDepuisDeces(l: Liberalite, deces: Date, demande: Date) strict {
+    label fr official "Article 1005. Le légataire peut demander la jouissance depuis le décès dans l'année";
+    label en unofficial "Article 1005. The legatee may request enjoyment from death within one year";
+    when deces_testateur_le(l, deces)
+        and demande_delivrance_le(l, demande)
+        and demande <= add_calendar_period(deces, 1 calendar_year)
+        and demander_jouissance_1005(l, deces, demande);
+    then liberty PouvoirDemanderJouissanceDepuisDeces {
+        holder entity_ref("urn:fr:cc:liberalites:legataire");
+        action demander_jouissance_1005(l, deces, demande);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation deposer_testament_notaire_1007(l: Liberalite) kind empirical { label fr official "le testament est déposé chez le notaire"; label en unofficial "the will is deposited with the notary"; }
+pub relation testament_olographe_ou_mystique_a_mettre_a_execution(l: Liberalite) kind empirical { label fr official "un testament olographe ou mystique est à mettre à exécution"; label en unofficial "a holographic or mystic will is about to be executed"; }
+@source(CC_ART1007)
+rule PositionDevoirDeposerTestamentNotaire(l: Liberalite) strict {
+    label fr official "Article 1007. Le testament olographe ou mystique doit être déposé chez le notaire";
+    label en unofficial "Article 1007. The holographic or mystic will must be deposited with the notary";
+    when testament_olographe_ou_mystique_a_mettre_a_execution(l);
+    then duty DevoirDeposerTestamentNotaire {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        goal achievement { condition deposer_testament_notaire_1007(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation acquitter_charges_legs_1009(l: Liberalite) kind empirical { label fr official "le légataire universel acquitte les dettes charges et legs"; label en unofficial "the universal legatee pays debts, charges and legacies"; }
+@source(CC_ART1009)
+rule PositionDevoirAcquitterChargesLegs(l: Liberalite) strict {
+    label fr official "Article 1009. Le légataire universel doit acquitter les dettes, charges et legs";
+    label en unofficial "Article 1009. The universal legatee must pay debts, charges and legacies";
+    when legataire_universel_en_concours_reservataire(l);
+    then duty DevoirAcquitterChargesLegs {
+        bearer entity_ref("urn:fr:cc:liberalites:legataire-universel");
+        goal achievement { condition acquitter_charges_legs_1009(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation demander_delivrance_titre_universel_1011(l: Liberalite) kind empirical { label fr official "le légataire à titre universel demande la délivrance"; label en unofficial "the universal-title legatee requests delivery"; }
+@source(CC_ART1011)
+rule PositionDevoirDemanderDelivranceTitreUniversel(l: Liberalite) strict {
+    label fr official "Article 1011. Le légataire à titre universel doit demander la délivrance";
+    label en unofficial "Article 1011. The universal-title legatee must request delivery";
+    when legs_a_titre_universel(l);
+    then duty DevoirDemanderDelivranceTitreUniversel {
+        bearer entity_ref("urn:fr:cc:liberalites:legataire-titre-universel");
+        goal achievement { condition demander_delivrance_titre_universel_1011(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation acquitter_dettes_titre_universel_1012(l: Liberalite) kind empirical { label fr official "le légataire à titre universel répond des dettes"; label en unofficial "the universal-title legatee answers for the debts"; }
+@source(CC_ART1012)
+rule PositionDevoirAcquitterDettesTitreUniversel(l: Liberalite) strict {
+    label fr official "Article 1012. Le légataire à titre universel doit répondre des dettes";
+    label en unofficial "Article 1012. The universal-title legatee must answer for the debts";
+    when legs_a_titre_universel(l);
+    then duty DevoirAcquitterDettesTitreUniversel {
+        bearer entity_ref("urn:fr:cc:liberalites:legataire-titre-universel");
+        goal achievement { condition acquitter_dettes_titre_universel_1012(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation contribuer_legs_particuliers_1013(l: Liberalite) kind empirical { label fr official "le légataire contribue aux legs particuliers"; label en unofficial "the legatee contributes to particular legacies"; }
+@source(CC_ART1013)
+rule PositionDevoirContribuerLegsParticuliers(l: Liberalite) strict {
+    label fr official "Article 1013. Le légataire doit contribuer aux legs particuliers";
+    label en unofficial "Article 1013. The legatee must contribute to particular legacies";
+    when quotite_disponible_partielle_leguee_titre_universel(l);
+    then duty DevoirContribuerLegsParticuliers {
+        bearer entity_ref("urn:fr:cc:liberalites:legataire-titre-universel");
+        goal achievement { condition contribuer_legs_particuliers_1013(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation acquitter_legs_prorata_1017(l: Liberalite) kind empirical { label fr official "le débiteur acquitte le legs au prorata"; label en unofficial "the debtor satisfies the legacy pro rata"; }
+@source(CC_ART1017)
+rule PositionDevoirAcquitterLegsProrata(l: Liberalite) strict {
+    label fr official "Article 1017. Le débiteur doit acquitter le legs au prorata";
+    label en unofficial "Article 1017. The debtor must satisfy the legacy pro rata";
+    when debiteur_du_legs_profite_succession(l);
+    then duty DevoirAcquitterLegsProrata {
+        bearer entity_ref("urn:fr:cc:liberalites:debiteur-du-legs");
+        goal achievement { condition acquitter_legs_prorata_1017(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation supporter_frais_delivrance_1016(l: Liberalite) kind empirical { label fr official "la succession supporte les frais de délivrance"; label en unofficial "the estate bears delivery costs"; }
+@source(CC_ART1016)
+rule PositionDevoirSupporterFraisDelivrance(l: Liberalite) strict {
+    label fr official "Article 1016. La succession doit supporter les frais de délivrance";
+    label en unofficial "Article 1016. The estate must bear delivery costs";
+    when demande_delivrance_formee(l);
+    then duty DevoirSupporterFraisDelivrance {
+        bearer entity_ref("urn:fr:cc:liberalites:succession");
+        goal achievement { condition supporter_frais_delivrance_1016(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation delivrer_chose_accessoires_1018(l: Liberalite) kind empirical { label fr official "le débiteur délivre la chose avec ses accessoires"; label en unofficial "the debtor delivers the thing with its accessories"; }
+@source(CC_ART1018)
+rule PositionDevoirDelivrerChoseAccessoires(l: Liberalite) strict {
+    label fr official "Article 1018. Le débiteur doit délivrer la chose avec ses accessoires";
+    label en unofficial "Article 1018. The debtor must deliver the thing with its accessories";
+    when legs_pur_et_simple(l);
+    then duty DevoirDelivrerChoseAccessoires {
+        bearer entity_ref("urn:fr:cc:liberalites:debiteur-du-legs");
+        goal achievement { condition delivrer_chose_accessoires_1018(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART1006) rule SaisineSansReservataire(l: Liberalite) strict { label fr official "Article 1006. Sans réservataire, le légataire universel est saisi de plein droit"; label en unofficial "Article 1006. Without a forced heir, the universal legatee is vested by operation of law"; when legs_universel(l) and absence_heritier_reservataire(l); then legataire_universel_saisi_de_plein_droit(l); }
+@source(CC_ART1007) rule DepotNotarialTestament(l: Liberalite) strict { label fr official "Article 1007. Le testament olographe ou mystique est déposé, constaté et conservé selon les formalités légales"; label en unofficial "Article 1007. A holographic or mystic will is deposited, recorded and kept under statutory formalities"; when testament_olographe_ou_mystique_depose_notaire(l); then formalites_depot_testament_accomplies(l); }
+@source(CC_ART1009) rule ChargesLegataireUniversel(l: Liberalite) strict { label fr official "Article 1009. Le légataire universel en concours supporte dettes, charges et legs selon les limites légales"; label en unofficial "Article 1009. A competing universal legatee bears debts, charges and legacies within statutory limits"; when legataire_universel_en_concours_reservataire(l); then dettes_charges_et_legs_a_acquitter(l); }
+@source(CC_ART1010) rule DefinitionTitreUniversel(l: Liberalite) strict { label fr official "Article 1010. Une quote-part ou catégorie universelle forme un legs à titre universel"; label en unofficial "Article 1010. A share or universal category forms a legacy by universal title"; when quote_part_ou_categorie_universelle_leguee(l); then legs_a_titre_universel(l); }
+@source(CC_ART1011) rule DelivranceTitreUniversel(l: Liberalite) strict { label fr official "Article 1011. Le légataire à titre universel demande la délivrance selon l'ordre légal"; label en unofficial "Article 1011. A legatee by universal title requests delivery in statutory order"; when legs_a_titre_universel(l); then legataire_titre_universel_doit_demander_delivrance(l); }
+@source(CC_ART1012) rule DettesTitreUniversel(l: Liberalite) strict { label fr official "Article 1012. Le légataire à titre universel répond des dettes pour sa part et hypothécairement pour le tout"; label en unofficial "Article 1012. A legatee by universal title answers for debts by share and by mortgage for the whole"; when legs_a_titre_universel(l); then dette_proportionnelle_legataire_titre_universel(l); }
+@source(CC_ART1013) rule ContributionLegsParticuliers(l: Liberalite) strict { label fr official "Article 1013. Le légataire d'une quotité disponible partielle contribue aux legs particuliers"; label en unofficial "Article 1013. The legatee of a partial disposable share contributes to particular legacies"; when quotite_disponible_partielle_leguee_titre_universel(l); then contribution_aux_legs_particuliers(l); }
+@source(CC_ART1014) rule DroitLegataireDepuisDeces(l: Liberalite) strict { label fr official "Article 1014. Le legs pur et simple confère dès le décès un droit transmissible"; label en unofficial "Article 1014. An unconditional legacy confers a transmissible right from death"; when legs_pur_et_simple(l); then droit_transmissible_des_deces(l); }
+@source(CC_ART1015) rule FruitsSansDemande(l: Liberalite) strict { label fr official "Article 1015. La volonté expresse ou le caractère alimentaire fait courir les fruits dès le décès"; label en unofficial "Article 1015. Express intent or maintenance character makes fruits accrue from death"; when fruits_des_deces_voulus_ou_alimentaires(l); then fruits_interets_depuis_deces(l); }
+@source(CC_ART1016) rule FraisDeDelivrance(l: Liberalite) strict { label fr official "Article 1016. Les frais de délivrance sont supportés par la succession sans entamer la réserve"; label en unofficial "Article 1016. Delivery costs are borne by the estate without impairing the forced share"; when demande_delivrance_formee(l); then frais_delivrance_supportes_succession(l); }
+@source(CC_ART1017) rule AcquittementProrata(l: Liberalite) strict { label fr official "Article 1017. Chaque débiteur acquitte personnellement le legs au prorata de son profit"; label en unofficial "Article 1017. Each debtor personally satisfies the legacy pro rata to the benefit received"; when debiteur_du_legs_profite_succession(l); then obligation_acquitter_legs_prorata(l); }
+@source(CC_ART1018) rule EtatEtAccessoires(l: Liberalite) strict { label fr official "Article 1018. La chose est délivrée avec ses accessoires dans son état au décès"; label en unofficial "Article 1018. The thing is delivered with accessories in its condition at death"; when legs_pur_et_simple(l); then chose_leguee_avec_accessoires_etat_deces(l); }
+@source(CC_ART1019) { rule AcquisitionContigueExclue(l: Liberalite) strict { label fr official "Article 1019. L'acquisition contiguë ultérieure est exclue sans nouvelle disposition"; label en unofficial "Article 1019. A later adjoining acquisition is excluded absent a new disposition"; when acquisition_ulterieure_contigue(l); then acquisition_exclue_du_legs(l); } rule AmeliorationIncluse(l: Liberalite) strict { label fr official "Article 1019. Les embellissements, constructions et extensions d'enclos sont compris"; label en unofficial "Article 1019. Improvements, constructions and enclosure extensions are included"; when embellissement_construction_ou_extension_enclos(l); then amelioration_comprise_dans_legs(l); } }
+@source(CC_ART1020) rule PasObligationDegrever(l: Liberalite) strict { label fr official "Article 1020. Le débiteur n'est pas tenu de dégager la chose sans ordre exprès"; label en unofficial "Article 1020. The debtor need not discharge the thing absent an express order"; when chose_leguee_hypothequee_ou_grevee(l) and not_known(ordre_expres_de_degrever(l)); then debiteur_non_tenu_de_degrever(l); }
+pub relation ne_pas_degrever_1020(l: Liberalite) kind empirical { label fr official "le débiteur ne dégage pas la chose sans ordre exprès"; label en unofficial "the debtor does not discharge the thing without an express order"; }
+@source(CC_ART1020)
+rule PositionPouvoirNePasDegrever(l: Liberalite) strict {
+    label fr official "Article 1020. Le débiteur peut ne pas dégager la chose sans ordre exprès";
+    label en unofficial "Article 1020. The debtor may refrain from discharging the thing without an express order";
+    when chose_leguee_hypothequee_ou_grevee(l) and not_known(ordre_expres_de_degrever(l))
+        and ne_pas_degrever_1020(l);
+    then liberty PouvoirNePasDegrever {
+        holder entity_ref("urn:fr:cc:liberalites:debiteur-du-legs");
+        action ne_pas_degrever_1020(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART1021) rule LegsChoseAutruiNul(l: Liberalite) strict { label fr official "Article 1021. Le legs de la chose d'autrui est nul, même si le testateur ignorait l'appartenance"; label en unofficial "Article 1021. A legacy of another's thing is void even if ownership was unknown"; when chose_d_autrui_leguee(l); then liberalite_nulle(l); }
+@source(CC_ART1022) rule QualiteChoseIndeterminee(l: Liberalite) strict { label fr official "Article 1022. La chose indéterminée ne doit être ni de la meilleure ni de la pire qualité"; label en unofficial "Article 1022. An unspecified thing need be neither best nor worst quality"; when chose_indeterminee_leguee(l); then qualite_moyenne_exigible(l); }
+pub relation delivrer_qualite_moyenne_1022(l: Liberalite) kind empirical { label fr official "le débiteur délivre une chose de qualité moyenne"; label en unofficial "the debtor delivers a thing of average quality"; }
+@source(CC_ART1022)
+rule PositionDevoirDelivrerQualiteMoyenne(l: Liberalite) strict {
+    label fr official "Article 1022. Le débiteur doit délivrer une qualité moyenne";
+    label en unofficial "Article 1022. The debtor must deliver average quality";
+    when chose_indeterminee_leguee(l);
+    then duty DevoirDelivrerQualiteMoyenne {
+        bearer entity_ref("urn:fr:cc:liberalites:debiteur-du-legs");
+        goal achievement { condition delivrer_qualite_moyenne_1022(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART1023) rule LegsSansCompensationPresumee(l: Liberalite) strict { label fr official "Article 1023. Le legs au créancier ou au domestique n'est pas présumé compensatoire"; label en unofficial "Article 1023. A legacy to a creditor or domestic employee is not presumed compensatory"; when legs_fait_creancier_ou_domestique(l); then legs_non_compensatoire(l); }
+@source(CC_ART1024) rule PasDettesLegataireParticulier(l: Liberalite) strict { label fr official "Article 1024. Le légataire particulier ne répond pas des dettes hors réduction et action hypothécaire"; label en unofficial "Article 1024. A particular legatee is not liable for debts except reduction and mortgage action"; when legataire_particulier(l); then legataire_particulier_non_tenu_dettes(l); }

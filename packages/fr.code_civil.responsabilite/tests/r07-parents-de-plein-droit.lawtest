@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1242 al. 4 : les parents exerçant l autorité parentale répondent de plein droit du fait de l enfant mineur.
+test "urn:query:fr-code-civil-responsabilite-r07-parents-de-plein-droit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": enfant_mineur_sous_autorite_parentale(entity_ref("urn:fr:cc:resp:e:f"), entity_ref("urn:fr:cc:resp:e:mere"), entity_ref("urn:fr:cc:resp:e:enfant")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:e:f"), entity_ref("urn:fr:cc:resp:e:d")) { origin adjudicated; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:e:d"), entity_ref("urn:fr:cc:resp:e:mere")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ResponsabiliteDesParents);
+}

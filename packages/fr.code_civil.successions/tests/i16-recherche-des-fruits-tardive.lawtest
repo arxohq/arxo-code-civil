@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-10, alinéa 3 : recherche du 1er juillet 2025 — irrecevable.
+test "urn:query:fr-code-civil-successions-i16-recherche-des-fruits-tardive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": fruits_percus_le(entity_ref("urn:fr:cc:successions:ind:i16:I"), @2020-06-30) { origin case_input; }
+        assert "f2": recherche_des_fruits_le(entity_ref("urn:fr:cc:successions:ind:i16:I"), @2025-07-01) { origin case_input; }
+    }
+    evaluate truth(recherche_des_fruits_irrecevable(entity_ref("urn:fr:cc:successions:ind:i16:I")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RechercheTardiveDesFruits);
+}

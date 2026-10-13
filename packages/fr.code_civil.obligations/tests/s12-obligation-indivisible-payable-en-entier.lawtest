@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1320, al. 1 : chacun des créanciers d'une obligation à prestation indivisible
+// peut en exiger et en recevoir le paiement INTÉGRAL, sauf à rendre compte aux autres.
+test "urn:query:fr-code-civil-obligations-s12-obligation-indivisible-payable-en-entier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": prestation_indivisible(entity_ref("urn:fr:cc:obligations:ind:c")) { origin case_input; }
+        assert "f2": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:ind:c"), entity_ref("urn:fr:cc:obligations:ind:CR")) { origin case_input; }
+        assert "f3": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:ind:c"), entity_ref("urn:fr:cc:obligations:ind:D")) { origin case_input; }
+    }
+    evaluate truth(droit_d_exiger_le_paiement_integral(entity_ref("urn:fr:cc:obligations:ind:c"), entity_ref("urn:fr:cc:obligations:ind:CR")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PaiementIntegralAuCreancierIndivisible);
+}

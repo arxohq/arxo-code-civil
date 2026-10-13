@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1349 : la confusion résulte de la réunion des qualités de créancier et de
+// débiteur dans la même personne ; elle éteint la créance et ses accessoires.
+test "urn:query:fr-code-civil-obligations-c07-confusion-eteint-la-creance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": reunion_des_qualites_dans_la_meme_personne(entity_ref("urn:fr:cc:obligations:cnf:c"), entity_ref("urn:fr:cc:obligations:cnf:P")) { origin case_input; }
+    }
+    evaluate truth(extinction_par_confusion(entity_ref("urn:fr:cc:obligations:cnf:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ExtinctionParConfusion);
+}

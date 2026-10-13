@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-11 : procédure collective ouverte contre l'agent — remplacement demandable sans appréciation.
+test "urn:query:fr-code-civil-suretes-r24-remplacement-sur-procedure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": agent_des_suretes(entity_ref("urn:fr:cc:suretes:r24:M"), entity_ref("urn:fr:cc:suretes:r24:A")) { origin case_input; }
+        assert "f2": convention_de_designation_ecrite(entity_ref("urn:fr:cc:suretes:r24:M")) { origin case_input; }
+        assert "f3": ecrit_mentionne_qualite_objet_duree_pouvoirs(entity_ref("urn:fr:cc:suretes:r24:M")) { origin case_input; }
+        assert "f4": procedure_ouverte_contre_l_agent(entity_ref("urn:fr:cc:suretes:r24:M")) { origin case_input; }
+    }
+    evaluate truth(remplacement_judiciaire_demandable(entity_ref("urn:fr:cc:suretes:r24:M")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(RemplacementPourProcedure);
+}

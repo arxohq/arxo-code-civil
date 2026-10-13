@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-2 : un immeuble n'est pas un bien meuble.
+test "urn:query:fr-code-civil-responsabilite-r40-immeuble-n-est-pas-un-produit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": nature_de_la_chose(entity_ref("urn:fr:cc:resp:v2b:p"), Immeuble) { origin case_input; }
+    }
+    evaluate truth(est_un_produit(entity_ref("urn:fr:cc:resp:v2b:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

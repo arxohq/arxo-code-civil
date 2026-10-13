@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 549 et 550. La bonne foi n'est ni demandée au juge ni affirmée par le
+// dossier : elle se déduit de trois faits — posséder comme propriétaire, en
+// vertu d'un titre translatif, dont on ignore les vices — et elle donne au
+// possesseur les fruits.
+test "urn:query:fr-code-civil-biens-a01-bonne-foi-deduite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": possede_comme_proprietaire(entity_ref("urn:fr:cc:biens:a01:CHOSE"), entity_ref("urn:fr:cc:biens:a01:P")) { origin case_input; }
+        assert "f2": titre_translatif_de_propriete(entity_ref("urn:fr:cc:biens:a01:CHOSE"), entity_ref("urn:fr:cc:biens:a01:P")) { origin case_input; }
+        assert "f3": fruit_de(entity_ref("urn:fr:cc:biens:a01:FRUIT"), entity_ref("urn:fr:cc:biens:a01:CHOSE"), FruitNaturel) { origin case_input; }
+    }
+    evaluate truth(fruit_appartient_a(entity_ref("urn:fr:cc:biens:a01:FRUIT"), entity_ref("urn:fr:cc:biens:a01:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

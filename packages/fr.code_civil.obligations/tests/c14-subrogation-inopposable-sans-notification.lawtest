@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1346-5, al. 1 : la subrogation ne peut être opposée au débiteur que si elle lui
+// a été notifiée ou s'il en a pris acte — sortie `pub` lue par le paquet des sûretés.
+test "urn:query:fr-code-civil-obligations-c14-subrogation-inopposable-sans-notification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": subrogation_de_la_creance(entity_ref("urn:fr:cc:obligations:sub:s"), entity_ref("urn:fr:cc:obligations:sub:c")) { origin case_input; }
+        assert "f2": subroge(entity_ref("urn:fr:cc:obligations:sub:s"), entity_ref("urn:fr:cc:obligations:sub:T")) { origin case_input; }
+        assert "f3": interet_legitime_au_paiement(entity_ref("urn:fr:cc:obligations:sub:s"), entity_ref("urn:fr:cc:obligations:sub:T")) { origin case_input; }
+        assert "f4": charge_definitive_pesant_sur(entity_ref("urn:fr:cc:obligations:sub:c"), entity_ref("urn:fr:cc:obligations:sub:D")) { origin case_input; }
+        assert "f5": montant_paye_par_le_subroge(entity_ref("urn:fr:cc:obligations:sub:s"), 7000 EUR) { origin case_input; }
+    }
+    evaluate truth(subrogation_inopposable_au_debiteur(entity_ref("urn:fr:cc:obligations:sub:s"), entity_ref("urn:fr:cc:obligations:sub:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SubrogationLegale);
+    expect applied(SubrogationInopposableAuDebiteur);
+}

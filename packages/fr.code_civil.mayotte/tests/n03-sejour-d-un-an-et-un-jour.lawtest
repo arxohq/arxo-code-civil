@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2493 : séjour des deux parents depuis le 14 juin 2024 — un an et un jour au 15 juin 2025.
+test "urn:query:fr-code-civil-mayotte-n03-sejour-d-un-an-et-un-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": ne_a_mayotte(entity_ref("urn:fr:cc:may:c:enf")) { origin case_input; }
+        assert "f2": naissance_le(entity_ref("urn:fr:cc:may:c:enf"), @2025-06-15) { origin case_input; }
+        assert "f3": filiation_etablie_a_l_egard_de(entity_ref("urn:fr:cc:may:c:enf"), entity_ref("urn:fr:cc:may:c:p1")) { origin case_input; }
+        assert "f4": sejour_regulier_sous_titre_depuis(entity_ref("urn:fr:cc:may:c:enf"), entity_ref("urn:fr:cc:may:c:p1"), @2024-06-14) { origin case_input; }
+        assert "f5": filiation_etablie_a_l_egard_de(entity_ref("urn:fr:cc:may:c:enf"), entity_ref("urn:fr:cc:may:c:p2")) { origin case_input; }
+        assert "f6": sejour_regulier_sous_titre_depuis(entity_ref("urn:fr:cc:may:c:enf"), entity_ref("urn:fr:cc:may:c:p2"), @2024-06-14) { origin case_input; }
+    }
+    evaluate truth(condition_de_l_article_2493_remplie(entity_ref("urn:fr:cc:may:c:enf")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConditionRemplie);
+}

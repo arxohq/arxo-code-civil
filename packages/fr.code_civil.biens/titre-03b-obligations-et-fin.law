@@ -1,0 +1,804 @@
+// TITRE III, suite — OBLIGATIONS DE L'USUFRUITIER (600 à 616), FIN DE
+// L'USUFRUIT (617 à 624), USAGE ET HABITATION (625 à 636).
+//
+// L'article 606 est une PARTITION fermée : sept espèces nommées de grosses
+// réparations, et « toutes les autres réparations sont d'entretien ». Le
+// paquet exécute les sept branches et le reste. L'article 605 pose ensuite
+// la charge : l'entretien sur l'usufruitier, les grosses réparations sur le
+// propriétaire, mais l'usufruitier « en est AUSSI tenu » quand elles ont été
+// occasionnées par le défaut d'entretien depuis l'ouverture — donc les deux
+// charges coexistent, elles ne se remplacent pas.
+//
+// L'article 607 n'est pas une exception à la charge, c'est une exclusion de
+// l'objet : ni le propriétaire ni l'usufruitier ne sont tenus de REBÂTIR ce
+// qui est tombé de vétusté ou a été détruit par cas fortuit. Il a donc sa
+// propre règle et sa propre conclusion.
+//
+// TRENTE ANS. L'article 617 éteint l'usufruit par le non-usage pendant
+// trente ans, et l'article 619 le borne à trente ans quand il n'est pas
+// accordé à des particuliers. Ces trente ans sont comptés ICI, avec l'unité
+// du texte et la politique du paquet ; le pont vers la prescription du livre
+// III (`fr.code_civil`, CC-02) est différé — DECISIONS.md, D-05-07.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    CC_ART600,
+    CC_ART601,
+    CC_ART602,
+    CC_ART603,
+    CC_ART604,
+    CC_ART605,
+    CC_ART606,
+    CC_ART607,
+    CC_ART608,
+    CC_ART609,
+    CC_ART610,
+    CC_ART611,
+    CC_ART612,
+    CC_ART613,
+    CC_ART614,
+    CC_ART615,
+    CC_ART616,
+    Personne,
+    Reparation,
+    Usufruit,
+    nu_proprietaire,
+    ouverture_de_l_usufruit_le,
+    usufruitier,
+};
+
+// --- Obligations de l'usufruitier (600 à 616) -----------------------------------------------------
+
+pub enum ObjetDeLaReparation {
+    label fr official "Objet nommé par l'article 606 pour distinguer la grosse réparation de l'entretien";
+    label en unofficial "Object named by Article 606 to distinguish major repairs from maintenance";
+    GrosMurs,
+    Voutes,
+    RetablissementDesPoutres,
+    CouverturesEntieres,
+    DiguesEnEntier,
+    MursDeSoutenementEnEntier,
+    MursDeClotureEnEntier,
+    AutreObjet
+}
+
+pub relation reparation_sur(r: Reparation, u: Usufruit) kind empirical {
+    key(r);
+    label fr official "la réparation porte sur la chose soumise à l'usufruit (articles 605, 606)";
+    label en unofficial "the repair bears on the thing subject to the usufruct (Articles 605, 606)";
+}
+pub relation objet_de_la_reparation(r: Reparation, objet: ObjetDeLaReparation) kind empirical {
+    key(r);
+    label fr official "objet de la réparation, tel que l'article 606 le nomme";
+    label en unofficial "object of the repair, as Article 606 names it";
+}
+pub relation occasionnee_par_le_defaut_d_entretien_depuis_l_ouverture(r: Reparation) kind empirical {
+    label fr official "la grosse réparation a été occasionnée par le défaut de réparations d'entretien depuis l'ouverture de l'usufruit (article 605, alinéa 2)";
+    label en unofficial "the major repair was occasioned by the lack of maintenance repairs since the usufruct opened (Article 605, paragraph 2)";
+}
+pub relation rebatir_ce_qui_est_tombe_de_vetuste_ou_par_cas_fortuit(r: Reparation) kind empirical {
+    label fr official "la réparation consiste à rebâtir ce qui est tombé de vétusté ou a été détruit par cas fortuit (article 607)";
+    label en unofficial "the repair consists in rebuilding what fell from age or was destroyed by fortuitous event (Article 607)";
+}
+pub relation inventaire_et_etat_dresses(u: Usufruit) kind empirical {
+    label fr official "un inventaire des meubles et un état des immeubles sujets à l'usufruit ont été dressés en présence du propriétaire ou lui dûment appelé (article 600)";
+    label en unofficial "an inventory of the movables and a statement of the immovables subject to the usufruct were drawn up in the owner's presence or after due notice to him (Article 600)";
+}
+pub relation inventaire_etat_exerce(u: Usufruit, p: Personne) kind empirical {
+    label fr official "inventaire et état dressés par l'usufruitier";
+    label en unofficial "inventory and statement drawn up by usufructuary";
+}
+pub relation caution_donnee(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier a donné caution de jouir raisonnablement (article 601)";
+    label en unofficial "the usufructuary gave security to enjoy reasonably (Article 601)";
+}
+pub relation caution_exercee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "caution donnée par l'usufruitier";
+    label en unofficial "security given by usufructuary";
+}
+pub relation dispense_de_caution_par_l_acte_constitutif(u: Usufruit) kind empirical {
+    label fr official "l'acte constitutif de l'usufruit dispense de donner caution (article 601)";
+    label en unofficial "the instrument creating the usufruct dispenses with giving security (Article 601)";
+}
+pub relation usufruit_legal_des_pere_et_mere(u: Usufruit) kind empirical {
+    label fr official "les père et mère ont l'usufruit légal du bien de leurs enfants (article 601)";
+    label en unofficial "the father and mother have the statutory usufruct of their children's property (Article 601)";
+}
+pub relation vendeur_ou_donateur_sous_reserve_d_usufruit(u: Usufruit) kind empirical {
+    label fr official "le vendeur ou le donateur s'est réservé l'usufruit (article 601)";
+    label en unofficial "the seller or donor reserved the usufruct (Article 601)";
+}
+pub relation charge_annuelle_de_l_heritage(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "charge annuelle de l'héritage, telle que les contributions et autres censées charges des fruits (article 608)";
+    label en unofficial "annual charge on the property, such as taxes and others deemed charges on the fruits (Article 608)";
+}
+pub relation charge_imposee_sur_la_propriete(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "charge imposée sur la propriété pendant la durée de l'usufruit (article 609)";
+    label en unofficial "charge imposed on the property during the usufruct (Article 609)";
+}
+pub relation charge_avancee_par_l_usufruitier(u: Usufruit) kind empirical {
+    label fr official "la charge imposée sur la propriété a été avancée par l'usufruitier (article 609, alinéa 3)";
+    label en unofficial "the charge imposed on the property was advanced by the usufructuary (Article 609, paragraph 3)";
+}
+pub relation legs_de_rente_viagere_ou_pension_alimentaire(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "legs d'une rente viagère ou d'une pension alimentaire fait par le testateur (article 610)";
+    label en unofficial "legacy of a life annuity or maintenance allowance made by the testator (Article 610)";
+}
+pub relation legataire_universel_de_l_usufruit(u: Usufruit, p: Personne) kind empirical {
+    label fr official "légataire universel de l'usufruit (article 610)";
+    label en unofficial "universal legatee of the usufruct (Article 610)";
+}
+pub relation usufruitier_a_titre_particulier(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier est à titre particulier (article 611)";
+    label en unofficial "the usufructuary holds by particular title (Article 611)";
+}
+pub relation fonds_hypotheque_pour(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "dette à laquelle le fonds soumis à l'usufruit est hypothéqué (article 611)";
+    label en unofficial "debt for which the land subject to the usufruct is mortgaged (Article 611)";
+}
+pub relation usufruitier_universel_ou_a_titre_universel(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier est universel ou à titre universel (article 612)";
+    label en unofficial "the usufructuary is universal or by universal title (Article 612)";
+}
+pub relation valeur_du_fonds_sujet_a_usufruit(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "valeur estimée du fonds sujet à usufruit (article 612, alinéa 2)";
+    label en unofficial "assessed value of the land subject to the usufruct (Article 612, paragraph 2)";
+}
+pub relation avance_de_la_contribution_offerte(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier veut avancer la somme pour laquelle le fonds doit contribuer (article 612, alinéa 3)";
+    label en unofficial "the usufructuary is willing to advance the sum the land must contribute (Article 612, paragraph 3)";
+}
+pub relation frais_de_proces_concernant_la_jouissance(u: Usufruit, montant: Money) kind empirical {
+    key(u);
+    label fr official "frais des procès qui concernent la jouissance et autres condamnations auxquelles ces procès donnent lieu (article 613)";
+    label en unofficial "costs of proceedings concerning the enjoyment, and other awards those proceedings give rise to (Article 613)";
+}
+pub relation usurpation_d_un_tiers_sur_le_fonds(u: Usufruit) kind empirical {
+    label fr official "un tiers commet une usurpation sur le fonds ou attente autrement aux droits du propriétaire (article 614)";
+    label en unofficial "a third party commits an encroachment on the land or otherwise infringes the owner's rights (Article 614)";
+}
+pub relation denonciation_au_proprietaire_faite(u: Usufruit) kind empirical {
+    label fr official "l'usufruitier a dénoncé l'usurpation au propriétaire (article 614)";
+    label en unofficial "the usufructuary reported the encroachment to the owner (Article 614)";
+}
+pub relation usurpation_denoncee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "usurpation dénoncée au propriétaire";
+    label en unofficial "encroachment reported to owner";
+}
+pub relation usufruit_sur_un_animal_seul(u: Usufruit) kind empirical {
+    label fr official "l'usufruit n'est établi que sur un animal (article 615)";
+    label en unofficial "the usufruct is established on a single animal (Article 615)";
+}
+pub relation animal_peri_sans_la_faute_de_l_usufruitier(u: Usufruit) kind empirical {
+    label fr official "l'animal est venu à périr sans la faute de l'usufruitier (article 615)";
+    label en unofficial "the animal perished without the usufructuary's fault (Article 615)";
+}
+pub relation usufruit_sur_un_troupeau(u: Usufruit) kind empirical {
+    label fr official "un usufruit a été établi sur un troupeau (article 616)";
+    label en unofficial "a usufruct was established on a flock (Article 616)";
+}
+pub relation troupeau_peri_entierement_sans_faute(u: Usufruit) kind empirical {
+    label fr official "le troupeau périt entièrement par accident ou par maladie et sans la faute de l'usufruitier (article 616, alinéa 1)";
+    label en unofficial "the flock perishes entirely by accident or disease and without the usufructuary's fault (Article 616, paragraph 1)";
+}
+
+pub relation grosse_reparation(r: Reparation) kind derived {
+    label fr official "la réparation est une grosse réparation (article 606, alinéas 1 et 2)";
+    label en unofficial "the repair is a major repair (Article 606, paragraphs 1 and 2)";
+}
+pub relation reparation_d_entretien(r: Reparation) kind derived {
+    label fr official "la réparation est d'entretien : toutes les autres réparations sont d'entretien (article 606, alinéa 3)";
+    label en unofficial "the repair is maintenance: all other repairs are maintenance (Article 606, paragraph 3)";
+}
+pub relation a_la_charge_de_l_usufruitier(r: Reparation) kind derived {
+    label fr official "la réparation est à la charge de l'usufruitier (article 605)";
+    label en unofficial "the repair falls on the usufructuary (Article 605)";
+}
+pub relation reparation_entretien_exercee(r: Reparation, p: Personne) kind empirical {
+    label fr official "réparation d'entretien exercée";
+    label en unofficial "maintenance repair performed";
+}
+pub relation a_la_charge_du_proprietaire(r: Reparation) kind derived {
+    label fr official "la réparation est à la charge du propriétaire (article 605, alinéa 2)";
+    label en unofficial "the repair falls on the owner (Article 605, paragraph 2)";
+}
+pub relation grosse_reparation_payee(r: Reparation, p: Personne) kind empirical {
+    label fr official "grosse réparation payée";
+    label en unofficial "major repair paid";
+}
+pub relation hors_de_toute_charge_de_reparation(r: Reparation) kind derived {
+    label fr official "ni le propriétaire ni l'usufruitier ne sont tenus de rebâtir ce qui est tombé de vétusté ou a été détruit par cas fortuit (article 607)";
+    label en unofficial "neither the owner nor the usufructuary must rebuild what fell from age or was destroyed by fortuitous event (Article 607)";
+}
+pub relation entree_en_jouissance_ouverte(u: Usufruit) kind derived {
+    label fr official "l'usufruitier peut entrer en jouissance : l'inventaire des meubles et l'état des immeubles ont été dressés (article 600)";
+    label en unofficial "the usufructuary may enter into enjoyment: the inventory of movables and statement of immovables were drawn up (Article 600)";
+}
+pub relation tenu_de_donner_caution(u: Usufruit) kind derived {
+    label fr official "l'usufruitier est tenu de donner caution de jouir raisonnablement (article 601)";
+    label en unofficial "the usufructuary must give security to enjoy reasonably (Article 601)";
+}
+pub relation immeubles_donnes_a_ferme_ou_mis_en_sequestre(u: Usufruit) kind derived {
+    label fr official "faute de caution, les immeubles sont donnés à ferme ou mis en séquestre, les sommes sont placées et les denrées vendues (article 602)";
+    label en unofficial "failing security, the immovables are farmed out or sequestered, the sums invested and the commodities sold (Article 602)";
+}
+pub relation vente_des_meubles_qui_deperissent_peut_etre_exigee(u: Usufruit) kind derived {
+    label fr official "à défaut de caution, le propriétaire peut exiger que les meubles qui dépérissent par l'usage soient vendus pour le prix en être placé (article 603)";
+    label en unofficial "failing security, the owner may require that movables perishing by use be sold and the price invested (Article 603)";
+}
+pub relation vente_meubles_deperissants_exigee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "vente des meubles dépérissants exigée";
+    label en unofficial "sale of perishable movables required";
+}
+pub relation fruits_dus_des_l_ouverture_malgre_le_retard_de_caution(u: Usufruit) kind derived {
+    label fr official "le retard de donner caution ne prive pas l'usufruitier des fruits, qui lui sont dus du moment où l'usufruit a été ouvert (article 604)";
+    label en unofficial "delay in giving security does not deprive the usufructuary of the fruits, which are due to him from the moment the usufruct opened (Article 604)";
+}
+pub relation charge_annuelle_a_la_charge_de_l_usufruitier(u: Usufruit, montant: Money) kind derived {
+    label fr official "l'usufruitier est tenu, pendant sa jouissance, de toutes les charges annuelles de l'héritage (article 608)";
+    label en unofficial "the usufructuary bears, during his enjoyment, all the annual charges on the property (Article 608)";
+}
+pub relation charges_annuelles_payees(u: Usufruit, p: Personne) kind empirical {
+    label fr official "charges annuelles de l'héritage payées";
+    label en unofficial "annual property charges paid";
+}
+pub relation charge_sur_la_propriete_payee_par_le_proprietaire(u: Usufruit, montant: Money) kind derived {
+    label fr official "le propriétaire est obligé de payer la charge imposée sur la propriété, et l'usufruitier doit lui tenir compte des intérêts (article 609, alinéa 2)";
+    label en unofficial "the owner must pay the charge imposed on the property, and the usufructuary must account to him for the interest (Article 609, paragraph 2)";
+}
+pub relation charge_propriete_payee(u: Usufruit, p: Personne) kind empirical {
+    label fr official "charge imposée sur la propriété payée";
+    label en unofficial "charge imposed on property paid";
+}
+pub relation repetition_du_capital_a_la_fin_de_l_usufruit(u: Usufruit, montant: Money) kind derived {
+    label fr official "si la charge est avancée par l'usufruitier, il a la répétition du capital à la fin de l'usufruit (article 609, alinéa 3)";
+    label en unofficial "if the charge was advanced by the usufructuary, he recovers the capital at the end of the usufruct (Article 609, paragraph 3)";
+}
+pub relation legs_acquitte_par_le_legataire_universel(u: Usufruit, p: Personne, montant: Money) kind derived {
+    label fr official "le legs d'une rente viagère ou d'une pension alimentaire doit être acquitté par le légataire universel de l'usufruit dans son intégrité (article 610)";
+    label en unofficial "the legacy of a life annuity or maintenance allowance must be discharged in full by the universal legatee of the usufruct (Article 610)";
+}
+pub relation legs_acquitte(u: Usufruit, p: Personne) kind empirical {
+    label fr official "legs acquitté par le légataire universel";
+    label en unofficial "legacy paid by universal legatee";
+}
+pub relation non_tenu_des_dettes_hypothecaires(u: Usufruit, montant: Money) kind derived {
+    label fr official "l'usufruitier à titre particulier n'est pas tenu des dettes auxquelles le fonds est hypothéqué ; s'il est forcé de les payer, il a son recours contre le propriétaire (article 611)";
+    label en unofficial "a usufructuary by particular title is not liable for the debts the land is mortgaged for; if forced to pay them, he has recourse against the owner (Article 611)";
+}
+pub relation recours_dette_hypothecaire_exerce(u: Usufruit, p: Personne) kind empirical {
+    label fr official "recours contre le propriétaire exercé";
+    label en unofficial "recourse against the owner exercised";
+}
+pub relation contribution_aux_dettes(u: Usufruit, montant: Money) kind derived {
+    label fr official "contribution de l'usufruitier universel ou à titre universel aux dettes, fixée à raison de la valeur du fonds sujet à usufruit (article 612, alinéas 1 et 2)";
+    label en unofficial "contribution of the universal usufructuary to the debts, fixed by reference to the value of the land subject to the usufruct (Article 612, paragraphs 1 and 2)";
+}
+pub relation dettes_contribuees(u: Usufruit, p: Personne) kind empirical {
+    label fr official "dettes de l'usufruit contribuées";
+    label en unofficial "usufruct debts contributed";
+}
+pub relation capital_restitue_sans_interet_a_la_fin(u: Usufruit, montant: Money) kind derived {
+    label fr official "si l'usufruitier avance la somme de contribution, le capital lui en est restitué à la fin de l'usufruit sans aucun intérêt (article 612, alinéa 3)";
+    label en unofficial "if the usufructuary advances the contribution, the capital is returned to him at the end of the usufruct without interest (Article 612, paragraph 3)";
+}
+pub relation choix_du_proprietaire_faute_d_avance(u: Usufruit) kind derived {
+    label fr official "si l'usufruitier ne veut pas faire l'avance, le propriétaire a le choix de payer la somme, l'usufruitier lui tenant compte des intérêts, ou de faire vendre une portion des biens soumis à l'usufruit (article 612, alinéa 4)";
+    label en unofficial "if the usufructuary will not advance, the owner may choose to pay the sum, the usufructuary accounting to him for the interest, or to have part of the assets subject to the usufruct sold (Article 612, paragraph 4)";
+}
+pub relation frais_de_proces_a_la_charge_de_l_usufruitier(u: Usufruit, montant: Money) kind derived {
+    label fr official "l'usufruitier n'est tenu que des frais des procès qui concernent la jouissance et des autres condamnations auxquelles ces procès donnent lieu (article 613)";
+    label en unofficial "the usufructuary is liable only for the costs of proceedings concerning the enjoyment and for other awards those proceedings give rise to (Article 613)";
+}
+pub relation frais_proces_jouissance_payes(u: Usufruit, p: Personne) kind empirical {
+    label fr official "frais de procès de jouissance payés";
+    label en unofficial "enjoyment proceeding costs paid";
+}
+pub relation responsable_du_dommage_faute_de_denonciation(u: Usufruit) kind derived {
+    label fr official "faute d'avoir dénoncé l'usurpation au propriétaire, l'usufruitier est responsable de tout le dommage qui peut en résulter, comme il le serait de dégradations commises par lui-même (article 614)";
+    label en unofficial "having failed to report the encroachment to the owner, the usufructuary is liable for all the resulting damage, as he would be for damage he caused himself (Article 614)";
+}
+pub relation non_tenu_de_rendre_un_autre_animal(u: Usufruit) kind derived {
+    label fr official "si l'animal vient à périr sans la faute de l'usufruitier, celui-ci n'est pas tenu d'en rendre un autre ni d'en payer l'estimation (article 615)";
+    label en unofficial "if the animal perishes without the usufructuary's fault, he need not return another nor pay its value (Article 615)";
+}
+pub relation animal_non_rendu_exerce(u: Usufruit, p: Personne) kind empirical {
+    label fr official "absence de restitution d'un autre animal exercée";
+    label en unofficial "non-return of another animal exercised";
+}
+pub relation tenu_de_rendre_compte_des_cuirs(u: Usufruit) kind derived {
+    label fr official "si le troupeau périt entièrement sans faute, l'usufruitier n'est tenu que de rendre compte des cuirs ou de leur valeur estimée à la date de la restitution (article 616, alinéa 1)";
+    label en unofficial "if the flock perishes entirely without fault, the usufructuary need only account for the hides or their value assessed at the date of return (Article 616, paragraph 1)";
+}
+pub relation cuirs_comptabilises(u: Usufruit, p: Personne) kind empirical {
+    label fr official "cuirs ou leur valeur comptabilisés";
+    label en unofficial "hides or their value accounted for";
+}
+pub relation tenu_de_remplacer_jusqu_a_concurrence_du_croit(u: Usufruit) kind derived {
+    label fr official "si le troupeau ne périt pas entièrement, l'usufruitier est tenu de remplacer, jusqu'à concurrence du croît, les têtes des animaux qui ont péri (article 616, alinéa 2)";
+    label en unofficial "if the flock does not perish entirely, the usufructuary must replace, up to the amount of the increase, the animals that perished (Article 616, paragraph 2)";
+}
+pub relation animaux_remplaces_jusqu_au_croit(u: Usufruit, p: Personne) kind empirical {
+    label fr official "animaux remplacés jusqu'à concurrence du croît";
+    label en unofficial "animals replaced up to the increase";
+}
+
+@source(CC_ART606) {
+    rule GrosseReparationGrosMurs(r: Reparation) strict {
+        label fr official "Article 606, alinéa 1. Les grosses réparations sont celles des gros murs";
+        label en unofficial "Article 606, paragraph 1. Major repairs are those of the main walls";
+        when objet_de_la_reparation(r, GrosMurs);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationVoutes(r: Reparation) strict {
+        label fr official "Article 606, alinéa 1. Les grosses réparations sont celles des voûtes";
+        label en unofficial "Article 606, paragraph 1. Major repairs are those of the vaults";
+        when objet_de_la_reparation(r, Voutes);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationPoutres(r: Reparation) strict {
+        label fr official "Article 606, alinéa 1. Les grosses réparations sont le rétablissement des poutres";
+        label en unofficial "Article 606, paragraph 1. Major repairs are the restoration of the beams";
+        when objet_de_la_reparation(r, RetablissementDesPoutres);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationCouvertures(r: Reparation) strict {
+        label fr official "Article 606, alinéa 1. Les grosses réparations sont le rétablissement des couvertures entières";
+        label en unofficial "Article 606, paragraph 1. Major repairs are the restoration of entire roofs";
+        when objet_de_la_reparation(r, CouverturesEntieres);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationDigues(r: Reparation) strict {
+        label fr official "Article 606, alinéa 2. Le rétablissement des digues aussi en entier";
+        label en unofficial "Article 606, paragraph 2. The restoration of dykes also in their entirety";
+        when objet_de_la_reparation(r, DiguesEnEntier);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationMursDeSoutenement(r: Reparation) strict {
+        label fr official "Article 606, alinéa 2. Le rétablissement des murs de soutènement aussi en entier";
+        label en unofficial "Article 606, paragraph 2. The restoration of retaining walls also in their entirety";
+        when objet_de_la_reparation(r, MursDeSoutenementEnEntier);
+        then grosse_reparation(r);
+    }
+    rule GrosseReparationMursDeCloture(r: Reparation) strict {
+        label fr official "Article 606, alinéa 2. Le rétablissement des murs de clôture aussi en entier";
+        label en unofficial "Article 606, paragraph 2. The restoration of enclosure walls also in their entirety";
+        when objet_de_la_reparation(r, MursDeClotureEnEntier);
+        then grosse_reparation(r);
+    }
+    rule ReparationDEntretienParDefaut(r: Reparation) strict {
+        label fr official "Article 606, alinéa 3. Toutes les autres réparations sont d'entretien";
+        label en unofficial "Article 606, paragraph 3. All other repairs are maintenance";
+        when objet_de_la_reparation(r, AutreObjet);
+        then reparation_d_entretien(r);
+    }
+}
+
+@source(CC_ART605) {
+    rule EntretienALaChargeDeLUsufruitier(r: Reparation, u: Usufruit) strict {
+        label fr official "Article 605, alinéa 1. L'usufruitier n'est tenu qu'aux réparations d'entretien";
+        label en unofficial "Article 605, paragraph 1. The usufructuary is liable only for maintenance repairs";
+        when reparation_sur(r, u)
+            and reparation_d_entretien(r)
+            and not_known(hors_de_toute_charge_de_reparation(r));
+        then a_la_charge_de_l_usufruitier(r);
+    }
+    rule P4DevoirEntretienUsufruitier605(r: Reparation, u: Usufruit, p: Personne) strict {
+        label fr official "Article 605. L'usufruitier doit assurer les réparations d'entretien";
+        label en unofficial "Article 605. The usufructuary must perform maintenance repairs";
+        when reparation_sur(r, u)
+            and usufruitier(u, p)
+            and reparation_d_entretien(r)
+            and not_known(hors_de_toute_charge_de_reparation(r));
+        then duty P4DevoirEntretienUsufruitier605Actif {
+            bearer p;
+            goal achievement {
+                condition reparation_entretien_exercee(r, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule GrossesReparationsALaChargeDuProprietaire(r: Reparation, u: Usufruit) strict {
+        label fr official "Article 605, alinéa 2. Les grosses réparations demeurent à la charge du propriétaire";
+        label en unofficial "Article 605, paragraph 2. Major repairs remain the owner's responsibility";
+        when reparation_sur(r, u)
+            and grosse_reparation(r)
+            and not_known(hors_de_toute_charge_de_reparation(r));
+        then a_la_charge_du_proprietaire(r);
+    }
+    rule P4DevoirGrosseReparationProprietaire605(r: Reparation, u: Usufruit, p: Personne) strict {
+        label fr official "Article 605. Le propriétaire doit assurer les grosses réparations";
+        label en unofficial "Article 605. The owner must perform major repairs";
+        when reparation_sur(r, u)
+            and nu_proprietaire(u, p)
+            and grosse_reparation(r)
+            and not_known(hors_de_toute_charge_de_reparation(r));
+        then duty P4DevoirGrosseReparationProprietaire605Actif {
+            bearer p;
+            goal achievement {
+                condition grosse_reparation_payee(r, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule GrosseReparationAussiALaChargeDeLUsufruitier(r: Reparation, u: Usufruit) strict {
+        label fr official "Article 605, alinéa 2. À moins que les grosses réparations n'aient été occasionnées par le défaut de réparations d'entretien depuis l'ouverture de l'usufruit ; auquel cas l'usufruitier en est aussi tenu";
+        label en unofficial "Article 605, paragraph 2. Unless the major repairs were occasioned by the lack of maintenance repairs since the usufruct opened; in which case the usufructuary is also liable for them";
+        when reparation_sur(r, u)
+            and grosse_reparation(r)
+            and occasionnee_par_le_defaut_d_entretien_depuis_l_ouverture(r)
+            and not_known(hors_de_toute_charge_de_reparation(r));
+        then a_la_charge_de_l_usufruitier(r);
+    }
+}
+
+@source(CC_ART607)
+rule NulNEstTenuDeRebatir(r: Reparation, u: Usufruit) strict {
+    label fr official "Article 607. Ni le propriétaire ni l'usufruitier ne sont tenus de rebâtir ce qui est tombé de vétusté ou ce qui a été détruit par cas fortuit";
+    label en unofficial "Article 607. Neither the owner nor the usufructuary is bound to rebuild what fell from age or was destroyed by a fortuitous event";
+    when reparation_sur(r, u)
+        and rebatir_ce_qui_est_tombe_de_vetuste_ou_par_cas_fortuit(r);
+    then hors_de_toute_charge_de_reparation(r);
+}
+
+@source(CC_ART600)
+rule EntreeEnJouissanceApresInventaire(u: Usufruit) strict {
+    label fr official "Article 600. L'usufruitier prend les choses dans l'état où elles sont, mais il ne peut entrer en jouissance qu'après avoir fait dresser, en présence du propriétaire ou lui dûment appelé, un inventaire des meubles et un état des immeubles sujets à l'usufruit";
+    label en unofficial "Article 600. The usufructuary takes the things as they are, but may enter into enjoyment only after having an inventory of the movables and a statement of the immovables subject to the usufruct drawn up, in the owner's presence or after due notice to him";
+    when inventaire_et_etat_dresses(u);
+    then entree_en_jouissance_ouverte(u);
+}
+@source(CC_ART600)
+rule P4DevoirDresserInventaire600(u: Usufruit, p: Personne) strict {
+    label fr official "Article 600. L'usufruitier doit faire dresser l'inventaire et l'état";
+    label en unofficial "Article 600. The usufructuary must have the inventory and statement drawn up";
+    when usufruitier(u, p);
+    then duty P4DevoirDresserInventaire600Actif {
+        bearer p;
+        goal achievement {
+            condition inventaire_etat_exerce(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART601)
+rule ObligationDeDonnerCaution(u: Usufruit, p: Personne) strict {
+    label fr official "Article 601. L'usufruitier donne caution de jouir raisonnablement, s'il n'en est dispensé par l'acte constitutif ; les père et mère ayant l'usufruit légal du bien de leurs enfants, le vendeur ou le donateur sous réserve d'usufruit, ne sont pas tenus de donner caution";
+    label en unofficial "Article 601. The usufructuary gives security to enjoy reasonably, unless dispensed by the creating instrument; parents having the statutory usufruct of their children's property, and a seller or donor reserving the usufruct, need not give security";
+    when usufruitier(u, p)
+        and not_known(dispense_de_caution_par_l_acte_constitutif(u))
+        and not_known(usufruit_legal_des_pere_et_mere(u))
+        and not_known(vendeur_ou_donateur_sous_reserve_d_usufruit(u));
+    then tenu_de_donner_caution(u);
+}
+@source(CC_ART601)
+rule P4DevoirDonnerCaution601(u: Usufruit, p: Personne) strict {
+    label fr official "Article 601. L'usufruitier doit donner caution";
+    label en unofficial "Article 601. The usufructuary must give security";
+    when usufruitier(u, p)
+        and not_known(dispense_de_caution_par_l_acte_constitutif(u))
+        and not_known(usufruit_legal_des_pere_et_mere(u))
+        and not_known(vendeur_ou_donateur_sous_reserve_d_usufruit(u));
+    then duty P4DevoirDonnerCaution601Actif {
+        bearer p;
+        goal achievement {
+            condition caution_exercee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART602)
+rule FauteDeCautionImmeublesAFermeOuSequestre(u: Usufruit) strict {
+    label fr official "Article 602. Si l'usufruitier ne trouve pas de caution, les immeubles sont donnés à ferme ou mis en séquestre, les sommes comprises dans l'usufruit sont placées, les denrées sont vendues et le prix pareillement placé ; les intérêts de ces sommes et les prix des fermes appartiennent à l'usufruitier";
+    label en unofficial "Article 602. If the usufructuary finds no security, the immovables are farmed out or sequestered, the sums included in the usufruct are invested, the commodities are sold and the price likewise invested; the interest on those sums and the farm rents belong to the usufructuary";
+    when tenu_de_donner_caution(u)
+        and not_known(caution_donnee(u));
+    then immeubles_donnes_a_ferme_ou_mis_en_sequestre(u);
+}
+
+@source(CC_ART603)
+rule FauteDeCautionVenteDesMeublesQuiDeperissent(u: Usufruit) strict {
+    label fr official "Article 603. À défaut d'une caution de la part de l'usufruitier, le propriétaire peut exiger que les meubles qui dépérissent par l'usage soient vendus, pour le prix en être placé comme celui des denrées, et l'usufruitier jouit de l'intérêt pendant son usufruit";
+    label en unofficial "Article 603. Failing security from the usufructuary, the owner may require that movables perishing by use be sold, the price being invested as that of the commodities, and the usufructuary enjoys the interest during his usufruct";
+    when tenu_de_donner_caution(u)
+        and not_known(caution_donnee(u));
+    then vente_des_meubles_qui_deperissent_peut_etre_exigee(u);
+}
+@source(CC_ART603)
+rule P4PouvoirExigerVenteMeubles603(u: Usufruit, p: Personne) strict {
+    label fr official "Article 603. Le propriétaire peut exiger la vente des meubles dépérissants";
+    label en unofficial "Article 603. The owner may require sale of perishable movables";
+    when nu_proprietaire(u, p)
+        and not_known(caution_donnee(u));
+    then power P4PouvoirExigerVenteMeubles603Actif {
+        holder p;
+        over u;
+        exercise vente_meubles_deperissants_exigee(u, p);
+        effect vente_des_meubles_qui_deperissent_peut_etre_exigee(u);
+        valid_when not_known(caution_donnee(u));
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART604)
+pub relation fruits_reclames_malgre_retard_caution(u: Usufruit, p: Personne) kind empirical {
+    label fr official "fruits réclamés malgré le retard de caution";
+    label en unofficial "fruits claimed despite delayed security";
+}
+@source(CC_ART604)
+rule P4LiberteFruitsMalgreRetardCaution604(u: Usufruit, p: Personne, jour: Date) strict {
+    label fr official "Article 604. L'usufruitier peut réclamer les fruits malgré le retard de caution";
+    label en unofficial "Article 604. The usufructuary may claim fruits despite delayed security";
+    when usufruitier(u, p)
+        and tenu_de_donner_caution(u)
+        and ouverture_de_l_usufruit_le(u, jour);
+    then liberty P4LiberteFruitsMalgreRetardCaution604Actif {
+        holder p;
+        action fruits_reclames_malgre_retard_caution(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART604)
+rule RetardDeCautionNePriveePasDesFruits(u: Usufruit, jour: Date) strict {
+    label fr official "Article 604. Le retard de donner caution ne prive pas l'usufruitier des fruits auxquels il peut avoir droit : ils lui sont dus du moment où l'usufruit a été ouvert";
+    label en unofficial "Article 604. Delay in giving security does not deprive the usufructuary of the fruits he may be entitled to: they are due to him from the moment the usufruct opened";
+    when tenu_de_donner_caution(u)
+        and ouverture_de_l_usufruit_le(u, jour);
+    then fruits_dus_des_l_ouverture_malgre_le_retard_de_caution(u);
+}
+
+@source(CC_ART608)
+rule ChargesAnnuellesDeLHeritage(u: Usufruit, montant: Money) strict {
+    label fr official "Article 608. L'usufruitier est tenu, pendant sa jouissance, de toutes les charges annuelles de l'héritage, telles que les contributions et autres qui dans l'usage sont censées charges des fruits";
+    label en unofficial "Article 608. The usufructuary is liable, during his enjoyment, for all the annual charges on the property, such as taxes and others customarily deemed charges on the fruits";
+    when charge_annuelle_de_l_heritage(u, montant);
+    then charge_annuelle_a_la_charge_de_l_usufruitier(u, montant);
+}
+@source(CC_ART608)
+rule P4DevoirPayerChargesAnnuelles608(u: Usufruit, p: Personne) strict {
+    label fr official "Article 608. L'usufruitier doit payer les charges annuelles";
+    label en unofficial "Article 608. The usufructuary must pay annual charges";
+    when usufruitier(u, p);
+    then duty P4DevoirPayerChargesAnnuelles608Actif {
+        bearer p;
+        goal achievement {
+            condition charges_annuelles_payees(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART609) {
+    rule ChargeSurLaProprietePayeeParLeProprietaire(u: Usufruit, montant: Money) strict {
+        label fr official "Article 609, alinéa 2. Le propriétaire est obligé de payer les charges imposées sur la propriété pendant la durée de l'usufruit, et l'usufruitier doit lui tenir compte des intérêts";
+        label en unofficial "Article 609, paragraph 2. The owner must pay the charges imposed on the property during the usufruct, and the usufructuary must account to him for the interest";
+        when charge_imposee_sur_la_propriete(u, montant)
+            and not_known(charge_avancee_par_l_usufruitier(u));
+        then charge_sur_la_propriete_payee_par_le_proprietaire(u, montant);
+    }
+    rule P4DevoirPayerChargePropriete609(u: Usufruit, p: Personne) strict {
+        label fr official "Article 609. Le propriétaire doit payer la charge imposée sur la propriété";
+        label en unofficial "Article 609. The owner must pay the charge imposed on the property";
+        when nu_proprietaire(u, p)
+            and not_known(charge_avancee_par_l_usufruitier(u));
+        then duty P4DevoirPayerChargePropriete609Actif {
+            bearer p;
+            goal achievement {
+                condition charge_propriete_payee(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule RepetitionDuCapitalAvanceParLUsufruitier(u: Usufruit, montant: Money) strict {
+        label fr official "Article 609, alinéa 3. Si les charges sont avancées par l'usufruitier, il a la répétition du capital à la fin de l'usufruit";
+        label en unofficial "Article 609, paragraph 3. If the charges are advanced by the usufructuary, he recovers the capital at the end of the usufruct";
+        when charge_imposee_sur_la_propriete(u, montant)
+            and charge_avancee_par_l_usufruitier(u);
+        then repetition_du_capital_a_la_fin_de_l_usufruit(u, montant);
+    }
+}
+
+@source(CC_ART610)
+rule LegsDeRenteAcquitteParLeLegataireUniversel(u: Usufruit, p: Personne, montant: Money) strict {
+    label fr official "Article 610. Le legs fait par un testateur d'une rente viagère ou d'une pension alimentaire doit être acquitté par le légataire universel de l'usufruit dans son intégrité, et par le légataire à titre universel dans la proportion de sa jouissance, sans aucune répétition de leur part";
+    label en unofficial "Article 610. A legacy by a testator of a life annuity or maintenance allowance must be discharged in full by the universal legatee of the usufruct, and by the legatee by universal title in proportion to his enjoyment, without any recovery on their part";
+    when legs_de_rente_viagere_ou_pension_alimentaire(u, montant)
+        and legataire_universel_de_l_usufruit(u, p);
+    then legs_acquitte_par_le_legataire_universel(u, p, montant);
+}
+@source(CC_ART610)
+rule P4DevoirAcquitterLegs610(u: Usufruit, p: Personne) strict {
+    label fr official "Article 610. Le légataire universel doit acquitter le legs";
+    label en unofficial "Article 610. The universal legatee must discharge the legacy";
+    when legataire_universel_de_l_usufruit(u, p);
+    then duty P4DevoirAcquitterLegs610Actif {
+        bearer p;
+        goal achievement {
+            condition legs_acquitte(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART611)
+rule P4PouvoirRecoursDetteHypothecaire611(u: Usufruit, p: Personne, montant: Money) strict {
+    label fr official "Article 611. L'usufruitier peut exercer son recours contre le propriétaire";
+    label en unofficial "Article 611. The usufructuary may exercise recourse against the owner";
+    when usufruitier_a_titre_particulier(u)
+        and usufruitier(u, p)
+        and fonds_hypotheque_pour(u, montant);
+    then power P4PouvoirRecoursDetteHypothecaire611Actif {
+        holder p;
+        over u;
+        exercise recours_dette_hypothecaire_exerce(u, p);
+        effect non_tenu_des_dettes_hypothecaires(u, montant);
+        valid_when usufruitier_a_titre_particulier(u);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART611)
+rule UsufruitierParticulierNonTenuDesDettesHypothecaires(u: Usufruit, montant: Money) strict {
+    label fr official "Article 611. L'usufruitier à titre particulier n'est pas tenu des dettes auxquelles le fonds est hypothéqué ; s'il est forcé de les payer, il a son recours contre le propriétaire, sauf ce qui est dit à l'article 1020";
+    label en unofficial "Article 611. A usufructuary by particular title is not liable for the debts the land is mortgaged for; if forced to pay them, he has recourse against the owner, save as stated in Article 1020";
+    when usufruitier_a_titre_particulier(u)
+        and fonds_hypotheque_pour(u, montant);
+    then non_tenu_des_dettes_hypothecaires(u, montant);
+}
+
+@source(CC_ART612) {
+    rule ContributionAuxDettesSurLaValeurDuFonds(u: Usufruit, valeur: Money) strict {
+        label fr official "Article 612, alinéas 1 et 2. L'usufruitier universel ou à titre universel doit contribuer avec le propriétaire au paiement des dettes : on estime la valeur du fonds sujet à usufruit, on fixe ensuite la contribution aux dettes à raison de cette valeur";
+        label en unofficial "Article 612, paragraphs 1 and 2. The universal usufructuary must contribute with the owner to the payment of the debts: the value of the land subject to the usufruct is assessed, and the contribution to the debts is then fixed by reference to that value";
+        when usufruitier_universel_ou_a_titre_universel(u)
+            and valeur_du_fonds_sujet_a_usufruit(u, valeur);
+        then contribution_aux_dettes(u, valeur);
+    }
+    rule P4DevoirContribuerDettes612(u: Usufruit, p: Personne) strict {
+        label fr official "Article 612. L'usufruitier universel doit contribuer aux dettes";
+        label en unofficial "Article 612. The universal usufructuary must contribute to debts";
+        when usufruitier_universel_ou_a_titre_universel(u)
+            and usufruitier(u, p);
+        then duty P4DevoirContribuerDettes612Actif {
+            bearer p;
+            goal achievement {
+                condition dettes_contribuees(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule CapitalRestitueSansInteret(u: Usufruit, valeur: Money) strict {
+        label fr official "Article 612, alinéa 3. Si l'usufruitier veut avancer la somme pour laquelle le fonds doit contribuer, le capital lui en est restitué à la fin de l'usufruit, sans aucun intérêt";
+        label en unofficial "Article 612, paragraph 3. If the usufructuary is willing to advance the sum the land must contribute, the capital is returned to him at the end of the usufruct, without interest";
+        when contribution_aux_dettes(u, valeur)
+            and avance_de_la_contribution_offerte(u);
+        then capital_restitue_sans_interet_a_la_fin(u, valeur);
+    }
+    rule ChoixDuProprietaireFauteDAvance(u: Usufruit, valeur: Money) strict {
+        label fr official "Article 612, alinéa 4. Si l'usufruitier ne veut pas faire cette avance, le propriétaire a le choix, ou de payer cette somme — l'usufruitier lui tenant compte des intérêts pendant la durée de l'usufruit —, ou de faire vendre jusqu'à due concurrence une portion des biens soumis à l'usufruit";
+        label en unofficial "Article 612, paragraph 4. If the usufructuary will not make that advance, the owner may choose either to pay that sum — the usufructuary accounting to him for the interest during the usufruct — or to have part of the assets subject to the usufruct sold to the required extent";
+        when contribution_aux_dettes(u, valeur)
+            and not_known(avance_de_la_contribution_offerte(u));
+        then choix_du_proprietaire_faute_d_avance(u);
+    }
+}
+
+@source(CC_ART613)
+rule FraisDeProcesDeLaJouissance(u: Usufruit, montant: Money) strict {
+    label fr official "Article 613. L'usufruitier n'est tenu que des frais des procès qui concernent la jouissance et des autres condamnations auxquelles ces procès pourraient donner lieu";
+    label en unofficial "Article 613. The usufructuary is liable only for the costs of proceedings concerning the enjoyment and for other awards those proceedings may give rise to";
+    when frais_de_proces_concernant_la_jouissance(u, montant);
+    then frais_de_proces_a_la_charge_de_l_usufruitier(u, montant);
+}
+@source(CC_ART613)
+rule P4DevoirPayerFraisProces613(u: Usufruit, p: Personne) strict {
+    label fr official "Article 613. L'usufruitier doit payer les frais des procès de jouissance";
+    label en unofficial "Article 613. The usufructuary must pay enjoyment proceeding costs";
+    when usufruitier(u, p);
+    then duty P4DevoirPayerFraisProces613Actif {
+        bearer p;
+        goal achievement {
+            condition frais_proces_jouissance_payes(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART614)
+rule ResponsabiliteFauteDeDenonciation(u: Usufruit) strict {
+    label fr official "Article 614. Si, pendant la durée de l'usufruit, un tiers commet quelque usurpation sur le fonds, l'usufruitier est tenu de le dénoncer au propriétaire ; faute de ce, il est responsable de tout le dommage qui peut en résulter, comme il le serait de dégradations commises par lui-même";
+    label en unofficial "Article 614. If, during the usufruct, a third party encroaches on the land, the usufructuary must report it to the owner; failing which he is liable for all the resulting damage, as he would be for damage he caused himself";
+    when usurpation_d_un_tiers_sur_le_fonds(u)
+        and not_known(denonciation_au_proprietaire_faite(u));
+    then responsable_du_dommage_faute_de_denonciation(u);
+}
+@source(CC_ART614)
+rule P4DevoirDenoncerUsurpation614(u: Usufruit, p: Personne) strict {
+    label fr official "Article 614. L'usufruitier doit dénoncer l'usurpation au propriétaire";
+    label en unofficial "Article 614. The usufructuary must report the encroachment to the owner";
+    when usufruitier(u, p)
+        and usurpation_d_un_tiers_sur_le_fonds(u);
+    then duty P4DevoirDenoncerUsurpation614Actif {
+        bearer p;
+        goal achievement {
+            condition usurpation_denoncee(u, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART615)
+rule P4LiberteNePasRendreAnimal615(u: Usufruit, p: Personne) strict {
+    label fr official "Article 615. L'usufruitier peut ne pas rendre un autre animal";
+    label en unofficial "Article 615. The usufructuary may refrain from returning another animal";
+    when usufruitier(u, p)
+        and usufruit_sur_un_animal_seul(u)
+        and animal_peri_sans_la_faute_de_l_usufruitier(u);
+    then liberty P4LiberteNePasRendreAnimal615Actif {
+        holder p;
+        action animal_non_rendu_exerce(u, p);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART615)
+rule AnimalPeriSansFaute(u: Usufruit) strict {
+    label fr official "Article 615. Si l'usufruit n'est établi que sur un animal qui vient à périr sans la faute de l'usufruitier, celui-ci n'est pas tenu d'en rendre un autre, ni d'en payer l'estimation";
+    label en unofficial "Article 615. If the usufruct is established on a single animal which perishes without the usufructuary's fault, he need not return another nor pay its value";
+    when usufruit_sur_un_animal_seul(u)
+        and animal_peri_sans_la_faute_de_l_usufruitier(u);
+    then non_tenu_de_rendre_un_autre_animal(u);
+}
+
+@source(CC_ART616) {
+    rule P4DevoirRendreCompteCuirs616(u: Usufruit, p: Personne) strict {
+        label fr official "Article 616. L'usufruitier doit rendre compte des cuirs";
+        label en unofficial "Article 616. The usufructuary must account for the hides";
+        when usufruitier(u, p)
+            and usufruit_sur_un_troupeau(u)
+            and troupeau_peri_entierement_sans_faute(u);
+        then duty P4DevoirRendreCompteCuirs616Actif {
+            bearer p;
+            goal achievement {
+                condition cuirs_comptabilises(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule TroupeauPeriEntierement(u: Usufruit) strict {
+        label fr official "Article 616, alinéa 1. Si le troupeau périt entièrement par accident ou par maladie et sans la faute de l'usufruitier, celui-ci n'est tenu envers le propriétaire que de lui rendre compte des cuirs, ou de leur valeur estimée à la date de la restitution";
+        label en unofficial "Article 616, paragraph 1. If the flock perishes entirely by accident or disease and without the usufructuary's fault, he need only account to the owner for the hides, or their value assessed at the date of return";
+        when usufruit_sur_un_troupeau(u)
+            and troupeau_peri_entierement_sans_faute(u);
+        then tenu_de_rendre_compte_des_cuirs(u);
+    }
+    rule TroupeauNePerissantPasEntierement(u: Usufruit) strict {
+        label fr official "Article 616, alinéa 2. Si le troupeau ne périt pas entièrement, l'usufruitier est tenu de remplacer, jusqu'à concurrence du croît, les têtes des animaux qui ont péri";
+        label en unofficial "Article 616, paragraph 2. If the flock does not perish entirely, the usufructuary must replace, up to the amount of the increase, the animals that perished";
+        when usufruit_sur_un_troupeau(u)
+            and not_known(troupeau_peri_entierement_sans_faute(u));
+        then tenu_de_remplacer_jusqu_a_concurrence_du_croit(u);
+    }
+    rule P4DevoirRemplacerAnimaux616(u: Usufruit, p: Personne) strict {
+        label fr official "Article 616, alinéa 2. L'usufruitier doit remplacer les animaux jusqu'au croît";
+        label en unofficial "Article 616, paragraph 2. The usufructuary must replace animals up to the increase";
+        when usufruitier(u, p)
+            and usufruit_sur_un_troupeau(u)
+            and not_known(troupeau_peri_entierement_sans_faute(u));
+        then duty P4DevoirRemplacerAnimaux616Actif {
+            bearer p;
+            goal achievement {
+                condition animaux_remplaces_jusqu_au_croit(u, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}

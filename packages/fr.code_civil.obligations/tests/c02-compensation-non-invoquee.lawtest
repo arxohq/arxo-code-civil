@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1347, al. 2 : la compensation s'opère « SOUS RÉSERVE D'ÊTRE INVOQUÉE ».
+// Les conditions sont réunies, mais nul ne l'invoque : l'extinction n'a pas lieu.
+test "urn:query:fr-code-civil-obligations-c02-compensation-non-invoquee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": obligation_reciproque(entity_ref("urn:fr:cc:obligations:cni:c1"), entity_ref("urn:fr:cc:obligations:cni:c2")) { origin case_input; }
+        assert "f2": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obligations:cni:c1"), 5000 EUR) { origin case_input; }
+        assert "f3": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obligations:cni:c2"), 3000 EUR) { origin case_input; }
+        assert "f4": obligation_fongible(entity_ref("urn:fr:cc:obligations:cni:c1")) { origin case_input; }
+        assert "f5": obligation_fongible(entity_ref("urn:fr:cc:obligations:cni:c2")) { origin case_input; }
+        assert "f6": obligation_certaine(entity_ref("urn:fr:cc:obligations:cni:c1")) { origin case_input; }
+        assert "f7": obligation_certaine(entity_ref("urn:fr:cc:obligations:cni:c2")) { origin case_input; }
+        assert "f8": obligation_liquide(entity_ref("urn:fr:cc:obligations:cni:c1")) { origin case_input; }
+        assert "f9": obligation_liquide(entity_ref("urn:fr:cc:obligations:cni:c2")) { origin case_input; }
+        assert "f10": date_d_exigibilite(entity_ref("urn:fr:cc:obligations:cni:c1"), @2025-01-10) { origin case_input; }
+        assert "f11": date_d_exigibilite(entity_ref("urn:fr:cc:obligations:cni:c2"), @2025-02-01) { origin case_input; }
+        assert "f12": date_de_reunion_des_conditions(entity_ref("urn:fr:cc:obligations:cni:c1"), entity_ref("urn:fr:cc:obligations:cni:c2"), @2025-02-01) { origin case_input; }
+        assert "f13": date_de_reunion_des_conditions(entity_ref("urn:fr:cc:obligations:cni:c2"), entity_ref("urn:fr:cc:obligations:cni:c1"), @2025-02-01) { origin case_input; }
+    }
+    evaluate truth(extinction_par_compensation(entity_ref("urn:fr:cc:obligations:cni:c1"), entity_ref("urn:fr:cc:obligations:cni:c2"), 3000 EUR, @2025-02-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(ConditionsDeLaCompensationReunies);
+}

@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+// Art. 913 : deux enfants, quotité disponible un tiers.
+test "urn:query:fr-code-civil-liberalites-q01-deux-enfants-quotite-un-tiers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+        assert "f1": fr.code_civil.successions::defunt(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:D")) { origin case_input; }
+        assert "f2": fr.code_civil.successions::ouverte_le(entity_ref("urn:fr:cc:liberalites:q1:S"), @2026-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.successions::famille(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:F")) { origin case_input; }
+        assert "f4": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc:liberalites:q1:F"), entity_ref("urn:fr:cc:liberalites:q1:D"), entity_ref("urn:fr:cc:liberalites:q1:C1")) { origin case_input; }
+        assert "f5": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc:liberalites:q1:F"), entity_ref("urn:fr:cc:liberalites:q1:D"), entity_ref("urn:fr:cc:liberalites:q1:C2")) { origin case_input; }
+        assert "f6": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:C1")) { origin case_input; }
+        assert "f7": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:C2")) { origin case_input; }
+        assert "f8": biens_existants_au_deces(entity_ref("urn:fr:cc:liberalites:q1:S"), 240000 EUR) { origin case_input; }
+        assert "f9": liberalite_du_defunt(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:DON")) { origin case_input; }
+        assert "f10": nature(entity_ref("urn:fr:cc:liberalites:q1:DON"), DonationEntreVifs) { origin case_input; }
+        assert "f11": gratifie(entity_ref("urn:fr:cc:liberalites:q1:DON"), entity_ref("urn:fr:cc:liberalites:q1:T")) { origin case_input; }
+        assert "f12": valeur_reunie(entity_ref("urn:fr:cc:liberalites:q1:DON"), 60000 EUR) { origin case_input; }
+        assert "f13": date_de_la_donation(entity_ref("urn:fr:cc:liberalites:q1:DON"), @2015-06-01) { origin case_input; }
+        assert "f14": hors_part_successorale(entity_ref("urn:fr:cc:liberalites:q1:DON")) { origin case_input; }
+        assert "f15": liberalite_du_defunt(entity_ref("urn:fr:cc:liberalites:q1:S"), entity_ref("urn:fr:cc:liberalites:q1:LEG")) { origin case_input; }
+        assert "f16": nature(entity_ref("urn:fr:cc:liberalites:q1:LEG"), Legs) { origin case_input; }
+        assert "f17": gratifie(entity_ref("urn:fr:cc:liberalites:q1:LEG"), entity_ref("urn:fr:cc:liberalites:q1:L")) { origin case_input; }
+        assert "f18": valeur_reunie(entity_ref("urn:fr:cc:liberalites:q1:LEG"), 70000 EUR) { origin case_input; }
+    }
+    evaluate truth(quotite_disponible(entity_ref("urn:fr:cc:liberalites:q1:S"), 1 / 3));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(QuotiteDeuxEnfants);
+}

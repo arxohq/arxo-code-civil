@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+test "urn:query:fr-code-civil-biens-p4-122-530-active" {
+ given { context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+ assert "a": creancier_rente(entity_ref("urn:p4:530:122a:B"), entity_ref("urn:p4:530:122a:P")) { origin case_input; }
+ assert "b": rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(entity_ref("urn:p4:530:122a:B")) { origin case_input; }
+ assert "c": terme_de_rachat_stipule(entity_ref("urn:p4:530:122a:B"), 31) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionTermeRenteExcessif530Actif, ACTIVE);
+ expect position(MaintenanceInterdictionTermeRenteExcessif530Duty, ACTIVE); }
+
+test "urn:query:fr-code-civil-biens-p4-122-530-violated" {
+ given { context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+ assert "a": creancier_rente(entity_ref("urn:p4:530:122v:B"), entity_ref("urn:p4:530:122v:P")) { origin case_input; }
+ assert "b": rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(entity_ref("urn:p4:530:122v:B")) { origin case_input; }
+ assert "c": terme_de_rachat_stipule(entity_ref("urn:p4:530:122v:B"), 31) { origin case_input; }
+ assert "d": terme_rente_excessif_stipule(entity_ref("urn:p4:530:122v:B"), entity_ref("urn:p4:530:122v:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionTermeRenteExcessif530Actif, VIOLATED);
+ expect position(MaintenanceInterdictionTermeRenteExcessif530Duty, VIOLATED); }

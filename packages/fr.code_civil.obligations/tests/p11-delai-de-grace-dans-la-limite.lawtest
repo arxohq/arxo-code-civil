@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1343-5, al. 1 : le juge reporte le paiement DANS LA LIMITE DE DEUX ANNÉES.
+// Échéance 15 janvier 2025 ; report au 15 janvier 2027 : la limite est atteinte,
+// non dépassée (2025-01-15 + 2 ans = 2027-01-15).
+test "urn:query:fr-code-civil-obligations-p11-delai-de-grace-dans-la-limite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": date_d_exigibilite(entity_ref("urn:fr:cc:obl:g:c"), @2025-01-15) { origin case_input; }
+        assert "f2": delai_de_grace_accorde(entity_ref("urn:fr:cc:obl:g:c"), @2027-01-15) { origin adjudicated; }
+    }
+    evaluate truth(report_dans_la_limite_de_deux_annees(entity_ref("urn:fr:cc:obl:g:c"), @2027-01-15));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ReportDansLaLimiteDeDeuxAnnees);
+}

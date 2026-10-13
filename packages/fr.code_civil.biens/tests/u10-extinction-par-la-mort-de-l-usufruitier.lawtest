@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 617, al. 2. La mort de l'usufruitier éteint l'usufruit.
+test "urn:query:fr-code-civil-biens-u10-mort-de-l-usufruitier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": usufruit_sur(entity_ref("urn:fr:cc:biens:u10:U"), entity_ref("urn:fr:cc:biens:u10:B")) { origin case_input; }
+        assert "f2": usufruitier(entity_ref("urn:fr:cc:biens:u10:U"), entity_ref("urn:fr:cc:biens:u10:S")) { origin case_input; }
+        assert "f3": mort_de_l_usufruitier_le(entity_ref("urn:fr:cc:biens:u10:U"), @2024-02-03) { origin case_input; }
+        assert "f4": jour_de_reference(entity_ref("urn:fr:cc:biens:u10:U"), @2026-09-16) { origin case_input; }
+    }
+    evaluate truth(usufruit_eteint(entity_ref("urn:fr:cc:biens:u10:U")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
