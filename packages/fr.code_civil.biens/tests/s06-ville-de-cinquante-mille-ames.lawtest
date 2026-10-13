@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 663. « cinquante mille âmes et au-dessus » : cinquante mille tout
+// juste font la grande ville, donc trente-deux décimètres.
+test "urn:query:fr-code-civil-biens-s06-ville-de-cinquante-mille-ames" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": cloture_separant(entity_ref("urn:fr:cc:biens:s06:M"), entity_ref("urn:fr:cc:biens:s06:F"), entity_ref("urn:fr:cc:biens:s06:V"), MurEntreCoursEtJardins) { origin case_input; }
+        assert "f2": situe_en_ville_ou_faubourg(entity_ref("urn:fr:cc:biens:s06:M")) { origin case_input; }
+        assert "f3": construit_ou_retabli_a_l_avenir(entity_ref("urn:fr:cc:biens:s06:M")) { origin case_input; }
+        assert "f4": aucun_reglement_ni_usage_sur_la_hauteur(entity_ref("urn:fr:cc:biens:s06:M")) { origin case_input; }
+        assert "f5": habitants_de_la_ville(entity_ref("urn:fr:cc:biens:s06:M"), 50000) { origin case_input; }
+    }
+    evaluate truth(hauteur_legale_de_cloture(entity_ref("urn:fr:cc:biens:s06:M"), 32 dm));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

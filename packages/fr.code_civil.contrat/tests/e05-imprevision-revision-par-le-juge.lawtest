@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1195 al. 2 : après refus de la renégociation et à défaut d'accord dans un délai raisonnable, le juge saisi par une partie peut réviser le contrat ou y mettre fin.
+test "urn:query:fr-code-civil-contrat-e05-imprevision-revision-par-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e05"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:e05"), entity_ref("urn:fr:cc:contrat:e05:p1")) { origin case_input; }
+        assert "f3": changement_de_circonstances(entity_ref("urn:fr:cc:contrat:e05"), entity_ref("urn:fr:cc:contrat:e05:p1")) { origin case_input; }
+        assert "f4": changement_imprevisible_lors_de_la_conclusion(entity_ref("urn:fr:cc:contrat:e05")) { origin adjudicated; }
+        assert "f5": execution_excessivement_onereuse(entity_ref("urn:fr:cc:contrat:e05"), entity_ref("urn:fr:cc:contrat:e05:p1")) { origin adjudicated; }
+        assert "f6": renegociation_refusee_ou_echouee(entity_ref("urn:fr:cc:contrat:e05")) { origin case_input; }
+        assert "f7": delai_raisonnable_d_accord_ecoule_1195(entity_ref("urn:fr:cc:contrat:e05")) { origin adjudicated; }
+        assert "f8": demande_unilaterale_au_juge(entity_ref("urn:fr:cc:contrat:e05"), entity_ref("urn:fr:cc:contrat:e05:p1")) { origin case_input; }
+    }
+    evaluate truth(revision_ou_fin_par_le_juge_ouverte(entity_ref("urn:fr:cc:contrat:e05"), entity_ref("urn:fr:cc:contrat:e05:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevisionOuFinParLeJuge);
+}

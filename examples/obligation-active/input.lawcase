@@ -1,0 +1,26 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.imprevision_force_majeure version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:imprevision-force-majeure";
+
+case PrixEnHausse {
+    context {
+        deadline_policy fr.code_civil.contrat::CC_CONTRAT_MOIS;
+        legal_time @2026-06-01;
+        knowledge_time @2026-06-01T10:00:00Z;
+        decision_time @2026-06-01T10:00:00Z;
+        timezone "Europe/Paris";
+    }
+    assert "conclu": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc-p2:c"), @2017-03-01) { origin case_input; }
+    assert "acte": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc-p2:c"), @2017-03-01) { origin case_input; }
+    assert "partie": fr.code_civil.contrat::partie_au_contrat(entity_ref("urn:fr:cc-p2:c"), entity_ref("urn:fr:cc-p2:p")) { origin case_input; }
+    assert "oblig": fr.code_civil.contrat::obligation_du_contrat(entity_ref("urn:fr:cc-p2:o"), entity_ref("urn:fr:cc-p2:c")) { origin case_input; }
+    assert "creancier": fr.code_civil.contrat::creancier_de_l_obligation(entity_ref("urn:fr:cc-p2:o"), entity_ref("urn:fr:cc-p2:creancier")) { origin case_input; }
+    assert "debiteur": fr.code_civil.contrat::debiteur_de_l_obligation(entity_ref("urn:fr:cc-p2:o"), entity_ref("urn:fr:cc-p2:p")) { origin case_input; }
+    assert "changement": fr.code_civil.contrat::changement_de_circonstances(entity_ref("urn:fr:cc-p2:c"), entity_ref("urn:fr:cc-p2:p")) { origin case_input; }
+    assert "imprev": fr.code_civil.contrat::changement_imprevisible_lors_de_la_conclusion(entity_ref("urn:fr:cc-p2:c")) { origin adjudicated; }
+    assert "onereux": fr.code_civil.contrat::execution_excessivement_onereuse(entity_ref("urn:fr:cc-p2:c"), entity_ref("urn:fr:cc-p2:p")) { origin adjudicated; }
+    assert "demande": fr.code_civil.contrat::renegociation_demandee(entity_ref("urn:fr:cc-p2:c"), entity_ref("urn:fr:cc-p2:p")) { origin case_input; }
+    assert "pas-evenement": not fr.code_civil.contrat::evenement_echappant_au_controle_du_debiteur(entity_ref("urn:fr:cc-p2:o")) { origin case_input; }
+    assert "pas-temp": not fr.code_civil.contrat::empechement_temporaire(entity_ref("urn:fr:cc-p2:o")) { origin case_input; }
+    assert "pas-def": not fr.code_civil.contrat::empechement_definitif(entity_ref("urn:fr:cc-p2:o")) { origin case_input; }
+}

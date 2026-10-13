@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1141 : la menace d'une voie de droit ne constitue pas une violence tant qu'elle n'est ni détournée de son but ni exercée pour obtenir un avantage manifestement excessif.
+test "urn:query:fr-code-civil-contrat-v10-menace-d-une-voie-de-droit-ordinaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v10"), @2019-03-01) { origin case_input; }
+        assert "f2": menace_d_une_voie_de_droit(entity_ref("urn:fr:cc:contrat:v10"), entity_ref("urn:fr:cc:contrat:v10:p2"), entity_ref("urn:fr:cc:contrat:v10:p1")) { origin case_input; }
+        assert "f3": caractere_determinant_du_vice(entity_ref("urn:fr:cc:contrat:v10"), entity_ref("urn:fr:cc:contrat:v10:p1")) { origin adjudicated; }
+        assert "f4": avantage_manifestement_excessif_1141(entity_ref("urn:fr:cc:contrat:v10"), entity_ref("urn:fr:cc:contrat:v10:p2")) { origin adjudicated; }
+    }
+    evaluate truth(vice_du_consentement(entity_ref("urn:fr:cc:contrat:v10"), entity_ref("urn:fr:cc:contrat:v10:p1"), Violence));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(MenaceDUneVoieDeDroitPourUnAvantageExcessif);
+}

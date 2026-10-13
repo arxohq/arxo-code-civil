@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-12, 4° : la curatelle prend fin par l'envoi en possession de l'État.
+test "urn:query:fr-code-civil-successions-m45-curatelle-terminee-par-l-envoi-en-possession" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": cause_de_fin_de_la_curatelle(entity_ref("urn:fr:cc:successions:adm:m45:S"), EnvoiEnPossessionDeLEtat) { origin case_input; }
+    }
+    evaluate truth(curatelle_terminee(entity_ref("urn:fr:cc:successions:adm:m45:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(FinParEnvoiEnPossession);
+}

@@ -1,0 +1,13 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2287 : procédure collective ouverte — ses règles s'appliquent nonobstant le livre IV.
+test "urn:query:fr-code-civil-suretes-r10-procedure-collective-reservee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": procedure_collective_ou_surendettement_ouverte(entity_ref("urn:fr:cc:suretes:r10:P")) { origin case_input; }
+    }
+    evaluate truth(regles_des_procedures_reservees(entity_ref("urn:fr:cc:suretes:r10:P")));
+    expect truth_status == TRUE_ONLY;
+}

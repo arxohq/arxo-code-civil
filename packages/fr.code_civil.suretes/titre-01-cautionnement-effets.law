@@ -1,0 +1,519 @@
+// LIVRE IV, TITRE Ier, CHAPITRE Ier, SECTION 3, SOUS-SECTIONS 2 ET 3 :
+// EFFETS DU CAUTIONNEMENT ENTRE LE CRÉANCIER ET LA CAUTION, ET ENTRE LA
+// CAUTION ET LE DÉBITEUR OU LES AUTRES CAUTIONS (articles 2305 à 2312).
+//
+// LISTES FERMÉES SANS `or`. Les exclusions du bénéfice de discussion (2305) et
+// de division (2306) sont écrites en règles séparées de même tête : la
+// disjonction dans le corps descend en règles `…/alt/N` dont le nom n'est pas
+// stable ; chaque liste est gardée par une paire de scénarios.
+//
+// PART DE CHAQUE CAUTION. La division (2306, 2306-1) et le recours entre
+// cautions (2312) partagent la dette entre les cautions solvables : le
+// quotient est arrondi au centime une seule fois (politique du paquet,
+// non norme, D-13), le Code ne nommant aucune règle d'arrondi.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2305,
+    CC_ART2305_1,
+    CC_ART2306,
+    CC_ART2306_1,
+    CC_ART2306_2,
+    CC_ART2307,
+    CC_ART2308,
+    CC_ART2309,
+    CC_ART2310,
+    CC_ART2311,
+    CC_ART2312,
+    Cautionnement,
+    Creance,
+    Personne,
+    caution,
+    caution_personne_physique,
+    cautionnement_judiciaire,
+    debiteur_principal,
+    dette_garantie,
+    montant_de_la_dette_garantie,
+    privation_de_discussion_opposable,
+    privation_de_division_opposable,
+    regi_par_la_loi_nouvelle,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation premieres_poursuites_contre_la_caution_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date des premières poursuites dirigées contre la caution (articles 2305-1, 2306-1)";
+    label en unofficial "date of the first proceedings brought against the surety (Articles 2305-1, 2306-1)";
+}
+pub relation benefice_de_discussion_invoque_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date à laquelle la caution invoque le bénéfice de discussion (article 2305-1)";
+    label en unofficial "date the surety raises the benefit of discussion (Article 2305-1)";
+}
+pub relation bien_du_debiteur_indique(k: Cautionnement, b: Bien) kind empirical {
+    label fr official "bien du débiteur susceptible d'être saisi, indiqué au créancier par la caution (article 2305-1)";
+    label en unofficial "debtor's attachable asset pointed out to the creditor by the surety (Article 2305-1)";
+}
+pub relation bien_litigieux_ou_greve(b: Bien) kind empirical {
+    label fr official "bien litigieux ou grevé d'une sûreté spéciale au profit d'un tiers (article 2305-1)";
+    label en unofficial "asset in dispute or encumbered by a specific security for a third party (Article 2305-1)";
+}
+pub relation valeur_du_bien(b: Bien, m: Money) kind empirical {
+    key(b);
+    label fr official "valeur du bien";
+    label en unofficial "value of the asset";
+}
+pub relation creancier_a_omis_de_poursuivre_le_debiteur(k: Cautionnement) kind empirical {
+    label fr official "le créancier a omis de poursuivre le débiteur sur les biens indiqués (article 2305-1)";
+    label en unofficial "the creditor failed to pursue the debtor on the assets pointed out (Article 2305-1)";
+}
+pub relation benefice_de_division_invoque_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date à laquelle la caution poursuivie oppose le bénéfice de division (articles 2306, 2306-1)";
+    label en unofficial "date the pursued surety raises the benefit of division (Articles 2306, 2306-1)";
+}
+pub relation caution_insolvable_au_jour_de_la_division(k: Cautionnement) kind empirical {
+    label fr official "la caution est insolvable au jour où la division est invoquée (article 2306-1)";
+    label en unofficial "the surety is insolvent on the day division is raised (Article 2306-1)";
+}
+pub relation insolvabilite_survenue_apres_la_division(k: Cautionnement) kind empirical {
+    label fr official "l'insolvabilité de cette caution est survenue après la demande de division (article 2306-1)";
+    label en unofficial "this surety became insolvent after division was requested (Article 2306-1)";
+}
+pub relation creancier_a_divise_de_lui_meme(c: Creance) kind empirical {
+    label fr official "le créancier a divisé de lui-même son action entre les cautions (article 2306-2)";
+    label en unofficial "the creditor divided its action among the sureties of its own accord (Article 2306-2)";
+}
+pub relation ressources_de_la_caution(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "ressources de la caution personne physique (article 2307)";
+    label en unofficial "resources of the natural-person surety (Article 2307)";
+}
+pub relation minimum_de_ressources_l731_2(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "minimum de ressources fixé à l'article L. 731-2 du code de la consommation (entrée externe)";
+    label en unofficial "minimum resources set by Article L. 731-2 of the Consumer Code (external input)";
+}
+pub relation paiement_par_la_caution(k: Cautionnement, jour: Date, m: Money) kind empirical {
+    key(k);
+    label fr official "la caution a payé tout ou partie de la dette, à cette date et pour ce montant (articles 2308, 2309)";
+    label en unofficial "the surety paid all or part of the debt, on this date and for this amount (Articles 2308, 2309)";
+}
+pub relation frais_de_la_caution(k: Cautionnement, jour: Date, m: Money) kind empirical {
+    label fr official "frais exposés par la caution, à leur date (article 2308)";
+    label en unofficial "costs incurred by the surety, at their date (Article 2308)";
+}
+pub relation denonciation_des_poursuites_au_debiteur_le(k: Cautionnement, jour: Date) kind empirical {
+    key(k);
+    label fr official "date de la dénonciation, faite par la caution au débiteur, des poursuites dirigées contre elle (article 2308)";
+    label en unofficial "date the surety notified the debtor of the proceedings brought against it (Article 2308)";
+}
+pub relation prejudice_independant_du_retard(k: Cautionnement, m: Money) kind empirical {
+    key(k);
+    label fr official "préjudice de la caution indépendant du retard dans le paiement, établi par le juge (article 2308)";
+    label en unofficial "loss of the surety independent of the delay in payment, established by the court (Article 2308)";
+}
+pub relation debiteurs_principaux_solidaires(k: Cautionnement) kind empirical {
+    label fr official "plusieurs débiteurs principaux sont solidaires de la même dette (article 2310)";
+    label en unofficial "several principal debtors are jointly liable for the same debt (Article 2310)";
+}
+pub relation paye_sans_avertir_le_debiteur(k: Cautionnement) kind empirical {
+    label fr official "la caution a payé sans avertir le débiteur (article 2311)";
+    label en unofficial "the surety paid without warning the debtor (Article 2311)";
+}
+pub relation debiteur_a_acquitte_ulterieurement(k: Cautionnement) kind empirical {
+    label fr official "le débiteur a acquitté la dette ultérieurement (article 2311)";
+    label en unofficial "the debtor later paid the debt (Article 2311)";
+}
+pub relation debiteur_pouvait_faire_declarer_la_dette_eteinte(k: Cautionnement) kind empirical {
+    label fr official "le débiteur disposait, au moment du paiement, des moyens de faire déclarer la dette éteinte (article 2311)";
+    label en unofficial "the debtor had, at the time of payment, the means to have the debt declared extinguished (Article 2311)";
+}
+
+// --- 2305, 2305-1 : bénéfice de discussion ----------------------------------------------------
+
+pub relation benefice_de_discussion_exclu(k: Cautionnement) kind derived {
+    label fr official "la caution ne peut se prévaloir du bénéfice de discussion (article 2305, seconde phrase)";
+    label en unofficial "the surety cannot rely on the benefit of discussion (Article 2305, second sentence)";
+}
+pub relation benefice_de_discussion(k: Cautionnement) kind derived {
+    label fr official "la caution peut obliger le créancier à poursuivre d'abord le débiteur principal (article 2305)";
+    label en unofficial "the surety can compel the creditor first to pursue the principal debtor (Article 2305)";
+}
+pub relation benefice_de_discussion_invoque_a_temps(k: Cautionnement) kind derived {
+    label fr official "le bénéfice de discussion est invoqué dès les premières poursuites (article 2305-1)";
+    label en unofficial "the benefit of discussion is raised at the first proceedings (Article 2305-1)";
+}
+pub relation creancier_tenu_de_discuter_le_debiteur(k: Cautionnement) kind institutional {
+    label fr official "le créancier est tenu de poursuivre d'abord le débiteur principal sur les biens indiqués (article 2305-1)";
+    label en unofficial "the creditor must first pursue the principal debtor over the assets indicated (Article 2305-1)";
+}
+pub relation bien_utilement_indique(k: Cautionnement, b: Bien) kind derived {
+    label fr official "bien du débiteur utilement indiqué : ni litigieux ni grevé d'une sûreté spéciale au profit d'un tiers (article 2305-1)";
+    label en unofficial "debtor's asset usefully pointed out: neither in dispute nor encumbered for a third party (Article 2305-1)";
+}
+pub relation presence_de_bien_utilement_indique(k: Cautionnement) kind derived {
+    label fr official "au moins un bien utilement indiqué";
+    label en unofficial "at least one asset usefully pointed out";
+}
+pub relation creancier_repond_de_l_insolvabilite(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "le créancier qui omet de poursuivre le débiteur répond de son insolvabilité à concurrence de la valeur des biens utilement indiqués (article 2305-1)";
+    label en unofficial "a creditor that fails to pursue the debtor answers for its insolvency up to the value of the assets usefully pointed out (Article 2305-1)";
+}
+
+@source(CC_ART2305) {
+    rule DiscussionExclueParLaPrivation(k: Cautionnement) strict {
+        label fr official "Article 2305. Ne peut se prévaloir de ce bénéfice ni la caution tenue solidairement avec le débiteur, ni celle qui y a renoncé";
+        label en unofficial "Article 2305. Neither a surety jointly liable with the debtor nor one that waived the benefit may rely on it";
+        when privation_de_discussion_opposable(k);
+        then benefice_de_discussion_exclu(k);
+    }
+    rule DiscussionExclueCautionJudiciaire(k: Cautionnement) strict {
+        label fr official "Article 2305. Ne peut se prévaloir de ce bénéfice la caution judiciaire";
+        label en unofficial "Article 2305. A court-ordered surety may not rely on this benefit";
+        when cautionnement_judiciaire(k);
+        then benefice_de_discussion_exclu(k);
+    }
+    rule BeneficeDeDiscussion(k: Cautionnement, a: Personne) strict {
+        label fr official "Article 2305. Le bénéfice de discussion permet à la caution d'obliger le créancier à poursuivre d'abord le débiteur principal";
+        label en unofficial "Article 2305. The benefit of discussion lets the surety compel the creditor first to pursue the principal debtor";
+        when regi_par_la_loi_nouvelle(k) and caution(k, a) and not_known(benefice_de_discussion_exclu(k));
+        then benefice_de_discussion(k);
+    }
+}
+
+@source(CC_ART2305_1) {
+    rule DiscussionInvoqueeATemps(k: Cautionnement, d: Date) strict {
+        label fr official "Article 2305-1. Le bénéfice de discussion doit être invoqué par la caution dès les premières poursuites dirigées contre elle";
+        label en unofficial "Article 2305-1. The surety must raise the benefit of discussion at the first proceedings brought against it";
+        when benefice_de_discussion(k) and premieres_poursuites_contre_la_caution_le(k, d)
+            and benefice_de_discussion_invoque_le(k, d);
+        then benefice_de_discussion_invoque_a_temps(k);
+    }
+    rule PositionPouvoirInvoquerDiscussion(k: Cautionnement, a: Personne, d: Date) strict {
+        label fr official "Article 2305-1. Pouvoir de la caution d'invoquer le bénéfice de discussion";
+        label en unofficial "Article 2305-1. Surety's power to raise the benefit of discussion";
+        when regi_par_la_loi_nouvelle(k) and caution(k, a)
+            and benefice_de_discussion(k)
+            and premieres_poursuites_contre_la_caution_le(k, d)
+            and benefice_de_discussion_invoque_le(k, d);
+        then power PouvoirInvoquerDiscussion {
+            holder a;
+            exercise benefice_de_discussion_invoque_le(k, d);
+            valid_when benefice_de_discussion_invoque_a_temps(k);
+            effect creancier_tenu_de_discuter_le_debiteur(k);
+            window [@2022-01-01, infinity);
+        };
+    }
+
+    rule BienUtilementIndique(k: Cautionnement, b: Bien) strict {
+        label fr official "Article 2305-1. La caution indique les biens du débiteur susceptibles d'être saisis, qui ne peuvent être des biens litigieux ou grevés d'une sûreté spéciale au profit d'un tiers";
+        label en unofficial "Article 2305-1. The surety points out the debtor's attachable assets, which may not be in dispute or encumbered by a specific security for a third party";
+        when benefice_de_discussion_invoque_a_temps(k) and bien_du_debiteur_indique(k, b) and not_known(bien_litigieux_ou_greve(b));
+        then bien_utilement_indique(k, b);
+    }
+
+    rule PositionDevoirIndiquerBienDuDebiteur(k: Cautionnement, a: Personne) strict {
+        label fr official "Article 2305-1. Devoir de la caution d'indiquer les biens utiles du débiteur";
+        label en unofficial "Article 2305-1. Surety's duty to point out useful assets of the debtor";
+        when caution(k, a) and benefice_de_discussion_invoque_a_temps(k);
+        then duty DevoirIndiquerBienDuDebiteur {
+            bearer a;
+            achieve presence_de_bien_utilement_indique(k) during [@2022-01-01, infinity);
+        };
+    }
+    rule PresenceDeBienUtilementIndique(k: Cautionnement, b: Bien) strict {
+        label fr official "Article 2305-1. Présence de biens utilement indiqués";
+        label en unofficial "Article 2305-1. Presence of assets usefully pointed out";
+        when bien_utilement_indique(k, b);
+        then presence_de_bien_utilement_indique(k);
+    }
+    rule CreancierRepondDeLInsolvabilite(k: Cautionnement) strict {
+        label fr official "Article 2305-1. Si le créancier omet de poursuivre le débiteur, il répond à l'égard de la caution de l'insolvabilité de celui-ci à concurrence de la valeur des biens utilement indiqués";
+        label en unofficial "Article 2305-1. If the creditor fails to pursue the debtor, it answers to the surety for the debtor's insolvency up to the value of the assets usefully pointed out";
+        when presence_de_bien_utilement_indique(k) and creancier_a_omis_de_poursuivre_le_debiteur(k);
+        then creancier_repond_de_l_insolvabilite(k, (sum all m: Money for b: Bien where bien_utilement_indique(k, b) and valeur_du_bien(b, m)));
+    }
+}
+
+// --- 2306 à 2306-2 : pluralité de cautions et bénéfice de division --------------------------------
+
+pub relation cautions_de_la_dette(c: Creance, n: Integer) kind derived {
+    key(c);
+    label fr official "nombre de cautions de la même dette (article 2306)";
+    label en unofficial "number of sureties of the same debt (Article 2306)";
+}
+pub relation tenue_pour_le_tout(k: Cautionnement) kind derived {
+    label fr official "lorsque plusieurs personnes se sont portées cautions de la même dette, chacune est tenue pour le tout (article 2306)";
+    label en unofficial "where several persons stood surety for the same debt, each is liable for the whole (Article 2306)";
+}
+pub relation benefice_de_division_exclu(k: Cautionnement) kind derived {
+    label fr official "la caution ne peut se prévaloir du bénéfice de division (article 2306, dernière phrase)";
+    label en unofficial "the surety cannot rely on the benefit of division (Article 2306, last sentence)";
+}
+pub relation benefice_de_division(k: Cautionnement) kind derived {
+    label fr official "la caution poursuivie peut opposer au créancier le bénéfice de division (article 2306)";
+    label en unofficial "the pursued surety can raise the benefit of division against the creditor (Article 2306)";
+}
+pub relation poursuite_divisee_entre_les_cautions(k: Cautionnement) kind institutional {
+    label fr official "le créancier doit diviser préalablement ses poursuites et les réduire à la part de la caution (article 2306)";
+    label en unofficial "the creditor must first divide the claim and reduce it to the surety's share (Article 2306)";
+}
+pub relation caution_solvable_a_la_division(k: Cautionnement, c: Creance) kind derived {
+    label fr official "caution solvable au jour où la division est invoquée (article 2306-1)";
+    label en unofficial "surety solvent on the day division is raised (Article 2306-1)";
+}
+pub relation cautions_solvables(c: Creance, n: Integer) kind derived {
+    key(c);
+    label fr official "nombre de cautions solvables entre lesquelles la division est mise en œuvre (article 2306-1)";
+    label en unofficial "number of solvent sureties among which division is carried out (Article 2306-1)";
+}
+pub relation part_de_la_caution_dans_la_division(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "part de la dette que le créancier peut seule réclamer à la caution qui a obtenu la division ; l'insolvabilité d'une caution au jour de la division est supportée par les solvables (articles 2306, 2306-1)";
+    label en unofficial "share of the debt which alone the creditor may claim from the surety granted division; the insolvency of a surety on that day is borne by the solvent ones (Articles 2306, 2306-1)";
+}
+pub relation insolvabilite_posterieure_non_supportee(k: Cautionnement) kind derived {
+    label fr official "la caution qui a demandé la division ne peut plus être recherchée à raison de l'insolvabilité d'une autre, survenue postérieurement (article 2306-1)";
+    label en unofficial "a surety that requested division can no longer be pursued for another's later insolvency (Article 2306-1)";
+}
+pub relation division_irrevocable(c: Creance) kind derived {
+    label fr official "le créancier qui a divisé de lui-même son action ne peut plus revenir sur cette division (article 2306-2)";
+    label en unofficial "a creditor that divided its action of its own accord cannot go back on the division (Article 2306-2)";
+}
+
+@source(CC_ART2306) {
+    rule CautionsDeLaDette(k: Cautionnement, c: Creance) strict {
+        label fr official "Article 2306. Nombre de personnes qui se sont portées cautions de la même dette";
+        label en unofficial "Article 2306. Number of persons who stood surety for the same debt";
+        when regi_par_la_loi_nouvelle(k) and dette_garantie(k, c);
+        then cautions_de_la_dette(c, (count distinct x: Cautionnement where regi_par_la_loi_nouvelle(x) and dette_garantie(x, c)));
+    }
+    rule TenuePourLeTout(k: Cautionnement, c: Creance, n: Integer) strict {
+        label fr official "Article 2306. Lorsque plusieurs personnes se sont portées cautions de la même dette, elles sont chacune tenues pour le tout";
+        label en unofficial "Article 2306. Where several persons stood surety for the same debt, each is liable for the whole";
+        when dette_garantie(k, c) and cautions_de_la_dette(c, n) and n >= 2;
+        then tenue_pour_le_tout(k);
+    }
+    rule DivisionExclueParLaPrivation(k: Cautionnement) strict {
+        label fr official "Article 2306. Ne peuvent se prévaloir du bénéfice de division les cautions solidaires entre elles, ni les cautions qui ont renoncé à ce bénéfice";
+        label en unofficial "Article 2306. Sureties jointly liable with each other, and sureties that waived the benefit, cannot rely on division";
+        when privation_de_division_opposable(k);
+        then benefice_de_division_exclu(k);
+    }
+    rule BeneficeDeDivision(k: Cautionnement) strict {
+        label fr official "Article 2306. Celle qui est poursuivie peut opposer au créancier le bénéfice de division";
+        label en unofficial "Article 2306. The one pursued may raise the benefit of division against the creditor";
+        when tenue_pour_le_tout(k) and not_known(benefice_de_division_exclu(k));
+        then benefice_de_division(k);
+    }
+
+    rule PositionPouvoirInvoquerDivision(k: Cautionnement, a: Personne, d: Date) strict {
+        label fr official "Article 2306. Pouvoir de la caution poursuivie d'invoquer le bénéfice de division";
+        label en unofficial "Article 2306. Pursued surety's power to raise the benefit of division";
+        when caution(k, a) and benefice_de_division(k)
+            and premieres_poursuites_contre_la_caution_le(k, d)
+            and benefice_de_division_invoque_le(k, d);
+        then power PouvoirInvoquerDivision {
+            holder a;
+            exercise benefice_de_division_invoque_le(k, d);
+            valid_when benefice_de_division(k);
+            effect poursuite_divisee_entre_les_cautions(k);
+            window [@2022-01-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART2306_1) {
+    rule CautionSolvableALaDivision(k: Cautionnement, c: Creance) strict {
+        label fr official "Article 2306-1. Le bénéfice de division ne peut être mis en œuvre qu'entre cautions solvables";
+        label en unofficial "Article 2306-1. Division can be carried out only among solvent sureties";
+        when tenue_pour_le_tout(k) and dette_garantie(k, c) and not_known(caution_insolvable_au_jour_de_la_division(k));
+        then caution_solvable_a_la_division(k, c);
+    }
+    rule CautionsSolvables(k: Cautionnement, c: Creance) strict {
+        label fr official "Article 2306-1. Nombre des cautions solvables";
+        label en unofficial "Article 2306-1. Number of solvent sureties";
+        when caution_solvable_a_la_division(k, c);
+        then cautions_solvables(c, (count distinct x: Cautionnement where caution_solvable_a_la_division(x, c)));
+    }
+    rule PartDeLaCaution(k: Cautionnement, c: Creance, d: Date, p: Date, m: Money, n: Integer) strict {
+        label fr official "Articles 2306 et 2306-1. Invoqué dès les premières poursuites, le bénéfice oblige le créancier à diviser ses poursuites ; l'insolvabilité d'une caution au jour de la division est supportée par celles qui sont solvables";
+        label en unofficial "Articles 2306 and 2306-1. Raised at the first proceedings, the benefit compels the creditor to divide its claims; a surety's insolvency on that day is borne by the solvent ones";
+        when benefice_de_division(k) and caution_solvable_a_la_division(k, c) and premieres_poursuites_contre_la_caution_le(k, p)
+            and benefice_de_division_invoque_le(k, p) and montant_de_la_dette_garantie(k, m) and cautions_solvables(c, n);
+        // Politique du paquet, non norme (D-13) : quotient arrondi au centime.
+        then part_de_la_caution_dans_la_division(k, div_round(m, n * 1.0, 2, "HALF_UP"));
+    }
+    rule InsolvabilitePosterieureNonSupportee(k: Cautionnement, p: Date) strict {
+        label fr official "Article 2306-1. La caution qui a demandé la division ne peut plus être recherchée à raison de l'insolvabilité d'une autre, survenue postérieurement";
+        label en unofficial "Article 2306-1. A surety that requested division can no longer be pursued for another's later insolvency";
+        when benefice_de_division(k) and benefice_de_division_invoque_le(k, p);
+        then insolvabilite_posterieure_non_supportee(k);
+    }
+}
+
+@source(CC_ART2306_2)
+rule DivisionIrrevocable(k: Cautionnement, c: Creance) strict {
+    label fr official "Article 2306-2. Si le créancier a divisé de lui-même son action, il ne peut plus revenir sur cette division, même s'il y avait des cautions insolvables";
+    label en unofficial "Article 2306-2. If the creditor divided its action of its own accord, it cannot go back on the division, even if some sureties were insolvent";
+    when tenue_pour_le_tout(k) and dette_garantie(k, c) and creancier_a_divise_de_lui_meme(c);
+    then division_irrevocable(c);
+}
+
+// --- 2307 : minimum de ressources ----------------------------------------------------------------
+
+pub relation part_des_ressources_saisissable(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "l'action du créancier ne peut priver la caution personne physique du minimum de ressources : seule la part qui l'excède est atteinte (article 2307)";
+    label en unofficial "the creditor's action cannot deprive a natural-person surety of minimum resources: only the part above it is reached (Article 2307)";
+}
+
+@source(CC_ART2307)
+rule MinimumDeRessources(k: Cautionnement, r: Money, s: Money) strict {
+    label fr official "Article 2307. L'action du créancier ne peut avoir pour effet de priver la caution personne physique du minimum de ressources fixé à l'article L. 731-2 du code de la consommation";
+    label en unofficial "Article 2307. The creditor's action cannot deprive a natural-person surety of the minimum resources set by Article L. 731-2 of the Consumer Code";
+    when regi_par_la_loi_nouvelle(k) and caution_personne_physique(k) and ressources_de_la_caution(k, r)
+        and minimum_de_ressources_l731_2(k, s);
+    then part_des_ressources_saisissable(k, max(0 EUR, r - s));
+}
+
+// --- 2308 à 2312 : recours de la caution ------------------------------------------------------------
+
+pub relation recours_exclu(k: Cautionnement) kind derived {
+    label fr official "la caution n'a pas de recours contre le débiteur (article 2311)";
+    label en unofficial "the surety has no recourse against the debtor (Article 2311)";
+}
+pub relation recours_personnel(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "recours personnel de la caution contre le débiteur pour les sommes payées (article 2308)";
+    label en unofficial "surety's personal recourse against the debtor for the sums paid (Article 2308)";
+}
+pub relation interets_du_recours_depuis(k: Cautionnement, jour: Date) kind derived {
+    key(k);
+    label fr official "les intérêts courent de plein droit du jour du paiement (article 2308)";
+    label en unofficial "interest runs by operation of law from the day of payment (Article 2308)";
+}
+pub relation frais_restituables(k: Cautionnement, jour: Date, m: Money) kind derived {
+    label fr official "frais restituables : postérieurs à la dénonciation des poursuites au débiteur (article 2308)";
+    label en unofficial "recoverable costs: incurred after the proceedings were notified to the debtor (Article 2308)";
+}
+pub relation reparation_du_prejudice_independant(k: Cautionnement, m: Money) kind derived {
+    key(k);
+    label fr official "réparation du préjudice de la caution indépendant du retard (article 2308)";
+    label en unofficial "compensation for the surety's loss independent of the delay (Article 2308)";
+}
+pub relation caution_subrogee(k: Cautionnement) kind derived {
+    label fr official "la caution qui a payé est subrogée dans les droits qu'avait le créancier contre le débiteur (article 2309)";
+    label en unofficial "a surety that paid is subrogated to the creditor's rights against the debtor (Article 2309)";
+}
+pub relation recours_contre_chaque_codebiteur(k: Cautionnement, d: Personne) kind derived {
+    label fr official "recours de la caution contre chacun des débiteurs principaux solidaires (article 2310)";
+    label en unofficial "surety's recourse against each jointly liable principal debtor (Article 2310)";
+}
+pub relation action_en_restitution_contre_le_creancier(k: Cautionnement) kind derived {
+    label fr official "la caution privée de recours peut agir en restitution contre le créancier (article 2311)";
+    label en unofficial "a surety without recourse may claim restitution from the creditor (Article 2311)";
+}
+pub relation recours_contre_une_autre_caution(k: Cautionnement, x: Cautionnement, m: Money) kind derived {
+    key(k, x);
+    label fr official "recours personnel et subrogatoire de la caution qui a payé contre une autre caution, pour sa part (article 2312)";
+    label en unofficial "personal and subrogatory recourse of the paying surety against another surety, for its share (Article 2312)";
+}
+
+@source(CC_ART2308) {
+    rule RecoursPersonnel(k: Cautionnement, d: Date, m: Money) strict {
+        label fr official "Article 2308. La caution qui a payé tout ou partie de la dette a un recours personnel contre le débiteur pour les sommes qu'elle a payées";
+        label en unofficial "Article 2308. A surety that paid all or part of the debt has personal recourse against the debtor for the sums paid";
+        when regi_par_la_loi_nouvelle(k) and paiement_par_la_caution(k, d, m) and not_known(recours_exclu(k));
+        then recours_personnel(k, m);
+    }
+    rule InteretsDuRecours(k: Cautionnement, d: Date, m: Money) strict {
+        label fr official "Article 2308. Les intérêts courent de plein droit du jour du paiement";
+        label en unofficial "Article 2308. Interest runs by operation of law from the day of payment";
+        when recours_personnel(k, m) and paiement_par_la_caution(k, d, m);
+        then interets_du_recours_depuis(k, d);
+    }
+    rule FraisRestituables(k: Cautionnement, d: Date, f: Date, m: Money, x: Money) strict {
+        label fr official "Article 2308. Ne sont restituables que les frais postérieurs à la dénonciation, faite par la caution au débiteur, des poursuites dirigées contre elle";
+        label en unofficial "Article 2308. Only costs incurred after the surety notified the debtor of the proceedings against it are recoverable";
+        when recours_personnel(k, x) and denonciation_des_poursuites_au_debiteur_le(k, d) and frais_de_la_caution(k, f, m) and f > d;
+        then frais_restituables(k, f, m);
+    }
+    rule PrejudiceIndependant(k: Cautionnement, m: Money, x: Money) strict {
+        label fr official "Article 2308. Si la caution a subi un préjudice indépendant du retard dans le paiement, elle peut aussi en obtenir réparation";
+        label en unofficial "Article 2308. If the surety suffered a loss independent of the delay in payment, it may also obtain compensation";
+        when recours_personnel(k, x) and prejudice_independant_du_retard(k, m);
+        then reparation_du_prejudice_independant(k, m);
+    }
+}
+
+@source(CC_ART2309)
+rule SubrogationDeLaCaution(k: Cautionnement, d: Date, m: Money) strict {
+    label fr official "Article 2309. La caution qui a payé tout ou partie de la dette est subrogée dans les droits qu'avait le créancier contre le débiteur";
+    label en unofficial "Article 2309. A surety that paid all or part of the debt is subrogated to the creditor's rights against the debtor";
+    when regi_par_la_loi_nouvelle(k) and paiement_par_la_caution(k, d, m) and not_known(recours_exclu(k));
+    then caution_subrogee(k);
+}
+
+@source(CC_ART2310)
+rule RecoursContreChaqueCodebiteur(k: Cautionnement, x: Money, p: Personne) strict {
+    label fr official "Article 2310. Lorsqu'il y a plusieurs débiteurs principaux solidaires d'une même dette, la caution dispose contre chacun d'eux des recours prévus aux articles précédents";
+    label en unofficial "Article 2310. Where several principal debtors are jointly liable for the same debt, the surety has the foregoing recourse against each of them";
+    when recours_personnel(k, x) and debiteurs_principaux_solidaires(k) and debiteur_principal(k, p);
+    then recours_contre_chaque_codebiteur(k, p);
+}
+
+@source(CC_ART2311) {
+    rule RecoursExcluDetteAcquittee(k: Cautionnement) strict {
+        label fr official "Article 2311. La caution n'a pas de recours si elle a payé la dette sans en avertir le débiteur et si celui-ci l'a acquittée ultérieurement";
+        label en unofficial "Article 2311. The surety has no recourse if it paid without warning the debtor and the debtor later paid the debt";
+        when regi_par_la_loi_nouvelle(k) and paye_sans_avertir_le_debiteur(k) and debiteur_a_acquitte_ulterieurement(k);
+        then recours_exclu(k);
+    }
+    rule RecoursExcluMoyensDExtinction(k: Cautionnement) strict {
+        label fr official "Article 2311. La caution n'a pas de recours si elle a payé sans avertir le débiteur et si celui-ci disposait, au moment du paiement, des moyens de faire déclarer la dette éteinte";
+        label en unofficial "Article 2311. The surety has no recourse if it paid without warning the debtor and the debtor then had the means to have the debt declared extinguished";
+        when regi_par_la_loi_nouvelle(k) and paye_sans_avertir_le_debiteur(k) and debiteur_pouvait_faire_declarer_la_dette_eteinte(k);
+        then recours_exclu(k);
+    }
+    rule ActionEnRestitution(k: Cautionnement) strict {
+        label fr official "Article 2311. Toutefois, elle peut agir en restitution contre le créancier";
+        label en unofficial "Article 2311. It may, however, claim restitution from the creditor";
+        when recours_exclu(k);
+        then action_en_restitution_contre_le_creancier(k);
+    }
+}
+
+// Recours contre les autres cautions : la part de chacune est la dette payée
+// divisée par le nombre de cautions de la dette (part virile) ; il vise les
+// cautions qui n'ont pas elles-mêmes payé.
+@source(CC_ART2312)
+rule RecoursContreLesAutresCautions(k: Cautionnement, x: Cautionnement, c: Creance, d: Date, m: Money, n: Integer) strict {
+    label fr official "Article 2312. En cas de pluralité de cautions, celle qui a payé a un recours personnel et un recours subrogatoire contre les autres, chacune pour sa part";
+    label en unofficial "Article 2312. Where there are several sureties, the one that paid has personal and subrogatory recourse against the others, each for its share";
+    when tenue_pour_le_tout(k) and paiement_par_la_caution(k, d, m) and dette_garantie(k, c)
+        and dette_garantie(x, c) and tenue_pour_le_tout(x) and not_known(caution_ayant_paye(x))
+        and cautions_de_la_dette(c, n);
+    // Politique du paquet, non norme (D-13) : quotient arrondi au centime.
+    then recours_contre_une_autre_caution(k, x, div_round(m, n * 1.0, 2, "HALF_UP"));
+}
+
+pub relation caution_ayant_paye(k: Cautionnement) kind derived {
+    label fr official "la caution a payé tout ou partie de la dette";
+    label en unofficial "the surety paid all or part of the debt";
+}
+
+@source(CC_ART2312)
+rule CautionAyantPaye(k: Cautionnement, d: Date, m: Money) strict {
+    label fr official "Article 2312. Caution qui a payé";
+    label en unofficial "Article 2312. Surety that paid";
+    when paiement_par_la_caution(k, d, m);
+    then caution_ayant_paye(k);
+}

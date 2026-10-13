@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2418, al. 2 : deux conventionnelles du même jour, titres du 4 et du 5 janvier — le titre du 5 janvier est au rang 2.
+test "urn:query:fr-code-civil-suretes-h08-meme-jour-titre-le-plus-ancien" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:h08:D"), 1000 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:h08:A"), entity_ref("urn:fr:cc:suretes:h08:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:h08:A"), HypothequeConventionnelle) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:h08:A"), 600 EUR) { origin case_input; }
+        assert "f5": date_de_rang(entity_ref("urn:fr:cc:suretes:h08:A"), @2021-03-01) { origin case_input; }
+        assert "f6": date_du_titre(entity_ref("urn:fr:cc:suretes:h08:A"), @2021-01-05) { origin case_input; }
+        assert "f7": collocation_dans(entity_ref("urn:fr:cc:suretes:h08:B"), entity_ref("urn:fr:cc:suretes:h08:D")) { origin case_input; }
+        assert "f8": cause_de_preference(entity_ref("urn:fr:cc:suretes:h08:B"), HypothequeConventionnelle) { origin case_input; }
+        assert "f9": creance_en_principal(entity_ref("urn:fr:cc:suretes:h08:B"), 600 EUR) { origin case_input; }
+        assert "f10": date_de_rang(entity_ref("urn:fr:cc:suretes:h08:B"), @2021-03-01) { origin case_input; }
+        assert "f11": date_du_titre(entity_ref("urn:fr:cc:suretes:h08:B"), @2021-01-04) { origin case_input; }
+    }
+    evaluate truth(rang_de_la_collocation(entity_ref("urn:fr:cc:suretes:h08:A"), 2));
+    expect truth_status == TRUE_ONLY;
+    expect applied(MemeJourTitreLePlusAncien);
+}

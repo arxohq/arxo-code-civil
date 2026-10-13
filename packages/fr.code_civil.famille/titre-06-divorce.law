@@ -1,0 +1,85 @@
+// TITRE VI — DU DIVORCE (articles 229 à 309 ; noyau : 237, 238, 246, 296).
+//
+// Le seul délai du divorce que le Code chiffre est celui de l'altération
+// définitive du lien conjugal : un an de vie séparée lors de la demande (238).
+// L'ordre d'examen des demandes concurrentes (246) est une règle de procédure
+// que le paquet porte parce qu'elle change l'issue. La prestation
+// compensatoire (270, 271) est fixée par le juge sur des critères ouverts :
+// le paquet ne la calcule pas.
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART237,
+    CC_ART238,
+    CC_ART246,
+    Mariage,
+    Personne,
+    demande_en_divorce_le,
+    demande_pour_alteration,
+    demande_pour_faute,
+    separes_depuis,
+};
+
+pub relation alteration_definitive_du_lien(m: Mariage) kind derived {
+    label fr official "l'altération définitive du lien conjugal est caractérisée : un an de vie séparée lors de la demande (article 238)";
+    label en unofficial "definitive alteration of the marital bond is established: one year of separate life at the time of the petition (Article 238)";
+}
+pub relation faute_examinee_en_premier(m: Mariage) kind derived {
+    label fr official "le juge examine en premier lieu la demande pour faute (article 246)";
+    label en unofficial "the judge first examines the petition for fault (Article 246)";
+}
+pub relation demandeur_divorce_pour_alteration(m: Mariage, p: Personne) kind empirical {
+    label fr official "époux demandeur du divorce pour altération définitive du lien conjugal";
+    label en unofficial "spouse petitioning for divorce for definitive alteration of the marital bond";
+}
+pub relation demandeur_divorce_pour_faute(m: Mariage, p: Personne) kind empirical {
+    label fr official "époux demandant le divorce pour faute";
+    label en unofficial "spouse petitioning for divorce for fault";
+}
+
+@source(CC_ART237, CC_ART238)
+rule AlterationDefinitive(m: Mariage, separes: Date, demande: Date) defeasible {
+    label fr official "Article 238, alinéa 1. L'altération définitive du lien conjugal résulte de la cessation de la communauté de vie, lorsque les époux vivent séparés depuis un an lors de la demande en divorce";
+    label en unofficial "Article 238, paragraph 1. Definitive alteration of the marital bond results from the end of common life, where the spouses have lived apart for one year at the time of the petition";
+    when separes_depuis(m, separes) and demande_en_divorce_le(m, demande)
+        and demande >= add_calendar_period(separes, 1 calendar_year);
+    then alteration_definitive_du_lien(m);
+}
+
+@source(CC_ART237, CC_ART238)
+rule PositionPouvoirDemanderDivorceAlteration(m: Mariage, p: Personne, separes: Date, demande: Date) defeasible {
+    label fr official "Articles 237 et 238. Un époux peut demander le divorce pour altération définitive du lien conjugal";
+    label en unofficial "Articles 237 and 238. A spouse may petition for divorce for definitive alteration of the marital bond";
+    when demandeur_divorce_pour_alteration(m, p) and separes_depuis(m, separes)
+        and demande_en_divorce_le(m, demande)
+        and demande >= add_calendar_period(separes, 1 calendar_year);
+    then liberty PouvoirDemanderDivorceAlteration {
+        holder p;
+        action demandeur_divorce_pour_alteration(m, p);
+        window [@2022-01-01, infinity];
+    }
+}
+
+@source(CC_ART246)
+rule OrdreDExamenDesDemandes(m: Mariage) defeasible {
+    label fr official "Article 246. Si une demande pour altération définitive du lien conjugal et une demande pour faute sont concurremment présentées, le juge examine en premier lieu la demande pour faute";
+    label en unofficial "Article 246. Where petitions for definitive alteration and for fault are concurrently filed, the judge first examines the petition for fault";
+    when demande_pour_faute(m) and demande_pour_alteration(m);
+    then faute_examinee_en_premier(m);
+}
+
+@source(CC_ART246)
+rule PositionPouvoirDemanderDivorceFaute(m: Mariage, p: Personne) strict {
+    label fr official "Article 246. L'époux peut demander le divorce pour faute";
+    label en unofficial "Article 246. A spouse may petition for divorce for fault";
+    when demandeur_divorce_pour_faute(m, p) and demande_pour_faute(m)
+        and demande_pour_alteration(m);
+    then liberty PouvoirDemanderDivorceFaute {
+        holder p;
+        action demandeur_divorce_pour_faute(m, p);
+        window [@2022-01-01, infinity];
+    };
+}

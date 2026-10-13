@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-4 : dessaisissement volontaire le 10 mai 2014.
+test "urn:query:fr-code-civil-responsabilite-r41-mise-en-circulation-par-dessaisissement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": dessaisissement_volontaire_le(entity_ref("urn:fr:cc:resp:v2c:p"), @2014-05-10) { origin case_input; }
+    }
+    evaluate truth(mis_en_circulation_le(entity_ref("urn:fr:cc:resp:v2c:p"), @2014-05-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(MiseEnCirculationParDessaisissement);
+}

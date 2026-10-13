@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1195 al. 1, canal §47.3 : le caractère imprévisible du changement et le caractère excessivement onéreux de l'exécution sont deux appréciations du juge.
+test "urn:query:fr-code-civil-contrat-e02-imprevision-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e02"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:e02"), entity_ref("urn:fr:cc:contrat:e02:p1")) { origin case_input; }
+        assert "f3": changement_de_circonstances(entity_ref("urn:fr:cc:contrat:e02"), entity_ref("urn:fr:cc:contrat:e02:p1")) { origin case_input; }
+    }
+    evaluate truth(renegociation_ouverte(entity_ref("urn:fr:cc:contrat:e02"), entity_ref("urn:fr:cc:contrat:e02:p1")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(changement_imprevisible_lors_de_la_conclusion, Court);
+    expect judgment_request(execution_excessivement_onereuse, Court);
+}

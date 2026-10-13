@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2226, alinéa 2 : violences sexuelles sur mineur, consolidation le 10 janvier 2010 — échéance le 10 janvier 2030.
+test "urn:query:fr-code-civil-p08-vingt-ans-violences-sur-mineur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": nature_de_l_action(entity_ref("urn:fr:cc:presc:p08"), TorturesBarbarieOuViolencesSexuellesSurMineur) { origin case_input; }
+        assert "f2": consolidation_du_dommage_le(entity_ref("urn:fr:cc:presc:p08"), @2010-01-10) { origin adjudicated; }
+    }
+    evaluate truth(echeance_prescription_le(entity_ref("urn:fr:cc:presc:p08"), @2030-01-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(VingtAnsPourTorturesEtViolencesSurMineur);
+}

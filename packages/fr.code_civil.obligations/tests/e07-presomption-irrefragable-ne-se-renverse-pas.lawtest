@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1354, al. 2, in fine : la présomption est dite IRRÉFRAGABLE lorsqu'elle NE PEUT
+// ÊTRE RENVERSÉE — la preuve contraire, quelle qu'elle soit, ne l'atteint pas.
+test "urn:query:fr-code-civil-obligations-e07-presomption-irrefragable-ne-se-renverse-pas" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": presomption_legale_attachee(entity_ref("urn:fr:cc:obligations:pir:pr"), entity_ref("urn:fr:cc:obligations:pir:a")) { origin case_input; }
+        assert "f2": espece_de_la_presomption(entity_ref("urn:fr:cc:obligations:pir:pr"), Irrefragable) { origin case_input; }
+        assert "f3": beneficiaire_de_la_presomption(entity_ref("urn:fr:cc:obligations:pir:pr"), entity_ref("urn:fr:cc:obligations:pir:P")) { origin case_input; }
+        assert "f4": preuve_contraire_rapportee(entity_ref("urn:fr:cc:obligations:pir:pr")) { origin case_input; }
+        assert "f5": preuve_contraire_par_un_moyen_admis(entity_ref("urn:fr:cc:obligations:pir:pr")) { origin case_input; }
+    }
+    evaluate truth(dispense_de_preuve(entity_ref("urn:fr:cc:obligations:pir:pr"), entity_ref("urn:fr:cc:obligations:pir:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseDePreuveParPresomptionIrrefragable);
+    expect applied(PresomptionIrrenversable);
+}

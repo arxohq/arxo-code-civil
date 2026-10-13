@@ -1,0 +1,71 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2374-4-interest-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:i23744:S"), entity_ref("urn:fr:cc:suretes:i23744:C"), entity_ref("urn:fr:cc:suretes:i23744:P"), entity_ref("urn:fr:cc:suretes:i23744:B")) { origin case_input; }
+        assert "free": libre_disposition_de_la_somme(entity_ref("urn:fr:cc:suretes:i23744:S")) { origin case_input; }
+        assert "interest": interet_convenu_au_profit_du_cedant(entity_ref("urn:fr:cc:suretes:i23744:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteConvenirInteretCedant, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2374-4-interest-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:i23744b:S"), entity_ref("urn:fr:cc:suretes:i23744b:C"), entity_ref("urn:fr:cc:suretes:i23744b:P"), entity_ref("urn:fr:cc:suretes:i23744b:B")) { origin case_input; }
+        assert "free": libre_disposition_de_la_somme(entity_ref("urn:fr:cc:suretes:i23744b:S")) { origin case_input; }
+        assert "interest": interet_convenu_au_profit_du_cedant(entity_ref("urn:fr:cc:suretes:i23744b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteConvenirInteretCedant, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2374-5-excess-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:x23745:S"), entity_ref("urn:fr:cc:suretes:x23745:C"), entity_ref("urn:fr:cc:suretes:x23745:P"), entity_ref("urn:fr:cc:suretes:x23745:B")) { origin case_input; }
+        assert "base": assiette_de_la_somme(entity_ref("urn:fr:cc:suretes:x23745:S"), 12000 EUR) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:x23745:S")) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:x23745:S"), 10000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerExcedentSomme, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2374-5-excess-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:x23745b:S"), entity_ref("urn:fr:cc:suretes:x23745b:C"), entity_ref("urn:fr:cc:suretes:x23745b:P"), entity_ref("urn:fr:cc:suretes:x23745b:B")) { origin case_input; }
+        assert "base": assiette_de_la_somme(entity_ref("urn:fr:cc:suretes:x23745b:S"), 15000 EUR) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:x23745b:S")) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:x23745b:S"), 10000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerExcedentSomme, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2374-6-return-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:y23746:S"), entity_ref("urn:fr:cc:suretes:y23746:C"), entity_ref("urn:fr:cc:suretes:y23746:P"), entity_ref("urn:fr:cc:suretes:y23746:B")) { origin case_input; }
+        assert "base": assiette_de_la_somme(entity_ref("urn:fr:cc:suretes:y23746:S"), 9000 EUR) { origin case_input; }
+        assert "paid": creance_garantie_integralement_payee(entity_ref("urn:fr:cc:suretes:y23746:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerSommeApresPaiement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2374-6-return-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:y23746b:S"), entity_ref("urn:fr:cc:suretes:y23746b:C"), entity_ref("urn:fr:cc:suretes:y23746b:P"), entity_ref("urn:fr:cc:suretes:y23746b:B")) { origin case_input; }
+        assert "base": assiette_de_la_somme(entity_ref("urn:fr:cc:suretes:y23746b:S"), 11000 EUR) { origin case_input; }
+        assert "paid": creance_garantie_integralement_payee(entity_ref("urn:fr:cc:suretes:y23746b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerSommeApresPaiement, ACTIVE);
+}

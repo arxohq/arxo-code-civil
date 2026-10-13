@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1354, al. 2 : la présomption MIXTE n'est renversée que par les moyens que la loi
+// laisse ouverts. Une preuve contraire ordinaire est rapportée, mais elle n'est pas
+// l'un de ces moyens : la dispense tient.
+test "urn:query:fr-code-civil-obligations-e05-presomption-mixte-resiste-a-un-moyen-non-admis" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": presomption_legale_attachee(entity_ref("urn:fr:cc:obligations:pmx:pr"), entity_ref("urn:fr:cc:obligations:pmx:a")) { origin case_input; }
+        assert "f2": espece_de_la_presomption(entity_ref("urn:fr:cc:obligations:pmx:pr"), Mixte) { origin case_input; }
+        assert "f3": beneficiaire_de_la_presomption(entity_ref("urn:fr:cc:obligations:pmx:pr"), entity_ref("urn:fr:cc:obligations:pmx:P")) { origin case_input; }
+        assert "f4": preuve_contraire_rapportee(entity_ref("urn:fr:cc:obligations:pmx:pr")) { origin case_input; }
+    }
+    evaluate truth(dispense_de_preuve(entity_ref("urn:fr:cc:obligations:pmx:pr"), entity_ref("urn:fr:cc:obligations:pmx:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseDePreuveParPresomptionMixte);
+}

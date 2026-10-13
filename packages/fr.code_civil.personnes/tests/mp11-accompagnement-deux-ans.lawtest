@@ -1,0 +1,11 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 495-8: the initial judicial support measure is capped at two years.
+test "urn:query:fr-code-civil-personnes-mp11-accompagnement-deux-ans" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; } assert "f1": accompagnement_ordonne_le(entity_ref("urn:fr:cc:personnes:mp11:a"), @2026-03-01) { origin adjudicated; } }
+    evaluate truth(accompagnement_expire_le(entity_ref("urn:fr:cc:personnes:mp11:a"), @2028-03-01));
+    expect truth_status == TRUE_ONLY;
+    expect applied(AccompagnementDeuxAns);
+}

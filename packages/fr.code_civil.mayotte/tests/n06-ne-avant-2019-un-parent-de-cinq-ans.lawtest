@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2494 : enfant né le 10 mai 2018 de parents étrangers ; un parent réside régulièrement depuis le 1er janvier 2010, demande examinée le 1er janvier 2019.
+test "urn:query:fr-code-civil-mayotte-n06-ne-avant-2019-un-parent-de-cinq-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": ne_a_mayotte(entity_ref("urn:fr:cc:may:f:enf")) { origin case_input; }
+        assert "f2": naissance_le(entity_ref("urn:fr:cc:may:f:enf"), @2018-05-10) { origin case_input; }
+        assert "f3": parents_etrangers(entity_ref("urn:fr:cc:may:f:enf")) { origin case_input; }
+        assert "f4": date_d_examen_de_la_demande(entity_ref("urn:fr:cc:may:f:enf"), @2019-01-01) { origin case_input; }
+        assert "f5": filiation_etablie_a_l_egard_de(entity_ref("urn:fr:cc:may:f:enf"), entity_ref("urn:fr:cc:may:f:p1")) { origin case_input; }
+        assert "f6": sejour_regulier_sous_titre_depuis(entity_ref("urn:fr:cc:may:f:enf"), entity_ref("urn:fr:cc:may:f:p1"), @2010-01-01) { origin case_input; }
+        assert "f7": filiation_etablie_a_l_egard_de(entity_ref("urn:fr:cc:may:f:enf"), entity_ref("urn:fr:cc:may:f:p2")) { origin case_input; }
+        assert "f8": sejour_regulier_sous_titre_depuis(entity_ref("urn:fr:cc:may:f:enf"), entity_ref("urn:fr:cc:may:f:p2"), @2018-01-01) { origin case_input; }
+    }
+    evaluate truth(articles_21_7_et_21_11_applicables(entity_ref("urn:fr:cc:may:f:enf")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DroitDuSolSousLeRegimeAnterieur);
+}

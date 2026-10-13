@@ -1,0 +1,229 @@
+// CHAPITRE III — LA RÉPARATION DU PRÉJUDICE ÉCOLOGIQUE (articles 1246 à 1252)
+// et CHAPITRE IV — LES TROUBLES ANORMAUX DE VOISINAGE (article 1253).
+//
+// Deux appréciations déléguées : l'atteinte « non négligeable » (1247) et le
+// trouble « excédant les inconvénients normaux » (1253). Ce que le juge FAIT
+// ensuite — ordonner la réparation en nature, liquider une astreinte,
+// prescrire des mesures (1249, 1250, 1252) — n'est pas une règle de calcul et
+// reste hors du paquet ; la qualité et l'intérêt à agir de l'article 1248 se
+// donnent en fait, la liste du texte étant ouverte (« telle que »).
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1246,
+    CC_ART1247,
+    CC_ART1251,
+    CC_ART1253,
+    CC_ART1254,
+    Dommage,
+    Fait,
+    Personne,
+    a_cause,
+    atteinte_non_negligeable,
+    faute_deliberee_en_vue_d_un_gain,
+    repare,
+    responsable_du_dommage,
+    trouble_excedant_les_inconvenients_normaux,
+};
+
+pub relation prejudice_ecologique(d: Dommage) kind derived {
+    label fr official "le dommage est un préjudice écologique réparable (article 1247)";
+    label en unofficial "the damage is a reparable ecological harm (Article 1247)";
+}
+pub relation depense_de_prevention(d: Dommage) kind empirical {
+    label fr official "dépenses exposées pour prévenir la réalisation imminente d'un dommage, éviter son aggravation ou en réduire les conséquences (article 1251)";
+    label en unofficial "expenses incurred to prevent imminent damage, avoid its aggravation or reduce its consequences (Article 1251)";
+}
+pub relation prejudice_reparable(d: Dommage) kind derived {
+    label fr official "préjudice réparable";
+    label en unofficial "reparable harm";
+}
+pub relation origine_du_trouble(f: Fait, personne: Personne) kind empirical {
+    label fr official "propriétaire, locataire, occupant sans titre, titulaire d'un droit d'occupation ou d'exploitation, maître d'ouvrage ou celui qui en exerce les pouvoirs, qui est à l'origine du trouble (article 1253)";
+    label en unofficial "owner, tenant, occupier without title, holder of a right to occupy or operate, developer or the person exercising its powers, who is at the origin of the disturbance (Article 1253)";
+}
+pub relation activite_anterieure_conforme_et_poursuivie(f: Fait) kind empirical {
+    label fr official "le trouble provient d'activités existant antérieurement à l'acte de transfert ou à l'entrée en possession, conformes aux lois et règlements et poursuivies sans aggravation (article 1253, seconde et troisième phrases)";
+    label en unofficial "the disturbance comes from activities predating the transfer or the taking of possession, lawful and continued without aggravation (Article 1253, second and third sentences)";
+}
+
+@source(CC_ART1247) {
+    rule PrejudiceEcologique(d: Dommage) defeasible {
+        label fr official "Article 1247. Est réparable le préjudice écologique consistant en une atteinte non négligeable aux éléments ou aux fonctions des écosystèmes ou aux bénéfices collectifs tirés par l'homme de l'environnement";
+        label en unofficial "Article 1247. Reparable ecological harm consists in non-negligible harm to the elements or functions of ecosystems or to the collective benefits humans draw from the environment";
+        when atteinte_non_negligeable(d);
+        then prejudice_ecologique(d);
+    }
+    rule PrejudiceEcologiqueEstReparable(d: Dommage) defeasible {
+        label fr official "Articles 1246 et 1247. Toute personne responsable d'un préjudice écologique est tenue de le réparer : le préjudice écologique est réparable";
+        label en unofficial "Articles 1246 and 1247. Anyone liable for ecological harm must repair it: ecological harm is reparable";
+        when prejudice_ecologique(d);
+        then prejudice_reparable(d);
+    }
+}
+
+@source(CC_ART1246)
+rule ObligationDeReparerLePrejudiceEcologique(d: Dommage, responsable: Personne) defeasible {
+    label fr official "Article 1246. Toute personne responsable d'un préjudice écologique est tenue de le réparer";
+    label en unofficial "Article 1246. Anyone liable for ecological harm is bound to repair it";
+    when prejudice_ecologique(d) and responsable_du_dommage(d, responsable);
+    then duty ReparerLePrejudiceEcologique {
+        bearer responsable;
+        achieve repare(d, responsable) during [@2016-10-01, infinity);
+    };
+}
+pub relation reparer_prejudice_ecologique_1246(d: Dommage, responsable: Personne) kind empirical {
+    label fr official "le responsable répare le préjudice écologique";
+    label en unofficial "the liable person repairs the ecological harm";
+}
+@source(CC_ART1246)
+rule PositionDevoirReparerPrejudiceEcologique(d: Dommage, responsable: Personne) strict {
+    label fr official "Article 1246. Le responsable doit réparer le préjudice écologique";
+    label en unofficial "Article 1246. The liable person must repair the ecological harm";
+    when prejudice_ecologique(d) and responsable_du_dommage(d, responsable);
+    then duty DevoirReparerPrejudiceEcologique {
+        bearer responsable;
+        goal achievement {
+            condition reparer_prejudice_ecologique_1246(d, responsable);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1251)
+rule DepensesDePreventionReparables(d: Dommage) strict {
+    label fr official "Article 1251. Les dépenses exposées pour prévenir la réalisation imminente d'un dommage, pour éviter son aggravation ou pour en réduire les conséquences constituent un préjudice réparable";
+    label en unofficial "Article 1251. Expenses incurred to prevent imminent damage, avoid its aggravation or reduce its consequences constitute reparable harm";
+    when depense_de_prevention(d);
+    then prejudice_reparable(d);
+}
+pub relation rembourser_depenses_prevention_1251(d: Dommage, responsable: Personne) kind empirical {
+    label fr official "le responsable rembourse les dépenses de prévention";
+    label en unofficial "the liable person reimburses prevention expenses";
+}
+@source(CC_ART1251)
+rule PositionDevoirRembourserDepensesPrevention(d: Dommage, responsable: Personne) strict {
+    label fr official "Article 1251. Le responsable doit rembourser les dépenses de prévention réparables";
+    label en unofficial "Article 1251. The liable person must reimburse reparable prevention expenses";
+    when depense_de_prevention(d) and responsable_du_dommage(d, responsable);
+    then duty DevoirRembourserDepensesPrevention {
+        bearer responsable;
+        goal achievement {
+            condition rembourser_depenses_prevention_1251(d, responsable);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1253) {
+    rule ResponsabiliteDuTroubleAnormal(f: Fait, d: Dommage, personne: Personne) defeasible {
+        label fr official "Article 1253, première phrase. Celui qui est à l'origine d'un trouble excédant les inconvénients normaux de voisinage est responsable de plein droit du dommage qui en résulte";
+        label en unofficial "Article 1253, first sentence. Whoever causes a disturbance exceeding the normal inconveniences of neighbourhood is strictly liable for the resulting damage";
+        when origine_du_trouble(f, personne) and trouble_excedant_les_inconvenients_normaux(f) and a_cause(f, d);
+        then responsable_du_dommage(d, personne);
+    }
+    rule AnterioriteDeLActivite(f: Fait, d: Dommage, personne: Personne) defeater {
+        label fr official "Article 1253, deuxième et troisième phrases. Cette responsabilité n'est pas engagée lorsque le trouble anormal provient d'activités existant antérieurement à l'acte transférant la propriété ou la jouissance, conformes aux lois et règlements et poursuivies sans aggravation du trouble";
+        label en unofficial "Article 1253, second and third sentences. This liability does not arise where the abnormal disturbance comes from activities predating the transfer of ownership or enjoyment, lawful and continued without aggravating the disturbance";
+        when origine_du_trouble(f, personne) and a_cause(f, d)
+            and activite_anterieure_conforme_et_poursuivie(f);
+        defeat responsable_du_dommage(d, personne);
+    }
+}
+pub relation reparer_dommage_trouble_voisinage_1253(d: Dommage, personne: Personne) kind empirical {
+    label fr official "l'auteur du trouble répare le dommage qui en résulte";
+    label en unofficial "the source of the disturbance repairs the resulting damage";
+}
+@source(CC_ART1253)
+rule PositionDevoirReparerDommageTroubleVoisinage(f: Fait, d: Dommage, personne: Personne) strict {
+    label fr official "Article 1253. L'auteur du trouble doit réparer le dommage qui en résulte";
+    label en unofficial "Article 1253. The source of the disturbance must repair the resulting damage";
+    when origine_du_trouble(f, personne)
+        and trouble_excedant_les_inconvenients_normaux(f)
+        and a_cause(f, d);
+    then duty DevoirReparerDommageTroubleVoisinage {
+        bearer personne;
+        goal achievement {
+            condition reparer_dommage_trouble_voisinage_1253(d, personne);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- CHAPITRE V — LA SANCTION CIVILE (article 1254) ------------------------------------------
+//
+// Les deux conditions cumulatives et les deux plafonds sont dans le texte ;
+// le montant lui-même est « proportionné à la gravité de la faute et au
+// profit retiré » — mesure du juge, non calcul. Le paquet dit donc le
+// plafond, jamais le montant.
+
+pub relation manquement_professionnel(f: Fait, auteur: Personne) kind empirical {
+    label fr official "la personne est reconnue responsable d'un manquement aux obligations légales ou contractuelles afférentes à son activité professionnelle (article 1254, alinéa 1)";
+    label en unofficial "the person is held liable for a breach of the legal or contractual obligations of his professional activity (Article 1254, paragraph 1)";
+}
+pub relation dommages_a_plusieurs_personnes_similaires(f: Fait) kind empirical {
+    label fr official "le manquement constaté a causé un ou plusieurs dommages à plusieurs personnes placées dans une situation similaire (article 1254, 2°)";
+    label en unofficial "the breach caused damage to several persons in a similar situation (Article 1254, 2°)";
+}
+pub relation profit_retire(f: Fait, montant: Money) kind empirical {
+    key(f);
+    label fr official "profit ou économie que l'auteur de la faute a retiré (article 1254, alinéa 4)";
+    label en unofficial "profit or saving the author of the fault obtained (Article 1254, paragraph 4)";
+}
+pub relation auteur_personne_morale(auteur: Personne) kind empirical {
+    label fr official "l'auteur de la faute est une personne morale (article 1254, alinéa 4)";
+    label en unofficial "the author of the fault is a legal person (Article 1254, paragraph 4)";
+}
+pub relation sanction_civile_encourue(f: Fait, auteur: Personne) kind derived {
+    label fr official "les conditions de la sanction civile sont réunies (article 1254, alinéas 2 et 3)";
+    label en unofficial "the conditions of the civil penalty are met (Article 1254, paragraphs 2 and 3)";
+}
+pub relation plafond_de_la_sanction_civile(f: Fait, montant: Money) kind derived {
+    key(f);
+    label fr official "plafond légal de la sanction civile : le double du profit pour une personne physique, le quintuple pour une personne morale (article 1254, alinéa 4)";
+    label en unofficial "statutory cap of the civil penalty: twice the profit for a natural person, five times for a legal person (Article 1254, paragraph 4)";
+}
+pub relation payer_sanction_civile_1254(f: Fait, auteur: Personne) kind empirical {
+    label fr official "l'auteur paie la sanction civile prononcée";
+    label en unofficial "the author pays the imposed civil penalty";
+}
+@source(CC_ART1254)
+rule PositionDevoirPayerSanctionCivile(f: Fait, auteur: Personne) strict {
+    label fr official "Article 1254. L'auteur condamné doit payer la sanction civile";
+    label en unofficial "Article 1254. The convicted author must pay the civil penalty";
+    when sanction_civile_encourue(f, auteur);
+    then duty DevoirPayerSanctionCivile {
+        bearer auteur;
+        goal achievement {
+            condition payer_sanction_civile_1254(f, auteur);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1254) {
+    rule ConditionsDeLaSanctionCivile(f: Fait, auteur: Personne) defeasible {
+        label fr official "Article 1254, alinéas 2 et 3. La condamnation ne peut intervenir que si l'auteur a délibérément commis une faute en vue d'un gain indu et si le manquement a causé des dommages à plusieurs personnes placées dans une situation similaire";
+        label en unofficial "Article 1254, paragraphs 2 and 3. The penalty may be imposed only if the author deliberately committed a fault to obtain an undue gain and the breach caused damage to several persons in a similar situation";
+        when manquement_professionnel(f, auteur) and faute_deliberee_en_vue_d_un_gain(f, auteur)
+            and dommages_a_plusieurs_personnes_similaires(f);
+        then sanction_civile_encourue(f, auteur);
+    }
+    rule PlafondPersonnePhysique(f: Fait, auteur: Personne, profit: Money) defeasible {
+        label fr official "Article 1254, alinéa 4. Si l'auteur est une personne physique, le montant ne peut être supérieur au double du profit réalisé";
+        label en unofficial "Article 1254, paragraph 4. If the author is a natural person, the amount may not exceed twice the profit made";
+        when sanction_civile_encourue(f, auteur) and profit_retire(f, profit)
+            and not_known(auteur_personne_morale(auteur));
+        then plafond_de_la_sanction_civile(f, profit * 2);
+    }
+    rule PlafondPersonneMorale(f: Fait, auteur: Personne, profit: Money) defeasible {
+        label fr official "Article 1254, alinéa 4. Si l'auteur est une personne morale, le montant ne peut être supérieur au quintuple du montant du profit réalisé";
+        label en unofficial "Article 1254, paragraph 4. If the author is a legal person, the amount may not exceed five times the profit made";
+        when sanction_civile_encourue(f, auteur) and profit_retire(f, profit)
+            and auteur_personne_morale(auteur);
+        then plafond_de_la_sanction_civile(f, profit * 5);
+    }
+}

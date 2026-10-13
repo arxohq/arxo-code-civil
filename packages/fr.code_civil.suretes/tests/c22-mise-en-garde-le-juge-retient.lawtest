@@ -1,0 +1,25 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2299 : le juge retient l'inadaptation et fixe le préjudice à 4 000 — déchéance à cette hauteur.
+test "urn:query:fr-code-civil-suretes-c22-mise-en-garde-le-juge-retient" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c22:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c22:K"), entity_ref("urn:fr:cc:suretes:c22:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c22:K"), entity_ref("urn:fr:cc:suretes:c22:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:c22:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c22:B")) { origin case_input; }
+        assert "f6": mention_manuscrite_apposee(entity_ref("urn:fr:cc:suretes:c22:K")) { origin case_input; }
+        assert "f7": montant_en_toutes_lettres(entity_ref("urn:fr:cc:suretes:c22:K"), 10000 EUR) { origin case_input; }
+        assert "f8": montant_en_chiffres(entity_ref("urn:fr:cc:suretes:c22:K"), 10000 EUR) { origin case_input; }
+        assert "f9": prejudice_de_la_caution_2299(entity_ref("urn:fr:cc:suretes:c22:K"), 4000 EUR) { origin adjudicated; }
+        assert "f10": engagement_inadapte_aux_capacites_du_debiteur(entity_ref("urn:fr:cc:suretes:c22:K")) { origin adjudicated; }
+    }
+    evaluate truth(decheance_faute_de_mise_en_garde(entity_ref("urn:fr:cc:suretes:c22:K"), 4000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DecheanceFauteDeMiseEnGarde);
+    expect judgment_requests(0);
+}

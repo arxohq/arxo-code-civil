@@ -1,0 +1,13 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.faute_et_reparation version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:faute-et-reparation";
+case FauteEtReparation {
+    context { legal_time @2026-09-18; knowledge_time @2026-09-18T09:00:00Z; decision_time @2026-09-18T09:00:00Z; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+    assert "fait": fr.code_civil.responsabilite::fait_de_la_personne(entity_ref("urn:fr:cc09:case:fait"), entity_ref("urn:fr:cc09:case:auteur")) { origin case_input; }
+    assert "cause": fr.code_civil.responsabilite::a_cause(entity_ref("urn:fr:cc09:case:fait"), entity_ref("urn:fr:cc09:case:dommage")) { origin adjudicated; }
+    assert "victime": fr.code_civil.responsabilite::victime(entity_ref("urn:fr:cc09:case:dommage"), entity_ref("urn:fr:cc09:case:victime")) { origin case_input; }
+    assert "creance-exigible": fr.code_civil::creance_exigible_depuis(entity_ref("urn:fr:cc09:case:action"), @2020-01-01) { origin case_input; }
+    assert "connaissance": fr.code_civil::titulaire_connait_les_faits_le(entity_ref("urn:fr:cc09:case:action"), @2020-01-01) { origin case_input; }
+    assert "action-introduite": fr.code_civil::action_introduite_le(entity_ref("urn:fr:cc09:case:action"), @2026-09-18) { origin case_input; }
+    assert "sans-interruption": fr.code_civil::prescription_non_interrompue(entity_ref("urn:fr:cc09:case:action")) { origin case_input; }
+}

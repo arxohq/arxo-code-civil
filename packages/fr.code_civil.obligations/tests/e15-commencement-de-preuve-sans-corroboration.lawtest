@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1361, liste fermée : l'écrit est suppléé par l'aveu judiciaire, le serment
+// décisoire OU un commencement de preuve par écrit CORROBORÉ par un autre moyen.
+// Le commencement produit ici n'est pas corroboré : il ne supplée pas l'écrit.
+test "urn:query:fr-code-civil-obligations-e15-commencement-de-preuve-sans-corroboration" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": supplement_produit(entity_ref("urn:fr:cc:obligations:cpe:a"), CommencementDePreuveParEcrit) { origin case_input; }
+    }
+    evaluate truth(ecrit_supplee(entity_ref("urn:fr:cc:obligations:cpe:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

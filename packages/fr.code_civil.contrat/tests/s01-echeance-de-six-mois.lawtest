@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1183 al. 1 : six mois à compter de la demande écrite du 31 janvier 2020 — échéance au 31 juillet 2020 (politique CC_CONTRAT_MOIS, quantième, fin de mois).
+test "urn:query:fr-code-civil-contrat-s01-echeance-de-six-mois" {
+    given {
+        context { deadline_policy CC_CONTRAT_MOIS; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s01"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:s01"), "1183") { origin case_input; }
+        assert "f3": demande_ecrite_de_prendre_parti_le(entity_ref("urn:fr:cc:contrat:s01"), @2020-01-31) { origin case_input; }
+        assert "f4": cause_de_la_nullite_cessee(entity_ref("urn:fr:cc:contrat:s01")) { origin case_input; }
+    }
+    evaluate truth(echeance_de_l_action_interrogatoire(entity_ref("urn:fr:cc:contrat:s01"), @2020-07-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceDeLActionInterrogatoire);
+}

@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2296 : dette 8 000, limite 10 000 — l'engagement est de 8 000 EUR.
+test "urn:query:fr-code-civil-suretes-c05-engagement-mesure-par-la-dette" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c05:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c05:K"), entity_ref("urn:fr:cc:suretes:c05:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c05:K"), entity_ref("urn:fr:cc:suretes:c05:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:c05:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c05:B")) { origin case_input; }
+        assert "f6": mention_manuscrite_apposee(entity_ref("urn:fr:cc:suretes:c05:K")) { origin case_input; }
+        assert "f7": montant_en_toutes_lettres(entity_ref("urn:fr:cc:suretes:c05:K"), 10000 EUR) { origin case_input; }
+        assert "f8": montant_en_chiffres(entity_ref("urn:fr:cc:suretes:c05:K"), 10000 EUR) { origin case_input; }
+        assert "f9": montant_de_la_dette_garantie(entity_ref("urn:fr:cc:suretes:c05:K"), 8000 EUR) { origin case_input; }
+    }
+    evaluate truth(engagement_de_la_caution(entity_ref("urn:fr:cc:suretes:c05:K"), 8000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(EngagementReduitALaDette);
+}

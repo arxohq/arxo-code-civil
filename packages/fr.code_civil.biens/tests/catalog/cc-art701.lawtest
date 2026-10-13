@@ -1,0 +1,31 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DEPLACEMENTVERSUNENDROITAUSSICOMMODE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": endroit_aussi_commode_offert(entity_ref("urn:law:catalog:deplacementversunendroitaussicommode:v0")) { origin case_input; }
+        assert "cat-1": servitude_acquise(entity_ref("urn:law:catalog:deplacementversunendroitaussicommode:v0")) { origin case_input; }
+        assert "cat-2": assignation_primitive_devenue_plus_onereuse(entity_ref("urn:law:catalog:deplacementversunendroitaussicommode:v0")) { origin case_input; }
+    }
+    evaluate truth(deplacement_admis_vers_un_endroit_aussi_commode(entity_ref("urn:law:catalog:deplacementversunendroitaussicommode:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DIMINUTIONDELUSAGEINTERDITE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": changement_de_l_etat_des_lieux_par_le_fonds_servant(entity_ref("urn:law:catalog:diminutiondelusageinterdite:v0")) { origin case_input; }
+        assert "cat-1": servitude_acquise(entity_ref("urn:law:catalog:diminutiondelusageinterdite:v0")) { origin case_input; }
+    }
+    evaluate truth(diminution_de_l_usage_interdite_au_fonds_servant(entity_ref("urn:law:catalog:diminutiondelusageinterdite:v0")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2222 : délai expiré le 31 mai 2019, loi allongeante en vigueur le 1er juin 2019.
+test "urn:query:fr-code-civil-p04-loi-allongeante-prescription-deja-acquise" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": ancien_delai_expire_le(entity_ref("urn:fr:cc:presc:p04"), @2019-05-31) { origin case_input; }
+        assert "f2": loi_allongeante_en_vigueur_le(entity_ref("urn:fr:cc:presc:p04"), @2019-06-01) { origin case_input; }
+    }
+    evaluate truth(prescription_acquise_avant_la_loi_nouvelle(entity_ref("urn:fr:cc:presc:p04")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(LoiAllongeanteSansEffetSurLaPrescriptionAcquise);
+}

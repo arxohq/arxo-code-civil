@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 690. Le témoin jumeau de s21 : la même durée, mais sur une servitude
+// continue ET apparente — un aqueduc —, l'acquiert.
+test "urn:query:fr-code-civil-biens-s22-servitude-continue-apparente-acquise" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": servitude_grevant(entity_ref("urn:fr:cc:biens:s22:S"), entity_ref("urn:fr:cc:biens:s22:SERV"), entity_ref("urn:fr:cc:biens:s22:DOM")) { origin case_input; }
+        assert "f2": usage_sans_le_fait_actuel_de_l_homme(entity_ref("urn:fr:cc:biens:s22:S")) { origin case_input; }
+        assert "f3": ouvrage_exterieur_annoncant_la_servitude(entity_ref("urn:fr:cc:biens:s22:S")) { origin case_input; }
+        assert "f4": debut_de_la_possession_le(entity_ref("urn:fr:cc:biens:s22:S"), @1960-01-01) { origin case_input; }
+        assert "f5": jour_de_reference_de_la_servitude(entity_ref("urn:fr:cc:biens:s22:S"), @2020-01-01) { origin case_input; }
+    }
+    evaluate truth(servitude_acquise(entity_ref("urn:fr:cc:biens:s22:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

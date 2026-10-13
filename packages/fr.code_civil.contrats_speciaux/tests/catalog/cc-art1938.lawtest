@@ -1,0 +1,31 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-PREUVEPROPRIETENONEXIGIBLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": preuve_propriete_exigee_par_depositaire(entity_ref("urn:law:catalog:preuveproprietenonexigible:v0")) { origin case_input; }
+    }
+    evaluate truth(exigence_preuve_propriete_exclue(entity_ref("urn:law:catalog:preuveproprietenonexigible:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-REMISEDEPOSANTDECHARGEAPRESDENONCIATION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": denonciation_depot_au_proprietaire(entity_ref("urn:law:catalog:remisedeposantdechargeapresdenonciation:v0")) { origin case_input; }
+        assert "cat-1": proprietaire_n_a_pas_reclame_dans_delai(entity_ref("urn:law:catalog:remisedeposantdechargeapresdenonciation:v0")) { origin case_input; }
+        assert "cat-2": chose_deposee_volee(entity_ref("urn:law:catalog:remisedeposantdechargeapresdenonciation:v0")) { origin case_input; }
+        assert "cat-3": veritable_proprietaire_identifie(entity_ref("urn:law:catalog:remisedeposantdechargeapresdenonciation:v0")) { origin case_input; }
+    }
+    evaluate truth(remise_au_deposant_decharge_depositaire(entity_ref("urn:law:catalog:remisedeposantdechargeapresdenonciation:v0")));
+    expect truth_status == TRUE_ONLY;
+}

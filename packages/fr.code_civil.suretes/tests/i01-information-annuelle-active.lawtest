@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2302 : au 15 février 2023, l'information sur la dette au 31 décembre 2022 est due avant le 31 mars — obligation active.
+test "urn:query:fr-code-civil-suretes-i01-information-annuelle-active" {
+    // E-0212: статус позиции берётся на decision_time; ожидание писалось на дату
+    // legal_time, поэтому момент решения и знания выровнен с ней.
+    given {
+        context { decision_time @2023-02-15T09:00:00Z; knowledge_time @2023-02-15T09:00:00Z; legal_time @2023-02-15; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i01:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i01:K"), entity_ref("urn:fr:cc:suretes:i01:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i01:K"), entity_ref("urn:fr:cc:suretes:i01:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i01:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i01:B")) { origin case_input; }
+        assert "f6": arrete_annuel(entity_ref("urn:fr:cc:suretes:i01:K"), @2022-12-31) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDInformationAnnuelle, ACTIVE);
+    expect not position(DevoirDInformationAnnuelle, VIOLATED);
+    expect evaluation_status == COMPUTED;
+}

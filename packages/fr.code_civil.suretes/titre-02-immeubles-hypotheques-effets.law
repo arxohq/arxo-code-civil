@@ -1,0 +1,739 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRE IV, SECTION 4 : EFFET DES
+// HYPOTHÈQUES (articles 2450 à 2474).
+//
+// QUARANTE JOURS ET UN DIXIÈME (2465). Le créancier inscrit peut requérir la
+// vente aux enchères dans les quarante jours de la notification, à charge de
+// surenchérir d'un dixième : la surenchère est comparée sans division
+// (`offre * 10 >= prix * 11`) ; le quarantième jour est inclus (CPC 641). La
+// notification de purge (2464) se compte en mois ; depuis E-0187 les deux pas
+// tiennent sous la même politique.
+//
+// CESSION D'ANTÉRIORITÉ (2473). Le créancier qui cède son rang prend la place
+// de son cessionnaire : les deux collocations échangent la date qui les range
+// (`date_utile`), ce qui suffit à la forme close du module général.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2450,
+    CC_ART2451,
+    CC_ART2452,
+    CC_ART2453,
+    CC_ART2454,
+    CC_ART2455,
+    CC_ART2456,
+    CC_ART2457,
+    CC_ART2458,
+    CC_ART2459,
+    CC_ART2460,
+    CC_ART2461,
+    CC_ART2462,
+    CC_ART2463,
+    CC_ART2464,
+    CC_ART2465,
+    CC_ART2466,
+    CC_ART2467,
+    CC_ART2468,
+    CC_ART2469,
+    CC_ART2470,
+    CC_ART2471,
+    CC_ART2472,
+    CC_ART2473,
+    CC_ART2474,
+    Collocation,
+    Personne,
+    SureteReelle,
+    attribution_judiciaire_demandee,
+    autres_creanciers_de_meme_rang_ou_inscrits,
+    date_de_rang,
+    dette_garantie_impayee,
+    difference_due_au_debiteur,
+    estimation_par_expert_requise,
+    hypotheque,
+    hypotheque_sans_depossession,
+    montant_de_la_dette_reelle,
+    obligation_principale_eteinte,
+    pacte_commissoire,
+    resiliation_de_l_hypotheque_effective_le,
+    soulte_consignee,
+    valeur_au_jour_du_transfert,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation creancier_hypothecaire_impaye(s: SureteReelle) kind empirical {
+    label fr official "le créancier hypothécaire est impayé (articles 2450, 2451)";
+    label en unofficial "the mortgagee is unpaid (Articles 2450, 2451)";
+}
+pub relation residence_principale_du_constituant(s: SureteReelle) kind empirical {
+    label fr official "l'immeuble constitue la résidence principale du constituant ou du débiteur (articles 2451, 2452)";
+    label en unofficial "the immovable is the grantor's or debtor's principal residence (Articles 2451, 2452)";
+}
+pub relation immeuble_aliene_a_un_tiers(s: SureteReelle, t: Personne) kind empirical {
+    label fr official "l'immeuble hypothéqué a été aliéné à un tiers acquéreur (article 2454)";
+    label en unofficial "the mortgaged immovable was sold to a third-party buyer (Article 2454)";
+}
+pub relation tiers_acquereur_personnellement_oblige(s: SureteReelle) kind empirical {
+    label fr official "le tiers acquéreur est personnellement obligé à la dette (article 2455)";
+    label en unofficial "the third-party buyer is personally liable for the debt (Article 2455)";
+}
+pub relation autres_immeubles_hypotheques_chez_le_debiteur(s: SureteReelle) kind empirical {
+    label fr official "d'autres immeubles hypothéqués à la même dette demeurent en la possession du débiteur principal (article 2455)";
+    label en unofficial "other immovables mortgaged for the same debt remain in the principal debtor's possession (Article 2455)";
+}
+pub relation discussion_prealable_requise_par_le_tiers(s: SureteReelle) kind empirical {
+    label fr official "le tiers acquéreur requiert la discussion préalable (article 2455)";
+    label en unofficial "the third-party buyer requires prior discussion (Article 2455)";
+}
+pub relation sommation_de_payer_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la première sommation de payer faite au tiers acquéreur (articles 2456, 2464)";
+    label en unofficial "date of the first demand for payment served on the third-party buyer (Articles 2456, 2464)";
+}
+pub relation degradations_imputables_au_tiers(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "préjudice résultant des dégradations qui ont diminué la valeur de l'immeuble par le fait ou la faute du tiers acquéreur (article 2457)";
+    label en unofficial "loss from deterioration that reduced the immovable's value through the third-party buyer's act or fault (Article 2457)";
+}
+pub relation depenses_du_tiers_acquereur(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "dépenses nécessaires à la conservation de l'immeuble et dépenses qui en ont augmenté la valeur (article 2457)";
+    label en unofficial "expenses necessary to preserve the immovable and those that increased its value (Article 2457)";
+}
+pub relation plus_value_estimee(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "plus-value estimée au jour de la restitution (article 2457)";
+    label en unofficial "increase in value estimated on the day of return (Article 2457)";
+}
+pub relation prix_de_vente_de_l_immeuble(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "prix de vente de l'immeuble hypothéqué (articles 2450, 2458)";
+    label en unofficial "sale price of the mortgaged immovable (Articles 2450, 2458)";
+}
+pub relation dette_hypothecaire(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "montant de la dette hypothécaire, en capital et intérêts (articles 2454, 2458)";
+    label en unofficial "amount of the mortgage debt, in principal and interest (Articles 2454, 2458)";
+}
+pub relation droits_reels_du_tiers_avant_l_acquisition(s: SureteReelle, x: Text) kind empirical {
+    label fr official "droits réels, notamment servitudes, que le tiers acquéreur avait sur l'immeuble avant de l'acquérir (article 2459)";
+    label en unofficial "real rights, in particular servitudes, the buyer had over the immovable before acquiring it (Article 2459)";
+}
+pub relation tiers_a_paye_ou_subi_la_saisie(s: SureteReelle) kind empirical {
+    label fr official "le tiers acquéreur a payé la dette hypothécaire ou subi la saisie (article 2460)";
+    label en unofficial "the third-party buyer paid the mortgage debt or suffered the seizure (Article 2460)";
+}
+pub relation cas_de_purge_legale(s: SureteReelle) kind empirical {
+    label fr official "vente sur saisie immobilière, expropriation pour cause d'utilité publique ou situation des livres VI du code de commerce ou VII du code de la consommation (article 2461)";
+    label en unofficial "sale on seizure, expropriation for public purposes, or a situation under Book VI of the Commercial Code or Book VII of the Consumer Code (Article 2461)";
+}
+pub relation titre_translatif_publie(s: SureteReelle) kind empirical {
+    label fr official "le titre translatif de propriété a été publié au service chargé de la publicité foncière (articles 2462, 2464)";
+    label en unofficial "the transfer of title was published with the land registry (Articles 2462, 2464)";
+}
+pub relation accord_de_tous_les_creanciers_inscrits(s: SureteReelle) kind empirical {
+    label fr official "tous les créanciers inscrits conviennent avec le débiteur que le prix sera affecté au paiement de leurs créances (article 2463)";
+    label en unofficial "all registered creditors agree with the debtor that the price will be applied to their claims (Article 2463)";
+}
+pub relation paiement_des_creanciers_effectue(s: SureteReelle) kind empirical {
+    label fr official "le paiement convenu a été effectué (articles 2463, 2467)";
+    label en unofficial "the agreed payment was made (Articles 2463, 2467)";
+}
+pub relation notification_de_purge_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de la notification aux créanciers inscrits de l'offre de purge (articles 2464, 2465)";
+    label en unofficial "date the purge offer was notified to the registered creditors (Articles 2464, 2465)";
+}
+pub relation prix_stipule_ou_valeur_declaree(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "prix stipulé dans l'acte d'acquisition ou valeur déclarée par le donataire (articles 2464, 2465, 2467)";
+    label en unofficial "price stipulated in the acquisition deed or value declared by the donee (Articles 2464, 2465, 2467)";
+}
+pub relation surenchere_formee_le(s: SureteReelle, jour: Date) kind empirical {
+    key(s);
+    label fr official "date à laquelle un créancier inscrit forme la surenchère (article 2465)";
+    label en unofficial "date a registered creditor makes the higher bid (Article 2465)";
+}
+pub relation montant_de_la_surenchere(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "montant offert par le créancier surenchérisseur (article 2465)";
+    label en unofficial "amount offered by the over-bidding creditor (Article 2465)";
+}
+pub relation caution_fournie_par_le_surencherisseur(s: SureteReelle) kind empirical {
+    label fr official "le créancier surenchérisseur fournit caution à due concurrence (article 2465)";
+    label en unofficial "the over-bidding creditor provides security to the same extent (Article 2465)";
+}
+pub relation desistement_du_creancier_requerant(s: SureteReelle) kind empirical {
+    label fr official "le créancier requérant se désiste de la surenchère (article 2466)";
+    label en unofficial "the requesting creditor withdraws the higher bid (Article 2466)";
+}
+pub relation consentement_de_tous_les_autres_creanciers(s: SureteReelle) kind empirical {
+    label fr official "tous les autres créanciers inscrits consentent au désistement (article 2466)";
+    label en unofficial "all the other registered creditors consent to the withdrawal (Article 2466)";
+}
+pub relation adjudication_prononcee(s: SureteReelle) kind empirical {
+    label fr official "l'adjudication a été prononcée (articles 2468, 2469, 2470)";
+    label en unofficial "the auction award was made (Articles 2468, 2469, 2470)";
+}
+pub relation couts_du_contrat_et_de_la_purge(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "coûts du contrat du tiers acquéreur, de sa publication, de la notification et des autres frais de purge (article 2469)";
+    label en unofficial "costs of the buyer's contract, its publication, the notification and other purge costs (Article 2469)";
+}
+pub relation tiers_acquereur_adjudicataire(s: SureteReelle) kind empirical {
+    label fr official "le tiers acquéreur se rend adjudicataire et conserve la propriété (article 2470)";
+    label en unofficial "the third-party buyer becomes the successful bidder and keeps the property (Article 2470)";
+}
+pub relation prix_de_l_adjudication(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "prix de l'adjudication (articles 2469, 2470)";
+    label en unofficial "auction price (Articles 2469, 2470)";
+}
+pub relation acquisition_globale_de_plusieurs_biens(s: SureteReelle) kind empirical {
+    label fr official "le tiers acquéreur a acquis par le même acte des immeubles et des meubles, ou plusieurs immeubles dont certains seuls sont hypothéqués (article 2471)";
+    label en unofficial "the buyer acquired by the same deed immovables and movables, or several immovables of which only some are mortgaged (Article 2471)";
+}
+pub relation ventilation_du_prix_declaree(s: SureteReelle) kind empirical {
+    label fr official "le prix de chaque immeuble frappé d'inscription est déclaré, par ventilation du prix global (article 2471)";
+    label en unofficial "the price of each registered immovable is stated, by apportioning the global price (Article 2471)";
+}
+pub relation immeuble_par_destination_gage(s: SureteReelle) kind empirical {
+    label fr official "l'immeuble aliéné comprend un immeuble par destination grevé d'un gage (article 2472)";
+    label en unofficial "the immovable sold includes a fixture encumbered by a pledge (Article 2472)";
+}
+pub relation surenchere_du_gagiste(s: SureteReelle) kind empirical {
+    label fr official "un créancier gagiste forme surenchère (article 2472)";
+    label en unofficial "a pledgee makes a higher bid (Article 2472)";
+}
+pub relation surenchere_de_l_hypothecaire(s: SureteReelle) kind empirical {
+    label fr official "un créancier hypothécaire forme surenchère (article 2472)";
+    label en unofficial "a mortgagee makes a higher bid (Article 2472)";
+}
+pub relation cession_de_creance_hypothecaire(s: SureteReelle, p: Personne) kind empirical {
+    label fr official "la créance garantie est transmise à ce créancier (article 2473)";
+    label en unofficial "the secured claim is transferred to this creditor (Article 2473)";
+}
+pub relation cession_d_anteriorite(x: Collocation, r: Collocation) kind empirical {
+    label fr official "le créancier de la collocation x cède son rang d'inscription au créancier de la collocation r, dont il prend la place (article 2473)";
+    label en unofficial "the creditor of entry x assigns its rank to the creditor of entry r, taking the latter's place (Article 2473)";
+}
+pub relation renonciation_a_l_hypotheque(s: SureteReelle) kind empirical {
+    label fr official "le créancier renonce à l'hypothèque (article 2474, 2°)";
+    label en unofficial "the creditor waives the mortgage (Article 2474, 2°)";
+}
+pub relation purge_effectuee(s: SureteReelle) kind empirical {
+    label fr official "l'immeuble a été purgé (article 2474, 3°)";
+    label en unofficial "the immovable was purged (Article 2474, 3°)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation vente_du_bien_hypotheque_ouverte(s: SureteReelle) kind derived {
+    label fr official "le créancier hypothécaire impayé peut poursuivre la vente du bien hypothéqué (article 2450)";
+    label en unofficial "an unpaid mortgagee may seek sale of the mortgaged asset (Article 2450)";
+}
+pub relation paye_par_preference_aux_chirographaires(s: SureteReelle) kind derived {
+    label fr official "sur le prix de vente, le créancier hypothécaire est payé par préférence aux créanciers chirographaires et au rang des articles 2418 à 2420 (article 2450)";
+    label en unofficial "out of the sale price, the mortgagee is paid ahead of unsecured creditors and at the rank of Articles 2418 to 2420 (Article 2450)";
+}
+pub relation attribution_judiciaire_de_l_immeuble_ouverte(s: SureteReelle) kind derived {
+    label fr official "le créancier hypothécaire peut demander en justice que l'immeuble lui demeure en paiement, sauf résidence principale du constituant (article 2451)";
+    label en unofficial "the mortgagee may ask the court to keep the immovable in payment, unless it is the grantor's principal residence (Article 2451)";
+}
+pub relation pacte_commissoire_sans_effet(s: SureteReelle) kind derived {
+    label fr official "la clause attribuant la propriété au créancier est sans effet sur l'immeuble qui constitue la résidence principale du débiteur (article 2452)";
+    label en unofficial "the clause transferring ownership to the creditor has no effect on the debtor's principal residence (Article 2452)";
+}
+pub relation pacte_commissoire_immobilier_efficace(s: SureteReelle) kind derived {
+    label fr official "la clause attribuant la propriété au créancier produit effet (article 2452)";
+    label en unofficial "the clause transferring ownership to the creditor takes effect (Article 2452)";
+}
+pub relation droit_de_suite_hypothecaire(s: SureteReelle, t: Personne) kind derived {
+    label fr official "en cas d'aliénation, l'hypothèque suit l'immeuble entre les mains du tiers acquéreur, tenu dans la limite des inscriptions (article 2454)";
+    label en unofficial "on a sale, the mortgage follows the immovable into the buyer's hands, liable within the registrations (Article 2454)";
+}
+pub relation sursis_a_la_vente(s: SureteReelle) kind derived {
+    label fr official "la discussion préalable requise par le tiers acquéreur non obligé suspend la vente de l'immeuble hypothéqué (article 2455)";
+    label en unofficial "the prior discussion required by a buyer not personally liable stays the sale of the mortgaged immovable (Article 2455)";
+}
+pub relation exceptions_du_debiteur_ouvertes_au_tiers(s: SureteReelle) kind derived {
+    label fr official "le tiers acquéreur peut, comme une caution, opposer au créancier les exceptions du débiteur principal (article 2455)";
+    label en unofficial "the buyer may, like a surety, raise the principal debtor's defences against the creditor (Article 2455)";
+}
+pub relation options_du_tiers_acquereur(s: SureteReelle) kind derived {
+    label fr official "une fois sommé de payer, le tiers acquéreur peut payer, purger ou se laisser saisir (article 2456)";
+    label en unofficial "once served with a demand, the buyer may pay, purge or let the seizure proceed (Article 2456)";
+}
+pub relation indemnite_due_par_le_tiers(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "indemnité due par le tiers acquéreur au créancier hypothécaire pour les dégradations (article 2457)";
+    label en unofficial "compensation owed by the buyer to the mortgagee for deterioration (Article 2457)";
+}
+pub relation remboursement_des_depenses_du_tiers(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "remboursement, par prélèvement sur le prix de vente, des dépenses du tiers acquéreur, dans la limite de la plus-value (article 2457)";
+    label en unofficial "reimbursement, out of the sale price, of the buyer's expenses, within the increase in value (Article 2457)";
+}
+pub relation excedent_du_prix_au_tiers_acquereur(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "si le prix de vente excède la dette hypothécaire, la différence est pour le tiers acquéreur (article 2458)";
+    label en unofficial "if the sale price exceeds the mortgage debt, the difference goes to the buyer (Article 2458)";
+}
+pub relation droits_reels_retrouves(s: SureteReelle, x: Text) kind derived {
+    label fr official "après la vente, le tiers acquéreur retrouve les droits réels qu'il avait sur l'immeuble avant de l'acquérir (article 2459)";
+    label en unofficial "after the sale, the buyer recovers the real rights it had over the immovable before acquiring it (Article 2459)";
+}
+pub relation recours_du_tiers_acquereur(s: SureteReelle) kind derived {
+    label fr official "le tiers acquéreur qui a payé ou subi la saisie a un recours en garantie et un recours subrogatoire contre le débiteur principal (article 2460)";
+    label en unofficial "a buyer that paid or suffered the seizure has a warranty claim and subrogatory recourse against the principal debtor (Article 2460)";
+}
+pub relation immeuble_purge_de_plein_droit(s: SureteReelle) kind derived {
+    label fr official "l'immeuble est purgé de plein droit du droit de suite dans les cas prévus par la loi (article 2461)";
+    label en unofficial "the immovable is automatically purged of the right to follow in the cases provided by law (Article 2461)";
+}
+pub relation publication_ne_purge_pas(s: SureteReelle) kind derived {
+    label fr official "la simple publication des titres translatifs ne purge pas les hypothèques (article 2462)";
+    label en unofficial "mere publication of the transfer does not purge the mortgages (Article 2462)";
+}
+pub relation purge_amiable_realisee(s: SureteReelle) kind derived {
+    label fr official "par l'effet du paiement convenu avec tous les créanciers inscrits, l'immeuble est purgé du droit de suite (article 2463)";
+    label en unofficial "by the payment agreed with all registered creditors, the immovable is purged of the right to follow (Article 2463)";
+}
+pub relation date_limite_de_notification_de_purge(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "terme du mois de la première sommation pour notifier l'offre de purge (article 2464)";
+    label en unofficial "end of the month from the first demand to notify the purge offer (Article 2464)";
+}
+pub relation purge_notifiee_en_temps_utile(s: SureteReelle) kind derived {
+    label fr official "l'offre de purge est notifiée avant les poursuites ou dans le mois de la première sommation (article 2464)";
+    label en unofficial "the purge offer is notified before proceedings or within the month of the first demand (Article 2464)";
+}
+pub relation date_limite_de_surenchere(s: SureteReelle, jour: Date) kind derived {
+    key(s);
+    label fr official "terme des quarante jours suivant la notification pour requérir la vente aux enchères (article 2465)";
+    label en unofficial "end of the forty days after notification to request the auction (Article 2465)";
+}
+pub relation surenchere_recevable(s: SureteReelle) kind derived {
+    label fr official "surenchère formée dans les quarante jours, d'un dixième au moins sur le prix, avec caution (article 2465)";
+    label en unofficial "higher bid made within forty days, at least one tenth above the price, with security (Article 2465)";
+}
+pub relation surenchere_irrecevable(s: SureteReelle) kind derived {
+    label fr official "surenchère tardive ou insuffisante (article 2465)";
+    label en unofficial "late or insufficient higher bid (Article 2465)";
+}
+pub relation adjudication_maintenue_malgre_le_desistement(s: SureteReelle) kind derived {
+    label fr official "le créancier requérant ne peut, par son désistement, empêcher l'adjudication publique, sauf consentement de tous les autres créanciers inscrits (article 2466)";
+    label en unofficial "the requesting creditor cannot, by withdrawing, prevent the public auction, save all other registered creditors' consent (Article 2466)";
+}
+pub relation valeur_definitivement_fixee(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "à défaut de surenchère, la valeur de l'immeuble est définitivement fixée au prix stipulé ou à la valeur déclarée (article 2467)";
+    label en unofficial "absent a higher bid, the immovable's value is definitively set at the stipulated price or declared value (Article 2467)";
+}
+pub relation immeuble_libere_par_le_paiement(s: SureteReelle) kind derived {
+    label fr official "l'immeuble est libéré de toute hypothèque par le paiement de cette somme aux créanciers inscrits ou par sa consignation (article 2467)";
+    label en unofficial "the immovable is freed of all mortgages by paying that sum to the registered creditors or depositing it (Article 2467)";
+}
+pub relation vente_aux_encheres_selon_le_code_de_procedure(s: SureteReelle) kind derived {
+    label fr official "la vente aux enchères se fait selon les formes du code de procédure civile, à la diligence du créancier requérant ou du tiers acquéreur (article 2468)";
+    label en unofficial "the auction follows the forms of the Code of Civil Procedure, at the instance of the requesting creditor or the buyer (Article 2468)";
+}
+pub relation restitution_des_couts_par_l_adjudicataire(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "l'adjudicataire restitue au tiers acquéreur, au-delà du prix de son adjudication, les coûts du contrat, de sa publication, de la notification et de la purge (article 2469)";
+    label en unofficial "the successful bidder repays the buyer, beyond the auction price, the costs of the contract, its publication, the notification and the purge (Article 2469)";
+}
+pub relation recours_de_l_adjudicataire_contre_son_vendeur(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "le tiers acquéreur adjudicataire dispose d'un recours contre son vendeur pour ce qui excède le prix stipulé (article 2470)";
+    label en unofficial "the buyer who wins the auction has recourse against its seller for the excess over the stipulated price (Article 2470)";
+}
+pub relation ventilation_requise(s: SureteReelle) kind derived {
+    label fr official "le prix de chaque immeuble frappé d'inscription doit être déclaré, par ventilation du prix global (article 2471)";
+    label en unofficial "the price of each registered immovable must be stated by apportioning the global price (Article 2471)";
+}
+pub relation gagiste_assimile_a_un_creancier_inscrit(s: SureteReelle) kind derived {
+    label fr official "le créancier gagiste sur immeuble par destination est assimilé à un créancier inscrit pour la purge (article 2472)";
+    label en unofficial "the pledgee over a fixture is treated as a registered creditor for the purge (Article 2472)";
+}
+pub relation surenchere_du_gagiste_sans_effet(s: SureteReelle) kind derived {
+    label fr official "si un gagiste et un créancier hypothécaire forment surenchère, seule celle du second produit effet (article 2472)";
+    label en unofficial "if a pledgee and a mortgagee both bid higher, only the mortgagee's takes effect (Article 2472)";
+}
+pub relation hypotheque_transmise_avec_la_creance(s: SureteReelle, p: Personne) kind derived {
+    label fr official "l'hypothèque est transmise de plein droit avec la créance garantie (article 2473)";
+    label en unofficial "the mortgage passes automatically with the secured claim (Article 2473)";
+}
+pub relation date_utile(r: Collocation, jour: Date) kind derived {
+    key(r);
+    label fr official "date qui range la collocation, après cession d'antériorité s'il y en a une (articles 2418, 2473)";
+    label en unofficial "date that ranks the entry, after a priority assignment if any (Articles 2418, 2473)";
+}
+pub relation hypotheque_eteinte(s: SureteReelle) kind derived {
+    label fr official "l'hypothèque est éteinte (article 2474)";
+    label en unofficial "the mortgage is extinguished (Article 2474)";
+}
+
+// --- 2450 à 2453 : réalisation --------------------------------------------------------------
+
+@source(CC_ART2450) {
+    rule VenteDuBienHypotheque(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2450. Le créancier hypothécaire impayé peut poursuivre la vente du bien hypothéqué selon le code des procédures civiles d'exécution, auxquelles la convention ne peut déroger";
+        label en unofficial "Article 2450. An unpaid mortgagee may seek sale of the mortgaged asset under the Civil Enforcement Procedures Code, from which the agreement cannot derogate";
+        when hypotheque(s, c, p) and creancier_hypothecaire_impaye(s);
+        then vente_du_bien_hypotheque_ouverte(s);
+    }
+
+    rule PayeParPreference(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2450. Sur le prix de vente, le créancier hypothécaire est payé par préférence aux créanciers chirographaires et, en concours avec d'autres hypothécaires, au rang des articles 2418 à 2420";
+        label en unofficial "Article 2450. Out of the sale price, the mortgagee is paid ahead of unsecured creditors and, competing with other mortgagees, at the rank of Articles 2418 to 2420";
+        when vente_du_bien_hypotheque_ouverte(s) and prix_de_vente_de_l_immeuble(s, m);
+        then paye_par_preference_aux_chirographaires(s);
+    }
+}
+
+@source(CC_ART2451)
+rule AttributionJudiciaireDeLImmeuble(s: SureteReelle, c: Personne, p: Personne) strict {
+    label fr official "Article 2451. Le créancier hypothécaire peut aussi demander en justice que l'immeuble, s'il ne constitue pas la résidence principale du constituant, lui demeure en paiement";
+    label en unofficial "Article 2451. The mortgagee may also ask the court that the immovable, if not the grantor's principal residence, remain with it in payment";
+    when hypotheque(s, c, p) and creancier_hypothecaire_impaye(s) and attribution_judiciaire_demandee(s)
+        and not_known(residence_principale_du_constituant(s));
+    then attribution_judiciaire_de_l_immeuble_ouverte(s);
+}
+
+@source(CC_ART2452) {
+    rule PacteCommissoireImmobilierSansEffet(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2452. La clause par laquelle le créancier deviendra propriétaire est sans effet sur l'immeuble qui constitue la résidence principale du débiteur";
+        label en unofficial "Article 2452. The clause making the creditor owner has no effect on the debtor's principal residence";
+        when hypotheque(s, c, p) and pacte_commissoire(s) and residence_principale_du_constituant(s);
+        then pacte_commissoire_sans_effet(s);
+    }
+    rule PacteCommissoireImmobilierEfficace(s: SureteReelle, c: Personne, p: Personne) strict {
+        label fr official "Article 2452. Hors la résidence principale, il peut être convenu que le créancier deviendra propriétaire de l'immeuble hypothéqué";
+        label en unofficial "Article 2452. Apart from the principal residence, it may be agreed that the creditor becomes owner of the mortgaged immovable";
+        when hypotheque(s, c, p) and pacte_commissoire(s) and dette_garantie_impayee(s)
+            and not_known(residence_principale_du_constituant(s));
+        then pacte_commissoire_immobilier_efficace(s);
+    }
+}
+
+@source(CC_ART2453) {
+    rule EstimationParExpertImmobiliere(s: SureteReelle) strict {
+        label fr official "Article 2453, alinéa 1. Dans les cas des articles 2451 et 2452, l'immeuble doit être estimé par expert désigné à l'amiable ou judiciairement";
+        label en unofficial "Article 2453, paragraph 1. In the cases of Articles 2451 and 2452, the immovable must be valued by an expert appointed amicably or judicially";
+        when pacte_commissoire_immobilier_efficace(s);
+        then estimation_par_expert_requise(s);
+    }
+    rule EstimationParExpertAttribution(s: SureteReelle) strict {
+        label fr official "Article 2453, alinéa 1. L'attribution judiciaire suppose la même estimation";
+        label en unofficial "Article 2453, paragraph 1. Judicial allocation presupposes the same valuation";
+        when attribution_judiciaire_de_l_immeuble_ouverte(s);
+        then estimation_par_expert_requise(s);
+    }
+    rule SoulteImmobiliereAuDebiteur(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2453, alinéa 2. Si la valeur excède le montant de la dette garantie, le créancier doit au débiteur une somme égale à la différence";
+        label en unofficial "Article 2453, paragraph 2. If the value exceeds the secured debt, the creditor owes the debtor the difference";
+        when estimation_par_expert_requise(s) and valeur_au_jour_du_transfert(s, v) and montant_de_la_dette_reelle(s, d) and v > d
+            and not_known(autres_creanciers_de_meme_rang_ou_inscrits(s));
+        then difference_due_au_debiteur(s, v - d);
+    }
+    rule SoulteImmobiliereConsignee(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2453, alinéa 2. S'il existe d'autres créanciers hypothécaires, le créancier consigne la différence";
+        label en unofficial "Article 2453, paragraph 2. If there are other mortgagees, the creditor deposits the difference";
+        when estimation_par_expert_requise(s) and valeur_au_jour_du_transfert(s, v) and montant_de_la_dette_reelle(s, d) and v > d
+            and autres_creanciers_de_meme_rang_ou_inscrits(s);
+        then soulte_consignee(s, v - d);
+    }
+}
+
+// --- 2454 à 2461 : droit de suite et tiers acquéreur ---------------------------------------------
+
+@source(CC_ART2454)
+rule DroitDeSuite(s: SureteReelle, t: Personne, m: Money) strict {
+    label fr official "Article 2454. En cas d'aliénation, l'hypothèque suit l'immeuble entre les mains du tiers acquéreur, obligé dans la limite des inscriptions à toute la dette garantie, en capital et intérêts";
+    label en unofficial "Article 2454. On a sale, the mortgage follows the immovable into the buyer's hands, liable within the registrations for the whole secured debt, principal and interest";
+    when immeuble_aliene_a_un_tiers(s, t) and dette_hypothecaire(s, m);
+    then droit_de_suite_hypothecaire(s, t);
+}
+
+@source(CC_ART2455) {
+    rule SursisPourDiscussion(s: SureteReelle, t: Personne) strict {
+        label fr official "Article 2455. Le tiers acquéreur non personnellement obligé peut requérir la discussion préalable s'il demeure d'autres immeubles hypothéqués chez le débiteur ; pendant cette discussion, il est sursis à la vente";
+        label en unofficial "Article 2455. A buyer not personally liable may require prior discussion if other mortgaged immovables remain with the debtor; the sale is stayed during that discussion";
+        when droit_de_suite_hypothecaire(s, t) and not_known(tiers_acquereur_personnellement_oblige(s))
+            and autres_immeubles_hypotheques_chez_le_debiteur(s) and discussion_prealable_requise_par_le_tiers(s);
+        then sursis_a_la_vente(s);
+    }
+    rule ExceptionsDuDebiteurAuTiers(s: SureteReelle, t: Personne) strict {
+        label fr official "Article 2455. Ce tiers acquéreur peut encore, comme le pourrait une caution, opposer au créancier toutes les exceptions qui appartiennent au débiteur principal";
+        label en unofficial "Article 2455. The buyer may also, like a surety, raise against the creditor all the principal debtor's defences";
+        when droit_de_suite_hypothecaire(s, t);
+        then exceptions_du_debiteur_ouvertes_au_tiers(s);
+    }
+}
+
+@source(CC_ART2456)
+rule OptionsDuTiersAcquereur(s: SureteReelle, t: Personne, jour: Date) strict {
+    label fr official "Article 2456. Une fois sommé de payer, et sauf le bénéfice de discussion, le tiers acquéreur peut soit payer, soit purger l'immeuble, soit se laisser saisir";
+    label en unofficial "Article 2456. Once served with a demand, and save the benefit of discussion, the buyer may pay, purge the immovable, or let the seizure proceed";
+    when droit_de_suite_hypothecaire(s, t) and sommation_de_payer_le(s, jour) and not_known(sursis_a_la_vente(s));
+    then options_du_tiers_acquereur(s);
+}
+
+@source(CC_ART2457) {
+    rule IndemniteDesDegradations(s: SureteReelle, t: Personne, m: Money) strict {
+        label fr official "Article 2457. Le tiers acquéreur doit indemniser le créancier hypothécaire du préjudice résultant des dégradations qui ont diminué la valeur de l'immeuble par son fait ou sa faute";
+        label en unofficial "Article 2457. The buyer must compensate the mortgagee for the loss from deterioration that reduced the immovable's value through its act or fault";
+        when droit_de_suite_hypothecaire(s, t) and degradations_imputables_au_tiers(s, m);
+        then indemnite_due_par_le_tiers(s, m);
+    }
+    rule RemboursementDesDepensesDuTiers(s: SureteReelle, t: Personne, d: Money, v: Money) strict {
+        label fr official "Article 2457. Le tiers acquéreur peut obtenir remboursement, par prélèvement sur le prix de vente, de ses dépenses nécessaires et de celles qui ont augmenté la valeur, dans la limite de la plus-value estimée au jour de la restitution";
+        label en unofficial "Article 2457. The buyer may be reimbursed, out of the sale price, for necessary expenses and those that increased the value, within the increase estimated on the day of return";
+        when droit_de_suite_hypothecaire(s, t) and depenses_du_tiers_acquereur(s, d) and plus_value_estimee(s, v);
+        then remboursement_des_depenses_du_tiers(s, min(d, v));
+    }
+}
+
+@source(CC_ART2458)
+rule ExcedentDuPrixAuTiers(s: SureteReelle, t: Personne, p: Money, d: Money) strict {
+    label fr official "Article 2458. Si le prix de vente excède la dette hypothécaire, la différence est pour le tiers acquéreur, sauf les droits de ses créanciers inscrits sur l'immeuble";
+    label en unofficial "Article 2458. If the sale price exceeds the mortgage debt, the difference goes to the buyer, subject to the rights of its own registered creditors";
+    when droit_de_suite_hypothecaire(s, t) and prix_de_vente_de_l_immeuble(s, p) and dette_hypothecaire(s, d) and p > d;
+    then excedent_du_prix_au_tiers_acquereur(s, p - d);
+}
+
+@source(CC_ART2459)
+rule DroitsReelsRetrouves(s: SureteReelle, t: Personne, x: Text) strict {
+    label fr official "Article 2459. Après la vente, le tiers acquéreur retrouve les droits réels, notamment les servitudes, qu'il avait sur l'immeuble avant qu'il ne l'acquière";
+    label en unofficial "Article 2459. After the sale, the buyer recovers the real rights, in particular servitudes, it had over the immovable before acquiring it";
+    when droit_de_suite_hypothecaire(s, t) and droits_reels_du_tiers_avant_l_acquisition(s, x);
+    then droits_reels_retrouves(s, x);
+}
+
+@source(CC_ART2460)
+rule RecoursDuTiersAcquereur(s: SureteReelle, t: Personne) strict {
+    label fr official "Article 2460. Le tiers acquéreur qui a payé la dette hypothécaire ou subi la saisie a un recours en garantie de droit commun et un recours subrogatoire contre le débiteur principal";
+    label en unofficial "Article 2460. A buyer that paid the mortgage debt or suffered the seizure has an ordinary warranty claim and subrogatory recourse against the principal debtor";
+    when droit_de_suite_hypothecaire(s, t) and tiers_a_paye_ou_subi_la_saisie(s);
+    then recours_du_tiers_acquereur(s);
+}
+
+@source(CC_ART2461)
+rule PurgeDePleinDroit(s: SureteReelle) strict {
+    label fr official "Article 2461. L'immeuble est, de plein droit, purgé du droit de suite dans les cas prévus par la loi, notamment la vente sur saisie immobilière et l'expropriation pour cause d'utilité publique";
+    label en unofficial "Article 2461. The immovable is automatically purged of the right to follow in the cases provided by law, in particular sale on seizure and expropriation for public purposes";
+    when cas_de_purge_legale(s);
+    then immeuble_purge_de_plein_droit(s);
+}
+
+// --- 2462 à 2472 : purge ----------------------------------------------------------------------
+
+@source(CC_ART2462)
+rule PublicationNePurgePas(s: SureteReelle, t: Personne) strict {
+    label fr official "Article 2462. La simple publication au service chargé de la publicité foncière des titres translatifs de propriété ne purge pas les hypothèques établies sur l'immeuble";
+    label en unofficial "Article 2462. Mere publication of the transfer of title with the land registry does not purge the mortgages over the immovable";
+    when immeuble_aliene_a_un_tiers(s, t) and titre_translatif_publie(s);
+    then publication_ne_purge_pas(s);
+}
+
+@source(CC_ART2463)
+rule PurgeAmiable(s: SureteReelle) strict {
+    label fr official "Article 2463. Lorsque tous les créanciers inscrits conviennent avec le débiteur de l'affectation du prix et que le paiement est fait, l'immeuble est purgé du droit de suite";
+    label en unofficial "Article 2463. Where all registered creditors agree with the debtor on the use of the price and payment is made, the immovable is purged of the right to follow";
+    when accord_de_tous_les_creanciers_inscrits(s) and paiement_des_creanciers_effectue(s);
+    then purge_amiable_realisee(s);
+}
+
+@source(CC_ART2464) {
+    rule DateLimiteDeNotificationDePurge(s: SureteReelle, jour: Date) strict {
+        label fr official "Article 2464. Le tiers acquéreur doit notifier son offre aux créanciers inscrits soit avant les poursuites, soit dans le mois de la première sommation de payer";
+        label en unofficial "Article 2464. The buyer must notify its offer to the registered creditors either before proceedings or within the month of the first demand for payment";
+        when titre_translatif_publie(s) and sommation_de_payer_le(s, jour);
+        then date_limite_de_notification_de_purge(s, add_calendar_period(jour, 1 calendar_month));
+    }
+    rule PurgeNotifieeEnTempsUtile(s: SureteReelle, l: Date, n: Date) strict {
+        label fr official "Article 2464. Notification faite dans le mois de la sommation";
+        label en unofficial "Article 2464. Notification given within the month of the demand";
+        when date_limite_de_notification_de_purge(s, l) and notification_de_purge_le(s, n) and n <= l;
+        then purge_notifiee_en_temps_utile(s);
+    }
+}
+
+@source(CC_ART2465) {
+    rule DateLimiteDeSurenchere(s: SureteReelle, n: Date) strict {
+        label fr official "Article 2465. Tout créancier inscrit peut, dans les quarante jours suivant la notification, requérir la vente de l'immeuble aux enchères publiques";
+        label en unofficial "Article 2465. Any registered creditor may, within forty days of the notification, request the sale of the immovable at public auction";
+        when notification_de_purge_le(s, n);
+        then date_limite_de_surenchere(s, add_calendar_period(n, 40 calendar_day));
+    }
+    rule SurenchereRecevable(s: SureteReelle, l: Date, j: Date, o: Money, p: Money) strict {
+        label fr official "Article 2465. Surenchère formée dans les quarante jours, d'un dixième au moins sur le prix stipulé ou la valeur déclarée, avec caution à due concurrence";
+        label en unofficial "Article 2465. Higher bid made within forty days, at least one tenth above the stipulated price or declared value, with matching security";
+        when date_limite_de_surenchere(s, l) and surenchere_formee_le(s, j) and j <= l and montant_de_la_surenchere(s, o)
+            and prix_stipule_ou_valeur_declaree(s, p) and o * 10 >= p * 11 and caution_fournie_par_le_surencherisseur(s);
+        then surenchere_recevable(s);
+    }
+    rule SurenchereTardive(s: SureteReelle, l: Date, j: Date) strict {
+        label fr official "Article 2465. Surenchère formée après les quarante jours";
+        label en unofficial "Article 2465. Higher bid made after the forty days";
+        when date_limite_de_surenchere(s, l) and surenchere_formee_le(s, j) and j > l;
+        then surenchere_irrecevable(s);
+    }
+    rule SurenchereInsuffisante(s: SureteReelle, l: Date, j: Date, o: Money, p: Money) strict {
+        label fr official "Article 2465. Surenchère inférieure au dixième exigé";
+        label en unofficial "Article 2465. Higher bid below the required tenth";
+        when date_limite_de_surenchere(s, l) and surenchere_formee_le(s, j) and j <= l and montant_de_la_surenchere(s, o)
+            and prix_stipule_ou_valeur_declaree(s, p) and o * 10 < p * 11;
+        then surenchere_irrecevable(s);
+    }
+}
+
+@source(CC_ART2466)
+rule DesistementSansEffet(s: SureteReelle) strict {
+    label fr official "Article 2466. Le créancier requérant ne peut, par son désistement, empêcher l'adjudication publique, sauf si tous les autres créanciers inscrits y consentent";
+    label en unofficial "Article 2466. The requesting creditor cannot, by withdrawing, prevent the public auction, unless all the other registered creditors consent";
+    when surenchere_recevable(s) and desistement_du_creancier_requerant(s) and not_known(consentement_de_tous_les_autres_creanciers(s));
+    then adjudication_maintenue_malgre_le_desistement(s);
+}
+
+@source(CC_ART2467) {
+    rule ValeurDefinitivementFixee(s: SureteReelle, p: Money, l: Date) strict {
+        label fr official "Article 2467. Si aucun créancier ne requiert la mise aux enchères dans le délai, la valeur de l'immeuble est définitivement fixée au prix stipulé ou à la valeur déclarée";
+        label en unofficial "Article 2467. If no creditor requests the auction in time, the immovable's value is definitively set at the stipulated price or declared value";
+        when date_limite_de_surenchere(s, l) and prix_stipule_ou_valeur_declaree(s, p) and not_known(surenchere_recevable(s));
+        then valeur_definitivement_fixee(s, p);
+    }
+    rule ImmeubleLibere(s: SureteReelle, p: Money) strict {
+        label fr official "Article 2467. L'immeuble est libéré de toute hypothèque par le paiement de cette somme aux créanciers inscrits ou par sa consignation";
+        label en unofficial "Article 2467. The immovable is freed of all mortgages by paying that sum to the registered creditors or depositing it";
+        when valeur_definitivement_fixee(s, p) and paiement_des_creanciers_effectue(s);
+        then immeuble_libere_par_le_paiement(s);
+    }
+}
+
+@source(CC_ART2468)
+rule VenteAuxEncheres(s: SureteReelle) strict {
+    label fr official "Article 2468. La vente aux enchères se fait selon les formes établies par le code de procédure civile, à la diligence du créancier qui l'a requise ou du tiers acquéreur";
+    label en unofficial "Article 2468. The auction follows the forms of the Code of Civil Procedure, at the instance of the creditor that requested it or of the buyer";
+    when surenchere_recevable(s);
+    then vente_aux_encheres_selon_le_code_de_procedure(s);
+}
+
+@source(CC_ART2469)
+rule RestitutionDesCouts(s: SureteReelle, m: Money) strict {
+    label fr official "Article 2469. L'adjudicataire est tenu, au-delà du prix de son adjudication, de restituer au tiers acquéreur les coûts de son contrat, de sa publication, de la notification et les autres frais de purge";
+    label en unofficial "Article 2469. The successful bidder must, beyond its auction price, repay the buyer the costs of its contract, its publication, the notification and the other purge costs";
+    when adjudication_prononcee(s) and couts_du_contrat_et_de_la_purge(s, m);
+    then restitution_des_couts_par_l_adjudicataire(s, m);
+}
+
+@source(CC_ART2470)
+rule RecoursDeLAdjudicataire(s: SureteReelle, a: Money, p: Money) strict {
+    label fr official "Article 2470. Le tiers acquéreur qui se rend adjudicataire dispose d'un recours contre son vendeur pour le remboursement de ce qui excède le prix stipulé et pour l'intérêt de cet excédent";
+    label en unofficial "Article 2470. A buyer that wins the auction has recourse against its seller for repayment of what exceeds the stipulated price and for interest on that excess";
+    when tiers_acquereur_adjudicataire(s) and prix_de_l_adjudication(s, a) and prix_stipule_ou_valeur_declaree(s, p) and a > p;
+    then recours_de_l_adjudicataire_contre_son_vendeur(s, a - p);
+}
+
+@source(CC_ART2471)
+rule VentilationDuPrix(s: SureteReelle) strict {
+    label fr official "Article 2471. Lorsque le tiers acquéreur a acquis par le même acte plusieurs biens dont certains seuls sont hypothéqués, le prix de chaque immeuble inscrit est déclaré par ventilation du prix global";
+    label en unofficial "Article 2471. Where the buyer acquired several assets by the same deed and only some are mortgaged, the price of each registered immovable is stated by apportioning the global price";
+    when acquisition_globale_de_plusieurs_biens(s) and not_known(ventilation_du_prix_declaree(s));
+    then ventilation_requise(s);
+}
+
+@source(CC_ART2472) {
+    rule GagisteAssimile(s: SureteReelle) strict {
+        label fr official "Article 2472. Si l'immeuble aliéné comprend un immeuble par destination grevé d'un gage, le créancier gagiste est assimilé à un créancier inscrit pour la purge";
+        label en unofficial "Article 2472. If the immovable sold includes a mortgaged fixture, the pledgee is treated as a registered creditor for the purge";
+        when immeuble_par_destination_gage(s);
+        then gagiste_assimile_a_un_creancier_inscrit(s);
+    }
+    rule SurenchereDuGagisteSansEffet(s: SureteReelle) strict {
+        label fr official "Article 2472. Si un créancier gagiste et un créancier hypothécaire forment surenchère, seule celle de ce dernier produit effet";
+        label en unofficial "Article 2472. If a pledgee and a mortgagee both bid higher, only the mortgagee's takes effect";
+        when immeuble_par_destination_gage(s) and surenchere_du_gagiste(s) and surenchere_de_l_hypothecaire(s);
+        then surenchere_du_gagiste_sans_effet(s);
+    }
+}
+
+// --- 2473 : transmission et cession d'antériorité --------------------------------------------------
+
+@source(CC_ART2473) {
+    rule TransmissionAvecLaCreance(s: SureteReelle, p: Personne) strict {
+        label fr official "Article 2473. L'hypothèque est transmise de plein droit avec la créance garantie ; le créancier peut subroger un autre créancier dans l'hypothèque et conserver sa créance";
+        label en unofficial "Article 2473. The mortgage passes automatically with the secured claim; the creditor may subrogate another creditor to the mortgage and keep its claim";
+        when cession_de_creance_hypothecaire(s, p);
+        then hypotheque_transmise_avec_la_creance(s, p);
+    }
+    rule DateUtileDuCedant(x: Collocation, r: Collocation, t: Date) strict {
+        label fr official "Article 2473. Par la cession d'antériorité, le cédant prend la place du cessionnaire : il est rangé à la date de celui-ci";
+        label en unofficial "Article 2473. Through the priority assignment, the assignor takes the assignee's place: it ranks at the latter's date";
+        when cession_d_anteriorite(x, r) and date_de_rang(r, t);
+        then date_utile(x, t);
+    }
+    rule DateUtileDuCessionnaire(x: Collocation, r: Collocation, t: Date) strict {
+        label fr official "Article 2473. Le cessionnaire prend le rang d'inscription qui lui est cédé";
+        label en unofficial "Article 2473. The assignee takes the assigned registration rank";
+        when cession_d_anteriorite(x, r) and date_de_rang(x, t);
+        then date_utile(r, t);
+    }
+    rule DateUtileOrdinaire(r: Collocation, t: Date) strict {
+        label fr official "Articles 2418 et 2473. Sans cession d'antériorité, la collocation est rangée à la date de son inscription";
+        label en unofficial "Articles 2418 and 2473. Without a priority assignment, the entry ranks at its registration date";
+        when date_de_rang(r, t) and not_known(rang_cede(r)) and not_known(rang_recu(r));
+        then date_utile(r, t);
+    }
+    rule RangCede(x: Collocation, r: Collocation) strict {
+        label fr official "Article 2473. Le rang de cette collocation a été cédé";
+        label en unofficial "Article 2473. This entry's rank was assigned";
+        when cession_d_anteriorite(x, r);
+        then rang_cede(x);
+    }
+    rule RangRecu(x: Collocation, r: Collocation) strict {
+        label fr official "Article 2473. Cette collocation a reçu le rang cédé";
+        label en unofficial "Article 2473. This entry received the assigned rank";
+        when cession_d_anteriorite(x, r);
+        then rang_recu(r);
+    }
+}
+
+pub relation rang_cede(r: Collocation) kind derived {
+    label fr official "la collocation a cédé son rang d'inscription (article 2473)";
+    label en unofficial "the entry assigned its registration rank (Article 2473)";
+}
+pub relation rang_recu(r: Collocation) kind derived {
+    label fr official "la collocation a reçu un rang cédé (article 2473)";
+    label en unofficial "the entry received an assigned rank (Article 2473)";
+}
+
+@source(CC_ART2474) {
+    rule ExtinctionParLObligation(s: SureteReelle) strict {
+        label fr official "Article 2474, 1°. Les hypothèques s'éteignent par l'extinction de l'obligation principale, sous réserve du cas prévu à l'article 2422";
+        label en unofficial "Article 2474, 1°. Mortgages are extinguished when the principal obligation ends, subject to Article 2422";
+        when hypotheque_sans_depossession(s) and obligation_principale_eteinte(s);
+        then hypotheque_eteinte(s);
+    }
+    rule ExtinctionParRenonciation(s: SureteReelle) strict {
+        label fr official "Article 2474, 2°. Les hypothèques s'éteignent par la renonciation du créancier";
+        label en unofficial "Article 2474, 2°. Mortgages are extinguished by the creditor's waiver";
+        when hypotheque_sans_depossession(s) and renonciation_a_l_hypotheque(s);
+        then hypotheque_eteinte(s);
+    }
+    rule ExtinctionParLaPurge(s: SureteReelle) strict {
+        label fr official "Article 2474, 3°. Les hypothèques s'éteignent par la purge";
+        label en unofficial "Article 2474, 3°. Mortgages are extinguished by the purge";
+        when hypotheque_sans_depossession(s) and purge_effectuee(s);
+        then hypotheque_eteinte(s);
+    }
+    rule ExtinctionParLaResiliation(s: SureteReelle, jour: Date) strict {
+        label fr official "Article 2474, 4°. Les hypothèques s'éteignent par la résiliation permise au dernier alinéa de l'article 2417, dans la mesure prévue par ce texte";
+        label en unofficial "Article 2474, 4°. Mortgages are extinguished by the termination allowed by Article 2417, last paragraph, to the extent it provides";
+        when resiliation_de_l_hypotheque_effective_le(s, jour);
+        then hypotheque_eteinte(s);
+    }
+}

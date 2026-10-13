@@ -1,0 +1,11 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 465(4): an act made by the protector in place of the person is void.
+test "urn:query:fr-code-civil-personnes-mp06-465-protecteur-a-la-place" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; } assert "f1": categorie_acte_465(entity_ref("urn:fr:cc:personnes:mp06:a"), ActeAccompliParProtecteurALaPlace) { origin adjudicated; } }
+    evaluate truth(sanction_nullite_de_plein_droit(entity_ref("urn:fr:cc:personnes:mp06:a")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ProtecteurALaPlaceNullite);
+}

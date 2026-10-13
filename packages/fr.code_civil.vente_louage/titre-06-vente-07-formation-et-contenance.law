@@ -1,0 +1,406 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1585,
+    CC_ART1586,
+    CC_ART1587,
+    CC_ART1588,
+    CC_ART1589_1,
+    CC_ART1589_2,
+    CC_ART1590,
+    CC_ART1592,
+    CC_ART1593,
+    CC_ART1601,
+    CC_ART1605,
+    CC_ART1606,
+    CC_ART1607,
+    CC_ART1616,
+    CC_ART1617,
+    CC_ART1618,
+    CC_ART1619,
+    CC_ART1621,
+    CC_ART1622,
+    Personne,
+    Vente,
+    acheteur,
+    acquereur_a_le_choix_du_supplement_ou_du_desistement,
+    acquereur_exige_la_quantite_indiquee,
+    acquereur_peut_abandonner_ou_demander_la_partie_conservee,
+    acquereur_se_desiste_du_contrat,
+    action_en_contenance_engagee,
+    action_en_contenance_exercee,
+    action_en_contenance_introduite_le,
+    action_en_contenance_recevable,
+    arrhes_donnees_a_la_promesse,
+    aucun_supplement_ni_diminution_de_prix,
+    chacun_maitre_de_se_departir,
+    chose_goutee_et_agreee,
+    chose_perie_en_totalite_au_moment_de_la_vente,
+    chose_que_l_on_goute_avant_l_achat,
+    choses_aux_risques_du_vendeur,
+    clefs_du_batiment_remises,
+    contenance_due_par_le_vendeur,
+    contenance_livree_conforme_au_contrat,
+    contenance_portee_au_contrat,
+    contenance_reelle,
+    contrat_conclu_le,
+    delivrance_accomplie,
+    delivrance_de_la_quantite_indiquee_impossible,
+    difference_de_mesure_d_un_vingtieme,
+    diminution_proportionnelle_du_prix_due,
+    engagement_unilateral_avec_versement_pour_bien_immobilier,
+    engagement_unilateral_nul,
+    estimation_par_un_autre_tiers,
+    excedent_de_contenance_d_un_vingtieme,
+    frais_d_actes_et_accessoires_a_la_charge_de_l_acheteur,
+    marchandises_pesees_comptees_ou_mesurees,
+    marchandises_vendues_au_poids_au_compte_ou_a_la_mesure,
+    marchandises_vendues_en_bloc,
+    partie_de_la_chose_perie,
+    point_de_vente_avant_agrement,
+    point_de_vente_faute_d_estimation,
+    prix_determine_par_les_parties,
+    prix_laisse_a_l_estimation_d_un_tiers,
+    promesse_constatee_par_acte_authentique_ou_enregistre,
+    promesse_reciproque_de_vente,
+    promesse_unilaterale_de_vente_immobiliere,
+    promesse_unilaterale_nulle,
+    quantite_indiquee_livree,
+    remise_de_la_chose_mobiliere,
+    remise_des_clefs_des_batiments_qui_les_contiennent,
+    remise_des_titres_du_droit_incorporel,
+    restitution_du_prix_et_des_frais_du_contrat_due,
+    seul_consentement_des_parties_a_la_delivrance,
+    stipulation_contraire_sur_la_mesure,
+    tiers_ne_veut_ou_ne_peut_estimer,
+    titres_de_propriete_remis,
+    usage_du_droit_incorporel_du_consentement_du_vendeur,
+    vendeur,
+    vendeur_doit_delivrer_la_quantite_indiquee,
+    vente_avec_indication_de_la_contenance_a_tant_la_mesure,
+    vente_de_corps_certain_ou_de_fonds_distincts,
+    vente_en_vigueur,
+    vente_faite_a_l_essai,
+    vente_nulle,
+    vente_parfaite,
+    vente_presumee_sous_condition_suspensive,
+};
+
+// Formation de la vente (1584 à 1601) et délivrance de la contenance
+// (1604 à 1624). Deux seuils du vingtième s'y trouvent, écrits sans division :
+// vingt fois l'excédent comparé à la contenance déclarée.
+//
+// L'article 1624 renvoie la charge du risque au titre « Des contrats ou des
+// obligations conventionnelles en général » ; sa frontière est déclarée.
+
+// --- Formation ---------------------------------------------------------------
+
+@source(CC_ART1585)
+rule ChosesAuxRisquesDuVendeurAvantMesurage(v: Vente) strict {
+    label fr official "Article 1585. Vendues au poids, au compte ou à la mesure, les choses sont aux risques du vendeur jusqu'à ce qu'elles soient pesées, comptées ou mesurées";
+    label en unofficial "Article 1585. Sold by weight, count or measure, the things are at the seller's risk until weighed, counted or measured";
+    when marchandises_vendues_au_poids_au_compte_ou_a_la_mesure(v)
+        and not_known(marchandises_pesees_comptees_ou_mesurees(v));
+    then choses_aux_risques_du_vendeur(v);
+}
+
+@source(CC_ART1586)
+rule VenteEnBlocParfaiteAvantMesurage(v: Vente) strict {
+    label fr official "Article 1586. Vendues en bloc, les marchandises rendent la vente parfaite quoiqu'elles n'aient pas encore été pesées, comptées ou mesurées";
+    label en unofficial "Article 1586. Sold in bulk, the goods make the sale complete although not yet weighed, counted or measured";
+    when marchandises_vendues_en_bloc(v);
+    then vente_parfaite(v);
+}
+
+@source(CC_ART1587)
+rule PointDeVenteAvantDegustationEtAgrement(v: Vente) strict {
+    label fr official "Article 1587. Pour le vin, l'huile et les autres choses que l'on goûte avant l'achat, il n'y a point de vente tant que l'acheteur ne les a pas goûtées et agréées";
+    label en unofficial "Article 1587. For wine, oil and other things tasted before purchase, there is no sale until the buyer has tasted and approved them";
+    when chose_que_l_on_goute_avant_l_achat(v) and not_known(chose_goutee_et_agreee(v));
+    then point_de_vente_avant_agrement(v);
+}
+
+@source(CC_ART1588)
+rule VenteALEssaiPresumeeSousConditionSuspensive(v: Vente) strict {
+    label fr official "Article 1588. La vente faite à l'essai est toujours présumée faite sous une condition suspensive";
+    label en unofficial "Article 1588. A sale made on trial is always presumed made subject to a condition precedent";
+    when vente_faite_a_l_essai(v);
+    then vente_presumee_sous_condition_suspensive(v);
+}
+
+@source(CC_ART1589_1)
+rule EngagementUnilateralAvecVersementNul(v: Vente) strict {
+    label fr official "Article 1589-1. Est frappé de nullité tout engagement unilatéral souscrit en vue d'une acquisition immobilière pour lequel un versement est exigé ou reçu";
+    label en unofficial "Article 1589-1. Any unilateral undertaking for an immovable acquisition for which a payment is demanded or received is void";
+    when engagement_unilateral_avec_versement_pour_bien_immobilier(v);
+    then engagement_unilateral_nul(v);
+}
+
+@source(CC_ART1589_2)
+rule PromesseUnilateraleSansFormeNulle(v: Vente) strict {
+    label fr official "Article 1589-2. Est nulle toute promesse unilatérale de vente immobilière non constatée par acte authentique ou par acte sous seing privé enregistré dans les dix jours";
+    label en unofficial "Article 1589-2. Any unilateral promise of an immovable sale not recorded by authentic instrument or by private deed registered within ten days is void";
+    when promesse_unilaterale_de_vente_immobiliere(v)
+        and not_known(promesse_constatee_par_acte_authentique_ou_enregistre(v));
+    then promesse_unilaterale_nulle(v);
+}
+
+@source(CC_ART1590)
+rule ArrhesPermettentDeSeDepartir(v: Vente) strict {
+    label fr official "Article 1590. Si la promesse de vendre a été faite avec des arrhes, chacun des contractants est maître de s'en départir";
+    label en unofficial "Article 1590. If the promise to sell was made with earnest money, each party is free to withdraw";
+    when promesse_reciproque_de_vente(v) and arrhes_donnees_a_la_promesse(v);
+    then chacun_maitre_de_se_departir(v);
+}
+
+@source(CC_ART1592)
+rule PointDeVenteFauteDEstimationParUnTiers(v: Vente) strict {
+    label fr official "Article 1592. Si le tiers chargé de l'estimation ne veut ou ne peut la faire, il n'y a point de vente, sauf estimation par un autre tiers";
+    label en unofficial "Article 1592. If the third party charged with the valuation will not or cannot make it, there is no sale, save valuation by another third party";
+    when prix_laisse_a_l_estimation_d_un_tiers(v) and tiers_ne_veut_ou_ne_peut_estimer(v)
+        and not_known(estimation_par_un_autre_tiers(v));
+    then point_de_vente_faute_d_estimation(v);
+}
+
+@source(CC_ART1592)
+rule PrixFixeParUnAutreTiers(v: Vente) strict {
+    label fr official "Article 1592. Le prix laissé à l'estimation d'un tiers est déterminé lorsque l'estimation est faite";
+    label en unofficial "Article 1592. A price left to a third party's valuation is determined once the valuation is made";
+    when prix_laisse_a_l_estimation_d_un_tiers(v) and estimation_par_un_autre_tiers(v);
+    then prix_determine_par_les_parties(v);
+}
+
+@source(CC_ART1593)
+rule FraisDActesALaChargeDeLAcheteur(v: Vente) strict {
+    label fr official "Article 1593. Les frais d'actes et autres accessoires à la vente sont à la charge de l'acheteur";
+    label en unofficial "Article 1593. The costs of instruments and other accessories to the sale are borne by the buyer";
+    when vente_en_vigueur(v);
+    then frais_d_actes_et_accessoires_a_la_charge_de_l_acheteur(v);
+}
+
+@source(CC_ART1601)
+rule VenteNulleSiLaChoseEtaitPerieEnTotalite(v: Vente) strict {
+    label fr official "Article 1601, alinéa 1. Si au moment de la vente la chose vendue était périe en totalité, la vente est nulle";
+    label en unofficial "Article 1601, first paragraph. If at the time of the sale the thing sold had wholly perished, the sale is void";
+    when chose_perie_en_totalite_au_moment_de_la_vente(v);
+    then vente_nulle(v);
+}
+
+@source(CC_ART1601)
+rule ChoixDeLAcquereurEnCasDePertePartielle(v: Vente) strict {
+    label fr official "Article 1601, alinéa 2. Si une partie seulement de la chose est périe, l'acquéreur choisit d'abandonner la vente ou de demander la partie conservée";
+    label en unofficial "Article 1601, second paragraph. If only part of the thing has perished, the buyer chooses to abandon the sale or claim the preserved part";
+    when partie_de_la_chose_perie(v);
+    then acquereur_peut_abandonner_ou_demander_la_partie_conservee(v);
+}
+
+// --- Modes de délivrance (1605 à 1607) --------------------------------------
+
+@source(CC_ART1605)
+rule DelivranceDImmeubleParLesClefs(v: Vente) strict {
+    label fr official "Article 1605. L'obligation de délivrer les immeubles est remplie lorsque le vendeur a remis les clefs, s'il s'agit d'un bâtiment";
+    label en unofficial "Article 1605. The obligation to deliver immovables is fulfilled when the seller has handed over the keys, in the case of a building";
+    when clefs_du_batiment_remises(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1605)
+rule DelivranceDImmeubleParLesTitres(v: Vente) strict {
+    label fr official "Article 1605. L'obligation de délivrer les immeubles est remplie lorsque le vendeur a remis les titres de propriété";
+    label en unofficial "Article 1605. The obligation to deliver immovables is fulfilled when the seller has handed over the title deeds";
+    when titres_de_propriete_remis(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1606)
+rule DelivranceMobiliereParRemiseDeLaChose(v: Vente) strict {
+    label fr official "Article 1606. La délivrance des effets mobiliers s'opère par la remise de la chose";
+    label en unofficial "Article 1606. Delivery of movable effects is effected by handing over the thing";
+    when remise_de_la_chose_mobiliere(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1606)
+rule DelivranceMobiliereParRemiseDesClefs(v: Vente) strict {
+    label fr official "Article 1606. La délivrance des effets mobiliers s'opère par la remise des clefs des bâtiments qui les contiennent";
+    label en unofficial "Article 1606. Delivery of movable effects is effected by handing over the keys of the buildings containing them";
+    when remise_des_clefs_des_batiments_qui_les_contiennent(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1606)
+rule DelivranceMobiliereParLeSeulConsentement(v: Vente) strict {
+    label fr official "Article 1606. La délivrance des effets mobiliers s'opère par le seul consentement des parties lorsque le transport est impossible ou la chose déjà au pouvoir de l'acheteur";
+    label en unofficial "Article 1606. Delivery of movable effects is effected by mere consent where transport is impossible or the thing is already in the buyer's power";
+    when seul_consentement_des_parties_a_la_delivrance(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1607)
+rule TraditionDesDroitsIncorporelsParLesTitres(v: Vente) strict {
+    label fr official "Article 1607. La tradition des droits incorporels se fait par la remise des titres";
+    label en unofficial "Article 1607. Delivery of incorporeal rights is made by handing over the instruments";
+    when remise_des_titres_du_droit_incorporel(v);
+    then delivrance_accomplie(v);
+}
+
+@source(CC_ART1607)
+rule TraditionDesDroitsIncorporelsParLUsage(v: Vente) strict {
+    label fr official "Article 1607. La tradition des droits incorporels se fait par l'usage que l'acquéreur en fait du consentement du vendeur";
+    label en unofficial "Article 1607. Delivery of incorporeal rights is made by the buyer's use of them with the seller's consent";
+    when usage_du_droit_incorporel_du_consentement_du_vendeur(v);
+    then delivrance_accomplie(v);
+}
+
+// --- Contenance (1616 à 1623) ------------------------------------------------
+
+@source(CC_ART1616)
+rule ContenanceDuePortee(v: Vente, n: Integer) strict {
+    label fr official "Article 1616. Le vendeur est tenu de délivrer la contenance telle qu'elle est portée au contrat";
+    label en unofficial "Article 1616. The seller must deliver the area as stated in the contract";
+    when contenance_portee_au_contrat(v, n);
+    then contenance_due_par_le_vendeur(v, n);
+}
+
+@source(CC_ART1616)
+rule PositionContenanceDuePortee(v: Vente, s: Personne, a: Personne, n: Integer) strict {
+    label fr official "Article 1616. Position du vendeur de délivrer la contenance portée au contrat";
+    label en unofficial "Article 1616. Seller's position to deliver the area stated in the contract";
+    when vendeur(v, s) and acheteur(v, a) and contenance_portee_au_contrat(v, n);
+    then duty DelivrerLaContenancePortee {
+        bearer s; beneficiary a;
+        achieve contenance_livree_conforme_au_contrat(v, n) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1617)
+rule VendeurDoitLaQuantiteIndiquee(v: Vente) strict {
+    label fr official "Article 1617. Le vendeur est obligé de délivrer à l'acquéreur, s'il l'exige, la quantité indiquée au contrat";
+    label en unofficial "Article 1617. The seller must deliver to the buyer, if he requires it, the quantity stated in the contract";
+    when vente_avec_indication_de_la_contenance_a_tant_la_mesure(v)
+        and acquereur_exige_la_quantite_indiquee(v)
+        and not_known(delivrance_de_la_quantite_indiquee_impossible(v));
+    then vendeur_doit_delivrer_la_quantite_indiquee(v);
+}
+
+@source(CC_ART1617)
+rule PositionVendeurDoitLaQuantiteIndiquee(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1617. Position du vendeur de délivrer la quantité indiquée";
+    label en unofficial "Article 1617. Seller's position to deliver the stated quantity";
+    when vendeur(v, s) and acheteur(v, a)
+        and vente_avec_indication_de_la_contenance_a_tant_la_mesure(v)
+        and acquereur_exige_la_quantite_indiquee(v)
+        and not_known(delivrance_de_la_quantite_indiquee_impossible(v));
+    then duty DelivrerLaQuantiteIndiquee {
+        bearer s; beneficiary a;
+        achieve quantite_indiquee_livree(v) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1617, seconde branche : l'impossibilité OU l'absence d'exigence
+// mènent l'une et l'autre à la diminution proportionnelle.
+@source(CC_ART1617)
+rule DiminutionProportionnelleSiLaQuantiteEstImpossible(v: Vente) strict {
+    label fr official "Article 1617. Si la délivrance de la quantité indiquée n'est pas possible, le vendeur est obligé de souffrir une diminution proportionnelle du prix";
+    label en unofficial "Article 1617. If delivering the stated quantity is not possible, the seller must suffer a proportionate reduction of the price";
+    when vente_avec_indication_de_la_contenance_a_tant_la_mesure(v)
+        and delivrance_de_la_quantite_indiquee_impossible(v);
+    then diminution_proportionnelle_du_prix_due(v);
+}
+
+@source(CC_ART1617)
+rule DiminutionProportionnelleSiLAcquereurNExigePas(v: Vente) strict {
+    label fr official "Article 1617. Si l'acquéreur n'exige pas la quantité indiquée, le vendeur est obligé de souffrir une diminution proportionnelle du prix";
+    label en unofficial "Article 1617. If the buyer does not require the stated quantity, the seller must suffer a proportionate reduction of the price";
+    when vente_avec_indication_de_la_contenance_a_tant_la_mesure(v)
+        and not_known(acquereur_exige_la_quantite_indiquee(v));
+    then diminution_proportionnelle_du_prix_due(v);
+}
+
+// Article 1618 : le vingtième, écrit sans division — vingt fois l'excédent
+// atteint la contenance déclarée.
+@source(CC_ART1618)
+rule ExcedentDunVingtiemeSurLaContenanceDeclaree(v: Vente, reelle: Integer, portee: Integer) strict {
+    label fr official "Article 1618. L'excédent est d'un vingtième au-dessus de la contenance déclarée lorsque vingt fois la différence atteint cette contenance";
+    label en unofficial "Article 1618. The excess is one twentieth above the declared area where twenty times the difference reaches that area";
+    when vente_avec_indication_de_la_contenance_a_tant_la_mesure(v)
+        and contenance_reelle(v, reelle) and contenance_portee_au_contrat(v, portee)
+        and reelle > portee and (reelle - portee) * 20 >= portee;
+    then excedent_de_contenance_d_un_vingtieme(v);
+}
+
+@source(CC_ART1618)
+rule ChoixDeLAcquereurSurLExcedent(v: Vente) strict {
+    label fr official "Article 1618. L'acquéreur a le choix de fournir le supplément du prix ou de se désister du contrat si l'excédent est d'un vingtième";
+    label en unofficial "Article 1618. The buyer has the choice of supplying the supplement of the price or withdrawing from the contract if the excess is one twentieth";
+    when excedent_de_contenance_d_un_vingtieme(v);
+    then acquereur_a_le_choix_du_supplement_ou_du_desistement(v);
+}
+
+// Article 1619 : hors du cas de l'article 1617, la mesure ne joue qu'au-delà du
+// vingtième — en plus OU en moins.
+@source(CC_ART1619)
+rule DifferenceDunVingtiemeEnPlusOuEnMoins(v: Vente, reelle: Integer, portee: Integer) strict {
+    label fr official "Article 1619. La différence de la mesure réelle à celle exprimée au contrat est d'un vingtième en plus lorsque vingt fois l'excédent atteint la mesure exprimée";
+    label en unofficial "Article 1619. The difference between the actual and the stated measure is one twentieth more where twenty times the excess reaches the stated measure";
+    when vente_de_corps_certain_ou_de_fonds_distincts(v)
+        and contenance_reelle(v, reelle) and contenance_portee_au_contrat(v, portee)
+        and reelle > portee and (reelle - portee) * 20 >= portee;
+    then difference_de_mesure_d_un_vingtieme(v);
+}
+
+@source(CC_ART1619)
+rule DifferenceDunVingtiemeEnMoins(v: Vente, reelle: Integer, portee: Integer) strict {
+    label fr official "Article 1619. La différence est d'un vingtième en moins lorsque vingt fois le manque atteint la mesure exprimée au contrat";
+    label en unofficial "Article 1619. The difference is one twentieth less where twenty times the shortfall reaches the measure stated in the contract";
+    when vente_de_corps_certain_ou_de_fonds_distincts(v)
+        and contenance_reelle(v, reelle) and contenance_portee_au_contrat(v, portee)
+        and portee > reelle and (portee - reelle) * 20 >= portee;
+    then difference_de_mesure_d_un_vingtieme(v);
+}
+
+@source(CC_ART1619)
+rule AucunSupplementNiDiminutionSousLeVingtieme(v: Vente) strict {
+    label fr official "Article 1619. L'expression de la mesure ne donne lieu à aucun supplément ni diminution du prix tant que la différence n'atteint pas le vingtième, s'il n'y a stipulation contraire";
+    label en unofficial "Article 1619. The statement of the measure gives rise to no supplement or reduction of price so long as the difference does not reach one twentieth, unless otherwise stipulated";
+    when vente_de_corps_certain_ou_de_fonds_distincts(v)
+        and not_known(difference_de_mesure_d_un_vingtieme(v))
+        and not_known(stipulation_contraire_sur_la_mesure(v));
+    then aucun_supplement_ni_diminution_de_prix(v);
+}
+
+@source(CC_ART1621)
+rule RestitutionDuPrixEtDesFraisAuDesistement(v: Vente) strict {
+    label fr official "Article 1621. Lorsque l'acquéreur se désiste du contrat, le vendeur lui restitue, outre le prix, les frais de ce contrat";
+    label en unofficial "Article 1621. Where the buyer withdraws from the contract, the seller returns to him, besides the price, the costs of that contract";
+    when acquereur_se_desiste_du_contrat(v);
+    then restitution_du_prix_et_des_frais_du_contrat_due(v);
+}
+
+// Article 1622 : un an à compter du JOUR DU CONTRAT, à peine de déchéance.
+@source(CC_ART1622)
+rule ActionEnContenanceDansLAnnee(v: Vente, contrat: Date, introduction: Date) strict {
+    label fr official "Article 1622. L'action en supplément, en diminution de prix ou en résiliation doit être intentée dans l'année à compter du jour du contrat, à peine de déchéance";
+    label en unofficial "Article 1622. The action for supplement, reduction of price or termination must be brought within one year from the day of the contract, on pain of forfeiture";
+    when contrat_conclu_le(v, contrat) and action_en_contenance_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(contrat, 1 calendar_year);
+    then action_en_contenance_recevable(v);
+}
+
+@source(CC_ART1622)
+rule PositionPouvoirActionEnContenance(v: Vente, a: Personne, contrat: Date, introduction: Date) strict {
+    label fr official "Article 1622. Pouvoir de l'acquéreur d'exercer l'action en contenance dans l'année";
+    label en unofficial "Article 1622. Buyer's power to bring the area action within one year";
+    when acheteur(v, a) and contrat_conclu_le(v, contrat)
+        and action_en_contenance_introduite_le(v, introduction)
+        and introduction <= add_calendar_period(contrat, 1 calendar_year);
+    then power PouvoirActionEnContenance {
+        holder a;
+        exercise action_en_contenance_exercee(v);
+        valid_when action_en_contenance_recevable(v);
+        effect action_en_contenance_engagee(v);
+        window [@1804-03-21, infinity);
+    };
+}

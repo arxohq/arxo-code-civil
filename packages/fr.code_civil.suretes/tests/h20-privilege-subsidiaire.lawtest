@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2376 : privilège portant aussi sur les meubles, mobilier non insuffisant — pas d'exercice sur les immeubles.
+test "urn:query:fr-code-civil-suretes-h20-privilege-subsidiaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:h20:P"), entity_ref("urn:fr:cc:suretes:h20:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:h20:P"), PrivilegeImmobilierGeneral) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:h20:P"), 100 EUR) { origin case_input; }
+        assert "f4": privilege_immobilier_invoque(entity_ref("urn:fr:cc:suretes:h20:P"), RemunerationsEtIndemnitesImmobilieres) { origin case_input; }
+        assert "f5": privilege_general_aussi_sur_les_meubles(entity_ref("urn:fr:cc:suretes:h20:P")) { origin case_input; }
+    }
+    evaluate truth(privilege_exercable_sur_les_immeubles(entity_ref("urn:fr:cc:suretes:h20:P")));
+    expect truth_status == NEITHER;
+}

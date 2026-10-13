@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2332-2, al. 2 : prix 900, deux salariés de 600 au même rang — payés par concurrence, 450 EUR chacun.
+test "urn:query:fr-code-civil-suretes-p07-salaries-par-concurrence" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:p07:D"), 900 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:p07:S1"), entity_ref("urn:fr:cc:suretes:p07:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:p07:S1"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:p07:S1"), 600 EUR) { origin case_input; }
+        assert "f5": privilege_general_invoque(entity_ref("urn:fr:cc:suretes:p07:S1"), RemunerationsEtIndemnites) { origin case_input; }
+        assert "f6": collocation_dans(entity_ref("urn:fr:cc:suretes:p07:S2"), entity_ref("urn:fr:cc:suretes:p07:D")) { origin case_input; }
+        assert "f7": cause_de_preference(entity_ref("urn:fr:cc:suretes:p07:S2"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f8": creance_en_principal(entity_ref("urn:fr:cc:suretes:p07:S2"), 600 EUR) { origin case_input; }
+        assert "f9": privilege_general_invoque(entity_ref("urn:fr:cc:suretes:p07:S2"), RemunerationsEtIndemnites) { origin case_input; }
+    }
+    evaluate truth(somme_attribuee(entity_ref("urn:fr:cc:suretes:p07:S1"), 450 EUR));
+    expect truth_status == TRUE_ONLY;
+}

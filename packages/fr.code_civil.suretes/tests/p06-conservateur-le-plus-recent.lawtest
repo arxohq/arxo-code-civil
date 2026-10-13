@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2332-3, al. 7 : deux conservateurs aux frais antérieurs (10 janvier et 10 mars 2023) — le plus récent passe avant ; celui de janvier est au rang 2.
+test "urn:query:fr-code-civil-suretes-p06-conservateur-le-plus-recent" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:p06:D"), 1000 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:p06:C1"), entity_ref("urn:fr:cc:suretes:p06:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:p06:C1"), PrivilegeMobilierSpecial) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:p06:C1"), 100 EUR) { origin case_input; }
+        assert "f5": privilege_special_invoque(entity_ref("urn:fr:cc:suretes:p06:C1"), ConservateurDuMeuble) { origin case_input; }
+        assert "f6": date_de_rang(entity_ref("urn:fr:cc:suretes:p06:C1"), @2023-01-10) { origin case_input; }
+        assert "f7": collocation_dans(entity_ref("urn:fr:cc:suretes:p06:C2"), entity_ref("urn:fr:cc:suretes:p06:D")) { origin case_input; }
+        assert "f8": cause_de_preference(entity_ref("urn:fr:cc:suretes:p06:C2"), PrivilegeMobilierSpecial) { origin case_input; }
+        assert "f9": creance_en_principal(entity_ref("urn:fr:cc:suretes:p06:C2"), 100 EUR) { origin case_input; }
+        assert "f10": privilege_special_invoque(entity_ref("urn:fr:cc:suretes:p06:C2"), ConservateurDuMeuble) { origin case_input; }
+        assert "f11": date_de_rang(entity_ref("urn:fr:cc:suretes:p06:C2"), @2023-03-10) { origin case_input; }
+    }
+    evaluate truth(rang_de_la_collocation(entity_ref("urn:fr:cc:suretes:p06:C1"), 2));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ConservateurLePlusRecent);
+}

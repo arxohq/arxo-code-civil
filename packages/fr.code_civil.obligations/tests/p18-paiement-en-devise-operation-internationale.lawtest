@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1343-3, deuxième phrase : l'obligation libellée en devise qui procède d'une
+// opération à caractère international se paie dans cette monnaie.
+test "urn:query:fr-code-civil-obligations-p18-paiement-en-devise-operation-internationale" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": paiement_de_la_dette(entity_ref("urn:fr:cc:obl:f:pay"), entity_ref("urn:fr:cc:obl:f:c")) { origin case_input; }
+        assert "f2": obligation_de_somme_d_argent(entity_ref("urn:fr:cc:obl:f:c")) { origin case_input; }
+        assert "f3": paiement_effectue_en_france(entity_ref("urn:fr:cc:obl:f:pay")) { origin case_input; }
+        assert "f4": obligation_libellee_en_devise(entity_ref("urn:fr:cc:obl:f:c")) { origin case_input; }
+        assert "f5": operation_a_caractere_international(entity_ref("urn:fr:cc:obl:f:c")) { origin case_input; }
+    }
+    evaluate truth(paiement_en_devise_admis(entity_ref("urn:fr:cc:obl:f:pay")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PaiementEnDeviseOperationInternationale);
+}

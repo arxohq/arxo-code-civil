@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-3, alinéa 7 : un acte de disposition ne peut être décidé aux deux tiers.
+test "urn:query:fr-code-civil-successions-i04-acte-de-disposition-a-la-majorite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": total_des_parts(entity_ref("urn:fr:cc:successions:ind:i04:I"), 3000) { origin case_input; }
+        assert "f2": parts_favorables(entity_ref("urn:fr:cc:successions:ind:i04:I"), 2000) { origin case_input; }
+        assert "f3": acte_envisage(entity_ref("urn:fr:cc:successions:ind:i04:I"), ActeDeDisposition) { origin case_input; }
+    }
+    evaluate truth(acte_valablement_accompli(entity_ref("urn:fr:cc:successions:ind:i04:I")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 772 : appréciée le 15 août 2026, dernier jour — pas encore réputé acceptant.
+test "urn:query:fr-code-civil-successions-o07-silence-le-dernier-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o07:S"), @2026-01-31) { origin case_input; }
+        assert "f2": sommation_d_opter_le(entity_ref("urn:fr:cc:successions:opt:o07:S"), entity_ref("urn:fr:cc:successions:opt:o07:H"), @2026-06-15) { origin case_input; }
+        assert "f3": aucune_option_ni_prorogation_constatee(entity_ref("urn:fr:cc:successions:opt:o07:S"), entity_ref("urn:fr:cc:successions:opt:o07:H")) { origin adjudicated; }
+        assert "f4": date_d_appreciation_de_l_option(entity_ref("urn:fr:cc:successions:opt:o07:S"), entity_ref("urn:fr:cc:successions:opt:o07:H"), @2026-08-15) { origin case_input; }
+    }
+    evaluate truth(repute_acceptant_pur_et_simple(entity_ref("urn:fr:cc:successions:opt:o07:S"), entity_ref("urn:fr:cc:successions:opt:o07:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

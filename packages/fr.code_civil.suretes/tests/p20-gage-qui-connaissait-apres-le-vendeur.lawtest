@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2332-4 et 2332-3, 5° : le gagiste qui connaissait les autres privilèges vient après le vendeur — rang 2.
+test "urn:query:fr-code-civil-suretes-p20-gage-qui-connaissait-apres-le-vendeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:p20:D"), 600 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:p20:G"), entity_ref("urn:fr:cc:suretes:p20:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:p20:G"), GageSansDepossession) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:p20:G"), 400 EUR) { origin case_input; }
+        assert "f5": date_de_rang(entity_ref("urn:fr:cc:suretes:p20:G"), @2023-02-01) { origin case_input; }
+        assert "f6": creancier_connaissait_les_autres_privileges(entity_ref("urn:fr:cc:suretes:p20:G")) { origin case_input; }
+        assert "f7": collocation_dans(entity_ref("urn:fr:cc:suretes:p20:V"), entity_ref("urn:fr:cc:suretes:p20:D")) { origin case_input; }
+        assert "f8": cause_de_preference(entity_ref("urn:fr:cc:suretes:p20:V"), PrivilegeMobilierSpecial) { origin case_input; }
+        assert "f9": creance_en_principal(entity_ref("urn:fr:cc:suretes:p20:V"), 400 EUR) { origin case_input; }
+        assert "f10": privilege_special_invoque(entity_ref("urn:fr:cc:suretes:p20:V"), VendeurDeMeuble) { origin case_input; }
+    }
+    evaluate truth(rang_de_la_collocation(entity_ref("urn:fr:cc:suretes:p20:G"), 2));
+    expect truth_status == TRUE_ONLY;
+}

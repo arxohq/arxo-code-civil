@@ -1,0 +1,146 @@
+// TITRE VIII — DE LA FILIATION ADOPTIVE (noyau : articles 343, 343-1, 345, 356).
+//
+// Les conditions chiffrées : pour un couple, un an de communauté de vie ou
+// l'un et l'autre âgés de plus de vingt-six ans (343) ; pour une personne
+// seule, plus de vingt-six ans (343-1) ; l'adoption plénière réservée aux
+// enfants de moins de quinze ans accueillis au foyer depuis au moins six mois
+// (345). « Plus de vingt-six ans » se lit ici comme un vingt-sixième
+// anniversaire déjà passé au jour de la demande : le jour même ne suffit pas
+// (lecture consignée dans DECISIONS.md).
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    Adoption,
+    CC_ART343,
+    CC_ART343_1,
+    CC_ART345,
+    Personne,
+    accueilli_au_foyer_depuis,
+    adoptant,
+    adopte,
+    adoption_pleniere_demandee,
+    communaute_de_vie_depuis,
+    couple_adoptant,
+    demande_d_adoption_le,
+    ne_le,
+};
+
+pub relation adoptant_age_de_plus_de_vingt_six_ans(a: Adoption, p: Personne) kind derived {
+    label fr official "l'adoptant est âgé de plus de vingt-six ans au jour de la demande (articles 343, 343-1)";
+    label en unofficial "the adopter is over twenty-six years old on the day of the application (Articles 343, 343-1)";
+}
+pub relation adoptant_trop_jeune(a: Adoption) kind derived {
+    label fr official "l'un au moins des adoptants n'a pas plus de vingt-six ans";
+    label en unofficial "at least one adopter is not over twenty-six";
+}
+pub relation communaute_de_vie_d_un_an(a: Adoption) kind derived {
+    label fr official "les adoptants justifient d'une communauté de vie d'au moins un an (article 343)";
+    label en unofficial "the adopters show at least one year of common life (Article 343)";
+}
+pub relation condition_des_adoptants_remplie(a: Adoption) kind derived {
+    label fr official "la condition d'âge ou de communauté de vie des adoptants est remplie (articles 343, 343-1)";
+    label en unofficial "the adopters' age or common-life condition is met (Articles 343, 343-1)";
+}
+pub relation adoption_pleniere_permise(a: Adoption) kind derived {
+    label fr official "l'adoption plénière est permise : enfant de moins de quinze ans accueilli au foyer depuis au moins six mois (article 345)";
+    label en unofficial "full adoption is permitted: child under fifteen received in the home for at least six months (Article 345)";
+}
+
+@source(CC_ART343, CC_ART343_1) {
+    rule PlusDeVingtSixAns(a: Adoption, p: Personne, naissance: Date, demande: Date) defeasible {
+        label fr official "Articles 343 et 343-1. L'adoptant est âgé de plus de vingt-six ans : son vingt-sixième anniversaire est passé au jour de la demande";
+        label en unofficial "Articles 343 and 343-1. The adopter is over twenty-six: his twenty-sixth birthday has passed on the day of the application";
+        when adoptant(a, p) and ne_le(p, naissance) and demande_d_adoption_le(a, demande)
+            and demande > add_calendar_period(naissance, 26 calendar_year);
+        then adoptant_age_de_plus_de_vingt_six_ans(a, p);
+    }
+    rule UnAdoptantTropJeune(a: Adoption, p: Personne) defeasible {
+        label fr official "Articles 343 et 343-1. Un adoptant qui n'a pas plus de vingt-six ans";
+        label en unofficial "Articles 343 and 343-1. An adopter who is not over twenty-six";
+        when adoptant(a, p) and not_known(adoptant_age_de_plus_de_vingt_six_ans(a, p));
+        then adoptant_trop_jeune(a);
+    }
+    rule CommunauteDeVieDUnAn(a: Adoption, depuis: Date, demande: Date) defeasible {
+        label fr official "Article 343. Les adoptants apportent la preuve d'une communauté de vie d'au moins un an";
+        label en unofficial "Article 343. The adopters prove at least one year of common life";
+        when couple_adoptant(a) and communaute_de_vie_depuis(a, depuis) and demande_d_adoption_le(a, demande)
+            and demande >= add_calendar_period(depuis, 1 calendar_year);
+        then communaute_de_vie_d_un_an(a);
+    }
+    rule CoupleParLaCommunauteDeVie(a: Adoption) defeasible {
+        label fr official "Article 343. Le couple peut adopter s'il justifie d'une communauté de vie d'au moins un an";
+        label en unofficial "Article 343. The couple may adopt if it shows at least one year of common life";
+        when couple_adoptant(a) and communaute_de_vie_d_un_an(a);
+        then condition_des_adoptants_remplie(a);
+    }
+    rule CoupleParLAge(a: Adoption) defeasible {
+        label fr official "Article 343. Le couple peut adopter si l'un et l'autre sont âgés de plus de vingt-six ans";
+        label en unofficial "Article 343. The couple may adopt if both are over twenty-six";
+        when couple_adoptant(a) and not_known(adoptant_trop_jeune(a));
+        then condition_des_adoptants_remplie(a);
+    }
+    rule AdoptantSeul(a: Adoption, p: Personne) defeasible {
+        label fr official "Article 343-1, alinéa 1. L'adoption peut être aussi demandée par toute personne âgée de plus de vingt-six ans";
+        label en unofficial "Article 343-1, paragraph 1. Adoption may also be sought by any person over twenty-six";
+        when adoptant_age_de_plus_de_vingt_six_ans(a, p) and not_known(couple_adoptant(a));
+        then condition_des_adoptants_remplie(a);
+    }
+}
+
+@source(CC_ART343, CC_ART343_1)
+rule PositionPouvoirDemanderAdoptionAge(a: Adoption, p: Personne, demande: Date) strict {
+    label fr official "Articles 343 et 343-1. L'adoptant de plus de vingt-six ans peut demander l'adoption";
+    label en unofficial "Articles 343 and 343-1. An adopter over twenty-six may apply for adoption";
+    when adoptant(a, p) and adoptant_age_de_plus_de_vingt_six_ans(a, p)
+        and demande_d_adoption_le(a, demande);
+    then liberty PouvoirDemanderAdoptionAge {
+        holder p;
+        action demande_d_adoption_le(a, demande);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART343_1)
+rule PositionPouvoirAdoptionSeul(a: Adoption, p: Personne, demande: Date) strict {
+    label fr official "Article 343-1. Toute personne de plus de vingt-six ans peut demander seule l'adoption";
+    label en unofficial "Article 343-1. A person over twenty-six may apply for adoption alone";
+    when adoptant(a, p) and adoptant_age_de_plus_de_vingt_six_ans(a, p)
+        and not_known(couple_adoptant(a)) and demande_d_adoption_le(a, demande);
+    then liberty PouvoirAdoptionSeul {
+        holder p;
+        action demande_d_adoption_le(a, demande);
+        window [@2022-01-01, infinity];
+    };
+}
+
+@source(CC_ART345)
+rule AdoptionPleniereMoinsDeQuinzeAns(a: Adoption, enfant: Personne, naissance: Date, accueil: Date,
+                                     demande: Date) defeasible {
+    label fr official "Article 345, alinéa 1. L'adoption plénière n'est permise qu'en faveur des enfants âgés de moins de quinze ans, accueillis au foyer du ou des adoptants depuis au moins six mois";
+    label en unofficial "Article 345, paragraph 1. Full adoption is permitted only for children under fifteen, received in the adopters' home for at least six months";
+    when adoption_pleniere_demandee(a) and adopte(a, enfant) and ne_le(enfant, naissance)
+        and accueilli_au_foyer_depuis(a, accueil) and demande_d_adoption_le(a, demande)
+        and demande < add_calendar_period(naissance, 15 calendar_year)
+        and demande >= add_calendar_period(accueil, 6 calendar_month);
+    then adoption_pleniere_permise(a);
+}
+
+@source(CC_ART345)
+rule PositionPouvoirDemanderAdoptionPleniere(a: Adoption, p: Personne, enfant: Personne, naissance: Date,
+                                             accueil: Date, demande: Date) strict {
+    label fr official "Article 345. L'adoptant peut demander l'adoption plénière dans les conditions légales";
+    label en unofficial "Article 345. The adopter may apply for full adoption under the statutory conditions";
+    when adoptant(a, p) and adoption_pleniere_demandee(a) and adopte(a, enfant)
+        and ne_le(enfant, naissance) and accueilli_au_foyer_depuis(a, accueil)
+        and demande_d_adoption_le(a, demande)
+        and demande < add_calendar_period(naissance, 15 calendar_year)
+        and demande >= add_calendar_period(accueil, 6 calendar_month);
+    then liberty PouvoirDemanderAdoptionPleniere {
+        holder p;
+        action adoption_pleniere_demandee(a);
+        window [@2022-01-01, infinity];
+    };
+}

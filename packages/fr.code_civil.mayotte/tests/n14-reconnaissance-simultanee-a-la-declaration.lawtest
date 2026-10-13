@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2496 : la reconnaissance simultanée à la déclaration de naissance échappe à la compétence de Mamoudzou.
+test "urn:query:fr-code-civil-mayotte-n14-reconnaissance-simultanee-a-la-declaration" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": reconnaissance_faite_a_mayotte(entity_ref("urn:fr:cc:may:n:rec")) { origin case_input; }
+        assert "f2": simultanee_a_la_declaration_de_naissance(entity_ref("urn:fr:cc:may:n:rec")) { origin case_input; }
+    }
+    evaluate truth(reconnaissance_recue_par_l_officier_de_mamoudzou(entity_ref("urn:fr:cc:may:n:rec")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

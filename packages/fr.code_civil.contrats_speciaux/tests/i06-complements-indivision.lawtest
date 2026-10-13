@@ -1,0 +1,45 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+test "CC13-I06-complements-indivision" {
+    given {
+        context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "a01": titulaires_droits_indivis(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a02": consentement_tous_coindivisaires(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a03": convention_indivision_ecrite(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a04": convention_designe_biens_et_quotes_parts(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a05": gerant_indivision_nomme(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a06": revocation_gerant_indivisaire_unanime(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a07": acte_dans_pouvoirs_gerant_indivision(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a08": indivisaire_incapable_present(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a09": pluralite_gerants_indivision(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a10": aucune_stipulation_administration_pluralite(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a11": aucun_accord_remuneration_gerant(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a12": faute_gestion_gerant_indivision(entity_ref("urn:cc13:i06:c")) { origin adjudicated; }
+        assert "a13": communication_documents_gestion_demandee(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a14": depense_conservation_biens_indivis(entity_ref("urn:cc13:i06:c"), 30.00 EUR) { origin case_input; }
+        assert "a15": alienation_droits_indivis(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a16": clause_acquisition_part_defunt(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a17": creancier_personnel_indivisaire(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a18": debiteur_ne_peut_pas_provoquer_partage(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a19": biens_indivis_greves_usufruit(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+        assert "a20": usufruitiers_non_parties_convention(entity_ref("urn:cc13:i06:c")) { origin case_input; }
+    }
+
+    evaluate truth(convention_exercice_droits_indivis_admise(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(convention_indivision_formellement_valide(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(convention_devient_duree_indeterminee(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(representation_indivisaires_valide(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(pouvoirs_gerant_maintenus_malgre_incapable(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(pouvoirs_separes_gerants_indivision(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(remuneration_gerant_indivision_due(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(responsabilite_gerant_indivision(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(communication_documents_gestion_due(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(participation_depense_conservation_due(entity_ref("urn:cc13:i06:c"), 30.00 EUR)); expect truth_status == TRUE_ONLY;
+    evaluate truth(droits_preemption_substitution_applicables(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(acquisition_part_defunt_admise(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(creancier_peut_saisir_quote_part(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(convention_nus_proprietaires_usufruitiers_admise(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+    evaluate truth(pouvoirs_gerant_non_opposables_aux_usufruitiers(entity_ref("urn:cc13:i06:c"))); expect truth_status == TRUE_ONLY;
+}

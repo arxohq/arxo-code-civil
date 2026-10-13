@@ -1,0 +1,31 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CURATEURSEULHABILITEAPAYER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": curatelle_confiee_a_l_autorite_du_domaine(entity_ref("urn:law:catalog:curateurseulhabiliteapayer:v0")) { origin case_input; }
+    }
+    evaluate truth(curateur_seul_habilite_a_payer(entity_ref("urn:law:catalog:curateurseulhabiliteapayer:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DERIVEP3WAVE2MAINTENANCEPAYERDETTEAVANTPROJET" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": curateur_succession(entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v0"), entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v1")) { origin case_input; }
+        assert "cat-1": dette_a_payer(entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v0"), entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v2")) { origin case_input; }
+        assert "cat-2": paiement_subordonne_au_projet(entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v0"), entity_ref("urn:law:catalog:derivep3wave2maintenancepayerdetteavantprojet:v2")) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(P3Wave2MaintenancePayerDetteAvantProjet, ACTIVE);
+}

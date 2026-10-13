@@ -1,0 +1,482 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART2011,
+    CC_ART2012,
+    CC_ART2013,
+    CC_ART2015,
+    CC_ART2016,
+    CC_ART2017,
+    CC_ART2018,
+    CC_ART2018_1,
+    CC_ART2018_2,
+    CC_ART2019,
+    CC_ART2021,
+    CC_ART2022,
+    CC_ART2023,
+    CC_ART2024,
+    CC_ART2025,
+    CC_ART2026,
+    CC_ART2027,
+    CC_ART2028,
+    CC_ART2029,
+    CC_ART2030,
+    Fiducie,
+    Personne,
+    accord_beneficiaire_modification_ou_revocation,
+    acte_fiduciaire_exerce,
+    acte_notarie_fiducie,
+    aucune_stipulation_passif_fiduciaire,
+    aucune_stipulation_soumission_bail_commercial,
+    beneficiaire_a_accepte_fiducie,
+    beneficiaire_n_a_pas_accepte_fiducie,
+    biens_communaute_ou_indivision,
+    biens_immobiliers_en_fiducie,
+    but_determine_au_profit_beneficiaire,
+    but_fiducie_realise,
+    cession_creance_fiduciaire,
+    cession_creance_opposable_au_debiteur,
+    cession_creance_opposable_aux_tiers,
+    clause_limitation_passif_opposable,
+    clause_limitation_passif_patrimoine_fiduciaire,
+    compte_rendu_fiduciaire,
+    constituant_conserve_usage_fonds_ou_immeuble_professionnel,
+    constituant_fiducie,
+    constituant_ou_fiduciaire_beneficiaire,
+    constituant_personne_physique,
+    contrat_fiducie_le,
+    contrat_fiducie_valide,
+    creance_conservation_ou_gestion_patrimoine,
+    creancier_accepte_expressement_clause,
+    creancier_fiducie,
+    cumul_qualite_beneficiaire_admis,
+    deces_constituant_personne_physique,
+    designation_tiers_protecteur_opposable,
+    dessaisissement_et_transfert_au_remplacant,
+    duree_fiducie_admissible,
+    duree_fiducie_ans,
+    enregistrement_fiducie_en_temps,
+    enregistrement_fiscal_fiducie_le,
+    exigence_forme_fiducie_respectee,
+    expiration_fiducie,
+    faute_fiduciaire_dans_mission,
+    fiduciaire_appartient_categorie_autorisee,
+    fiduciaire_fiducie,
+    fiduciaire_informe_tiers_protecteur,
+    fiduciaire_non_autorise,
+    fiducie_expresse,
+    fiducie_nulle_ordre_public,
+    fiducie_prend_fin,
+    identification_fiduciaire_conforme,
+    insuffisance_patrimoine_fiduciaire,
+    intention_liberale_beneficiaire,
+    manquement_ou_peril_interets_fiducie,
+    mention_expresse_action_pour_fiducie,
+    mentions_obligatoires_fiducie,
+    modification_ou_revocation_apres_acceptation_admise,
+    modification_ou_revocation_ordonnee,
+    notification_cession_au_debiteur,
+    operation_fiducie_reconnue,
+    patrimoine_constituant_gage_commun,
+    patrimoine_fiduciaire_non_affecte_procedure,
+    patrimoine_fiduciaire_retourne,
+    patrimoine_fiduciaire_saisi,
+    patrimoine_fiduciaire_separe,
+    pouvoirs_fiduciaire_presumes_etendus,
+    procedure_collective_fiduciaire_ouverte,
+    publicite_fiducie_conforme,
+    publicite_fonciere_accomplie,
+    publicite_mentionne_fiduciaire_es_qualites,
+    qualite_fiduciaire_admise,
+    reddition_comptes_fiducie,
+    regime_bail_commercial_exclu,
+    remplacement_fiduciaire_ordonne,
+    renonciation_faculte_tiers_protecteur,
+    renonciation_faculte_tiers_protecteur_exclue,
+    renonciation_tiers_protecteur_exercee,
+    renonciation_tous_beneficiaires,
+    responsabilite_patrimoine_propre_fiduciaire,
+    revocation_fiducie_exercee,
+    revocation_unilaterale_constituant_admise,
+    saisie_patrimoine_fiduciaire_autorisee,
+    tiers_connait_limitation_pouvoirs_fiduciaire,
+    tiers_protecteur_designe,
+    transfert_biens_droits_ou_suretes,
+    transfert_fiduciaire_exerce,
+    violation_depassement_duree_fiducie,
+};
+
+@source(CC_ART2018) {
+    rule DureeFiducieAuPlusQuatreVingtDixNeufAns(f: Fiducie, n: Integer) strict {
+        label fr official "Article 2018, 2°. La durée du transfert fiduciaire ne peut excéder quatre-vingt-dix-neuf ans";
+        label en unofficial "Article 2018(2). A fiduciary transfer may not exceed ninety-nine years";
+        when duree_fiducie_ans(f, n) and n <= 99; then duree_fiducie_admissible(f);
+    }
+    rule FiducieValideAvecMentionsEtDuree(f: Fiducie) strict {
+        label fr official "Article 2018. Le contrat détermine ses mentions obligatoires à peine de nullité";
+        label en unofficial "Article 2018. The agreement states its mandatory terms on pain of nullity";
+        when mentions_obligatoires_fiducie(f) and duree_fiducie_admissible(f); then contrat_fiducie_valide(f);
+    }
+}
+
+@source(CC_ART2018)
+rule P3InterdictionDepasserDureeFiducie(f: Fiducie, n: Integer) strict {
+    label fr official "Article 2018. La durée du transfert fiduciaire ne peut excéder quatre-vingt-dix-neuf ans";
+    label en unofficial "Article 2018. A fiduciary transfer may not exceed ninety-nine years";
+    when duree_fiducie_ans(f, n) and n > 99;
+    then prohibition P3PositionInterdictionDepasserDureeFiducie {
+        bearer f;
+        action transfert_fiduciaire_exerce(f, n);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART2018)
+
+rule ViolationInterdictionDepasserDureeFiducie(f: Fiducie, n: Integer) strict {
+    label fr official "Article 2018. La durée du transfert fiduciaire ne peut excéder quatre-vingt-dix-neuf ans";
+    label en unofficial "Article 2018. A fiduciary transfer may not exceed ninety-nine years";
+    when transfert_fiduciaire_exerce(f, n);
+    then violation_depassement_duree_fiducie(f, n);
+}
+@source(CC_ART2018)
+rule P3MaintenanceInterdictionDepasserDureeFiducie(f: Fiducie, n: Integer) strict {
+    label fr official "Article 2018. La durée du transfert fiduciaire ne peut excéder quatre-vingt-dix-neuf ans";
+    label en unofficial "Article 2018. A fiduciary transfer may not exceed ninety-nine years";
+    when duree_fiducie_ans(f, n) and n > 99;
+    then duty P3PositionMaintenanceInterdictionDepasserDureeFiducie {
+        bearer f;
+        goal maintenance {
+            condition not violation_depassement_duree_fiducie(f, n);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART2019) {
+    rule EnregistrementFiducieDansUnMois(f: Fiducie, contrat: Date, enregistrement: Date) strict {
+        label fr official "Article 2019, alinéa 1. Le contrat de fiducie est enregistré dans le mois de sa date";
+        label en unofficial "Article 2019, paragraph 1. A fiduciary agreement is registered within one month of its date";
+        when contrat_fiducie_le(f, contrat) and enregistrement_fiscal_fiducie_le(f, enregistrement)
+            and enregistrement <= add_calendar_period(contrat, 1 calendar_month);
+        then enregistrement_fiducie_en_temps(f);
+    }
+    rule FiducieImmobilierePubliee(f: Fiducie) strict {
+        label fr official "Article 2019, alinéa 2. La fiducie portant sur des immeubles est publiée";
+        label en unofficial "Article 2019, paragraph 2. A fiduciary agreement concerning immovables is published";
+        when biens_immobiliers_en_fiducie(f) and publicite_fonciere_accomplie(f); then publicite_fiducie_conforme(f);
+    }
+}
+
+@source(CC_ART2022)
+rule FiduciaireRendCompte(f: Fiducie) strict {
+    label fr official "Article 2022. Le fiduciaire rend compte de sa mission";
+    label en unofficial "Article 2022. The fiduciary accounts for performance of the mission";
+    when compte_rendu_fiduciaire(f); then reddition_comptes_fiducie(f);
+}
+
+@source(CC_ART2029) {
+    rule FinFiducieDecesConstituant(f: Fiducie) strict { label fr official "Article 2029. La fiducie prend fin au décès du constituant personne physique"; label en unofficial "Article 2029. A fiducie ends on the death of an individual settlor"; when deces_constituant_personne_physique(f); then fiducie_prend_fin(f); }
+    rule FinFiducieExpiration(f: Fiducie) strict { label fr official "Article 2029. La fiducie prend fin à l'expiration du terme"; label en unofficial "Article 2029. A fiducie ends on expiry"; when expiration_fiducie(f); then fiducie_prend_fin(f); }
+    rule FinFiducieButRealise(f: Fiducie) strict { label fr official "Article 2029. La fiducie prend fin lorsque son but est réalisé"; label en unofficial "Article 2029. A fiducie ends when its purpose is achieved"; when but_fiducie_realise(f); then fiducie_prend_fin(f); }
+    rule FinFiducieRenonciationBeneficiaires(f: Fiducie) strict { label fr official "Article 2029. La fiducie prend fin par renonciation de tous les bénéficiaires"; label en unofficial "Article 2029. A fiducie ends when all beneficiaries renounce"; when renonciation_tous_beneficiaires(f); then fiducie_prend_fin(f); }
+}
+
+@source(CC_ART2030)
+rule RetourPatrimoineFinFiducie(f: Fiducie) strict {
+    label fr official "Article 2030. À la fin de la fiducie, le patrimoine retourne au constituant ou à sa succession";
+    label en unofficial "Article 2030. At the end of a fiducie, the estate returns to the settlor or the settlor's succession";
+    when fiducie_prend_fin(f); then patrimoine_fiduciaire_retourne(f);
+}
+
+@source(CC_ART2011)
+rule OperationFiducieSeparePatrimoine(f: Fiducie) strict {
+    label fr official "Article 2011. Le transfert séparé dans un but déterminé au profit d'un bénéficiaire constitue la fiducie";
+    label en unofficial "Article 2011. A segregated transfer for a defined beneficiary purpose constitutes a fiducie";
+    when transfert_biens_droits_ou_suretes(f) and patrimoine_fiduciaire_separe(f)
+        and but_determine_au_profit_beneficiaire(f);
+    then operation_fiducie_reconnue(f);
+}
+
+@source(CC_ART2012)
+rule FiducieDoitEtreExpresse(f: Fiducie) strict {
+    label fr official "Article 2012. La fiducie établie par contrat doit être expresse";
+    label en unofficial "Article 2012. A contractual fiducie must be express";
+    when fiducie_expresse(f);
+    then exigence_forme_fiducie_respectee(f);
+}
+
+@source(CC_ART2012)
+rule FiducieCommunauteOuIndivisionNotariee(f: Fiducie) strict {
+    label fr official "Article 2012. Le transfert de biens communs ou indivis exige l'acte notarié à peine de nullité";
+    label en unofficial "Article 2012. Transfer of community or undivided property requires a notarised instrument on pain of nullity";
+    when biens_communaute_ou_indivision(f) and acte_notarie_fiducie(f);
+    then exigence_forme_fiducie_respectee(f);
+}
+
+@source(CC_ART2013)
+rule IntentionLiberaleRendFiducieNulle(f: Fiducie) strict {
+    label fr official "Article 2013. L'intention libérale au profit du bénéficiaire rend la fiducie nulle d'ordre public";
+    label en unofficial "Article 2013. A donative intent for the beneficiary makes the fiducie void as a matter of public policy";
+    when intention_liberale_beneficiaire(f);
+    then fiducie_nulle_ordre_public(f);
+}
+
+@source(CC_ART2015)
+rule CategorieAutoriseePeutEtreFiduciaire(f: Fiducie) strict {
+    label fr official "Article 2015. Seules les catégories légalement énumérées peuvent avoir la qualité de fiduciaire";
+    label en unofficial "Article 2015. Only legally enumerated categories may act as fiduciary";
+    when fiduciaire_appartient_categorie_autorisee(f);
+    then qualite_fiduciaire_admise(f);
+}
+
+@source(CC_ART2015)
+rule P3InterdictionFiduciaireNonAutorise(f: Fiducie, fiduciaire_: Personne) strict {
+    label fr official "Article 2015. Seules les catégories légalement énumérées peuvent avoir la qualité de fiduciaire";
+    label en unofficial "Article 2015. Only legally enumerated categories may act as fiduciary";
+    when fiduciaire_non_autorise(f) and fiduciaire_fiducie(f, fiduciaire_);
+    then prohibition P3PositionInterdictionActiviteFiduciaireNonAutorisee {
+        bearer fiduciaire_;
+        action acte_fiduciaire_exerce(f, fiduciaire_);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub relation violation_activite_fiduciaire_non_autorisee(f: Fiducie, fiduciaire_: Personne) kind derived {
+    label fr official "activité fiduciaire exercée par une catégorie non autorisée en violation de l'article 2015";
+    label en unofficial "fiduciary activity performed by an unauthorised category in violation of Article 2015";
+}
+@source(CC_ART2015)
+rule ViolationInterdictionFiduciaireNonAutorise(f: Fiducie, fiduciaire_: Personne) strict {
+    label fr official "activité fiduciaire exercée par une catégorie non autorisée en violation de l'article 2015";
+    label en unofficial "fiduciary activity performed by an unauthorised category in violation of Article 2015";
+    when acte_fiduciaire_exerce(f, fiduciaire_);
+    then violation_activite_fiduciaire_non_autorisee(f, fiduciaire_);
+}
+@source(CC_ART2015)
+rule P3MaintenanceInterdictionFiduciaireNonAutorise(f: Fiducie, fiduciaire_: Personne) strict {
+    label fr official "activité fiduciaire exercée par une catégorie non autorisée en violation de l'article 2015";
+    label en unofficial "fiduciary activity performed by an unauthorised category in violation of Article 2015";
+    when fiduciaire_non_autorise(f) and fiduciaire_fiducie(f, fiduciaire_);
+    then duty P3PositionMaintenanceInterdictionFiduciaireNonAutorise {
+        bearer fiduciaire_;
+        goal maintenance {
+            condition not violation_activite_fiduciaire_non_autorisee(f, fiduciaire_);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART2016)
+rule ConstituantOuFiduciairePeutEtreBeneficiaire(f: Fiducie) strict {
+    label fr official "Article 2016. Le constituant ou le fiduciaire peut être bénéficiaire";
+    label en unofficial "Article 2016. The settlor or fiduciary may be a beneficiary";
+    when constituant_ou_fiduciaire_beneficiaire(f);
+    then cumul_qualite_beneficiaire_admis(f);
+}
+
+@source(CC_ART2017)
+rule TiersProtecteurDesigneEtNotifie(f: Fiducie) strict {
+    label fr official "Article 2017. La désignation du tiers protecteur est portée à la connaissance du fiduciaire";
+    label en unofficial "Article 2017. Appointment of the protector is notified to the fiduciary";
+    when tiers_protecteur_designe(f) and fiduciaire_informe_tiers_protecteur(f);
+    then designation_tiers_protecteur_opposable(f);
+}
+
+@source(CC_ART2017)
+rule ConstituantPhysiqueNePeutRenoncerTiersProtecteur(f: Fiducie) strict {
+    label fr official "Article 2017. Le constituant personne physique ne peut renoncer à la faculté de désigner un tiers protecteur";
+    label en unofficial "Article 2017. An individual settlor may not waive the power to appoint a protector";
+    when constituant_personne_physique(f) and renonciation_faculte_tiers_protecteur(f);
+    then renonciation_faculte_tiers_protecteur_exclue(f);
+}
+
+@source(CC_ART2017)
+rule P3InterdictionRenoncerTiersProtecteur(f: Fiducie) strict {
+    label fr official "Article 2017. Le constituant personne physique ne peut renoncer à la faculté de désigner un tiers protecteur";
+    label en unofficial "Article 2017. An individual settlor may not waive appointment of a protector";
+    when constituant_personne_physique(f) and renonciation_faculte_tiers_protecteur(f);
+    then prohibition P3PositionInterdictionRenoncerTiersProtecteur {
+        bearer f;
+        action renonciation_tiers_protecteur_exercee(f);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub relation violation_renonciation_tiers_protecteur(f: Fiducie) kind derived {
+    label fr official "renonciation au tiers protecteur exercée en violation de l'article 2017";
+    label en unofficial "protector waiver exercised in violation of Article 2017";
+}
+@source(CC_ART2017)
+rule ViolationInterdictionRenoncerTiersProtecteur(f: Fiducie) strict {
+    label fr official "renonciation au tiers protecteur exercée en violation de l'article 2017";
+    label en unofficial "protector waiver exercised in violation of Article 2017";
+    when renonciation_tiers_protecteur_exercee(f);
+    then violation_renonciation_tiers_protecteur(f);
+}
+@source(CC_ART2017)
+rule P3MaintenanceInterdictionRenoncerTiersProtecteur(f: Fiducie) strict {
+    label fr official "renonciation au tiers protecteur exercée en violation de l'article 2017";
+    label en unofficial "protector waiver exercised in violation of Article 2017";
+    when constituant_personne_physique(f) and renonciation_faculte_tiers_protecteur(f);
+    then duty P3PositionMaintenanceInterdictionRenoncerTiersProtecteur {
+        bearer f;
+        goal maintenance {
+            condition not violation_renonciation_tiers_protecteur(f);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART2018_1)
+rule UsageProfessionnelHorsRegimeBailCommercial(f: Fiducie) strict {
+    label fr official "Article 2018-1. La convention d'usage professionnel conservé échappe au régime du bail commercial sauf stipulation contraire";
+    label en unofficial "Article 2018-1. Retained professional use falls outside commercial lease rules absent contrary agreement";
+    when constituant_conserve_usage_fonds_ou_immeuble_professionnel(f)
+        and aucune_stipulation_soumission_bail_commercial(f);
+    then regime_bail_commercial_exclu(f);
+}
+
+@source(CC_ART2018_2)
+rule CessionCreanceOpposableAuxTiers(f: Fiducie) strict {
+    label fr official "Article 2018-2. La cession fiduciaire de créance est opposable aux tiers à la date du contrat";
+    label en unofficial "Article 2018-2. A fiduciary assignment of a claim is effective against third parties from the contract date";
+    when cession_creance_fiduciaire(f);
+    then cession_creance_opposable_aux_tiers(f);
+}
+
+@source(CC_ART2018_2)
+rule CessionCreanceOpposableDebiteurApresNotification(f: Fiducie) strict {
+    label fr official "Article 2018-2. La cession est opposable au débiteur après notification";
+    label en unofficial "Article 2018-2. The assignment is effective against the debtor after notice";
+    when cession_creance_fiduciaire(f) and notification_cession_au_debiteur(f);
+    then cession_creance_opposable_au_debiteur(f);
+}
+
+@source(CC_ART2021)
+rule MentionExpresseActionPourFiducie(f: Fiducie) strict {
+    label fr official "Article 2021. Le fiduciaire mentionne expressément qu'il agit pour la fiducie";
+    label en unofficial "Article 2021. The fiduciary expressly states that action is for the fiducie";
+    when mention_expresse_action_pour_fiducie(f);
+    then identification_fiduciaire_conforme(f);
+}
+
+@source(CC_ART2021)
+rule PubliciteMentionneFiduciaireEsQualites(f: Fiducie) strict {
+    label fr official "Article 2021. La publicité mentionne le fiduciaire ès qualités";
+    label en unofficial "Article 2021. Public registration identifies the fiduciary in that capacity";
+    when publicite_mentionne_fiduciaire_es_qualites(f);
+    then identification_fiduciaire_conforme(f);
+}
+
+@source(CC_ART2023)
+rule PouvoirsFiduciairePresumesEtendus(f: Fiducie) defeasible {
+    label fr official "Article 2023. Le fiduciaire est présumé disposer des pouvoirs les plus étendus envers les tiers";
+    label en unofficial "Article 2023. The fiduciary is presumed to have the broadest authority toward third parties";
+    when operation_fiducie_reconnue(f);
+    then pouvoirs_fiduciaire_presumes_etendus(f);
+    unless tiers_connait_limitation_pouvoirs_fiduciaire(f);
+}
+
+@source(CC_ART2024)
+rule ProcedureCollectiveNaffectePasPatrimoineFiduciaire(f: Fiducie) strict {
+    label fr official "Article 2024. La procédure collective du fiduciaire n'affecte pas le patrimoine fiduciaire";
+    label en unofficial "Article 2024. Insolvency proceedings concerning the fiduciary do not affect the fiduciary estate";
+    when procedure_collective_fiduciaire_ouverte(f);
+    then patrimoine_fiduciaire_non_affecte_procedure(f);
+}
+
+@source(CC_ART2025)
+rule CreancierGestionPeutSaisirPatrimoineFiduciaire(f: Fiducie) strict {
+    label fr official "Article 2025. Le créancier né de la conservation ou gestion peut saisir le patrimoine fiduciaire";
+    label en unofficial "Article 2025. A preservation or management creditor may seize the fiduciary estate";
+    when creance_conservation_ou_gestion_patrimoine(f);
+    then saisie_patrimoine_fiduciaire_autorisee(f);
+}
+
+@source(CC_ART2025)
+rule P3PouvoirSaisirPatrimoineFiduciaire(f: Fiducie, creancier_: Personne) strict {
+    label fr official "Article 2025. Le créancier né de la conservation ou gestion peut saisir le patrimoine fiduciaire";
+    label en unofficial "Article 2025. A preservation or management creditor may seize the fiduciary estate";
+    when creance_conservation_ou_gestion_patrimoine(f) and creancier_fiducie(f, creancier_);
+    then power P3PositionPouvoirSaisirPatrimoineFiduciaire {
+        holder creancier_;
+        over f;
+        exercise saisie_patrimoine_fiduciaire_autorisee(f);
+        effect patrimoine_fiduciaire_saisi(f);
+        valid_when creance_conservation_ou_gestion_patrimoine(f);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2025)
+rule InsuffisanceRendPatrimoineConstituantGage(f: Fiducie) strict {
+    label fr official "Article 2025. En cas d'insuffisance et sans clause contraire, le patrimoine du constituant est le gage commun";
+    label en unofficial "Article 2025. On insufficiency and absent contrary agreement, the settlor's estate is the common security";
+    when insuffisance_patrimoine_fiduciaire(f) and aucune_stipulation_passif_fiduciaire(f);
+    then patrimoine_constituant_gage_commun(f);
+}
+
+@source(CC_ART2025)
+rule LimitationPassifOpposableAuCreancierAcceptant(f: Fiducie) strict {
+    label fr official "Article 2025. La limitation du passif au patrimoine fiduciaire n'est opposable qu'au créancier qui l'accepte expressément";
+    label en unofficial "Article 2025. Limitation of liability to the fiduciary estate binds only a creditor who expressly accepts it";
+    when clause_limitation_passif_patrimoine_fiduciaire(f) and creancier_accepte_expressement_clause(f);
+    then clause_limitation_passif_opposable(f);
+}
+
+@source(CC_ART2026)
+rule FauteFiduciaireEngagePatrimoinePropre(f: Fiducie) strict {
+    label fr official "Article 2026. La faute du fiduciaire engage son patrimoine propre";
+    label en unofficial "Article 2026. Fiduciary fault engages the fiduciary's own estate";
+    when faute_fiduciaire_dans_mission(f);
+    then responsabilite_patrimoine_propre_fiduciaire(f);
+}
+
+@source(CC_ART2027)
+rule RemplacementDessaisitFiduciaireOriginaire(f: Fiducie) strict {
+    label fr official "Article 2027. La décision de remplacement dessaisit de plein droit le fiduciaire originaire et transfère le patrimoine";
+    label en unofficial "Article 2027. A replacement order automatically divests the original fiduciary and transfers the estate";
+    when manquement_ou_peril_interets_fiducie(f) and remplacement_fiduciaire_ordonne(f);
+    then dessaisissement_et_transfert_au_remplacant(f);
+}
+
+@source(CC_ART2028)
+rule RevocationAvantAcceptationBeneficiaire(f: Fiducie) strict {
+    label fr official "Article 2028. Le constituant peut révoquer avant l'acceptation du bénéficiaire";
+    label en unofficial "Article 2028. The settlor may revoke before beneficiary acceptance";
+    when beneficiaire_n_a_pas_accepte_fiducie(f);
+    then revocation_unilaterale_constituant_admise(f);
+}
+
+@source(CC_ART2028)
+rule P3PouvoirRevoquerFiducieAvantAcceptation(f: Fiducie, constituant_: Personne) strict {
+    label fr official "Article 2028. Le constituant peut révoquer avant l'acceptation du bénéficiaire";
+    label en unofficial "Article 2028. The settlor may revoke before beneficiary acceptance";
+    when beneficiaire_n_a_pas_accepte_fiducie(f) and constituant_fiducie(f, constituant_);
+    then power P3PositionPouvoirRevoquerFiducieAvantAcceptation {
+        holder constituant_;
+        over f;
+        exercise revocation_fiducie_exercee(f, constituant_);
+        effect revocation_unilaterale_constituant_admise(f);
+        valid_when beneficiaire_n_a_pas_accepte_fiducie(f);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2028)
+rule ModificationApresAcceptationAvecAccord(f: Fiducie) strict {
+    label fr official "Article 2028. Après acceptation, l'accord du bénéficiaire permet modification ou révocation";
+    label en unofficial "Article 2028. After acceptance, beneficiary agreement permits amendment or revocation";
+    when beneficiaire_a_accepte_fiducie(f) and accord_beneficiaire_modification_ou_revocation(f);
+    then modification_ou_revocation_apres_acceptation_admise(f);
+}
+
+@source(CC_ART2028)
+rule ModificationApresAcceptationParJustice(f: Fiducie) strict {
+    label fr official "Article 2028. Après acceptation, la justice peut autoriser modification ou révocation";
+    label en unofficial "Article 2028. After acceptance, a court may permit amendment or revocation";
+    when beneficiaire_a_accepte_fiducie(f) and modification_ou_revocation_ordonnee(f);
+    then modification_ou_revocation_apres_acceptation_admise(f);
+}

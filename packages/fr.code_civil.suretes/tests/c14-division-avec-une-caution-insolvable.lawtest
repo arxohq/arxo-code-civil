@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2306 et 2306-1 : trois cautions de 10 000, la troisième insolvable au jour de la division — part de la caution poursuivie : 10 000 / 2 = 5 000 EUR.
+test "urn:query:fr-code-civil-suretes-c14-division-avec-une-caution-insolvable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c14:K1"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c14:K1"), entity_ref("urn:fr:cc:suretes:c14:C1")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c14:K1"), entity_ref("urn:fr:cc:suretes:c14:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c14:C1")) { origin case_input; }
+        assert "f5": dette_garantie(entity_ref("urn:fr:cc:suretes:c14:K1"), entity_ref("urn:fr:cc:suretes:c14:D")) { origin case_input; }
+        assert "f6": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c14:K2"), @2022-03-01) { origin case_input; }
+        assert "f7": caution(entity_ref("urn:fr:cc:suretes:c14:K2"), entity_ref("urn:fr:cc:suretes:c14:C2")) { origin case_input; }
+        assert "f8": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c14:K2"), entity_ref("urn:fr:cc:suretes:c14:B")) { origin case_input; }
+        assert "f9": est_personne_morale(entity_ref("urn:fr:cc:suretes:c14:C2")) { origin case_input; }
+        assert "f10": dette_garantie(entity_ref("urn:fr:cc:suretes:c14:K2"), entity_ref("urn:fr:cc:suretes:c14:D")) { origin case_input; }
+        assert "f11": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c14:K3"), @2022-03-01) { origin case_input; }
+        assert "f12": caution(entity_ref("urn:fr:cc:suretes:c14:K3"), entity_ref("urn:fr:cc:suretes:c14:C3")) { origin case_input; }
+        assert "f13": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c14:K3"), entity_ref("urn:fr:cc:suretes:c14:B")) { origin case_input; }
+        assert "f14": est_personne_morale(entity_ref("urn:fr:cc:suretes:c14:C3")) { origin case_input; }
+        assert "f15": dette_garantie(entity_ref("urn:fr:cc:suretes:c14:K3"), entity_ref("urn:fr:cc:suretes:c14:D")) { origin case_input; }
+        assert "f16": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:c14:K1"), @2023-05-02) { origin case_input; }
+        assert "f17": benefice_de_division_invoque_le(entity_ref("urn:fr:cc:suretes:c14:K1"), @2023-05-02) { origin case_input; }
+        assert "f18": montant_de_la_dette_garantie(entity_ref("urn:fr:cc:suretes:c14:K1"), 10000 EUR) { origin case_input; }
+        assert "f19": caution_insolvable_au_jour_de_la_division(entity_ref("urn:fr:cc:suretes:c14:K3")) { origin case_input; }
+    }
+    evaluate truth(part_de_la_caution_dans_la_division(entity_ref("urn:fr:cc:suretes:c14:K1"), 5000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(PartDeLaCaution);
+}

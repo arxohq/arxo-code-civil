@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 520, al. 2. « Dès que les grains sont coupés et les fruits détachés,
+// quoique non enlevés, ils sont meubles. »
+test "urn:query:fr-code-civil-biens-d03-grain-coupe" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": grain_coupe_ou_fruit_detache(entity_ref("urn:fr:cc:biens:d03:B")) { origin case_input; }
+    }
+    evaluate truth(meuble(entity_ref("urn:fr:cc:biens:d03:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

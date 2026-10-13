@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DECISIONINDIVISIONHORSPOUVOIRSUNANIME" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": unanimite_indivisaires(entity_ref("urn:law:catalog:decisionindivisionhorspouvoirsunanime:v0")) { origin case_input; }
+        assert "cat-1": decision_excede_pouvoirs_gerant_indivision(entity_ref("urn:law:catalog:decisionindivisionhorspouvoirsunanime:v0")) { origin case_input; }
+    }
+    evaluate truth(decision_indivision_valide(entity_ref("urn:law:catalog:decisionindivisionhorspouvoirsunanime:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-IMMEUBLEINDIVISACCORDDETOUS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": alienation_immeuble_indivis(entity_ref("urn:law:catalog:immeubleindivisaccorddetous:v0")) { origin case_input; }
+        assert "cat-1": accord_tous_indivisaires(entity_ref("urn:law:catalog:immeubleindivisaccorddetous:v0")) { origin case_input; }
+    }
+    evaluate truth(alienation_immeuble_autorisee(entity_ref("urn:law:catalog:immeubleindivisaccorddetous:v0")));
+    expect truth_status == TRUE_ONLY;
+}

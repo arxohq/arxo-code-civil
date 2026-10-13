@@ -1,0 +1,443 @@
+// TITRE V — DE LA PUBLICITÉ FONCIÈRE (710-1) ET DISPOSITIONS GÉNÉRALES DU
+// LIVRE III — DES DIFFÉRENTES MANIÈRES DONT ON ACQUIERT LA PROPRIÉTÉ
+// (711 à 717).
+//
+// L'ARTICLE 710-1 N'EST PAS EXÉCUTÉ, ET C'EST LE TEXTE QUI LE DIT. Il pose
+// la condition de forme de l'acte — authentique, ou décision
+// juridictionnelle, ou acte authentique d'une autorité administrative — mais
+// les FORMALITÉS de publicité foncière elles-mêmes, leur objet, leur registre
+// et leurs effets sont réglés hors du Code civil, par le décret n° 55-22 du
+// 4 janvier 1955 et le décret n° 55-1350 du 14 octobre 1955. Un paquet du
+// Code ne peut pas décider seul si un acte « donne lieu aux formalités » sans
+// tenir ce régime, que le Code ne contient pas. L'article est donc une
+// FRONTIÈRE EXTERNE déclarée, par son propre renvoi (SOURCES.json →
+// external, disposition `reference`), et non un article oublié.
+//
+// L'ARTICLE 713 RENVOIE AU CODE DE L'ENVIRONNEMENT pour trois de ses quatre
+// alinéas : les zones de l'article L. 322-1 et l'agrément de l'article
+// L. 414-11. Le paquet exécute la cascade de dévolution — commune,
+// établissement public de coopération intercommunale, conservatoire, État —
+// en prenant la qualification des zones et de l'agrément comme faits
+// d'entrée typés, jamais comme lecture du code de l'environnement.
+//
+// L'ARTICLE 716 EST UNE MOITIÉ EXACTE, et c'est le seul partage chiffré du
+// bloc : le trésor trouvé dans son propre fonds est entier à l'inventeur ;
+// trouvé dans le fonds d'autrui, il est pour moitié à celui qui l'a
+// découvert et pour l'autre moitié au propriétaire du fonds. La fraction est
+// un `Rational` exact, non une somme d'argent : aucune division inexacte
+// n'est possible.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART711,
+    CC_ART712,
+    CC_ART713,
+    CC_ART714,
+    CC_ART716,
+    Fonds,
+    Personne,
+    Tresor,
+    droit_d_accession,
+    proprietaire_du_bien,
+};
+
+// --- Articles 711 et 712 : les manières d'acquérir --------------------------------------------------
+
+pub enum ManiereDAcquerir {
+    label fr official "Manière dont la propriété des biens s'acquiert et se transmet (articles 711, 712)";
+    label en unofficial "Way in which ownership of assets is acquired and transferred (Articles 711, 712)";
+    Succession,
+    DonationEntreVifs,
+    DonationTestamentaire,
+    EffetDesObligations,
+    Accession,
+    Incorporation,
+    Prescription
+}
+
+pub relation acquisition_invoquee(b: Bien, p: Personne, maniere: ManiereDAcquerir) kind empirical {
+    label fr official "manière d'acquérir que le cas invoque pour ce bien et cette personne (articles 711, 712)";
+    label en unofficial "way of acquiring that the case invokes for this asset and this person (Articles 711, 712)";
+}
+pub relation propriete_acquise_par(b: Bien, p: Personne, maniere: ManiereDAcquerir) kind derived {
+    label fr official "la propriété du bien s'acquiert et se transmet par cette manière (articles 711, 712)";
+    label en unofficial "ownership of the asset is acquired and transferred by that way (Articles 711, 712)";
+}
+
+@source(CC_ART711) {
+    rule AcquisitionParSuccession(b: Bien, p: Personne) strict {
+        label fr official "Article 711. La propriété des biens s'acquiert et se transmet par succession";
+        label en unofficial "Article 711. Ownership of assets is acquired and transferred by succession";
+        when acquisition_invoquee(b, p, Succession);
+        then propriete_acquise_par(b, p, Succession);
+    }
+    rule AcquisitionParDonationEntreVifs(b: Bien, p: Personne) strict {
+        label fr official "Article 711. La propriété des biens s'acquiert et se transmet par donation entre vifs";
+        label en unofficial "Article 711. Ownership of assets is acquired and transferred by gift inter vivos";
+        when acquisition_invoquee(b, p, DonationEntreVifs);
+        then propriete_acquise_par(b, p, DonationEntreVifs);
+    }
+    rule AcquisitionParDonationTestamentaire(b: Bien, p: Personne) strict {
+        label fr official "Article 711. La propriété des biens s'acquiert et se transmet par donation testamentaire";
+        label en unofficial "Article 711. Ownership of assets is acquired and transferred by testamentary gift";
+        when acquisition_invoquee(b, p, DonationTestamentaire);
+        then propriete_acquise_par(b, p, DonationTestamentaire);
+    }
+    rule AcquisitionParLEffetDesObligations(b: Bien, p: Personne) strict {
+        label fr official "Article 711. La propriété des biens s'acquiert et se transmet par l'effet des obligations";
+        label en unofficial "Article 711. Ownership of assets is acquired and transferred by the effect of obligations";
+        when acquisition_invoquee(b, p, EffetDesObligations);
+        then propriete_acquise_par(b, p, EffetDesObligations);
+    }
+}
+
+@source(CC_ART712) {
+    rule AcquisitionParAccession(b: Bien, p: Personne) strict {
+        label fr official "Article 712. La propriété s'acquiert aussi par accession";
+        label en unofficial "Article 712. Ownership is also acquired by accession";
+        when acquisition_invoquee(b, p, Accession);
+        then propriete_acquise_par(b, p, Accession);
+    }
+    rule AcquisitionParIncorporation(b: Bien, p: Personne) strict {
+        label fr official "Article 712. La propriété s'acquiert aussi par incorporation";
+        label en unofficial "Article 712. Ownership is also acquired by incorporation";
+        when acquisition_invoquee(b, p, Incorporation);
+        then propriete_acquise_par(b, p, Incorporation);
+    }
+    rule AcquisitionParPrescription(b: Bien, p: Personne) strict {
+        label fr official "Article 712. La propriété s'acquiert aussi par prescription";
+        label en unofficial "Article 712. Ownership is also acquired by prescription";
+        when acquisition_invoquee(b, p, Prescription);
+        then propriete_acquise_par(b, p, Prescription);
+    }
+    rule AccessionEmporteLaPropriete(b: Bien, p: Personne) strict {
+        label fr official "Article 712, rapproché de l'article 546. Le droit d'accession du propriétaire est une manière d'acquérir la propriété";
+        label en unofficial "Article 712, read with Article 546. The owner's right of accession is a way of acquiring ownership";
+        when droit_d_accession(b, p);
+        then propriete_acquise_par(b, p, Accession);
+    }
+}
+
+// --- Article 713 : les biens sans maître ---------------------------------------------------------------
+
+pub relation bien_sans_maitre(b: Bien) kind empirical {
+    label fr official "le bien n'a pas de maître (article 713, alinéa 1)";
+    label en unofficial "the asset has no owner (Article 713, paragraph 1)";
+}
+pub relation situe_sur_le_territoire_de_la_commune(b: Bien, commune: Personne) kind empirical {
+    key(b);
+    label fr official "commune sur le territoire de laquelle le bien est situé (article 713, alinéa 1)";
+    label en unofficial "commune on whose territory the asset is situated (Article 713, paragraph 1)";
+}
+pub relation renonciation_de_la_commune_par_deliberation(b: Bien) kind empirical {
+    label fr official "par délibération du conseil municipal, la commune renonce à exercer ses droits sur tout ou partie de son territoire (article 713, alinéa 1)";
+    label en unofficial "by resolution of the municipal council, the commune waives the exercise of its rights over all or part of its territory (Article 713, paragraph 1)";
+}
+pub relation commune_renonciatrice(b: Bien, p: Personne) kind empirical {
+    label fr official "commune habilitée à renoncer à ses droits";
+    label en unofficial "municipality entitled to waive its rights";
+}
+pub relation renonciation_commune_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "renonciation de la commune exercée";
+    label en unofficial "municipality waiver exercised";
+}
+pub relation etablissement_public_de_cooperation_intercommunale(b: Bien, epci: Personne) kind empirical {
+    key(b);
+    label fr official "établissement public de coopération intercommunale à fiscalité propre dont la commune est membre (article 713, alinéa 1)";
+    label en unofficial "public body of inter-communal cooperation with its own taxation of which the commune is a member (Article 713, paragraph 1)";
+}
+pub relation renonciation_de_l_etablissement_public(b: Bien) kind empirical {
+    label fr official "l'établissement public de coopération intercommunale à fiscalité propre renonce à exercer ses droits (article 713, alinéa 2)";
+    label en unofficial "the inter-communal public body waives the exercise of its rights (Article 713, paragraph 2)";
+}
+pub relation situe_dans_une_zone_du_littoral(b: Bien) kind empirical {
+    label fr official "le bien est situé dans les zones définies à l'article L. 322-1 du code de l'environnement — qualification fournie par le cas, non lue par ce paquet (article 713, alinéa 3)";
+    label en unofficial "the asset is situated in the zones defined in Article L. 322-1 of the Environment Code — a qualification supplied by the case, not read by this package (Article 713, paragraph 3)";
+}
+pub relation demande_du_conservatoire_du_littoral(b: Bien, conservatoire: Personne) kind empirical {
+    key(b);
+    label fr official "le Conservatoire de l'espace littoral et des rivages lacustres en fait la demande (article 713, alinéa 3)";
+    label en unofficial "the Coastal and Lakeshore Conservancy applies for it (Article 713, paragraph 3)";
+}
+pub relation conservatoire_demandeur(b: Bien, p: Personne) kind empirical {
+    label fr official "conservatoire habilité demande le transfert";
+    label en unofficial "conservancy entitled to request transfer";
+}
+pub relation demande_transfert_conservatoire_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "demande de transfert du conservatoire exercée";
+    label en unofficial "conservancy transfer request exercised";
+}
+pub relation demande_du_conservatoire_regional(b: Bien, conservatoire: Personne) kind empirical {
+    key(b);
+    label fr official "le conservatoire régional d'espaces naturels agréé au titre de l'article L. 414-11 du code de l'environnement en fait la demande — agrément fourni par le cas (article 713, alinéas 3 et 4)";
+    label en unofficial "the regional nature-areas conservancy approved under Article L. 414-11 of the Environment Code applies for it — approval supplied by the case (Article 713, paragraphs 3 and 4)";
+}
+pub relation accord_du_representant_de_l_etat_dans_la_region(b: Bien) kind empirical {
+    label fr official "le représentant de l'État dans la région a donné son accord (article 713, alinéa 4)";
+    label en unofficial "the State's representative in the region has given his consent (Article 713, paragraph 4)";
+}
+pub relation etat(p: Personne) kind empirical {
+    label fr official "la personne est l'État (articles 539, 713)";
+    label en unofficial "the person is the State (Articles 539, 713)";
+}
+
+pub relation bien_sans_maitre_appartient_a(b: Bien, p: Personne) kind derived {
+    label fr official "attribution du bien sans maître, selon la cascade de l'article 713";
+    label en unofficial "allocation of the ownerless asset, under the cascade of Article 713";
+}
+
+@source(CC_ART713) {
+    rule BienSansMaitreALaCommune(b: Bien, commune: Personne) strict {
+        label fr official "Article 713, alinéa 1. Les biens qui n'ont pas de maître appartiennent à la commune sur le territoire de laquelle ils sont situés";
+        label en unofficial "Article 713, paragraph 1. Assets with no owner belong to the commune on whose territory they are situated";
+        when bien_sans_maitre(b)
+            and situe_sur_le_territoire_de_la_commune(b, commune)
+            and not_known(renonciation_de_la_commune_par_deliberation(b));
+        then bien_sans_maitre_appartient_a(b, commune);
+    }
+    rule BienSansMaitreALEtablissementPublic(b: Bien, epci: Personne) strict {
+        label fr official "Article 713, alinéa 1. Par délibération du conseil municipal, la commune peut renoncer à exercer ses droits au profit de l'établissement public de coopération intercommunale à fiscalité propre dont elle est membre ; les biens sans maître sont alors réputés appartenir à cet établissement";
+        label en unofficial "Article 713, paragraph 1. By resolution of the municipal council, the commune may waive the exercise of its rights in favour of the inter-communal public body with its own taxation of which it is a member; the ownerless assets are then deemed to belong to that body";
+        when bien_sans_maitre(b)
+            and renonciation_de_la_commune_par_deliberation(b)
+            and etablissement_public_de_cooperation_intercommunale(b, epci)
+            and not_known(renonciation_de_l_etablissement_public(b));
+        then bien_sans_maitre_appartient_a(b, epci);
+    }
+    rule BienDuLittoralAuConservatoireDuLittoral(b: Bien, conservatoire: Personne) strict {
+        label fr official "Article 713, alinéa 3. Pour les biens situés dans les zones définies à l'article L. 322-1 du code de l'environnement, la propriété est transférée de plein droit au Conservatoire de l'espace littoral et des rivages lacustres lorsqu'il en fait la demande";
+        label en unofficial "Article 713, paragraph 3. For assets situated in the zones defined in Article L. 322-1 of the Environment Code, ownership is transferred by operation of law to the Coastal and Lakeshore Conservancy when it applies for it";
+        when bien_sans_maitre(b)
+            and renonciation_de_l_etablissement_public(b)
+            and situe_dans_une_zone_du_littoral(b)
+            and demande_du_conservatoire_du_littoral(b, conservatoire);
+        then bien_sans_maitre_appartient_a(b, conservatoire);
+    }
+    rule BienDuLittoralAuConservatoireRegional(b: Bien, conservatoire: Personne) strict {
+        label fr official "Article 713, alinéa 3. À défaut, au conservatoire régional d'espaces naturels agréé au titre de l'article L. 414-11 du même code lorsqu'il en fait la demande";
+        label en unofficial "Article 713, paragraph 3. Failing that, to the regional nature-areas conservancy approved under Article L. 414-11 of the same code when it applies for it";
+        when bien_sans_maitre(b)
+            and renonciation_de_l_etablissement_public(b)
+            and situe_dans_une_zone_du_littoral(b)
+            and demande_du_conservatoire_regional(b, conservatoire)
+            and not_known(demande_du_conservatoire_du_littoral(b, conservatoire));
+        then bien_sans_maitre_appartient_a(b, conservatoire);
+    }
+    rule AutreBienAuConservatoireRegional(b: Bien, conservatoire: Personne) strict {
+        label fr official "Article 713, alinéa 4. Pour les autres biens, après accord du représentant de l'État dans la région, au conservatoire régional d'espaces naturels agréé au titre du même article L. 414-11 lorsqu'il en fait la demande";
+        label en unofficial "Article 713, paragraph 4. For the other assets, after the consent of the State's representative in the region, to the regional nature-areas conservancy approved under the same Article L. 414-11 when it applies for it";
+        when bien_sans_maitre(b)
+            and renonciation_de_l_etablissement_public(b)
+            and accord_du_representant_de_l_etat_dans_la_region(b)
+            and demande_du_conservatoire_regional(b, conservatoire)
+            and not_known(situe_dans_une_zone_du_littoral(b));
+        then bien_sans_maitre_appartient_a(b, conservatoire);
+    }
+    rule BienSansMaitreALEtat(b: Bien, etat_personne: Personne) strict {
+        label fr official "Article 713, alinéas 3 et 4. À défaut de demande d'un conservatoire, la propriété est transférée de plein droit à l'État";
+        label en unofficial "Article 713, paragraphs 3 and 4. Failing an application by a conservancy, ownership is transferred by operation of law to the State";
+        when bien_sans_maitre(b)
+            and renonciation_de_l_etablissement_public(b)
+            and etat(etat_personne)
+            and not_known(demande_du_conservatoire_du_littoral(b, etat_personne))
+            and not_known(demande_du_conservatoire_regional(b, etat_personne));
+        then bien_sans_maitre_appartient_a(b, etat_personne);
+    }
+}
+
+// --- Article 714 : les choses communes -----------------------------------------------------------------
+
+pub relation chose_n_appartenant_a_personne_et_d_usage_commun(b: Bien) kind empirical {
+    label fr official "la chose n'appartient à personne et son usage est commun à tous (article 714, alinéa 1)";
+    label en unofficial "the thing belongs to no one and its use is common to all (Article 714, paragraph 1)";
+}
+pub relation chose_commune_a_tous(b: Bien) kind derived {
+    label fr official "il est des choses qui n'appartiennent à personne et dont l'usage est commun à tous ; des lois de police règlent la manière d'en jouir (article 714)";
+    label en unofficial "there are things belonging to no one whose use is common to all; police statutes govern the manner of enjoying them (Article 714)";
+}
+pub relation usager_chose_commune(b: Bien, p: Personne) kind empirical {
+    label fr official "personne usagère de la chose commune";
+    label en unofficial "person using the common thing";
+}
+pub relation usage_chose_commune_exerce(b: Bien, p: Personne) kind empirical {
+    label fr official "usage commun exercé";
+    label en unofficial "common use exercised";
+}
+
+@source(CC_ART714)
+rule ChoseCommuneATous(b: Bien) strict {
+    label fr official "Article 714. Il est des choses qui n'appartiennent à personne et dont l'usage est commun à tous ; des lois de police règlent la manière d'en jouir";
+    label en unofficial "Article 714. There are things belonging to no one whose use is common to all; police statutes govern the manner of enjoying them";
+    when chose_n_appartenant_a_personne_et_d_usage_commun(b);
+    then chose_commune_a_tous(b);
+}
+
+@source(CC_ART713)
+rule P4PouvoirRenoncerCommune713(b: Bien, p: Personne, epci: Personne) strict {
+    label fr official "Article 713. La commune peut renoncer à ses droits sur le bien sans maître";
+    label en unofficial "Article 713. The municipality may waive its rights over the ownerless asset";
+    when commune_renonciatrice(b, p)
+        and bien_sans_maitre(b)
+        and etablissement_public_de_cooperation_intercommunale(b, epci);
+    then power P4PouvoirRenoncerCommune713Actif {
+        holder p;
+        over b;
+        exercise renonciation_commune_exercee(b, p);
+        effect bien_sans_maitre_appartient_a(b, epci);
+        valid_when bien_sans_maitre(b);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART713)
+rule P4PouvoirDemanderTransfertConservatoire713(b: Bien, p: Personne) strict {
+    label fr official "Article 713. Le conservatoire peut demander le transfert du bien situé dans la zone littorale";
+    label en unofficial "Article 713. The conservancy may request transfer of the asset in the coastal zone";
+    when conservatoire_demandeur(b, p)
+        and bien_sans_maitre(b)
+        and situe_dans_une_zone_du_littoral(b);
+    then power P4PouvoirDemanderTransfertConservatoire713Actif {
+        holder p;
+        over b;
+        exercise demande_transfert_conservatoire_exercee(b, p);
+        effect bien_sans_maitre_appartient_a(b, p);
+        valid_when situe_dans_une_zone_du_littoral(b);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART714)
+rule P4LiberteUserChoseCommune714(b: Bien, p: Personne) strict {
+    label fr official "Article 714. Toute personne peut user de la chose commune selon les lois de police";
+    label en unofficial "Article 714. Any person may use the common thing under police laws";
+    when usager_chose_commune(b, p)
+        and chose_n_appartenant_a_personne_et_d_usage_commun(b);
+    then liberty P4LiberteUserChoseCommune714Actif {
+        holder p;
+        action usage_chose_commune_exerce(b, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Article 716 : le trésor -----------------------------------------------------------------------------
+
+pub relation chose_cachee_ou_enfouie(t: Tresor) kind empirical {
+    label fr official "la chose est cachée ou enfouie (article 716, alinéa 2)";
+    label en unofficial "the thing is hidden or buried (Article 716, paragraph 2)";
+}
+pub relation personne_ne_peut_justifier_sa_propriete(t: Tresor) kind empirical {
+    label fr official "personne ne peut justifier sa propriété sur la chose (article 716, alinéa 2)";
+    label en unofficial "no one can establish ownership of the thing (Article 716, paragraph 2)";
+}
+pub relation decouverte_par_le_pur_effet_du_hasard(t: Tresor) kind empirical {
+    label fr official "la chose est découverte par le pur effet du hasard (article 716, alinéa 2)";
+    label en unofficial "the thing is discovered by pure chance (Article 716, paragraph 2)";
+}
+pub relation decouvert_dans_le_fonds(t: Tresor, f: Fonds) kind empirical {
+    key(t);
+    label fr official "fonds dans lequel le trésor a été trouvé (article 716, alinéa 1)";
+    label en unofficial "land in which the treasure was found (Article 716, paragraph 1)";
+}
+pub relation inventeur_du_tresor(t: Tresor, p: Personne) kind empirical {
+    key(t);
+    label fr official "celui qui a découvert le trésor (article 716, alinéa 1)";
+    label en unofficial "the person who discovered the treasure (Article 716, paragraph 1)";
+}
+
+pub relation tresor(t: Tresor) kind derived {
+    label fr official "le trésor est toute chose cachée ou enfouie sur laquelle personne ne peut justifier sa propriété, et qui est découverte par le pur effet du hasard (article 716, alinéa 2)";
+    label en unofficial "treasure is any hidden or buried thing over which no one can establish ownership, and which is discovered by pure chance (Article 716, paragraph 2)";
+}
+pub relation part_du_tresor(t: Tresor, p: Personne, part: Rational) kind derived {
+    label fr official "part du trésor qui appartient à cette personne (article 716, alinéa 1)";
+    label en unofficial "share of the treasure belonging to this person (Article 716, paragraph 1)";
+}
+pub relation part_tresor_reclamee(t: Tresor, p: Personne, part: Rational) kind empirical {
+    label fr official "part du trésor réclamée";
+    label en unofficial "treasure share claimed";
+}
+
+@source(CC_ART716) {
+    rule P4LiberteTresorEntierInventeur716(t: Tresor, f: Fonds, p: Personne) strict {
+        label fr official "Article 716. L'inventeur peut réclamer le trésor trouvé dans son propre fonds";
+        label en unofficial "Article 716. The finder may claim treasure found in their own land";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, p)
+            and proprietaire_du_bien(f, p);
+        then liberty P4LiberteTresorEntierInventeur716Actif {
+            holder p;
+            action part_tresor_reclamee(t, p, 1 / 1);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4LiberteDemiTresorInventeur716(t: Tresor, f: Fonds, inventeur: Personne, maitre: Personne) strict {
+        label fr official "Article 716. L'inventeur peut réclamer la moitié du trésor trouvé dans le fonds d'autrui";
+        label en unofficial "Article 716. The finder may claim half of treasure found in another's land";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, inventeur)
+            and proprietaire_du_bien(f, maitre)
+            and not_known(proprietaire_du_bien(f, inventeur));
+        then liberty P4LiberteDemiTresorInventeur716Actif {
+            holder inventeur;
+            action part_tresor_reclamee(t, inventeur, 1 / 2);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4LiberteDemiTresorProprietaire716(t: Tresor, f: Fonds, inventeur: Personne, maitre: Personne) strict {
+        label fr official "Article 716. Le propriétaire du fonds peut réclamer la moitié du trésor";
+        label en unofficial "Article 716. The landowner may claim half of the treasure";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, inventeur)
+            and proprietaire_du_bien(f, maitre)
+            and not_known(proprietaire_du_bien(f, inventeur));
+        then liberty P4LiberteDemiTresorProprietaire716Actif {
+            holder maitre;
+            action part_tresor_reclamee(t, maitre, 1 / 2);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule DefinitionDuTresor(t: Tresor) strict {
+        label fr official "Article 716, alinéa 2. Le trésor est toute chose cachée ou enfouie sur laquelle personne ne peut justifier sa propriété, et qui est découverte par le pur effet du hasard";
+        label en unofficial "Article 716, paragraph 2. Treasure is any hidden or buried thing over which no one can establish ownership, and which is discovered by pure chance";
+        when chose_cachee_ou_enfouie(t)
+            and personne_ne_peut_justifier_sa_propriete(t)
+            and decouverte_par_le_pur_effet_du_hasard(t);
+        then tresor(t);
+    }
+    rule TresorEntierALInventeurDansSonPropreFonds(t: Tresor, f: Fonds, p: Personne) strict {
+        label fr official "Article 716, alinéa 1. La propriété d'un trésor appartient à celui qui le trouve dans son propre fonds";
+        label en unofficial "Article 716, paragraph 1. Ownership of a treasure belongs to the person who finds it in his own land";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, p)
+            and proprietaire_du_bien(f, p);
+        then part_du_tresor(t, p, 1 / 1);
+    }
+    rule MoitieALInventeurDansLeFondsDAutrui(t: Tresor, f: Fonds, inventeur: Personne, maitre: Personne) strict {
+        label fr official "Article 716, alinéa 1. Si le trésor est trouvé dans le fonds d'autrui, il appartient pour moitié à celui qui l'a découvert";
+        label en unofficial "Article 716, paragraph 1. If the treasure is found in another's land, half of it belongs to the person who discovered it";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, inventeur)
+            and proprietaire_du_bien(f, maitre)
+            and not_known(proprietaire_du_bien(f, inventeur));
+        then part_du_tresor(t, inventeur, 1 / 2);
+    }
+    rule MoitieAuProprietaireDuFonds(t: Tresor, f: Fonds, inventeur: Personne, maitre: Personne) strict {
+        label fr official "Article 716, alinéa 1. Et pour l'autre moitié au propriétaire du fonds";
+        label en unofficial "Article 716, paragraph 1. And the other half to the owner of the land";
+        when tresor(t)
+            and decouvert_dans_le_fonds(t, f)
+            and inventeur_du_tresor(t, inventeur)
+            and proprietaire_du_bien(f, maitre)
+            and not_known(proprietaire_du_bien(f, inventeur));
+        then part_du_tresor(t, maitre, 1 / 2);
+    }
+}

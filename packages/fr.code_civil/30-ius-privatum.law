@@ -1,0 +1,22 @@
+// Pont vers la chaîne comparative de DECISION-0091.
+
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+use self::{
+    CC_POST_ART2219,
+    CC_POST_ART2224,
+    Causa,
+    Persona,
+    action_prescrite_le,
+};
+
+@source(CC_POST_ART2219, CC_POST_ART2224)
+rule PrescriptionExcludit(x: Persona, y: Persona, c: Causa, jour: Date) strict {
+    label fr official "la prescription extinctive éteint le droit par l'inaction de son titulaire";
+    label en unofficial "an extinctive limitation result excludes the remedy in the comparative private-law chain";
+    when action_prescrite_le(c, jour)
+        and doctrine.ius_privatum::petitio(c, x, y);
+    then doctrine.ius_privatum::remedium_exclusum(x, y, c);
+}

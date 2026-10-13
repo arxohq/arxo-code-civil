@@ -1,0 +1,753 @@
+// TITRE XI — PROTECTION DES MAJEURS : CONDITIONS, EFFETS ET REGIMES.
+// Les appréciations du juge sont des canaux §47.3 ; les décisions rendues
+// sont des faits adjudicated. Les conditions chiffrées et les conséquences
+// restent exécutées par le paquet.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART414_1,
+    CC_ART414_2,
+    CC_ART428,
+    CC_ART440,
+    CC_ART442,
+    CC_ART458,
+    CC_ART459,
+    CC_ART459_1,
+    CC_ART459_2,
+    CC_ART465,
+    CC_ART473,
+    CC_ART477,
+    CC_ART477_1,
+    CC_ART478,
+    CC_ART479,
+    CC_ART480,
+    CC_ART481,
+    CC_ART482,
+    CC_ART483,
+    CC_ART484,
+    CC_ART485,
+    CC_ART486,
+    CC_ART487,
+    CC_ART488,
+    CC_ART489,
+    CC_ART490,
+    CC_ART491,
+    CC_ART492,
+    CC_ART492_1,
+    CC_ART493,
+    CC_ART494,
+    CC_ART494_1,
+    CC_ART494_10,
+    CC_ART494_11,
+    CC_ART494_2,
+    CC_ART494_3,
+    CC_ART494_4,
+    CC_ART494_5,
+    CC_ART494_6,
+    CC_ART494_7,
+    CC_ART494_8,
+    CC_ART494_9,
+    CC_ART495,
+    CC_ART495_1,
+    CC_ART495_2,
+    CC_ART495_3,
+    CC_ART495_4,
+    CC_ART495_5,
+    CC_ART495_6,
+    CC_ART495_7,
+    CC_ART495_8,
+    CC_ART495_9,
+    MesureDeProtection,
+    Personne,
+    alteration_medicalement_constatee,
+    avis_conforme_du_medecin_sur_l_absence_d_amelioration,
+    charge_tutelaire_interdite,
+    condition_de_protection_remplie,
+    mandataire_etablissement_designe,
+    mesure_demandee_pour,
+    mesure_ouverte,
+    mesure_renouvelee_le,
+    tuteur_de,
+};
+
+pub entity ActeProtege { label fr official "acte accompli sous une mesure de protection"; label en unofficial "act made under a protection measure"; }
+pub entity MandatProtectionFuture { label fr official "mandat de protection future"; label en unofficial "future protection mandate"; }
+pub entity HabilitationFamiliale { label fr official "habilitation familiale"; label en unofficial "family authorization"; }
+pub entity MesureAccompagnementJudiciaire { label fr official "mesure d'accompagnement judiciaire"; label en unofficial "judicial support measure"; }
+
+pub enum CategorieActe465 {
+    label fr official "catégorie de l'acte pour les sanctions de l'article 465";
+    label en unofficial "act category for Article 465 sanctions";
+    ActePossibleSeul,
+    AssistanceRequise,
+    RepresentationRequise,
+    ActeAccompliParProtecteurALaPlace
+}
+
+@source(CC_ART428)
+pub external judgment relation necessite_et_subsidiarite_de_la_mesure(p: Personne) { authority Court; label fr official "la mesure est nécessaire et aucune solution moins contraignante ne suffit (article 428)"; label en unofficial "the measure is necessary and no less restrictive solution suffices (Article 428)"; }
+@source(CC_ART428)
+pub external judgment relation proportionnalite_et_individualisation_de_la_mesure(p: Personne) { authority Court; label fr official "la mesure est proportionnée et individualisée (article 428)"; label en unofficial "the measure is proportionate and individualized (Article 428)"; }
+@source(CC_ART440)
+pub external judgment relation besoin_assistance_continue_440(p: Personne) { authority Court; label fr official "la personne a besoin d'une assistance ou d'un contrôle continus (article 440)"; label en unofficial "the person needs continuous assistance or supervision (Article 440)"; }
+@source(CC_ART440)
+pub external judgment relation sauvegarde_insuffisante_440(p: Personne) { authority Court; label fr official "la sauvegarde de justice est insuffisante (article 440)"; label en unofficial "judicial safeguard is insufficient (Article 440)"; }
+@source(CC_ART440)
+pub external judgment relation besoin_representation_continue_440(p: Personne) { authority Court; label fr official "la personne doit être représentée de manière continue (article 440)"; label en unofficial "the person must be continuously represented (Article 440)"; }
+@source(CC_ART440)
+pub external judgment relation curatelle_insuffisante_440(p: Personne) { authority Court; label fr official "ni la sauvegarde ni la curatelle n'assurent une protection suffisante (article 440)"; label en unofficial "neither safeguard nor curatorship gives sufficient protection (Article 440)"; }
+@source(CC_ART459)
+pub external judgment relation etat_permet_decision_personnelle_459(p: Personne) { authority Court; label fr official "l'état permet à la personne de prendre seule la décision personnelle (article 459)"; label en unofficial "the person's condition permits an unaided personal decision (Article 459)"; }
+@source(CC_ART459)
+pub external judgment relation assistance_ou_representation_personnelle_necessaire(p: Personne) { authority Court; label fr official "une assistance ou représentation personnelle est nécessaire (article 459)"; label en unofficial "personal assistance or representation is necessary (Article 459)"; }
+@source(CC_ART465)
+pub external judgment relation prejudice_acte_sans_assistance_465(a: ActeProtege) { authority Court; label fr official "l'acte accompli sans assistance a causé un préjudice (article 465, 2°)"; label en unofficial "the act made without assistance caused loss (Article 465(2))"; }
+@source(CC_ART483)
+pub external judgment relation atteinte_aux_interets_du_mandant_483(m: MandatProtectionFuture) { authority Court; label fr official "l'exécution du mandat porte atteinte aux intérêts du mandant (article 483)"; label en unofficial "performance of the mandate harms the principal's interests (Article 483)"; }
+@source(CC_ART485)
+pub external judgment relation protection_mandat_insuffisante_485(m: MandatProtectionFuture) { authority Court; label fr official "le champ du mandat ne protège pas suffisamment les intérêts (article 485)"; label en unofficial "the mandate's scope does not sufficiently protect the interests (Article 485)"; }
+@source(CC_ART494_2)
+pub external judgment relation necessite_et_subsidiarite_habilitation_494_2(h: HabilitationFamiliale) { authority Court; label fr official "l'habilitation familiale est nécessaire et subsidiaire (article 494-2)"; label en unofficial "family authorization is necessary and subsidiary (Article 494-2)"; }
+@source(CC_ART494_5)
+pub external judgment relation interets_conformes_habilitation_494_5(h: HabilitationFamiliale) { authority Court; label fr official "le dispositif est conforme aux intérêts patrimoniaux et personnels (article 494-5)"; label en unofficial "the arrangement conforms to the person's property and personal interests (Article 494-5)"; }
+@source(CC_ART495)
+pub external judgment relation gestion_insatisfaisante_et_sante_compromise_495(p: Personne) { authority Court; label fr official "la gestion des prestations reste insatisfaisante et compromet la santé ou la sécurité (article 495)"; label en unofficial "benefit management remains unsatisfactory and endangers health or safety (Article 495)"; }
+
+pub relation mesure_judiciaire_admissible(p: Personne) kind derived { label fr official "une mesure de protection judiciaire peut être ordonnée"; label en unofficial "a judicial protection measure may be ordered"; }
+pub relation curatelle_admissible(p: Personne) kind derived { label fr official "la curatelle est admissible"; label en unofficial "curatorship is available"; }
+pub relation tutelle_majeur_admissible(p: Personne) kind derived { label fr official "la tutelle du majeur est admissible"; label en unofficial "adult guardianship is available"; }
+pub relation renouvellement_maximal_annees(m: MesureDeProtection, n: Integer) kind derived { key(m); label fr official "durée maximale du renouvellement en années"; label en unofficial "maximum renewal duration in years"; }
+pub relation renouvellement_expire_le(m: MesureDeProtection, jour: Date) kind derived { key(m); label fr official "terme maximal du renouvellement"; label en unofficial "latest renewal term"; }
+pub relation duree_precedente_mesure(m: MesureDeProtection, n: Integer) kind empirical { key(m); label fr official "durée de la mesure avant renouvellement, en années"; label en unofficial "duration of the measure before renewal, in years"; }
+pub relation duree_renouvellement_fixee(m: MesureDeProtection, n: Integer) kind empirical { key(m); label fr official "durée du renouvellement fixée par le juge, en années"; label en unofficial "renewal duration set by the judge, in years"; }
+pub relation renouvellement_pour_meme_duree(m: MesureDeProtection) kind derived { label fr official "le renouvellement ordinaire est fixé pour la même durée"; label en unofficial "ordinary renewal is set for the same duration"; }
+pub relation decision_strictement_personnelle(p: Personne) kind derived { label fr official "l'acte requiert le consentement strictement personnel de la personne protégée"; label en unofficial "the act requires the protected person's strictly personal consent"; }
+pub relation decision_personnelle_autonome(p: Personne) kind derived { label fr official "la personne protégée prend seule la décision personnelle"; label en unofficial "the protected person makes the personal decision alone"; }
+pub relation sanction_rescision_ou_reduction(a: ActeProtege) kind derived { label fr official "l'acte est sujet à rescision ou réduction"; label en unofficial "the act is subject to rescission or reduction"; }
+pub relation accomplir_acte_strictement_personnel(p: Personne) kind empirical { label fr official "la personne accomplît seule l'acte strictement personnel"; label en unofficial "the person performs the strictly personal act alone"; }
+pub relation appliquer_regime_special_protection(p: Personne) kind empirical { label fr official "le régime spécial sanitaire ou social est appliqué"; label en unofficial "the special health or social-care regime is applied"; }
+pub relation demander_rescision_ou_reduction_465(a: ActeProtege) kind empirical { label fr official "la personne demande la rescision ou réduction de l'acte"; label en unofficial "the person seeks rescission or reduction of the act"; }
+pub relation sanction_annulation_si_prejudice(a: ActeProtege) kind derived { label fr official "l'acte peut être annulé si un préjudice est établi"; label en unofficial "the act may be annulled if loss is proved"; }
+pub relation sanction_nullite_de_plein_droit(a: ActeProtege) kind derived { label fr official "l'acte est nul de plein droit sans preuve d'un préjudice"; label en unofficial "the act is void by operation of law without proof of loss"; }
+pub relation action_465_expire_le(a: ActeProtege, jour: Date) kind derived { key(a); label fr official "terme de cinq ans de l'action de l'article 465"; label en unofficial "end of the five-year Article 465 action"; }
+pub relation represente_par_tuteur_dans_actes_civils(p: Personne) kind derived { label fr official "la personne en tutelle est représentée dans les actes de la vie civile"; label en unofficial "the person under guardianship is represented in civil acts"; }
+pub relation regime_du_mandat_applicable(m: MandatProtectionFuture) kind derived { label fr official "la disposition du régime du mandat de protection future est applicable"; label en unofficial "the future-protection mandate provision applies"; }
+pub relation effet_habilitation_applicable(h: HabilitationFamiliale) kind derived { label fr official "l'effet légal de l'habilitation familiale est applicable"; label en unofficial "the statutory effect of family authorization applies"; }
+pub relation effet_accompagnement_applicable(a: MesureAccompagnementJudiciaire) kind derived { label fr official "l'effet légal de l'accompagnement judiciaire est applicable"; label en unofficial "the statutory effect of judicial support applies"; }
+
+pub relation publicite_jugement_le(m: MesureDeProtection, jour: Date) kind empirical { key(m); label fr official "jour de publicité du jugement d'ouverture"; label en unofficial "publication date of the opening judgment"; }
+pub relation acte_de_la_mesure(a: ActeProtege, m: MesureDeProtection) kind empirical { key(a); label fr official "acte accompli sous cette mesure"; label en unofficial "act made under this measure"; }
+pub relation categorie_acte_465(a: ActeProtege, c: CategorieActe465) kind empirical { key(a); label fr official "catégorie légale de l'acte au sens de l'article 465"; label en unofficial "statutory act category under Article 465"; }
+pub relation acte_strictement_personnel(p: Personne) kind empirical { label fr official "l'acte figure parmi les actes de consentement strictement personnel énumérés à l'article 458"; label en unofficial "the act is among the strictly personal consent acts listed in Article 458"; }
+pub relation personne_en_tutelle(p: Personne) kind empirical { label fr official "la personne est placée en tutelle"; label en unofficial "the person is under guardianship"; }
+pub relation acte_accompli_par(a: ActeProtege, p: Personne, jour: Date) kind empirical { key(a); label fr official "acte, auteur et jour d'accomplissement"; label en unofficial "act, maker and date of making"; }
+pub relation point_depart_2224_le(a: ActeProtege, jour: Date) kind empirical { key(a); label fr official "point de départ du délai de l'article 2224, fourni par le paquet CC-02"; label en unofficial "starting date under Article 2224, supplied by package CC-02"; }
+@source(CC_ART414_1)
+pub external judgment relation trouble_mental_au_moment_de_l_acte_414_1(a: ActeProtege) { authority Court; label fr official "un trouble mental existait au moment de l'acte (article 414-1)"; label en unofficial "a mental disorder existed when the act was made (Article 414-1)"; }
+pub relation acte_nul_pour_insanite_d_esprit(a: ActeProtege) kind derived { label fr official "l'acte est annulable pour insanité d'esprit"; label en unofficial "the act is annullable for mental incapacity"; }
+pub relation action_414_expire_le(a: ActeProtege, jour: Date) kind derived { key(a); label fr official "terme de cinq ans de l'action des articles 414-1 et 414-2"; label en unofficial "end of the five-year action under Articles 414-1 and 414-2"; }
+pub relation acte_dans_les_deux_ans_avant_habilitation(a: ActeProtege, h: HabilitationFamiliale) kind derived { label fr official "l'acte a été accompli moins de deux ans avant l'habilitation"; label en unofficial "the act was made less than two years before family authorization"; }
+pub relation action_habilitation_expire_le(a: ActeProtege, jour: Date) kind derived { key(a); label fr official "terme de cinq ans de l'action relative à l'habilitation familiale"; label en unofficial "end of the five-year family-authorization action"; }
+
+@source(CC_ART414_1)
+rule NullitePourInsaniteDEsprit(a: ActeProtege) defeasible { label fr official "Article 414-1. La validité de l'acte exige la santé d'esprit ; le demandeur prouve le trouble au moment de l'acte"; label en unofficial "Article 414-1. A valid act requires mental capacity; the claimant proves the disorder when the act was made"; when trouble_mental_au_moment_de_l_acte_414_1(a); then acte_nul_pour_insanite_d_esprit(a); }
+@source(CC_ART414_2)
+rule DelaiActionInsanite(a: ActeProtege, jour: Date) defeasible { label fr official "Article 414-2. L'action personnelle puis successorale s'éteint par le délai de cinq ans de l'article 2224"; label en unofficial "Article 414-2. The personal and then heirs' action expires under Article 2224's five-year period"; when point_depart_2224_le(a, jour); then action_414_expire_le(a, add_calendar_period(jour, 5 calendar_year)); }
+
+@source(CC_ART428)
+rule Article428Surface(p: Personne) defeasible { label fr official "Article 428. Nécessité, subsidiarité, proportionnalité et individualisation conditionnent la mesure"; label en unofficial "Article 428. Necessity, subsidiarity, proportionality and individualization condition the measure"; when condition_de_protection_remplie(p) and necessite_et_subsidiarite_de_la_mesure(p) and proportionnalite_et_individualisation_de_la_mesure(p); then mesure_judiciaire_admissible(p); }
+
+@source(CC_ART440) {
+    rule CuratelleAdmissible(p: Personne) defeasible { label fr official "Article 440. Le besoin continu d'assistance et l'insuffisance de la sauvegarde ouvrent la curatelle"; label en unofficial "Article 440. Continuous need for assistance and insufficient safeguard make curatorship available"; when condition_de_protection_remplie(p) and besoin_assistance_continue_440(p) and sauvegarde_insuffisante_440(p); then curatelle_admissible(p); }
+    rule TutelleMajeurAdmissible(p: Personne) defeasible { label fr official "Article 440. Le besoin continu de représentation et l'insuffisance des mesures moindres ouvrent la tutelle"; label en unofficial "Article 440. Continuous need for representation and insufficient lesser measures make guardianship available"; when condition_de_protection_remplie(p) and besoin_representation_continue_440(p) and curatelle_insuffisante_440(p); then tutelle_majeur_admissible(p); }
+}
+
+@source(CC_ART442) {
+    rule RenouvellementPourMemeDuree(m: MesureDeProtection, jour: Date, avant: Integer, apres: Integer) defeasible { label fr official "Article 442, alinéa 1. Le renouvellement ordinaire est prononcé pour la même durée"; label en unofficial "Article 442, paragraph 1. Ordinary renewal is for the same duration"; when mesure_renouvelee_le(m, jour) and duree_precedente_mesure(m, avant) and duree_renouvellement_fixee(m, apres) and avant == apres; then renouvellement_pour_meme_duree(m); }
+    rule RenouvellementOrdinaireCinqAnsMaximum(m: MesureDeProtection, jour: Date) defeasible { label fr official "Articles 441 et 442. Sans avis médical conforme, le renouvellement ordinaire reste dans le plafond de cinq ans"; label en unofficial "Articles 441 and 442. Without a concurring medical opinion, ordinary renewal remains within the five-year ceiling"; when mesure_renouvelee_le(m, jour) and not_known(avis_conforme_du_medecin_sur_l_absence_d_amelioration(m)); then renouvellement_maximal_annees(m, 5); }
+    rule RenouvellementVingtAns(m: MesureDeProtection) defeasible { label fr official "Article 442, alinéa 2. La décision spécialement motivée et l'avis médical conforme permettent au plus vingt ans"; label en unofficial "Article 442, paragraph 2. A specially reasoned decision and concurring medical opinion permit at most twenty years"; when avis_conforme_du_medecin_sur_l_absence_d_amelioration(m); then renouvellement_maximal_annees(m, 20); }
+    rule TermeRenouvellementCinqAns(m: MesureDeProtection, jour: Date) defeasible { label fr official "Article 442. Le terme ordinaire est cinq ans après le renouvellement"; label en unofficial "Article 442. The ordinary term is five years after renewal"; when mesure_renouvelee_le(m, jour) and renouvellement_maximal_annees(m, 5); then renouvellement_expire_le(m, add_calendar_period(jour, 5 calendar_year)); }
+    rule TermeRenouvellementVingtAns(m: MesureDeProtection, jour: Date) defeasible { label fr official "Article 442. Le terme exceptionnel est vingt ans après le renouvellement"; label en unofficial "Article 442. The exceptional term is twenty years after renewal"; when mesure_renouvelee_le(m, jour) and renouvellement_maximal_annees(m, 20); then renouvellement_expire_le(m, add_calendar_period(jour, 20 calendar_year)); }
+}
+
+@source(CC_ART458)
+rule Article458Surface(p: Personne) defeasible { label fr official "Article 458. Les actes strictement personnels ne donnent jamais lieu à assistance ou représentation"; label en unofficial "Article 458. Strictly personal acts can never be assisted or represented"; when acte_strictement_personnel(p); then decision_strictement_personnelle(p); }
+
+@source(CC_ART459)
+rule Article459Surface(p: Personne) defeasible { label fr official "Article 459. La personne prend seule les décisions personnelles dans la mesure où son état le permet"; label en unofficial "Article 459. The person makes personal decisions alone insofar as the condition permits"; when etat_permet_decision_personnelle_459(p); then liberty PrendreSesDecisionsPersonnelles { holder p; action decision_personnelle_autonome(p); window [@2009-01-01, infinity); }; }
+
+@source(CC_ART459_1)
+rule Article459_1Surface(p: Personne) defeasible { label fr official "Article 459-1. Les régimes spéciaux sanitaires et sociaux demeurent applicables"; label en unofficial "Article 459-1. Special health and social-care regimes remain applicable"; when personne_en_tutelle(p); then represente_par_tuteur_dans_actes_civils(p); }
+
+@source(CC_ART459_2) {
+    rule ChoixResidencePersonneProtegee(p: Personne) defeasible { label fr official "Article 459-2. La personne protégée choisit son lieu de résidence"; label en unofficial "Article 459-2. The protected person chooses the place of residence"; when personne_en_tutelle(p); then liberty ChoisirSaResidence { holder p; action decision_personnelle_autonome(p); window [@2009-01-01, infinity); }; }
+    rule RelationsPersonnellesLibres(p: Personne) defeasible { label fr official "Article 459-2. La personne entretient librement des relations, reçoit des visites et peut être hébergée"; label en unofficial "Article 459-2. The person freely maintains relationships, receives visits and may be hosted"; when personne_en_tutelle(p); then liberty EntretenirDesRelationsPersonnelles { holder p; action decision_personnelle_autonome(p); window [@2009-01-01, infinity); }; }
+}
+
+@source(CC_ART465) {
+    rule ActePossibleSeulRescisionOuReduction(a: ActeProtege) defeasible { label fr official "Article 465, 1°. L'acte que la personne pouvait faire seule reste sujet à rescision ou réduction"; label en unofficial "Article 465(1). An act the person could make alone remains subject to rescission or reduction"; when categorie_acte_465(a, ActePossibleSeul); then sanction_rescision_ou_reduction(a); }
+    rule AssistanceOmissionAnnulationSiPrejudice(a: ActeProtege) defeasible { label fr official "Article 465, 2°. L'acte accompli sans assistance n'est annulable que si un préjudice est établi"; label en unofficial "Article 465(2). An act made without required assistance is annullable only if loss is proved"; when categorie_acte_465(a, AssistanceRequise) and prejudice_acte_sans_assistance_465(a); then sanction_annulation_si_prejudice(a); }
+    rule RepresentationOmissionNullite(a: ActeProtege) defeasible { label fr official "Article 465, 3°. L'acte accompli sans représentation est nul de plein droit sans preuve de préjudice"; label en unofficial "Article 465(3). An act made without required representation is void without proof of loss"; when categorie_acte_465(a, RepresentationRequise); then sanction_nullite_de_plein_droit(a); }
+    rule ProtecteurALaPlaceNullite(a: ActeProtege) defeasible { label fr official "Article 465, 4°. L'acte accompli par le protecteur à la place de la personne est nul de plein droit"; label en unofficial "Article 465(4). An act made by the protector in place of the person is void by operation of law"; when categorie_acte_465(a, ActeAccompliParProtecteurALaPlace); then sanction_nullite_de_plein_droit(a); }
+    rule DelaiAction465(a: ActeProtege, m: MesureDeProtection, jour: Date) defeasible { label fr official "Article 465. L'action s'éteint par le délai de cinq ans de l'article 2224"; label en unofficial "Article 465. The action expires under the five-year period in Article 2224"; when acte_de_la_mesure(a, m) and publicite_jugement_le(m, jour); then action_465_expire_le(a, add_calendar_period(jour, 5 calendar_year)); }
+}
+
+@source(CC_ART458)
+rule PositionPouvoirAccomplirActeStrictementPersonnel(p: Personne) strict {
+    label fr official "Article 458. La personne peut accomplir seule l'acte strictement personnel";
+    label en unofficial "Article 458. A person may perform the strictly personal act alone";
+    when acte_strictement_personnel(p) and accomplir_acte_strictement_personnel(p);
+    then liberty PouvoirAccomplirActeStrictementPersonnel {
+        holder p;
+        action accomplir_acte_strictement_personnel(p);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART459_1)
+rule PositionDevoirAppliquerRegimeSpecialProtection(p: Personne) strict {
+    label fr official "Article 459-1. Le régime spécial sanitaire ou social doit être appliqué";
+    label en unofficial "Article 459-1. The special health or social-care regime must be applied";
+    when mandataire_etablissement_designe(p);
+    then duty DevoirAppliquerRegimeSpecialProtection {
+        bearer entity_ref("urn:fr:cc:personnes:organisme-special");
+        beneficiary p;
+        goal achievement {
+            condition appliquer_regime_special_protection(p);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART465)
+rule PositionPouvoirDemanderRescisionReduction465(a: ActeProtege) strict {
+    label fr official "Article 465. La personne peut demander la rescision ou réduction de l'acte";
+    label en unofficial "Article 465. A person may seek rescission or reduction of the act";
+    when demander_rescision_ou_reduction_465(a);
+    then liberty PouvoirDemanderRescisionReduction465 {
+        holder entity_ref("urn:fr:cc:personnes:personne-protegee");
+        action demander_rescision_ou_reduction_465(a);
+        window [@2009-01-01, infinity);
+    };
+}
+
+@source(CC_ART473)
+rule Article473Surface(p: Personne) defeasible { label fr official "Article 473. Le tuteur représente la personne dans tous les actes civils, sous réserve des actes laissés par la loi ou le jugement"; label en unofficial "Article 473. The guardian represents the person in all civil acts, subject to acts reserved by law or judgment"; when personne_en_tutelle(p); then represente_par_tuteur_dans_actes_civils(p); }
+pub relation representer_personne_protegee(p: Personne, tuteur: Personne) kind empirical { label fr official "le tuteur représente la personne protégée dans les actes civils"; label en unofficial "the guardian represents the protected person in civil acts"; }
+@source(CC_ART473)
+rule PositionDevoirRepresenterPersonneProtegee(p: Personne, tuteur: Personne) strict {
+    label fr official "Article 473. Le tuteur doit représenter la personne protégée dans les actes civils";
+    label en unofficial "Article 473. The guardian must represent the protected person in civil acts";
+    when personne_en_tutelle(p) and tuteur_de(tuteur, p);
+    then duty DevoirRepresenterPersonneProtegee {
+        bearer tuteur;
+        beneficiary p;
+        goal achievement {
+            condition representer_personne_protegee(p, tuteur);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+
+// Mandat de protection future.
+pub relation mandat_du(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) kind empirical { key(m); label fr official "mandant et mandataire du mandat de protection future"; label en unofficial "principal and representative under the future protection mandate"; }
+pub relation mandat_notarie_ou_sous_seing_prive(m: MandatProtectionFuture) kind empirical { label fr official "le mandat respecte la forme notariée ou sous seing privé exigée"; label en unofficial "the mandate complies with the required notarized or private form"; }
+pub relation mandat_publie(m: MandatProtectionFuture) kind empirical { label fr official "le mandat est inscrit au registre spécial"; label en unofficial "the mandate is entered in the special register"; }
+pub relation certificat_425_produit(m: MandatProtectionFuture) kind empirical { label fr official "le certificat médical de l'article 425 a été produit au greffe"; label en unofficial "the Article 425 medical certificate was filed with the registry"; }
+pub relation mandat_prend_effet(m: MandatProtectionFuture) kind derived { label fr official "le mandat de protection future prend effet"; label en unofficial "the future protection mandate takes effect"; }
+pub relation mandat_prend_fin(m: MandatProtectionFuture) kind derived { label fr official "le mandat de protection future prend fin"; label en unofficial "the future protection mandate ends"; }
+pub relation documents_mandat_disponibles_jusqu_au(m: MandatProtectionFuture, jour: Date) kind derived { key(m); label fr official "terme de conservation quinquennale des documents du mandat"; label en unofficial "end of the five-year mandate-record retention"; }
+pub relation acte_mandat_rescindable_ou_reductible(a: ActeProtege) kind derived { label fr official "l'acte sous mandat peut être rescindé pour lésion ou réduit pour excès"; label en unofficial "an act under the mandate may be rescinded for lesion or reduced for excess"; }
+pub relation demander_rescision_acte_mandat(a: ActeProtege) kind empirical { label fr official "le mandant demande la rescision ou réduction de l'acte"; label en unofficial "the principal seeks rescission or reduction of the act"; }
+pub relation demander_autorisation_disposition_gratuite(m: MandatProtectionFuture) kind empirical { label fr official "le mandant demande au juge l'autorisation d'une disposition gratuite"; label en unofficial "the principal asks the judge to authorize a gratuitous disposition"; }
+pub relation demander_autorisation_acte_mandat(m: MandatProtectionFuture) kind empirical { label fr official "le mandant demande au juge l'autorisation d'un acte hors mandat privé"; label en unofficial "the principal asks the judge to authorize an act outside the private mandate"; }
+pub relation action_mandat_expire_le(a: ActeProtege, jour: Date) kind derived { key(a); label fr official "terme de cinq ans de l'action relative au mandat"; label en unofficial "end of the five-year mandate action"; }
+pub relation mandat_termine_le(m: MandatProtectionFuture, jour: Date) kind empirical { key(m); label fr official "jour d'expiration du mandat"; label en unofficial "date the mandate ended"; }
+pub relation acte_du_mandat(a: ActeProtege, m: MandatProtectionFuture) kind empirical { key(a); label fr official "acte accompli pendant l'exécution de ce mandat"; label en unofficial "act made during performance of this mandate"; }
+
+@source(CC_ART477)
+rule Article477Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 477. Un majeur ou mineur émancipé non soumis à tutelle ou habilitation peut conclure un mandat dans la forme requise"; label en unofficial "Article 477. An adult or emancipated minor not under guardianship or family authorization may make a mandate in the required form"; when mandat_du(m, mandant, mandataire) and mandat_notarie_ou_sous_seing_prive(m); then mandat_publie(m); }
+pub relation conclure_mandat_protection(m: MandatProtectionFuture, mandant: Personne) kind empirical { label fr official "le mandant conclut un mandat de protection future"; label en unofficial "the principal concludes a future protection mandate"; }
+@source(CC_ART477)
+rule PositionPouvoirConclureMandatProtection(m: MandatProtectionFuture, mandant: Personne) strict {
+    label fr official "Article 477. La personne peut conclure un mandat de protection future dans la forme requise";
+    label en unofficial "Article 477. A person may conclude a future protection mandate in the required form";
+    when conclure_mandat_protection(m, mandant);
+    then liberty PouvoirConclureMandatProtection {
+        holder mandant;
+        action conclure_mandat_protection(m, mandant);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART477_1)
+rule Article477_1Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 477-1. Le mandat est publié par inscription au registre spécial"; label en unofficial "Article 477-1. The mandate is published by entry in the special register"; when mandat_publie(m); then regime_du_mandat_applicable(m); }
+@source(CC_ART478)
+rule Article478Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 478. Le régime général du mandat s'applique sauf incompatibilité"; label en unofficial "Article 478. General mandate law applies unless incompatible"; when mandat_publie(m); then regime_du_mandat_applicable(m); }
+@source(CC_ART479)
+rule Article479Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 479. Le mandat personnel suit les articles 457-1 à 459-2 et fixe le contrôle de son exécution"; label en unofficial "Article 479. A personal mandate follows Articles 457-1 to 459-2 and defines supervision"; when mandat_publie(m); then regime_du_mandat_applicable(m); }
+pub relation respecter_regime_mandat_personnel(m: MandatProtectionFuture) kind empirical { label fr official "le mandat personnel respecte le régime applicable"; label en unofficial "the personal mandate respects the applicable regime"; }
+pub relation mandat_etendu_a_la_protection_de_la_personne(m: MandatProtectionFuture) kind empirical { label fr official "le mandat de protection future s'étend à la protection de la personne"; label en unofficial "the future-protection mandate extends to protection of the person"; }
+@source(CC_ART479)
+rule PositionDevoirRespecterRegimeMandatPersonnel(m: MandatProtectionFuture) strict {
+    label fr official "Article 479. Le mandat personnel doit respecter le régime applicable";
+    label en unofficial "Article 479. The personal mandate must respect the applicable regime";
+    when mandat_etendu_a_la_protection_de_la_personne(m);
+    then duty DevoirRespecterRegimeMandatPersonnel {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire");
+        goal achievement {
+            condition respecter_regime_mandat_personnel(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART480)
+rule Article480Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 480. Le mandataire conserve sa capacité et les conditions des charges tutélaires pendant l'exécution"; label en unofficial "Article 480. The representative retains capacity and guardianship-office eligibility throughout performance"; when mandat_du(m, mandant, mandataire) and not_known(charge_tutelaire_interdite(mandataire)); then regime_du_mandat_applicable(m); }
+pub relation conserver_capacite_mandataire(m: MandatProtectionFuture, mandataire: Personne) kind empirical { label fr official "le mandataire conserve sa capacité pendant l'exécution"; label en unofficial "the representative retains capacity during performance"; }
+@source(CC_ART480)
+rule PositionDevoirConserverCapaciteMandataire(m: MandatProtectionFuture, mandataire: Personne) strict {
+    label fr official "Article 480. Le mandataire doit conserver sa capacité pendant l'exécution";
+    label en unofficial "Article 480. The representative must retain capacity during performance";
+    when mandat_du(m, _, mandataire) and mandat_prend_effet(m);
+    then duty DevoirConserverCapaciteMandataire {
+        bearer mandataire;
+        goal achievement {
+            condition conserver_capacite_mandataire(m, mandataire);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART481)
+rule Article481Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 481. Le certificat médical produit au greffe déclenche la prise d'effet datée du mandat"; label en unofficial "Article 481. Filing the medical certificate triggers the dated effectiveness of the mandate"; when certificat_425_produit(m) and mandat_publie(m); then mandat_prend_effet(m); }
+pub relation produire_certificat_prise_effet_mandat(m: MandatProtectionFuture) kind empirical { label fr official "le certificat médical est produit pour la prise d'effet du mandat"; label en unofficial "the medical certificate is filed for the mandate to take effect"; }
+pub relation mandant_hors_d_etat_de_pourvoir_seul_a_ses_interets(m: MandatProtectionFuture) kind empirical { label fr official "il est établi que le mandant ne peut plus pourvoir seul à ses intérêts"; label en unofficial "it is established that the principal can no longer look after his interests alone"; }
+@source(CC_ART481)
+rule PositionDevoirProduireCertificatPriseEffetMandat(m: MandatProtectionFuture) strict {
+    label fr official "Article 481. Le certificat médical doit être produit pour la prise d'effet du mandat";
+    label en unofficial "Article 481. The medical certificate must be filed for the mandate to take effect";
+    when mandant_hors_d_etat_de_pourvoir_seul_a_ses_interets(m);
+    then duty DevoirProduireCertificatPriseEffetMandat {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire");
+        goal achievement {
+            condition produire_certificat_prise_effet_mandat(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+pub relation mandat_execute_personnellement(m: MandatProtectionFuture) kind empirical { label fr official "le mandataire exécute personnellement le mandat, sauf substitution spéciale pour la gestion"; label en unofficial "the representative performs the mandate personally, save special substitution for management"; }
+@source(CC_ART482)
+rule Article482Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 482. Le mandataire exécute personnellement le mandat, sauf substitution spéciale pour la gestion"; label en unofficial "Article 482. The representative performs personally, save special substitution for management"; when mandat_du(m, mandant, mandataire) and mandat_prend_effet(m); then duty ExecuterPersonnellementLeMandat { bearer mandataire; beneficiary mandant; maintain mandat_execute_personnellement(m) during [@2009-01-01, infinity); }; }
+@source(CC_ART483)
+rule Article483Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 483. Le rétablissement, le décès, une mesure incompatible, la défaillance du mandataire ou la révocation mettent fin au mandat"; label en unofficial "Article 483. Recovery, death, an incompatible measure, representative failure or revocation ends the mandate"; when atteinte_aux_interets_du_mandant_483(m); then mandat_prend_fin(m); }
+pub relation executer_fin_mandat_483(m: MandatProtectionFuture) kind empirical { label fr official "le mandat prend fin dans le cas légal de l'article 483"; label en unofficial "the mandate ends in the statutory case of Article 483"; }
+@source(CC_ART483)
+rule PositionDevoirExecuterFinMandat483(m: MandatProtectionFuture) strict {
+    label fr official "Article 483. Le mandat doit prendre fin dans les cas légaux";
+    label en unofficial "Article 483. The mandate must end in the statutory cases";
+    when mandat_prend_fin(m);
+    then duty DevoirExecuterFinMandat483 {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire");
+        goal achievement {
+            condition executer_fin_mandat_483(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART484)
+rule Article484Surface(m: MandatProtectionFuture, mandant: Personne) defeasible { label fr official "Article 484. Tout intéressé peut saisir le juge pour contester ou régler l'exécution"; label en unofficial "Article 484. Any interested person may apply to the judge to challenge or regulate performance"; when mandat_du(m, mandant, entity_ref("urn:fr:cc:personnes:mandataire")); then liberty SaisirLeJugeSurLeMandat { holder mandant; action mandat_prend_fin(m); window [@2009-01-01, infinity); }; }
+@source(CC_ART485)
+rule Article485Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 485. L'insuffisance du mandat permet une mesure complémentaire ou une autorisation d'actes déterminés"; label en unofficial "Article 485. An insufficient mandate permits a complementary measure or authorization of specified acts"; when protection_mandat_insuffisante_485(m); then mandat_prend_fin(m); }
+pub relation demander_mesure_complementaire_mandat(m: MandatProtectionFuture) kind empirical { label fr official "une personne demande une mesure complémentaire au mandat"; label en unofficial "a person asks for a measure complementary to the mandate"; }
+@source(CC_ART485)
+rule PositionPouvoirDemanderMesureComplementaireMandat(m: MandatProtectionFuture) strict {
+    label fr official "Article 485. Une personne peut demander une mesure complémentaire au mandat";
+    label en unofficial "Article 485. A person may request a measure complementary to the mandate";
+    when protection_mandat_insuffisante_485(m) and demander_mesure_complementaire_mandat(m);
+    then liberty PouvoirDemanderMesureComplementaireMandat {
+        holder entity_ref("urn:fr:cc:personnes:interesse");
+        action demander_mesure_complementaire_mandat(m);
+        window [@2009-01-01, infinity);
+    };
+}
+pub relation inventaire_et_compte_annuel_du_mandat_tenus(m: MandatProtectionFuture) kind empirical { label fr official "le mandataire inventorie les biens, actualise l'inventaire et établit un compte annuel"; label en unofficial "the representative inventories assets, updates the inventory and prepares an annual account"; }
+@source(CC_ART486)
+rule Article486Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 486. Le mandataire inventorie les biens, actualise l'inventaire et établit un compte annuel"; label en unofficial "Article 486. The representative inventories assets, updates the inventory and prepares an annual account"; when mandat_du(m, mandant, mandataire) and mandat_prend_effet(m); then duty TenirInventaireEtCompteDuMandat { bearer mandataire; beneficiary mandant; maintain inventaire_et_compte_annuel_du_mandat_tenus(m) during [@2009-01-01, infinity); }; }
+@source(CC_ART487)
+rule Article487Surface(m: MandatProtectionFuture, fin: Date) defeasible { label fr official "Article 487. Les inventaires, cinq derniers comptes et pièces restent disponibles cinq ans après l'expiration"; label en unofficial "Article 487. Inventories, the last five accounts and records remain available for five years after expiry"; when mandat_termine_le(m, fin); then documents_mandat_disponibles_jusqu_au(m, add_calendar_period(fin, 5 calendar_year)); }
+pub relation conserver_documents_mandat_cinq_ans(m: MandatProtectionFuture) kind empirical { label fr official "les documents du mandat restent disponibles pendant cinq ans"; label en unofficial "the mandate records remain available for five years"; }
+@source(CC_ART487)
+rule PositionDevoirConserverDocumentsMandat(m: MandatProtectionFuture) strict {
+    label fr official "Article 487. Les documents du mandat doivent rester disponibles cinq ans";
+    label en unofficial "Article 487. The mandate records must remain available for five years";
+    when mandat_termine_le(m, _);
+    then duty DevoirConserverDocumentsMandat {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire");
+        goal achievement {
+            condition conserver_documents_mandat_cinq_ans(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART488) {
+    rule RescisionOuReductionActeMandat(a: ActeProtege, m: MandatProtectionFuture) defeasible { label fr official "Article 488. L'acte pendant le mandat peut être rescindé pour lésion ou réduit pour excès"; label en unofficial "Article 488. An act during the mandate may be rescinded for lesion or reduced for excess"; when acte_du_mandat(a, m) and mandat_prend_effet(m); then acte_mandat_rescindable_ou_reductible(a); }
+    rule DelaiActionMandat(a: ActeProtege, m: MandatProtectionFuture, fin: Date) defeasible { label fr official "Article 488. L'action s'éteint par le délai de cinq ans de l'article 2224"; label en unofficial "Article 488. The action expires under the five-year period in Article 2224"; when acte_du_mandat(a, m) and mandat_termine_le(m, fin); then action_mandat_expire_le(a, add_calendar_period(fin, 5 calendar_year)); }
+}
+@source(CC_ART488)
+rule PositionPouvoirRescinderActeMandat(a: ActeProtege, m: MandatProtectionFuture, mandant: Personne) strict {
+    label fr official "Article 488. Le mandant peut demander la rescision ou réduction de l'acte";
+    label en unofficial "Article 488. The principal may seek rescission or reduction of the act";
+    when acte_du_mandat(a, m) and mandat_du(m, mandant, entity_ref("urn:fr:cc:personnes:mandataire"))
+        and demander_rescision_acte_mandat(a);
+    then liberty PouvoirRescinderActeMandat {
+        holder mandant;
+        action demander_rescision_acte_mandat(a);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART489)
+rule Article489Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 489. Le mandat authentique et son acceptation sont reçus par notaire et modifiables dans les mêmes formes avant effet"; label en unofficial "Article 489. The authenticated mandate and acceptance are notarized and amendable in the same form before effectiveness"; when mandat_notarie_ou_sous_seing_prive(m); then regime_du_mandat_applicable(m); }
+pub relation modifier_mandat_avant_effet(m: MandatProtectionFuture) kind empirical { label fr official "le mandat est modifié avant sa prise d'effet"; label en unofficial "the mandate is amended before taking effect"; }
+@source(CC_ART489)
+rule PositionPouvoirModifierMandatAvantEffet(m: MandatProtectionFuture, mandant: Personne) strict {
+    label fr official "Article 489. Le mandat peut être modifié avant sa prise d'effet dans les mêmes formes";
+    label en unofficial "Article 489. The mandate may be amended before taking effect in the same form";
+    when mandat_du(m, mandant, entity_ref("urn:fr:cc:personnes:mandataire"))
+        and modifier_mandat_avant_effet(m);
+    then liberty PouvoirModifierMandatAvantEffet {
+        holder mandant;
+        action modifier_mandat_avant_effet(m);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART490)
+rule Article490Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 490. Le mandat authentique inclut les actes patrimoniaux du tuteur ; les dispositions gratuites exigent le juge"; label en unofficial "Article 490. An authenticated mandate includes a guardian's property acts; gratuitous dispositions require the judge"; when mandat_prend_effet(m); then regime_du_mandat_applicable(m); }
+@source(CC_ART490)
+rule PositionPouvoirAutoriserDispositionGratuite(m: MandatProtectionFuture, mandant: Personne) strict {
+    label fr official "Article 490. Le mandant peut demander au juge l'autorisation d'une disposition gratuite";
+    label en unofficial "Article 490. The principal may ask the judge to authorize a gratuitous disposition";
+    when mandat_du(m, mandant, entity_ref("urn:fr:cc:personnes:mandataire"))
+        and demander_autorisation_disposition_gratuite(m);
+    then liberty PouvoirAutoriserDispositionGratuite {
+        holder mandant;
+        action demander_autorisation_disposition_gratuite(m);
+        window [@2009-01-01, infinity);
+    };
+}
+pub relation comptes_du_mandat_adresses_au_notaire(m: MandatProtectionFuture) kind empirical { label fr official "le mandataire adresse les comptes et justificatifs au notaire"; label en unofficial "the representative sends the accounts and records to the notary"; }
+@source(CC_ART491)
+rule Article491Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 491. Le mandataire adresse les comptes et justificatifs au notaire, qui alerte le juge des mouvements injustifiés"; label en unofficial "Article 491. The representative sends accounts and records to the notary, who alerts the judge to unjustified movements"; when mandat_du(m, mandant, mandataire) and mandat_prend_effet(m); then duty RendreCompteAuNotaire { bearer mandataire; beneficiary mandant; maintain comptes_du_mandat_adresses_au_notaire(m) during [@2009-01-01, infinity); }; }
+@source(CC_ART492)
+rule Article492Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 492. Le mandat privé est daté, signé et contresigné ou conforme au modèle ; le mandataire signe son acceptation"; label en unofficial "Article 492. A private mandate is dated, signed and countersigned or follows the model; the representative signs acceptance"; when mandat_notarie_ou_sous_seing_prive(m); then regime_du_mandat_applicable(m); }
+pub relation respecter_forme_mandat_prive_492(m: MandatProtectionFuture) kind empirical { label fr official "le mandat privé respecte la forme et l'acceptation requises"; label en unofficial "the private mandate complies with the required form and acceptance"; }
+pub relation mandat_sous_seing_prive(m: MandatProtectionFuture) kind empirical { label fr official "le mandat de protection future est établi sous seing privé"; label en unofficial "the future-protection mandate is drawn up under private signature"; }
+@source(CC_ART492)
+rule PositionDevoirRespecterFormeMandatPrive(m: MandatProtectionFuture) strict {
+    label fr official "Article 492. Le mandat privé doit respecter la forme requise";
+    label en unofficial "Article 492. The private mandate must comply with the required form";
+    when mandat_sous_seing_prive(m);
+    then duty DevoirRespecterFormeMandatPrive {
+        bearer entity_ref("urn:fr:cc:personnes:mandant");
+        goal achievement {
+            condition respecter_forme_mandat_prive_492(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART492_1)
+rule Article492_1Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 492-1. Le mandat n'acquiert date certaine que dans les conditions de l'article 1377"; label en unofficial "Article 492-1. The mandate acquires a certain date only under Article 1377"; when mandat_publie(m); then regime_du_mandat_applicable(m); }
+@source(CC_ART493)
+rule Article493Surface(m: MandatProtectionFuture) defeasible { label fr official "Article 493. Le mandat privé est limité aux actes sans autorisation ; les autres actes sont demandés au juge"; label en unofficial "Article 493. A private mandate is limited to acts not requiring authorization; other acts go to the judge"; when mandat_prend_effet(m); then regime_du_mandat_applicable(m); }
+@source(CC_ART493)
+rule PositionPouvoirAutoriserActeMandat(m: MandatProtectionFuture, mandant: Personne) strict {
+    label fr official "Article 493. Le mandant peut demander au juge l'autorisation des autres actes";
+    label en unofficial "Article 493. The principal may ask the judge to authorize other acts";
+    when mandat_du(m, mandant, entity_ref("urn:fr:cc:personnes:mandataire"))
+        and demander_autorisation_acte_mandat(m);
+    then liberty PouvoirAutoriserActeMandat {
+        holder mandant;
+        action demander_autorisation_acte_mandat(m);
+        window [@2009-01-01, infinity);
+    };
+}
+pub relation pieces_du_mandat_conservees(m: MandatProtectionFuture) kind empirical { label fr official "le mandataire conserve inventaires, comptes et pièces et les présente au juge ou au procureur"; label en unofficial "the representative retains inventories, accounts and records and presents them to the judge or prosecutor"; }
+@source(CC_ART494)
+rule Article494Surface(m: MandatProtectionFuture, mandant: Personne, mandataire: Personne) defeasible { label fr official "Article 494. Le mandataire conserve inventaires, cinq comptes et pièces et les présente au juge ou au procureur"; label en unofficial "Article 494. The representative retains inventories, five accounts and records and presents them to the judge or prosecutor"; when mandat_du(m, mandant, mandataire) and mandat_prend_effet(m); then duty ConserverLesPiecesDuMandat { bearer mandataire; beneficiary mandant; maintain pieces_du_mandat_conservees(m) during [@2009-01-01, infinity); }; }
+
+// Habilitation familiale.
+pub relation habilitation_de(h: HabilitationFamiliale, protege: Personne, habilite: Personne) kind empirical { key(h); label fr official "personne protégée et proche habilité"; label en unofficial "protected person and authorized relative"; }
+pub relation habilitation_ordonnee_le(h: HabilitationFamiliale, jour: Date) kind empirical { key(h); label fr official "jour où l'habilitation familiale a été ordonnée"; label en unofficial "date family authorization was ordered"; }
+pub relation habilitation_admissible(h: HabilitationFamiliale) kind derived { label fr official "l'habilitation familiale est admissible"; label en unofficial "family authorization is available"; }
+pub relation habilitation_expire_le(h: HabilitationFamiliale, jour: Date) kind derived { key(h); label fr official "terme maximal de l'habilitation générale"; label en unofficial "latest term of general family authorization"; }
+pub relation habilitation_terminee(h: HabilitationFamiliale) kind derived { label fr official "l'habilitation familiale a pris fin"; label en unofficial "family authorization ended"; }
+
+@source(CC_ART494_1)
+rule Article494_1Surface(h: HabilitationFamiliale, p: Personne, proche: Personne) defeasible { label fr official "Article 494-1. Une altération médicalement constatée permet d'habiliter gratuitement un proche remplissant les conditions tutélaires"; label en unofficial "Article 494-1. A medically established impairment permits gratuitous authorization of an eligible relative"; when habilitation_de(h, p, proche) and alteration_medicalement_constatee(p) and not_known(charge_tutelaire_interdite(proche)); then habilitation_admissible(h); }
+pub relation habiliter_proche_eligible(h: HabilitationFamiliale, proche: Personne) kind empirical { label fr official "le proche remplissant les conditions est habilité gratuitement"; label en unofficial "the eligible relative is authorized gratuitously"; }
+pub relation proche_remplissant_les_conditions_d_habilitation(h: HabilitationFamiliale, proche: Personne) kind empirical { label fr official "le proche est un ascendant, un descendant, un frère ou une sœur, le conjoint, le partenaire ou le concubin remplissant les conditions de l'article 494-1"; label en unofficial "the relative is an ascendant, descendant, sibling, spouse, partner or cohabitant meeting the conditions of Article 494-1"; }
+@source(CC_ART494_1)
+rule PositionPouvoirHabiliterProche(h: HabilitationFamiliale, proche: Personne) strict {
+    label fr official "Article 494-1. Le juge peut habiliter le proche remplissant les conditions";
+    label en unofficial "Article 494-1. The judge may authorize the relative meeting the conditions";
+    when proche_remplissant_les_conditions_d_habilitation(h, proche);
+    then liberty PouvoirHabiliterProche {
+        holder entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        action habiliter_proche_eligible(h, proche);
+        window [@2016-10-18, infinity);
+    };
+}
+@source(CC_ART494_2)
+rule Article494_2Surface(h: HabilitationFamiliale) defeasible { label fr official "Article 494-2. L'habilitation n'est ordonnée qu'en cas de nécessité et de subsidiarité"; label en unofficial "Article 494-2. Family authorization is ordered only when necessary and subsidiary"; when necessite_et_subsidiarite_habilitation_494_2(h); then habilitation_admissible(h); }
+@source(CC_ART494_3)
+rule Article494_3Surface(h: HabilitationFamiliale, p: Personne, proche: Personne) defeasible { label fr official "Article 494-3. La personne, un proche énuméré ou le procureur peut présenter la demande"; label en unofficial "Article 494-3. The person, a listed relative or the prosecutor may apply"; when habilitation_de(h, p, proche); then habilitation_admissible(h); }
+pub relation demander_habilitation_familiale(h: HabilitationFamiliale, p: Personne) kind empirical { label fr official "la personne présente une demande d'habilitation familiale"; label en unofficial "the person submits a family authorization application"; }
+@source(CC_ART494_3)
+rule PositionPouvoirDemanderHabilitationFamiliale(h: HabilitationFamiliale, p: Personne) strict {
+    label fr official "Article 494-3. La personne peut présenter la demande d'habilitation familiale";
+    label en unofficial "Article 494-3. A person may submit the family authorization application";
+    when demander_habilitation_familiale(h, p);
+    then liberty PouvoirDemanderHabilitationFamiliale {
+        holder p;
+        action demander_habilitation_familiale(h, p);
+        window [@2016-10-18, infinity);
+    };
+}
+@source(CC_ART494_4)
+rule Article494_4Surface(h: HabilitationFamiliale) defeasible { label fr official "Article 494-4. La personne est entendue sauf décision motivée ; le juge vérifie l'adhésion ou l'absence d'opposition légitime"; label en unofficial "Article 494-4. The person is heard absent a reasoned exception; the judge checks support or lack of legitimate opposition"; when necessite_et_subsidiarite_habilitation_494_2(h); then habilitation_admissible(h); }
+@source(CC_ART494_5)
+rule Article494_5Surface(h: HabilitationFamiliale) defeasible { label fr official "Article 494-5. Le choix et l'étendue doivent servir les intérêts de la personne ; l'insuffisance conduit à une autre mesure"; label en unofficial "Article 494-5. Choice and scope must serve the person's interests; insufficiency leads to another measure"; when interets_conformes_habilitation_494_5(h); then habilitation_admissible(h); }
+@source(CC_ART494_6) {
+    rule HabilitationGeneraleDixAns(h: HabilitationFamiliale, jour: Date) defeasible { label fr official "Article 494-6. L'habilitation générale ne peut excéder dix ans"; label en unofficial "Article 494-6. General family authorization may not exceed ten years"; when habilitation_ordonnee_le(h, jour) and not_known(avis_conforme_du_medecin_sur_l_absence_d_amelioration(entity_ref("urn:fr:cc:personnes:mesure-habilitation"))); then habilitation_expire_le(h, add_calendar_period(jour, 10 calendar_year)); }
+    rule HabilitationRenouveleeVingtAns(h: HabilitationFamiliale, jour: Date) defeasible { label fr official "Article 494-6. Le renouvellement spécialement motivé sur avis conforme ne peut excéder vingt ans"; label en unofficial "Article 494-6. Specially reasoned renewal on concurring opinion may not exceed twenty years"; when habilitation_ordonnee_le(h, jour) and avis_conforme_du_medecin_sur_l_absence_d_amelioration(entity_ref("urn:fr:cc:personnes:mesure-habilitation")); then habilitation_expire_le(h, add_calendar_period(jour, 20 calendar_year)); }
+}
+pub relation respecter_duree_habilitation_maximale(h: HabilitationFamiliale) kind empirical { label fr official "l'habilitation respecte sa durée maximale légale"; label en unofficial "the authorization respects its statutory maximum duration"; }
+@source(CC_ART494_6)
+rule PositionDevoirRespecterDureeHabilitation(h: HabilitationFamiliale) strict {
+    label fr official "Article 494-6. La durée de l'habilitation doit respecter le maximum légal";
+    label en unofficial "Article 494-6. The authorization duration must respect the statutory maximum";
+    when habilitation_ordonnee_le(h, _);
+    then duty DevoirRespecterDureeHabilitation {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition respecter_duree_habilitation_maximale(h);
+            window [@2016-10-18, infinity];
+        };
+    };
+}
+@source(CC_ART494_7)
+rule Article494_7Surface(h: HabilitationFamiliale) defeasible { label fr official "Article 494-7. La personne habilitée à représenter peut accomplir sans autorisation les actes bancaires de l'article 427 sauf décision contraire"; label en unofficial "Article 494-7. A representative may perform Article 427 banking acts without authorization absent a contrary decision"; when habilitation_admissible(h); then effet_habilitation_applicable(h); }
+pub relation accomplir_actes_bancaires_habilitation(h: HabilitationFamiliale, proche: Personne) kind empirical { label fr official "la personne habilitée accomplit les actes bancaires autorisés"; label en unofficial "the authorized person performs the permitted banking acts"; }
+@source(CC_ART494_7)
+rule PositionPouvoirAccomplirActesBancaires(h: HabilitationFamiliale, proche: Personne) strict {
+    label fr official "Article 494-7. La personne habilitée peut accomplir les actes bancaires sans autorisation";
+    label en unofficial "Article 494-7. The authorized person may perform banking acts without authorization";
+    when accomplir_actes_bancaires_habilitation(h, proche);
+    then liberty PouvoirAccomplirActesBancaires {
+        holder proche;
+        action accomplir_actes_bancaires_habilitation(h, proche);
+        window [@2016-10-18, infinity);
+    };
+}
+@source(CC_ART494_8)
+rule Article494_8Surface(h: HabilitationFamiliale, p: Personne, proche: Personne) defeasible { label fr official "Article 494-8. La personne conserve les droits non confiés ; l'habilitation générale exclut un nouveau mandat de protection future"; label en unofficial "Article 494-8. The person retains unassigned rights; general authorization excludes a new future mandate"; when habilitation_de(h, p, proche) and habilitation_admissible(h); then decision_personnelle_autonome(p); }
+pub relation conserver_droits_non_confies(p: Personne) kind empirical { label fr official "la personne exerce les droits non confiés à l'habilitation"; label en unofficial "the person exercises rights not entrusted to the authorization"; }
+@source(CC_ART494_8)
+rule PositionPouvoirConserverDroitsNonConfies(h: HabilitationFamiliale, p: Personne, proche: Personne) strict {
+    label fr official "Article 494-8. La personne peut conserver les droits non confiés à l'habilitation";
+    label en unofficial "Article 494-8. The person may retain rights not entrusted to the authorization";
+    when habilitation_de(h, p, proche) and conserver_droits_non_confies(p);
+    then liberty PouvoirConserverDroitsNonConfies {
+        holder p;
+        action conserver_droits_non_confies(p);
+        window [@2016-10-18, infinity);
+    };
+}
+@source(CC_ART494_9)
+{
+    pub relation demander_nullite_acte_habilitation(a: ActeProtege) kind empirical { label fr official "la personne demande la nullité ou réduction de l'acte"; label en unofficial "the person seeks annulment or reduction of the act"; }
+    @source(CC_ART494_9)
+    rule PositionPouvoirNulliteActeHabilitation(a: ActeProtege, p: Personne) strict {
+        label fr official "Article 494-9. La personne peut demander la nullité ou réduction de l'acte";
+        label en unofficial "Article 494-9. A person may seek annulment or reduction of the act";
+        when acte_accompli_par(a, p, _) and demander_nullite_acte_habilitation(a);
+        then liberty PouvoirNulliteActeHabilitation {
+            holder p;
+            action demander_nullite_acte_habilitation(a);
+            window [@2016-10-18, infinity);
+        };
+    }
+    rule Article494_9Surface(a: ActeProtege) defeasible { label fr official "Article 494-9. L'acte accompli seul malgré une représentation requise est nul de plein droit"; label en unofficial "Article 494-9. An act made alone despite required representation is void by operation of law"; when categorie_acte_465(a, RepresentationRequise); then sanction_nullite_de_plein_droit(a); }
+    rule DeuxAnsAvantHabilitation(a: ActeProtege, h: HabilitationFamiliale, auteur: Personne, jour: Date, jugement: Date) defeasible { label fr official "Article 494-9. Les obligations des actes accomplis moins de deux ans avant le jugement peuvent être réduites ou annulées"; label en unofficial "Article 494-9. Obligations from acts made less than two years before judgment may be reduced or annulled"; when acte_accompli_par(a, auteur, jour) and habilitation_ordonnee_le(h, jugement) and jugement <= add_calendar_period(jour, 2 calendar_year); then acte_dans_les_deux_ans_avant_habilitation(a, h); }
+    rule DelaiActionHabilitation(a: ActeProtege, jour: Date) defeasible { label fr official "Article 494-9. L'action en nullité ou réduction s'exerce dans le délai de cinq ans de l'article 2224"; label en unofficial "Article 494-9. The annulment or reduction action is brought within Article 2224's five-year period"; when point_depart_2224_le(a, jour); then action_habilitation_expire_le(a, add_calendar_period(jour, 5 calendar_year)); }
+}
+@source(CC_ART494_10)
+rule Article494_10Surface(h: HabilitationFamiliale) defeasible { label fr official "Article 494-10. Le juge règle les difficultés et peut modifier ou terminer l'habilitation après audition"; label en unofficial "Article 494-10. The judge resolves difficulties and may modify or end authorization after a hearing"; when interets_conformes_habilitation_494_5(h); then effet_habilitation_applicable(h); }
+pub relation modifier_ou_terminer_habilitation(h: HabilitationFamiliale) kind empirical { label fr official "le juge modifie ou termine l'habilitation après audition"; label en unofficial "the judge modifies or ends the authorization after a hearing"; }
+@source(CC_ART494_10)
+rule PositionPouvoirModifierTerminerHabilitation(h: HabilitationFamiliale) strict {
+    label fr official "Article 494-10. Le juge peut modifier ou terminer l'habilitation";
+    label en unofficial "Article 494-10. The judge may modify or end the authorization";
+    when modifier_ou_terminer_habilitation(h);
+    then liberty PouvoirModifierTerminerHabilitation {
+        holder entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        action modifier_ou_terminer_habilitation(h);
+        window [@2016-10-18, infinity);
+    };
+}
+@source(CC_ART494_11)
+rule Article494_11Surface(h: HabilitationFamiliale, p: Personne, proche: Personne) defeasible { label fr official "Article 494-11. Décès, mesure judiciaire, mainlevée, expiration ou accomplissement des actes mettent fin à l'habilitation"; label en unofficial "Article 494-11. Death, judicial measure, discharge, expiry or completion of acts ends authorization"; when habilitation_de(h, p, proche) and not_known(habilitation_admissible(h)); then habilitation_terminee(h); }
+pub relation terminer_habilitation_494_11(h: HabilitationFamiliale) kind empirical { label fr official "l'habilitation est terminée lorsque le fait légal survient"; label en unofficial "the authorization is ended when the statutory event occurs"; }
+@source(CC_ART494_11)
+rule PositionDevoirTerminerHabilitation(h: HabilitationFamiliale) strict {
+    label fr official "Article 494-11. L'habilitation doit prendre fin dans les cas légaux";
+    label en unofficial "Article 494-11. The authorization must end in the statutory cases";
+    when habilitation_terminee(h);
+    then duty DevoirTerminerHabilitation {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition terminer_habilitation_494_11(h);
+            window [@2016-10-18, infinity];
+        };
+    };
+}
+
+// Mesure d'accompagnement judiciaire.
+pub relation accompagnement_de(a: MesureAccompagnementJudiciaire, p: Personne, mandataire: Personne) kind empirical { key(a); label fr official "personne et mandataire de la mesure d'accompagnement judiciaire"; label en unofficial "person and representative under the judicial support measure"; }
+pub relation accompagnement_ordonne_le(a: MesureAccompagnementJudiciaire, jour: Date) kind empirical { key(a); label fr official "jour où l'accompagnement judiciaire a été ordonné"; label en unofficial "date judicial support was ordered"; }
+pub relation accompagnement_admissible(a: MesureAccompagnementJudiciaire) kind derived { label fr official "la mesure d'accompagnement judiciaire est admissible"; label en unofficial "the judicial support measure is available"; }
+pub relation accompagnement_expire_le(a: MesureAccompagnementJudiciaire, jour: Date) kind derived { key(a); label fr official "terme maximal de la mesure d'accompagnement judiciaire"; label en unofficial "latest term of the judicial support measure"; }
+pub relation accompagnement_termine(a: MesureAccompagnementJudiciaire) kind derived { label fr official "la mesure d'accompagnement judiciaire a pris fin"; label en unofficial "the judicial support measure ended"; }
+
+@source(CC_ART495)
+rule Article495Surface(a: MesureAccompagnementJudiciaire, p: Personne, mandataire: Personne) defeasible { label fr official "Article 495. L'échec des mesures sociales et le risque pour la santé ou la sécurité ouvrent l'accompagnement judiciaire"; label en unofficial "Article 495. Failed social measures and risk to health or safety make judicial support available"; when accompagnement_de(a, p, mandataire) and gestion_insatisfaisante_et_sante_compromise_495(p); then accompagnement_admissible(a); }
+@source(CC_ART495_1)
+rule Article495_1Surface(a: MesureAccompagnementJudiciaire, p: Personne, m: MesureDeProtection) defeasible { label fr official "Article 495-1. Une mesure de protection juridique exclut et met fin à l'accompagnement judiciaire"; label en unofficial "Article 495-1. A legal protection measure excludes and ends judicial support"; when mesure_demandee_pour(m, p) and mesure_ouverte(m) and accompagnement_de(a, p, entity_ref("urn:fr:cc:personnes:mandataire-accompagnement")); then accompagnement_termine(a); }
+pub relation terminer_accompagnement_mesure_protection(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "l'accompagnement judiciaire prend fin lorsqu'une mesure de protection est ouverte"; label en unofficial "judicial support ends when a protection measure opens"; }
+@source(CC_ART495_1)
+rule PositionDevoirTerminerAccompagnementMesureProtection(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-1. L'accompagnement judiciaire doit prendre fin lorsqu'une mesure de protection est ouverte";
+    label en unofficial "Article 495-1. Judicial support must end when a protection measure opens";
+    when accompagnement_termine(a);
+    then duty DevoirTerminerAccompagnementMesureProtection {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire-accompagnement");
+        goal achievement {
+            condition terminer_accompagnement_mesure_protection(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART495_2)
+rule Article495_2Surface(a: MesureAccompagnementJudiciaire, p: Personne, mandataire: Personne) defeasible { label fr official "Article 495-2. Seul le procureur demande la mesure au vu du rapport social et après audition"; label en unofficial "Article 495-2. Only the prosecutor applies on the social report and after a hearing"; when accompagnement_de(a, p, mandataire) and gestion_insatisfaisante_et_sante_compromise_495(p); then accompagnement_admissible(a); }
+pub relation demander_accompagnement_judiciaire(a: MesureAccompagnementJudiciaire, procureur: Personne) kind empirical { label fr official "le procureur demande la mesure d'accompagnement judiciaire"; label en unofficial "the prosecutor applies for judicial support"; }
+@source(CC_ART495_2)
+rule PositionPouvoirDemanderAccompagnementJudiciaire(a: MesureAccompagnementJudiciaire, procureur: Personne) strict {
+    label fr official "Article 495-2. Le procureur peut demander la mesure d'accompagnement judiciaire";
+    label en unofficial "Article 495-2. The prosecutor may apply for judicial support";
+    when demander_accompagnement_judiciaire(a, procureur);
+    then liberty PouvoirDemanderAccompagnementJudiciaire {
+        holder procureur;
+        action demander_accompagnement_judiciaire(a, procureur);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART495_3)
+rule Article495_3Surface(a: MesureAccompagnementJudiciaire) defeasible { label fr official "Article 495-3. La mesure n'entraîne aucune incapacité"; label en unofficial "Article 495-3. The measure entails no incapacity"; when accompagnement_admissible(a); then effet_accompagnement_applicable(a); }
+pub relation conserver_capacite_sous_accompagnement(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "la personne conserve sa capacité sous accompagnement"; label en unofficial "the person retains capacity under support"; }
+@source(CC_ART495_3)
+rule PositionDevoirConserverCapaciteSousAccompagnement(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-3. La capacité de la personne doit être conservée";
+    label en unofficial "Article 495-3. The person's capacity must be preserved";
+    when accompagnement_ordonne_le(a, _);
+    then duty DevoirConserverCapaciteSousAccompagnement {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire-accompagnement");
+        goal achievement {
+            condition conserver_capacite_sous_accompagnement(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART495_4)
+rule Article495_4Surface(a: MesureAccompagnementJudiciaire) defeasible { label fr official "Article 495-4. La mesure porte sur les prestations sociales choisies dans la liste réglementaire"; label en unofficial "Article 495-4. The measure concerns social benefits selected from the regulatory list"; when accompagnement_admissible(a); then effet_accompagnement_applicable(a); }
+pub relation choisir_prestations_sociales_reglementaires(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "les prestations sociales sont choisies dans la liste réglementaire"; label en unofficial "social benefits are selected from the regulatory list"; }
+@source(CC_ART495_4)
+rule PositionDevoirChoisirPrestationsReglementaires(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-4. Les prestations doivent être choisies dans la liste réglementaire";
+    label en unofficial "Article 495-4. Benefits must be selected from the regulatory list";
+    when accompagnement_ordonne_le(a, _);
+    then duty DevoirChoisirPrestationsReglementaires {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire-accompagnement");
+        goal achievement {
+            condition choisir_prestations_sociales_reglementaires(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART495_5)
+rule Article495_5Surface(a: MesureAccompagnementJudiciaire) defeasible { label fr official "Article 495-5. Les prestations déjà visées par l'article 375-9-1 sont exclues et les responsables s'informent"; label en unofficial "Article 495-5. Benefits already covered by Article 375-9-1 are excluded and the responsible persons inform each other"; when accompagnement_admissible(a); then effet_accompagnement_applicable(a); }
+pub relation informer_responsables_prestations_exclues(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "les responsables s'informent des prestations exclues"; label en unofficial "the responsible persons inform each other about excluded benefits"; }
+pub relation mesure_375_9_1_ordonnee_pour_le_meme_foyer(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "une mesure prévue à l'article 375-9-1 est ordonnée pour le même foyer"; label en unofficial "a measure provided for by Article 375-9-1 is ordered for the same household"; }
+@source(CC_ART495_5)
+rule PositionDevoirInformerResponsablesPrestations(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-5. Les responsables doivent s'informer des prestations exclues";
+    label en unofficial "Article 495-5. The responsible persons must inform each other about excluded benefits";
+    when mesure_375_9_1_ordonnee_pour_le_meme_foyer(a);
+    then duty DevoirInformerResponsablesPrestations {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire-accompagnement");
+        goal achievement {
+            condition informer_responsables_prestations_exclues(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART495_6)
+rule Article495_6Surface(a: MesureAccompagnementJudiciaire, p: Personne, mandataire: Personne) defeasible { label fr official "Article 495-6. Seul un mandataire judiciaire inscrit peut être désigné"; label en unofficial "Article 495-6. Only a registered judicial representative may be appointed"; when accompagnement_de(a, p, mandataire); then accompagnement_admissible(a); }
+pub relation mandataire_inscrit(mandataire: Personne) kind empirical { label fr official "le mandataire judiciaire est inscrit"; label en unofficial "the judicial representative is registered"; }
+@source(CC_ART495_6)
+rule PositionDevoirDesignerMandataireInscrit(a: MesureAccompagnementJudiciaire, mandataire: Personne) strict {
+    label fr official "Article 495-6. Le mandataire désigné doit être inscrit";
+    label en unofficial "Article 495-6. The appointed representative must be registered";
+    when accompagnement_de(a, _, mandataire);
+    then duty DevoirDesignerMandataireInscrit {
+        bearer mandataire;
+        goal achievement {
+            condition mandataire_inscrit(mandataire);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+pub relation prestations_gerees_dans_l_interet_de_la_personne(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "le mandataire perçoit et gère les prestations dans l'intérêt de la personne et mène une action éducative"; label en unofficial "the representative receives and manages the benefits in the person's interest and provides educational support"; }
+@source(CC_ART495_7)
+rule Article495_7Surface(a: MesureAccompagnementJudiciaire, p: Personne, mandataire: Personne) defeasible { label fr official "Article 495-7. Le mandataire perçoit et gère les prestations dans l'intérêt de la personne et mène une action éducative"; label en unofficial "Article 495-7. The representative receives and manages benefits in the person's interests and provides educational support"; when accompagnement_de(a, p, mandataire) and accompagnement_admissible(a); then duty GererPrestationsEtRetablirAutonomie { bearer mandataire; beneficiary p; maintain prestations_gerees_dans_l_interet_de_la_personne(a) during [@2009-01-01, infinity); }; }
+@source(CC_ART495_8) {
+    rule AccompagnementDeuxAns(a: MesureAccompagnementJudiciaire, jour: Date) defeasible { label fr official "Article 495-8. La durée initiale ne peut excéder deux ans"; label en unofficial "Article 495-8. The initial duration may not exceed two years"; when accompagnement_ordonne_le(a, jour); then accompagnement_expire_le(a, add_calendar_period(jour, 2 calendar_year)); }
+    rule AccompagnementTotalQuatreAns(a: MesureAccompagnementJudiciaire, jour: Date) defeasible { label fr official "Article 495-8. Après renouvellement, la durée totale ne peut excéder quatre ans"; label en unofficial "Article 495-8. After renewal, total duration may not exceed four years"; when accompagnement_ordonne_le(a, jour) and accompagnement_admissible(a); then accompagnement_expire_le(a, add_calendar_period(jour, 4 calendar_year)); }
+}
+pub relation respecter_duree_accompagnement_maximale(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "la mesure d'accompagnement respecte sa durée maximale"; label en unofficial "the support measure respects its maximum duration"; }
+@source(CC_ART495_8)
+rule PositionDevoirRespecterDureeAccompagnement(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-8. La durée de l'accompagnement doit respecter le maximum légal";
+    label en unofficial "Article 495-8. The support duration must respect the statutory maximum";
+    when accompagnement_ordonne_le(a, _);
+    then duty DevoirRespecterDureeAccompagnement {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition respecter_duree_accompagnement_maximale(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART495_9)
+rule Article495_9Surface(a: MesureAccompagnementJudiciaire) defeasible { label fr official "Article 495-9. Les règles compatibles du titre XII sur les comptes et la prescription s'appliquent"; label en unofficial "Article 495-9. Compatible Title XII accounting and limitation rules apply"; when accompagnement_admissible(a); then effet_accompagnement_applicable(a); }
+pub relation appliquer_regles_comptes_prescription(a: MesureAccompagnementJudiciaire) kind empirical { label fr official "les règles compatibles sur les comptes et la prescription sont appliquées"; label en unofficial "compatible accounting and limitation rules are applied"; }
+@source(CC_ART495_9)
+rule PositionDevoirAppliquerReglesComptesPrescription(a: MesureAccompagnementJudiciaire) strict {
+    label fr official "Article 495-9. Les règles compatibles de comptes et de prescription doivent s'appliquer";
+    label en unofficial "Article 495-9. Compatible accounting and limitation rules must apply";
+    when accompagnement_ordonne_le(a, _);
+    then duty DevoirAppliquerReglesComptesPrescription {
+        bearer entity_ref("urn:fr:cc:personnes:mandataire-accompagnement");
+        goal achievement {
+            condition appliquer_regles_comptes_prescription(a);
+            window [@2009-01-01, infinity];
+        };
+    };
+}

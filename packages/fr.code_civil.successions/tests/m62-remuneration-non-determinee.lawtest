@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 812-2, alinéa 2 : faute de détermination expresse, le mandat reste gratuit.
+test "urn:query:fr-code-civil-successions-m62-remuneration-non-determinee" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": mandat_de_la_succession(entity_ref("urn:fr:cc:successions:adm:m62:M"), entity_ref("urn:fr:cc:successions:adm:m62:S")) { origin case_input; }
+        assert "f2": mandataire_jouit_de_la_pleine_capacite_civile(entity_ref("urn:fr:cc:successions:adm:m62:M")) { origin case_input; }
+        assert "f3": mandat_donne_le(entity_ref("urn:fr:cc:successions:adm:m62:M"), @2024-01-15) { origin case_input; }
+        assert "f4": remuneration_prevue_au_mandat(entity_ref("urn:fr:cc:successions:adm:m62:M")) { origin case_input; }
+    }
+    evaluate truth(mandat_gratuit(entity_ref("urn:fr:cc:successions:adm:m62:M")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RemunerationNonDeterminee);
+}

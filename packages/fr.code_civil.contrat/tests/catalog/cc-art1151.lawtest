@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-OBSTACLEPARLUTILITEDELACTE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v0")) { origin case_input; }
+        assert "cat-1": acte_utile_et_exempt_de_lesion(entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v0"), entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v1")) { origin case_input; }
+        assert "cat-2": incapable_de_contracter(entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v1")) { origin case_input; }
+    }
+    evaluate truth(obstacle_a_l_action_en_nullite(entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v0"), entity_ref("urn:law:catalog:obstacleparlutilitedelacte:v1")));
+    expect truth_status == TRUE_ONLY;
+}

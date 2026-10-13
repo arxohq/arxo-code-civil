@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2531 : la liste est close ; un meuble n'y figure pas.
+test "urn:query:fr-code-civil-mayotte-p05-meuble-non-hypothecable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": bien_offert_en_hypotheque(entity_ref("urn:fr:cc:may:ar:bien"), MeubleCorporel) { origin case_input; }
+    }
+    evaluate truth(susceptible_d_hypotheque(entity_ref("urn:fr:cc:may:ar:bien")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

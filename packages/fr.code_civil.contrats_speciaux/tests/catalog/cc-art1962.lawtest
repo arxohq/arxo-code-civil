@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-OBLIGATIONSGARDIENJUDICIAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": conservation_effets_saisis_raisonnable(entity_ref("urn:law:catalog:obligationsgardienjudiciaire:v0")) { origin case_input; }
+        assert "cat-1": representation_effets_saisis_conforme(entity_ref("urn:law:catalog:obligationsgardienjudiciaire:v0")) { origin case_input; }
+        assert "cat-2": salaire_gardien_paye(entity_ref("urn:law:catalog:obligationsgardienjudiciaire:v0")) { origin case_input; }
+        assert "cat-3": gardien_judiciaire(entity_ref("urn:law:catalog:obligationsgardienjudiciaire:v0")) { origin case_input; }
+    }
+    evaluate truth(obligations_gardien_judiciaire_accomplies(entity_ref("urn:law:catalog:obligationsgardienjudiciaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}

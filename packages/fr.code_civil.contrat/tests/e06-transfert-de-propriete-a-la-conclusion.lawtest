@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1196 al. 1 et 3 : dans le contrat d'aliénation, le transfert s'opère à la conclusion et emporte transfert des risques.
+test "urn:query:fr-code-civil-contrat-e06-transfert-de-propriete-a-la-conclusion" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e06"), @2019-03-01) { origin case_input; }
+        assert "f2": contrat_d_alienation_ou_de_cession_de_droit(entity_ref("urn:fr:cc:contrat:e06")) { origin case_input; }
+        assert "f3": partie_au_contrat(entity_ref("urn:fr:cc:contrat:e06"), entity_ref("urn:fr:cc:contrat:e06:p1")) { origin case_input; }
+    }
+    evaluate truth(transfert_de_propriete_a_la_conclusion(entity_ref("urn:fr:cc:contrat:e06")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TransfertALaConclusion);
+
+    evaluate truth(charge_des_risques(entity_ref("urn:fr:cc:contrat:e06"), entity_ref("urn:fr:cc:contrat:e06:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(TransfertDesRisques);
+}

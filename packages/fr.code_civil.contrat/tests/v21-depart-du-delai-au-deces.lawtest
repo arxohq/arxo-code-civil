@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1152, 3° : à l'égard des héritiers, la prescription court du jour du décès si elle n'a commencé à courir auparavant.
+test "urn:query:fr-code-civil-contrat-v21-depart-du-delai-au-deces" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v21"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v21"), entity_ref("urn:fr:cc:contrat:v21:p1")) { origin case_input; }
+        assert "f3": majeur_protege(entity_ref("urn:fr:cc:contrat:v21:p1")) { origin case_input; }
+        assert "f4": heritier_de_la_personne_protegee(entity_ref("urn:fr:cc:contrat:v21:p2"), entity_ref("urn:fr:cc:contrat:v21:p1")) { origin case_input; }
+        assert "f5": deces_de_la_personne_protegee_le(entity_ref("urn:fr:cc:contrat:v21:p1"), @2022-03-10) { origin case_input; }
+    }
+    evaluate truth(point_de_depart_de_l_action_en_nullite(entity_ref("urn:fr:cc:contrat:v21"), @2022-03-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DepartDuDelaiHeritiers);
+}

@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DETTESNEESAPRESLAFIN" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cautionnement_de_dettes_futures(entity_ref("urn:law:catalog:dettesneesapreslafin:v0")) { origin case_input; }
+        assert "cat-1": nee_le(entity_ref("urn:law:catalog:dettesneesapreslafin:v1"), @2026-01-15) { origin case_input; }
+        assert "cat-2": fin_du_cautionnement(entity_ref("urn:law:catalog:dettesneesapreslafin:v0"), @2026-01-15) { origin case_input; }
+        assert "cat-3": dette_garantie(entity_ref("urn:law:catalog:dettesneesapreslafin:v0"), entity_ref("urn:law:catalog:dettesneesapreslafin:v1")) { origin case_input; }
+    }
+    evaluate truth(dette_non_couverte(entity_ref("urn:law:catalog:dettesneesapreslafin:v0"), entity_ref("urn:law:catalog:dettesneesapreslafin:v1")));
+    expect truth_status == TRUE_ONLY;
+}

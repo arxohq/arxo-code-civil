@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2523, alinéa 1 : le titulaire ne peut être inscrit tant que le droit de son auteur immédiat ne l'est pas.
+test "urn:query:fr-code-civil-mayotte-f13-effet-relatif-l-auteur-n-est-pas-inscrit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:aa:dr"), ProprieteImmobiliere) { origin case_input; }
+        assert "f2": auteur_immediat(entity_ref("urn:fr:cc:may:aa:dr"), entity_ref("urn:fr:cc:may:aa:auteur")) { origin case_input; }
+    }
+    evaluate truth(inscription_recevable(entity_ref("urn:fr:cc:may:aa:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

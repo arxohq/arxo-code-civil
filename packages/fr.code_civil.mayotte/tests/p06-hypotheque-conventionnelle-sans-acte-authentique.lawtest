@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2532, alinéa 1 : l'hypothèque conventionnelle ne peut être consentie que par acte authentique.
+test "urn:query:fr-code-civil-mayotte-p06-hypotheque-conventionnelle-sans-acte-authentique" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": hypotheque_conventionnelle(entity_ref("urn:fr:cc:may:as:acte")) { origin case_input; }
+    }
+    evaluate truth(hypotheque_conventionnelle_valable(entity_ref("urn:fr:cc:may:as:acte")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

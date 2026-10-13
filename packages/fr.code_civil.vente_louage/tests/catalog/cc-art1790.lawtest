@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-PERTESANSFAUTEEXCLUTSALAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": maitre_non_en_demeure_de_recevoir(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")) { origin case_input; }
+        assert "cat-1": absence_de_faute_de_l_ouvrier_etablie(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")) { origin case_input; }
+        assert "cat-2": travail_seul_fourni(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")) { origin case_input; }
+        assert "cat-3": absence_de_vice_de_la_matiere(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")) { origin case_input; }
+        assert "cat-4": chose_du_marche_perie_avant_livraison(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")) { origin case_input; }
+    }
+    evaluate truth(ouvrier_sans_salaire_pour_perte(entity_ref("urn:law:catalog:pertesansfauteexclutsalaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}

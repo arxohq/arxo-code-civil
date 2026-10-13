@@ -1,0 +1,599 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1984,
+    CC_ART1985,
+    CC_ART1986,
+    CC_ART1987,
+    CC_ART1988,
+    CC_ART1989,
+    CC_ART1990,
+    CC_ART1991,
+    CC_ART1992,
+    CC_ART1993,
+    CC_ART1994,
+    CC_ART1995,
+    CC_ART1996,
+    CC_ART1997,
+    CC_ART1998,
+    CC_ART1999,
+    CC_ART2000,
+    CC_ART2001,
+    CC_ART2002,
+    CC_ART2003,
+    CC_ART2004,
+    CC_ART2005,
+    CC_ART2006,
+    CC_ART2007,
+    CC_ART2008,
+    CC_ART2009,
+    CC_ART2010,
+    CauseFinMandat,
+    FormeMandat,
+    Mandat,
+    Personne,
+    achevement_affaire_commencee,
+    acte_administration,
+    acte_alienation_hypotheque_ou_propriete,
+    acte_apres_fin_valide,
+    acte_au_dela_du_mandat,
+    acte_couvert_par_mandat,
+    acte_excede_pouvoirs,
+    action_directe_contre_substitut,
+    action_directe_contre_substitut_engagee,
+    affaire_commencee,
+    aucune_convention_remuneration_mandat,
+    aucune_imprudence_mandataire,
+    avances_mandataire,
+    cause_fin_mandat,
+    choix_mandataire_mineur_admis,
+    deces_mandataire,
+    depenses_a_rembourser,
+    depenses_du_mandataire,
+    engagement_dans_limites_pouvoir,
+    engagement_hors_pouvoir_ratifie,
+    execution_du_mandat,
+    execution_mandat_exercee,
+    execution_vaut_acceptation_tacite,
+    faute_du_mandataire,
+    faute_du_mandataire_pour_frais,
+    forme_mandat,
+    forme_mandat_admise,
+    garantie_mandataire_exclue,
+    heritiers_ont_avise_mandant,
+    heritiers_ont_pourvu_interet_mandant,
+    impossibilite_continuer_sans_prejudice_considerable,
+    indemnite_perte_mandataire_due,
+    indemnite_renonciation_due,
+    interets_avances_dus,
+    interets_dus_par_mandataire,
+    mandant,
+    mandant_tenu_engagement,
+    mandat_accepte,
+    mandat_accepte_le,
+    mandat_donne,
+    mandat_forme,
+    mandat_general,
+    mandat_gratuit_par_defaut,
+    mandat_special,
+    mandat_termine,
+    mandataire,
+    mandataire_ignore_fin_mandat,
+    mandataire_mineur_non_emancipe,
+    mandataire_ne_s_est_pas_personnellement_engage,
+    nouveau_mandataire_meme_affaire_notifie,
+    obligations_heritiers_mandataire_accomplies,
+    operation_apres_fin_valide,
+    operation_avec_tiers_apres_fin,
+    peril_en_la_demeure,
+    perte_mandataire_gestion,
+    pluralite_mandataires_meme_acte,
+    plusieurs_mandants_affaire_commune,
+    porte_sur_affaires_designees,
+    porte_sur_toutes_affaires,
+    pouvoir_de_compromettre_exclu,
+    pouvoir_de_transiger,
+    pouvoir_expres,
+    premier_mandat_revoque,
+    reliquat_apres_mise_en_demeure,
+    remise_du_titre_de_procuration_exigee,
+    renonciation_effective,
+    renonciation_notifiee_au_mandant,
+    renonciation_prejudicie_mandant,
+    responsabilite_du_mandataire,
+    responsabilite_mandataire_pour_substitut,
+    restitution_titre_mandat_exigible,
+    revocation_libre_par_mandant,
+    revocation_mandat_notifiee,
+    revocation_opposable_au_mandataire,
+    solidarite_mandants,
+    solidarite_mandataires,
+    solidarite_mandataires_expressee,
+    somme_a_restituer_au_mandant,
+    somme_mandat_employee_usage_personnel,
+    sommes_recues_par_mandataire,
+    substitution_personne_notoirement_incapable_ou_insolvable,
+    substitution_sans_pouvoir,
+    tiers_de_bonne_foi,
+    tiers_suffisamment_informe_pouvoirs,
+};
+
+@source(CC_ART1984)
+rule MandatParPouvoirEtAcceptation(m: Mandat) strict {
+    label fr official "Article 1984. Le mandat donne pouvoir et ne se forme que par l'acceptation du mandataire";
+    label en unofficial "Article 1984. A mandate confers authority and is formed only by acceptance of the agent";
+    when mandat_donne(m) and mandat_accepte(m);
+    then mandat_forme(m);
+}
+
+@source(CC_ART1991) {
+    rule ExecuterLeMandat(m: Mandat, mandant_: Personne, mandataire_: Personne, debut: Date) strict {
+        label fr official "Article 1991, alinéa 1. Le mandataire est tenu d'accomplir le mandat tant qu'il en demeure chargé";
+        label en unofficial "Article 1991, paragraph 1. The agent must perform the mandate while entrusted with it";
+        when mandat_forme(m) and mandant(m, mandant_) and mandataire(m, mandataire_)
+            and mandat_accepte_le(m, debut);
+        then duty ExecuterMandat {
+            bearer mandataire_; beneficiary mandant_;
+            achieve execution_du_mandat(m) during [debut, infinity);
+        };
+    }
+    rule AcheverAffaireCommenceeEnPeril(m: Mandat, mandant_: Personne, mandataire_: Personne, debut: Date) strict {
+        label fr official "Article 1991, alinéa 2. Le mandataire achève la chose commencée au décès du mandant s'il y a péril en la demeure";
+        label en unofficial "Article 1991, paragraph 2. The agent completes business begun at the principal's death where delay is dangerous";
+        when mandat_forme(m) and mandant(m, mandant_) and mandataire(m, mandataire_)
+            and mandat_accepte_le(m, debut) and affaire_commencee(m) and peril_en_la_demeure(m);
+        then duty AcheverAffaireCommencee {
+            bearer mandataire_; beneficiary mandant_;
+            achieve achevement_affaire_commencee(m) during [debut, infinity);
+        };
+    }
+}
+
+@source(CC_ART1992)
+rule ResponsabilitePourFauteDuMandataire(m: Mandat) strict {
+    label fr official "Article 1992. Le mandataire répond des fautes commises dans sa gestion, avec une appréciation moins rigoureuse si le mandat est gratuit";
+    label en unofficial "Article 1992. The agent is liable for faults in management, assessed less strictly for a gratuitous mandate";
+    when mandat_forme(m) and faute_du_mandataire(m);
+    then responsabilite_du_mandataire(m);
+}
+
+@source(CC_ART1999)
+rule RemboursementDesDepensesSansFaute(m: Mandat, montant: Money) defeasible {
+    label fr official "Article 1999. Le mandant rembourse les avances et frais, même si l'affaire n'a pas réussi, dès lors qu'aucune faute n'est imputable au mandataire";
+    label en unofficial "Article 1999. The principal reimburses advances and expenses even if the business failed, provided no fault is attributable to the agent";
+    when mandat_forme(m) and depenses_du_mandataire(m, montant);
+    then depenses_a_rembourser(m, montant);
+    unless faute_du_mandataire_pour_frais(m, montant);
+}
+
+@source(CC_ART2003) {
+    rule FinMandatParRevocation(m: Mandat) strict {
+        label fr official "Article 2003, 1°. Le mandat finit par la révocation du mandataire";
+        label en unofficial "Article 2003(1). A mandate ends by revocation of the agent";
+        when cause_fin_mandat(m, Revocation);
+        then mandat_termine(m);
+    }
+    rule FinMandatParRenonciation(m: Mandat) strict {
+        label fr official "Article 2003, 2°. Le mandat finit par la renonciation du mandataire";
+        label en unofficial "Article 2003(2). A mandate ends by renunciation of the agent";
+        when cause_fin_mandat(m, Renonciation);
+        then mandat_termine(m);
+    }
+    rule FinMandatParMort(m: Mandat) strict {
+        label fr official "Article 2003, 3°. Le mandat finit par la mort du mandant ou du mandataire";
+        label en unofficial "Article 2003(3). A mandate ends by death of the principal or agent";
+        when cause_fin_mandat(m, Mort);
+        then mandat_termine(m);
+    }
+    rule FinMandatParTutelle(m: Mandat) strict {
+        label fr official "Article 2003, 3°. Le mandat finit par la tutelle des majeurs du mandant ou du mandataire";
+        label en unofficial "Article 2003(3). A mandate ends by adult guardianship of the principal or agent";
+        when cause_fin_mandat(m, Tutelle);
+        then mandat_termine(m);
+    }
+    rule FinMandatParDeconfiture(m: Mandat) strict {
+        label fr official "Article 2003, 4°. Le mandat finit par la déconfiture du mandant ou du mandataire";
+        label en unofficial "Article 2003(4). A mandate ends by insolvency of the principal or agent";
+        when cause_fin_mandat(m, Deconfiture);
+        then mandat_termine(m);
+    }
+}
+
+@source(CC_ART2005)
+rule RevocationOpposableApresNotification(m: Mandat) strict {
+    label fr official "Article 2005. La révocation notifiée met fin aux pouvoirs du mandataire";
+    label en unofficial "Article 2005. Notice of revocation ends the agent's authority";
+    when revocation_mandat_notifiee(m); then revocation_opposable_au_mandataire(m);
+}
+
+@source(CC_ART2009)
+rule OperationTiersBonneFoiApresFinValide(m: Mandat, p: Personne) strict {
+    label fr official "Article 2009. Les actes du mandataire ignorant la fin du mandat restent valables à l'égard des tiers de bonne foi";
+    label en unofficial "Article 2009. Acts by an agent unaware of termination remain valid against good-faith third parties";
+    when operation_avec_tiers_apres_fin(m, p) and tiers_de_bonne_foi(m, p);
+    then operation_apres_fin_valide(m, p);
+}
+
+@source(CC_ART1985)
+rule FormeMandatAdmise(m: Mandat) strict {
+    label fr official "Article 1985. Le mandat peut être authentique, sous seing privé, par lettre ou verbal";
+    label en unofficial "Article 1985. A mandate may be authentic, private, by letter or oral";
+    when forme_mandat(m, _);
+    then forme_mandat_admise(m);
+}
+
+@source(CC_ART1985)
+rule AcceptationTaciteParExecution(m: Mandat) strict {
+    label fr official "Article 1985. L'exécution du mandat peut valoir acceptation tacite";
+    label en unofficial "Article 1985. Performance of a mandate may amount to tacit acceptance";
+    when execution_du_mandat(m);
+    then execution_vaut_acceptation_tacite(m);
+}
+
+@source(CC_ART1985)
+rule P3PouvoirExecuterMandatAcceptationTacite(m: Mandat, p: Personne) strict {
+    label fr official "Article 1985. L'exécution du mandat peut valoir acceptation tacite";
+    label en unofficial "Article 1985. Performance of a mandate may amount to tacit acceptance";
+    when execution_du_mandat(m) and mandataire(m, p);
+    then power P3PositionPouvoirExecuterMandatAcceptationTacite {
+        holder p;
+        over m;
+        exercise execution_mandat_exercee(m, p);
+        effect execution_vaut_acceptation_tacite(m);
+        valid_when execution_du_mandat(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1986)
+rule MandatGratuitParDefaut(m: Mandat) strict {
+    label fr official "Article 1986. Le mandat est gratuit en l'absence de convention contraire";
+    label en unofficial "Article 1986. A mandate is gratuitous absent contrary agreement";
+    when aucune_convention_remuneration_mandat(m);
+    then mandat_gratuit_par_defaut(m);
+}
+
+@source(CC_ART1987)
+rule MandatSpecialAffairesDesignees(m: Mandat) strict {
+    label fr official "Article 1987. Le mandat spécial porte sur une ou plusieurs affaires désignées";
+    label en unofficial "Article 1987. A special mandate covers one or more designated matters";
+    when mandat_special(m);
+    then porte_sur_affaires_designees(m);
+}
+
+@source(CC_ART1987)
+rule MandatGeneralToutesAffaires(m: Mandat) strict {
+    label fr official "Article 1987. Le mandat général porte sur toutes les affaires du mandant";
+    label en unofficial "Article 1987. A general mandate covers all matters of the principal";
+    when mandat_general(m);
+    then porte_sur_toutes_affaires(m);
+}
+
+@source(CC_ART1988)
+rule MandatGeneralCouvreAdministration(m: Mandat) strict {
+    label fr official "Article 1988, alinéa 1. Le mandat général couvre les actes d'administration";
+    label en unofficial "Article 1988, paragraph 1. A general mandate covers acts of administration";
+    when mandat_general(m) and acte_administration(m);
+    then acte_couvert_par_mandat(m);
+}
+
+@source(CC_ART1988)
+rule ActeProprieteExigePouvoirExpres(m: Mandat) strict {
+    label fr official "Article 1988, alinéa 2. L'aliénation, l'hypothèque ou autre acte de propriété exige un mandat exprès";
+    label en unofficial "Article 1988, paragraph 2. Disposal, mortgage or another ownership act requires express authority";
+    when acte_alienation_hypotheque_ou_propriete(m) and pouvoir_expres(m);
+    then acte_couvert_par_mandat(m);
+}
+
+@source(CC_ART1989)
+pub relation acte_hors_pouvoir_exerce(m: Mandat) kind empirical {
+    key(m);
+    label fr official "le mandataire agit au-delà du mandat, en violation de l'article 1989";
+    label en unofficial "the agent acts beyond the mandate, contrary to Article 1989";
+}
+pub relation interets_du_mandataire_payes(m: Mandat) kind empirical {
+    key(m);
+    label fr official "le mandataire paie les intérêts dus au mandant (article 1996)";
+    label en unofficial "the agent pays the interest owed to the principal (Article 1996)";
+}
+pub relation revocation_mandat_exercee(m: Mandat) kind empirical {
+    key(m);
+    label fr official "le mandant exerce la révocation libre du mandat (article 2004)";
+    label en unofficial "the principal exercises free revocation of the mandate (Article 2004)";
+}
+pub relation action_directe_substitut_exercee(m: Mandat, mandant_: Personne) kind empirical {
+    key(m, mandant_);
+    label fr official "le mandant exerce l'action directe contre le substitut (article 1994)";
+    label en unofficial "the principal exercises the direct action against the substitute (Article 1994)";
+}
+pub relation restitution_titre_exercee(m: Mandat, mandant_: Personne) kind empirical {
+    key(m, mandant_);
+    label fr official "le mandant exige la remise du titre de procuration (article 2004)";
+    label en unofficial "the principal requires return of the instrument of authority (Article 2004)";
+}
+
+@source(CC_ART1989)
+rule P3InterdictionAgirAuDelaDuMandat(m: Mandat, mandataire_: Personne) strict {
+    label fr official "Article 1989. Le mandataire ne peut agir au-delà du mandat";
+    label en unofficial "Article 1989. The agent must not act beyond the mandate";
+    when acte_au_dela_du_mandat(m) and mandataire(m, mandataire_);
+    then prohibition P3PositionInterdictionAgirAuDelaDuMandat {
+        bearer mandataire_;
+        action acte_hors_pouvoir_exerce(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub relation violation_acte_au_dela_du_mandat(m: Mandat, mandataire_: Personne) kind derived {
+    label fr official "acte au-delà du mandat exercé en violation de l'article 1989";
+    label en unofficial "act beyond the mandate exercised in violation of Article 1989";
+}
+@source(CC_ART1989)
+rule ViolationInterdictionAgirAuDelaDuMandat(m: Mandat, mandataire_: Personne) strict {
+    label fr official "acte au-delà du mandat exercé en violation de l'article 1989";
+    label en unofficial "act beyond the mandate exercised in violation of Article 1989";
+    when acte_hors_pouvoir_exerce(m) and mandataire(m, mandataire_);
+    then violation_acte_au_dela_du_mandat(m, mandataire_);
+}
+@source(CC_ART1989)
+rule P3MaintenanceInterdictionAgirAuDelaDuMandat(m: Mandat, mandataire_: Personne) strict {
+    label fr official "acte au-delà du mandat exercé en violation de l'article 1989";
+    label en unofficial "act beyond the mandate exercised in violation of Article 1989";
+    when acte_au_dela_du_mandat(m) and mandataire(m, mandataire_);
+    then duty P3PositionMaintenanceInterdictionAgirAuDelaDuMandat {
+        bearer mandataire_;
+        goal maintenance {
+            condition not violation_acte_au_dela_du_mandat(m, mandataire_);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART1996)
+rule P3DevoirPayerInteretsMandataire(m: Mandat, mandant_: Personne, mandataire_: Personne) strict {
+    label fr official "Article 1996. Le mandataire doit intérêt des sommes employées à son usage";
+    label en unofficial "Article 1996. The agent owes interest on sums used personally";
+    when interets_dus_par_mandataire(m)
+        and mandant(m, mandant_) and mandataire(m, mandataire_);
+    then duty P3PositionDevoirPayerInteretsMandataire {
+        bearer mandataire_;
+        beneficiary mandant_;
+        goal achievement {
+            condition interets_du_mandataire_payes(m);
+            window [@2016-10-01, infinity];
+        }
+    };
+}
+
+@source(CC_ART2004)
+rule P3PouvoirRevoquerMandat(m: Mandat, mandant_: Personne) strict {
+    label fr official "Article 2004. Le mandant peut révoquer sa procuration quand bon lui semble";
+    label en unofficial "Article 2004. The principal may revoke authority at will";
+    when mandat_donne(m) and mandant(m, mandant_);
+    then power P3PositionPouvoirRevoquerMandat {
+        holder mandant_;
+        over m;
+        exercise revocation_mandat_exercee(m);
+        effect revocation_libre_par_mandant(m);
+        valid_when mandat_donne(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1994)
+rule P3PouvoirAgirContreSubstitut(m: Mandat, mandant_: Personne) strict {
+    label fr official "Article 1994. Le mandant peut agir directement contre le substitut";
+    label en unofficial "Article 1994. The principal may claim directly against the substitute";
+    when action_directe_contre_substitut(m) and mandant(m, mandant_);
+    then power P3PositionPouvoirAgirContreSubstitut {
+        holder mandant_;
+        over m;
+        exercise action_directe_substitut_exercee(m, mandant_);
+        effect action_directe_contre_substitut_engagee(m);
+        valid_when action_directe_contre_substitut(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART2004)
+rule P3PouvoirExigerRemiseTitre(m: Mandat, mandant_: Personne) strict {
+    label fr official "Article 2004. Le mandant peut exiger la remise du titre de procuration";
+    label en unofficial "Article 2004. The principal may require return of the instrument of authority";
+    when restitution_titre_mandat_exigible(m) and mandant(m, mandant_);
+    then power P3PositionPouvoirExigerRemiseTitre {
+        holder mandant_;
+        over m;
+        exercise restitution_titre_exercee(m, mandant_);
+        effect remise_du_titre_de_procuration_exigee(m);
+        valid_when restitution_titre_mandat_exigible(m);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART1989)
+
+rule ActeAuDelaMandatExcedePouvoirs(m: Mandat) strict {
+    label fr official "Article 1989. Le mandataire ne peut agir au-delà du mandat";
+    label en unofficial "Article 1989. The agent may not act beyond the mandate";
+    when acte_au_dela_du_mandat(m);
+    then acte_excede_pouvoirs(m);
+}
+
+@source(CC_ART1989)
+rule TransigerNInclutPasCompromettre(m: Mandat) strict {
+    label fr official "Article 1989. Le pouvoir de transiger n'emporte pas celui de compromettre";
+    label en unofficial "Article 1989. Authority to settle does not include authority to arbitrate";
+    when pouvoir_de_transiger(m);
+    then pouvoir_de_compromettre_exclu(m);
+}
+
+@source(CC_ART1990)
+rule MineurNonEmancipePeutEtreMandataire(m: Mandat) strict {
+    label fr official "Article 1990. Un mineur non émancipé peut être choisi comme mandataire";
+    label en unofficial "Article 1990. A non-emancipated minor may be chosen as agent";
+    when mandataire_mineur_non_emancipe(m);
+    then choix_mandataire_mineur_admis(m);
+}
+
+@source(CC_ART1993)
+rule RestitutionSommesRecuesParMandataire(m: Mandat, montant: Money) strict {
+    label fr official "Article 1993. Le mandataire restitue au mandant tout ce qu'il a reçu en vertu de la procuration";
+    label en unofficial "Article 1993. The agent returns to the principal everything received under the authority";
+    when sommes_recues_par_mandataire(m, montant);
+    then somme_a_restituer_au_mandant(m, montant);
+}
+
+@source(CC_ART1994)
+rule ResponsabiliteSubstitutionSansPouvoir(m: Mandat) strict {
+    label fr official "Article 1994, 1°. Le mandataire répond du substitut choisi sans pouvoir de substitution";
+    label en unofficial "Article 1994(1). The agent is liable for a substitute chosen without authority";
+    when substitution_sans_pouvoir(m);
+    then responsabilite_mandataire_pour_substitut(m);
+}
+
+@source(CC_ART1994)
+rule ResponsabiliteSubstitutionPersonneInapte(m: Mandat) strict {
+    label fr official "Article 1994, 2°. Le mandataire répond du substitut notoirement incapable ou insolvable";
+    label en unofficial "Article 1994(2). The agent is liable for a notoriously incapable or insolvent substitute";
+    when substitution_personne_notoirement_incapable_ou_insolvable(m);
+    then responsabilite_mandataire_pour_substitut(m);
+}
+
+@source(CC_ART1994)
+rule ActionDirecteContreSubstitut(m: Mandat) strict {
+    label fr official "Article 1994. Le mandant peut agir directement contre le substitut";
+    label en unofficial "Article 1994. The principal may claim directly against the substitute";
+    when substitution_sans_pouvoir(m);
+    then action_directe_contre_substitut(m);
+}
+
+@source(CC_ART1995)
+rule SolidariteMandatairesSeulementExpresse(m: Mandat) strict {
+    label fr official "Article 1995. La solidarité entre mandataires du même acte doit être exprimée";
+    label en unofficial "Article 1995. Joint liability among agents appointed by the same instrument must be express";
+    when pluralite_mandataires_meme_acte(m) and solidarite_mandataires_expressee(m);
+    then solidarite_mandataires(m);
+}
+
+@source(CC_ART1996)
+rule InteretsSommesEmployeesUsagePersonnel(m: Mandat) strict {
+    label fr official "Article 1996. Le mandataire doit intérêt des sommes employées à son usage";
+    label en unofficial "Article 1996. The agent owes interest on sums used personally";
+    when somme_mandat_employee_usage_personnel(m);
+    then interets_dus_par_mandataire(m);
+}
+
+@source(CC_ART1996)
+rule InteretsReliquatApresMiseEnDemeure(m: Mandat) strict {
+    label fr official "Article 1996. Le mandataire doit intérêt du reliquat après mise en demeure";
+    label en unofficial "Article 1996. The agent owes interest on the balance after formal notice";
+    when reliquat_apres_mise_en_demeure(m);
+    then interets_dus_par_mandataire(m);
+}
+
+@source(CC_ART1997)
+rule GarantieMandataireExclueSiPouvoirsConnus(m: Mandat) strict {
+    label fr official "Article 1997. Le mandataire n'est pas garant au-delà des pouvoirs connus du tiers sauf engagement personnel";
+    label en unofficial "Article 1997. The agent does not warrant acts beyond authority known to the third party absent personal undertaking";
+    when tiers_suffisamment_informe_pouvoirs(m) and mandataire_ne_s_est_pas_personnellement_engage(m);
+    then garantie_mandataire_exclue(m);
+}
+
+@source(CC_ART1998)
+rule MandantTenuDansLimitesPouvoir(m: Mandat) strict {
+    label fr official "Article 1998. Le mandant exécute les engagements contractés dans les limites du pouvoir";
+    label en unofficial "Article 1998. The principal performs commitments made within authority";
+    when engagement_dans_limites_pouvoir(m);
+    then mandant_tenu_engagement(m);
+}
+
+@source(CC_ART1998)
+rule RatificationEngagementHorsPouvoir(m: Mandat) strict {
+    label fr official "Article 1998. La ratification expresse ou tacite oblige le mandant pour l'acte hors pouvoir";
+    label en unofficial "Article 1998. Express or tacit ratification binds the principal for an act beyond authority";
+    when engagement_hors_pouvoir_ratifie(m);
+    then mandant_tenu_engagement(m);
+}
+
+@source(CC_ART2000)
+rule IndemnisationPerteSansImprudence(m: Mandat, montant: Money) strict {
+    label fr official "Article 2000. Le mandant indemnise les pertes de gestion sans imprudence imputable au mandataire";
+    label en unofficial "Article 2000. The principal indemnifies management losses absent imprudence attributable to the agent";
+    when perte_mandataire_gestion(m, montant) and aucune_imprudence_mandataire(m);
+    then indemnite_perte_mandataire_due(m, montant);
+}
+
+@source(CC_ART2001)
+rule InteretsAvancesDus(m: Mandat, montant: Money) strict {
+    label fr official "Article 2001. Les avances constatées du mandataire portent intérêt";
+    label en unofficial "Article 2001. Recorded advances by the agent bear interest";
+    when avances_mandataire(m, montant);
+    then interets_avances_dus(m, montant);
+}
+
+@source(CC_ART2002)
+rule SolidariteMandantsAffaireCommune(m: Mandat) strict {
+    label fr official "Article 2002. Les mandants d'une affaire commune sont solidairement tenus envers le mandataire";
+    label en unofficial "Article 2002. Principals in a common matter are jointly and severally liable to the agent";
+    when plusieurs_mandants_affaire_commune(m);
+    then solidarite_mandants(m);
+}
+
+@source(CC_ART2004)
+rule RevocationLibreParMandant(m: Mandat) strict {
+    label fr official "Article 2004. Le mandant peut révoquer sa procuration quand bon lui semble";
+    label en unofficial "Article 2004. The principal may revoke authority at will";
+    when mandat_donne(m);
+    then revocation_libre_par_mandant(m);
+}
+
+@source(CC_ART2004)
+rule RestitutionTitreApresRevocation(m: Mandat) strict {
+    label fr official "Article 2004. Le mandant peut exiger la remise du titre de procuration";
+    label en unofficial "Article 2004. The principal may require return of the instrument of authority";
+    when cause_fin_mandat(m, Revocation);
+    then restitution_titre_mandat_exigible(m);
+}
+
+@source(CC_ART2006)
+rule NouveauMandataireRevoquePremier(m: Mandat) strict {
+    label fr official "Article 2006. Le nouveau mandataire pour la même affaire révoque le premier dès notification";
+    label en unofficial "Article 2006. A new agent for the same matter revokes the first upon notice";
+    when nouveau_mandataire_meme_affaire_notifie(m);
+    then premier_mandat_revoque(m);
+}
+
+@source(CC_ART2007)
+rule RenonciationEffectiveApresNotification(m: Mandat) strict {
+    label fr official "Article 2007. Le mandataire renonce en notifiant le mandant";
+    label en unofficial "Article 2007. The agent renounces by notifying the principal";
+    when renonciation_notifiee_au_mandant(m);
+    then renonciation_effective(m);
+}
+
+@source(CC_ART2007)
+rule IndemniteRenonciationPrejudiciable(m: Mandat) defeasible {
+    label fr official "Article 2007. La renonciation préjudiciable oblige le mandataire à indemniser le mandant";
+    label en unofficial "Article 2007. A harmful renunciation requires the agent to indemnify the principal";
+    when renonciation_notifiee_au_mandant(m) and renonciation_prejudicie_mandant(m);
+    then indemnite_renonciation_due(m);
+    unless impossibilite_continuer_sans_prejudice_considerable(m);
+}
+
+@source(CC_ART2008)
+rule ActeValideSiMandataireIgnoreFin(m: Mandat) strict {
+    label fr official "Article 2008. L'acte accompli dans l'ignorance de la fin du mandat est valide";
+    label en unofficial "Article 2008. An act performed without knowledge of termination is valid";
+    when mandataire_ignore_fin_mandat(m);
+    then acte_apres_fin_valide(m);
+}
+
+@source(CC_ART2010)
+rule ObligationsHeritiersMandataire(m: Mandat) strict {
+    label fr official "Article 2010. Les héritiers avisent le mandant et pourvoient provisoirement à ses intérêts";
+    label en unofficial "Article 2010. The agent's heirs notify the principal and temporarily protect the principal's interests";
+    when deces_mandataire(m) and heritiers_ont_avise_mandant(m)
+        and heritiers_ont_pourvu_interet_mandant(m);
+    then obligations_heritiers_mandataire_accomplies(m);
+}

@@ -1,0 +1,11 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 481: registry filing of the mandate and medical certificate triggers effectiveness.
+test "urn:query:fr-code-civil-personnes-mp09-mandat-prend-effet" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; } assert "f1": mandat_publie(entity_ref("urn:fr:cc:personnes:mp09:m")) { origin adjudicated; } assert "f2": certificat_425_produit(entity_ref("urn:fr:cc:personnes:mp09:m")) { origin adjudicated; } }
+    evaluate truth(mandat_prend_effet(entity_ref("urn:fr:cc:personnes:mp09:m")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(Article481Surface);
+}

@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2315 : préavis contractuel expirant le 31 août 2024 — fin à cette date, sans appréciation du juge.
+test "urn:query:fr-code-civil-suretes-c41-preavis-contractuel" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c41:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c41:K"), entity_ref("urn:fr:cc:suretes:c41:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c41:K"), entity_ref("urn:fr:cc:suretes:c41:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c41:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c41:B")) { origin case_input; }
+        assert "f6": cautionnement_de_dettes_futures(entity_ref("urn:fr:cc:suretes:c41:K")) { origin case_input; }
+        assert "f7": resiliation_notifiee_le(entity_ref("urn:fr:cc:suretes:c41:K"), @2024-07-01) { origin case_input; }
+        assert "f8": expiration_du_preavis_contractuel(entity_ref("urn:fr:cc:suretes:c41:K"), @2024-08-31) { origin case_input; }
+    }
+    evaluate truth(fin_du_cautionnement(entity_ref("urn:fr:cc:suretes:c41:K"), @2024-08-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect judgment_requests(0);
+}

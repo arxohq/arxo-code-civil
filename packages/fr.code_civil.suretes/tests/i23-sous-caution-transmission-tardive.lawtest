@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2304 : transmise le 16 avril 2023, au lendemain du mois — obligation violée.
+test "urn:query:fr-code-civil-suretes-i23-sous-caution-transmission-tardive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-05-01; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i23:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i23:K"), entity_ref("urn:fr:cc:suretes:i23:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i23:K"), entity_ref("urn:fr:cc:suretes:i23:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i23:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i23:B")) { origin case_input; }
+        assert "f6": information_recue_par_la_caution_le(entity_ref("urn:fr:cc:suretes:i23:K"), @2023-03-15) { origin case_input; }
+        assert "f7": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i23:S"), @2022-04-01) { origin case_input; }
+        assert "f8": sous_cautionnement(entity_ref("urn:fr:cc:suretes:i23:S"), entity_ref("urn:fr:cc:suretes:i23:K")) { origin case_input; }
+        assert "f9": caution(entity_ref("urn:fr:cc:suretes:i23:S"), entity_ref("urn:fr:cc:suretes:i23:Q")) { origin case_input; }
+        assert "f10": est_personne_physique(entity_ref("urn:fr:cc:suretes:i23:Q")) { origin case_input; }
+        assert "f11": information_transmise_a_la_sous_caution_le(entity_ref("urn:fr:cc:suretes:i23:S"), @2023-03-15, @2023-04-16) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDeTransmettreALaSousCaution, VIOLATED);
+}

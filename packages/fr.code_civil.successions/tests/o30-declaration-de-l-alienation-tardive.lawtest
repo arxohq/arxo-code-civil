@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 794 : vente le 1er mars 2026, déclarée le 17 mars — au-delà des quinze jours.
+test "urn:query:fr-code-civil-successions-o30-declaration-de-l-alienation-tardive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": conservation_ou_alienation_le(entity_ref("urn:fr:cc:successions:opt:o30:S"), entity_ref("urn:fr:cc:successions:opt:o30:H"), @2026-03-01) { origin case_input; }
+        assert "f2": declaration_au_tribunal_le(entity_ref("urn:fr:cc:successions:opt:o30:S"), entity_ref("urn:fr:cc:successions:opt:o30:H"), @2026-03-17) { origin case_input; }
+    }
+    evaluate truth(declaration_tardive_au_tribunal(entity_ref("urn:fr:cc:successions:opt:o30:S"), entity_ref("urn:fr:cc:successions:opt:o30:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(QuinzeJoursPourDeclarerLaConservation);
+}

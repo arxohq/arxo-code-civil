@@ -1,0 +1,27 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-SERMENTDECISOIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": serment_defere_par_une_partie(entity_ref("urn:kz:catalog:sermentdecisoire:v0"), entity_ref("urn:kz:catalog:sermentdecisoire:v1"), entity_ref("urn:kz:catalog:sermentdecisoire:v2")) { origin case_input; }
+    }
+    evaluate truth(serment_decisoire(entity_ref("urn:kz:catalog:sermentdecisoire:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SERMENTDEFEREDOFFICEPARLEJUGE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": serment_defere_d_office(entity_ref("urn:kz:catalog:sermentdeferedofficeparlejuge:v0"), entity_ref("urn:kz:catalog:sermentdeferedofficeparlejuge:v1")) { origin case_input; }
+    }
+    evaluate truth(serment_judiciairement_defere(entity_ref("urn:kz:catalog:sermentdeferedofficeparlejuge:v0")));
+    expect truth_status == TRUE_ONLY;
+}

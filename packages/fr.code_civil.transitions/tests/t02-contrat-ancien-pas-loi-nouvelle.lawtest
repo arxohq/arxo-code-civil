@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Ordonnance 2016-131 art. 9 : le contrat antérieur ne relève pas de la loi nouvelle.
+test "urn:query:fr-code-civil-transitions-t02-contrat-ancien-pas-loi-nouvelle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": contrat_conclu_le(entity_ref("urn:fr:cc:transitions:c16"), @2016-09-30) { origin case_input; }
+    }
+    evaluate truth(loi_applicable_au_contrat(entity_ref("urn:fr:cc:transitions:c16"), LoiNouvelle));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

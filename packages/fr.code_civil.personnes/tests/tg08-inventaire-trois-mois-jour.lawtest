@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 503: three calendar months from 10 January expire on 10 April.
+test "urn:query:fr-code-civil-personnes-tg08-inventaire-trois-mois-jour" {
+    given {
+        context { decision_time @2026-04-10T09:00:00Z; knowledge_time @2026-04-10T09:00:00Z; legal_time @2026-04-10; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg08:m"), entity_ref("urn:fr:cc:personnes:tg08:p"), entity_ref("urn:fr:cc:personnes:tg08:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate truth(echeance_inventaire_meubles(entity_ref("urn:fr:cc:personnes:tg08:m"), @2026-04-10));
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceInventaireMeubles);
+}

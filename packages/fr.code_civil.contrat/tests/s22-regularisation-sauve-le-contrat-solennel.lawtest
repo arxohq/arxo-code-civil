@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1172 al. 2 : la régularisation de la forme manquante sauve le contrat solennel.
+test "urn:query:fr-code-civil-contrat-s22-regularisation-sauve-le-contrat-solennel" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s22"), @2019-03-01) { origin case_input; }
+        assert "f2": accord_de_volontes(entity_ref("urn:fr:cc:contrat:s22")) { origin case_input; }
+        assert "f3": forme_exigee_par_la_loi(entity_ref("urn:fr:cc:contrat:s22")) { origin case_input; }
+        assert "f4": regularisation_de_la_forme(entity_ref("urn:fr:cc:contrat:s22")) { origin case_input; }
+    }
+    evaluate truth(forme_respectee(entity_ref("urn:fr:cc:contrat:s22")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RegularisationDeLaForme);
+
+    evaluate truth(cause_de_nullite(entity_ref("urn:fr:cc:contrat:s22"), Absolue));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

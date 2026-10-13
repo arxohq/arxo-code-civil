@@ -1,0 +1,438 @@
+// Словарь: что подаёт потребитель и что пакет возвращает.
+//
+// ВХОД — kind empirical: для вычислителя сумма, веса, требования и очереди
+// есть данность, а не вывод из нормы. Кто и на каком основании их назначил,
+// знает предметный пакет; здесь они факты.
+//
+// ВЫХОД — kind derived: каждое из этих отношений выводится правилами
+// настоящего пакета и не подаётся делом.
+
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+use self::{
+    Allocation,
+    AllocationDefect,
+    AllocationMode,
+    Recipient,
+    RemainderPolicy,
+};
+
+// --- Вход: распределение в целом ---------------------------------------------
+
+pub relation allocation_mode(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        mode: AllocationMode {
+        label ru unofficial "режим";
+    }
+) kind empirical {
+    label ru official "режим распределения";
+}
+
+pub relation allocation_total(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        total: Money {
+        label ru unofficial "фонд";
+    }
+) kind empirical {
+    label ru official "распределяемая сумма";
+}
+
+// Точность §50 — число знаков после запятой, к которому усекаются доли.
+pub relation allocation_precision(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        precision: Integer {
+        label ru unofficial "точность";
+    }
+) kind empirical {
+    label ru official "точность долей: число знаков после запятой";
+}
+
+// Минимальная единица денег — ровно одна единица последнего знака точности.
+// Ею прибавляется остаток округления; пакет сверяет её с точностью.
+pub relation allocation_unit(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        unit: Money {
+        label ru unofficial "единица";
+    }
+) kind empirical {
+    label ru official "минимальная денежная единица распределения";
+}
+
+pub relation allocation_remainder_policy(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        policy: RemainderPolicy {
+        label ru unofficial "политика остатка";
+    }
+) kind empirical {
+    label ru official "политика остатка округления";
+}
+
+// --- Вход: получатели --------------------------------------------------------
+
+pub relation recipient_of(
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    }
+) kind empirical {
+    label ru official "получатель принадлежит распределению";
+}
+
+// Режим Proportional: вес получателя — положительное десятичное число.
+// Веса безразмерны; их сумма не обязана равняться единице.
+pub relation recipient_weight(
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        weight: Decimal {
+        label ru unofficial "вес";
+    }
+) kind empirical {
+    label ru official "вес получателя в пропорциональном распределении";
+}
+
+// Режим Sequential: требование получателя (не более него он не получит) и
+// ранг очереди: 1 — первая очередь; равные ранги — одна очередь.
+pub relation recipient_claim(
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        amount: Money {
+        label ru unofficial "требование";
+    }
+) kind empirical {
+    label ru official "требование получателя: верхний предел его доли";
+}
+
+pub relation recipient_rank(
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    }
+) kind empirical {
+    label ru official "ранг очереди получателя; равные ранги — одна очередь";
+}
+
+// Приоритет на остаток округления: меньшее число — раньше. Нужен только
+// там, где дробные части долей равны и граница раздачи проходит между ними.
+pub relation recipient_priority(
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        order: Integer {
+        label ru unofficial "приоритет";
+    }
+) kind empirical {
+    label ru official "приоритет получателя при равных остатках: меньшее число раньше";
+}
+
+// --- Выход: нуль валюты ------------------------------------------------------
+//
+// Пакет не вправе написать денежный литерал: валюта у него не своя. Нуль
+// нужной валюты добывается из самой суммы — разностью её с собой.
+
+relation allocation_zero(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        zero: Money {
+        label ru unofficial "ноль";
+    }
+) kind derived {
+    label ru official "нуль валюты распределения";
+}
+
+// --- Выход: годность входа ---------------------------------------------------
+
+relation allocation_declared(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    }
+) kind derived {
+    label ru official "распределение упомянуто хотя бы одним входом и потому подлежит проверке";
+}
+
+pub relation allocation_defect(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        defect: AllocationDefect {
+        label ru unofficial "дефект";
+    }
+) kind derived {
+    label ru official "дефект распределения в целом";
+}
+
+pub relation recipient_defect(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        defect: AllocationDefect {
+        label ru unofficial "дефект";
+    }
+) kind derived {
+    label ru official "дефект отдельного получателя";
+}
+
+pub relation allocation_wellformed(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    }
+) kind derived {
+    label ru official "вход пригоден к распределению: получатели есть, дефектов нет";
+}
+
+// --- Выход: очереди ----------------------------------------------------------
+//
+// Очередь — общая единица обоих режимов: в Proportional она одна (ранг 1) и
+// её фонд есть вся сумма; в Sequential очередей столько, сколько различных
+// рангов, и фонд каждой ограничен требованиями и остатком после предыдущих.
+
+pub relation class_claims(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        claims: Money {
+        label ru unofficial "требования очереди";
+    }
+) kind derived {
+    label ru official "сумма требований очереди";
+}
+
+pub relation class_prior_claims(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        claims: Money {
+        label ru unofficial "требования старших очередей";
+    }
+) kind derived {
+    label ru official "сумма требований всех очередей, предшествующих данной";
+}
+
+pub relation class_pool(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        pool: Money {
+        label ru unofficial "фонд очереди";
+    }
+) kind derived {
+    label ru official "фонд очереди: сколько ей достаётся к распределению";
+}
+
+relation class_weight(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        weight: Decimal {
+        label ru unofficial "вес";
+    }
+) kind derived {
+    label ru official "вес получателя внутри очереди";
+}
+
+relation class_weight_sum(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        sum: Decimal {
+        label ru unofficial "сумма весов";
+    }
+) kind derived {
+    label ru official "сумма весов очереди";
+}
+
+relation class_floor_sum(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        sum: Money {
+        label ru unofficial "сумма усечённых долей";
+    }
+) kind derived {
+    label ru official "сумма усечённых долей очереди";
+}
+
+pub relation class_leftover(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        rank: Integer {
+        label ru unofficial "очередь";
+    },
+        leftover: Money {
+        label ru unofficial "остаток очереди";
+    }
+) kind derived {
+    label ru official "остаток округления очереди: фонд минус сумма усечённых долей";
+}
+
+// --- Выход: доли -------------------------------------------------------------
+
+pub relation share_floor(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        amount: Money {
+        label ru unofficial "усечённая доля";
+    }
+) kind derived {
+    label ru official "усечённая доля: точная доля, усечённая вниз к точности";
+}
+
+relation share_scaled_remainder(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        remainder: Money {
+        label ru unofficial "отброшенная дробная часть";
+    }
+) kind derived {
+    label ru official "отброшенная дробная часть доли, умноженная на сумму весов очереди";
+}
+
+pub relation share_rank(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        rank: Integer {
+        label ru unofficial "место в очереди на остаток";
+    }
+) kind derived {
+    label ru official "ранг получателя на остаток: число получателей очереди, идущих раньше него";
+}
+
+relation share_tie_size(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        size: Integer {
+        label ru unofficial "размер группы равных";
+    }
+) kind derived {
+    label ru official "число получателей очереди с тем же остатком и тем же рангом, включая самого получателя";
+}
+
+pub relation share_amount(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        amount: Money {
+        label ru unofficial "доля";
+    }
+) kind derived {
+    label ru official "доля получателя после применения политики остатка";
+}
+
+pub relation allocation_unresolved_tie(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    }
+) kind derived {
+    label ru official "граница раздачи остатка проходит по равным остаткам, не разведённым приоритетом";
+}
+
+// --- Выход: своды ------------------------------------------------------------
+
+pub relation allocation_settled(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    }
+) kind derived {
+    label ru official "распределение завершено: доля выведена у каждого получателя";
+}
+
+pub relation allocation_allocated(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        amount: Money {
+        label ru unofficial "распределено";
+    }
+) kind derived {
+    label ru official "сумма долей всех получателей";
+}
+
+pub relation allocation_remainder(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        remainder: Money {
+        label ru unofficial "остаток";
+    }
+) kind derived {
+    label ru official "остаток распределения: сумма минус распределённое";
+}
+
+pub relation recipient_shortfall(
+        allocation: Allocation {
+        label ru unofficial "распределение";
+    },
+        recipient: Recipient {
+        label ru unofficial "получатель";
+    },
+        shortfall: Money {
+        label ru unofficial "недобор";
+    }
+) kind derived {
+    label ru official "недоплата по требованию: требование минус доля";
+}

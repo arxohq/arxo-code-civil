@@ -1,0 +1,344 @@
+// TITRE XI — EFFETS EXÉCUTABLES RESTÉS HORS DES PREMIÈRES VAGUES.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    ActeProtege,
+    CC_ART414_3,
+    CC_ART415,
+    CC_ART416,
+    CC_ART417,
+    CC_ART418,
+    CC_ART419,
+    CC_ART420,
+    CC_ART421,
+    CC_ART422,
+    CC_ART423,
+    CC_ART424,
+    CC_ART426,
+    CC_ART427,
+    CC_ART430,
+    CC_ART432,
+    CC_ART433,
+    CC_ART434,
+    CC_ART435,
+    CC_ART436,
+    CC_ART437,
+    CC_ART438,
+    CC_ART439,
+    CC_ART445,
+    CC_ART446,
+    CC_ART447,
+    CC_ART448,
+    CC_ART449,
+    CC_ART450,
+    CC_ART451,
+    CC_ART452,
+    CC_ART453,
+    CC_ART454,
+    CC_ART455,
+    CC_ART456,
+    CC_ART457,
+    CC_ART457_1,
+    CC_ART460,
+    CC_ART461,
+    CC_ART462,
+    CC_ART463,
+    CC_ART464,
+    CC_ART466,
+    CC_ART467,
+    CC_ART468,
+    CC_ART469,
+    CC_ART470,
+    CC_ART471,
+    CC_ART472,
+    CC_ART474,
+    CC_ART475,
+    CC_ART476,
+    MesureDeProtection,
+    Personne,
+    condition_de_protection_remplie,
+    personne_en_tutelle,
+};
+
+pub entity CompteProtection { label fr official "compte ou livret d'une personne protégée"; label en unofficial "protected person's account or passbook"; }
+pub entity ConventionPacs { label fr official "convention de pacte civil de solidarité"; label en unofficial "civil-solidarity-pact agreement"; }
+
+pub relation mesure_protection_terminee_le(m: MesureDeProtection, jour: Date) kind empirical { key(m); label fr official "jour de cessation de la mesure de protection"; label en unofficial "date the protection measure ended"; }
+pub relation action_responsabilite_mesure_expire_le(m: MesureDeProtection, jour: Date) kind derived { key(m); label fr official "terme de l'action en responsabilité relative à la mesure"; label en unofficial "deadline for liability proceedings concerning the measure"; }
+pub relation compte_ouvert_avant_mesure(c: CompteProtection, p: Personne) kind empirical { label fr official "le compte était ouvert au nom de la personne avant la mesure"; label en unofficial "the account was open in the person's name before the measure"; }
+pub relation compte_maintenu_dans_etablissement(c: CompteProtection) kind derived { label fr official "le compte est maintenu dans son établissement pendant la mesure"; label en unofficial "the account remains with its institution during the measure"; }
+pub relation personne_sous_sauvegarde(p: Personne) kind empirical { label fr official "la personne est placée sous sauvegarde de justice"; label en unofficial "the person is under judicial protection"; }
+pub relation mandataire_special_designe_pour_acte(a: ActeProtege, p: Personne) kind empirical { label fr official "un mandataire spécial est désigné pour cet acte"; label en unofficial "a special representative is appointed for the act"; }
+pub relation acte_sous_sauvegarde_nul(a: ActeProtege) kind derived { label fr official "l'acte accompli malgré le mandat spécial est nul"; label en unofficial "the act made despite special representation is void"; }
+pub relation mandat_administration_anterieur(p: Personne) kind empirical { label fr official "un mandat d'administration des biens existait avant la sauvegarde"; label en unofficial "a property-management mandate existed before protection"; }
+pub relation mandat_revoque_ou_suspendu(p: Personne) kind empirical { label fr official "le mandat a été révoqué ou suspendu par le juge"; label en unofficial "the mandate was revoked or suspended by the court"; }
+pub relation mandat_administration_continue(p: Personne) kind derived { label fr official "le mandat d'administration continue à produire effet"; label en unofficial "the management mandate continues in force"; }
+pub relation sauvegarde_ouverte_le(m: MesureDeProtection, jour: Date) kind empirical { key(m); label fr official "jour d'ouverture de la sauvegarde de justice"; label en unofficial "date judicial protection opened"; }
+pub relation sauvegarde_renouvelee_une_fois(m: MesureDeProtection) kind empirical { label fr official "la sauvegarde a été renouvelée une fois"; label en unofficial "judicial protection was renewed once"; }
+pub relation sauvegarde_expire_le(m: MesureDeProtection, jour: Date) kind derived { key(m); label fr official "terme maximal de la sauvegarde de justice"; label en unofficial "maximum end date of judicial protection"; }
+pub relation professionnel_soignant_du_protege(tuteur: Personne, protege: Personne) kind empirical { label fr official "le curateur ou tuteur est un professionnel soignant de son patient protégé"; label en unofficial "the curator or guardian is the protected patient's healthcare professional"; }
+pub relation charge_tutelaire_interdite_personne(tuteur: Personne, protege: Personne) kind derived { label fr official "la charge curatélaire ou tutélaire est interdite à cette personne"; label en unofficial "the curatorship or guardianship office is prohibited for that person"; }
+pub relation personne_designee_par_avance(tuteur: Personne, protege: Personne) kind empirical { label fr official "la personne a été désignée par avance comme curateur ou tuteur"; label en unofficial "the person was designated in advance as curator or guardian"; }
+pub relation refus_impossibilite_ou_interet_contraire(tuteur: Personne, protege: Personne) kind empirical { label fr official "le désigné refuse, est empêché ou doit être écarté dans l'intérêt du protégé"; label en unofficial "the designee refuses, is unable, or must be excluded in the protected person's interest"; }
+pub relation designation_s_impose_au_juge(tuteur: Personne, protege: Personne) kind derived { label fr official "la désignation anticipée s'impose au juge"; label en unofficial "the advance designation binds the court"; }
+pub relation aucun_proche_disponible(p: Personne) kind empirical { label fr official "aucun membre de la famille ni proche ne peut assumer la mesure"; label en unofficial "no family member or close person can assume the measure"; }
+pub relation mandataire_judiciaire_a_designer(p: Personne) kind derived { label fr official "un mandataire judiciaire doit être désigné"; label en unofficial "a judicial protection representative must be appointed"; }
+pub relation charge_exercee_depuis_cinq_ans(tuteur: Personne, protege: Personne) kind empirical { label fr official "la charge est exercée depuis cinq ans"; label en unofficial "the office has been held for five years"; }
+pub relation titulaire_non_excepte_article_453(tuteur: Personne, protege: Personne) kind empirical { label fr official "le titulaire n'est ni conjoint, ni partenaire, ni enfant, ni mandataire judiciaire"; label en unofficial "the holder is neither spouse, partner, child nor judicial representative"; }
+pub relation decharge_charge_protection_admissible(tuteur: Personne, protege: Personne) kind derived { label fr official "la décharge de la charge est admissible"; label en unofficial "release from office is available"; }
+pub relation information_situation_personnelle_fournie(p: Personne) kind empirical { label fr official "les informations adaptées sur la situation, les actes, l'urgence et les conséquences ont été fournies"; label en unofficial "adapted information on the situation, acts, urgency and consequences was provided"; }
+pub relation devoir_information_protection_satisfait(p: Personne) kind derived { label fr official "le devoir d'information de la personne protégée est satisfait"; label en unofficial "the duty to inform the protected person is satisfied"; }
+pub relation projet_mariage_du_protege(p: Personne) kind empirical { label fr official "la personne protégée projette un mariage"; label en unofficial "the protected person plans to marry"; }
+pub relation protecteur_informe_projet_mariage(p: Personne) kind empirical { label fr official "la personne chargée de la protection est préalablement informée du mariage"; label en unofficial "the protector is informed of the marriage in advance"; }
+pub relation information_mariage_conforme(p: Personne) kind derived { label fr official "l'information préalable sur le mariage est conforme"; label en unofficial "advance information concerning marriage complies"; }
+pub relation personne_en_curatelle(p: Personne) kind empirical { label fr official "la personne est placée en curatelle"; label en unofficial "the person is under curatorship"; }
+pub relation pacs_de(p: Personne, c: ConventionPacs) kind empirical { label fr official "la personne conclut ou modifie cette convention de pacte civil"; label en unofficial "the person concludes or modifies this civil pact"; }
+pub relation assistance_curateur_pacs(c: ConventionPacs) kind empirical { label fr official "le curateur assiste la signature de la convention"; label en unofficial "the curator assists with signing the agreement"; }
+pub relation pacs_valablement_assiste(c: ConventionPacs) kind derived { label fr official "la convention de pacte civil satisfait à l'assistance requise"; label en unofficial "the civil-pact agreement meets the assistance requirement"; }
+pub relation jugement_ouverture_publie_le(m: MesureDeProtection, jour: Date) kind empirical { key(m); label fr official "jour de publicité du jugement d'ouverture"; label en unofficial "publication date of the opening judgment"; }
+pub relation acte_accompli_le(a: ActeProtege, jour: Date) kind empirical { key(a); label fr official "jour d'accomplissement de l'acte protégé"; label en unofficial "date the protected act was made"; }
+pub relation inaptitude_notoire_ou_connue(a: ActeProtege) kind empirical { label fr official "l'inaptitude à défendre ses intérêts était notoire ou connue du cocontractant"; label en unofficial "inability to protect one's interests was notorious or known to the counterparty"; }
+pub relation prejudice_personne_protegee(a: ActeProtege) kind empirical { label fr official "un préjudice de la personne protégée est établi"; label en unofficial "loss to the protected person is established"; }
+pub relation obligations_acte_reductibles(a: ActeProtege) kind derived { label fr official "les obligations de l'acte peuvent être réduites"; label en unofficial "obligations under the act may be reduced"; }
+pub relation acte_anterieur_annulable(a: ActeProtege) kind derived { label fr official "l'acte antérieur peut être annulé"; label en unofficial "the prior act may be annulled"; }
+pub relation assistance_curateur_acte(a: ActeProtege, p: Personne) kind empirical { label fr official "le curateur a assisté la personne pour l'acte"; label en unofficial "the curator assisted the person with the act"; }
+pub relation acte_curatelle_valable(a: ActeProtege) kind derived { label fr official "l'acte de curatelle satisfait à l'assistance requise"; label en unofficial "the curatorship act meets the assistance requirement"; }
+pub relation capital_verse_compte_personnel(p: Personne) kind empirical { label fr official "les capitaux sont versés sur un compte au seul nom de la personne"; label en unofficial "capital is paid into an account solely in the person's name"; }
+pub relation capital_curatelle_conforme(p: Personne) kind derived { label fr official "le versement des capitaux sous curatelle est conforme"; label en unofficial "payment of capital under curatorship complies"; }
+pub relation testament_de_personne_en_curatelle(p: Personne) kind empirical { label fr official "la personne en curatelle établit son testament"; label en unofficial "the person under curatorship makes a will"; }
+pub relation testament_libre_curatelle(p: Personne) kind derived { label fr official "la personne en curatelle peut tester librement"; label en unofficial "the person under curatorship may make a will freely"; }
+pub relation donation_sous_curatelle(p: Personne) kind empirical { label fr official "la personne en curatelle consent une donation"; label en unofficial "the person under curatorship makes a gift"; }
+pub relation donation_assistee_curateur(p: Personne) kind empirical { label fr official "le curateur assiste la donation"; label en unofficial "the curator assists with the gift"; }
+pub relation donation_curatelle_admissible(p: Personne) kind derived { label fr official "la donation sous curatelle satisfait à l'assistance"; label en unofficial "the gift under curatorship meets the assistance requirement"; }
+pub relation action_judiciaire_du_protege(a: ActeProtege, p: Personne) kind empirical { label fr official "l'acte est une action judiciaire de la personne protégée"; label en unofficial "the act is litigation by the protected person"; }
+pub relation autorisation_juge_droits_extrapatrimoniaux(a: ActeProtege) kind empirical { label fr official "le juge ou conseil de famille a autorisé l'action extrapatrimoniale"; label en unofficial "the court or family council authorized the non-property claim"; }
+pub relation representation_judiciaire_tuteur_admissible(a: ActeProtege) kind derived { label fr official "la représentation judiciaire par le tuteur est admissible"; label en unofficial "judicial representation by the guardian is available"; }
+pub relation testament_apres_ouverture_tutelle(p: Personne) kind empirical { label fr official "le testament est établi après l'ouverture de la tutelle"; label en unofficial "the will is made after guardianship opened"; }
+pub relation autorisation_testament_tutelle(p: Personne) kind empirical { label fr official "le juge ou conseil de famille autorise le testament"; label en unofficial "the court or family council authorizes the will"; }
+pub relation testament_tutelle_admissible(p: Personne) kind derived { label fr official "le testament sous tutelle est admissible"; label en unofficial "the will under guardianship is admissible"; }
+pub relation convocation_ou_demande_information_protection(p: Personne) kind empirical { label fr official "la personne chargée de la protection est convoquée ou requise de communiquer des informations"; label en unofficial "the protector is summoned or required to provide information"; }
+pub relation devoir_cooperation_surveillance(p: Personne) kind derived { label fr official "la personne chargée de la protection doit déférer et communiquer les informations"; label en unofficial "the protector must comply and provide information"; }
+pub relation injonction_protection_non_executee(p: Personne) kind empirical { label fr official "une injonction relative à la protection n'a pas été exécutée"; label en unofficial "a protection-related injunction was not complied with"; }
+pub relation dessaisissement_protecteur_admissible(p: Personne) kind derived { label fr official "le dessaisissement du protecteur est admissible"; label en unofficial "removal of the protector is available"; }
+pub relation avantage_financier_lie_mission(p: Personne) kind empirical { label fr official "le mandataire perçoit une somme ou un avantage lié à sa mission hors financement légal"; label en unofficial "the representative receives a mission-related payment or benefit outside lawful funding"; }
+pub relation avantage_financier_mandataire_interdit(p: Personne) kind derived { label fr official "l'avantage financier lié à la mission est interdit"; label en unofficial "the mission-related financial benefit is prohibited"; }
+pub relation faute_organisation_mesure(p: Personne) kind empirical { label fr official "le dommage résulte d'une faute dans l'organisation ou le fonctionnement de la mesure"; label en unofficial "the damage results from fault in organizing or operating the measure"; }
+pub relation action_responsabilite_dirigee_contre_etat(p: Personne) kind derived { label fr official "l'action en responsabilité est dirigée contre l'Etat"; label en unofficial "the liability action is brought against the State"; }
+pub relation logement_protege_disponible(p: Personne) kind empirical { label fr official "le logement et les meubles peuvent encore être conservés à la disposition de la personne"; label en unofficial "the home and furniture can still be kept available to the person"; }
+pub relation logement_protege_a_conserver(p: Personne) kind derived { label fr official "le logement et les meubles sont conservés à la disposition de la personne"; label en unofficial "the home and furniture are kept available to the person"; }
+pub relation qualite_demandeur_430(p: Personne) kind empirical { label fr official "la personne appartient à la liste fermée des demandeurs de l'article 430"; label en unofficial "the person belongs to Article 430's closed list of applicants"; }
+pub relation demande_ouverture_mesure_recevable(p: Personne) kind derived { label fr official "la demande d'ouverture de la mesure est recevable quant à son auteur"; label en unofficial "the application to open the measure is admissible as to its maker"; }
+pub relation personne_entendue_ou_appelee(p: Personne) kind empirical { label fr official "la personne à protéger a été entendue ou appelée"; label en unofficial "the person to be protected was heard or summoned"; }
+pub relation procedure_ouverture_respecte_audition(p: Personne) kind derived { label fr official "la procédure d'ouverture respecte l'exigence d'audition"; label en unofficial "the opening procedure complies with the hearing requirement"; }
+pub relation besoin_protection_temporaire(p: Personne) kind empirical { label fr official "la personne a besoin d'une protection juridique temporaire"; label en unofficial "the person needs temporary legal protection"; }
+pub relation sauvegarde_justice_admissible(p: Personne) kind derived { label fr official "la sauvegarde de justice est admissible"; label en unofficial "judicial protection is available"; }
+pub relation compte_rendu_mandataire_special_effectue(p: Personne) kind empirical { label fr official "le mandataire spécial rend compte à la personne protégée et au juge"; label en unofficial "the special representative accounts to the protected person and the court"; }
+pub relation obligation_compte_rendu_mandataire_satisfaite(p: Personne) kind derived { label fr official "l'obligation de compte rendu du mandataire spécial est satisfaite"; label en unofficial "the special representative's accounting duty is satisfied"; }
+pub relation cotuteurs_pour_acte_sans_autorisation(p: Personne) kind empirical { label fr official "plusieurs tuteurs exercent en commun pour un acte ne nécessitant aucune autorisation"; label en unofficial "several guardians act jointly for an act needing no authorization"; }
+pub relation pouvoir_individuel_cotuteur(p: Personne) kind derived { label fr official "chaque cotuteur est réputé pouvoir accomplir seul cet acte envers les tiers"; label en unofficial "each co-guardian is deemed able to make that act alone toward third parties"; }
+pub relation mandataire_etablissement_designe(p: Personne) kind empirical { label fr official "un préposé d'établissement est désigné curateur ou tuteur"; label en unofficial "an institution staff member is appointed curator or guardian"; }
+pub relation mission_etendue_protection_personne(p: Personne) kind derived { label fr official "la mission s'étend à la protection de la personne"; label en unofficial "the appointment extends to personal protection"; }
+pub relation tiers_majeur_non_protege_assiste_tuteur(p: Personne) kind empirical { label fr official "un tiers majeur non protégé assiste le curateur ou tuteur sous sa responsabilité"; label en unofficial "an unprotected adult third party assists the curator or guardian under responsibility"; }
+pub relation concours_tiers_admissible(p: Personne) kind derived { label fr official "le concours du tiers est admissible pour les actes réglementaires"; label en unofficial "third-party assistance is available for the regulatory acts"; }
+pub relation conflit_interets_protecteur(p: Personne) kind empirical { label fr official "les intérêts du protecteur sont opposés à ceux de la personne protégée"; label en unofficial "the protector's interests conflict with those of the protected person"; }
+pub relation protecteur_ad_hoc_a_nommer(p: Personne) kind derived { label fr official "un curateur ou tuteur ad hoc doit être nommé"; label en unofficial "an ad hoc curator or guardian must be appointed"; }
+pub relation decision_conseil_famille_sans_opposition(p: Personne) kind empirical { label fr official "la décision du conseil de famille n'a rencontré aucune opposition du juge"; label en unofficial "the family-council decision met no judicial opposition"; }
+pub relation decision_conseil_famille_prend_effet(p: Personne) kind derived { label fr official "la décision du conseil de famille prend effet"; label en unofficial "the family-council decision takes effect"; }
+pub relation curateur_refuse_assistance(p: Personne) kind empirical { label fr official "le curateur refuse son assistance à un acte qui la requiert"; label en unofficial "the curator refuses assistance for an act requiring it"; }
+pub relation demande_autorisation_acte_seul_admissible(p: Personne) kind derived { label fr official "la personne peut demander l'autorisation d'accomplir seule l'acte"; label en unofficial "the person may seek authorization to make the act alone"; }
+pub relation curatelle_renforcee_ordonnee(p: Personne) kind empirical { label fr official "une curatelle renforcée a été ordonnée"; label en unofficial "enhanced curatorship was ordered"; }
+pub relation curateur_percoit_revenus_et_regle_depenses(p: Personne) kind derived { label fr official "le curateur perçoit les revenus et règle les dépenses"; label en unofficial "the curator receives income and pays expenses"; }
+pub relation gestion_patrimoine_sous_tutelle(p: Personne) kind empirical { label fr official "un acte est nécessaire à la gestion du patrimoine de la personne en tutelle"; label en unofficial "an act is necessary to manage the property of the person under guardianship"; }
+pub relation representation_titre_xii_applicable(p: Personne) kind derived { label fr official "la représentation patrimoniale du titre XII s'applique"; label en unofficial "property representation under Title XII applies"; }
+pub relation dommage_cause_sous_trouble_mental(p: Personne) kind empirical { label fr official "la personne a causé un dommage sous l'empire d'un trouble mental"; label en unofficial "the person caused damage while affected by mental disorder"; }
+pub relation obligation_reparation_trouble_mental(p: Personne) kind derived { label fr official "le trouble mental n'écarte pas l'obligation de réparation"; label en unofficial "mental disorder does not exclude the duty to compensate"; }
+pub relation protection_necessaire_selon_etat(p: Personne) kind empirical { label fr official "l'état ou la situation rend nécessaire une protection de la personne ou de ses biens"; label en unofficial "the person's condition or situation makes personal or property protection necessary"; }
+pub relation droit_a_protection_necessaire(p: Personne) kind derived { label fr official "la personne majeure reçoit la protection nécessaire"; label en unofficial "the adult receives necessary protection"; }
+pub relation personne_protegee_decedee(p: Personne) kind empirical { label fr official "la personne protégée est décédée"; label en unofficial "the protected person has died"; }
+pub relation mission_protecteur_terminee(p: Personne) kind derived { label fr official "la mission de la personne chargée de la protection prend fin"; label en unofficial "the protector's appointment ends"; }
+pub relation faute_organe_protection(p: Personne) kind empirical { label fr official "un organe de protection a commis une faute causant un dommage"; label en unofficial "a protection body committed fault causing damage"; }
+pub relation responsabilite_organe_protection(p: Personne) kind derived { label fr official "l'organe de protection répond du dommage"; label en unofficial "the protection body is liable for the damage"; }
+pub relation faute_mandataire_ou_personne_habilitee(p: Personne) kind empirical { label fr official "le mandataire futur ou la personne habilitée a commis une faute dans sa mission"; label en unofficial "the future representative or authorized person committed fault in office"; }
+pub relation responsabilite_mandat_ou_habilitation(p: Personne) kind derived { label fr official "la responsabilité du mandataire ou de la personne habilitée est engagée"; label en unofficial "the representative or authorized person incurs liability"; }
+pub relation protecteur_non_mandataire_judiciaire(p: Personne) kind empirical { label fr official "la personne chargée de la protection n'est pas mandataire judiciaire"; label en unofficial "the protector is not a judicial protection representative"; }
+pub relation exercice_mesure_a_titre_gratuit(p: Personne) kind derived { label fr official "la mesure judiciaire est exercée à titre gratuit"; label en unofficial "the judicial measure is performed without remuneration"; }
+pub relation declaration_medicale_sauvegarde_au_procureur(p: Personne) kind empirical { label fr official "une déclaration médicale de sauvegarde est faite au procureur selon le code de la santé publique"; label en unofficial "a medical protection declaration is made to the prosecutor under the Public Health Code"; }
+pub relation sauvegarde_issue_declaration_medicale(p: Personne) kind derived { label fr official "la sauvegarde de justice résulte de la déclaration médicale"; label en unofficial "judicial protection results from the medical declaration"; }
+pub relation mission_personnelle_confiee_mandataire_special(p: Personne) kind empirical { label fr official "une mission de protection de la personne est confiée au mandataire spécial"; label en unofficial "a personal-protection mission is entrusted to the special representative"; }
+pub relation articles_457_1_a_463_applicables(p: Personne) kind derived { label fr official "les articles 457-1 à 463 encadrent la mission personnelle"; label en unofficial "Articles 457-1 to 463 govern the personal mission"; }
+pub relation subroge_surveille_et_informe_juge(p: Personne) kind empirical { label fr official "le subrogé surveille les actes et informe sans délai le juge des fautes"; label en unofficial "the substitute supervises acts and promptly informs the court of faults"; }
+pub relation devoir_subroge_satisfait(p: Personne) kind derived { label fr official "le devoir de surveillance du subrogé est satisfait"; label en unofficial "the substitute's supervisory duty is satisfied"; }
+pub relation conditions_conseil_famille_majeur_reunies(p: Personne) kind empirical { label fr official "les nécessités de protection, le patrimoine et l'entourage permettent un conseil de famille"; label en unofficial "protection needs, property and family circle permit a family council"; }
+pub relation conseil_famille_majeur_admissible(p: Personne) kind derived { label fr official "l'organisation d'un conseil de famille est admissible"; label en unofficial "organization of a family council is available"; }
+pub relation jugement_modifie_actes_curatelle(p: Personne) kind empirical { label fr official "le juge énumère les actes accomplissables seul ou avec assistance"; label en unofficial "the court lists acts that may be made alone or with assistance"; }
+pub relation repartition_actes_curatelle_applicable(p: Personne) kind derived { label fr official "la répartition judiciaire des actes de curatelle est applicable"; label en unofficial "the judicial allocation of curatorship acts applies"; }
+pub relation curateur_ou_tuteur_designe(p: Personne) kind empirical { label fr official "un curateur ou tuteur est désigné pour la personne protégée"; label en unofficial "a curator or guardian is appointed for the protected person"; }
+pub relation organe_protection_personne_en_fonction(p: Personne) kind derived { label fr official "l'organe de protection de la personne est en fonction"; label en unofficial "the person's protection body is in office"; }
+pub relation aucune_designation_anticipee_et_conjoint_disponible(p: Personne) kind empirical { label fr official "aucune désignation anticipée n'existe et le conjoint, partenaire ou concubin est disponible"; label en unofficial "there is no advance designation and the spouse, partner or cohabitant is available"; }
+pub relation conjoint_prioritaire_comme_protecteur(p: Personne) kind derived { label fr official "le conjoint, partenaire ou concubin est prioritaire pour la charge"; label en unofficial "the spouse, partner or cohabitant has priority for office"; }
+pub relation conditions_compte_rendu_protection_fixees(p: Personne) kind empirical { label fr official "le juge ou conseil de famille fixe les conditions du compte rendu des diligences personnelles"; label en unofficial "the court or family council fixes terms for reporting personal-protection work"; }
+pub relation compte_rendu_diligences_exigible(p: Personne) kind derived { label fr official "le compte rendu des diligences personnelles est exigible selon les conditions fixées"; label en unofficial "reporting personal-protection work is required under the fixed terms"; }
+pub relation sanction_464_465_invoquee(a: ActeProtege) kind empirical { label fr official "une sanction des articles 464 ou 465 est invoquée pour l'acte"; label en unofficial "a sanction under Articles 464 or 465 is invoked for the act"; }
+pub relation recours_414_1_414_2_reste_ouvert(a: ActeProtege) kind derived { label fr official "le recours fondé sur les articles 414-1 et 414-2 reste ouvert"; label en unofficial "relief under Articles 414-1 and 414-2 remains available"; }
+
+@source(CC_ART423)
+rule PrescriptionResponsabiliteProtection(m: MesureDeProtection, fin: Date) strict { label fr official "Article 423. L'action en responsabilité se prescrit cinq ans après la fin de la mesure"; label en unofficial "Article 423. Liability proceedings expire five years after the measure ends"; when mesure_protection_terminee_le(m, fin); then action_responsabilite_mesure_expire_le(m, add_calendar_period(fin, 5 calendar_year)); }
+
+@source(CC_ART427)
+rule MaintienComptePersonneProtegee(c: CompteProtection, p: Personne) strict { label fr official "Article 427. Le compte antérieur est maintenu dans son établissement pendant la mesure"; label en unofficial "Article 427. A pre-existing account remains with its institution during the measure"; when compte_ouvert_avant_mesure(c, p); then compte_maintenu_dans_etablissement(c); }
+
+@source(CC_ART435)
+rule NulliteActeReserveMandataire(a: ActeProtege, p: Personne) strict { label fr official "Article 435. L'acte réservé à un mandataire spécial est nul s'il est accompli par la personne sous sauvegarde"; label en unofficial "Article 435. An act reserved to a special representative is void if made by the protected person"; when personne_sous_sauvegarde(p) and mandataire_special_designe_pour_acte(a, p); then acte_sous_sauvegarde_nul(a); }
+
+@source(CC_ART436)
+rule ContinuationMandatAdministration(p: Personne) defeasible { label fr official "Article 436. Le mandat antérieur continue pendant la sauvegarde sauf révocation ou suspension"; label en unofficial "Article 436. A prior management mandate continues during protection unless revoked or suspended"; when personne_sous_sauvegarde(p) and mandat_administration_anterieur(p) and not_known(mandat_revoque_ou_suspendu(p)); then mandat_administration_continue(p); }
+
+@source(CC_ART439) {
+  rule DureeSauvegardeUnAn(m: MesureDeProtection, debut: Date) defeasible { label fr official "Article 439. La sauvegarde ne peut excéder un an"; label en unofficial "Article 439. Judicial protection may not exceed one year"; when sauvegarde_ouverte_le(m, debut) and not_known(sauvegarde_renouvelee_une_fois(m)); then sauvegarde_expire_le(m, add_calendar_period(debut, 1 calendar_year)); }
+  rule DureeSauvegardeRenouveleeDeuxAns(m: MesureDeProtection, debut: Date) strict { label fr official "Article 439. La sauvegarde renouvelée une fois ne peut excéder deux ans depuis l'ouverture"; label en unofficial "Article 439. Judicial protection renewed once may not exceed two years from opening"; when sauvegarde_ouverte_le(m, debut) and sauvegarde_renouvelee_une_fois(m); then sauvegarde_expire_le(m, add_calendar_period(debut, 2 calendar_year)); }
+}
+
+@source(CC_ART445)
+rule IncompatibiliteSoignantProtection(tuteur: Personne, protege: Personne) strict { label fr official "Article 445. Un professionnel de santé ne peut exercer la charge à l'égard de son patient"; label en unofficial "Article 445. A healthcare professional may not hold office for a patient"; when professionnel_soignant_du_protege(tuteur, protege); then charge_tutelaire_interdite_personne(tuteur, protege); }
+
+@source(CC_ART448)
+rule DesignationAnticipeeObligatoire(tuteur: Personne, protege: Personne) defeasible { label fr official "Article 448. La désignation anticipée s'impose sauf refus, impossibilité ou intérêt contraire"; label en unofficial "Article 448. Advance designation binds absent refusal, inability or contrary interest"; when personne_designee_par_avance(tuteur, protege) and not_known(refus_impossibilite_ou_interet_contraire(tuteur, protege)); then designation_s_impose_au_juge(tuteur, protege); }
+
+@source(CC_ART450)
+rule MandataireJudiciaireFauteDeProche(p: Personne) strict { label fr official "Article 450. Faute de famille ou proche disponible, le juge désigne un mandataire judiciaire"; label en unofficial "Article 450. If no family member or close person is available, the court appoints a judicial representative"; when aucun_proche_disponible(p); then mandataire_judiciaire_a_designer(p); }
+
+@source(CC_ART453)
+rule DechargeApresCinqAns(tuteur: Personne, protege: Personne) strict { label fr official "Article 453. Hors personnes exceptées, nul n'est tenu de conserver la charge au-delà de cinq ans"; label en unofficial "Article 453. Except for listed persons, no one must retain office beyond five years"; when charge_exercee_depuis_cinq_ans(tuteur, protege) and titulaire_non_excepte_article_453(tuteur, protege); then decharge_charge_protection_admissible(tuteur, protege); }
+
+@source(CC_ART457_1)
+rule InformationPersonneProtegee(p: Personne) strict { label fr official "Article 457-1. La personne protégée reçoit une information adaptée sur sa situation et les actes envisagés"; label en unofficial "Article 457-1. The protected person receives adapted information on the situation and proposed acts"; when information_situation_personnelle_fournie(p); then devoir_information_protection_satisfait(p); }
+
+@source(CC_ART460)
+rule InformationPrealableMariage(p: Personne) strict { label fr official "Article 460. La personne chargée de la protection est informée préalablement du projet de mariage"; label en unofficial "Article 460. The protector is informed of the proposed marriage in advance"; when projet_mariage_du_protege(p) and protecteur_informe_projet_mariage(p); then information_mariage_conforme(p); }
+
+@source(CC_ART461)
+rule AssistancePacsCuratelle(p: Personne, c: ConventionPacs) strict { label fr official "Article 461. La personne en curatelle signe la convention de pacte avec l'assistance du curateur"; label en unofficial "Article 461. A person under curatorship signs the civil-pact agreement with the curator's assistance"; when personne_en_curatelle(p) and pacs_de(p, c) and assistance_curateur_pacs(c); then pacs_valablement_assiste(c); }
+
+@source(CC_ART462)
+rule AssistancePacsTutelle(p: Personne, c: ConventionPacs) strict { label fr official "Article 462. La personne en tutelle est assistée du tuteur pour signer la convention de pacte"; label en unofficial "Article 462. A person under guardianship is assisted by the guardian when signing the civil-pact agreement"; when personne_en_tutelle(p) and pacs_de(p, c) and assistance_curateur_pacs(c); then pacs_valablement_assiste(c); }
+
+@source(CC_ART464) {
+  rule ReductionActeDeuxAnsAvantMesure(a: ActeProtege, m: MesureDeProtection, acte: Date, publicite: Date) strict { label fr official "Article 464. L'acte de moins de deux ans, avec inaptitude notoire ou connue, permet la réduction des obligations"; label en unofficial "Article 464. An act made less than two years earlier with notorious or known incapacity permits reduction"; when acte_accompli_le(a, acte) and jugement_ouverture_publie_le(m, publicite) and add_calendar_period(acte, 2 calendar_year) >= publicite and inaptitude_notoire_ou_connue(a); then obligations_acte_reductibles(a); }
+  rule AnnulationActeDeuxAnsAvecPrejudice(a: ActeProtege, m: MesureDeProtection, acte: Date, publicite: Date) strict { label fr official "Article 464. Le même acte peut être annulé si un préjudice est prouvé"; label en unofficial "Article 464. The same act may be annulled if loss is proved"; when acte_accompli_le(a, acte) and jugement_ouverture_publie_le(m, publicite) and add_calendar_period(acte, 2 calendar_year) >= publicite and inaptitude_notoire_ou_connue(a) and prejudice_personne_protegee(a); then acte_anterieur_annulable(a); }
+}
+
+@source(CC_ART467)
+rule AssistanceActeCuratelle(a: ActeProtege, p: Personne) strict { label fr official "Article 467. L'acte qui requerrait une autorisation sous tutelle exige l'assistance du curateur"; label en unofficial "Article 467. An act requiring authorization under guardianship requires curator assistance"; when personne_en_curatelle(p) and assistance_curateur_acte(a, p); then acte_curatelle_valable(a); }
+
+@source(CC_ART468)
+rule VersementCapitalComptePersonnel(p: Personne) strict { label fr official "Article 468. Les capitaux sont versés sur un compte au seul nom de la personne en curatelle"; label en unofficial "Article 468. Capital is paid into an account solely in the name of the person under curatorship"; when personne_en_curatelle(p) and capital_verse_compte_personnel(p); then capital_curatelle_conforme(p); }
+
+@source(CC_ART470) {
+  rule LiberteTestamentCuratelle(p: Personne) strict { label fr official "Article 470. La personne en curatelle peut librement tester"; label en unofficial "Article 470. A person under curatorship may freely make a will"; when personne_en_curatelle(p) and testament_de_personne_en_curatelle(p); then testament_libre_curatelle(p); }
+  rule DonationAvecAssistanceCurateur(p: Personne) strict { label fr official "Article 470. La donation exige l'assistance du curateur"; label en unofficial "Article 470. A gift requires the curator's assistance"; when personne_en_curatelle(p) and donation_sous_curatelle(p) and donation_assistee_curateur(p); then donation_curatelle_admissible(p); }
+}
+
+@source(CC_ART475)
+rule RepresentationJudiciaireTutelle(a: ActeProtege, p: Personne) strict { label fr official "Article 475. Le tuteur représente en justice ; les droits extrapatrimoniaux exigent une autorisation"; label en unofficial "Article 475. The guardian represents in court; non-property rights require authorization"; when personne_en_tutelle(p) and action_judiciaire_du_protege(a, p) and autorisation_juge_droits_extrapatrimoniaux(a); then representation_judiciaire_tuteur_admissible(a); }
+
+@source(CC_ART476)
+rule TestamentAutoriseSousTutelle(p: Personne) strict { label fr official "Article 476. Après l'ouverture de la tutelle, le testament personnel exige l'autorisation du juge ou du conseil de famille"; label en unofficial "Article 476. After guardianship opens, a personal will requires authorization by the court or family council"; when personne_en_tutelle(p) and testament_apres_ouverture_tutelle(p) and autorisation_testament_tutelle(p); then testament_tutelle_admissible(p); }
+
+@source(CC_ART416)
+rule CooperationSurveillanceProtection(p: Personne) strict { label fr official "Article 416. Les personnes chargées de la protection déférent aux convocations et communiquent les informations requises"; label en unofficial "Article 416. Protectors comply with summonses and provide required information"; when convocation_ou_demande_information_protection(p); then devoir_cooperation_surveillance(p); }
+
+@source(CC_ART417)
+rule DessaisissementPourInjonctionInexecutee(p: Personne) strict { label fr official "Article 417. Le manquement caractérisé ou l'injonction inexécutée permet le dessaisissement"; label en unofficial "Article 417. Serious breach or a disobeyed injunction permits removal"; when injonction_protection_non_executee(p); then dessaisissement_protecteur_admissible(p); }
+
+@source(CC_ART420)
+rule InterdictionAvantageMandataire(p: Personne) strict { label fr official "Article 420. Le mandataire ne peut recevoir d'autre somme ou avantage lié à sa mission"; label en unofficial "Article 420. The representative may not receive another mission-related payment or benefit"; when avantage_financier_lie_mission(p); then avantage_financier_mandataire_interdit(p); }
+
+@source(CC_ART422)
+rule ResponsabiliteEtatOrganisationMesure(p: Personne) strict { label fr official "Article 422. La faute d'organisation ou de fonctionnement dirige l'action contre l'Etat"; label en unofficial "Article 422. Organizational or operational fault directs the action against the State"; when faute_organisation_mesure(p); then action_responsabilite_dirigee_contre_etat(p); }
+
+@source(CC_ART426)
+rule ConservationLogementProtege(p: Personne) strict { label fr official "Article 426. Le logement et les meubles restent à disposition aussi longtemps que possible"; label en unofficial "Article 426. The home and furniture remain available as long as possible"; when logement_protege_disponible(p); then logement_protege_a_conserver(p); }
+
+@source(CC_ART430)
+rule QualitePourDemanderProtection(p: Personne) strict { label fr official "Article 430. Seules les personnes énumérées peuvent demander l'ouverture de la mesure"; label en unofficial "Article 430. Only listed persons may seek opening of the measure"; when qualite_demandeur_430(p); then demande_ouverture_mesure_recevable(p); }
+
+@source(CC_ART432)
+rule AuditionAvantOuverture(p: Personne) strict { label fr official "Article 432. Le juge statue après que la personne a été entendue ou appelée"; label en unofficial "Article 432. The court decides after the person was heard or summoned"; when personne_entendue_ou_appelee(p); then procedure_ouverture_respecte_audition(p); }
+
+@source(CC_ART433)
+rule SauvegardePourBesoinTemporaire(p: Personne) defeasible { label fr official "Article 433. Un besoin temporaire de protection ouvre la sauvegarde de justice"; label en unofficial "Article 433. A temporary need for protection opens judicial protection"; when condition_de_protection_remplie(p) and besoin_protection_temporaire(p); then sauvegarde_justice_admissible(p); }
+
+@source(CC_ART437)
+rule CompteRenduMandataireSpecial(p: Personne) strict { label fr official "Article 437. Le mandataire spécial rend compte à la personne protégée et au juge"; label en unofficial "Article 437. The special representative accounts to the protected person and the court"; when compte_rendu_mandataire_special_effectue(p); then obligation_compte_rendu_mandataire_satisfaite(p); }
+
+@source(CC_ART447)
+rule PouvoirIndividuelCotuteur(p: Personne) strict { label fr official "Article 447. Chaque cotuteur peut seul accomplir envers les tiers les actes sans autorisation"; label en unofficial "Article 447. Each co-guardian may alone make acts requiring no authorization toward third parties"; when cotuteurs_pour_acte_sans_autorisation(p); then pouvoir_individuel_cotuteur(p); }
+
+@source(CC_ART451)
+rule MissionPreposeEtenduePersonne(p: Personne) strict { label fr official "Article 451. La mission du préposé désigné s'étend à la protection de la personne sauf décision contraire"; label en unofficial "Article 451. The appointed staff member's mission extends to personal protection absent a contrary decision"; when mandataire_etablissement_designe(p); then mission_etendue_protection_personne(p); }
+
+@source(CC_ART452)
+rule ConcoursTiersMajeur(p: Personne) strict { label fr official "Article 452. Le curateur ou tuteur peut s'adjoindre un tiers majeur non protégé sous sa responsabilité"; label en unofficial "Article 452. A curator or guardian may enlist an unprotected adult third party under responsibility"; when tiers_majeur_non_protege_assiste_tuteur(p); then concours_tiers_admissible(p); }
+
+@source(CC_ART455)
+rule NominationAdHocConflit(p: Personne) strict { label fr official "Article 455. Le conflit d'intérêts sans subrogé impose la nomination d'un protecteur ad hoc"; label en unofficial "Article 455. A conflict of interests without a substitute requires an ad hoc protector"; when conflit_interets_protecteur(p); then protecteur_ad_hoc_a_nommer(p); }
+
+@source(CC_ART457)
+rule EffetDecisionConseilSansOpposition(p: Personne) strict { label fr official "Article 457. La décision du conseil de famille prend effet à défaut d'opposition du juge"; label en unofficial "Article 457. A family-council decision takes effect absent judicial opposition"; when decision_conseil_famille_sans_opposition(p); then decision_conseil_famille_prend_effet(p); }
+
+@source(CC_ART469)
+rule RecoursRefusAssistanceCurateur(p: Personne) strict { label fr official "Article 469. Le refus du curateur ouvre la demande d'autorisation d'accomplir seul l'acte"; label en unofficial "Article 469. Curator refusal opens an application to make the act alone"; when personne_en_curatelle(p) and curateur_refuse_assistance(p); then demande_autorisation_acte_seul_admissible(p); }
+
+@source(CC_ART472)
+rule EffetsCuratelleRenforcee(p: Personne) strict { label fr official "Article 472. En curatelle renforcée, le curateur perçoit les revenus et règle les dépenses"; label en unofficial "Article 472. Under enhanced curatorship, the curator receives income and pays expenses"; when personne_en_curatelle(p) and curatelle_renforcee_ordonnee(p); then curateur_percoit_revenus_et_regle_depenses(p); }
+
+@source(CC_ART474)
+rule RepresentationPatrimonialeTitreXII(p: Personne) strict { label fr official "Article 474. La gestion patrimoniale de la personne en tutelle relève de la représentation du titre XII"; label en unofficial "Article 474. Property management for a person under guardianship follows Title XII representation"; when personne_en_tutelle(p) and gestion_patrimoine_sous_tutelle(p); then representation_titre_xii_applicable(p); }
+
+@source(CC_ART414_3)
+rule ReparationMalgreTroubleMental(p: Personne) strict { label fr official "Article 414-3. Le trouble mental n'exonère pas de réparer le dommage causé"; label en unofficial "Article 414-3. Mental disorder does not exempt compensation for caused damage"; when dommage_cause_sous_trouble_mental(p); then obligation_reparation_trouble_mental(p); }
+
+@source(CC_ART415)
+rule ProtectionNecessaireDuMajeur(p: Personne) strict { label fr official "Article 415. Le majeur reçoit la protection que son état ou sa situation rend nécessaire"; label en unofficial "Article 415. An adult receives protection required by condition or situation"; when protection_necessaire_selon_etat(p); then droit_a_protection_necessaire(p); }
+
+@source(CC_ART418)
+rule DecesMetFinMissionProtection(p: Personne) strict { label fr official "Article 418. Le décès de la personne protégée met fin à la mission de protection"; label en unofficial "Article 418. Death of the protected person ends the protection appointment"; when personne_protegee_decedee(p); then mission_protecteur_terminee(p); }
+
+@source(CC_ART421)
+rule ResponsabiliteOrganeProtection(p: Personne) strict { label fr official "Article 421. Tout organe de la mesure répond du dommage causé par sa faute"; label en unofficial "Article 421. Every protection body is liable for damage caused by its fault"; when faute_organe_protection(p); then responsabilite_organe_protection(p); }
+
+@source(CC_ART424)
+rule ResponsabiliteMandatHabilitation(p: Personne) strict { label fr official "Article 424. Le mandataire futur et la personne habilitée répondent des fautes commises dans leur mission"; label en unofficial "Article 424. The future representative and authorized person are liable for fault in office"; when faute_mandataire_ou_personne_habilitee(p); then responsabilite_mandat_ou_habilitation(p); }
+
+@source(CC_ART419)
+rule GratuiteProtectionNonProfessionnelle(p: Personne) strict { label fr official "Article 419. Hors mandataire judiciaire et indemnité autorisée, la mesure est exercée à titre gratuit"; label en unofficial "Article 419. Outside judicial representatives and authorized compensation, the measure is performed without remuneration"; when protecteur_non_mandataire_judiciaire(p); then exercice_mesure_a_titre_gratuit(p); }
+
+@source(CC_ART434)
+rule SauvegardeParDeclarationMedicale(p: Personne) strict { label fr official "Article 434. La déclaration médicale au procureur peut ouvrir la sauvegarde de justice"; label en unofficial "Article 434. A medical declaration to the prosecutor may open judicial protection"; when declaration_medicale_sauvegarde_au_procureur(p); then sauvegarde_issue_declaration_medicale(p); }
+
+@source(CC_ART438)
+rule MissionPersonnelleMandataireSpecial(p: Personne) strict { label fr official "Article 438. La mission personnelle du mandataire spécial respecte les articles 457-1 à 463"; label en unofficial "Article 438. The special representative's personal mission follows Articles 457-1 to 463"; when mission_personnelle_confiee_mandataire_special(p); then articles_457_1_a_463_applicables(p); }
+
+@source(CC_ART454)
+rule SurveillanceSubroge(p: Personne) strict { label fr official "Article 454. Le subrogé surveille les actes et informe sans délai le juge des fautes"; label en unofficial "Article 454. The substitute supervises acts and promptly informs the court of faults"; when subroge_surveille_et_informe_juge(p); then devoir_subroge_satisfait(p); }
+
+@source(CC_ART456)
+rule ConseilFamilleMajeur(p: Personne) strict { label fr official "Article 456. Les nécessités de protection, le patrimoine et l'entourage peuvent justifier un conseil de famille"; label en unofficial "Article 456. Protection needs, property and family circle may justify a family council"; when conditions_conseil_famille_majeur_reunies(p); then conseil_famille_majeur_admissible(p); }
+
+@source(CC_ART471)
+rule ModulationActesCuratelle(p: Personne) strict { label fr official "Article 471. La décision du juge répartit les actes accomplissables seul et ceux exigeant assistance"; label en unofficial "Article 471. The court's decision allocates acts made alone and those requiring assistance"; when jugement_modifie_actes_curatelle(p); then repartition_actes_curatelle_applicable(p); }
+
+@source(CC_ART446)
+rule DesignationOrganeProtection(p: Personne) strict { label fr official "Article 446. Un curateur ou tuteur est désigné pour la personne protégée"; label en unofficial "Article 446. A curator or guardian is appointed for the protected person"; when curateur_ou_tuteur_designe(p); then organe_protection_personne_en_fonction(p); }
+
+@source(CC_ART449)
+rule PrioriteConjointProtecteur(p: Personne) strict { label fr official "Article 449. Sans désignation anticipée, le conjoint, partenaire ou concubin disponible est nommé en priorité"; label en unofficial "Article 449. Without advance designation, an available spouse, partner or cohabitant is appointed first"; when aucune_designation_anticipee_et_conjoint_disponible(p); then conjoint_prioritaire_comme_protecteur(p); }
+
+@source(CC_ART463)
+rule ConditionsCompteRenduPersonnel(p: Personne) strict { label fr official "Article 463. Le juge ou conseil fixe les conditions du compte rendu des diligences de protection personnelle"; label en unofficial "Article 463. The court or council fixes terms for reporting personal-protection work"; when conditions_compte_rendu_protection_fixees(p); then compte_rendu_diligences_exigible(p); }
+
+@source(CC_ART466)
+rule CumulRecoursInsanite(a: ActeProtege) strict { label fr official "Article 466. Les sanctions des articles 464 et 465 ne ferment pas les recours des articles 414-1 et 414-2"; label en unofficial "Article 466. Sanctions under Articles 464 and 465 do not close relief under Articles 414-1 and 414-2"; when sanction_464_465_invoquee(a); then recours_414_1_414_2_reste_ouvert(a); }

@@ -1,0 +1,386 @@
+// TITRE V — COMPLÉMENTS EXÉCUTABLES : conditions, devoirs et autonomie des époux.
+
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+use self::{
+    CC_ART143,
+    CC_ART146_1,
+    CC_ART148,
+    CC_ART159,
+    CC_ART203,
+    CC_ART205,
+    CC_ART206,
+    CC_ART207,
+    CC_ART212,
+    CC_ART213,
+    CC_ART214,
+    CC_ART215,
+    CC_ART216,
+    CC_ART218,
+    CC_ART220,
+    CC_ART221,
+    CC_ART222,
+    CC_ART223,
+    CC_ART225,
+    CC_ART225_1,
+    CC_ART226,
+    CC_ART227,
+    Mariage,
+    Personne,
+    conseil_famille_consentant,
+    epoux,
+};
+
+pub entity ActeFamilial {
+    label fr official "Acte ou engagement accompli par un époux dans la vie familiale";
+    label en unofficial "Act or commitment made by a spouse in family life";
+}
+
+pub relation mariage_entre_deux_personnes(m: Mariage) kind derived { label fr official "mariage ouvert à deux personnes sans distinction de sexe"; label en unofficial "marriage open to two persons regardless of sex"; }
+pub relation mariage_a_l_etranger(m: Mariage) kind empirical { label fr official "mariage célébré à l'étranger"; label en unofficial "marriage celebrated abroad"; }
+pub relation futur_epoux_francais(m: Mariage, p: Personne) kind empirical { label fr official "futur époux de nationalité française"; label en unofficial "French intended spouse"; }
+pub relation present_a_la_celebration(m: Mariage, p: Personne) kind empirical { label fr official "présence personnelle à la célébration"; label en unofficial "personal presence at the celebration"; }
+pub relation presence_du_francais_requise_et_remplie(m: Mariage) kind derived { label fr official "condition de présence du Français remplie"; label en unofficial "French party's presence requirement satisfied"; }
+pub relation futur_epoux_mineur(m: Mariage, p: Personne) kind empirical { label fr official "futur époux mineur bénéficiant, le cas échéant, de la dispense d'âge"; label en unofficial "minor intended spouse, with any required age dispensation"; }
+pub relation consentement_parental_au_mariage(m: Mariage, p: Personne) kind empirical { label fr official "consentement des père et mère au mariage du mineur"; label en unofficial "parents consent to the minor's marriage"; }
+pub relation parent_consentant_au_mariage(parent: Personne, m: Mariage, enfant: Personne) kind empirical { label fr official "parent consentant au mariage du mineur"; label en unofficial "parent consenting to the minor's marriage"; }
+pub relation parent_du_futur_epoux_mineur(parent: Personne, m: Mariage, enfant: Personne) kind empirical { label fr official "père ou mère du futur époux mineur, dont le consentement est requis"; label en unofficial "father or mother of the minor intended spouse, whose consent is required"; }
+pub relation conseil_de_famille_du_futur_epoux_mineur(conseil: Personne, m: Mariage, enfant: Personne) kind empirical { label fr official "conseil de famille appelé à consentir au mariage du futur époux mineur"; label en unofficial "family council called upon to consent to the minor intended spouse's marriage"; }
+pub relation consentement_du_mineur_suffisant(m: Mariage, p: Personne) kind derived { label fr official "consentement requis du mineur réuni"; label en unofficial "required consent for the minor is present"; }
+pub relation aucun_parent_ni_aieul_capable_de_consentir(m: Mariage, p: Personne) kind empirical { label fr official "aucun père, mère, aïeul ou aïeule ne peut manifester sa volonté"; label en unofficial "no parent or grandparent can express consent"; }
+pub relation consentement_conseil_de_famille(m: Mariage, p: Personne) kind empirical { label fr official "consentement du conseil de famille au mariage du mineur"; label en unofficial "family council consent to the minor's marriage"; }
+
+pub relation enfant_du_couple(m: Mariage, e: Personne) kind empirical { label fr official "enfant commun dont l'entretien et l'éducation sont dus"; label en unofficial "common child owed maintenance and education"; }
+pub relation obligation_nourrir_entretenir_eduquer(m: Mariage, e: Personne) kind derived { label fr official "obligation commune de nourrir, entretenir et élever l'enfant"; label en unofficial "joint duty to maintain, support and raise the child"; }
+pub relation parent_de_l_enfant(m: Mariage, parent: Personne, enfant: Personne) kind empirical { label fr official "époux parent de l'enfant commun"; label en unofficial "spouse parent of the common child"; }
+pub relation entretien_education_assures(parent: Personne, enfant: Personne) kind empirical { label fr official "nourriture, entretien et éducation assurés par le parent"; label en unofficial "maintenance, support and education provided by the parent"; }
+pub relation enfant_de(p: Personne, ascendant: Personne) kind empirical { label fr official "lien d'enfant à père, mère ou autre ascendant"; label en unofficial "child-to-parent or other ascendant relationship"; }
+pub relation ascendant_dans_le_besoin(ascendant: Personne) kind empirical { label fr official "ascendant dans le besoin"; label en unofficial "ascendant in need"; }
+pub relation obligation_alimentaire_enfant_ascendant(p: Personne, ascendant: Personne) kind derived { label fr official "obligation alimentaire de l'enfant envers l'ascendant dans le besoin"; label en unofficial "child's maintenance duty to an ascendant in need"; }
+pub relation aliments_verses(p: Personne, ascendant: Personne) kind empirical { label fr official "aliments versés à l'ascendant dans le besoin"; label en unofficial "maintenance paid to the dependent ascendant"; }
+pub relation affinite_beau_parent(p: Personne, beau_parent: Personne) kind empirical { label fr official "lien de gendre ou belle-fille avec le beau-parent"; label en unofficial "son- or daughter-in-law relationship with the parent-in-law"; }
+pub relation epoux_et_enfants_creant_affinite_survivent(p: Personne, beau_parent: Personne) kind empirical { label fr official "l'époux créant l'affinité ou les enfants de l'union survivent"; label en unofficial "the spouse creating affinity or children of the union survive"; }
+pub relation obligation_alimentaire_allie_beau_parent(p: Personne, beau_parent: Personne) kind derived { label fr official "obligation alimentaire de l'allié envers le beau-parent"; label en unofficial "maintenance duty of the in-law to the parent-in-law"; }
+pub relation aliments_verses_allie(p: Personne, beau_parent: Personne) kind empirical { label fr official "aliments versés au beau-parent dans le besoin"; label en unofficial "maintenance paid to the dependent parent-in-law"; }
+pub relation obligation_alimentaire_constatee(a: Personne, b: Personne) kind empirical { label fr official "obligation alimentaire constatée entre deux personnes"; label en unofficial "maintenance duty established between two persons"; }
+pub relation obligation_alimentaire_reciproque(a: Personne, b: Personne) kind derived { label fr official "réciprocité de l'obligation alimentaire"; label en unofficial "reciprocal maintenance duty"; }
+pub relation aliments_reciproques_verses(a: Personne, b: Personne) kind empirical { label fr official "aliments versés réciproquement"; label en unofficial "reciprocal maintenance paid"; }
+
+pub relation devoir_respect_fidelite_secours_assistance(m: Mariage) kind derived { label fr official "devoirs mutuels de respect, fidélité, secours et assistance"; label en unofficial "mutual duties of respect, fidelity, support and assistance"; }
+pub relation devoirs_conjugaux_observes(a: Personne, b: Personne) kind empirical { label fr official "respect, fidélité, secours et assistance observés entre les époux"; label en unofficial "respect, fidelity, support and assistance observed between spouses"; }
+pub relation direction_famille_assuree_ensemble(m: Mariage) kind derived { label fr official "direction morale et matérielle de la famille assurée ensemble"; label en unofficial "joint moral and material direction of the family"; }
+pub relation direction_famille_exercee_ensemble(a: Personne, b: Personne) kind empirical { label fr official "direction morale et matérielle exercée ensemble"; label en unofficial "moral and material family direction exercised jointly"; }
+pub relation convention_ne_regle_pas_charges(m: Mariage) kind empirical { label fr official "les conventions matrimoniales ne règlent pas la contribution aux charges"; label en unofficial "marital agreements do not govern contribution to expenses"; }
+pub relation contribution_aux_charges_selon_facultes(m: Mariage) kind derived { label fr official "contribution aux charges du mariage à proportion des facultés"; label en unofficial "contribution to marital expenses in proportion to means"; }
+pub relation charges_du_mariage_contribuees(p: Personne, m: Mariage) kind empirical { label fr official "époux contribuant aux charges du mariage selon ses facultés"; label en unofficial "spouse contributing to marital expenses according to means"; }
+pub relation communaute_de_vie_due(m: Mariage) kind derived { label fr official "obligation mutuelle de communauté de vie"; label en unofficial "mutual duty of common life"; }
+pub relation communaute_de_vie_observee(a: Personne, b: Personne) kind empirical { label fr official "communauté de vie assurée entre les époux"; label en unofficial "common life maintained between spouses"; }
+pub relation residence_familiale_choisie_ensemble(m: Mariage) kind derived { label fr official "résidence familiale choisie d'un commun accord"; label en unofficial "family residence chosen by common agreement"; }
+pub relation pleine_capacite_de_droit(p: Personne) kind derived { label fr official "pleine capacité de droit de chaque époux"; label en unofficial "full legal capacity of each spouse"; }
+pub relation mandat_conjugal_accorde(m: Mariage, mandant: Personne, mandataire: Personne) kind empirical { label fr official "mandat donné par un époux à l'autre"; label en unofficial "mandate granted by one spouse to the other"; }
+pub relation representation_conjugale_valable(m: Mariage, mandataire: Personne) kind derived { label fr official "représentation valable de l'époux mandant"; label en unofficial "valid representation of the mandating spouse"; }
+pub relation engagement_entretien_menage_ou_education(a: ActeFamilial, auteur: Personne) kind empirical { label fr official "contrat relatif à l'entretien du ménage ou à l'éducation des enfants"; label en unofficial "contract for household maintenance or children's education"; }
+pub relation depense_non_manifestement_excessive(a: ActeFamilial) kind empirical { label fr official "dépense non manifestement excessive"; label en unofficial "expense not manifestly excessive"; }
+pub relation achat_ou_emprunt_admis(a: ActeFamilial) kind empirical { label fr official "achat ou emprunt admis à la solidarité par le texte"; label en unofficial "purchase or loan admitted to statutory joint liability"; }
+pub relation dette_solidaire_des_epoux(a: ActeFamilial) kind derived { label fr official "dette ménagère solidaire des époux"; label en unofficial "joint household debt of the spouses"; }
+pub relation dette_menagere_acquittee(a: ActeFamilial, p: Personne) kind empirical { label fr official "dette ménagère acquittée par l'époux"; label en unofficial "household debt paid by the spouse"; }
+pub relation ouverture_compte_personnel(p: Personne) kind empirical { label fr official "ouverture d'un compte de dépôt ou de titres personnel"; label en unofficial "opening a personal deposit or securities account"; }
+pub relation consentement_conjoint_non_requis_pour_compte(p: Personne) kind derived { label fr official "consentement du conjoint non requis pour le compte personnel"; label en unofficial "spouse's consent not required for the personal account"; }
+pub relation acte_sur_meuble_detenu_individuellement(a: ActeFamilial, p: Personne) kind empirical { label fr official "acte sur un meuble détenu individuellement"; label en unofficial "act concerning movable property held individually"; }
+pub relation tiers_de_bonne_foi(a: ActeFamilial) kind empirical { label fr official "tiers de bonne foi"; label en unofficial "third party in good faith"; }
+pub relation meuble_hors_exceptions_article_222(a: ActeFamilial) kind empirical { label fr official "meuble autre que logement familial ou meuble présumé appartenir à l'autre conjoint"; label en unofficial "movable outside the family-home and other-spouse exceptions"; }
+pub relation pouvoir_presume_sur_meuble(a: ActeFamilial, p: Personne) kind derived { label fr official "pouvoir présumé de l'époux sur le meuble"; label en unofficial "spouse presumed empowered over the movable"; }
+pub relation profession_exercee_et_charges_acquittees(p: Personne) kind empirical { label fr official "profession exercée et charges du mariage acquittées"; label en unofficial "profession exercised and marital expenses paid"; }
+pub relation libre_disposition_gains_salaires(p: Personne) kind derived { label fr official "libre disposition des gains et salaires"; label en unofficial "free disposal of earnings and salary"; }
+pub relation bien_personnel_de(p: Personne, a: ActeFamilial) kind empirical { label fr official "bien personnel d'un époux"; label en unofficial "spouse's personal property"; }
+pub relation pouvoir_seul_sur_bien_personnel(p: Personne, a: ActeFamilial) kind derived { label fr official "pouvoir d'administrer, obliger et aliéner seul le bien personnel"; label en unofficial "power to administer, bind and dispose of personal property alone"; }
+pub relation usage_nom_du_conjoint(p: Personne) kind empirical { label fr official "usage du nom de l'autre époux dans la limite légale"; label en unofficial "use of the other spouse's name within the statutory limit"; }
+pub relation usage_nom_conjugal_permis(p: Personne) kind derived { label fr official "usage du nom conjugal permis"; label en unofficial "use of the spouse's name permitted"; }
+pub relation regles_primaires_applicables_quel_que_soit_regime(m: Mariage) kind derived { label fr official "règles primaires applicables quel que soit le régime matrimonial"; label en unofficial "primary rules applicable whatever the matrimonial regime"; }
+pub relation deces_d_un_epoux(m: Mariage) kind empirical { label fr official "décès de l'un des époux"; label en unofficial "death of one spouse"; }
+pub relation divorce_legalement_prononce(m: Mariage) kind empirical { label fr official "divorce légalement prononcé"; label en unofficial "divorce lawfully pronounced"; }
+pub relation mariage_dissous(m: Mariage) kind derived { label fr official "mariage dissous"; label en unofficial "marriage dissolved"; }
+
+@source(CC_ART143) rule MariageDeuxPersonnes(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 143. Le mariage est contracté par deux personnes de sexe différent ou de même sexe"; label en unofficial "Article 143. Marriage is contracted by two persons of different or the same sex"; when epoux(m, a, b); then mariage_entre_deux_personnes(m); }
+@source(CC_ART143)
+rule PositionPouvoirContracterMariage(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 143. Deux personnes peuvent contracter mariage";
+    label en unofficial "Article 143. Two persons may enter into marriage";
+    when epoux(m, a, b);
+    then liberty PouvoirContracterMariage {
+        holder a;
+        action epoux(m, a, b);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART146_1) rule PresenceDuFrancais(m: Mariage, p: Personne) strict { label fr official "Article 146-1. Le mariage d'un Français à l'étranger requiert sa présence"; label en unofficial "Article 146-1. A French national marrying abroad must be present"; when mariage_a_l_etranger(m) and futur_epoux_francais(m, p) and present_a_la_celebration(m, p); then presence_du_francais_requise_et_remplie(m); }
+@source(CC_ART146_1)
+rule PositionDevoirPresenceFrancais(m: Mariage, p: Personne) strict {
+    label fr official "Article 146-1. Le Français doit être présent à la célébration du mariage à l'étranger";
+    label en unofficial "Article 146-1. The French national must be present at the foreign marriage ceremony";
+    when mariage_a_l_etranger(m) and futur_epoux_francais(m, p);
+    then duty DevoirPresenceFrancais {
+        bearer p;
+        goal achievement {
+            condition present_a_la_celebration(m, p);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART148) rule ConsentementParentalMineur(m: Mariage, p: Personne) strict { label fr official "Article 148. Le mineur se marie avec le consentement de ses père et mère"; label en unofficial "Article 148. A minor marries with parental consent"; when futur_epoux_mineur(m, p) and consentement_parental_au_mariage(m, p); then consentement_du_mineur_suffisant(m, p); }
+@source(CC_ART148)
+rule PositionDevoirConsentementParental(parent: Personne, m: Mariage, p: Personne) strict {
+    label fr official "Article 148. Le parent doit consentir au mariage du mineur";
+    label en unofficial "Article 148. The parent must consent to the minor's marriage";
+    when futur_epoux_mineur(m, p) and parent_du_futur_epoux_mineur(parent, m, p);
+    then duty DevoirConsentementParental {
+        bearer parent;
+        beneficiary p;
+        goal achievement {
+            condition parent_consentant_au_mariage(parent, m, p);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART159) rule ConsentementConseilFamille(m: Mariage, p: Personne) strict { label fr official "Article 159. À défaut de parents ou aïeuls capables, le conseil de famille consent au mariage du mineur"; label en unofficial "Article 159. Where no parent or grandparent can consent, the family council consents to the minor's marriage"; when futur_epoux_mineur(m, p) and aucun_parent_ni_aieul_capable_de_consentir(m, p) and consentement_conseil_de_famille(m, p); then consentement_du_mineur_suffisant(m, p); }
+@source(CC_ART159)
+rule PositionDevoirConsentementConseil(conseil: Personne, m: Mariage, p: Personne) strict {
+    label fr official "Article 159. Le conseil de famille doit consentir au mariage du mineur";
+    label en unofficial "Article 159. The family council must consent to the minor's marriage";
+    when futur_epoux_mineur(m, p) and aucun_parent_ni_aieul_capable_de_consentir(m, p)
+        and conseil_de_famille_du_futur_epoux_mineur(conseil, m, p);
+    then duty DevoirConsentementConseil {
+        bearer conseil;
+        beneficiary p;
+        goal achievement {
+            condition conseil_famille_consentant(conseil, m, p);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART203) rule EntretienEducationEnfants(m: Mariage, e: Personne) strict { label fr official "Article 203. Les époux doivent nourrir, entretenir et élever leurs enfants"; label en unofficial "Article 203. Spouses must maintain, support and raise their children"; when enfant_du_couple(m, e); then obligation_nourrir_entretenir_eduquer(m, e); }
+@source(CC_ART203)
+rule PositionDevoirEntretienEnfant(m: Mariage, parent: Personne, e: Personne) strict {
+    label fr official "Article 203. Les époux doivent nourrir, entretenir et élever leurs enfants";
+    label en unofficial "Article 203. Spouses must maintain, support and raise their children";
+    when enfant_du_couple(m, e) and parent_de_l_enfant(m, parent, e);
+    then duty DevoirEntretienEnfant {
+        bearer parent;
+        beneficiary e;
+        goal achievement {
+            condition entretien_education_assures(parent, e);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART205) rule AlimentsAuxAscendants(p: Personne, a: Personne) strict { label fr official "Article 205. Les enfants doivent des aliments à leurs ascendants dans le besoin"; label en unofficial "Article 205. Children owe maintenance to ascendants in need"; when enfant_de(p, a) and ascendant_dans_le_besoin(a); then obligation_alimentaire_enfant_ascendant(p, a); }
+@source(CC_ART205)
+rule PositionDevoirAlimentsAscendant(p: Personne, a: Personne) strict {
+    label fr official "Article 205. L'enfant doit des aliments à l'ascendant dans le besoin";
+    label en unofficial "Article 205. The child owes maintenance to the ascendant in need";
+    when enfant_de(p, a) and ascendant_dans_le_besoin(a);
+    then duty DevoirAlimentsAscendant {
+        bearer p;
+        beneficiary a;
+        goal achievement {
+            condition aliments_verses(p, a);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART206) rule AlimentsAuxBeauxParents(p: Personne, a: Personne) strict { label fr official "Article 206. Gendres et belles-filles doivent des aliments aux beaux-parents tant que subsiste l'affinité désignée"; label en unofficial "Article 206. Sons- and daughters-in-law owe maintenance to parents-in-law while the specified affinity survives"; when affinite_beau_parent(p, a) and ascendant_dans_le_besoin(a) and epoux_et_enfants_creant_affinite_survivent(p, a); then obligation_alimentaire_allie_beau_parent(p, a); }
+@source(CC_ART206)
+rule PositionDevoirAlimentsBeauParent(p: Personne, a: Personne) strict {
+    label fr official "Article 206. Le gendre ou la belle-fille doit des aliments au beau-parent";
+    label en unofficial "Article 206. The son- or daughter-in-law owes maintenance to the parent-in-law";
+    when affinite_beau_parent(p, a) and ascendant_dans_le_besoin(a)
+        and epoux_et_enfants_creant_affinite_survivent(p, a);
+    then duty DevoirAlimentsBeauParent {
+        bearer p;
+        beneficiary a;
+        goal achievement {
+            condition aliments_verses_allie(p, a);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART207) rule ReciprociteAliments(a: Personne, b: Personne) strict { label fr official "Article 207. Les obligations alimentaires des articles précédents sont réciproques"; label en unofficial "Article 207. The preceding maintenance duties are reciprocal"; when obligation_alimentaire_constatee(a, b); then obligation_alimentaire_reciproque(b, a); }
+@source(CC_ART207)
+rule PositionDevoirAlimentsReciproques(a: Personne, b: Personne) strict {
+    label fr official "Article 207. Les obligations alimentaires sont réciproques";
+    label en unofficial "Article 207. Maintenance obligations are reciprocal";
+    when obligation_alimentaire_constatee(a, b);
+    then duty DevoirAlimentsReciproques {
+        bearer a;
+        beneficiary b;
+        goal achievement {
+            condition aliments_reciproques_verses(a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART212) rule DevoirsMutuels(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 212. Les époux se doivent respect, fidélité, secours et assistance"; label en unofficial "Article 212. Spouses owe each other respect, fidelity, support and assistance"; when epoux(m, a, b); then devoir_respect_fidelite_secours_assistance(m); }
+@source(CC_ART212)
+rule PositionDevoirsMutuels(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 212. Les époux se doivent respect, fidélité, secours et assistance";
+    label en unofficial "Article 212. Spouses owe each other respect, fidelity, support and assistance";
+    when epoux(m, a, b);
+    then duty DevoirsMutuelsEntreEpoux {
+        bearer a;
+        beneficiary b;
+        goal achievement {
+            condition devoirs_conjugaux_observes(a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART213) rule DirectionConjointeFamille(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 213. Les époux assurent ensemble la direction morale et matérielle de la famille"; label en unofficial "Article 213. Spouses jointly direct the family morally and materially"; when epoux(m, a, b); then direction_famille_assuree_ensemble(m); }
+@source(CC_ART213)
+rule PositionDevoirDirectionFamille(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 213. Les époux assurent ensemble la direction morale et matérielle de la famille";
+    label en unofficial "Article 213. Spouses jointly direct the family morally and materially";
+    when epoux(m, a, b);
+    then duty DevoirDirectionFamille {
+        bearer a;
+        beneficiary b;
+        goal achievement {
+            condition direction_famille_exercee_ensemble(a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART214) rule ContributionSelonFacultes(m: Mariage) strict { label fr official "Article 214. À défaut de convention, les époux contribuent aux charges à proportion de leurs facultés"; label en unofficial "Article 214. Absent agreement, spouses contribute to expenses in proportion to their means"; when convention_ne_regle_pas_charges(m); then contribution_aux_charges_selon_facultes(m); }
+@source(CC_ART214)
+rule PositionDevoirContributionCharges(m: Mariage, p: Personne) strict {
+    label fr official "Article 214. Les époux contribuent aux charges à proportion de leurs facultés";
+    label en unofficial "Article 214. Spouses contribute to expenses in proportion to their means";
+    when convention_ne_regle_pas_charges(m) and epoux(m, p, _);
+    then duty DevoirContributionCharges {
+        bearer p;
+        goal achievement {
+            condition charges_du_mariage_contribuees(p, m);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART215) { rule CommunauteDeVie(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 215, alinéa 1. Les époux s'obligent à une communauté de vie"; label en unofficial "Article 215, paragraph 1. Spouses undertake a common life"; when epoux(m, a, b); then communaute_de_vie_due(m); } rule ResidenceCommune(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 215, alinéa 2. Les époux choisissent ensemble la résidence familiale"; label en unofficial "Article 215, paragraph 2. Spouses choose the family residence together"; when epoux(m, a, b); then residence_familiale_choisie_ensemble(m); } }
+@source(CC_ART215)
+rule PositionDevoirCommunauteVie(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 215, alinéa 1. Les époux s'obligent à une communauté de vie";
+    label en unofficial "Article 215, paragraph 1. Spouses undertake a common life";
+    when epoux(m, a, b);
+    then duty DevoirCommunauteVie {
+        bearer a;
+        beneficiary b;
+        goal achievement {
+            condition communaute_de_vie_observee(a, b);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART216) rule CapaciteDeChaqueEpoux(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 216. Chaque époux a la pleine capacité de droit"; label en unofficial "Article 216. Each spouse has full legal capacity"; when epoux(m, a, b); then pleine_capacite_de_droit(a); }
+@source(CC_ART216)
+rule PositionPouvoirCapaciteEpoux(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 216. Chaque époux a la pleine capacité de droit";
+    label en unofficial "Article 216. Each spouse has full legal capacity";
+    when epoux(m, a, b) and pleine_capacite_de_droit(a);
+    then liberty PouvoirCapaciteEpoux {
+        holder a;
+        action pleine_capacite_de_droit(a);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART218) rule MandatEntreEpoux(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 218. Un époux peut mandater l'autre pour exercer ses pouvoirs"; label en unofficial "Article 218. One spouse may mandate the other to exercise statutory powers"; when mandat_conjugal_accorde(m, a, b); then representation_conjugale_valable(m, b); }
+@source(CC_ART218)
+rule PositionPouvoirMandaterConjoint(m: Mariage, a: Personne, b: Personne) strict {
+    label fr official "Article 218. Un époux peut mandater l'autre pour exercer ses pouvoirs";
+    label en unofficial "Article 218. A spouse may mandate the other to exercise statutory powers";
+    when epoux(m, a, b) and mandat_conjugal_accorde(m, a, b);
+    then liberty PouvoirMandaterConjoint {
+        holder a;
+        action mandat_conjugal_accorde(m, a, b);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART220) rule SolidariteMenagere(a: ActeFamilial, p: Personne) strict { label fr official "Article 220. La dette ménagère non excessive et admise par le texte oblige solidairement les époux"; label en unofficial "Article 220. A non-excessive household debt admitted by the statute binds spouses jointly"; when engagement_entretien_menage_ou_education(a, p) and depense_non_manifestement_excessive(a) and achat_ou_emprunt_admis(a); then dette_solidaire_des_epoux(a); }
+@source(CC_ART220)
+rule PositionDevoirDetteMenagere(a: ActeFamilial, p: Personne) strict {
+    label fr official "Article 220. La dette ménagère admise oblige solidairement les époux";
+    label en unofficial "Article 220. An admitted household debt binds the spouses jointly";
+    when engagement_entretien_menage_ou_education(a, p) and depense_non_manifestement_excessive(a)
+        and achat_ou_emprunt_admis(a);
+    then duty DevoirDetteMenagere {
+        bearer p;
+        goal achievement {
+            condition dette_menagere_acquittee(a, p);
+            window [@2022-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART221)
+rule PositionPouvoirComptePersonnel(p: Personne) strict {
+    label fr official "Article 221. Chaque époux peut ouvrir seul un compte personnel";
+    label en unofficial "Article 221. Each spouse may open a personal account alone";
+    when ouverture_compte_personnel(p);
+    then liberty PouvoirComptePersonnel {
+        holder p;
+        action ouverture_compte_personnel(p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART222)
+rule PositionPouvoirPresumeMeuble(a: ActeFamilial, p: Personne) strict {
+    label fr official "Article 222. Le tiers de bonne foi peut présumer le pouvoir de l'époux sur le meuble";
+    label en unofficial "Article 222. A good-faith third party may presume a spouse's power over the movable";
+    when acte_sur_meuble_detenu_individuellement(a, p) and tiers_de_bonne_foi(a)
+        and meuble_hors_exceptions_article_222(a);
+    then liberty PouvoirPresumeMeuble {
+        holder p;
+        action pouvoir_presume_sur_meuble(a, p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART223)
+rule PositionLiberteProfessionGains(p: Personne) strict {
+    label fr official "Article 223. Chaque époux exerce librement une profession et dispose de ses gains";
+    label en unofficial "Article 223. Each spouse freely practises a profession and disposes of earnings";
+    when profession_exercee_et_charges_acquittees(p);
+    then liberty LiberteProfessionGains {
+        holder p;
+        action libre_disposition_gains_salaires(p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART221) rule ComptePersonnelSansConsentement(p: Personne) strict { label fr official "Article 221. Chaque époux ouvre seul un compte personnel"; label en unofficial "Article 221. Each spouse may open a personal account alone"; when ouverture_compte_personnel(p); then consentement_conjoint_non_requis_pour_compte(p); }
+@source(CC_ART222) rule PresomptionPouvoirMeuble(a: ActeFamilial, p: Personne) strict { label fr official "Article 222. Le tiers de bonne foi peut présumer le pouvoir de l'époux sur le meuble détenu individuellement, hors exceptions"; label en unofficial "Article 222. A good-faith third party may presume a spouse's power over individually held movables, subject to exceptions"; when acte_sur_meuble_detenu_individuellement(a, p) and tiers_de_bonne_foi(a) and meuble_hors_exceptions_article_222(a); then pouvoir_presume_sur_meuble(a, p); }
+@source(CC_ART223) rule LibreProfessionEtGains(p: Personne) strict { label fr official "Article 223. Chaque époux exerce librement une profession et dispose de ses gains après contribution aux charges"; label en unofficial "Article 223. Each spouse freely practises a profession and disposes of earnings after contributing to expenses"; when profession_exercee_et_charges_acquittees(p); then libre_disposition_gains_salaires(p); }
+@source(CC_ART225) rule PouvoirSurBiensPersonnels(p: Personne, a: ActeFamilial) strict { label fr official "Article 225. Chaque époux administre, oblige et aliène seul ses biens personnels"; label en unofficial "Article 225. Each spouse administers, binds and disposes of personal property alone"; when bien_personnel_de(p, a); then pouvoir_seul_sur_bien_personnel(p, a); }
+@source(CC_ART225)
+rule PositionPouvoirBienPersonnel(p: Personne, a: ActeFamilial) strict {
+    label fr official "Article 225. Chaque époux administre, oblige et aliène seul ses biens personnels";
+    label en unofficial "Article 225. Each spouse administers, binds and disposes of personal property alone";
+    when bien_personnel_de(p, a);
+    then liberty PouvoirBienPersonnel {
+        holder p;
+        action pouvoir_seul_sur_bien_personnel(p, a);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART225_1) rule UsageNomConjoint(p: Personne) strict { label fr official "Article 225-1. Chaque époux peut user du nom de l'autre dans la limite d'un nom par époux"; label en unofficial "Article 225-1. Each spouse may use the other's name within the one-name limit"; when usage_nom_du_conjoint(p); then usage_nom_conjugal_permis(p); }
+@source(CC_ART225_1)
+rule PositionLiberteUsageNom(p: Personne) strict {
+    label fr official "Article 225-1. Chaque époux peut user du nom de l'autre";
+    label en unofficial "Article 225-1. Each spouse may use the other's name";
+    when usage_nom_du_conjoint(p);
+    then liberty LiberteUsageNom {
+        holder p;
+        action usage_nom_du_conjoint(p);
+        window [@2022-01-01, infinity];
+    };
+}
+@source(CC_ART226) rule ReglesPrimairesTousRegimes(m: Mariage, a: Personne, b: Personne) strict { label fr official "Article 226. Le chapitre s'applique par le seul effet du mariage quel que soit le régime"; label en unofficial "Article 226. This chapter applies by virtue of marriage whatever the matrimonial regime"; when epoux(m, a, b); then regles_primaires_applicables_quel_que_soit_regime(m); }
+@source(CC_ART227) { rule DissolutionParDeces(m: Mariage) strict { label fr official "Article 227, 1°. Le mariage se dissout par la mort de l'un des époux"; label en unofficial "Article 227(1). Marriage ends on the death of one spouse"; when deces_d_un_epoux(m); then mariage_dissous(m); } rule DissolutionParDivorce(m: Mariage) strict { label fr official "Article 227, 2°. Le mariage se dissout par le divorce légalement prononcé"; label en unofficial "Article 227(2). Marriage ends upon a lawfully pronounced divorce"; when divorce_legalement_prononce(m); then mariage_dissous(m); } }

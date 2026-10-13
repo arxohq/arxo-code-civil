@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2303 : la caution est informée le 20 mars 2023 — obligation exécutée.
+test "urn:query:fr-code-civil-suretes-i17-defaillance-information-executee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-04-01; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i17:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i17:K"), entity_ref("urn:fr:cc:suretes:i17:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i17:K"), entity_ref("urn:fr:cc:suretes:i17:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i17:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i17:B")) { origin case_input; }
+        assert "f6": echeance_du_principal(entity_ref("urn:fr:cc:suretes:i17:K"), entity_ref("urn:fr:cc:suretes:i17:P1")) { origin case_input; }
+        assert "f7": echue_le(entity_ref("urn:fr:cc:suretes:i17:P1"), @2023-01-15) { origin case_input; }
+        assert "f8": echeance_impayee(entity_ref("urn:fr:cc:suretes:i17:P1")) { origin case_input; }
+        assert "f9": caution_informee_de_la_defaillance_le(entity_ref("urn:fr:cc:suretes:i17:K"), @2023-03-20) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDInformerDeLaDefaillance, SATISFIED);
+}

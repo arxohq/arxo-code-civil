@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-RETARDDECAUTIONNEPRIVEEPASDESFRUITS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": ouverture_de_l_usufruit_le(entity_ref("urn:law:catalog:retarddecautionnepriveepasdesfruits:v0"), @2026-01-15) { origin case_input; }
+        assert "cat-1": tenu_de_donner_caution(entity_ref("urn:law:catalog:retarddecautionnepriveepasdesfruits:v0")) { origin case_input; }
+    }
+    evaluate truth(fruits_dus_des_l_ouverture_malgre_le_retard_de_caution(entity_ref("urn:law:catalog:retarddecautionnepriveepasdesfruits:v0")));
+    expect truth_status == TRUE_ONLY;
+}

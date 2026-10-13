@@ -1,0 +1,232 @@
+// CODE CIVIL — LIVRE III, TITRE II : DES LIBÉRALITÉS (CC-07).
+//
+// Pilote B1, second paquet : réserve héréditaire et quotité disponible
+// (912–916), réunion fictive et masse de calcul (922), imputation des
+// libéralités hors part successorale (919-2), ordre de réduction (923),
+// réduction au marc le franc des legs (926), indemnité de réduction (924).
+//
+// SANS `stage`. L'ordre « en commençant par la dernière donation » (923) se
+// calcule en forme close : la donation datée d s'impute sur ce qui reste de
+// la quotité disponible après les donations de date antérieure, c'est-à-dire
+// sur `QD − Σ{valeur des donations de date < d}`. Aucune passe itérative
+// n'est nécessaire ; deux donations de même date sont une frontière déclarée
+// (`donations_de_meme_date`), le texte ne les départage pas.
+//
+// ARGENT ET FRACTIONS. La quotité disponible est une fraction exacte
+// (`Rational`) ; sa valeur en argent est `masse × fraction`, exacte lorsque le
+// résultat tombe sur le centime (E-0085), sinon `INEXACT_DIVISION` : le Code
+// ne nomme aucune règle d'arrondi, et le paquet n'en invente pas (question
+// D-Q1 au propriétaire, docs/foundations/fr-code-civil/DECISIONS.md).
+//
+// CE QUE LE CAS FOURNIT : les libéralités (nature, bénéficiaire, date de la
+// donation, valeur à l'ouverture selon l'article 922, qualification hors
+// part), la valeur des biens existants au décès. CE QUE LE PAQUET DÉDUIT :
+// nombre d'enfants laissés au sens de l'article 913, quotité disponible,
+// masse de calcul, valeur disponible, imputation et réduction de chaque
+// libéralité, indemnité due par le gratifié.
+//
+// Fichiers :
+//   package.law                  — types, entrées, constantes
+//   chapitre-03-reserve.law      — art. 912–916, 919-2, 920, 922–926
+//   sources.law                  — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+import fr.code_civil.core version "0.1.0";
+import fr.code_civil.successions version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+type Succession = fr.code_civil.successions::Succession;
+
+pub deadline policy CC_LIBERALITES_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub entity Liberalite {
+    label fr official "Libéralité : donation entre vifs ou legs (article 893)";
+    label en unofficial "Gratuitous disposition: inter vivos gift or legacy (Article 893)";
+}
+
+pub entity RenonciationReduction {
+    label fr official "Renonciation anticipée à l'action en réduction (articles 929 à 930-5)";
+    label en unofficial "Advance waiver of an action in reduction (Articles 929 to 930-5)";
+}
+
+pub enum NatureDeLiberalite {
+    label fr official "Nature de la libéralité (article 893, alinéa 2)";
+    label en unofficial "Nature of the disposition (Article 893, paragraph 2)";
+    DonationEntreVifs,
+    Legs
+}
+
+// --- Entrées du cas ----------------------------------------------------------------------
+
+pub relation liberalite_du_defunt(s: Succession, l: Liberalite) kind empirical {
+    label fr official "libéralité consentie par le défunt, à réunir fictivement à la masse (article 922)";
+    label en unofficial "disposition made by the deceased, to be notionally added to the mass (Article 922)";
+}
+pub relation nature(l: Liberalite, n: NatureDeLiberalite) kind empirical {
+    key(l);
+    label fr official "donation entre vifs ou legs";
+    label en unofficial "inter vivos gift or legacy";
+}
+pub relation gratifie(l: Liberalite, p: Personne) kind empirical {
+    key(l);
+    label fr official "bénéficiaire de la libéralité (gratifié)";
+    label en unofficial "beneficiary of the disposition";
+}
+pub relation date_de_la_donation(l: Liberalite, jour: Date) kind empirical {
+    key(l);
+    label fr official "date de la donation entre vifs (ordre de réduction, article 923)";
+    label en unofficial "date of the inter vivos gift (order of reduction, Article 923)";
+}
+pub relation valeur_reunie(l: Liberalite, v: Money) kind empirical {
+    key(l);
+    label fr official "valeur retenue pour la réunion fictive : état à l'époque de la libéralité, valeur à l'ouverture de la succession, dettes et charges déduites (article 922, alinéa 2)";
+    label en unofficial "value retained for the notional reunion: condition at the time of the disposition, value at the opening of the succession, debts and charges deducted (Article 922, paragraph 2)";
+}
+pub relation hors_part_successorale(l: Liberalite) kind empirical {
+    label fr official "libéralité faite hors part successorale, ou legs à un héritier sans volonté contraire du testateur (articles 843, 919, 919-2)";
+    label en unofficial "disposition made outside the hereditary share, or legacy to an heir absent a contrary will (Articles 843, 919, 919-2)";
+}
+pub relation biens_existants_au_deces(s: Succession, v: Money) kind empirical {
+    key(s);
+    label fr official "valeur de tous les biens existant au décès du disposant (article 922, alinéa 1)";
+    label en unofficial "value of all property existing at the death of the disposer (Article 922, paragraph 1)";
+}
+
+// --- Données générales des libéralités (articles 893 à 911) ----------------------------
+
+pub relation acte_a_titre_gratuit(l: Liberalite) kind empirical {
+    label fr official "l'acte dispose à titre gratuit de biens ou de droits au profit d'autrui";
+    label en unofficial "the act disposes gratuitously of property or rights for another person's benefit";
+}
+pub relation depouillement_actuel_et_irrevocable(l: Liberalite) kind empirical {
+    label fr official "le donateur se dépouille actuellement et irrévocablement de la chose donnée";
+    label en unofficial "the donor presently and irrevocably divests the donated property";
+}
+pub relation donation_acceptee(l: Liberalite) kind empirical {
+    label fr official "le donataire accepte la donation";
+    label en unofficial "the donee accepts the gift";
+}
+pub relation disposition_pour_apres_le_deces(l: Liberalite) kind empirical {
+    label fr official "la disposition est faite pour le temps où le testateur n'existera plus";
+    label en unofficial "the disposition is made for the time after the testator's death";
+}
+pub relation testament_revocable(l: Liberalite) kind empirical {
+    label fr official "la disposition peut être révoquée par le testateur";
+    label en unofficial "the disposition may be revoked by the testator";
+}
+pub relation condition_impossible_ou_illicite(l: Liberalite) kind empirical {
+    label fr official "la libéralité comporte une condition impossible, contraire aux lois ou aux mœurs";
+    label en unofficial "the disposition contains an impossible condition or one contrary to law or morality";
+}
+pub relation clause_d_inalienabilite(l: Liberalite) kind empirical {
+    label fr official "la libéralité comporte une clause d'inaliénabilité";
+    label en unofficial "the disposition contains a non-alienation clause";
+}
+pub relation inalienabilite_temporaire(l: Liberalite) kind empirical {
+    label fr official "la clause d'inaliénabilité est temporaire";
+    label en unofficial "the non-alienation clause is temporary";
+}
+pub relation interet_serieux_et_legitime(l: Liberalite) kind empirical {
+    label fr official "la clause d'inaliénabilité est justifiée par un intérêt sérieux et légitime";
+    label en unofficial "the non-alienation clause is justified by a serious and legitimate interest";
+}
+pub relation execution_extremement_difficile_ou_domageable(l: Liberalite) kind empirical {
+    label fr official "un changement de circonstances rend l'exécution extrêmement difficile ou sérieusement dommageable";
+    label en unofficial "a change of circumstances makes performance extremely difficult or seriously harmful";
+}
+pub relation mort_du_disposant_le(l: Liberalite, jour: Date) kind empirical {
+    key(l);
+    label fr official "date de la mort du disposant";
+    label en unofficial "date of the disposer's death";
+}
+pub relation jugement_de_revision_precedent_le(l: Liberalite, jour: Date) kind empirical {
+    key(l);
+    label fr official "date du jugement ayant ordonné la précédente révision";
+    label en unofficial "date of the judgment ordering the previous revision";
+}
+pub relation demande_de_revision_le(l: Liberalite, jour: Date) kind empirical {
+    key(l);
+    label fr official "date de la demande en révision";
+    label en unofficial "date of the application for revision";
+}
+pub relation execution_originaire_redevenue_possible(l: Liberalite) kind empirical {
+    label fr official "l'exécution originairement prévue est redevenue possible après la révision";
+    label en unofficial "the performance originally contemplated has become possible again after revision";
+}
+pub relation clause_prive_contestataire(l: Liberalite) kind empirical {
+    label fr official "la clause prive de la libéralité celui qui conteste l'inaliénabilité ou demande l'autorisation d'aliéner";
+    label en unofficial "the clause deprives a person who challenges non-alienation or seeks leave to alienate";
+}
+pub relation disposant_sain_d_esprit(l: Liberalite) kind empirical {
+    label fr official "le disposant est sain d'esprit au moment de la libéralité";
+    label en unofficial "the disposer is of sound mind when making the disposition";
+}
+pub relation consentement_vicie(l: Liberalite) kind empirical {
+    label fr official "le consentement est vicié par l'erreur, le dol ou la violence";
+    label en unofficial "consent is vitiated by mistake, fraud or duress";
+}
+pub relation age_du_disposant(l: Liberalite, age: Integer) kind empirical {
+    key(l);
+    label fr official "âge du disposant en années révolues";
+    label en unofficial "disposer's age in completed years";
+}
+pub relation disposant_emancipe(l: Liberalite) kind empirical {
+    label fr official "le disposant mineur est émancipé";
+    label en unofficial "the minor disposer is emancipated";
+}
+pub relation beneficiaire_concu_au_jour_requis(l: Liberalite) kind empirical {
+    label fr official "le bénéficiaire était conçu au jour requis par l'article 906";
+    label en unofficial "the beneficiary was conceived on the date required by Article 906";
+}
+pub relation beneficiaire_ne_viable(l: Liberalite) kind empirical {
+    label fr official "le bénéficiaire conçu est né viable";
+    label en unofficial "the conceived beneficiary was born viable";
+}
+pub relation liberalite_au_profit_du_tuteur(l: Liberalite) kind empirical {
+    label fr official "la libéralité est consentie au profit du tuteur ou de l'ancien tuteur";
+    label en unofficial "the disposition benefits the guardian or former guardian";
+}
+pub relation compte_de_tutelle_rendu_et_apure(l: Liberalite) kind empirical {
+    label fr official "le compte définitif de tutelle a été rendu et apuré";
+    label en unofficial "the final guardianship account has been rendered and settled";
+}
+pub relation tuteur_ascendant_du_mineur(l: Liberalite) kind empirical {
+    label fr official "le tuteur bénéficiaire est un ascendant du mineur";
+    label en unofficial "the beneficiary guardian is an ascendant of the minor";
+}
+pub relation beneficiaire_professionnel_de_sante_ayant_soigne_la_maladie_mortelle(l: Liberalite) kind empirical {
+    label fr official "le bénéficiaire est un professionnel de santé ayant soigné la maladie dont le disposant est mort";
+    label en unofficial "the beneficiary is a health professional who treated the illness from which the disposer died";
+}
+pub relation beneficiaire_mandataire_de_protection(l: Liberalite) kind empirical {
+    label fr official "le bénéficiaire est le mandataire judiciaire chargé de la protection du disposant";
+    label en unofficial "the beneficiary is the judicial representative charged with protecting the disposer";
+}
+pub relation exception_remuneratoire_ou_parentale_909(l: Liberalite) kind empirical {
+    label fr official "la libéralité relève d'une exception rémunératoire ou parentale de l'article 909";
+    label en unofficial "the disposition falls within a remuneratory or kinship exception under Article 909";
+}
+pub relation beneficiaire_incapable_de_recevoir(l: Liberalite) kind empirical {
+    label fr official "le bénéficiaire est frappé d'une incapacité de recevoir à titre gratuit";
+    label en unofficial "the beneficiary is incapable of receiving gratuitously";
+}
+pub relation liberalite_deguisee_ou_interposee(l: Liberalite) kind empirical {
+    label fr official "la libéralité est déguisée ou faite sous le nom d'une personne interposée";
+    label en unofficial "the disposition is disguised or made in an intermediary's name";
+}
+pub relation charge_de_conserver_et_rendre_a_un_tiers(l: Liberalite) kind empirical { label fr official "la disposition charge le premier gratifié de conserver et de rendre à un tiers"; label en unofficial "the disposition requires the first beneficiary to preserve and transfer to a third party"; }
+pub relation substitution_autorisee_par_la_loi(l: Liberalite) kind empirical { label fr official "la substitution est autorisée par la loi"; label en unofficial "the substitution is authorized by law"; }
+pub relation tiers_appele_a_defaut_du_premier_beneficiaire(l: Liberalite) kind empirical { label fr official "un tiers est appelé si le premier bénéficiaire ne recueille pas"; label en unofficial "a third party is called if the first beneficiary does not take"; }
+pub relation usufruit_et_nue_propriete_attribues_separement(l: Liberalite) kind empirical { label fr official "l'usufruit est attribué à l'un et la nue-propriété à l'autre"; label en unofficial "usufruct is granted to one person and bare ownership to another"; }
+pub relation personne_declaree_incapable_par_la_loi(l: Liberalite) kind empirical { label fr official "la personne est déclarée incapable de disposer ou de recevoir par une disposition légale"; label en unofficial "the person is declared incapable of disposing or receiving by a statutory provision"; }
+pub relation mineur_appele_sous_les_drapeaux(l: Liberalite) kind empirical { label fr official "le mineur est appelé sous les drapeaux pendant une campagne de guerre"; label en unofficial "the minor is called to military service during a war campaign"; }
+pub relation beneficiaire_parent_jusqu_au_sixieme_degre_ou_conjoint(l: Liberalite) kind empirical { label fr official "le bénéficiaire est un parent jusqu'au sixième degré ou le conjoint survivant"; label en unofficial "the beneficiary is a relative up to the sixth degree or the surviving spouse"; }
+pub relation aucun_parent_jusqu_au_sixieme_degre(l: Liberalite) kind empirical { label fr official "le mineur n'a aucun parent jusqu'au sixième degré"; label en unofficial "the minor has no relative up to the sixth degree"; }
+pub relation proche_de_l_incapable_au_sens_de_911(l: Liberalite) kind empirical { label fr official "l'intermédiaire est père, mère, descendant ou époux de la personne incapable"; label en unofficial "the intermediary is a parent, descendant or spouse of the incapable person"; }

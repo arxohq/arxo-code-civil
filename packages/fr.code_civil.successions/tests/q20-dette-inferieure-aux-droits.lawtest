@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 864 : dette de 20 000 EUR, droits de 30 000 EUR — aucun solde.
+test "urn:query:fr-code-civil-successions-q20-dette-inferieure-aux-droits" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": creance_de_la_masse_contre(entity_ref("urn:fr:cc:successions:par:q20:S"), entity_ref("urn:fr:cc:successions:par:q20:H"), 20000 EUR) { origin case_input; }
+        assert "f2": droits_dans_la_masse(entity_ref("urn:fr:cc:successions:par:q20:S"), entity_ref("urn:fr:cc:successions:par:q20:H"), 30000 EUR) { origin case_input; }
+    }
+    evaluate truth(solde_de_la_dette_du(entity_ref("urn:fr:cc:successions:par:q20:S"), entity_ref("urn:fr:cc:successions:par:q20:H"), 20000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 823 : maintien prononcé le 31 mars 2026 — jusqu'au 31 mars 2031.
+test "urn:query:fr-code-civil-successions-i29-cinq-ans-de-maintien" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": maintien_de_l_indivision_prononce_le(entity_ref("urn:fr:cc:successions:ind:i29:I"), @2026-03-31) { origin case_input; }
+    }
+    evaluate truth(fin_du_maintien_de_l_indivision(entity_ref("urn:fr:cc:successions:ind:i29:I"), @2031-03-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CinqAnsDeMaintien);
+}

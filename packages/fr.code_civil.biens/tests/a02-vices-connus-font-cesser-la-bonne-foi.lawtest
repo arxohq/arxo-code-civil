@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 549 et 550, al. 2. Le témoin jumeau de a01 : les vices du titre étant
+// connus, la bonne foi cesse et le possesseur doit restituer les produits.
+test "urn:query:fr-code-civil-biens-a02-vices-connus" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": possede_comme_proprietaire(entity_ref("urn:fr:cc:biens:a02:CHOSE"), entity_ref("urn:fr:cc:biens:a02:P")) { origin case_input; }
+        assert "f2": titre_translatif_de_propriete(entity_ref("urn:fr:cc:biens:a02:CHOSE"), entity_ref("urn:fr:cc:biens:a02:P")) { origin case_input; }
+        assert "f3": vices_du_titre_connus(entity_ref("urn:fr:cc:biens:a02:CHOSE"), entity_ref("urn:fr:cc:biens:a02:P")) { origin case_input; }
+    }
+    evaluate truth(tenu_de_restituer_les_produits(entity_ref("urn:fr:cc:biens:a02:CHOSE"), entity_ref("urn:fr:cc:biens:a02:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

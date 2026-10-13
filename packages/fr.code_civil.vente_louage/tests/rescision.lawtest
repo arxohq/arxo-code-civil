@@ -1,0 +1,62 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:query:fr-code-civil-vente-louage-rescision-sous-cinq-douziemes" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "i": vente_immobiliere(entity_ref("urn:fr:cc12:r:v")) { origin case_input; }
+        assert "v": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:r:v"), 120000 EUR) { origin case_input; }
+        assert "p": prix_paye(entity_ref("urn:fr:cc12:r:v"), 49999 EUR) { origin case_input; }
+    }
+    evaluate truth(lesion_superieure_a_sept_douziemes(entity_ref("urn:fr:cc12:r:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rescision-cinq-douziemes-exact" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "i": vente_immobiliere(entity_ref("urn:fr:cc12:r1:v")) { origin case_input; }
+        assert "v": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:r1:v"), 120000 EUR) { origin case_input; }
+        assert "p": prix_paye(entity_ref("urn:fr:cc12:r1:v"), 50000 EUR) { origin case_input; }
+    }
+    evaluate truth(lesion_superieure_a_sept_douziemes(entity_ref("urn:fr:cc12:r1:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-cinq-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": terme_de_rachat_stipule_en_annees(entity_ref("urn:fr:cc12:r2:v"), 6) { origin case_input; }
+    }
+    evaluate truth(terme_de_rachat_applicable_en_annees(entity_ref("urn:fr:cc12:r2:v"), 5));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-ne-suspend-pas-rescision" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "immovable": vente_immobiliere(entity_ref("urn:fr:cc12:r3:v")) { origin case_input; }
+        assert "value": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:r3:v"), 120000 EUR) { origin case_input; }
+        assert "price": prix_paye(entity_ref("urn:fr:cc12:r3:v"), 49000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:r3:v"), @2023-01-01) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:r3:v"), @2025-01-02) { origin case_input; }
+        assert "pact": pacte_de_rachat_en_cours(entity_ref("urn:fr:cc12:r3:v")) { origin case_input; }
+    }
+    evaluate truth(action_en_rescision_recevable(entity_ref("urn:fr:cc12:r3:v")));
+    expect truth_status == NEITHER;
+    evaluate truth(delai_de_rescision_non_suspendu(entity_ref("urn:fr:cc12:r3:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rescision-exclue-pour-acheteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "claim": demande_de_rescision_par_acheteur(entity_ref("urn:fr:cc12:r4:v")) { origin case_input; }
+    }
+    evaluate truth(rescision_acheteur_exclue(entity_ref("urn:fr:cc12:r4:v")));
+    expect truth_status == TRUE_ONLY;
+}

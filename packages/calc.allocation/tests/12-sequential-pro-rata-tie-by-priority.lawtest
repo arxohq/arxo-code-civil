@@ -1,0 +1,35 @@
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+// Одна очередь из трёх равных требований по 100.00 при сумме 100.00: каждому
+// причитается 33.33…, усечённые 33.33, единица остатка одна. Приоритеты 3,
+// 1, 2 — единицу берёт r2 и получает 33.34.
+test "внутри очереди равные остатки разводит приоритет" {
+    given {
+
+        assert "12-sequential-pro-rata-tie-by-priority-1": allocation_mode(entity_ref("urn:calc:allocation:test:alloc"), Sequential) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-2": allocation_total(entity_ref("urn:calc:allocation:test:alloc"), 100.00 KZT) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-3": allocation_precision(entity_ref("urn:calc:allocation:test:alloc"), 2) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-4": allocation_unit(entity_ref("urn:calc:allocation:test:alloc"), 0.01 KZT) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-5": allocation_remainder_policy(entity_ref("urn:calc:allocation:test:alloc"), LargestRemainder) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-6": recipient_of(entity_ref("urn:calc:allocation:test:r1"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-7": recipient_rank(entity_ref("urn:calc:allocation:test:r1"), 1) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-8": recipient_claim(entity_ref("urn:calc:allocation:test:r1"), 100.00 KZT) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-9": recipient_priority(entity_ref("urn:calc:allocation:test:r1"), 3) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-10": recipient_of(entity_ref("urn:calc:allocation:test:r2"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-11": recipient_rank(entity_ref("urn:calc:allocation:test:r2"), 1) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-12": recipient_claim(entity_ref("urn:calc:allocation:test:r2"), 100.00 KZT) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-13": recipient_priority(entity_ref("urn:calc:allocation:test:r2"), 1) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-14": recipient_of(entity_ref("urn:calc:allocation:test:r3"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-15": recipient_rank(entity_ref("urn:calc:allocation:test:r3"), 1) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-16": recipient_claim(entity_ref("urn:calc:allocation:test:r3"), 100.00 KZT) { origin case_input; }
+        assert "12-sequential-pro-rata-tie-by-priority-17": recipient_priority(entity_ref("urn:calc:allocation:test:r3"), 2) { origin case_input; }
+    }
+
+    evaluate truth(share_amount(entity_ref("urn:calc:allocation:test:alloc"), entity_ref("urn:calc:allocation:test:r2"), 33.34 KZT));
+
+    expect result_kind == PROPOSITION;
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

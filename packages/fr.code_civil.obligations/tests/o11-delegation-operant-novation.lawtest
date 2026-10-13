@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1337, al. 1 : le délégant étant débiteur du délégataire et la volonté de le
+// décharger résultant expressément de l'acte, la délégation OPÈRE NOVATION.
+test "urn:query:fr-code-civil-obligations-o11-delegation-operant-novation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": delegation_consentie(entity_ref("urn:fr:cc:obligations:del:g")) { origin case_input; }
+        assert "f2": delegant(entity_ref("urn:fr:cc:obligations:del:g"), entity_ref("urn:fr:cc:obligations:del:DG")) { origin case_input; }
+        assert "f3": delegue(entity_ref("urn:fr:cc:obligations:del:g"), entity_ref("urn:fr:cc:obligations:del:DU")) { origin case_input; }
+        assert "f4": delegataire(entity_ref("urn:fr:cc:obligations:del:g"), entity_ref("urn:fr:cc:obligations:del:DT")) { origin case_input; }
+        assert "f5": delegant_debiteur_du_delegataire(entity_ref("urn:fr:cc:obligations:del:g"), entity_ref("urn:fr:cc:obligations:del:c")) { origin case_input; }
+        assert "f6": volonte_expresse_de_decharger_le_delegant(entity_ref("urn:fr:cc:obligations:del:g")) { origin case_input; }
+    }
+    evaluate truth(delegation_operant_novation(entity_ref("urn:fr:cc:obligations:del:g"), entity_ref("urn:fr:cc:obligations:del:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DelegationOperantNovation);
+}

@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1351 : l'impossibilité d'exécuter libère le débiteur lorsqu'elle procède d'un cas
+// de force majeure et qu'elle est définitive — appréciation du juge, ici donnée — à
+// moins qu'il n'ait convenu de s'en charger ou qu'il ait été préalablement mis en
+// demeure. Ni l'une ni l'autre réserve n'est établie.
+test "urn:query:fr-code-civil-obligations-c11-impossibilite-definitive-libere-le-debiteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": force_majeure_definitive(entity_ref("urn:fr:cc:obligations:imp:c")) { origin adjudicated; }
+    }
+    evaluate truth(debiteur_libere_par_l_impossibilite(entity_ref("urn:fr:cc:obligations:imp:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(LiberationParLImpossibilite);
+}

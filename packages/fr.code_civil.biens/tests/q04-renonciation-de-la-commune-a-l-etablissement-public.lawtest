@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 713, al. 1. Le témoin jumeau de q03 : la commune ayant renoncé par
+// délibération, le bien est réputé appartenir à l'établissement public de
+// coopération intercommunale à fiscalité propre dont elle est membre, et
+// non plus à la commune.
+test "urn:query:fr-code-civil-biens-q04-renonciation-de-la-commune" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": bien_sans_maitre(entity_ref("urn:fr:cc:biens:q04:B")) { origin case_input; }
+        assert "f2": situe_sur_le_territoire_de_la_commune(entity_ref("urn:fr:cc:biens:q04:B"), entity_ref("urn:fr:cc:biens:q04:COMMUNE")) { origin case_input; }
+        assert "f3": renonciation_de_la_commune_par_deliberation(entity_ref("urn:fr:cc:biens:q04:B")) { origin case_input; }
+        assert "f4": etablissement_public_de_cooperation_intercommunale(entity_ref("urn:fr:cc:biens:q04:B"), entity_ref("urn:fr:cc:biens:q04:EPCI")) { origin case_input; }
+    }
+    evaluate truth(bien_sans_maitre_appartient_a(entity_ref("urn:fr:cc:biens:q04:B"), entity_ref("urn:fr:cc:biens:q04:COMMUNE")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1341-1 : le juge retient que la carence compromet les droits du créancier —
+// l'action oblique est ouverte et la demande de jugement disparaît.
+test "urn:query:fr-code-civil-obligations-o15-action-oblique-ouverte-par-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:obo:c"), entity_ref("urn:fr:cc:obligations:obo:CR")) { origin case_input; }
+        assert "f2": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:obo:c"), entity_ref("urn:fr:cc:obligations:obo:D")) { origin case_input; }
+        assert "f3": carence_compromettant_les_droits(entity_ref("urn:fr:cc:obligations:obo:c"), entity_ref("urn:fr:cc:obligations:obo:D")) { origin adjudicated; }
+    }
+    evaluate truth(action_oblique_ouverte(entity_ref("urn:fr:cc:obligations:obo:c"), entity_ref("urn:fr:cc:obligations:obo:CR"), entity_ref("urn:fr:cc:obligations:obo:D")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ActionObliqueOuverte);
+    expect judgment_requests(0);
+}

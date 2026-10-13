@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 813-1 : hors des motifs énumérés, le juge ne désigne pas.
+test "urn:query:fr-code-civil-successions-m77-aucun-motif-particulier" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": motif_de_designation(entity_ref("urn:fr:cc:successions:adm:m77:S"), AucunMotifParticulier) { origin case_input; }
+    }
+    evaluate truth(designation_judiciaire_possible(entity_ref("urn:fr:cc:successions:adm:m77:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

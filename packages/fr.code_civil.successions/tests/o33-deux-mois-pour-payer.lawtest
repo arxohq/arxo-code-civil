@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 797 : conservation déclarée le 16 mars 2026 — paiement des créanciers jusqu'au 16 mai 2026.
+test "urn:query:fr-code-civil-successions-o33-deux-mois-pour-payer" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": declaration_au_tribunal_le(entity_ref("urn:fr:cc:successions:opt:o33:S"), entity_ref("urn:fr:cc:successions:opt:o33:H"), @2026-03-16) { origin case_input; }
+    }
+    evaluate truth(fin_du_delai_de_paiement(entity_ref("urn:fr:cc:successions:opt:o33:S"), entity_ref("urn:fr:cc:successions:opt:o33:H"), @2026-05-16));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DeuxMoisPourPayer);
+}

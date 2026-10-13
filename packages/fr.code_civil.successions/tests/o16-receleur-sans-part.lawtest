@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 778 : le receleur ne prend aucune part dans les biens recelés.
+test "urn:query:fr-code-civil-successions-o16-receleur-sans-part" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": recel_ou_dissimulation_constate(entity_ref("urn:fr:cc:successions:opt:o16:S"), entity_ref("urn:fr:cc:successions:opt:o16:H")) { origin adjudicated; }
+    }
+    evaluate truth(sans_part_dans_les_biens_receles(entity_ref("urn:fr:cc:successions:opt:o16:S"), entity_ref("urn:fr:cc:successions:opt:o16:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ReceleurSansPart);
+}

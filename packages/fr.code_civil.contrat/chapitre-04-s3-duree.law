@@ -1,0 +1,264 @@
+// CHAPITRE IV, SECTION 3 — LA DURÉE DU CONTRAT (art. 1210 à 1215).
+//
+// La prohibition des engagements perpétuels (1210), la résiliation
+// unilatérale du contrat à durée indéterminée avec préavis (1211), le terme
+// du contrat à durée déterminée (1212), la prorogation (1213), le
+// renouvellement (1214) et la tacite reconduction (1215).
+//
+// LE PRÉAVIS DE L'ARTICLE 1211 EST DOUBLE : le délai contractuellement prévu,
+// que le cas donne comme une date, et « à défaut, un délai raisonnable », qui
+// est une appréciation du juge — canal §47.3. Le premier se compare, le second
+// se demande.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1210,
+    CC_ART1211,
+    CC_ART1212,
+    CC_ART1213,
+    CC_ART1214,
+    CC_ART1215,
+    Contrat,
+    Personne,
+    partie_au_contrat,
+    regi_par_le_droit_nouveau,
+};
+
+pub enum DureeDuContrat {
+    label fr official "Durée du contrat (articles 1210 à 1215)";
+    label en unofficial "Duration of the contract (Articles 1210 to 1215)";
+    DureeDeterminee,
+    DureeIndeterminee
+}
+
+// --- Entrées du cas -------------------------------------------------------------------------------
+
+pub relation duree_du_contrat(c: Contrat, d: DureeDuContrat) kind empirical {
+    key(c);
+    label fr official "durée pour laquelle le contrat est conclu (articles 1211 et 1212)";
+    label en unofficial "duration for which the contract is concluded (Articles 1211 and 1212)";
+}
+pub relation engagement_perpetuel(c: Contrat) kind empirical {
+    label fr official "le contrat comporte un engagement perpétuel (article 1210, alinéa 1)";
+    label en unofficial "the contract contains a perpetual undertaking (Article 1210, paragraph 1)";
+}
+pub relation terme_du_contrat(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "terme du contrat à durée déterminée (articles 1212 à 1215)";
+    label en unofficial "term of the fixed-term contract (Articles 1212 to 1215)";
+}
+pub relation preavis_contractuel_expirant_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "expiration du délai de préavis contractuellement prévu (article 1211)";
+    label en unofficial "expiry of the notice period provided by the contract (Article 1211)";
+}
+pub relation resiliation_notifiee_le(c: Contrat, p: Personne, jour: Date) kind empirical {
+    label fr official "jour où cette partie a mis fin au contrat à durée indéterminée (articles 1210 et 1211)";
+    label en unofficial "day this party brought the open-ended contract to an end (Articles 1210 and 1211)";
+}
+pub relation execution_poursuivie_jusqu_au_terme(c: Contrat, p: Personne) kind empirical {
+    label fr official "cette partie a exécuté le contrat jusqu'à son terme (article 1212, alinéa 1)";
+    label en unofficial "this party performed the contract until its term (Article 1212, paragraph 1)";
+}
+pub relation renouvellement_exige_par_une_partie(c: Contrat, p: Personne) kind empirical {
+    label fr official "une partie exige le renouvellement du contrat (article 1212, alinéa 2)";
+    label en unofficial "a party demands the contract's renewal (Article 1212, paragraph 2)";
+}
+pub relation volonte_de_proroger_manifestee_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où les contractants ont manifesté leur volonté de proroger le contrat (article 1213)";
+    label en unofficial "day the parties expressed their will to extend the contract (Article 1213)";
+}
+pub relation prorogation_porte_atteinte_aux_droits_des_tiers(c: Contrat) kind empirical {
+    label fr official "la prorogation porte atteinte aux droits des tiers (article 1213)";
+    label en unofficial "the extension prejudices third parties' rights (Article 1213)";
+}
+pub relation renouvellement_par_la_loi(c: Contrat) kind empirical {
+    label fr official "le contrat à durée déterminée est renouvelé par l'effet de la loi (article 1214, alinéa 1)";
+    label en unofficial "the fixed-term contract is renewed by operation of statute (Article 1214, paragraph 1)";
+}
+pub relation renouvellement_par_accord_des_parties(c: Contrat) kind empirical {
+    label fr official "le contrat à durée déterminée est renouvelé par l'accord des parties (article 1214, alinéa 1)";
+    label en unofficial "the fixed-term contract is renewed by the parties' agreement (Article 1214, paragraph 1)";
+}
+pub relation obligations_poursuivies_apres_le_terme(c: Contrat) kind empirical {
+    label fr official "à l'expiration du terme, les contractants continuent d'exécuter les obligations du contrat (article 1215)";
+    label en unofficial "after the term expires, the parties continue to perform the contract's obligations (Article 1215)";
+}
+
+// --- Canal §47.3 -----------------------------------------------------------------------------------
+
+@source(CC_ART1211)
+pub external judgment relation delai_de_preavis_raisonnable_expire_le_1211(c: Contrat, jour: Date) {
+    authority Court;
+    label fr official "à défaut de préavis contractuellement prévu, le délai raisonnable de préavis expirait ce jour (article 1211)";
+    label en unofficial "absent a contractual notice period, the reasonable notice period expired on this day (Article 1211)";
+}
+
+// --- Têtes produites --------------------------------------------------------------------------------
+
+pub relation preavis_contractuellement_prevu(c: Contrat) kind derived {
+    label fr official "le contrat prévoit un délai de préavis, quelle qu'en soit l'échéance (article 1211)";
+    label en unofficial "the contract provides a notice period, whatever its expiry (Article 1211)";
+}
+pub relation engagement_perpetuel_prohibe(c: Contrat) kind derived {
+    label fr official "les engagements perpétuels sont prohibés ; chaque contractant peut y mettre fin dans les conditions prévues pour le contrat à durée indéterminée (article 1210)";
+    label en unofficial "perpetual undertakings are prohibited; each party may end them under the rules for open-ended contracts (Article 1210)";
+}
+pub relation resiliation_reguliere(c: Contrat, p: Personne) kind derived {
+    label fr official "la partie a mis fin au contrat à durée indéterminée en respectant le préavis (article 1211)";
+    label en unofficial "the party ended the open-ended contract while observing the notice period (Article 1211)";
+}
+pub relation resiliation_sans_preavis_suffisant(c: Contrat, p: Personne) kind derived {
+    label fr official "la partie a mis fin au contrat sans respecter le délai de préavis (article 1211)";
+    label en unofficial "the party ended the contract without observing the notice period (Article 1211)";
+}
+pub relation renouvellement_non_exigible(c: Contrat, p: Personne) kind derived {
+    label fr official "nul ne peut exiger le renouvellement du contrat (article 1212, alinéa 2)";
+    label en unofficial "no one may demand the contract's renewal (Article 1212, paragraph 2)";
+}
+pub relation contrat_proroge(c: Contrat) kind derived {
+    label fr official "le contrat est prorogé : les contractants en ont manifesté la volonté avant son expiration (article 1213)";
+    label en unofficial "the contract is extended: the parties expressed their will to do so before its expiry (Article 1213)";
+}
+pub relation prorogation_inopposable_aux_tiers(c: Contrat) kind derived {
+    label fr official "la prorogation ne peut porter atteinte aux droits des tiers (article 1213)";
+    label en unofficial "the extension may not prejudice third parties' rights (Article 1213)";
+}
+pub relation contrat_renouvele(c: Contrat) kind derived {
+    label fr official "le contrat à durée déterminée est renouvelé (articles 1214 et 1215)";
+    label en unofficial "the fixed-term contract is renewed (Articles 1214 and 1215)";
+}
+pub relation nouveau_contrat_a_duree_indeterminee(c: Contrat) kind derived {
+    label fr official "le renouvellement donne naissance à un nouveau contrat dont le contenu est identique au précédent mais dont la durée est indéterminée (article 1214, alinéa 2)";
+    label en unofficial "renewal gives rise to a new contract with the same content but of indeterminate duration (Article 1214, paragraph 2)";
+}
+pub relation tacite_reconduction(c: Contrat) kind derived {
+    label fr official "il y a tacite reconduction, qui produit les mêmes effets que le renouvellement du contrat (article 1215)";
+    label en unofficial "there is tacit renewal, producing the same effects as the contract's renewal (Article 1215)";
+}
+
+// --- Articles 1210 à 1215 -----------------------------------------------------------------------------
+
+@source(CC_ART1210)
+rule EngagementsPerpetuelsProhibes(c: Contrat) strict {
+    label fr official "Article 1210. Les engagements perpétuels sont prohibés ; chaque contractant peut y mettre fin dans les conditions prévues pour le contrat à durée indéterminée";
+    label en unofficial "Article 1210. Perpetual undertakings are prohibited; each party may end them under the rules for open-ended contracts";
+    when regi_par_le_droit_nouveau(c) and engagement_perpetuel(c);
+    then engagement_perpetuel_prohibe(c);
+}
+
+@source(CC_ART1211) {
+    rule PreavisContractuellementPrevu(c: Contrat, echeance: Date) strict {
+        label fr official "Article 1211. Constat d'un délai de préavis contractuellement prévu : le délai raisonnable n'intervient qu'à défaut";
+        label en unofficial "Article 1211. Finding of a contractual notice period: the reasonable period applies only failing one";
+        when preavis_contractuel_expirant_le(c, echeance);
+        then preavis_contractuellement_prevu(c);
+    }
+    rule ResiliationAvecPreavisContractuel(c: Contrat, p: Personne, jour: Date, echeance: Date) strict {
+        label fr official "Article 1211. Lorsque le contrat est conclu pour une durée indéterminée, chaque partie peut y mettre fin à tout moment, sous réserve de respecter le délai de préavis contractuellement prévu";
+        label en unofficial "Article 1211. Where a contract is concluded for an indeterminate duration, each party may end it at any time, subject to observing the notice period provided by the contract";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeIndeterminee)
+            and preavis_contractuel_expirant_le(c, echeance)
+            and resiliation_notifiee_le(c, p, jour)
+            and jour >= echeance;
+        then resiliation_reguliere(c, p);
+    }
+    rule ResiliationAvecPreavisRaisonnable(c: Contrat, p: Personne, jour: Date, echeance: Date) strict {
+        label fr official "Article 1211. A défaut de préavis contractuellement prévu, la partie doit respecter un délai raisonnable, apprécié par le juge";
+        label en unofficial "Article 1211. Absent a contractual notice period, the party must observe a reasonable period, assessed by the court";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeIndeterminee)
+            and not_known(preavis_contractuellement_prevu(c))
+            and delai_de_preavis_raisonnable_expire_le_1211(c, echeance)
+            and resiliation_notifiee_le(c, p, jour)
+            and jour >= echeance;
+        then resiliation_reguliere(c, p);
+    }
+    rule ResiliationPrematuree(c: Contrat, p: Personne, jour: Date, echeance: Date) strict {
+        label fr official "Article 1211. La résiliation notifiée avant l'expiration du préavis contractuellement prévu ne respecte pas le délai";
+        label en unofficial "Article 1211. Termination notified before the contractual notice period expires does not observe the period";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeIndeterminee)
+            and preavis_contractuel_expirant_le(c, echeance)
+            and resiliation_notifiee_le(c, p, jour)
+            and jour < echeance;
+        then resiliation_sans_preavis_suffisant(c, p);
+    }
+}
+
+@source(CC_ART1212) {
+    rule ObligationDExecuterJusquAuTerme(c: Contrat, p: Personne, terme: Date) strict {
+        label fr official "Article 1212, alinéa 1. Lorsque le contrat est conclu pour une durée déterminée, chaque partie doit l'exécuter jusqu'à son terme";
+        label en unofficial "Article 1212, paragraph 1. Where a contract is concluded for a fixed term, each party must perform it until that term";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeDeterminee)
+            and terme_du_contrat(c, terme) and partie_au_contrat(c, p);
+        then duty ExecuterJusquAuTerme {
+            bearer p;
+            maintain execution_poursuivie_jusqu_au_terme(c, p) during [@2016-10-01, infinity);
+        };
+    }
+    rule RenouvellementNonExigible(c: Contrat, p: Personne) strict {
+        label fr official "Article 1212, alinéa 2. Nul ne peut exiger le renouvellement du contrat";
+        label en unofficial "Article 1212, paragraph 2. No one may demand the contract's renewal";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeDeterminee)
+            and renouvellement_exige_par_une_partie(c, p);
+        then renouvellement_non_exigible(c, p);
+    }
+}
+
+@source(CC_ART1213) {
+    rule ProrogationAvantExpiration(c: Contrat, jour: Date, terme: Date) strict {
+        label fr official "Article 1213. Le contrat peut être prorogé si les contractants en manifestent la volonté avant son expiration";
+        label en unofficial "Article 1213. The contract may be extended if the parties express their will to do so before its expiry";
+        when regi_par_le_droit_nouveau(c) and terme_du_contrat(c, terme)
+            and volonte_de_proroger_manifestee_le(c, jour) and jour < terme;
+        then contrat_proroge(c);
+    }
+    rule ProrogationSansAtteinteAuxDroitsDesTiers(c: Contrat) strict {
+        label fr official "Article 1213. La prorogation ne peut porter atteinte aux droits des tiers";
+        label en unofficial "Article 1213. The extension may not prejudice third parties' rights";
+        when contrat_proroge(c) and prorogation_porte_atteinte_aux_droits_des_tiers(c);
+        then prorogation_inopposable_aux_tiers(c);
+    }
+}
+
+@source(CC_ART1214) {
+    rule RenouvellementParLaLoi(c: Contrat) strict {
+        label fr official "Article 1214, alinéa 1. Le contrat à durée déterminée peut être renouvelé par l'effet de la loi";
+        label en unofficial "Article 1214, paragraph 1. A fixed-term contract may be renewed by operation of statute";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeDeterminee)
+            and renouvellement_par_la_loi(c);
+        then contrat_renouvele(c);
+    }
+    rule RenouvellementParAccord(c: Contrat) strict {
+        label fr official "Article 1214, alinéa 1. Le contrat à durée déterminée peut être renouvelé par l'accord des parties";
+        label en unofficial "Article 1214, paragraph 1. A fixed-term contract may be renewed by the parties' agreement";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeDeterminee)
+            and renouvellement_par_accord_des_parties(c);
+        then contrat_renouvele(c);
+    }
+    rule RenouvellementDonneUnContratADureeIndeterminee(c: Contrat) strict {
+        label fr official "Article 1214, alinéa 2. Le renouvellement donne naissance à un nouveau contrat dont le contenu est identique au précédent mais dont la durée est indéterminée";
+        label en unofficial "Article 1214, paragraph 2. Renewal gives rise to a new contract with the same content but of indeterminate duration";
+        when contrat_renouvele(c);
+        then nouveau_contrat_a_duree_indeterminee(c);
+    }
+}
+
+@source(CC_ART1215) {
+    rule TaciteReconduction(c: Contrat, terme: Date) strict {
+        label fr official "Article 1215. Lorsqu'à l'expiration du terme d'un contrat conclu à durée déterminée, les contractants continuent d'en exécuter les obligations, il y a tacite reconduction";
+        label en unofficial "Article 1215. Where, after the term of a fixed-term contract expires, the parties continue to perform its obligations, there is tacit renewal";
+        when regi_par_le_droit_nouveau(c) and duree_du_contrat(c, DureeDeterminee)
+            and terme_du_contrat(c, terme) and obligations_poursuivies_apres_le_terme(c);
+        then tacite_reconduction(c);
+    }
+    rule TaciteReconductionVautRenouvellement(c: Contrat) strict {
+        label fr official "Article 1215. La tacite reconduction produit les mêmes effets que le renouvellement du contrat";
+        label en unofficial "Article 1215. Tacit renewal produces the same effects as the contract's renewal";
+        when tacite_reconduction(c);
+        then contrat_renouvele(c);
+    }
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1301-3 : la ratification par le maître vaut mandat.
+test "urn:query:fr-code-civil-responsabilite-r38-ratification-vaut-mandat" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": ratification_par_le_maitre(entity_ref("urn:fr:cc:resp:x2:g")) { origin case_input; }
+    }
+    evaluate truth(vaut_mandat(entity_ref("urn:fr:cc:resp:x2:g")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RatificationVautMandat);
+}

@@ -1,0 +1,255 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1965,
+    CC_ART1966,
+    CC_ART1967,
+    CC_ART1968,
+    CC_ART1969,
+    CC_ART1970,
+    CC_ART1971,
+    CC_ART1972,
+    CC_ART1973,
+    CC_ART1974,
+    CC_ART1975,
+    CC_ART1976,
+    CC_ART1977,
+    CC_ART1978,
+    CC_ART1979,
+    CC_ART1980,
+    CC_ART1981,
+    CC_ART1983,
+    ContratAleatoire,
+    Personne,
+    RenteViagere,
+    action_en_paiement_jeu_irrecevable,
+    action_jeu_exceptionnellement_admise,
+    arrerages_rente_impayes,
+    aucune_volonte_contraire_epoux,
+    benefice_rente_exerce,
+    beneficiaire_incapable_de_recevoir,
+    beneficiaire_rente,
+    beneficiaire_tiers_distinct_payeur,
+    capital_rente_non_repetible,
+    clause_insaisissabilite_rente,
+    constitution_gratuite_rente_valide,
+    constitution_onereuse_rente_admise,
+    contrat_rente_le,
+    deces_rentier_le,
+    demande_arrerages_admissible,
+    demande_jeu_rejetable,
+    dette_de_jeu,
+    existence_beneficiaire_ou_tete_justifiee,
+    forme_donation_ou_testament_respectee,
+    fraude_du_gagnant,
+    insaisissabilite_rente_valide,
+    jeu_adresse_ou_exercice_corps,
+    liberation_constituant_exclue,
+    maladie_existante_au_contrat,
+    montant_rente_par_jour,
+    nombre_jours_vecus_periode,
+    offre_remboursement_capital_par_constituant,
+    paiement_jeu_non_restituable,
+    paiement_rente_avance,
+    paiement_volontaire_jeu,
+    pluralite_tetes_admise,
+    prix_rente_argent_ou_bien_appreciable,
+    rente_acquise_prorata_jours,
+    rente_constituee_a_titre_gratuit,
+    rente_constituee_a_titre_onereux,
+    rente_excede_quotite_disponible,
+    rente_nulle,
+    rente_nulle_incapacite_beneficiaire,
+    rente_reductible,
+    rente_sur_plusieurs_tetes,
+    rente_sur_tete_fournisseur_prix,
+    rente_sur_tete_tiers,
+    rentier,
+    rentier_decede_avant_contrat,
+    resiliation_rente_demandable,
+    restitution_paiement_jeu,
+    reversion_conjoint_survivant,
+    reversion_presumee_gratuite,
+    saisie_arrerages_exercee,
+    saisie_arrerages_possible,
+    service_rente_du_pendant_vie,
+    somme_jeu_excessive,
+    stipulation_pour_tiers_admise,
+    suretes_rente_stipulees_non_fournies,
+    taux_rente_librement_stipule,
+    terme_avance_integralement_acquis,
+    tete_rente_admissible,
+};
+
+@source(CC_ART1965)
+rule DetteJeuSansAction(c: ContratAleatoire) strict {
+    label fr official "Article 1965. La dette de jeu ou de pari ne donne aucune action";
+    label en unofficial "Article 1965. A gaming or betting debt gives rise to no action";
+    when dette_de_jeu(c); then action_en_paiement_jeu_irrecevable(c);
+}
+
+@source(CC_ART1967) {
+    rule PaiementJeuVolontaireNonRestitue(c: ContratAleatoire) strict {
+        label fr official "Article 1967. Le paiement volontaire d'une dette de jeu ne se répète pas";
+        label en unofficial "Article 1967. Voluntary payment of a gaming debt is not recoverable";
+        when paiement_volontaire_jeu(c); then paiement_jeu_non_restituable(c);
+    }
+    rule PaiementJeuFrauduleuxRestitue(c: ContratAleatoire) strict {
+        label fr official "Article 1967. Le dol, la supercherie ou l'escroquerie du gagnant permet la répétition";
+        label en unofficial "Article 1967. Fraud, trickery or swindling by the winner permits recovery";
+        when paiement_volontaire_jeu(c) and fraude_du_gagnant(c); then restitution_paiement_jeu(c);
+    }
+}
+
+@source(CC_ART1974)
+rule RenteNulleSiRentierDejaMort(r: RenteViagere) strict {
+    label fr official "Article 1974. La rente constituée sur la tête d'une personne déjà morte est nulle";
+    label en unofficial "Article 1974. An annuity based on a person already dead is void";
+    when rentier_decede_avant_contrat(r); then rente_nulle(r);
+}
+
+@source(CC_ART1975)
+rule RenteNulleDecesMaladieDansVingtJours(r: RenteViagere, contrat: Date, deces: Date) strict {
+    label fr official "Article 1975. La rente est nulle si le rentier meurt dans les vingt jours d'une maladie existante";
+    label en unofficial "Article 1975. The annuity is void where the annuitant dies within twenty days from a pre-existing illness";
+    when maladie_existante_au_contrat(r) and contrat_rente_le(r, contrat) and deces_rentier_le(r, deces)
+        and deces <= add_calendar_period(contrat, 20 calendar_day);
+    then rente_nulle(r);
+}
+
+@source(CC_ART1976)
+rule TauxRenteLibre(r: RenteViagere) strict { label fr official "Article 1976. La rente viagère peut être constituée au taux qu'il plaît aux parties"; label en unofficial "Article 1976. Parties may freely set the life-annuity rate"; when contrat_rente_le(r, _); then taux_rente_librement_stipule(r); }
+
+@source(CC_ART1978) {
+    rule CapitalRenteNonRepetiblePourImpayes(r: RenteViagere) strict {
+        label fr official "Article 1978. Le défaut de paiement des arrérages ne permet pas de réclamer le capital";
+        label en unofficial "Article 1978. Non-payment of instalments does not permit recovery of the capital";
+        when arrerages_rente_impayes(r); then capital_rente_non_repetible(r);
+    }
+rule SaisieArreragesPossible(r: RenteViagere) strict {
+        label fr official "Article 1978. Le créancier peut saisir et faire employer une somme suffisante au service des arrérages";
+        label en unofficial "Article 1978. The creditor may seize and invest an amount sufficient to service instalments";
+        when arrerages_rente_impayes(r); then saisie_arrerages_possible(r);
+    }
+}
+
+@source(CC_ART1978)
+rule P3PouvoirSaisirArrerages(r: RenteViagere, p: Personne) strict {
+    label fr official "Article 1978. Le créancier peut saisir et faire employer une somme suffisante au service des arrérages";
+    label en unofficial "Article 1978. The creditor may seize enough to service instalments";
+    when arrerages_rente_impayes(r) and rentier(r, p);
+    then power P3PositionPouvoirSaisirArrerages {
+        holder p;
+        over r;
+        exercise saisie_arrerages_exercee(r, p);
+        effect saisie_arrerages_possible(r);
+        valid_when arrerages_rente_impayes(r);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1966)
+rule JeuAdresseExceptionDetteSansAction(c: ContratAleatoire) strict {
+    label fr official "Article 1966. Les jeux d'adresse et d'exercice du corps échappent à l'absence d'action";
+    label en unofficial "Article 1966. Games of skill and physical exercise are excepted from the no-action rule";
+    when jeu_adresse_ou_exercice_corps(c);
+    then action_jeu_exceptionnellement_admise(c);
+}
+
+@source(CC_ART1966)
+rule SommeJeuExcessiveRejetable(c: ContratAleatoire) strict {
+    label fr official "Article 1966. Le tribunal peut rejeter une demande portant sur une somme excessive";
+    label en unofficial "Article 1966. The court may reject a claim for an excessive gaming amount";
+    when jeu_adresse_ou_exercice_corps(c) and somme_jeu_excessive(c);
+    then demande_jeu_rejetable(c);
+}
+
+@source(CC_ART1968)
+rule RenteOnereuseArgentOuBien(r: RenteViagere) strict {
+    label fr official "Article 1968. La rente viagère onéreuse peut être constituée contre argent ou bien appréciable";
+    label en unofficial "Article 1968. An onerous life annuity may be constituted for money or valuable property";
+    when rente_constituee_a_titre_onereux(r) and prix_rente_argent_ou_bien_appreciable(r);
+    then constitution_onereuse_rente_admise(r);
+}
+
+@source(CC_ART1969)
+rule RenteGratuiteRespecteFormeLiberalite(r: RenteViagere) strict {
+    label fr official "Article 1969. La rente gratuite respecte les formes de la donation ou du testament";
+    label en unofficial "Article 1969. A gratuitous annuity observes donation or testamentary form";
+    when rente_constituee_a_titre_gratuit(r) and forme_donation_ou_testament_respectee(r);
+    then constitution_gratuite_rente_valide(r);
+}
+
+@source(CC_ART1970)
+rule RenteExcessiveReductible(r: RenteViagere) strict {
+    label fr official "Article 1970. La rente gratuite excédant la quotité disponible est réductible";
+    label en unofficial "Article 1970. A gratuitous annuity exceeding the disposable share is reducible";
+    when rente_constituee_a_titre_gratuit(r) and rente_excede_quotite_disponible(r);
+    then rente_reductible(r);
+}
+
+@source(CC_ART1970)
+rule RenteNulleBeneficiaireIncapable(r: RenteViagere) strict {
+    label fr official "Article 1970. La rente au profit d'une personne incapable de recevoir est nulle";
+    label en unofficial "Article 1970. An annuity for a person incapable of receiving is void";
+    when beneficiaire_incapable_de_recevoir(r);
+    then rente_nulle_incapacite_beneficiaire(r);
+}
+
+@source(CC_ART1971)
+rule RenteSurTeteFournisseurPrix(r: RenteViagere) strict { label fr official "Article 1971. La rente peut être constituée sur la tête du fournisseur du prix"; label en unofficial "Article 1971. An annuity may be based on the life of the price provider"; when rente_sur_tete_fournisseur_prix(r); then tete_rente_admissible(r); }
+
+@source(CC_ART1971)
+rule RenteSurTeteTiers(r: RenteViagere) strict { label fr official "Article 1971. La rente peut être constituée sur la tête d'un tiers"; label en unofficial "Article 1971. An annuity may be based on a third party's life"; when rente_sur_tete_tiers(r); then tete_rente_admissible(r); }
+
+@source(CC_ART1972)
+rule RenteSurPlusieursTetesAdmise(r: RenteViagere) strict { label fr official "Article 1972. La rente peut être constituée sur plusieurs têtes"; label en unofficial "Article 1972. An annuity may be based on several lives"; when rente_sur_plusieurs_tetes(r); then pluralite_tetes_admise(r); }
+
+@source(CC_ART1973)
+rule RenteAuProfitTiersAdmise(r: RenteViagere) strict { label fr official "Article 1973. La rente peut profiter à un tiers distinct du fournisseur du prix"; label en unofficial "Article 1973. An annuity may benefit a third party distinct from the price provider"; when beneficiaire_tiers_distinct_payeur(r); then stipulation_pour_tiers_admise(r); }
+
+@source(CC_ART1973)
+rule P3PouvoirBeneficierRenteTiers(r: RenteViagere, p: Personne) strict {
+    label fr official "Article 1973. La rente peut profiter à un tiers distinct du fournisseur du prix";
+    label en unofficial "Article 1973. An annuity may benefit a third party distinct from the price provider";
+    when beneficiaire_tiers_distinct_payeur(r) and beneficiaire_rente(r, p);
+    then power P3PositionPouvoirBeneficierRenteTiers {
+        holder p;
+        over r;
+        exercise benefice_rente_exerce(r, p);
+        effect stipulation_pour_tiers_admise(r);
+        valid_when beneficiaire_tiers_distinct_payeur(r);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1973)
+rule ReversionConjointPresumeeGratuite(r: RenteViagere) strict { label fr official "Article 1973. Sauf volonté contraire, la réversion au conjoint survivant est présumée gratuite"; label en unofficial "Article 1973. Absent contrary intent, reversion to the surviving spouse is presumed gratuitous"; when reversion_conjoint_survivant(r) and aucune_volonte_contraire_epoux(r); then reversion_presumee_gratuite(r); }
+
+@source(CC_ART1977)
+rule ResiliationRentePourSuretesNonFournies(r: RenteViagere) strict { label fr official "Article 1977. Le défaut de sûretés stipulées permet de demander la résiliation"; label en unofficial "Article 1977. Failure to provide stipulated security permits rescission"; when suretes_rente_stipulees_non_fournies(r); then resiliation_rente_demandable(r); }
+
+@source(CC_ART1979)
+rule RemboursementCapitalNeLiberePasConstituant(r: RenteViagere) strict { label fr official "Article 1979. L'offre de rembourser le capital ne libère pas le constituant"; label en unofficial "Article 1979. An offer to reimburse capital does not release the grantor"; when offre_remboursement_capital_par_constituant(r); then liberation_constituant_exclue(r); }
+
+@source(CC_ART1979)
+rule ServiceRentePendantTouteVie(r: RenteViagere) strict { label fr official "Article 1979. La rente est servie pendant toute la vie de la tête désignée"; label en unofficial "Article 1979. The annuity is serviced throughout the designated life"; when contrat_rente_le(r, _); then service_rente_du_pendant_vie(r); }
+
+@source(CC_ART1980)
+rule RenteAcquiseProrataJours(r: RenteViagere, jours: Integer, montant: Money) strict {
+    label fr official "Article 1980. La rente s'acquiert proportionnellement au nombre de jours vécus";
+    label en unofficial "Article 1980. The annuity accrues in proportion to days lived";
+    when nombre_jours_vecus_periode(r, jours) and montant_rente_par_jour(r, montant);
+    then rente_acquise_prorata_jours(r, montant * jours);
+}
+
+@source(CC_ART1980)
+rule TermePayeAvanceAcquisIntegralement(r: RenteViagere) strict { label fr official "Article 1980. Le terme payable d'avance est acquis au jour où il devait être payé"; label en unofficial "Article 1980. An instalment payable in advance is fully acquired when due"; when paiement_rente_avance(r); then terme_avance_integralement_acquis(r); }
+
+@source(CC_ART1981)
+rule InsaisissabiliteSeulementRenteGratuite(r: RenteViagere) strict { label fr official "Article 1981. L'insaisissabilité n'est valable que pour une rente gratuite"; label en unofficial "Article 1981. Non-seizability is valid only for a gratuitous annuity"; when clause_insaisissabilite_rente(r) and rente_constituee_a_titre_gratuit(r); then insaisissabilite_rente_valide(r); }
+
+@source(CC_ART1983)
+rule ArreragesDemandablesSurJustificationExistence(r: RenteViagere) strict { label fr official "Article 1983. Les arrérages sont demandables sur justification de l'existence du bénéficiaire ou de la tête"; label en unofficial "Article 1983. Instalments may be claimed upon proof that the beneficiary or measuring life exists"; when existence_beneficiaire_ou_tete_justifiee(r); then demande_arrerages_admissible(r); }

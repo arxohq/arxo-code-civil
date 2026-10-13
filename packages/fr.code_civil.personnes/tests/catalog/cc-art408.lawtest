@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DEVOIRDEPRENDRESOINDUMINEUR" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": tuteur_de(entity_ref("urn:law:catalog:devoirdeprendresoindumineur:v1"), entity_ref("urn:law:catalog:devoirdeprendresoindumineur:v0")) { origin case_input; }
+        assert "cat-1": mineur_non_emancipe(entity_ref("urn:law:catalog:devoirdeprendresoindumineur:v0")) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(PrendreSoinEtRepresenterLeMineur, ACTIVE);
+}

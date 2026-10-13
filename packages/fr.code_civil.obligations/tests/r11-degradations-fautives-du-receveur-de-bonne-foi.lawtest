@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1352-1, frontière de la même phrase : la bonne foi ne suffit pas — le receveur
+// répond des dégradations DUES À SA FAUTE.
+test "urn:query:fr-code-civil-obligations-r11-degradations-fautives-du-receveur-de-bonne-foi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": restitution_due(entity_ref("urn:fr:cc:obligations:rdf:r"), entity_ref("urn:fr:cc:obligations:rdf:D"), entity_ref("urn:fr:cc:obligations:rdf:CR")) { origin case_input; }
+        assert "f2": degradation_ayant_diminue_la_valeur(entity_ref("urn:fr:cc:obligations:rdf:r")) { origin case_input; }
+        assert "f3": degradation_due_a_la_faute(entity_ref("urn:fr:cc:obligations:rdf:r")) { origin case_input; }
+        assert "f4": recu_de_bonne_foi(entity_ref("urn:fr:cc:obligations:rdf:r")) { origin adjudicated; }
+    }
+    evaluate truth(responsabilite_des_degradations(entity_ref("urn:fr:cc:obligations:rdf:r")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ResponsabiliteDesDegradationsFautives);
+}

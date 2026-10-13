@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1353, al. 1 : celui qui réclame l'exécution d'une obligation DOIT LA PROUVER.
+test "urn:query:fr-code-civil-obligations-e01-charge-de-la-preuve-sur-le-demandeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": reclame_l_execution(entity_ref("urn:fr:cc:obligations:prv:a"), entity_ref("urn:fr:cc:obligations:prv:CR"), entity_ref("urn:fr:cc:obligations:prv:c")) { origin case_input; }
+    }
+    evaluate truth(charge_de_la_preuve(entity_ref("urn:fr:cc:obligations:prv:a"), entity_ref("urn:fr:cc:obligations:prv:CR"), entity_ref("urn:fr:cc:obligations:prv:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ChargeDeLaPreuveSurLeDemandeur);
+}

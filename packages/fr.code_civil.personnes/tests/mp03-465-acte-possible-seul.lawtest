@@ -1,0 +1,11 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 465(1): an act the person could make alone is subject to rescission or reduction.
+test "urn:query:fr-code-civil-personnes-mp03-465-acte-possible-seul" {
+    given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; } assert "f1": categorie_acte_465(entity_ref("urn:fr:cc:personnes:mp03:a"), ActePossibleSeul) { origin adjudicated; } }
+    evaluate truth(sanction_rescision_ou_reduction(entity_ref("urn:fr:cc:personnes:mp03:a")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ActePossibleSeulRescisionOuReduction);
+}

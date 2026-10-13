@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-SURETESSUBSISTANTESAVECACCORDDUGARANT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cession_de_dette(entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v0"), entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v1")) { origin case_input; }
+        assert "cat-1": accord_du_garant_au_maintien(entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v1"), entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v2")) { origin case_input; }
+        assert "cat-2": surete_consentie_par_un_tiers(entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v1"), entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v2")) { origin case_input; }
+        assert "cat-3": decharge_expresse_du_debiteur_originaire(entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v0")) { origin case_input; }
+    }
+    evaluate truth(suretes_subsistantes_avec_accord_du_garant(entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v1"), entity_ref("urn:kz:catalog:suretessubsistantesavecaccorddugarant:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETESSUBSISTANTESSANSDECHARGE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": surete_consentie_par_un_tiers(entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v1"), entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v3")) { origin case_input; }
+        assert "cat-1": cession_de_dette(entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v0"), entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v1")) { origin case_input; }
+        assert "cat-2": cedant(entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v0"), entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v2")) { origin case_input; }
+    }
+    evaluate truth(suretes_subsistantes(entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v1"), entity_ref("urn:kz:catalog:suretessubsistantessansdecharge:v3")));
+    expect truth_status == TRUE_ONLY;
+}

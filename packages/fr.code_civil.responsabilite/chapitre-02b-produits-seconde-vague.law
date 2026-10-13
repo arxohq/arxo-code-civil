@@ -1,0 +1,612 @@
+// CHAPITRE II — PRODUITS DÉFECTUEUX, SECONDE VAGUE (articles 1245-2 à 1245-16).
+//
+// La première vague posait la responsabilité de plein droit et ses causes
+// d'exonération en prenant du cas la qualité de producteur, la mise en
+// circulation et les délais. Cette vague exécute ce que le texte en dit :
+//
+//   — ce qu'est un produit (1245-2) et quand il est mis en circulation (1245-4) ;
+//   — qui est producteur ou assimilé, et qui ne l'est pas (1245-5) ;
+//   — le fournisseur à défaut de producteur identifié, et ses deux délais :
+//     trois mois pour désigner, un an pour son recours (1245-6) ;
+//   — la solidarité de l'incorporation (1245-7) ;
+//   — la réduction pour faute de la victime, appréciée par le juge (1245-12),
+//     et l'absence de réduction pour le fait d'un tiers (1245-13) ;
+//   — le sort des clauses limitatives (1245-14) ;
+//   — l'extinction dix ans après la mise en circulation (1245-15) et la
+//     prescription de trois ans (1245-16).
+//
+// Les délais se comptent d'une date à une date sous la politique publique
+// `CC_RESPONSABILITE_CALENDRIER`. « Dix ans après » laisse le dixième
+// anniversaire dans le délai : l'action engagée ce jour-là n'est pas éteinte.
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1245_12,
+    CC_ART1245_13,
+    CC_ART1245_14,
+    CC_ART1245_15,
+    CC_ART1245_16,
+    CC_ART1245_2,
+    CC_ART1245_4,
+    CC_ART1245_5,
+    CC_ART1245_6,
+    CC_ART1245_7,
+    Dommage,
+    Fait,
+    Personne,
+    Produit,
+    a_cause,
+    faute_commise,
+    producteur,
+    producteur_responsable,
+    produit_en_cause,
+};
+
+// --- Nomenclatures ---------------------------------------------------------------------------
+
+pub enum NatureDuProduit {
+    label fr official "Nature de la chose dont on demande si elle est un produit (article 1245-2)";
+    label en unofficial "Nature of the thing asked to be a product (Article 1245-2)";
+    BienMeuble,
+    MeubleIncorporeDansUnImmeuble,
+    ProduitDuSolDeLElevageDeLaChasseOuDeLaPeche,
+    Electricite,
+    Immeuble,
+    Prestation
+}
+
+pub enum QualiteDeProducteur {
+    label fr official "Qualité professionnelle invoquée pour tenir une personne pour producteur (article 1245-5)";
+    label en unofficial "Professional capacity relied on to treat a person as producer (Article 1245-5)";
+    FabricantDUnProduitFini,
+    ProducteurDUneMatierePremiere,
+    FabricantDUnePartieComposante,
+    SePresenteCommeProducteur,
+    ImportateurDansLUnion
+}
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation nature_de_la_chose(p: Produit, nature: NatureDuProduit) kind empirical {
+    key(p);
+    label fr official "nature de la chose en cause (article 1245-2)";
+    label en unofficial "nature of the thing at issue (Article 1245-2)";
+}
+pub relation dessaisissement_volontaire_le(p: Produit, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le producteur s'est volontairement dessaisi du produit (article 1245-4)";
+    label en unofficial "day the producer voluntarily parted with the product (Article 1245-4)";
+}
+pub relation qualite_invoquee(p: Produit, personne: Personne, qualite: QualiteDeProducteur) kind empirical {
+    label fr official "qualité au titre de laquelle cette personne est recherchée comme producteur (article 1245-5)";
+    label en unofficial "capacity in which this person is sued as producer (Article 1245-5)";
+}
+pub relation agit_a_titre_professionnel(personne: Personne) kind empirical {
+    label fr official "la personne agit à titre professionnel (article 1245-5)";
+    label en unofficial "the person acts in a professional capacity (Article 1245-5)";
+}
+pub relation responsabilite_des_constructeurs_ouverte(p: Produit, personne: Personne) kind empirical {
+    label fr official "la responsabilité de cette personne peut être recherchée sur le fondement des articles 1792 à 1792-6 et 1646-1 (article 1245-5, dernier alinéa)";
+    label en unofficial "this person's liability may be sought under Articles 1792 to 1792-6 and 1646-1 (Article 1245-5, last paragraph)";
+}
+pub relation producteur_non_identifie(p: Produit) kind empirical {
+    label fr official "le producteur du produit ne peut être identifié (article 1245-6)";
+    label en unofficial "the product's producer cannot be identified (Article 1245-6)";
+}
+pub relation fournisseur_professionnel(p: Produit, personne: Personne) kind empirical {
+    label fr official "vendeur, loueur ou autre fournisseur professionnel du produit, hors crédit-bailleur ou loueur assimilable (article 1245-6)";
+    label en unofficial "seller, lessor or other professional supplier of the product, excluding a finance lessor or equivalent (Article 1245-6)";
+}
+pub relation demande_de_la_victime_notifiee_le(p: Produit, fournisseur: Personne, jour: Date) kind empirical {
+    key(p, fournisseur);
+    label fr official "jour où la demande de la victime a été notifiée au fournisseur (article 1245-6)";
+    label en unofficial "day the victim's claim was served on the supplier (Article 1245-6)";
+}
+pub relation designation_faite_le(p: Produit, fournisseur: Personne, jour: Date) kind empirical {
+    key(p, fournisseur);
+    label fr official "jour où le fournisseur a désigné son propre fournisseur ou le producteur (article 1245-6)";
+    label en unofficial "day the supplier named his own supplier or the producer (Article 1245-6)";
+}
+pub relation citation_du_fournisseur_le(p: Produit, fournisseur: Personne, jour: Date) kind empirical {
+    key(p, fournisseur);
+    label fr official "jour de la citation en justice du fournisseur (article 1245-6, alinéa 2)";
+    label en unofficial "day the supplier was summoned (Article 1245-6, paragraph 2)";
+}
+pub relation recours_du_fournisseur_engage_le(p: Produit, fournisseur: Personne, jour: Date) kind empirical {
+    key(p, fournisseur);
+    label fr official "jour où le fournisseur a engagé son recours contre le producteur (article 1245-6, alinéa 2)";
+    label en unofficial "day the supplier brought his recourse against the producer (Article 1245-6, paragraph 2)";
+}
+pub relation incorpore_dans(composant: Produit, produit_fini: Produit) kind empirical {
+    label fr official "le produit composant est incorporé dans le produit fini (article 1245-7)";
+    label en unofficial "the component is incorporated in the finished product (Article 1245-7)";
+}
+pub relation defaut_du_composant(f: Fait, composant: Produit) kind empirical {
+    label fr official "le dommage a été causé par le défaut du produit incorporé (article 1245-7)";
+    label en unofficial "the damage was caused by the defect of the incorporated product (Article 1245-7)";
+}
+pub relation fait_d_un_tiers_ayant_concouru(f: Fait) kind empirical {
+    label fr official "le fait d'un tiers a concouru à la réalisation du dommage (article 1245-13)";
+    label en unofficial "a third party's act contributed to the damage (Article 1245-13)";
+}
+pub relation clause_limitative(cl: Clause, p: Produit) kind empirical {
+    label fr official "clause qui vise à écarter ou à limiter la responsabilité du fait de ce produit (article 1245-14)";
+    label en unofficial "clause aimed at excluding or limiting liability for this product (Article 1245-14)";
+}
+pub relation clause_stipulee_entre_professionnels(cl: Clause) kind empirical {
+    label fr official "la clause est stipulée entre professionnels (article 1245-14, alinéa 2)";
+    label en unofficial "the clause is agreed between professionals (Article 1245-14, paragraph 2)";
+}
+pub relation dommage_a_un_bien_hors_usage_prive(cl: Clause) kind empirical {
+    label fr official "la clause porte sur des dommages causés aux biens qui ne sont pas utilisés par la victime principalement pour son usage ou sa consommation privée (article 1245-14, alinéa 2)";
+    label en unofficial "the clause concerns damage to property not mainly used by the victim for private use or consumption (Article 1245-14, paragraph 2)";
+}
+pub relation action_en_justice_engagee_le(d: Dommage, jour: Date) kind empirical {
+    key(d);
+    label fr official "jour où la victime a engagé l'action en justice (articles 1245-15, 1245-16)";
+    label en unofficial "day the victim brought proceedings (Articles 1245-15, 1245-16)";
+}
+pub relation connaissance_acquise_le(d: Dommage, jour: Date) kind empirical {
+    key(d);
+    label fr official "jour où le demandeur a eu ou aurait dû avoir connaissance du dommage, du défaut et de l'identité du producteur (article 1245-16)";
+    label en unofficial "day the claimant knew or should have known of the damage, the defect and the producer's identity (Article 1245-16)";
+}
+
+// --- Appréciation déléguée ----------------------------------------------------------------------
+
+@source(CC_ART1245_12)
+pub external judgment relation faute_de_la_victime_ayant_concouru(f: Fait) {
+    authority Court;
+    label fr official "le dommage est causé conjointement par un défaut du produit et par la faute de la victime ou d'une personne dont elle est responsable, « compte tenu de toutes les circonstances » (article 1245-12)";
+    label en unofficial "the damage is caused jointly by a product defect and by the fault of the victim or a person for whom the victim is responsible, \"having regard to all the circumstances\" (Article 1245-12)";
+}
+
+// --- Résultats -----------------------------------------------------------------------------------
+
+pub entity Clause {
+    label fr official "Clause d'un contrat relative à la responsabilité du fait des produits (article 1245-14)";
+    label en unofficial "Contract clause on liability for products (Article 1245-14)";
+}
+pub relation est_un_produit(p: Produit) kind derived {
+    label fr official "la chose est un produit au sens du chapitre (article 1245-2)";
+    label en unofficial "the thing is a product within the chapter (Article 1245-2)";
+}
+pub relation mis_en_circulation_le(p: Produit, jour: Date) kind derived {
+    key(p);
+    label fr official "jour de l'unique mise en circulation du produit (article 1245-4)";
+    label en unofficial "day of the product's single putting into circulation (Article 1245-4)";
+}
+pub relation producteur_au_sens_du_chapitre(p: Produit, personne: Personne) kind derived {
+    label fr official "la personne est producteur ou assimilée au producteur (article 1245-5)";
+    label en unofficial "the person is the producer or treated as producer (Article 1245-5)";
+}
+pub relation fin_du_delai_de_designation(p: Produit, fournisseur: Personne, jour: Date) kind derived {
+    key(p, fournisseur);
+    label fr official "dernier jour du délai de trois mois pour désigner le fournisseur ou le producteur (article 1245-6)";
+    label en unofficial "last day of the three-month period to name the supplier or producer (Article 1245-6)";
+}
+pub relation fournisseur_libere_par_la_designation(p: Produit, fournisseur: Personne) kind derived {
+    label fr official "le fournisseur a désigné son fournisseur ou le producteur dans les trois mois : il n'est pas tenu comme producteur (article 1245-6)";
+    label en unofficial "the supplier named his supplier or the producer within three months: he is not liable as producer (Article 1245-6)";
+}
+pub relation fournisseur_responsable_comme_producteur(p: Produit, fournisseur: Personne) kind derived {
+    label fr official "le fournisseur répond du défaut de sécurité dans les mêmes conditions que le producteur (article 1245-6)";
+    label en unofficial "the supplier answers for the safety defect on the same terms as the producer (Article 1245-6)";
+}
+pub relation recours_du_fournisseur_forclos(p: Produit, fournisseur: Personne) kind derived {
+    label fr official "le recours du fournisseur contre le producteur n'a pas été engagé dans l'année de sa citation (article 1245-6, alinéa 2)";
+    label en unofficial "the supplier's recourse against the producer was not brought within a year of his summons (Article 1245-6, paragraph 2)";
+}
+pub relation solidairement_responsables(d: Dommage, fabricant_du_composant: Personne, incorporateur: Personne) kind derived {
+    label fr official "le producteur de la partie composante et celui qui a réalisé l'incorporation sont solidairement responsables (article 1245-7)";
+    label en unofficial "the producer of the component and the person who incorporated it are jointly and severally liable (Article 1245-7)";
+}
+pub relation responsabilite_reductible_ou_supprimable(d: Dommage, personne: Personne) kind derived {
+    label fr official "la responsabilité du producteur peut être réduite ou supprimée par le juge (article 1245-12)";
+    label en unofficial "the producer's liability may be reduced or removed by the court (Article 1245-12)";
+}
+pub relation responsabilite_non_reduite_par_le_tiers(d: Dommage, personne: Personne) kind derived {
+    label fr official "la responsabilité du producteur envers la victime n'est pas réduite par le fait du tiers (article 1245-13)";
+    label en unofficial "the producer's liability to the victim is not reduced by the third party's act (Article 1245-13)";
+}
+pub relation clause_reputee_non_ecrite(cl: Clause) kind derived {
+    label fr official "la clause est interdite et réputée non écrite (article 1245-14, alinéa 1)";
+    label en unofficial "the clause is prohibited and deemed unwritten (Article 1245-14, paragraph 1)";
+}
+pub relation clause_valable_entre_professionnels(cl: Clause) kind derived {
+    label fr official "la clause stipulée entre professionnels pour des biens hors usage privé est valable (article 1245-14, alinéa 2)";
+    label en unofficial "the clause agreed between professionals for property outside private use is valid (Article 1245-14, paragraph 2)";
+}
+pub relation terme_de_l_extinction(d: Dommage, jour: Date) kind derived {
+    key(d);
+    label fr official "dernier jour des dix ans suivant la mise en circulation du produit qui a causé le dommage (article 1245-15)";
+    label en unofficial "last day of the ten years following the putting into circulation of the product that caused the damage (Article 1245-15)";
+}
+pub relation responsabilite_eteinte(d: Dommage) kind derived {
+    label fr official "la responsabilité fondée sur le chapitre est éteinte : aucune action engagée dans les dix ans (article 1245-15)";
+    label en unofficial "liability under the chapter is extinguished: no action brought within ten years (Article 1245-15)";
+}
+pub relation action_prescrite_le(d: Dommage, jour: Date) kind derived {
+    key(d);
+    label fr official "dernier jour du délai de trois ans de l'action en réparation (article 1245-16)";
+    label en unofficial "last day of the three-year period for the action for reparation (Article 1245-16)";
+}
+
+// --- Article 1245-2 : ce qu'est un produit --------------------------------------------------------
+
+@source(CC_ART1245_2) {
+    rule BienMeubleEstUnProduit(p: Produit) strict {
+        label fr official "Article 1245-2. Est un produit tout bien meuble";
+        label en unofficial "Article 1245-2. Every movable is a product";
+        when nature_de_la_chose(p, BienMeuble);
+        then est_un_produit(p);
+    }
+    rule MeubleIncorporeEstUnProduit(p: Produit) strict {
+        label fr official "Article 1245-2. Est un produit tout bien meuble, même s'il est incorporé dans un immeuble";
+        label en unofficial "Article 1245-2. Every movable is a product, even if incorporated in an immovable";
+        when nature_de_la_chose(p, MeubleIncorporeDansUnImmeuble);
+        then est_un_produit(p);
+    }
+    rule ProduitsDuSolEtDeLElevage(p: Produit) strict {
+        label fr official "Article 1245-2. Y compris les produits du sol, de l'élevage, de la chasse et de la pêche";
+        label en unofficial "Article 1245-2. Including products of the soil, stock farming, hunting and fishing";
+        when nature_de_la_chose(p, ProduitDuSolDeLElevageDeLaChasseOuDeLaPeche);
+        then est_un_produit(p);
+    }
+    rule ElectriciteEstUnProduit(p: Produit) strict {
+        label fr official "Article 1245-2. L'électricité est considérée comme un produit";
+        label en unofficial "Article 1245-2. Electricity is regarded as a product";
+        when nature_de_la_chose(p, Electricite);
+        then est_un_produit(p);
+    }
+}
+
+// --- Article 1245-4 : la mise en circulation -------------------------------------------------------
+
+@source(CC_ART1245_4) {
+    rule MiseEnCirculationParDessaisissement(p: Produit, jour: Date) strict {
+        label fr official "Article 1245-4. Un produit est mis en circulation lorsque le producteur s'en est dessaisi volontairement ; il ne fait l'objet que d'une seule mise en circulation";
+        label en unofficial "Article 1245-4. A product is put into circulation when the producer has voluntarily parted with it; it is put into circulation only once";
+        when dessaisissement_volontaire_le(p, jour);
+        then mis_en_circulation_le(p, jour);
+    }
+}
+pub relation mettre_produit_en_circulation_1245_4(p: Produit, personne: Personne) kind empirical {
+    label fr official "le producteur met volontairement le produit en circulation";
+    label en unofficial "the producer voluntarily puts the product into circulation";
+}
+@source(CC_ART1245_4)
+rule PositionDevoirMettreProduitEnCirculation(p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-4. Le producteur doit mettre le produit en circulation conformément à la règle";
+    label en unofficial "Article 1245-4. The producer must put the product into circulation as specified";
+    when producteur(p, personne);
+    then duty DevoirMettreProduitEnCirculation {
+        bearer personne;
+        goal achievement {
+            condition mettre_produit_en_circulation_1245_4(p, personne);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 1245-5 : le producteur ---------------------------------------------------------------
+
+@source(CC_ART1245_5) {
+    rule ProducteurParSaQualite(p: Produit, personne: Personne, qualite: QualiteDeProducteur) strict {
+        label fr official "Article 1245-5. Est producteur, lorsqu'il agit à titre professionnel, le fabricant d'un produit fini, le producteur d'une matière première, le fabricant d'une partie composante ; lui est assimilé qui se présente comme producteur ou importe le produit dans l'Union ; ne l'est pas celui dont la responsabilité relève des articles 1792 à 1792-6 et 1646-1";
+        label en unofficial "Article 1245-5. The producer, acting professionally, is the maker of a finished product, the producer of a raw material, the maker of a component; treated as such is whoever presents himself as producer or imports the product into the Union; not so a person liable under Articles 1792 to 1792-6 and 1646-1";
+        when qualite_invoquee(p, personne, qualite) and agit_a_titre_professionnel(personne)
+            and not_known(responsabilite_des_constructeurs_ouverte(p, personne));
+        then producteur_au_sens_du_chapitre(p, personne);
+    }
+}
+pub relation declarer_qualite_producteur_1245_5(p: Produit, personne: Personne) kind empirical {
+    label fr official "la personne se présente comme producteur professionnel du produit";
+    label en unofficial "the person presents himself as the professional producer of the product";
+}
+@source(CC_ART1245_5)
+rule PositionDevoirDeclarerQualiteProducteur(p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-5. Le producteur professionnel doit déclarer sa qualité";
+    label en unofficial "Article 1245-5. The professional producer must declare his capacity";
+    when qualite_invoquee(p, personne, _) and agit_a_titre_professionnel(personne);
+    then duty DevoirDeclarerQualiteProducteur {
+        bearer personne;
+        goal achievement {
+            condition declarer_qualite_producteur_1245_5(p, personne);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 1245-6 : le fournisseur à défaut de producteur identifié ----------------------------------
+
+@source(CC_ART1245_6) {
+    rule DelaiDeDesignation(p: Produit, fournisseur: Personne, notification: Date) strict {
+        label fr official "Article 1245-6, alinéa 1. Le fournisseur désigne son propre fournisseur ou le producteur dans un délai de trois mois à compter de la notification de la demande de la victime";
+        label en unofficial "Article 1245-6, paragraph 1. The supplier names his own supplier or the producer within three months of service of the victim's claim";
+        when producteur_non_identifie(p) and fournisseur_professionnel(p, fournisseur)
+            and demande_de_la_victime_notifiee_le(p, fournisseur, notification);
+        then fin_du_delai_de_designation(p, fournisseur, add_calendar_period(notification, 3 calendar_month));
+    }
+    rule DesignationDansLeDelai(p: Produit, fournisseur: Personne, terme: Date, designation: Date) strict {
+        label fr official "Article 1245-6, alinéa 1. Le fournisseur qui désigne dans les trois mois n'est pas tenu comme producteur";
+        label en unofficial "Article 1245-6, paragraph 1. A supplier who names within three months is not liable as producer";
+        when fin_du_delai_de_designation(p, fournisseur, terme)
+            and designation_faite_le(p, fournisseur, designation) and designation <= terme;
+        then fournisseur_libere_par_la_designation(p, fournisseur);
+    }
+    rule FournisseurTenuFauteDeDesignation(p: Produit, fournisseur: Personne, terme: Date) strict {
+        label fr official "Article 1245-6, alinéa 1. Si le producteur ne peut être identifié, le fournisseur professionnel est responsable du défaut de sécurité dans les mêmes conditions que le producteur, à moins qu'il ne désigne dans les trois mois";
+        label en unofficial "Article 1245-6, paragraph 1. If the producer cannot be identified, the professional supplier is liable for the safety defect on the same terms as the producer, unless he names within three months";
+        when fin_du_delai_de_designation(p, fournisseur, terme)
+            and not_known(fournisseur_libere_par_la_designation(p, fournisseur));
+        then fournisseur_responsable_comme_producteur(p, fournisseur);
+    }
+    rule RecoursDuFournisseurForclos(p: Produit, fournisseur: Personne, citation: Date, recours: Date) strict {
+        label fr official "Article 1245-6, alinéa 2. Le recours du fournisseur contre le producteur doit être exercé dans l'année suivant la date de sa citation en justice";
+        label en unofficial "Article 1245-6, paragraph 2. The supplier's recourse against the producer must be brought within the year following his summons";
+        when citation_du_fournisseur_le(p, fournisseur, citation)
+            and recours_du_fournisseur_engage_le(p, fournisseur, recours)
+            and recours > add_calendar_period(citation, 1 calendar_year);
+        then recours_du_fournisseur_forclos(p, fournisseur);
+    }
+}
+pub relation designer_producteur_dans_delai_1245_6(p: Produit, fournisseur: Personne) kind empirical {
+    label fr official "le fournisseur désigne le producteur ou son propre fournisseur dans le délai légal";
+    label en unofficial "the supplier names the producer or own supplier within the statutory period";
+}
+@source(CC_ART1245_6)
+rule PositionDevoirDesignerProducteurDansDelai(p: Produit, fournisseur: Personne) strict {
+    label fr official "Article 1245-6. Le fournisseur doit désigner le producteur dans les trois mois";
+    label en unofficial "Article 1245-6. The supplier must name the producer within three months";
+    when producteur_non_identifie(p) and fournisseur_professionnel(p, fournisseur)
+        and demande_de_la_victime_notifiee_le(p, fournisseur, _);
+    then duty DevoirDesignerProducteurDansDelai {
+        bearer fournisseur;
+        goal achievement {
+            condition designer_producteur_dans_delai_1245_6(p, fournisseur);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 1245-7 : la solidarité de l'incorporation ------------------------------------------------
+
+@source(CC_ART1245_7)
+rule SolidariteDeLIncorporation(f: Fait, d: Dommage, composant: Produit, fini: Produit,
+                                 fabricant: Personne, incorporateur: Personne) strict {
+    label fr official "Article 1245-7. En cas de dommage causé par le défaut d'un produit incorporé dans un autre, le producteur de la partie composante et celui qui a réalisé l'incorporation sont solidairement responsables";
+    label en unofficial "Article 1245-7. Where damage is caused by the defect of a product incorporated in another, the producer of the component and the person who incorporated it are jointly and severally liable";
+    when defaut_du_composant(f, composant) and a_cause(f, d)
+        and incorpore_dans(composant, fini)
+        and producteur(composant, fabricant) and producteur(fini, incorporateur);
+    then solidairement_responsables(d, fabricant, incorporateur);
+}
+pub relation reparer_dommage_produit_incorpore_1245_7(d: Dommage, fabricant: Personne, incorporateur: Personne) kind empirical {
+    label fr official "les responsables solidaires réparent le dommage du produit incorporé";
+    label en unofficial "the jointly liable persons repair the damage from the incorporated product";
+}
+@source(CC_ART1245_7)
+rule PositionDevoirReparerDommageProduitIncorpore(f: Fait, d: Dommage, composant: Produit, fini: Produit,
+                                                  fabricant: Personne, incorporateur: Personne) strict {
+    label fr official "Article 1245-7. Les responsables solidaires doivent réparer le dommage";
+    label en unofficial "Article 1245-7. The jointly liable persons must repair the damage";
+    when defaut_du_composant(f, composant) and a_cause(f, d)
+        and incorpore_dans(composant, fini)
+        and producteur(composant, fabricant) and producteur(fini, incorporateur)
+        and solidairement_responsables(d, fabricant, incorporateur);
+    then duty DevoirReparerDommageProduitIncorpore {
+        bearer fabricant;
+        beneficiary incorporateur;
+        goal achievement {
+            condition reparer_dommage_produit_incorpore_1245_7(d, fabricant, incorporateur);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Articles 1245-12 et 1245-13 : faute de la victime, fait d'un tiers --------------------------------
+
+@source(CC_ART1245_12)
+rule ReductionPourFauteDeLaVictime(f: Fait, d: Dommage, personne: Personne) defeasible {
+    label fr official "Article 1245-12. La responsabilité du producteur peut être réduite ou supprimée, compte tenu de toutes les circonstances, lorsque le dommage est causé conjointement par un défaut du produit et par la faute de la victime";
+    label en unofficial "Article 1245-12. The producer's liability may be reduced or removed, having regard to all the circumstances, where the damage is caused jointly by a product defect and the victim's fault";
+    when a_cause(f, d) and producteur_responsable(d, personne)
+        and faute_de_la_victime_ayant_concouru(f);
+    then responsabilite_reductible_ou_supprimable(d, personne);
+}
+pub relation demander_reduction_faute_victime_1245_12(d: Dommage, personne: Personne) kind empirical {
+    label fr official "le producteur demande la réduction de sa responsabilité pour faute de la victime";
+    label en unofficial "the producer seeks reduction of liability for the victim's fault";
+}
+@source(CC_ART1245_12)
+rule PositionPouvoirDemanderReductionFauteVictime(f: Fait, d: Dommage, personne: Personne) strict {
+    label fr official "Article 1245-12. Le producteur peut demander la réduction de sa responsabilité";
+    label en unofficial "Article 1245-12. The producer may seek reduction of liability";
+    when a_cause(f, d) and producteur_responsable(d, personne)
+        and faute_de_la_victime_ayant_concouru(f)
+        and demander_reduction_faute_victime_1245_12(d, personne);
+    then liberty PouvoirDemanderReductionFauteVictime {
+        holder personne;
+        action demander_reduction_faute_victime_1245_12(d, personne);
+        window [@2016-10-01, infinity);
+    };
+}
+
+@source(CC_ART1245_13)
+rule PasDeReductionPourLeFaitDUnTiers(f: Fait, d: Dommage, personne: Personne) defeasible {
+    label fr official "Article 1245-13. La responsabilité du producteur envers la victime n'est pas réduite par le fait d'un tiers ayant concouru à la réalisation du dommage";
+    label en unofficial "Article 1245-13. The producer's liability to the victim is not reduced by the act of a third party that contributed to the damage";
+    when a_cause(f, d) and producteur_responsable(d, personne)
+        and fait_d_un_tiers_ayant_concouru(f);
+    then responsabilite_non_reduite_par_le_tiers(d, personne);
+}
+pub relation reduire_responsabilite_par_fait_tiers_1245_13(f: Fait, d: Dommage, personne: Personne) kind empirical {
+    label fr official "le producteur réduit sa responsabilité en invoquant le fait d'un tiers";
+    label en unofficial "the producer reduces liability by invoking a third party's act";
+}
+@source(CC_ART1245_13)
+rule PositionInterdictionReductionParFaitTiers(f: Fait, d: Dommage, personne: Personne) strict {
+    label fr official "Article 1245-13. Le producteur ne peut réduire sa responsabilité par le fait d'un tiers";
+    label en unofficial "Article 1245-13. The producer may not reduce liability by a third party's act";
+    when a_cause(f, d) and producteur_responsable(d, personne)
+        and fait_d_un_tiers_ayant_concouru(f)
+        and reduire_responsabilite_par_fait_tiers_1245_13(f, d, personne);
+    then prohibition InterdictionReductionParFaitTiers {
+        bearer personne;
+        action reduire_responsabilite_par_fait_tiers_1245_13(f, d, personne);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_13)
+rule MaintenanceInterdictionReductionParFaitTiers(f: Fait, d: Dommage, personne: Personne) strict {
+    label fr official "Article 1245-13. Le producteur doit maintenir l'absence de réduction de sa responsabilité par le fait d'un tiers";
+    label en unofficial "Article 1245-13. The producer must maintain the absence of reducing liability by a third party's act";
+    when a_cause(f, d) and producteur_responsable(d, personne)
+        and fait_d_un_tiers_ayant_concouru(f);
+    then duty MaintenanceInterdictionReductionParFaitTiersDuty {
+        bearer personne;
+        goal maintenance {
+            condition not reduire_responsabilite_par_fait_tiers_1245_13(f, d, personne);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+// --- Article 1245-14 : les clauses -----------------------------------------------------------------------
+
+@source(CC_ART1245_14) {
+    rule ClauseLimitativeNonEcrite(cl: Clause, p: Produit) strict {
+        label fr official "Article 1245-14, alinéa 1. Les clauses qui visent à écarter ou à limiter la responsabilité du fait des produits défectueux sont interdites et réputées non écrites";
+        label en unofficial "Article 1245-14, paragraph 1. Clauses aimed at excluding or limiting liability for defective products are prohibited and deemed unwritten";
+        when clause_limitative(cl, p) and not_known(clause_valable_entre_professionnels(cl));
+        then clause_reputee_non_ecrite(cl);
+    }
+    rule ClauseEntreProfessionnels(cl: Clause, p: Produit) strict {
+        label fr official "Article 1245-14, alinéa 2. Toutefois, pour les dommages causés aux biens qui ne sont pas utilisés par la victime principalement pour son usage ou sa consommation privée, les clauses stipulées entre professionnels sont valables";
+        label en unofficial "Article 1245-14, paragraph 2. However, for damage to property not mainly used by the victim for private use or consumption, clauses agreed between professionals are valid";
+        when clause_limitative(cl, p) and clause_stipulee_entre_professionnels(cl)
+            and dommage_a_un_bien_hors_usage_prive(cl);
+        then clause_valable_entre_professionnels(cl);
+    }
+}
+
+pub relation stipuler_clause_limitative_1245_14(cl: Clause, p: Produit, personne: Personne) kind empirical {
+    label fr official "le producteur stipule une clause limitative de responsabilité";
+    label en unofficial "the producer stipulates a liability-limiting clause";
+}
+@source(CC_ART1245_14)
+rule PositionInterdictionStipulerClauseLimitative(cl: Clause, p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-14. Le producteur ne peut stipuler une clause limitative interdite";
+    label en unofficial "Article 1245-14. The producer may not stipulate a prohibited limiting clause";
+    when clause_limitative(cl, p) and producteur(p, personne)
+        and not_known(clause_valable_entre_professionnels(cl))
+        and stipuler_clause_limitative_1245_14(cl, p, personne);
+    then prohibition InterdictionStipulerClauseLimitative {
+        bearer personne;
+        action stipuler_clause_limitative_1245_14(cl, p, personne);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_14)
+rule MaintenanceInterdictionStipulerClauseLimitative(cl: Clause, p: Produit, personne: Personne) strict {
+    label fr official "Article 1245-14. Le producteur doit maintenir l'absence de stipulation d'une clause limitative interdite";
+    label en unofficial "Article 1245-14. The producer must maintain the absence of stipulating a prohibited limiting clause";
+    when clause_limitative(cl, p) and producteur(p, personne)
+        and not_known(clause_valable_entre_professionnels(cl));
+    then duty MaintenanceInterdictionStipulerClauseLimitativeDuty {
+        bearer personne;
+        goal maintenance {
+            condition not stipuler_clause_limitative_1245_14(cl, p, personne);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+// --- Articles 1245-15 et 1245-16 : extinction et prescription --------------------------------------------
+
+@source(CC_ART1245_15) {
+    rule TermeDeDixAns(f: Fait, d: Dommage, p: Produit, jour: Date) strict {
+        label fr official "Article 1245-15. La responsabilité du producteur est éteinte dix ans après la mise en circulation du produit même qui a causé le dommage";
+        label en unofficial "Article 1245-15. The producer's liability is extinguished ten years after the putting into circulation of the very product that caused the damage";
+        when produit_en_cause(f, p) and a_cause(f, d) and mis_en_circulation_le(p, jour);
+        then terme_de_l_extinction(d, add_calendar_period(jour, 10 calendar_year));
+    }
+    rule ExtinctionFauteDActionDansLesDixAns(f: Fait, d: Dommage, auteur: Personne, p: Produit,
+                                              terme: Date, engagee: Date) defeasible {
+        label fr official "Article 1245-15. Sauf faute du producteur, la responsabilité est éteinte à moins que, durant cette période, la victime n'ait engagé une action en justice";
+        label en unofficial "Article 1245-15. Save for the producer's fault, liability is extinguished unless the victim brought proceedings during that period";
+        when terme_de_l_extinction(d, terme) and action_en_justice_engagee_le(d, engagee) and engagee > terme
+            and produit_en_cause(f, p) and a_cause(f, d) and producteur(p, auteur)
+            and not_known(faute_commise(f, auteur));
+        then responsabilite_eteinte(d);
+    }
+}
+pub relation agir_apres_extinction_responsabilite_1245_15(d: Dommage) kind empirical {
+    label fr official "la victime agit après l'extinction de la responsabilité du producteur";
+    label en unofficial "the victim acts after the producer's liability has expired";
+}
+@source(CC_ART1245_15)
+rule PositionInterdictionAgirApresExtinction(d: Dommage, terme: Date) strict {
+    label fr official "Article 1245-15. La victime ne peut agir après l'extinction de la responsabilité";
+    label en unofficial "Article 1245-15. The victim may not act after liability has expired";
+    when terme_de_l_extinction(d, terme)
+        and agir_apres_extinction_responsabilite_1245_15(d);
+    then prohibition InterdictionAgirApresExtinction {
+        bearer entity_ref("urn:fr:cc:responsabilite:victime");
+        action agir_apres_extinction_responsabilite_1245_15(d);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_15)
+rule MaintenanceInterdictionAgirApresExtinction(d: Dommage, terme: Date) strict {
+    label fr official "Article 1245-15. La victime doit maintenir l'absence de demande après l'extinction";
+    label en unofficial "Article 1245-15. The victim must maintain the absence of acting after liability has expired";
+    when terme_de_l_extinction(d, terme);
+    then duty MaintenanceInterdictionAgirApresExtinctionDuty {
+        bearer entity_ref("urn:fr:cc:responsabilite:victime");
+        goal maintenance {
+            condition not agir_apres_extinction_responsabilite_1245_15(d);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART1245_16)
+rule PrescriptionTriennale(d: Dommage, jour: Date) strict {
+    label fr official "Article 1245-16. L'action en réparation se prescrit dans un délai de trois ans à compter de la date à laquelle le demandeur a eu ou aurait dû avoir connaissance du dommage, du défaut et de l'identité du producteur";
+    label en unofficial "Article 1245-16. The action for reparation is time-barred three years from the date the claimant knew or should have known of the damage, the defect and the producer's identity";
+    when connaissance_acquise_le(d, jour);
+    then action_prescrite_le(d, add_calendar_period(jour, 3 calendar_year));
+}
+pub relation engager_action_apres_prescription_1245_16(d: Dommage) kind empirical {
+    label fr official "le demandeur engage une action en réparation après la prescription";
+    label en unofficial "the claimant brings a repair action after limitation";
+}
+@source(CC_ART1245_16)
+rule PositionInterdictionEngagerActionApresPrescription(d: Dommage, terme: Date) strict {
+    label fr official "Article 1245-16. L'action en réparation ne peut être engagée après prescription";
+    label en unofficial "Article 1245-16. The repair action may not be brought after limitation";
+    when action_prescrite_le(d, terme) and engager_action_apres_prescription_1245_16(d);
+    then prohibition InterdictionEngagerActionApresPrescription {
+        bearer entity_ref("urn:fr:cc:responsabilite:demandeur");
+        action engager_action_apres_prescription_1245_16(d);
+        window [@2016-10-01, infinity);
+    };
+}
+@source(CC_ART1245_16)
+rule MaintenanceInterdictionEngagerActionApresPrescription(d: Dommage, terme: Date) strict {
+    label fr official "Article 1245-16. Le demandeur doit maintenir l'absence d'action après prescription";
+    label en unofficial "Article 1245-16. The claimant must maintain the absence of bringing an action after limitation";
+    when action_prescrite_le(d, terme);
+    then duty MaintenanceInterdictionEngagerActionApresPrescriptionDuty {
+        bearer entity_ref("urn:fr:cc:responsabilite:demandeur");
+        goal maintenance {
+            condition not engager_action_apres_prescription_1245_16(d);
+            window [@2016-10-01, infinity);
+        };
+    };
+}

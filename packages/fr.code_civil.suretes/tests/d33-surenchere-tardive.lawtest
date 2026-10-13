@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2465 : surenchère le 11 avril 2024 — tardive.
+test "urn:query:fr-code-civil-suretes-d33-surenchere-tardive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_JOUR; }
+        assert "f1": notification_de_purge_le(entity_ref("urn:fr:cc:suretes:d33:S"), @2024-03-01) { origin case_input; }
+        assert "f2": prix_stipule_ou_valeur_declaree(entity_ref("urn:fr:cc:suretes:d33:S"), 100000 EUR) { origin case_input; }
+        assert "f3": caution_fournie_par_le_surencherisseur(entity_ref("urn:fr:cc:suretes:d33:S")) { origin case_input; }
+        assert "f4": surenchere_formee_le(entity_ref("urn:fr:cc:suretes:d33:S"), @2024-04-11) { origin case_input; }
+        assert "f5": montant_de_la_surenchere(entity_ref("urn:fr:cc:suretes:d33:S"), 110000 EUR) { origin case_input; }
+    }
+    evaluate truth(surenchere_irrecevable(entity_ref("urn:fr:cc:suretes:d33:S")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(SurenchereTardive);
+}

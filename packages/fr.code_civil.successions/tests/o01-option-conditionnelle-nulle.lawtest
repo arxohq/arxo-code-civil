@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 768, alinéa 2 : l'option sous condition est nulle.
+test "urn:query:fr-code-civil-successions-o01-option-conditionnelle-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": option_conditionnelle_ou_a_terme(entity_ref("urn:fr:cc:successions:opt:o01:S"), entity_ref("urn:fr:cc:successions:opt:o01:H")) { origin case_input; }
+    }
+    evaluate truth(option_nulle(entity_ref("urn:fr:cc:successions:opt:o01:S"), entity_ref("urn:fr:cc:successions:opt:o01:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(OptionConditionnelleNulle);
+}

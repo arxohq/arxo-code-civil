@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2315 : cautionnement de dettes futures à durée indéterminée — la caution peut y mettre fin à tout moment.
+test "urn:query:fr-code-civil-suretes-c38-faculte-de-resiliation-active" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c38:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c38:K"), entity_ref("urn:fr:cc:suretes:c38:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c38:K"), entity_ref("urn:fr:cc:suretes:c38:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c38:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c38:B")) { origin case_input; }
+        assert "f6": cautionnement_de_dettes_futures(entity_ref("urn:fr:cc:suretes:c38:K")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(FaculteDeMettreFinAuCautionnement, ACTIVE);
+}

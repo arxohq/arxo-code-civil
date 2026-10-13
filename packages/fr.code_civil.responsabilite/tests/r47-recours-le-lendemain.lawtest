@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-6, alinéa 2 : recours le 2 février 2026 — hors de l'année.
+test "urn:query:fr-code-civil-responsabilite-r47-recours-le-lendemain" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": citation_du_fournisseur_le(entity_ref("urn:fr:cc:resp:v2i:p"), entity_ref("urn:fr:cc:resp:v2i:v"), @2025-02-01) { origin case_input; }
+        assert "f2": recours_du_fournisseur_engage_le(entity_ref("urn:fr:cc:resp:v2i:p"), entity_ref("urn:fr:cc:resp:v2i:v"), @2026-02-02) { origin case_input; }
+    }
+    evaluate truth(recours_du_fournisseur_forclos(entity_ref("urn:fr:cc:resp:v2i:p"), entity_ref("urn:fr:cc:resp:v2i:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RecoursDuFournisseurForclos);
+}

@@ -1,0 +1,70 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:query:fr-code-civil-vente-louage-echange-reciproque" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": echangiste_premier(entity_ref("urn:fr:cc12:e:x"), entity_ref("urn:fr:cc12:e:a")) { origin case_input; }
+        assert "b": echangiste_second(entity_ref("urn:fr:cc12:e:x"), entity_ref("urn:fr:cc12:e:b")) { origin case_input; }
+        assert "x": chose_remise_par_premier(entity_ref("urn:fr:cc12:e:x"), entity_ref("urn:fr:cc12:e:c1")) { origin case_input; }
+        assert "y": chose_remise_par_second(entity_ref("urn:fr:cc12:e:x"), entity_ref("urn:fr:cc12:e:c2")) { origin case_input; }
+        assert "consent": consentement_reciproque_a_l_echange(entity_ref("urn:fr:cc12:e:x")) { origin case_input; }
+    }
+    evaluate truth(echange_parfait(entity_ref("urn:fr:cc12:e:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-echange-par-seul-consentement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "consent": consentement_reciproque_a_l_echange(entity_ref("urn:fr:cc12:e:c")) { origin case_input; }
+    }
+    evaluate truth(echange_parfait(entity_ref("urn:fr:cc12:e:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1704-refus" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "holder": copermutant_protege_par_article_1704(entity_ref("urn:fr:cc12:pos1704:e"), entity_ref("urn:fr:cc12:pos1704:p")) { origin case_input; }
+        assert "received": chose_recue_en_echange(entity_ref("urn:fr:cc12:pos1704:e")) { origin case_input; }
+        assert "nonowner": autre_contractant_non_proprietaire_prouve(entity_ref("urn:fr:cc12:pos1704:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(RefuserLivraisonNonProprietaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1704-refus-exerce" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "holder": copermutant_protege_par_article_1704(entity_ref("urn:fr:cc12:pos1704b:e"), entity_ref("urn:fr:cc12:pos1704b:p")) { origin case_input; }
+        assert "received": chose_recue_en_echange(entity_ref("urn:fr:cc12:pos1704b:e")) { origin case_input; }
+        assert "nonowner": autre_contractant_non_proprietaire_prouve(entity_ref("urn:fr:cc12:pos1704b:e")) { origin case_input; }
+        assert "refused": livraison_refusee_pour_non_propriete(entity_ref("urn:fr:cc12:pos1704b:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(RefuserLivraisonNonProprietaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1705-choix" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "evicted": copermutant_evince(entity_ref("urn:fr:cc12:pos1705:e")) { origin case_input; }
+        assert "holder": copermutant_evince_identifie(entity_ref("urn:fr:cc12:pos1705:e"), entity_ref("urn:fr:cc12:pos1705:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4PouvoirChoisirSuiteEviction1705Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1705-choix-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "evicted": copermutant_evince(entity_ref("urn:fr:cc12:pos1705b:e")) { origin case_input; }
+        assert "holder": copermutant_evince_identifie(entity_ref("urn:fr:cc12:pos1705b:e"), entity_ref("urn:fr:cc12:pos1705b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4PouvoirChoisirSuiteEviction1705Actif, ACTIVE);
+}

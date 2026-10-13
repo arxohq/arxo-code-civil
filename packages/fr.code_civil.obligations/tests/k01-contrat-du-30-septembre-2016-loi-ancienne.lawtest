@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Ordonnance n° 2016-131, article 9 : le contrat conclu AVANT le 1er octobre 2016
+// demeure soumis à la loi ancienne, y compris pour ses effets légaux et les
+// dispositions d'ordre public. Cette rédaction n'est pas épinglée ici : frontière.
+test "urn:query:fr-code-civil-obligations-k01-contrat-du-30-septembre-2016-loi-ancienne" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": situation_de_la_creance(entity_ref("urn:fr:cc:obligations:k1:s"), entity_ref("urn:fr:cc:obligations:k1:c")) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:obligations:k1:s"), @2016-09-30) { origin case_input; }
+    }
+    evaluate truth(redaction_anterieure_a_2016_non_epinglee(entity_ref("urn:fr:cc:obligations:k1:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CreanceRegieParLaLoiAncienne);
+}

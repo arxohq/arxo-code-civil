@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 892 : l'omission d'un bien indivis donne lieu à un partage complémentaire.
+test "urn:query:fr-code-civil-successions-q32-bien-indivis-omis" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": bien_indivis_omis(entity_ref("urn:fr:cc:successions:par:q32:S")) { origin case_input; }
+    }
+    evaluate truth(partage_complementaire_du(entity_ref("urn:fr:cc:successions:par:q32:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PartageComplementairePourBienOmis);
+}

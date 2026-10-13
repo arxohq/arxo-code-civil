@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-FRACTIONDECREANCEINDIVISIBLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": nantissement_d_une_fraction(entity_ref("urn:law:catalog:fractiondecreanceindivisible:v0")) { origin case_input; }
+        assert "cat-1": nantissement_de(entity_ref("urn:law:catalog:fractiondecreanceindivisible:v0"), entity_ref("urn:law:catalog:fractiondecreanceindivisible:v1")) { origin case_input; }
+        assert "cat-2": creance_nantie_indivisible(entity_ref("urn:law:catalog:fractiondecreanceindivisible:v1")) { origin case_input; }
+    }
+    evaluate truth(fraction_non_nantissable(entity_ref("urn:law:catalog:fractiondecreanceindivisible:v0")));
+    expect truth_status == TRUE_ONLY;
+}

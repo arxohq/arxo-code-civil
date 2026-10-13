@@ -1,0 +1,936 @@
+// CHAPITRE II — LES OPÉRATIONS SUR OBLIGATIONS (articles 1321 à 1340).
+//
+// Section 1 : la cession de créance (1321 à 1326). Section 2 : la cession de
+// dette (1327 à 1328-1). Section 3 : la novation (1329 à 1335). Section 4 :
+// la délégation (1336 à 1340).
+//
+// DEUX DATES DISTINCTES POUR LA CESSION DE CRÉANCE. Entre les parties et à
+// l'égard des tiers, le transfert s'opère à la DATE DE L'ACTE (1323, rédaction
+// issue de l'ordonnance n° 2021-1192, en vigueur le 1er janvier 2022) ; à
+// l'égard du débiteur cédé, la cession n'est opposable qu'à compter de la
+// NOTIFICATION ou de la prise d'acte (1324). Le corridor de 2021 de
+// `fr.code_civil.transitions` ne couvre que le cautionnement : la situation
+// d'une cession antérieure au 1er janvier 2022 est une frontière déclarée
+// (DECISIONS.md, D-CC10-03).
+//
+// L'ARTICLE 1327 est « nouveau » au sens de la loi n° 2018-287 : sa rédaction
+// ne s'applique qu'aux actes conclus ou établis à compter du 1er octobre 2018
+// (corridor 2018). Les articles 1327-1 et 1328-1 sont interprétatifs.
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    CC_ART1321,
+    CC_ART1322,
+    CC_ART1323,
+    CC_ART1324,
+    CC_ART1325,
+    CC_ART1326,
+    CC_ART1327,
+    CC_ART1327_1,
+    CC_ART1327_2,
+    CC_ART1328,
+    CC_ART1328_1,
+    CC_ART1329,
+    CC_ART1330,
+    CC_ART1331,
+    CC_ART1332,
+    CC_ART1333,
+    CC_ART1334,
+    CC_ART1335,
+    CC_ART1336,
+    CC_ART1337,
+    CC_ART1338,
+    CC_ART1339,
+    CC_ART1340,
+    Cession,
+    Creance,
+    Delegation,
+    Novation,
+    Personne,
+    obligation_solidaire_entre_debiteurs,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation cession_de_creance(x: Cession, c: Creance) kind empirical {
+    key(x);
+    label fr official "cession de créance : le cédant transmet tout ou partie de sa créance contre le débiteur cédé (article 1321, alinéa 1)";
+    label en unofficial "assignment of a claim: the assignor transfers all or part of his claim against the assigned debtor (Article 1321, paragraph 1)";
+}
+pub relation cession_de_dette(x: Cession, c: Creance) kind empirical {
+    key(x);
+    label fr official "cession de dette : le débiteur cède sa dette avec l'accord du créancier (article 1327)";
+    label en unofficial "assignment of a debt: the debtor assigns his debt with the creditor's consent (Article 1327)";
+}
+pub relation cedant(x: Cession, p: Personne) kind empirical {
+    key(x);
+    label fr official "cédant de la créance ou débiteur originaire de la dette cédée (articles 1321 et 1327)";
+    label en unofficial "assignor of the claim or original debtor of the assigned debt (Articles 1321 and 1327)";
+}
+pub relation cessionnaire(x: Cession, p: Personne) kind empirical {
+    key(x);
+    label fr official "cessionnaire de la créance ou débiteur substitué (articles 1321 et 1327)";
+    label en unofficial "assignee of the claim or substituted debtor (Articles 1321 and 1327)";
+}
+pub relation date_de_l_acte_de_cession(x: Cession, jour: Date) kind empirical {
+    key(x);
+    label fr official "date de l'acte de cession (article 1323, alinéas 1 et 2)";
+    label en unofficial "date of the deed of assignment (Article 1323, paragraphs 1 and 2)";
+}
+pub relation cession_constatee_par_ecrit(x: Cession) kind empirical {
+    label fr official "la cession est constatée par écrit (articles 1322 et 1327, alinéa 2)";
+    label en unofficial "the assignment is evidenced in writing (Articles 1322 and 1327, paragraph 2)";
+}
+pub relation cession_notifiee_au_debiteur(x: Cession, jour: Date) kind empirical {
+    key(x);
+    label fr official "la cession a été notifiée au débiteur ou celui-ci en a pris acte, à cette date (article 1324, alinéa 1)";
+    label en unofficial "the assignment was notified to the debtor or he took note of it, on this date (Article 1324, paragraph 1)";
+}
+pub relation debiteur_a_consenti_a_la_cession(x: Cession) kind empirical {
+    label fr official "le débiteur cédé avait déjà consenti à la cession (article 1324, alinéa 1)";
+    label en unofficial "the assigned debtor had already consented to the assignment (Article 1324, paragraph 1)";
+}
+pub relation creance_stipulee_incessible(c: Creance) kind empirical {
+    label fr official "la créance a été stipulée incessible : le consentement du débiteur est alors requis (article 1321, alinéa 4)";
+    label en unofficial "the claim was stipulated non-assignable: the debtor's consent is then required (Article 1321, paragraph 4)";
+}
+pub relation exception_inherente_a_la_dette(c: Creance) kind empirical {
+    label fr official "exception inhérente à la dette, telle que la nullité, l'exception d'inexécution, la résolution ou la compensation de dettes connexes (articles 1324, alinéa 2, 1328 et 1346-5, alinéa 3)";
+    label en unofficial "defence inherent in the debt, such as nullity, the defence of non-performance, rescission or set-off of connected debts (Articles 1324, paragraph 2, 1328 and 1346-5, paragraph 3)";
+}
+pub relation exception_nee_avant_l_opposabilite(x: Cession, c: Creance) kind empirical {
+    label fr official "exception née des rapports du débiteur avec le cédant avant que la cession lui soit devenue opposable, telle que l'octroi d'un terme, la remise de dette ou la compensation de dettes non connexes (article 1324, alinéa 2)";
+    label en unofficial "defence arising from the debtor's dealings with the assignor before the assignment became enforceable against him, such as the granting of a term, a release or set-off of unconnected debts (Article 1324, paragraph 2)";
+}
+pub relation cession_a_titre_onereux(x: Cession) kind empirical {
+    label fr official "la créance est cédée à titre onéreux (articles 1321, alinéa 1, et 1326, alinéa 1)";
+    label en unofficial "the claim is assigned for valuable consideration (Articles 1321, paragraph 1, and 1326, paragraph 1)";
+}
+pub relation cessionnaire_a_acquis_a_ses_risques(x: Cession) kind empirical {
+    label fr official "le cessionnaire a acquis la créance à ses risques et périls ou a connu le caractère incertain de la créance (article 1326, alinéa 1)";
+    label en unofficial "the assignee acquired the claim at his own risk or knew of its uncertain character (Article 1326, paragraph 1)";
+}
+pub relation garantie_de_solvabilite_stipulee(x: Cession) kind empirical {
+    label fr official "le cédant s'est engagé à garantir la solvabilité du débiteur (article 1326, alinéa 2)";
+    label en unofficial "the assignor undertook to warrant the debtor's solvency (Article 1326, paragraph 2)";
+}
+pub relation garantie_etendue_a_la_solvabilite_a_l_echeance(x: Cession) kind empirical {
+    label fr official "le cédant a expressément spécifié que la garantie s'étend à la solvabilité à l'échéance (article 1326, alinéa 3)";
+    label en unofficial "the assignor expressly specified that the warranty extends to solvency at maturity (Article 1326, paragraph 3)";
+}
+pub relation prix_retire_de_la_cession(x: Cession, m: Money) kind empirical {
+    key(x);
+    label fr official "prix que le cédant a pu retirer de la cession de sa créance : plafond de la garantie de solvabilité (article 1326, alinéa 2)";
+    label en unofficial "price the assignor obtained from the assignment: ceiling of the solvency warranty (Article 1326, paragraph 2)";
+}
+pub relation creancier_a_consenti_a_la_cession_de_dette(x: Cession) kind empirical {
+    label fr official "le créancier a donné son accord à la cession de dette (article 1327, alinéa 1)";
+    label en unofficial "the creditor consented to the assignment of the debt (Article 1327, paragraph 1)";
+}
+pub relation accord_donne_par_avance_sans_intervention(x: Cession) kind empirical {
+    label fr official "le créancier a par avance donné son accord à la cession et n'y est pas intervenu (article 1327-1)";
+    label en unofficial "the creditor gave his consent in advance and did not take part in the assignment (Article 1327-1)";
+}
+pub relation cession_notifiee_au_creancier(x: Cession, jour: Date) kind empirical {
+    key(x);
+    label fr official "la cession de dette a été notifiée au créancier ou celui-ci en a pris acte, à cette date (article 1327-1)";
+    label en unofficial "the assignment of debt was notified to the creditor or he took note of it, on this date (Article 1327-1)";
+}
+pub relation decharge_expresse_du_debiteur_originaire(x: Cession) kind empirical {
+    label fr official "le créancier consent expressément à libérer le débiteur originaire pour l'avenir (article 1327-2)";
+    label en unofficial "the creditor expressly consents to release the original debtor for the future (Article 1327-2)";
+}
+pub relation surete_consentie_par_un_tiers(c: Creance, tiers: Personne) kind empirical {
+    label fr official "sûreté consentie par le débiteur originaire ou par un tiers (article 1328-1)";
+    label en unofficial "security granted by the original debtor or by a third party (Article 1328-1)";
+}
+pub relation accord_du_garant_au_maintien(c: Creance, tiers: Personne) kind empirical {
+    label fr official "le garant consent au maintien de sa sûreté malgré la décharge du débiteur originaire (article 1328-1, alinéa 1)";
+    label en unofficial "the guarantor consents to maintaining his security despite the original debtor's release (Article 1328-1, paragraph 1)";
+}
+
+// --- Section 1 : la cession de créance (1321 à 1326) ----------------------------------------
+
+pub relation cession_valable(x: Cession) kind derived {
+    label fr official "la cession de créance doit être constatée par écrit, à peine de nullité (article 1322)";
+    label en unofficial "the assignment of a claim must be evidenced in writing, on pain of nullity (Article 1322)";
+}
+pub relation cession_nulle_faute_d_ecrit(x: Cession) kind derived {
+    label fr official "faute d'écrit, la cession est nulle (articles 1322 et 1327, alinéa 2)";
+    label en unofficial "absent a writing, the assignment is void (Articles 1322 and 1327, paragraph 2)";
+}
+pub relation consentement_du_debiteur_requis(c: Creance) kind derived {
+    label fr official "le consentement du débiteur n'est pas requis, à moins que la créance ait été stipulée incessible (article 1321, alinéa 4)";
+    label en unofficial "the debtor's consent is not required, unless the claim was stipulated non-assignable (Article 1321, paragraph 4)";
+}
+pub relation cession_etendue_aux_accessoires(x: Cession, c: Creance) kind derived {
+    label fr official "la cession s'étend aux accessoires de la créance (article 1321, alinéa 3)";
+    label en unofficial "the assignment extends to the accessories of the claim (Article 1321, paragraph 3)";
+}
+pub relation transfert_entre_les_parties_le(x: Cession, jour: Date) kind derived {
+    key(x);
+    label fr official "entre les parties, le transfert de la créance s'opère à la date de l'acte (article 1323, alinéa 1)";
+    label en unofficial "between the parties, the transfer of the claim occurs on the date of the deed (Article 1323, paragraph 1)";
+}
+pub relation cession_opposable_aux_tiers_le(x: Cession, jour: Date) kind derived {
+    key(x);
+    label fr official "la cession est opposable aux tiers dès ce moment (article 1323, alinéa 2)";
+    label en unofficial "the assignment is enforceable against third parties from that moment (Article 1323, paragraph 2)";
+}
+pub relation preuve_de_la_date_a_la_charge_du_cessionnaire(x: Cession) kind derived {
+    label fr official "en cas de contestation, la preuve de la date de la cession incombe au cessionnaire, qui peut la rapporter par tout moyen (article 1323, alinéa 2)";
+    label en unofficial "in case of dispute, proof of the date of the assignment lies with the assignee, who may prove it by any means (Article 1323, paragraph 2)";
+}
+pub relation notification_faite(x: Cession) kind derived {
+    label fr official "la cession a été notifiée au débiteur ou celui-ci en a pris acte (article 1324, alinéa 1)";
+    label en unofficial "the assignment was notified to the debtor or he took note of it (Article 1324, paragraph 1)";
+}
+pub relation cession_opposable_au_debiteur(x: Cession, c: Creance) kind derived {
+    label fr official "la cession est opposable au débiteur : il y a consenti, elle lui a été notifiée ou il en a pris acte (article 1324, alinéa 1)";
+    label en unofficial "the assignment is enforceable against the debtor: he consented to it, it was notified to him or he took note of it (Article 1324, paragraph 1)";
+}
+pub relation cession_inopposable_au_debiteur(x: Cession, c: Creance) kind derived {
+    label fr official "faute de consentement, de notification ou de prise d'acte, la cession n'est pas opposable au débiteur (article 1324, alinéa 1)";
+    label en unofficial "absent consent, notification or acknowledgement, the assignment is not enforceable against the debtor (Article 1324, paragraph 1)";
+}
+pub relation exception_opposable_au_cessionnaire(x: Cession, c: Creance) kind derived {
+    label fr official "le débiteur peut opposer au cessionnaire les exceptions inhérentes à la dette et celles nées de ses rapports avec le cédant avant que la cession lui soit devenue opposable (article 1324, alinéa 2)";
+    label en unofficial "the debtor may raise against the assignee defences inherent in the debt and those arising from his dealings with the assignor before the assignment became enforceable (Article 1324, paragraph 2)";
+}
+pub relation frais_de_la_cession_a_la_charge_du_cessionnaire(x: Cession, p: Personne) kind derived {
+    label fr official "sauf clause contraire, la charge des frais supplémentaires occasionnés par la cession incombe au cessionnaire (article 1324, alinéa 3)";
+    label en unofficial "unless otherwise agreed, the additional costs caused by the assignment are borne by the assignee (Article 1324, paragraph 3)";
+}
+pub relation concours_resolu_en_faveur_du_premier_en_date(gagnant: Cession, perdant: Cession) kind derived {
+    label fr official "le concours entre cessionnaires successifs d'une créance se résout en faveur du premier en date (article 1325)";
+    label en unofficial "a conflict between successive assignees of a claim is resolved in favour of the first in date (Article 1325)";
+}
+pub relation garantie_de_l_existence_de_la_creance(x: Cession) kind derived {
+    label fr official "celui qui cède une créance à titre onéreux garantit l'existence de la créance et de ses accessoires (article 1326, alinéa 1)";
+    label en unofficial "one who assigns a claim for consideration warrants the existence of the claim and its accessories (Article 1326, paragraph 1)";
+}
+pub relation garantie_de_solvabilite_plafonnee(x: Cession, plafond: Money) kind derived {
+    key(x);
+    label fr official "le cédant ne répond de la solvabilité du débiteur que lorsqu'il s'y est engagé, et jusqu'à concurrence du prix qu'il a pu retirer de la cession (article 1326, alinéa 2)";
+    label en unofficial "the assignor answers for the debtor's solvency only where he so undertook, and up to the price he obtained from the assignment (Article 1326, paragraph 2)";
+}
+pub relation garantie_limitee_a_la_solvabilite_actuelle(x: Cession) kind derived {
+    label fr official "la garantie de solvabilité ne s'entend que de la solvabilité actuelle, sauf spécification expresse (article 1326, alinéa 3)";
+    label en unofficial "the solvency warranty covers only present solvency, absent express specification (Article 1326, paragraph 3)";
+}
+
+@source(CC_ART1321) {
+    rule ConsentementDuDebiteurRequis(c: Creance) strict {
+        label fr official "Article 1321, alinéa 4. Le consentement du débiteur n'est pas requis, à moins que la créance ait été stipulée incessible";
+        label en unofficial "Article 1321, paragraph 4. The debtor's consent is not required, unless the claim was stipulated non-assignable";
+        when creance_stipulee_incessible(c);
+        then consentement_du_debiteur_requis(c);
+    }
+    rule CessionEtendueAuxAccessoires(x: Cession, c: Creance) strict {
+        label fr official "Article 1321, alinéa 3. Elle s'étend aux accessoires de la créance";
+        label en unofficial "Article 1321, paragraph 3. It extends to the accessories of the claim";
+        when cession_de_creance(x, c);
+        then cession_etendue_aux_accessoires(x, c);
+    }
+}
+
+@source(CC_ART1322) {
+    rule CessionConstateeParEcrit(x: Cession, c: Creance) strict {
+        label fr official "Article 1322. La cession de créance doit être constatée par écrit, à peine de nullité";
+        label en unofficial "Article 1322. The assignment of a claim must be evidenced in writing, on pain of nullity";
+        when cession_de_creance(x, c) and cession_constatee_par_ecrit(x);
+        then cession_valable(x);
+    }
+    rule CessionNulleFauteDEcrit(x: Cession, c: Creance) strict {
+        label fr official "Article 1322. A défaut d'écrit, la cession de créance est nulle";
+        label en unofficial "Article 1322. Absent a writing, the assignment of a claim is void";
+        when cession_de_creance(x, c) and not_known(cession_constatee_par_ecrit(x));
+        then cession_nulle_faute_d_ecrit(x);
+    }
+}
+
+@source(CC_ART1323) {
+    rule TransfertALaDateDeLActe(x: Cession, c: Creance, jour: Date) strict {
+        label fr official "Article 1323, alinéa 1. Entre les parties, le transfert de la créance, présente ou future, s'opère à la date de l'acte";
+        label en unofficial "Article 1323, paragraph 1. Between the parties, the transfer of the claim, present or future, occurs on the date of the deed";
+        when cession_de_creance(x, c) and cession_valable(x) and date_de_l_acte_de_cession(x, jour);
+        then transfert_entre_les_parties_le(x, jour);
+    }
+    rule OpposabiliteAuxTiersDesLActe(x: Cession, jour: Date) strict {
+        label fr official "Article 1323, alinéa 2. Il est opposable aux tiers dès ce moment";
+        label en unofficial "Article 1323, paragraph 2. It is enforceable against third parties from that moment";
+        when transfert_entre_les_parties_le(x, jour);
+        then cession_opposable_aux_tiers_le(x, jour);
+    }
+    rule PreuveDeLaDateAuCessionnaire(x: Cession, jour: Date) strict {
+        label fr official "Article 1323, alinéa 2. En cas de contestation, la preuve de la date de la cession incombe au cessionnaire, qui peut la rapporter par tout moyen";
+        label en unofficial "Article 1323, paragraph 2. In case of dispute, proof of the date lies with the assignee, who may prove it by any means";
+        when transfert_entre_les_parties_le(x, jour);
+        then preuve_de_la_date_a_la_charge_du_cessionnaire(x);
+    }
+}
+
+@source(CC_ART1324) {
+    rule NotificationFaite(x: Cession, jour: Date) strict {
+        label fr official "Article 1324, alinéa 1. Présence d'une notification ou d'une prise d'acte";
+        label en unofficial "Article 1324, paragraph 1. Presence of a notification or acknowledgement";
+        when cession_notifiee_au_debiteur(x, jour);
+        then notification_faite(x);
+    }
+    rule CessionOpposableParConsentement(x: Cession, c: Creance) strict {
+        label fr official "Article 1324, alinéa 1. La cession est opposable au débiteur qui y a déjà consenti";
+        label en unofficial "Article 1324, paragraph 1. The assignment is enforceable against a debtor who already consented to it";
+        when cession_de_creance(x, c) and debiteur_a_consenti_a_la_cession(x);
+        then cession_opposable_au_debiteur(x, c);
+    }
+    rule CessionOpposableParNotification(x: Cession, c: Creance, jour: Date) strict {
+        label fr official "Article 1324, alinéa 1. La cession n'est opposable au débiteur que si elle lui a été notifiée ou s'il en a pris acte";
+        label en unofficial "Article 1324, paragraph 1. The assignment is enforceable against the debtor only if notified to him or acknowledged by him";
+        when cession_de_creance(x, c) and cession_notifiee_au_debiteur(x, jour);
+        then cession_opposable_au_debiteur(x, c);
+    }
+    rule CessionInopposableAuDebiteur(x: Cession, c: Creance) strict {
+        label fr official "Article 1324, alinéa 1. Faute de consentement, de notification ou de prise d'acte, la cession n'est pas opposable au débiteur";
+        label en unofficial "Article 1324, paragraph 1. Absent consent, notification or acknowledgement, the assignment is not enforceable against the debtor";
+        when cession_de_creance(x, c) and not_known(debiteur_a_consenti_a_la_cession(x))
+            and not_known(notification_faite(x));
+        then cession_inopposable_au_debiteur(x, c);
+    }
+    rule ExceptionInherenteOpposableAuCessionnaire(x: Cession, c: Creance) strict {
+        label fr official "Article 1324, alinéa 2. Le débiteur peut opposer au cessionnaire les exceptions inhérentes à la dette, telles que la nullité, l'exception d'inexécution, la résolution ou la compensation des dettes connexes";
+        label en unofficial "Article 1324, paragraph 2. The debtor may raise against the assignee defences inherent in the debt, such as nullity, non-performance, rescission or set-off of connected debts";
+        when cession_de_creance(x, c) and exception_inherente_a_la_dette(c);
+        then exception_opposable_au_cessionnaire(x, c);
+    }
+    rule ExceptionAnterieureOpposableAuCessionnaire(x: Cession, c: Creance) strict {
+        label fr official "Article 1324, alinéa 2. Il peut également opposer les exceptions nées de ses rapports avec le cédant avant que la cession lui soit devenue opposable";
+        label en unofficial "Article 1324, paragraph 2. He may also raise defences arising from his dealings with the assignor before the assignment became enforceable against him";
+        when cession_de_creance(x, c) and exception_nee_avant_l_opposabilite(x, c);
+        then exception_opposable_au_cessionnaire(x, c);
+    }
+    rule FraisDeLaCessionAuCessionnaire(x: Cession, c: Creance, p: Personne) strict {
+        label fr official "Article 1324, alinéa 3. Sauf clause contraire, la charge de ces frais incombe au cessionnaire";
+        label en unofficial "Article 1324, paragraph 3. Unless otherwise agreed, these costs are borne by the assignee";
+        when cession_de_creance(x, c) and cessionnaire(x, p);
+        then frais_de_la_cession_a_la_charge_du_cessionnaire(x, p);
+    }
+}
+
+@source(CC_ART1325)
+rule ConcoursEntreCessionnairesSuccessifs(gagnant: Cession, perdant: Cession, c: Creance, d1: Date, d2: Date) strict {
+    label fr official "Article 1325. Le concours entre cessionnaires successifs d'une créance se résout en faveur du premier en date ; il dispose d'un recours contre celui auquel le débiteur aurait fait un paiement";
+    label en unofficial "Article 1325. A conflict between successive assignees of a claim is resolved in favour of the first in date; he has recourse against the one to whom the debtor may have paid";
+    when cession_de_creance(gagnant, c) and cession_de_creance(perdant, c)
+        and date_de_l_acte_de_cession(gagnant, d1) and date_de_l_acte_de_cession(perdant, d2)
+        and d1 < d2;
+    then concours_resolu_en_faveur_du_premier_en_date(gagnant, perdant);
+}
+
+@source(CC_ART1326) {
+    rule GarantieDeLExistenceDeLaCreance(x: Cession, c: Creance) strict {
+        label fr official "Article 1326, alinéa 1. Celui qui cède une créance à titre onéreux garantit l'existence de la créance et de ses accessoires, à moins que le cessionnaire l'ait acquise à ses risques et périls ou qu'il ait connu le caractère incertain de la créance";
+        label en unofficial "Article 1326, paragraph 1. One who assigns a claim for consideration warrants the existence of the claim and its accessories, unless the assignee acquired it at his own risk or knew of its uncertain character";
+        when cession_de_creance(x, c) and cession_a_titre_onereux(x)
+            and not_known(cessionnaire_a_acquis_a_ses_risques(x));
+        then garantie_de_l_existence_de_la_creance(x);
+    }
+    rule GarantieDeSolvabilitePlafonnee(x: Cession, prix: Money) strict {
+        label fr official "Article 1326, alinéa 2. Il ne répond de la solvabilité du débiteur que lorsqu'il s'y est engagé, et jusqu'à concurrence du prix qu'il a pu retirer de la cession de sa créance";
+        label en unofficial "Article 1326, paragraph 2. He answers for the debtor's solvency only where he so undertook, and up to the price obtained from the assignment";
+        when garantie_de_solvabilite_stipulee(x) and prix_retire_de_la_cession(x, prix);
+        then garantie_de_solvabilite_plafonnee(x, prix);
+    }
+    rule GarantieLimiteeALaSolvabiliteActuelle(x: Cession) strict {
+        label fr official "Article 1326, alinéa 3. Lorsque le cédant a garanti la solvabilité du débiteur, cette garantie ne s'entend que de la solvabilité actuelle, sauf spécification expresse de son extension à la solvabilité à l'échéance";
+        label en unofficial "Article 1326, paragraph 3. Where the assignor warranted the debtor's solvency, that warranty covers only present solvency, unless expressly extended to solvency at maturity";
+        when garantie_de_solvabilite_stipulee(x)
+            and not_known(garantie_etendue_a_la_solvabilite_a_l_echeance(x));
+        then garantie_limitee_a_la_solvabilite_actuelle(x);
+    }
+}
+
+// --- Section 2 : la cession de dette (1327 à 1328-1) ----------------------------------------
+
+pub relation cession_de_dette_valable(x: Cession) kind derived {
+    label fr official "un débiteur peut, avec l'accord du créancier, céder sa dette ; la cession doit être constatée par écrit, à peine de nullité (article 1327)";
+    label en unofficial "a debtor may, with the creditor's consent, assign his debt; the assignment must be evidenced in writing, on pain of nullity (Article 1327)";
+}
+pub relation cession_de_dette_opposable_au_creancier_le(x: Cession, jour: Date) kind derived {
+    key(x);
+    label fr official "le créancier qui a donné son accord par avance sans intervenir ne peut se voir opposer la cession, ni s'en prévaloir, que du jour de la notification ou de la prise d'acte (article 1327-1)";
+    label en unofficial "a creditor who consented in advance without taking part may neither have the assignment set up against him nor rely on it before the day of notification or acknowledgement (Article 1327-1)";
+}
+pub relation debiteur_originaire_libere(x: Cession, p: Personne) kind derived {
+    label fr official "si le créancier y consent expressément, le débiteur originaire est libéré pour l'avenir (article 1327-2, première phrase)";
+    label en unofficial "if the creditor expressly consents, the original debtor is released for the future (Article 1327-2, first sentence)";
+}
+pub relation debiteur_originaire_tenu_solidairement(x: Cession, p: Personne) kind derived {
+    label fr official "à défaut, et sauf clause contraire, il est tenu solidairement au paiement de la dette (article 1327-2, seconde phrase)";
+    label en unofficial "failing that, and unless otherwise agreed, he is jointly liable for payment of the debt (Article 1327-2, second sentence)";
+}
+pub relation exception_opposable_au_creancier(x: Cession, c: Creance, p: Personne) kind derived {
+    label fr official "le débiteur substitué, et le débiteur originaire s'il reste tenu, peuvent opposer au créancier les exceptions inhérentes à la dette et celles qui leur sont personnelles (article 1328)";
+    label en unofficial "the substituted debtor, and the original debtor if still bound, may raise against the creditor defences inherent in the debt and those personal to them (Article 1328)";
+}
+pub relation suretes_subsistantes(c: Creance, tiers: Personne) kind derived {
+    label fr official "lorsque le débiteur originaire n'est pas déchargé, les sûretés subsistent (article 1328-1, alinéa 1, première phrase)";
+    label en unofficial "where the original debtor is not released, the securities subsist (Article 1328-1, paragraph 1, first sentence)";
+}
+pub relation suretes_subsistantes_avec_accord_du_garant(c: Creance, tiers: Personne) kind derived {
+    label fr official "dans le cas contraire, les sûretés consenties par le débiteur originaire ou par des tiers ne subsistent qu'avec leur accord (article 1328-1, alinéa 1, seconde phrase)";
+    label en unofficial "otherwise, securities granted by the original debtor or by third parties subsist only with their consent (Article 1328-1, paragraph 1, second sentence)";
+}
+pub relation codebiteurs_tenus_deduction_faite_de_la_part_du_cedant(c: Creance, autre: Personne) kind derived {
+    label fr official "si le cédant est déchargé, ses codébiteurs solidaires restent tenus déduction faite de sa part dans la dette (article 1328-1, alinéa 2)";
+    label en unofficial "if the assignor is released, his joint debtors remain bound less his share of the debt (Article 1328-1, paragraph 2)";
+}
+
+@source(CC_ART1327) {
+    rule CessionDeDetteValable(x: Cession, c: Creance) strict {
+        label fr official "Article 1327. Un débiteur peut, avec l'accord du créancier, céder sa dette ; la cession doit être constatée par écrit, à peine de nullité";
+        label en unofficial "Article 1327. A debtor may, with the creditor's consent, assign his debt; the assignment must be evidenced in writing, on pain of nullity";
+        when cession_de_dette(x, c) and creancier_a_consenti_a_la_cession_de_dette(x)
+            and cession_constatee_par_ecrit(x);
+        then cession_de_dette_valable(x);
+    }
+    rule CessionDeDetteNulleFauteDEcrit(x: Cession, c: Creance) strict {
+        label fr official "Article 1327, alinéa 2. A défaut d'écrit, la cession de dette est nulle";
+        label en unofficial "Article 1327, paragraph 2. Absent a writing, the assignment of a debt is void";
+        when cession_de_dette(x, c) and not_known(cession_constatee_par_ecrit(x));
+        then cession_nulle_faute_d_ecrit(x);
+    }
+}
+
+@source(CC_ART1327_1)
+rule OpposabiliteAuCreancierParNotification(x: Cession, jour: Date) strict {
+    label fr official "Article 1327-1. Le créancier, s'il a par avance donné son accord à la cession et n'y est pas intervenu, ne peut se la voir opposer ou s'en prévaloir que du jour où elle lui a été notifiée ou dès qu'il en a pris acte";
+    label en unofficial "Article 1327-1. A creditor who consented in advance and did not take part may only have it set up against him, or rely on it, from the day of notification or acknowledgement";
+    when accord_donne_par_avance_sans_intervention(x) and cession_notifiee_au_creancier(x, jour);
+    then cession_de_dette_opposable_au_creancier_le(x, jour);
+}
+
+@source(CC_ART1327_2) {
+    rule DebiteurOriginaireLibere(x: Cession, c: Creance, p: Personne) strict {
+        label fr official "Article 1327-2, première phrase. Si le créancier y consent expressément, le débiteur originaire est libéré pour l'avenir";
+        label en unofficial "Article 1327-2, first sentence. If the creditor expressly consents, the original debtor is released for the future";
+        when cession_de_dette(x, c) and cedant(x, p) and decharge_expresse_du_debiteur_originaire(x);
+        then debiteur_originaire_libere(x, p);
+    }
+    rule DebiteurOriginaireTenuSolidairement(x: Cession, c: Creance, p: Personne) strict {
+        label fr official "Article 1327-2, seconde phrase. A défaut, et sauf clause contraire, il est tenu solidairement au paiement de la dette";
+        label en unofficial "Article 1327-2, second sentence. Failing that, and unless otherwise agreed, he is jointly liable for payment of the debt";
+        when cession_de_dette(x, c) and cedant(x, p)
+            and not_known(decharge_expresse_du_debiteur_originaire(x));
+        then debiteur_originaire_tenu_solidairement(x, p);
+    }
+}
+
+@source(CC_ART1328) {
+    rule ExceptionInherenteOpposableParLeDebiteurSubstitue(x: Cession, c: Creance, p: Personne) strict {
+        label fr official "Article 1328. Le débiteur substitué peut opposer au créancier les exceptions inhérentes à la dette, telles que la nullité, l'exception d'inexécution, la résolution ou la compensation de dettes connexes";
+        label en unofficial "Article 1328. The substituted debtor may raise against the creditor defences inherent in the debt, such as nullity, non-performance, rescission or set-off of connected debts";
+        when cession_de_dette(x, c) and cessionnaire(x, p) and exception_inherente_a_la_dette(c);
+        then exception_opposable_au_creancier(x, c, p);
+    }
+    rule ExceptionOpposableParLeDebiteurOriginaireResteTenu(x: Cession, c: Creance, p: Personne) strict {
+        label fr official "Article 1328. Le débiteur originaire, s'il reste tenu, peut opposer au créancier les exceptions inhérentes à la dette";
+        label en unofficial "Article 1328. The original debtor, if still bound, may raise against the creditor defences inherent in the debt";
+        when debiteur_originaire_tenu_solidairement(x, p) and cession_de_dette(x, c)
+            and exception_inherente_a_la_dette(c);
+        then exception_opposable_au_creancier(x, c, p);
+    }
+}
+
+@source(CC_ART1328_1) {
+    rule SuretesSubsistantesSansDecharge(x: Cession, c: Creance, p: Personne, tiers: Personne) strict {
+        label fr official "Article 1328-1, alinéa 1, première phrase. Lorsque le débiteur originaire n'est pas déchargé par le créancier, les sûretés subsistent";
+        label en unofficial "Article 1328-1, paragraph 1, first sentence. Where the original debtor is not released by the creditor, the securities subsist";
+        when cession_de_dette(x, c) and cedant(x, p) and surete_consentie_par_un_tiers(c, tiers)
+            and not_known(decharge_expresse_du_debiteur_originaire(x));
+        then suretes_subsistantes(c, tiers);
+    }
+    rule SuretesSubsistantesAvecAccordDuGarant(x: Cession, c: Creance, tiers: Personne) strict {
+        label fr official "Article 1328-1, alinéa 1, seconde phrase. Dans le cas contraire, les sûretés consenties par le débiteur originaire ou par des tiers ne subsistent qu'avec leur accord";
+        label en unofficial "Article 1328-1, paragraph 1, second sentence. Otherwise, securities granted by the original debtor or by third parties subsist only with their consent";
+        when cession_de_dette(x, c) and decharge_expresse_du_debiteur_originaire(x)
+            and surete_consentie_par_un_tiers(c, tiers) and accord_du_garant_au_maintien(c, tiers);
+        then suretes_subsistantes_avec_accord_du_garant(c, tiers);
+    }
+    rule CodebiteursTenusDeductionFaiteDeLaPartDuCedant(x: Cession, c: Creance, p: Personne, autre: Personne) strict {
+        label fr official "Article 1328-1, alinéa 2. Si le cédant est déchargé, ses codébiteurs solidaires restent tenus déduction faite de sa part dans la dette";
+        label en unofficial "Article 1328-1, paragraph 2. If the assignor is released, his joint debtors remain bound less his share of the debt";
+        when cession_de_dette(x, c) and cedant(x, p) and decharge_expresse_du_debiteur_originaire(x)
+            and obligation_solidaire_entre_debiteurs(c)
+            and fr.code_civil.core::debiteur(c, autre) and autre != p;
+        then codebiteurs_tenus_deduction_faite_de_la_part_du_cedant(c, autre);
+    }
+}
+
+// --- Section 3 : la novation (1329 à 1335) ---------------------------------------------------
+
+pub relation novation_convenue(n: Novation, ancienne: Creance, nouvelle: Creance) kind empirical {
+    key(n);
+    label fr official "contrat de novation substituant une obligation nouvelle à l'obligation ancienne (article 1329, alinéa 1)";
+    label en unofficial "novation contract substituting a new obligation for the old one (Article 1329, paragraph 1)";
+}
+pub relation volonte_de_nover_resultant_clairement_de_l_acte(n: Novation) kind empirical {
+    label fr official "la volonté d'opérer la novation résulte clairement de l'acte (article 1330)";
+    label en unofficial "the intention to novate appears clearly from the deed (Article 1330)";
+}
+pub relation obligation_valable(c: Creance) kind empirical {
+    label fr official "l'obligation est valable (article 1331)";
+    label en unofficial "the obligation is valid (Article 1331)";
+}
+pub relation objet_declare_de_substituer_un_engagement_valable(n: Novation) kind empirical {
+    label fr official "la novation a pour objet déclaré de substituer un engagement valable à un engagement entaché d'un vice (article 1331, in fine)";
+    label en unofficial "the novation has the declared object of substituting a valid undertaking for a defective one (Article 1331, in fine)";
+}
+pub relation novation_par_changement_de_debiteur(n: Novation) kind empirical {
+    label fr official "novation par changement de débiteur (articles 1329, alinéa 2, et 1332)";
+    label en unofficial "novation by change of debtor (Articles 1329, paragraph 2, and 1332)";
+}
+pub relation novation_par_changement_de_creancier(n: Novation) kind empirical {
+    label fr official "novation par changement de créancier (articles 1329, alinéa 2, et 1333)";
+    label en unofficial "novation by change of creditor (Articles 1329, paragraph 2, and 1333)";
+}
+pub relation consentement_du_debiteur_a_la_novation(n: Novation) kind empirical {
+    label fr official "le débiteur consent à la novation par changement de créancier, le cas échéant par avance (article 1333, alinéa 1)";
+    label en unofficial "the debtor consents to the novation by change of creditor, where appropriate in advance (Article 1333, paragraph 1)";
+}
+pub relation date_de_l_acte_de_novation(n: Novation, jour: Date) kind empirical {
+    key(n);
+    label fr official "date de l'acte de novation (article 1333, alinéa 2)";
+    label en unofficial "date of the novation deed (Article 1333, paragraph 2)";
+}
+pub relation suretes_d_origine_reservees(n: Novation) kind empirical {
+    label fr official "les sûretés d'origine sont réservées pour la garantie de la nouvelle obligation, avec le consentement des tiers garants (article 1334, alinéa 2)";
+    label en unofficial "the original securities are reserved to secure the new obligation, with the consent of the third-party guarantors (Article 1334, paragraph 2)";
+}
+pub relation novation_avec_un_codebiteur_solidaire(n: Novation, c: Creance, d: Personne) kind empirical {
+    label fr official "novation convenue entre le créancier et l'un des codébiteurs solidaires (article 1335, alinéa 1)";
+    label en unofficial "novation agreed between the creditor and one of the joint debtors (Article 1335, paragraph 1)";
+}
+pub relation novation_avec_une_caution(n: Novation, c: Creance, caution_p: Personne) kind empirical {
+    label fr official "novation convenue entre le créancier et une caution (article 1335, alinéa 2)";
+    label en unofficial "novation agreed between the creditor and a surety (Article 1335, paragraph 2)";
+}
+
+pub relation novation_operee(n: Novation, ancienne: Creance, nouvelle: Creance) kind derived {
+    label fr official "la novation éteint l'obligation ancienne et crée l'obligation nouvelle (articles 1329 à 1331)";
+    label en unofficial "the novation extinguishes the old obligation and creates the new one (Articles 1329 to 1331)";
+}
+pub relation novation_non_operee(n: Novation) kind derived {
+    label fr official "la novation ne se présume pas ; à défaut de volonté claire, elle n'a pas lieu (article 1330)";
+    label en unofficial "novation is not presumed; absent a clear intention, it does not occur (Article 1330)";
+}
+pub relation novation_sans_le_premier_debiteur(n: Novation) kind derived {
+    label fr official "la novation par changement de débiteur peut s'opérer sans le concours du premier débiteur (article 1332)";
+    label en unofficial "novation by change of debtor may occur without the first debtor's participation (Article 1332)";
+}
+pub relation novation_opposable_aux_tiers_le(n: Novation, jour: Date) kind derived {
+    key(n);
+    label fr official "la novation est opposable aux tiers à la date de l'acte ; en cas de contestation, la preuve incombe au nouveau créancier (article 1333, alinéa 2)";
+    label en unofficial "the novation is enforceable against third parties on the date of the deed; in case of dispute, proof lies with the new creditor (Article 1333, paragraph 2)";
+}
+pub relation extinction_etendue_aux_accessoires(n: Novation, ancienne: Creance) kind derived {
+    label fr official "l'extinction de l'obligation ancienne s'étend à tous ses accessoires (article 1334, alinéa 1)";
+    label en unofficial "the extinction of the old obligation extends to all its accessories (Article 1334, paragraph 1)";
+}
+pub relation suretes_reportees_sur_la_nouvelle_obligation(n: Novation, nouvelle: Creance) kind derived {
+    label fr official "par exception, les sûretés d'origine peuvent être réservées pour la garantie de la nouvelle obligation avec le consentement des tiers garants (article 1334, alinéa 2)";
+    label en unofficial "by exception, the original securities may be reserved to secure the new obligation with the guarantors' consent (Article 1334, paragraph 2)";
+}
+pub relation codebiteurs_liberes_par_la_novation(n: Novation, autre: Personne) kind derived {
+    label fr official "la novation convenue entre le créancier et l'un des codébiteurs solidaires libère les autres (article 1335, alinéa 1)";
+    label en unofficial "a novation agreed between the creditor and one joint debtor releases the others (Article 1335, paragraph 1)";
+}
+pub relation debiteur_principal_non_libere_par_la_novation(n: Novation, c: Creance) kind derived {
+    label fr official "la novation convenue entre le créancier et une caution ne libère pas le débiteur principal (article 1335, alinéa 2)";
+    label en unofficial "a novation agreed between the creditor and a surety does not release the principal debtor (Article 1335, paragraph 2)";
+}
+
+@source(CC_ART1329, CC_ART1330, CC_ART1331) {
+    rule NovationOperee(n: Novation, ancienne: Creance, nouvelle: Creance) strict {
+        label fr official "Articles 1329 à 1331. La novation substitue à une obligation, qu'elle éteint, une obligation nouvelle qu'elle crée ; la volonté de l'opérer doit résulter clairement de l'acte et les deux obligations doivent être valables";
+        label en unofficial "Articles 1329 to 1331. Novation substitutes for an obligation, which it extinguishes, a new obligation which it creates; the intention must appear clearly from the deed and both obligations must be valid";
+        when novation_convenue(n, ancienne, nouvelle)
+            and volonte_de_nover_resultant_clairement_de_l_acte(n)
+            and obligation_valable(ancienne) and obligation_valable(nouvelle);
+        then novation_operee(n, ancienne, nouvelle);
+    }
+    rule NovationDeRegularisation(n: Novation, ancienne: Creance, nouvelle: Creance) strict {
+        label fr official "Article 1331, in fine. A moins qu'elle n'ait pour objet déclaré de substituer un engagement valable à un engagement entaché d'un vice";
+        label en unofficial "Article 1331, in fine. Unless its declared object is to substitute a valid undertaking for a defective one";
+        when novation_convenue(n, ancienne, nouvelle)
+            and volonte_de_nover_resultant_clairement_de_l_acte(n)
+            and objet_declare_de_substituer_un_engagement_valable(n)
+            and obligation_valable(nouvelle);
+        then novation_operee(n, ancienne, nouvelle);
+    }
+    rule NovationNonPresumee(n: Novation, ancienne: Creance, nouvelle: Creance) strict {
+        label fr official "Article 1330. La novation ne se présume pas ; la volonté de l'opérer doit résulter clairement de l'acte";
+        label en unofficial "Article 1330. Novation is not presumed; the intention to effect it must appear clearly from the deed";
+        when novation_convenue(n, ancienne, nouvelle)
+            and not_known(volonte_de_nover_resultant_clairement_de_l_acte(n));
+        then novation_non_operee(n);
+    }
+}
+
+@source(CC_ART1332)
+rule NovationSansLePremierDebiteur(n: Novation) strict {
+    label fr official "Article 1332. La novation par changement de débiteur peut s'opérer sans le concours du premier débiteur";
+    label en unofficial "Article 1332. Novation by change of debtor may occur without the first debtor's participation";
+    when novation_par_changement_de_debiteur(n);
+    then novation_sans_le_premier_debiteur(n);
+}
+
+@source(CC_ART1333)
+rule NovationParChangementDeCreancier(n: Novation, jour: Date) strict {
+    label fr official "Article 1333. La novation par changement de créancier requiert le consentement du débiteur ; elle est opposable aux tiers à la date de l'acte";
+    label en unofficial "Article 1333. Novation by change of creditor requires the debtor's consent; it is enforceable against third parties on the date of the deed";
+    when novation_par_changement_de_creancier(n) and consentement_du_debiteur_a_la_novation(n)
+        and date_de_l_acte_de_novation(n, jour);
+    then novation_opposable_aux_tiers_le(n, jour);
+}
+
+@source(CC_ART1334) {
+    rule ExtinctionEtendueAuxAccessoires(n: Novation, ancienne: Creance, nouvelle: Creance) strict {
+        label fr official "Article 1334, alinéa 1. L'extinction de l'obligation ancienne s'étend à tous ses accessoires";
+        label en unofficial "Article 1334, paragraph 1. The extinction of the old obligation extends to all its accessories";
+        when novation_operee(n, ancienne, nouvelle) and not_known(suretes_d_origine_reservees(n));
+        then extinction_etendue_aux_accessoires(n, ancienne);
+    }
+    rule SuretesReporteesSurLaNouvelleObligation(n: Novation, ancienne: Creance, nouvelle: Creance) strict {
+        label fr official "Article 1334, alinéa 2. Par exception, les sûretés d'origine peuvent être réservées pour la garantie de la nouvelle obligation avec le consentement des tiers garants";
+        label en unofficial "Article 1334, paragraph 2. By exception, the original securities may be reserved to secure the new obligation with the guarantors' consent";
+        when novation_operee(n, ancienne, nouvelle) and suretes_d_origine_reservees(n);
+        then suretes_reportees_sur_la_nouvelle_obligation(n, nouvelle);
+    }
+}
+
+@source(CC_ART1335) {
+    rule NovationAvecUnCodebiteurLibereLesAutres(n: Novation, c: Creance, d: Personne, autre: Personne) strict {
+        label fr official "Article 1335, alinéa 1. La novation convenue entre le créancier et l'un des codébiteurs solidaires libère les autres";
+        label en unofficial "Article 1335, paragraph 1. A novation agreed between the creditor and one of the joint debtors releases the others";
+        when novation_avec_un_codebiteur_solidaire(n, c, d) and obligation_solidaire_entre_debiteurs(c)
+            and fr.code_civil.core::debiteur(c, autre) and autre != d;
+        then codebiteurs_liberes_par_la_novation(n, autre);
+    }
+    rule NovationAvecUneCautionNeLiberePasLeDebiteur(n: Novation, c: Creance, caution_p: Personne) strict {
+        label fr official "Article 1335, alinéa 2. La novation convenue entre le créancier et une caution ne libère pas le débiteur principal ; elle libère les autres cautions à concurrence de la part contributive de celle dont l'obligation a fait l'objet de la novation";
+        label en unofficial "Article 1335, paragraph 2. A novation agreed between the creditor and a surety does not release the principal debtor; it releases the other sureties up to the contributive share of the one whose obligation was novated";
+        when novation_avec_une_caution(n, c, caution_p);
+        then debiteur_principal_non_libere_par_la_novation(n, c);
+    }
+}
+
+// --- Section 4 : la délégation (1336 à 1340) ------------------------------------------------
+
+pub relation delegation_consentie(g: Delegation) kind empirical {
+    label fr official "opération par laquelle le délégant obtient du délégué qu'il s'oblige envers le délégataire, qui l'accepte comme débiteur (article 1336, alinéa 1)";
+    label en unofficial "transaction by which the delegator obtains from the delegate an undertaking towards the delegatee, who accepts him as debtor (Article 1336, paragraph 1)";
+}
+pub relation delegant(g: Delegation, p: Personne) kind empirical {
+    key(g);
+    label fr official "délégant (article 1336)";
+    label en unofficial "delegator (Article 1336)";
+}
+pub relation delegue(g: Delegation, p: Personne) kind empirical {
+    key(g);
+    label fr official "délégué (article 1336)";
+    label en unofficial "delegate (Article 1336)";
+}
+pub relation delegataire(g: Delegation, p: Personne) kind empirical {
+    key(g);
+    label fr official "délégataire (article 1336)";
+    label en unofficial "delegatee (Article 1336)";
+}
+pub relation stipulation_contraire_sur_les_exceptions(g: Delegation) kind empirical {
+    label fr official "stipulation contraire permettant au délégué d'opposer des exceptions au délégataire (article 1336, alinéa 2)";
+    label en unofficial "contrary stipulation allowing the delegate to raise defences against the delegatee (Article 1336, paragraph 2)";
+}
+pub relation delegant_debiteur_du_delegataire(g: Delegation, c: Creance) kind empirical {
+    label fr official "le délégant est débiteur du délégataire, au titre de cette créance (articles 1337 et 1338)";
+    label en unofficial "the delegator is the delegatee's debtor under this claim (Articles 1337 and 1338)";
+}
+pub relation delegant_creancier_du_delegue(g: Delegation, c: Creance) kind empirical {
+    label fr official "le délégant est créancier du délégué, au titre de cette créance (article 1339)";
+    label en unofficial "the delegator is the delegate's creditor under this claim (Article 1339)";
+}
+pub relation volonte_expresse_de_decharger_le_delegant(g: Delegation) kind empirical {
+    label fr official "la volonté du délégataire de décharger le délégant résulte expressément de l'acte (article 1337, alinéa 1)";
+    label en unofficial "the delegatee's intention to release the delegator appears expressly from the deed (Article 1337, paragraph 1)";
+}
+pub relation engagement_de_garantir_la_solvabilite_future(g: Delegation) kind empirical {
+    label fr official "le délégant s'est expressément engagé à garantir la solvabilité future du délégué (article 1337, alinéa 2)";
+    label en unofficial "the delegator expressly undertook to warrant the delegate's future solvency (Article 1337, paragraph 2)";
+}
+pub relation procedure_d_apurement_des_dettes_du_delegue(g: Delegation) kind empirical {
+    label fr official "le délégué se trouve soumis à une procédure d'apurement de ses dettes lors de la délégation (article 1337, alinéa 2)";
+    label en unofficial "the delegate is subject to a debt-clearing procedure at the time of the delegation (Article 1337, paragraph 2)";
+}
+pub relation montant_de_l_engagement_du_delegue(g: Delegation, m: Money) kind empirical {
+    key(g);
+    label fr official "montant de l'engagement du délégué envers le délégataire (articles 1338 et 1339)";
+    label en unofficial "amount of the delegate's undertaking towards the delegatee (Articles 1338 and 1339)";
+}
+pub relation paiement_par_l_un_des_deux_debiteurs(g: Delegation, m: Money) kind empirical {
+    key(g);
+    label fr official "l'un des deux débiteurs a payé ce montant (article 1338, alinéa 2)";
+    label en unofficial "one of the two debtors paid this amount (Article 1338, paragraph 2)";
+}
+pub relation execution_de_l_obligation_du_delegue(g: Delegation, m: Money) kind empirical {
+    key(g);
+    label fr official "le délégué a exécuté son obligation envers le délégataire à concurrence de ce montant (article 1339, alinéa 1)";
+    label en unofficial "the delegate performed his obligation towards the delegatee up to this amount (Article 1339, paragraph 1)";
+}
+pub relation simple_indication_d_une_personne(g: Delegation) kind empirical {
+    label fr official "simple indication, par le débiteur ou par le créancier, d'une personne désignée pour payer ou pour recevoir le paiement (article 1340)";
+    label en unofficial "mere indication, by the debtor or the creditor, of a person designated to pay or to receive payment (Article 1340)";
+}
+
+pub relation delegue_oblige_envers_le_delegataire(g: Delegation, p: Personne) kind derived {
+    label fr official "le délégué s'oblige envers le délégataire, qui l'accepte comme débiteur (article 1336, alinéa 1)";
+    label en unofficial "the delegate undertakes towards the delegatee, who accepts him as debtor (Article 1336, paragraph 1)";
+}
+pub relation exception_inopposable_au_delegataire(g: Delegation) kind derived {
+    label fr official "le délégué ne peut, sauf stipulation contraire, opposer au délégataire aucune exception tirée de ses rapports avec le délégant ou des rapports entre ce dernier et le délégataire (article 1336, alinéa 2)";
+    label en unofficial "the delegate may not, absent a contrary stipulation, raise against the delegatee any defence from his dealings with the delegator or from the latter's dealings with the delegatee (Article 1336, paragraph 2)";
+}
+pub relation delegant_tenu_malgre_la_decharge(g: Delegation) kind derived {
+    label fr official "une des deux causes de l'article 1337, alinéa 2, maintient le délégant tenu malgré la décharge";
+    label en unofficial "one of the two grounds in Article 1337, paragraph 2, keeps the delegator bound despite the release";
+}
+pub relation delegation_operant_novation(g: Delegation, c: Creance) kind derived {
+    label fr official "lorsque le délégant est débiteur du délégataire et que la volonté de le décharger résulte expressément de l'acte, la délégation opère novation (article 1337, alinéa 1)";
+    label en unofficial "where the delegator is the delegatee's debtor and the intention to release him appears expressly from the deed, the delegation operates a novation (Article 1337, paragraph 1)";
+}
+pub relation delegant_demeure_tenu(g: Delegation, c: Creance) kind derived {
+    label fr official "le délégant demeure tenu s'il s'est expressément engagé à garantir la solvabilité future du délégué ou si ce dernier est soumis à une procédure d'apurement de ses dettes lors de la délégation (article 1337, alinéa 2)";
+    label en unofficial "the delegator remains bound if he expressly warranted the delegate's future solvency or if the latter is subject to a debt-clearing procedure at the time of the delegation (Article 1337, paragraph 2)";
+}
+pub relation second_debiteur_du_delegataire(g: Delegation, p: Personne) kind derived {
+    label fr official "lorsque le délégant n'est pas déchargé, la délégation donne au délégataire un second débiteur (article 1338, alinéa 1)";
+    label en unofficial "where the delegator is not released, the delegation gives the delegatee a second debtor (Article 1338, paragraph 1)";
+}
+pub relation liberation_a_due_concurrence(g: Delegation, m: Money) kind derived {
+    key(g);
+    label fr official "le paiement fait par l'un des deux débiteurs libère l'autre, à due concurrence (article 1338, alinéa 2)";
+    label en unofficial "payment made by one of the two debtors releases the other to the corresponding extent (Article 1338, paragraph 2)";
+}
+pub relation execution_faite_par_le_delegue(g: Delegation) kind derived {
+    label fr official "le délégué a exécuté son obligation envers le délégataire (article 1339, alinéa 1)";
+    label en unofficial "the delegate performed his obligation towards the delegatee (Article 1339, paragraph 1)";
+}
+pub relation creance_du_delegant_eteinte_a_due_concurrence(g: Delegation, c: Creance, m: Money) kind derived {
+    key(g);
+    label fr official "lorsque le délégant est créancier du délégué, sa créance ne s'éteint que par l'exécution de l'obligation du délégué envers le délégataire et à due concurrence (article 1339, alinéa 1)";
+    label en unofficial "where the delegator is the delegate's creditor, his claim is extinguished only by the delegate's performance towards the delegatee and to that extent (Article 1339, paragraph 1)";
+}
+pub relation exigible_pour_l_exces_seulement(g: Delegation, c: Creance, exces: Money) kind derived {
+    key(g);
+    label fr official "jusque-là, le délégant ne peut exiger ou recevoir le paiement que pour la part qui excèderait l'engagement du délégué (article 1339, alinéa 2)";
+    label en unofficial "until then, the delegator may demand or receive payment only for the part exceeding the delegate's undertaking (Article 1339, paragraph 2)";
+}
+pub relation delegue_libere_envers_le_delegant(g: Delegation, m: Money) kind derived {
+    key(g);
+    label fr official "si le délégataire a libéré le délégant, le délégué est lui-même libéré à l'égard du délégant, à concurrence du montant de son engagement envers le délégataire (article 1339, alinéa 4)";
+    label en unofficial "if the delegatee released the delegator, the delegate is himself released towards the delegator up to the amount of his undertaking towards the delegatee (Article 1339, paragraph 4)";
+}
+pub relation ni_novation_ni_delegation(g: Delegation) kind derived {
+    label fr official "la simple indication d'une personne désignée pour payer à la place du débiteur, ou pour recevoir le paiement pour le créancier, n'emporte ni novation ni délégation (article 1340)";
+    label en unofficial "the mere indication of a person designated to pay for the debtor, or to receive payment for the creditor, entails neither novation nor delegation (Article 1340)";
+}
+
+@source(CC_ART1336) {
+    rule DelegueObligeEnversLeDelegataire(g: Delegation, p: Personne) strict {
+        label fr official "Article 1336, alinéa 1. La délégation est une opération par laquelle une personne, le délégant, obtient d'une autre, le délégué, qu'elle s'oblige envers une troisième, le délégataire, qui l'accepte comme débiteur";
+        label en unofficial "Article 1336, paragraph 1. Delegation is a transaction by which one person, the delegator, obtains from another, the delegate, an undertaking towards a third, the delegatee, who accepts him as debtor";
+        when delegation_consentie(g) and delegue(g, p);
+        then delegue_oblige_envers_le_delegataire(g, p);
+    }
+    rule ExceptionInopposableAuDelegataire(g: Delegation) strict {
+        label fr official "Article 1336, alinéa 2. Le délégué ne peut, sauf stipulation contraire, opposer au délégataire aucune exception tirée de ses rapports avec le délégant ou des rapports entre ce dernier et le délégataire";
+        label en unofficial "Article 1336, paragraph 2. The delegate may not, absent a contrary stipulation, raise against the delegatee any defence from his dealings with the delegator or from the latter's dealings with the delegatee";
+        when delegation_consentie(g) and not_known(stipulation_contraire_sur_les_exceptions(g));
+        then exception_inopposable_au_delegataire(g);
+    }
+}
+
+@source(CC_ART1337) {
+    rule DelegantTenuMalgreLaDechargeParGarantie(g: Delegation) strict {
+        label fr official "Article 1337, alinéa 2. Présence de l'engagement de garantir la solvabilité future du délégué";
+        label en unofficial "Article 1337, paragraph 2. Presence of the undertaking to warrant the delegate's future solvency";
+        when engagement_de_garantir_la_solvabilite_future(g);
+        then delegant_tenu_malgre_la_decharge(g);
+    }
+    rule DelegantTenuMalgreLaDechargeParProcedure(g: Delegation) strict {
+        label fr official "Article 1337, alinéa 2. Présence d'une procédure d'apurement des dettes du délégué";
+        label en unofficial "Article 1337, paragraph 2. Presence of a debt-clearing procedure against the delegate";
+        when procedure_d_apurement_des_dettes_du_delegue(g);
+        then delegant_tenu_malgre_la_decharge(g);
+    }
+    rule DelegationOperantNovation(g: Delegation, c: Creance) strict {
+        label fr official "Article 1337, alinéa 1. Lorsque le délégant est débiteur du délégataire et que la volonté du délégataire de décharger le délégant résulte expressément de l'acte, la délégation opère novation";
+        label en unofficial "Article 1337, paragraph 1. Where the delegator is the delegatee's debtor and the delegatee's intention to release him appears expressly from the deed, the delegation operates a novation";
+        when delegant_debiteur_du_delegataire(g, c) and volonte_expresse_de_decharger_le_delegant(g)
+            and not_known(delegant_tenu_malgre_la_decharge(g));
+        then delegation_operant_novation(g, c);
+    }
+    rule DelegantDemeureTenu(g: Delegation, c: Creance) strict {
+        label fr official "Article 1337, alinéa 2. Toutefois, le délégant demeure tenu s'il s'est expressément engagé à garantir la solvabilité future du délégué ou si ce dernier se trouve soumis à une procédure d'apurement de ses dettes lors de la délégation";
+        label en unofficial "Article 1337, paragraph 2. However, the delegator remains bound if he expressly warranted the delegate's future solvency or if the latter is subject to a debt-clearing procedure at the time of the delegation";
+        when delegant_debiteur_du_delegataire(g, c) and volonte_expresse_de_decharger_le_delegant(g)
+            and delegant_tenu_malgre_la_decharge(g);
+        then delegant_demeure_tenu(g, c);
+    }
+}
+
+@source(CC_ART1338) {
+    rule SecondDebiteurDuDelegataire(g: Delegation, c: Creance, p: Personne) strict {
+        label fr official "Article 1338, alinéa 1. Lorsque le délégant est débiteur du délégataire mais que celui-ci ne l'a pas déchargé de sa dette, la délégation donne au délégataire un second débiteur";
+        label en unofficial "Article 1338, paragraph 1. Where the delegator is the delegatee's debtor but was not released, the delegation gives the delegatee a second debtor";
+        when delegant_debiteur_du_delegataire(g, c) and delegue(g, p)
+            and not_known(volonte_expresse_de_decharger_le_delegant(g));
+        then second_debiteur_du_delegataire(g, p);
+    }
+    rule LiberationADueConcurrence(g: Delegation, p: Personne, m: Money) strict {
+        label fr official "Article 1338, alinéa 2. Le paiement fait par l'un des deux débiteurs libère l'autre, à due concurrence";
+        label en unofficial "Article 1338, paragraph 2. Payment made by one of the two debtors releases the other to the corresponding extent";
+        when second_debiteur_du_delegataire(g, p) and paiement_par_l_un_des_deux_debiteurs(g, m);
+        then liberation_a_due_concurrence(g, m);
+    }
+}
+
+@source(CC_ART1339) {
+    rule ExecutionFaiteParLeDelegue(g: Delegation, m: Money) strict {
+        label fr official "Article 1339, alinéa 1. Présence d'une exécution par le délégué";
+        label en unofficial "Article 1339, paragraph 1. Presence of performance by the delegate";
+        when execution_de_l_obligation_du_delegue(g, m);
+        then execution_faite_par_le_delegue(g);
+    }
+    rule CreanceDuDelegantEteinteADueConcurrence(g: Delegation, c: Creance, m: Money) strict {
+        label fr official "Article 1339, alinéa 1. Lorsque le délégant est créancier du délégué, sa créance ne s'éteint que par l'exécution de l'obligation du délégué envers le délégataire et à due concurrence";
+        label en unofficial "Article 1339, paragraph 1. Where the delegator is the delegate's creditor, his claim is extinguished only by the delegate's performance towards the delegatee and to that extent";
+        when delegant_creancier_du_delegue(g, c) and execution_de_l_obligation_du_delegue(g, m);
+        then creance_du_delegant_eteinte_a_due_concurrence(g, c, m);
+    }
+    rule ExigiblePourLExcesSeulement(g: Delegation, c: Creance, creance_m: Money, engagement: Money) strict {
+        label fr official "Article 1339, alinéa 2. Jusque-là, le délégant ne peut en exiger ou en recevoir le paiement que pour la part qui excèderait l'engagement du délégué";
+        label en unofficial "Article 1339, paragraph 2. Until then, the delegator may demand or receive payment only for the part exceeding the delegate's undertaking";
+        when delegant_creancier_du_delegue(g, c) and fr.code_civil.core::objet_monetaire(c, creance_m)
+            and montant_de_l_engagement_du_delegue(g, engagement)
+            and not_known(execution_faite_par_le_delegue(g));
+        then exigible_pour_l_exces_seulement(g, c, max(0 EUR, creance_m - engagement));
+    }
+    rule DelegueLibereEnversLeDelegant(g: Delegation, c: Creance, engagement: Money) strict {
+        label fr official "Article 1339, alinéa 4. Toutefois, si le délégataire a libéré le délégant, le délégué est lui-même libéré à l'égard du délégant, à concurrence du montant de son engagement envers le délégataire";
+        label en unofficial "Article 1339, paragraph 4. However, if the delegatee released the delegator, the delegate is himself released towards the delegator up to the amount of his undertaking towards the delegatee";
+        when delegant_creancier_du_delegue(g, c) and volonte_expresse_de_decharger_le_delegant(g)
+            and montant_de_l_engagement_du_delegue(g, engagement);
+        then delegue_libere_envers_le_delegant(g, engagement);
+    }
+}
+
+@source(CC_ART1340)
+rule SimpleIndicationSansEffet(g: Delegation) strict {
+    label fr official "Article 1340. La simple indication faite par le débiteur d'une personne désignée pour payer à sa place n'emporte ni novation, ni délégation ; il en est de même de la simple indication faite, par le créancier, d'une personne désignée pour recevoir le paiement pour lui";
+    label en unofficial "Article 1340. The mere indication by the debtor of a person designated to pay in his place entails neither novation nor delegation; the same applies to the mere indication by the creditor of a person designated to receive payment for him";
+    when simple_indication_d_une_personne(g);
+    then ni_novation_ni_delegation(g);
+}
+
+// --- Alinéas que les sections précédentes n'avaient pas portés ------------------------------
+
+pub relation creance_presente_ou_future(c: Creance) kind empirical {
+    label fr official "la créance cédée est présente ou future, déterminée ou déterminable (article 1321, alinéa 2)";
+    label en unofficial "the assigned claim is present or future, determined or determinable (Article 1321, paragraph 2)";
+}
+pub relation novation_par_substitution_entre_les_memes_parties(n: Novation) kind empirical {
+    label fr official "novation par substitution d'obligation entre les mêmes parties (article 1329, alinéa 2)";
+    label en unofficial "novation by substitution of obligation between the same parties (Article 1329, paragraph 2)";
+}
+pub relation date_de_la_novation_contestee(n: Novation) kind empirical {
+    label fr official "la date de la novation est contestée (article 1333, alinéa 2, seconde phrase)";
+    label en unofficial "the date of the novation is disputed (Article 1333, paragraph 2, second sentence)";
+}
+pub relation cession_ou_saisie_de_la_creance_du_delegant(g: Delegation, c: Creance) kind empirical {
+    label fr official "la créance du délégant sur le délégué est cédée ou saisie (article 1339, alinéa 3)";
+    label en unofficial "the delegator's claim against the delegate is assigned or attached (Article 1339, paragraph 3)";
+}
+
+pub relation creance_transmise_au_cessionnaire(x: Cession, c: Creance, cessionnaire_p: Personne) kind derived {
+    label fr official "la cession de créance est le contrat par lequel le cédant transmet, à titre onéreux ou gratuit, tout ou partie de sa créance contre le débiteur cédé à un tiers appelé le cessionnaire (article 1321, alinéa 1)";
+    label en unofficial "assignment of a claim is the contract by which the assignor transfers, for value or gratuitously, all or part of his claim against the assigned debtor to a third party called the assignee (Article 1321, paragraph 1)";
+}
+pub relation cession_de_creance_future_admise(x: Cession, c: Creance) kind derived {
+    label fr official "la cession peut porter sur une ou plusieurs créances présentes ou futures, déterminées ou déterminables (article 1321, alinéa 2)";
+    label en unofficial "the assignment may bear on one or more present or future claims, determined or determinable (Article 1321, paragraph 2)";
+}
+pub relation mode_de_novation_reconnu(n: Novation) kind derived {
+    label fr official "la novation peut avoir lieu par substitution d'obligation entre les mêmes parties, par changement de débiteur ou par changement de créancier (article 1329, alinéa 2)";
+    label en unofficial "novation may take place by substitution of obligation between the same parties, by change of debtor or by change of creditor (Article 1329, paragraph 2)";
+}
+pub relation preuve_de_la_date_a_la_charge_du_nouveau_creancier(n: Novation) kind derived {
+    label fr official "en cas de contestation de la date de la novation, la preuve en incombe au nouveau créancier, qui peut l'apporter par tout moyen (article 1333, alinéa 2, seconde phrase)";
+    label en unofficial "where the date of the novation is disputed, proof lies with the new creditor, who may adduce it by any means (Article 1333, paragraph 2, second sentence)";
+}
+pub relation cession_ou_saisie_soumise_aux_memes_limitations(g: Delegation, c: Creance) kind derived {
+    label fr official "la cession ou la saisie de la créance du délégant ne produisent effet que sous les mêmes limitations (article 1339, alinéa 3)";
+    label en unofficial "the assignment or attachment of the delegator's claim takes effect only subject to the same limitations (Article 1339, paragraph 3)";
+}
+
+@source(CC_ART1321) {
+    rule CreanceTransmiseAuCessionnaire(x: Cession, c: Creance, ced: Personne, cess: Personne) strict {
+        label fr official "Article 1321, alinéa 1. La cession de créance est un contrat par lequel le créancier cédant transmet, à titre onéreux ou gratuit, tout ou partie de sa créance contre le débiteur cédé à un tiers appelé le cessionnaire";
+        label en unofficial "Article 1321, paragraph 1. Assignment of a claim is a contract by which the assigning creditor transfers, for value or gratuitously, all or part of his claim against the assigned debtor to a third party called the assignee";
+        when cession_de_creance(x, c) and cedant(x, ced) and cessionnaire(x, cess);
+        then creance_transmise_au_cessionnaire(x, c, cess);
+    }
+    rule CessionDeCreanceFutureAdmise(x: Cession, c: Creance) strict {
+        label fr official "Article 1321, alinéa 2. Elle peut porter sur une ou plusieurs créances présentes ou futures, déterminées ou déterminables";
+        label en unofficial "Article 1321, paragraph 2. It may bear on one or more present or future claims, determined or determinable";
+        when cession_de_creance(x, c) and creance_presente_ou_future(c);
+        then cession_de_creance_future_admise(x, c);
+    }
+}
+
+@source(CC_ART1329) {
+    rule NovationParSubstitutionEntreLesMemesParties(n: Novation) strict {
+        label fr official "Article 1329, alinéa 2. La novation peut avoir lieu par substitution d'obligation entre les mêmes parties";
+        label en unofficial "Article 1329, paragraph 2. Novation may take place by substitution of obligation between the same parties";
+        when novation_par_substitution_entre_les_memes_parties(n);
+        then mode_de_novation_reconnu(n);
+    }
+    rule NovationParChangementDeDebiteurEstUnMode(n: Novation) strict {
+        label fr official "Article 1329, alinéa 2. Elle peut avoir lieu par changement de débiteur";
+        label en unofficial "Article 1329, paragraph 2. It may take place by change of debtor";
+        when novation_par_changement_de_debiteur(n);
+        then mode_de_novation_reconnu(n);
+    }
+    rule NovationParChangementDeCreancierEstUnMode(n: Novation) strict {
+        label fr official "Article 1329, alinéa 2. Elle peut avoir lieu par changement de créancier";
+        label en unofficial "Article 1329, paragraph 2. It may take place by change of creditor";
+        when novation_par_changement_de_creancier(n);
+        then mode_de_novation_reconnu(n);
+    }
+}
+
+@source(CC_ART1333)
+rule PreuveDeLaDateDeLaNovation(n: Novation, jour: Date) strict {
+    label fr official "Article 1333, alinéa 2, seconde phrase. En cas de contestation de la date de la novation, la preuve en incombe au nouveau créancier, qui peut l'apporter par tout moyen";
+    label en unofficial "Article 1333, paragraph 2, second sentence. Where the date of the novation is disputed, proof lies with the new creditor, who may adduce it by any means";
+    when novation_opposable_aux_tiers_le(n, jour) and date_de_la_novation_contestee(n);
+    then preuve_de_la_date_a_la_charge_du_nouveau_creancier(n);
+}
+
+@source(CC_ART1339)
+rule CessionOuSaisieSoumiseAuxMemesLimitations(g: Delegation, c: Creance, exces: Money) strict {
+    label fr official "Article 1339, alinéa 3. La cession ou la saisie de la créance du délégant ne produisent effet que sous les mêmes limitations";
+    label en unofficial "Article 1339, paragraph 3. The assignment or attachment of the delegator's claim takes effect only subject to the same limitations";
+    when cession_ou_saisie_de_la_creance_du_delegant(g, c) and exigible_pour_l_exces_seulement(g, c, exces);
+    then cession_ou_saisie_soumise_aux_memes_limitations(g, c);
+}

@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-AUTORITEDELACHOSEJUGEE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": objet_du_jugement(entity_ref("urn:kz:catalog:autoritedelachosejugee:v1")) { origin case_input; }
+        assert "cat-1": meme_cause(entity_ref("urn:kz:catalog:autoritedelachosejugee:v0"), entity_ref("urn:kz:catalog:autoritedelachosejugee:v1")) { origin case_input; }
+        assert "cat-2": memes_parties_en_la_meme_qualite(entity_ref("urn:kz:catalog:autoritedelachosejugee:v0"), entity_ref("urn:kz:catalog:autoritedelachosejugee:v1")) { origin case_input; }
+        assert "cat-3": meme_chose_demandee(entity_ref("urn:kz:catalog:autoritedelachosejugee:v0"), entity_ref("urn:kz:catalog:autoritedelachosejugee:v1")) { origin case_input; }
+    }
+    evaluate truth(autorite_de_la_chose_jugee(entity_ref("urn:kz:catalog:autoritedelachosejugee:v0"), entity_ref("urn:kz:catalog:autoritedelachosejugee:v1")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2523, alinéa 2 : l'usufruitier n'est inscrit qu'après le propriétaire de l'immeuble.
+test "urn:query:fr-code-civil-mayotte-f15-usufruit-inscrit-apres-le-proprietaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": nature_du_droit(entity_ref("urn:fr:cc:may:ac:dr"), Usufruit) { origin case_input; }
+        assert "f2": droit_sur(entity_ref("urn:fr:cc:may:ac:dr"), entity_ref("urn:fr:cc:may:ac:imm")) { origin case_input; }
+        assert "f3": proprietaire_inscrit(entity_ref("urn:fr:cc:may:ac:imm")) { origin case_input; }
+        assert "f4": droit_de_l_auteur_inscrit(entity_ref("urn:fr:cc:may:ac:dr")) { origin case_input; }
+    }
+    evaluate truth(inscription_recevable(entity_ref("urn:fr:cc:may:ac:dr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InscriptionDUnAutreDroitApresLeProprietaire);
+}

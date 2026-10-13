@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 533. Le mot « meuble » employé seul ne comprend pas l'argent
+// comptant, quoique l'argent comptant soit un meuble au sens de l'article
+// 527 : la classification et le mot de la loi sont deux questions.
+test "urn:query:fr-code-civil-biens-d08-mot-meuble-argent-comptant" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": peut_se_transporter_d_un_lieu_a_un_autre(entity_ref("urn:fr:cc:biens:d08:B")) { origin case_input; }
+        assert "f2": espece_de_la_chose(entity_ref("urn:fr:cc:biens:d08:B"), ArgentComptant) { origin case_input; }
+    }
+    evaluate truth(comprise_sous_le_mot_meuble(entity_ref("urn:fr:cc:biens:d08:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

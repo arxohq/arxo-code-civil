@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2364 : affectation le 9 mars 2024 — prématurée.
+test "urn:query:fr-code-civil-suretes-d31-affectation-prematuree" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_JOUR; }
+        assert "f1": nantissement_de(entity_ref("urn:fr:cc:suretes:d31:S"), entity_ref("urn:fr:cc:suretes:d31:N")) { origin case_input; }
+        assert "f2": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:d31:S"), 5000 EUR) { origin case_input; }
+        assert "f3": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:d31:S")) { origin case_input; }
+        assert "f4": mise_en_demeure_sans_effet_le(entity_ref("urn:fr:cc:suretes:d31:S"), @2024-03-01) { origin case_input; }
+        assert "f5": affectation_des_fonds_le(entity_ref("urn:fr:cc:suretes:d31:S"), @2024-03-09) { origin case_input; }
+    }
+    evaluate truth(affectation_des_fonds_prematuree(entity_ref("urn:fr:cc:suretes:d31:S")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2369 : biens de même nature détenus pour 9 000, créance 4 000 — revendication à hauteur de 4 000 EUR.
+test "urn:query:fr-code-civil-suretes-g27-reserve-fongible" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": clause_de_reserve_de_propriete(entity_ref("urn:fr:cc:suretes:g27:S"), entity_ref("urn:fr:cc:suretes:g27:X")) { origin case_input; }
+        assert "f2": bien_fongible(entity_ref("urn:fr:cc:suretes:g27:X")) { origin case_input; }
+        assert "f3": biens_de_meme_nature_detenus(entity_ref("urn:fr:cc:suretes:g27:S"), 9000 EUR) { origin case_input; }
+        assert "f4": creance_restant_due(entity_ref("urn:fr:cc:suretes:g27:S"), 4000 EUR) { origin case_input; }
+    }
+    evaluate truth(reserve_sur_biens_de_meme_nature(entity_ref("urn:fr:cc:suretes:g27:S"), 4000 EUR));
+    expect truth_status == TRUE_ONLY;
+}

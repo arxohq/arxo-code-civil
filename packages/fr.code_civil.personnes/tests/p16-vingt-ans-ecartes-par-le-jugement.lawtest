@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 122 : lorsqu un jugement de présomption existe, le délai de vingt ans ne court pas — c est celui de dix ans.
+test "urn:query:fr-code-civil-personnes-p16-vingt-ans-ecartes-par-le-jugement" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": a_cesse_de_paraitre_le(entity_ref("urn:fr:cc:pers:c:p"), @2004-05-03) { origin case_input; }
+        assert "f2": presomption_d_absence_constatee_le(entity_ref("urn:fr:cc:pers:c:p"), @2015-06-01) { origin adjudicated; }
+    }
+    evaluate truth(declaration_d_absence_possible_le(entity_ref("urn:fr:cc:pers:c:p"), @2024-05-03));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

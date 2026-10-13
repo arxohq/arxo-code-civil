@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2321, al. 3 : le garant ne peut opposer la nullité du contrat de base.
+test "urn:query:fr-code-civil-suretes-r04-exception-inopposable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": garantie_autonome(entity_ref("urn:fr:cc:suretes:r04:G"), entity_ref("urn:fr:cc:suretes:r04:A"), entity_ref("urn:fr:cc:suretes:r04:B")) { origin case_input; }
+        assert "f2": exception_tenant_a_l_obligation_garantie(entity_ref("urn:fr:cc:suretes:r04:G"), "nullite-du-contrat-de-base") { origin case_input; }
+    }
+    evaluate truth(exception_inopposable_par_le_garant(entity_ref("urn:fr:cc:suretes:r04:G"), "nullite-du-contrat-de-base"));
+    expect truth_status == TRUE_ONLY;
+}

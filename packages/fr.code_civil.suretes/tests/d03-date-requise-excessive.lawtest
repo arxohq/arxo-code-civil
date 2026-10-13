@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2431 : date requise au 16 mai 2041, au-delà du délai — l'inscription n'a pas d'effet au-delà du 15 mai 2041.
+test "urn:query:fr-code-civil-suretes-d03-date-requise-excessive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": inscription_de(entity_ref("urn:fr:cc:suretes:d01:I"), entity_ref("urn:fr:cc:suretes:d01:S")) { origin case_input; }
+        assert "f2": inscription_prise_le(entity_ref("urn:fr:cc:suretes:d01:I"), @2020-05-15) { origin case_input; }
+        assert "f3": derniere_echeance_de_la_creance(entity_ref("urn:fr:cc:suretes:d01:I"), entity_ref("urn:fr:cc:suretes:d01:C"), @2040-05-15) { origin case_input; }
+        assert "f4": date_d_effet_requise(entity_ref("urn:fr:cc:suretes:d01:I"), @2041-05-16) { origin case_input; }
+    }
+    evaluate truth(inscription_sans_effet_au_dela(entity_ref("urn:fr:cc:suretes:d01:I"), @2041-05-15));
+    expect truth_status == TRUE_ONLY;
+}

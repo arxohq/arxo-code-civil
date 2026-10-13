@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 682. « une issue insuffisante » est une appréciation que le texte
+// confie au juge : sans réponse, le cas demande un jugement et ne conclut
+// ni à l'enclave ni à son absence.
+test "urn:query:fr-code-civil-biens-s18-issue-insuffisante-jugement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": issue_existante_sur_la_voie_publique(entity_ref("urn:fr:cc:biens:s18:D")) { origin case_input; }
+        assert "f2": voisin(entity_ref("urn:fr:cc:biens:s18:D"), entity_ref("urn:fr:cc:biens:s18:S")) { origin case_input; }
+    }
+    evaluate truth(fonds_enclave(entity_ref("urn:fr:cc:biens:s18:D")));
+    expect evaluation_status == REQUIRES_JUDGMENT;
+}

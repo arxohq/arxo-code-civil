@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1303 : enrichissement 12 000 €, appauvrissement 9 000 € — indemnité égale à la moindre : 9 000 €.
+test "urn:query:fr-code-civil-responsabilite-r29-enrichissement-moindre-valeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": valeur_de_l_enrichissement(entity_ref("urn:fr:cc:resp:u:e"), 12000 EUR) { origin case_input; }
+        assert "f2": valeur_de_l_appauvrissement(entity_ref("urn:fr:cc:resp:u:e"), 9000 EUR) { origin case_input; }
+    }
+    evaluate truth(indemnite_d_enrichissement(entity_ref("urn:fr:cc:resp:u:e"), 9000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(IndemniteEgaleALaMoindreDesValeurs);
+}

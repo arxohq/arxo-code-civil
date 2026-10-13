@@ -1,0 +1,184 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Incapacités (1596, 1597), cession de l'acquéreur d'immeuble à construire
+// (1601-4), rachat opposé aux tiers (1663, 1664, 1666), marchés à prix fait
+// (1799) et cheptel simple (1804). La liste fermée de l'article 1596 est
+// gardée par une paire : une qualité de la liste, et un voisin hors liste.
+
+test "urn:query:fr-code-civil-vente-louage-1596-adjudication-du-tuteur-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "q": adjudicataire_en_qualite(entity_ref("urn:fr:cc12:i1:v"), entity_ref("urn:fr:cc12:i1:p"), Tuteur) { origin case_input; }
+    }
+    evaluate truth(adjudication_nulle(entity_ref("urn:fr:cc12:i1:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1666-immunity" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1666:v"), entity_ref("urn:fr:cc12:pos1666:a")) { origin case_input; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:pos1666:v")) { origin case_input; }
+        assert "creditor": creancier_du_vendeur_a_pacte_de_rachat(entity_ref("urn:fr:cc12:pos1666:v"), entity_ref("urn:fr:cc12:pos1666:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ImmuniteAcquereurContreCreanciers, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1666-immunity-effect" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1666b:v"), entity_ref("urn:fr:cc12:pos1666b:a")) { origin case_input; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:pos1666b:v")) { origin case_input; }
+        assert "creditor": creancier_du_vendeur_a_pacte_de_rachat(entity_ref("urn:fr:cc12:pos1666b:v"), entity_ref("urn:fr:cc12:pos1666b:c")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ImmuniteAcquereurContreCreanciers, ACTIVE);
+    evaluate truth(benefice_de_discussion_opposable_aux_creanciers(entity_ref("urn:fr:cc12:pos1666b:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1596-adjudication-du-fiduciaire-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "q": adjudicataire_en_qualite(entity_ref("urn:fr:cc12:i2:v"), entity_ref("urn:fr:cc12:i2:p"), Fiduciaire) { origin case_input; }
+    }
+    evaluate truth(adjudication_nulle(entity_ref("urn:fr:cc12:i2:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1596-acheteur-ordinaire-hors-de-la-liste" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": vente_en_vigueur(entity_ref("urn:fr:cc12:i3:v")) { origin case_input; }
+        assert "b": acheteur(entity_ref("urn:fr:cc12:i3:v"), entity_ref("urn:fr:cc12:i3:p")) { origin case_input; }
+    }
+    evaluate truth(adjudication_nulle(entity_ref("urn:fr:cc12:i3:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1597-cession-a-un-auxiliaire-de-justice-nulle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": auxiliaire_de_justice_du_ressort(entity_ref("urn:fr:cc12:i4:v"), entity_ref("urn:fr:cc12:i4:p")) { origin case_input; }
+        assert "l": cession_de_droit_litigieux_du_ressort(entity_ref("urn:fr:cc12:i4:v")) { origin case_input; }
+    }
+    evaluate truth(cession_a_un_auxiliaire_de_justice_nulle(entity_ref("urn:fr:cc12:i4:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1597-droit-litigieux-hors-du-ressort" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": auxiliaire_de_justice_du_ressort(entity_ref("urn:fr:cc12:i5:v"), entity_ref("urn:fr:cc12:i5:p")) { origin case_input; }
+    }
+    evaluate truth(cession_a_un_auxiliaire_de_justice_nulle(entity_ref("urn:fr:cc12:i5:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1601-4-cessionnaire-substitue-et-mandat" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "iac": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:i6:v")) { origin case_input; }
+        assert "c": cession_des_droits_de_l_acquereur_d_immeuble_a_construire(entity_ref("urn:fr:cc12:i6:v")) { origin case_input; }
+        assert "m": vente_assortie_d_un_mandat(entity_ref("urn:fr:cc12:i6:v")) { origin case_input; }
+    }
+    evaluate truth(cessionnaire_substitue_aux_obligations_envers_le_vendeur(entity_ref("urn:fr:cc12:i6:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(mandat_poursuivi_avec_le_cessionnaire(entity_ref("urn:fr:cc12:i6:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1601-4-cession-sans-mandat" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "iac": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:i7:v")) { origin case_input; }
+        assert "c": cession_des_droits_de_l_acquereur_d_immeuble_a_construire(entity_ref("urn:fr:cc12:i7:v")) { origin case_input; }
+    }
+    evaluate truth(cessionnaire_substitue_aux_obligations_envers_le_vendeur(entity_ref("urn:fr:cc12:i7:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(mandat_poursuivi_avec_le_cessionnaire(entity_ref("urn:fr:cc12:i7:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1663-1664-1666-rachat-contre-les-tiers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:i8:v")) { origin case_input; }
+        assert "second": second_acquereur_du_bien_rachetable(entity_ref("urn:fr:cc12:i8:v"), entity_ref("urn:fr:cc12:i8:s")) { origin case_input; }
+        assert "cred": creancier_du_vendeur_a_pacte_de_rachat(entity_ref("urn:fr:cc12:i8:v"), entity_ref("urn:fr:cc12:i8:k")) { origin case_input; }
+        assert "minor": vendeur_mineur_ou_protege(entity_ref("urn:fr:cc12:i8:v")) { origin case_input; }
+    }
+    evaluate truth(delai_de_rachat_court_contre_toutes_personnes(entity_ref("urn:fr:cc12:i8:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(action_en_rachat_ouverte_contre_le_second_acquereur(entity_ref("urn:fr:cc12:i8:v"), entity_ref("urn:fr:cc12:i8:s")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(benefice_de_discussion_opposable_aux_creanciers(entity_ref("urn:fr:cc12:i8:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1664-sans-second-acquereur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:i9:v")) { origin case_input; }
+    }
+    evaluate truth(action_en_rachat_ouverte_contre_le_second_acquereur(entity_ref("urn:fr:cc12:i9:v"), entity_ref("urn:fr:cc12:i9:s")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(benefice_de_discussion_opposable_aux_creanciers(entity_ref("urn:fr:cc12:i9:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1799-ouvrier-a-prix-fait-est-entrepreneur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "d": marche_a_prix_fait_conclu_directement(entity_ref("urn:fr:cc12:i10:m")) { origin case_input; }
+    }
+    evaluate truth(ouvrier_est_entrepreneur_dans_sa_partie(entity_ref("urn:fr:cc12:i10:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1804-cheptel-simple-moities" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bailleur_de_cheptel(entity_ref("urn:fr:cc12:i11:c"), entity_ref("urn:fr:cc12:i11:b")) { origin case_input; }
+        assert "p": preneur_de_cheptel(entity_ref("urn:fr:cc12:i11:c"), entity_ref("urn:fr:cc12:i11:p")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:i11:c")) { origin case_input; }
+        assert "k": espece_du_cheptel(entity_ref("urn:fr:cc12:i11:c"), CheptelSimple) { origin case_input; }
+    }
+    evaluate truth(cheptel_simple_qualifie(entity_ref("urn:fr:cc12:i11:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_profite_de_la_moitie_du_croit(entity_ref("urn:fr:cc12:i11:c")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preneur_supporte_la_moitie_de_la_perte(entity_ref("urn:fr:cc12:i11:c")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1804-cheptel-de-fer-pas-de-moities" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bailleur_de_cheptel(entity_ref("urn:fr:cc12:i12:c"), entity_ref("urn:fr:cc12:i12:b")) { origin case_input; }
+        assert "p": preneur_de_cheptel(entity_ref("urn:fr:cc12:i12:c"), entity_ref("urn:fr:cc12:i12:p")) { origin case_input; }
+        assert "f": fonds_de_betail_remis(entity_ref("urn:fr:cc12:i12:c")) { origin case_input; }
+        assert "k": espece_du_cheptel(entity_ref("urn:fr:cc12:i12:c"), CheptelDonneAuFermier) { origin case_input; }
+    }
+    evaluate truth(cheptel_simple_qualifie(entity_ref("urn:fr:cc12:i12:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(preneur_supporte_la_moitie_de_la_perte(entity_ref("urn:fr:cc12:i12:c")));
+    expect truth_status == NEITHER;
+    evaluate truth(cheptel_de_fer_qualifie(entity_ref("urn:fr:cc12:i12:c")));
+    expect truth_status == TRUE_ONLY;
+}

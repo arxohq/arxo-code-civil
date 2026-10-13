@@ -1,0 +1,577 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    Bien,
+    CC_ART1874,
+    CC_ART1875,
+    CC_ART1876,
+    CC_ART1877,
+    CC_ART1878,
+    CC_ART1879,
+    CC_ART1880,
+    CC_ART1881,
+    CC_ART1882,
+    CC_ART1883,
+    CC_ART1884,
+    CC_ART1885,
+    CC_ART1886,
+    CC_ART1887,
+    CC_ART1888,
+    CC_ART1889,
+    CC_ART1890,
+    CC_ART1891,
+    CC_ART1892,
+    CC_ART1893,
+    CC_ART1894,
+    CC_ART1895,
+    CC_ART1896,
+    CC_ART1897,
+    CC_ART1898,
+    CC_ART1899,
+    CC_ART1900,
+    CC_ART1901,
+    CC_ART1902,
+    CC_ART1903,
+    CC_ART1904,
+    CC_ART1905,
+    CC_ART1906,
+    CC_ART1907,
+    CC_ART1908,
+    CC_ART1909,
+    CC_ART1910,
+    CC_ART1911,
+    CC_ART1912,
+    CC_ART1913,
+    Personne,
+    Pret,
+    arrerages_impayes_depuis,
+    aucune_convention_contraire,
+    aucune_faute_emprunteur,
+    besoin_pressant_et_imprevu_du_preteur,
+    capital_non_exigible_par_preteur,
+    capital_rente_exigible,
+    chose_consommable_par_usage,
+    chose_dans_le_commerce,
+    chose_estimee_lors_du_pret,
+    chose_non_consommable_par_usage,
+    chose_pretee,
+    chose_restituee,
+    choses_meme_espece_non_fongibles,
+    coemprunteur,
+    conservation_raisonnable_assuree,
+    convention_interets_ecrite,
+    defaut_chose_pretee_cause_prejudice,
+    demande_rachat_force_le,
+    demande_restitution_avant_terme,
+    demande_restitution_avant_terme_exclue,
+    demande_restitution_exercee,
+    depense_conservation_extraordinaire_necessaire_urgente,
+    depense_pour_user,
+    deterioration_par_usage_convenu,
+    duree_usage_depassee,
+    emprunteur,
+    emprunteur_a_prefere_sa_chose,
+    emprunteur_ne_pouvait_prevenir_preteur,
+    emprunteur_non_responsable_deterioration,
+    emprunteur_pouvait_sauver_avec_sa_chose,
+    emprunteur_responsable_perte,
+    engagement_pret_transmis_aux_heritiers,
+    faillite_ou_deconfiture_debiteur,
+    imputation_interets_non_stipules_sur_capital_exclue,
+    interets_conventionnels_exigibles,
+    interets_moratoires_dus,
+    interets_non_stipules_payes,
+    interets_presumes_payes,
+    interets_stipules,
+    jouissance_heritiers_emprunteur_exclue,
+    objet_admissible_pret_usage,
+    objet_pret_usage_exerce,
+    obligations_garde_et_usage_respectees,
+    perte_chose_pretee,
+    perte_fortuite,
+    pret_a_usage,
+    pret_a_usage_conclu,
+    pret_conclu_en_consideration_personnelle_emprunteur,
+    pret_conclu_le,
+    pret_de_consommation,
+    pret_en_argent,
+    pret_gratuit,
+    pret_lingots_ou_denrees,
+    preteur,
+    preteur_connaissait_defaut,
+    preteur_n_a_pas_averti,
+    propriete_chose_reste_au_preteur,
+    propriete_transferee_a_emprunteur,
+    qualification_pret_a_usage,
+    qualification_pret_consommation,
+    quantite_pretee,
+    quantite_qualite_restituees,
+    quittance_capital_sans_reserve_interets,
+    rachat_force_rente,
+    remboursement_depense_conservation_du,
+    remboursement_depense_usage_exclu,
+    rente_constituee,
+    rente_essentiellement_rachetable,
+    rente_perpetuelle,
+    rente_viagere_constituee,
+    responsabilite_preteur_defaut,
+    responsabilite_solidaire_coemprunteur,
+    restitution_anticipee_ordonnee,
+    restitution_en_nature_impossible,
+    restitution_interets_non_stipules_exclue,
+    restitution_non_executee_au_terme,
+    restitution_quantite_qualite_independante_prix,
+    retention_par_compensation_exclue,
+    risque_perte_a_emprunteur,
+    sommation_ou_demande_en_justice,
+    somme_nominale_a_restituer,
+    stipulation_interets_permises,
+    suretes_promises_non_fournies,
+    terme_du_pret,
+    terme_judiciaire_du_pret,
+    terme_rachat_rente_ans,
+    terme_rachat_rente_valide,
+    terme_restitution_fixe_par_juge,
+    usage_conforme_nature_ou_convention,
+    usage_non_conforme,
+    valeur_au_temps_et_lieu_dus,
+    valeur_de_remplacement_due,
+};
+
+@source(CC_ART1876)
+rule PretAUsageEssentiellementGratuit(pr: Pret) strict {
+    label fr official "Article 1876. Le prêt à usage est essentiellement gratuit";
+    label en unofficial "Article 1876. A loan for use is essentially gratuitous";
+    when pret_a_usage(pr);
+    then pret_gratuit(pr);
+}
+
+@source(CC_ART1875)
+@source(CC_ART1888)
+rule RestitutionDeLaChosePretee(pr: Pret, preteur_: Personne, emprunteur_: Personne, bien: Bien, debut: Date, terme: Date) strict {
+    label fr official "Articles 1875 et 1888. L'emprunteur rend la chose prêtée après l'usage convenu; le prêteur respecte le terme";
+    label en unofficial "Articles 1875 and 1888. The borrower returns the thing after the agreed use; the lender respects the term";
+    when pret_a_usage(pr) and preteur(pr, preteur_) and emprunteur(pr, emprunteur_)
+        and chose_pretee(pr, bien) and pret_conclu_le(pr, debut) and terme_du_pret(pr, terme);
+    then duty RestituerChosePretee {
+        bearer emprunteur_; beneficiary preteur_;
+        achieve chose_restituee(pr) during [debut, terme];
+    };
+}
+
+@source(CC_ART1902)
+rule RestitutionMemeQuantiteEtQualite(pr: Pret, preteur_: Personne, emprunteur_: Personne, quantite: Integer, debut: Date, terme: Date) strict {
+    label fr official "Article 1902. L'emprunteur rend des choses de même quantité et qualité au terme convenu";
+    label en unofficial "Article 1902. The borrower returns things of the same quantity and quality at the agreed term";
+    when pret_de_consommation(pr) and preteur(pr, preteur_) and emprunteur(pr, emprunteur_)
+        and quantite_pretee(pr, quantite) and pret_conclu_le(pr, debut) and terme_du_pret(pr, terme);
+    then duty RestituerMemeQuantiteEtQualite {
+        bearer emprunteur_; beneficiary preteur_;
+        achieve quantite_qualite_restituees(pr) during [debut, terme];
+    };
+}
+
+@source(CC_ART1905)
+@source(CC_ART1907)
+rule InteretsConventionnelsExigentEcrit(pr: Pret) strict {
+    label fr official "Article 1907, alinéa 2. Le taux de l'intérêt conventionnel doit être fixé par écrit";
+    label en unofficial "Article 1907, paragraph 2. The contractual interest rate must be set out in writing";
+    when interets_stipules(pr) and convention_interets_ecrite(pr);
+    then interets_conventionnels_exigibles(pr);
+}
+
+@source(CC_ART1911)
+rule RachatRenteAuPlusDixAns(pr: Pret, n: Integer) strict {
+    label fr official "Article 1911. Le rachat d'une rente perpétuelle ne peut être différé au-delà de dix ans";
+    label en unofficial "Article 1911. Redemption of a perpetual annuity may not be deferred for more than ten years";
+    when terme_rachat_rente_ans(pr, n) and n <= 10;
+    then terme_rachat_rente_valide(pr);
+}
+
+@source(CC_ART1912)
+rule RachatForceApresDeuxAnsImpayes(pr: Pret, depart: Date, jour: Date) strict {
+    label fr official "Article 1912. Le débiteur peut être contraint au rachat après deux années d'arrérages impayés";
+    label en unofficial "Article 1912. The debtor may be compelled to redeem after two years of unpaid annuity instalments";
+    when arrerages_impayes_depuis(pr, depart) and demande_rachat_force_le(pr, jour)
+        and jour >= add_calendar_period(depart, 2 calendar_year);
+    then rachat_force_rente(pr);
+}
+
+@source(CC_ART1874)
+rule QualificationPretAUsageParNature(pr: Pret) strict {
+    label fr official "Article 1874. La chose non consommable par l'usage relève du prêt à usage";
+    label en unofficial "Article 1874. A thing not consumed by use falls within a loan for use";
+    when chose_non_consommable_par_usage(pr);
+    then qualification_pret_a_usage(pr);
+}
+
+@source(CC_ART1874)
+rule QualificationPretConsommationParNature(pr: Pret) strict {
+    label fr official "Article 1874. La chose consommable par l'usage relève du prêt de consommation";
+    label en unofficial "Article 1874. A thing consumed by use falls within a consumption loan";
+    when chose_consommable_par_usage(pr);
+    then qualification_pret_consommation(pr);
+}
+
+@source(CC_ART1877)
+rule ProprieteResteAuPreteur(pr: Pret) strict {
+    label fr official "Article 1877. Le prêteur demeure propriétaire de la chose prêtée";
+    label en unofficial "Article 1877. The lender remains owner of the thing lent";
+    when pret_a_usage(pr);
+    then propriete_chose_reste_au_preteur(pr);
+}
+
+@source(CC_ART1878)
+rule ObjetAdmissibleAuPretAUsage(pr: Pret) strict {
+    label fr official "Article 1878. Une chose dans le commerce et non consommable peut faire l'objet du prêt à usage";
+    label en unofficial "Article 1878. A thing in commerce and not consumed by use may be lent for use";
+    when chose_dans_le_commerce(pr) and chose_non_consommable_par_usage(pr);
+    then objet_admissible_pret_usage(pr);
+}
+
+@source(CC_ART1878)
+rule P3PouvoirConclurePretUsage(pr: Pret, p: Personne) strict {
+    label fr official "Article 1878. Une chose dans le commerce et non consommable peut faire l'objet du prêt à usage";
+    label en unofficial "Article 1878. A thing in commerce and not consumed by use may be lent for use";
+    when chose_dans_le_commerce(pr) and chose_non_consommable_par_usage(pr) and preteur(pr, p);
+    then power P3PositionPouvoirConclurePretUsage {
+        holder p;
+        over pr;
+        exercise objet_pret_usage_exerce(pr, p);
+        effect pret_a_usage_conclu(pr);
+        valid_when objet_admissible_pret_usage(pr);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1879)
+rule EngagementPretTransmisAuxHeritiers(pr: Pret) strict {
+    label fr official "Article 1879, alinéa 1. Les engagements du prêt à usage passent aux héritiers";
+    label en unofficial "Article 1879, paragraph 1. Obligations under a loan for use pass to heirs";
+    when pret_a_usage(pr);
+    then engagement_pret_transmis_aux_heritiers(pr);
+}
+
+@source(CC_ART1879)
+rule IntuituPersonaeExclutJouissanceHeritiers(pr: Pret) strict {
+    label fr official "Article 1879, alinéa 2. Les héritiers ne continuent pas la jouissance du prêt personnel à l'emprunteur";
+    label en unofficial "Article 1879, paragraph 2. Heirs may not continue a loan made personally to the borrower";
+    when pret_conclu_en_consideration_personnelle_emprunteur(pr);
+    then jouissance_heritiers_emprunteur_exclue(pr);
+}
+
+@source(CC_ART1880)
+rule GardeEtUsageConformes(pr: Pret) strict {
+    label fr official "Article 1880. L'emprunteur veille raisonnablement à la conservation et respecte l'usage convenu";
+    label en unofficial "Article 1880. The borrower takes reasonable care and observes the agreed use";
+    when conservation_raisonnable_assuree(pr) and usage_conforme_nature_ou_convention(pr);
+    then obligations_garde_et_usage_respectees(pr);
+}
+
+@source(CC_ART1881)
+rule PerteApresUsageNonConformeAChargeEmprunteur(pr: Pret) strict {
+    label fr official "Article 1881. L'usage non conforme met la perte, même fortuite, à la charge de l'emprunteur";
+    label en unofficial "Article 1881. Misuse makes the borrower liable even for accidental loss";
+    when usage_non_conforme(pr) and perte_chose_pretee(pr);
+    then emprunteur_responsable_perte(pr);
+}
+
+@source(CC_ART1881)
+rule PerteApresDepassementDureeAChargeEmprunteur(pr: Pret) strict {
+    label fr official "Article 1881. Le dépassement de durée met la perte, même fortuite, à la charge de l'emprunteur";
+    label en unofficial "Article 1881. Excess use time makes the borrower liable even for accidental loss";
+    when duree_usage_depassee(pr) and perte_chose_pretee(pr);
+    then emprunteur_responsable_perte(pr);
+}
+
+@source(CC_ART1882)
+rule PerteFortuiteEvitabiliteAChargeEmprunteur(pr: Pret) strict {
+    label fr official "Article 1882. L'emprunteur répond de la perte fortuite qu'il pouvait éviter avec sa propre chose";
+    label en unofficial "Article 1882. The borrower is liable for accidental loss avoidable by using his own thing";
+    when perte_fortuite(pr) and emprunteur_pouvait_sauver_avec_sa_chose(pr);
+    then emprunteur_responsable_perte(pr);
+}
+
+@source(CC_ART1882)
+rule PerteFortuitePreferenceAChargeEmprunteur(pr: Pret) strict {
+    label fr official "Article 1882. L'emprunteur qui préfère sauver sa chose répond de la perte de la chose prêtée";
+    label en unofficial "Article 1882. A borrower who saves his own thing is liable for loss of the thing lent";
+    when perte_fortuite(pr) and emprunteur_a_prefere_sa_chose(pr);
+    then emprunteur_responsable_perte(pr);
+}
+
+@source(CC_ART1883)
+rule PerteChoseEstimeeAChargeEmprunteur(pr: Pret) strict {
+    label fr official "Article 1883. La perte de la chose estimée est à la charge de l'emprunteur sauf convention contraire";
+    label en unofficial "Article 1883. Loss of an appraised thing falls on the borrower absent contrary agreement";
+    when chose_estimee_lors_du_pret(pr) and perte_chose_pretee(pr) and aucune_convention_contraire(pr);
+    then emprunteur_responsable_perte(pr);
+}
+
+@source(CC_ART1884)
+rule DeteriorationUsageNormalSansResponsabilite(pr: Pret) strict {
+    label fr official "Article 1884. La détérioration par l'usage convenu sans faute ne pèse pas sur l'emprunteur";
+    label en unofficial "Article 1884. Deterioration through agreed use without fault does not bind the borrower";
+    when deterioration_par_usage_convenu(pr) and aucune_faute_emprunteur(pr);
+    then emprunteur_non_responsable_deterioration(pr);
+}
+
+@source(CC_ART1885)
+rule RetentionParCompensationExclue(pr: Pret) strict {
+    label fr official "Article 1885. L'emprunteur ne retient pas la chose par compensation";
+    label en unofficial "Article 1885. The borrower may not retain the thing by set-off";
+    when pret_a_usage(pr);
+    then retention_par_compensation_exclue(pr);
+}
+
+@source(CC_ART1886)
+rule DepenseUsageNonRemboursable(pr: Pret, montant: Money) strict {
+    label fr official "Article 1886. La dépense faite pour user de la chose n'est pas répétible";
+    label en unofficial "Article 1886. Expenditure made to use the thing is not recoverable";
+    when depense_pour_user(pr, montant);
+    then remboursement_depense_usage_exclu(pr, montant);
+}
+
+@source(CC_ART1887)
+rule SolidariteCoemprunteurs(pr: Pret, personne: Personne) strict {
+    label fr official "Article 1887. Les coemprunteurs de la même chose sont solidairement responsables";
+    label en unofficial "Article 1887. Joint borrowers of the same thing are jointly and severally liable";
+    when coemprunteur(pr, personne);
+    then responsabilite_solidaire_coemprunteur(pr, personne);
+}
+
+@source(CC_ART1889)
+rule RestitutionAnticipeePourBesoinPressant(pr: Pret) strict {
+    label fr official "Article 1889. Le juge peut ordonner la restitution pour un besoin pressant et imprévu du prêteur";
+    label en unofficial "Article 1889. The court may order early return for an urgent and unforeseen need of the lender";
+    when besoin_pressant_et_imprevu_du_preteur(pr);
+    then restitution_anticipee_ordonnee(pr);
+}
+
+@source(CC_ART1890)
+rule RemboursementDepenseConservationUrgente(pr: Pret, montant: Money) strict {
+    label fr official "Article 1890. Le prêteur rembourse la dépense extraordinaire, nécessaire et urgente de conservation";
+    label en unofficial "Article 1890. The lender reimburses extraordinary, necessary and urgent preservation expenses";
+    when depense_conservation_extraordinaire_necessaire_urgente(pr, montant)
+        and emprunteur_ne_pouvait_prevenir_preteur(pr);
+    then remboursement_depense_conservation_du(pr, montant);
+}
+
+@source(CC_ART1891)
+rule ResponsabilitePreteurPourDefautConnu(pr: Pret) strict {
+    label fr official "Article 1891. Le prêteur répond du défaut préjudiciable connu et non signalé";
+    label en unofficial "Article 1891. The lender is liable for a harmful defect known but not disclosed";
+    when defaut_chose_pretee_cause_prejudice(pr) and preteur_connaissait_defaut(pr)
+        and preteur_n_a_pas_averti(pr);
+    then responsabilite_preteur_defaut(pr);
+}
+
+@source(CC_ART1892)
+rule QualificationPretDeConsommation(pr: Pret) strict {
+    label fr official "Article 1892. La livraison d'une chose consommable à rendre en même espèce et qualité est un prêt de consommation";
+    label en unofficial "Article 1892. Delivery of a consumable thing returnable in the same kind and quality is a consumption loan";
+    when chose_consommable_par_usage(pr);
+    then qualification_pret_consommation(pr);
+}
+
+@source(CC_ART1893)
+rule ProprieteTransfereeAEmprunteur(pr: Pret) strict {
+    label fr official "Article 1893. Le prêt de consommation transfère la propriété à l'emprunteur";
+    label en unofficial "Article 1893. A consumption loan transfers ownership to the borrower";
+    when pret_de_consommation(pr);
+    then propriete_transferee_a_emprunteur(pr);
+}
+
+@source(CC_ART1893)
+rule RisqueTransfereAEmprunteur(pr: Pret) strict {
+    label fr official "Article 1893. Le risque de perte de la chose consommable pèse sur l'emprunteur";
+    label en unofficial "Article 1893. The risk of loss of a consumable thing falls on the borrower";
+    when pret_de_consommation(pr);
+    then risque_perte_a_emprunteur(pr);
+}
+
+@source(CC_ART1894)
+rule ChosesNonFongiblesReleventPretUsage(pr: Pret) strict {
+    label fr official "Article 1894. Les choses de même espèce mais non fongibles relèvent du prêt à usage";
+    label en unofficial "Article 1894. Things of the same kind that are not fungible fall within a loan for use";
+    when choses_meme_espece_non_fongibles(pr);
+    then qualification_pret_a_usage(pr);
+}
+
+@source(CC_ART1895)
+rule NominalismePretArgent(pr: Pret, montant: Money) strict {
+    label fr official "Article 1895. L'emprunteur rend la somme nominale énoncée au contrat";
+    label en unofficial "Article 1895. The borrower returns the nominal sum stated in the contract";
+    when pret_en_argent(pr, montant);
+    then somme_nominale_a_restituer(pr, montant);
+}
+
+@source(CC_ART1896)
+@source(CC_ART1897)
+rule LingotsEtDenreesMemeQuantiteQualite(pr: Pret) strict {
+    label fr official "Articles 1896 et 1897. Les lingots et denrées se rendent en même quantité et qualité indépendamment du prix";
+    label en unofficial "Articles 1896 and 1897. Bullion and goods are returned in the same quantity and quality regardless of price";
+    when pret_lingots_ou_denrees(pr);
+    then restitution_quantite_qualite_independante_prix(pr);
+}
+
+@source(CC_ART1898)
+rule ResponsabilitePreteurConsommationPourDefaut(pr: Pret) strict {
+    label fr official "Article 1898. La responsabilité pour défaut connu s'applique au prêt de consommation";
+    label en unofficial "Article 1898. Liability for a known defect also applies to a consumption loan";
+    when pret_de_consommation(pr) and defaut_chose_pretee_cause_prejudice(pr)
+        and preteur_connaissait_defaut(pr) and preteur_n_a_pas_averti(pr);
+    then responsabilite_preteur_defaut(pr);
+}
+
+@source(CC_ART1899)
+rule DemandeAvantTermeExclue(pr: Pret) strict {
+    label fr official "Article 1899. Le prêteur ne peut redemander avant le terme convenu";
+    label en unofficial "Article 1899. The lender may not demand return before the agreed term";
+    when demande_restitution_avant_terme(pr) and terme_du_pret(pr, _);
+    then demande_restitution_avant_terme_exclue(pr);
+}
+
+@source(CC_ART1899)
+rule P3InterdictionDemanderRestitutionAvantTerme(pr: Pret, p: Personne) strict {
+    label fr official "Article 1899. Le prêteur ne peut redemander avant le terme convenu";
+    label en unofficial "Article 1899. The lender may not demand return before the agreed term";
+    when demande_restitution_avant_terme(pr) and terme_du_pret(pr, _) and preteur(pr, p);
+    then prohibition P3PositionInterdictionDemanderRestitutionAvantTerme {
+        bearer p;
+        action demande_restitution_exercee(pr, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub relation violation_demande_restitution_avant_terme(pr: Pret, p: Personne) kind derived {
+    label fr official "demande de restitution avant terme exercée en violation de l'article 1899";
+    label en unofficial "return demanded before term in violation of Article 1899";
+}
+@source(CC_ART1899)
+rule ViolationInterdictionDemanderRestitutionAvantTerme(pr: Pret, p: Personne) strict {
+    label fr official "demande de restitution avant terme exercée en violation de l'article 1899";
+    label en unofficial "return demanded before term in violation of Article 1899";
+    when demande_restitution_exercee(pr, p);
+    then violation_demande_restitution_avant_terme(pr, p);
+}
+@source(CC_ART1899)
+rule P3MaintenanceInterdictionDemanderRestitutionAvantTerme(pr: Pret, p: Personne) strict {
+    label fr official "demande de restitution avant terme exercée en violation de l'article 1899";
+    label en unofficial "return demanded before term in violation of Article 1899";
+    when demande_restitution_avant_terme(pr) and terme_du_pret(pr, _) and preteur(pr, p);
+    then duty P3PositionMaintenanceInterdictionDemanderRestitutionAvantTerme {
+        bearer p;
+        goal maintenance {
+            condition not violation_demande_restitution_avant_terme(pr, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART1900)
+@source(CC_ART1901)
+rule TermeFixeParLeJuge(pr: Pret, terme: Date) strict {
+    label fr official "Articles 1900 et 1901. Le terme fixé par le juge devient le terme du prêt";
+    label en unofficial "Articles 1900 and 1901. The date fixed by the court becomes the loan repayment date";
+    when terme_restitution_fixe_par_juge(pr, terme);
+    then terme_judiciaire_du_pret(pr, terme);
+}
+
+@source(CC_ART1903)
+rule ValeurDueSiRestitutionImpossible(pr: Pret, montant: Money) strict {
+    label fr official "Article 1903. Si la restitution est impossible, la valeur au temps et au lieu pertinents est due";
+    label en unofficial "Article 1903. If return is impossible, the value at the relevant time and place is due";
+    when restitution_en_nature_impossible(pr) and valeur_au_temps_et_lieu_dus(pr, montant);
+    then valeur_de_remplacement_due(pr, montant);
+}
+
+@source(CC_ART1904)
+rule InteretsMoratoiresApresSommation(pr: Pret) strict {
+    label fr official "Article 1904. Le défaut de restitution au terme produit intérêt après sommation ou demande en justice";
+    label en unofficial "Article 1904. Failure to return at term bears interest after formal notice or a court claim";
+    when restitution_non_executee_au_terme(pr) and sommation_ou_demande_en_justice(pr);
+    then interets_moratoires_dus(pr);
+}
+
+@source(CC_ART1905)
+rule InteretsPeuventEtreStipules(pr: Pret) strict {
+    label fr official "Article 1905. Des intérêts peuvent être stipulés pour le prêt d'argent, de denrées ou d'autres meubles";
+    label en unofficial "Article 1905. Interest may be stipulated for loans of money, goods or other movables";
+    when interets_stipules(pr);
+    then stipulation_interets_permises(pr);
+}
+
+@source(CC_ART1906)
+rule InteretsNonStipulesNonRepetibles(pr: Pret, montant: Money) strict {
+    label fr official "Article 1906. Les intérêts non stipulés payés ne sont pas répétibles";
+    label en unofficial "Article 1906. Unstipulated interest paid is not recoverable";
+    when interets_non_stipules_payes(pr, montant);
+    then restitution_interets_non_stipules_exclue(pr, montant);
+}
+
+@source(CC_ART1906)
+rule InteretsNonStipulesNonImputables(pr: Pret, montant: Money) strict {
+    label fr official "Article 1906. Les intérêts non stipulés payés ne sont pas imputables sur le capital";
+    label en unofficial "Article 1906. Unstipulated interest paid is not imputable to principal";
+    when interets_non_stipules_payes(pr, montant);
+    then imputation_interets_non_stipules_sur_capital_exclue(pr, montant);
+}
+
+@source(CC_ART1908)
+rule QuittanceCapitalPresumeInteretsPayes(pr: Pret) strict {
+    label fr official "Article 1908. La quittance du capital sans réserve présume les intérêts payés";
+    label en unofficial "Article 1908. A receipt for principal without reservation presumes interest paid";
+    when quittance_capital_sans_reserve_interets(pr);
+    then interets_presumes_payes(pr);
+}
+
+@source(CC_ART1909)
+rule ConstitutionDeRente(pr: Pret) strict {
+    label fr official "Article 1909. L'intérêt d'un capital non exigible constitue une rente";
+    label en unofficial "Article 1909. Interest on principal the lender may not demand constitutes an annuity";
+    when interets_stipules(pr) and capital_non_exigible_par_preteur(pr);
+    then rente_constituee(pr);
+}
+
+@source(CC_ART1910)
+rule RentePerpetuelleConstituee(pr: Pret) strict {
+    label fr official "Article 1910. La rente peut être constituée en perpétuel";
+    label en unofficial "Article 1910. An annuity may be constituted in perpetuity";
+    when rente_perpetuelle(pr);
+    then rente_constituee(pr);
+}
+
+@source(CC_ART1910)
+rule RenteViagereConstituee(pr: Pret) strict {
+    label fr official "Article 1910. La rente peut être constituée en viager";
+    label en unofficial "Article 1910. An annuity may be constituted for life";
+    when rente_viagere_constituee(pr);
+    then rente_constituee(pr);
+}
+
+@source(CC_ART1911)
+rule RentePerpetuelleEssentiellementRachetable(pr: Pret) strict {
+    label fr official "Article 1911. La rente perpétuelle est essentiellement rachetable";
+    label en unofficial "Article 1911. A perpetual annuity is inherently redeemable";
+    when rente_perpetuelle(pr);
+    then rente_essentiellement_rachetable(pr);
+}
+
+@source(CC_ART1912)
+rule RachatForcePourSuretesNonFournies(pr: Pret) strict {
+    label fr official "Article 1912, 2°. Le défaut de fourniture des sûretés promises permet le rachat forcé";
+    label en unofficial "Article 1912(2). Failure to provide promised security permits compulsory redemption";
+    when suretes_promises_non_fournies(pr);
+    then rachat_force_rente(pr);
+}
+
+@source(CC_ART1913)
+rule CapitalRenteExigibleFaillite(pr: Pret) strict {
+    label fr official "Article 1913. La faillite ou déconfiture rend exigible le capital de la rente perpétuelle";
+    label en unofficial "Article 1913. Bankruptcy or insolvency makes the capital of a perpetual annuity due";
+    when rente_perpetuelle(pr) and faillite_ou_deconfiture_debiteur(pr);
+    then capital_rente_exigible(pr);
+}

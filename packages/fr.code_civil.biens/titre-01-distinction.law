@@ -1,0 +1,821 @@
+// TITRE Ier — DE LA DISTINCTION DES BIENS (articles 515-14, 516 à 543).
+//
+// « Tous les biens sont meubles ou immeubles » (516). Le titre Ier est une
+// CLASSIFICATION : trois genres d'immeubles (nature, destination, objet
+// auquel ils s'appliquent — 517) et deux genres de meubles (nature,
+// détermination de la loi — 527), chacun rempli par un article qui nomme les
+// choses. Les énumérations des articles 524, 526, 529, 533 et 534 sont
+// FERMÉES par le texte : elles sont exécutées par des règles, une par
+// espèce nommée, et non fournies comme conclusions par le cas — un cas qui
+// affirmerait « ce bien est un immeuble par destination » paraphraserait la
+// conclusion juridique au lieu de donner le fait.
+//
+// L'article 525 est une PRÉSOMPTION de perpétuelle demeure : elle se déduit
+// des trois signes physiques que le texte énumère (scellement, impossibilité
+// de détacher sans fracture, parquet faisant corps), donc elle est une règle
+// et non une entrée. L'article 553 fait de même pour les constructions.
+//
+// L'article 515-14 place les animaux sous le régime des biens « sous réserve
+// des lois qui les protègent » : cette réserve est une frontière externe
+// nommée par le texte, non une exception que ce paquet calcule.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART515_14,
+    CC_ART516,
+    CC_ART517,
+    CC_ART518,
+    CC_ART519,
+    CC_ART520,
+    CC_ART521,
+    CC_ART522,
+    CC_ART523,
+    CC_ART524,
+    CC_ART525,
+    CC_ART526,
+    CC_ART527,
+    CC_ART528,
+    CC_ART529,
+    CC_ART530,
+    CC_ART531,
+    CC_ART532,
+    CC_ART533,
+    CC_ART534,
+    CC_ART537,
+    CC_ART539,
+    CC_ART542,
+    Fonds,
+    Personne,
+    proprietaire_du_bien,
+};
+
+// --- Genres de la classification ------------------------------------------------------------
+
+pub relation immeuble_par_nature(b: Bien) kind derived {
+    label fr official "immeuble par sa nature (articles 517, 518 à 523)";
+    label en unofficial "immovable by its nature (Articles 517, 518 to 523)";
+}
+pub relation immeuble_par_destination(b: Bien) kind derived {
+    label fr official "immeuble par destination (articles 517, 524, 525)";
+    label en unofficial "immovable by destination (Articles 517, 524, 525)";
+}
+pub relation immeuble_par_l_objet(b: Bien) kind derived {
+    label fr official "immeuble par l'objet auquel il s'applique (articles 517, 526)";
+    label en unofficial "immovable by the object to which it applies (Articles 517, 526)";
+}
+pub relation meuble_par_nature(b: Bien) kind derived {
+    label fr official "meuble par sa nature (articles 527, 528, 531, 532)";
+    label en unofficial "movable by its nature (Articles 527, 528, 531, 532)";
+}
+pub relation meuble_par_determination_de_la_loi(b: Bien) kind derived {
+    label fr official "meuble par la détermination de la loi (articles 527, 529, 530)";
+    label en unofficial "movable by operation of law (Articles 527, 529, 530)";
+}
+pub relation immeuble(b: Bien) kind derived {
+    label fr official "le bien est immeuble (articles 516, 517)";
+    label en unofficial "the asset is immovable (Articles 516, 517)";
+}
+pub relation meuble(b: Bien) kind derived {
+    label fr official "le bien est meuble (articles 516, 527)";
+    label en unofficial "the asset is movable (Articles 516, 527)";
+}
+pub relation bien_classe(b: Bien) kind derived {
+    label fr official "le bien est rangé dans l'une des deux classes : tous les biens sont meubles ou immeubles (article 516)";
+    label en unofficial "the asset falls in one of the two classes: all assets are movable or immovable (Article 516)";
+}
+pub relation soumis_au_regime_des_immeubles(b: Bien) kind derived {
+    label fr official "soumis au régime des immeubles sans être immeuble par nature (articles 522, 524, alinéa 2)";
+    label en unofficial "subject to the regime of immovables without being immovable by nature (Articles 522, 524, paragraph 2)";
+}
+pub relation soumis_au_regime_des_meubles(b: Bien) kind derived {
+    label fr official "soumis au régime des meubles (articles 515-14, 522, alinéa 2)";
+    label en unofficial "subject to the regime of movables (Articles 515-14, 522, paragraph 2)";
+}
+
+// --- Faits d'entrée du titre Ier -------------------------------------------------------------
+
+pub relation animal(b: Bien) kind empirical {
+    label fr official "le bien est un animal, être vivant doué de sensibilité (article 515-14)";
+    label en unofficial "the asset is an animal, a living being endowed with sentience (Article 515-14)";
+}
+pub relation fonds_de_terre_ou_batiment(b: Bien) kind empirical {
+    label fr official "fonds de terre ou bâtiment (article 518)";
+    label en unofficial "plot of land or building (Article 518)";
+}
+pub relation moulin_fixe_sur_piliers_faisant_partie_du_batiment(b: Bien) kind empirical {
+    label fr official "moulin à vent ou à eau fixé sur piliers et faisant partie du bâtiment (article 519)";
+    label en unofficial "wind or water mill fixed on pillars and forming part of the building (Article 519)";
+}
+pub relation recolte_pendante_par_les_racines(b: Bien) kind empirical {
+    label fr official "récolte pendante par les racines, ou fruit d'arbre non encore recueilli (article 520, alinéa 1)";
+    label en unofficial "crop hanging by the roots, or fruit of a tree not yet gathered (Article 520, paragraph 1)";
+}
+pub relation grain_coupe_ou_fruit_detache(b: Bien) kind empirical {
+    label fr official "grain coupé ou fruit détaché, quoique non enlevé (article 520, alinéas 2 et 3)";
+    label en unofficial "cut grain or detached fruit, although not removed (Article 520, paragraphs 2 and 3)";
+}
+pub relation arbre_de_taillis_abattu(b: Bien) kind empirical {
+    label fr official "arbre d'une coupe ordinaire de taillis ou de futaie mise en coupe réglée, déjà abattu (article 521)";
+    label en unofficial "tree of an ordinary cut of coppice or timber under regulated cutting, already felled (Article 521)";
+}
+pub relation livre_au_fermier_ou_metayer_pour_la_culture(b: Bien, f: Fonds) kind empirical {
+    label fr official "animal que le propriétaire du fonds livre au fermier ou au métayer pour la culture (article 522, alinéa 1)";
+    label en unofficial "animal handed by the owner of the land to the tenant farmer or sharecropper for cultivation (Article 522, paragraph 1)";
+}
+pub relation attache_au_fonds_par_l_effet_de_la_convention(b: Bien, f: Fonds) kind empirical {
+    label fr official "l'animal demeure attaché au fonds par l'effet de la convention (article 522, alinéa 1)";
+    label en unofficial "the animal remains attached to the land by the effect of the agreement (Article 522, paragraph 1)";
+}
+pub relation donne_a_cheptel_a_un_autre_que_le_fermier(b: Bien, f: Fonds) kind empirical {
+    label fr official "animal donné à cheptel à d'autres qu'au fermier ou au métayer (article 522, alinéa 2)";
+    label en unofficial "animal given on livestock lease to someone other than the tenant farmer or sharecropper (Article 522, paragraph 2)";
+}
+pub relation tuyau_de_conduite_des_eaux(b: Bien, f: Fonds) kind empirical {
+    label fr official "tuyau servant à la conduite des eaux dans une maison ou autre héritage (article 523)";
+    label en unofficial "pipe serving to convey water in a house or other tenement (Article 523)";
+}
+pub relation place_par_le_proprietaire_pour_le_service_et_l_exploitation(b: Bien, f: Fonds) kind empirical {
+    label fr official "objet ou animal que le propriétaire du fonds y a placé pour le service et l'exploitation de ce fonds (article 524, alinéas 1 à 9)";
+    label en unofficial "object or animal placed by the owner of the land for the service and working of that land (Article 524, paragraphs 1 to 9)";
+}
+pub relation scelle_en_platre_a_chaux_ou_a_ciment(b: Bien, f: Fonds) kind empirical {
+    label fr official "effet mobilier scellé en plâtre, à chaux ou à ciment sur le fonds (article 525, alinéa 1)";
+    label en unofficial "movable effect sealed with plaster, lime or cement onto the land (Article 525, paragraph 1)";
+}
+pub relation ne_peut_etre_detache_sans_fracture_ni_deterioration(b: Bien, f: Fonds) kind empirical {
+    label fr official "l'effet mobilier ne peut être détaché sans être fracturé ou détérioré, ou sans briser ou détériorer la partie du fonds à laquelle il est attaché (article 525, alinéa 1)";
+    label en unofficial "the movable effect cannot be detached without being broken or damaged, or without breaking or damaging the part of the land it is attached to (Article 525, paragraph 1)";
+}
+pub relation glace_dont_le_parquet_fait_corps_avec_la_boiserie(b: Bien, f: Fonds) kind empirical {
+    label fr official "glace, tableau ou autre ornement dont le parquet d'attache fait corps avec la boiserie (article 525, alinéas 2 et 3)";
+    label en unofficial "mirror, painting or other ornament whose backing board is integral with the panelling (Article 525, paragraphs 2 and 3)";
+}
+pub relation statue_dans_une_niche_pratiquee_expres(b: Bien, f: Fonds) kind empirical {
+    label fr official "statue placée dans une niche pratiquée exprès pour la recevoir (article 525, alinéa 4)";
+    label en unofficial "statue placed in a niche made expressly to receive it (Article 525, paragraph 4)";
+}
+pub relation usufruit_de_chose_immobiliere(b: Bien) kind empirical {
+    label fr official "usufruit des choses immobilières (article 526, alinéa 2)";
+    label en unofficial "usufruct of immovable things (Article 526, paragraph 2)";
+}
+pub relation droit_de_servitude_fonciere(b: Bien) kind empirical {
+    label fr official "servitude ou service foncier considéré comme bien (article 526, alinéa 3)";
+    label en unofficial "servitude considered as an asset (Article 526, paragraph 3)";
+}
+pub relation action_tendant_a_revendiquer_un_immeuble(b: Bien) kind empirical {
+    label fr official "action qui tend à revendiquer un immeuble (article 526, alinéa 4)";
+    label en unofficial "action seeking to claim an immovable (Article 526, paragraph 4)";
+}
+pub relation peut_se_transporter_d_un_lieu_a_un_autre(b: Bien) kind empirical {
+    label fr official "le bien peut se transporter d'un lieu à un autre (article 528)";
+    label en unofficial "the asset can be moved from one place to another (Article 528)";
+}
+pub relation obligation_ou_action_sur_somme_exigible_ou_effet_mobilier(b: Bien) kind empirical {
+    label fr official "obligation ou action ayant pour objet des sommes exigibles ou des effets mobiliers (article 529, alinéa 1)";
+    label en unofficial "obligation or action whose object is sums due or movable effects (Article 529, paragraph 1)";
+}
+pub relation action_ou_interet_dans_une_compagnie(b: Bien) kind empirical {
+    label fr official "action ou intérêt dans une compagnie de finance, de commerce ou d'industrie (article 529, alinéa 1)";
+    label en unofficial "share or interest in a finance, trade or industry company (Article 529, paragraph 1)";
+}
+pub relation rente_perpetuelle_ou_viagere(b: Bien) kind empirical {
+    label fr official "rente perpétuelle ou viagère, sur l'État ou sur des particuliers (article 529, alinéa 2)";
+    label en unofficial "perpetual or life annuity, on the State or on private persons (Article 529, paragraph 2)";
+}
+pub relation rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(b: Bien) kind empirical {
+    label fr official "rente établie à perpétuité pour le prix de la vente d'un immeuble ou comme condition de la cession d'un fonds immobilier (article 530, alinéa 1)";
+    label en unofficial "perpetual annuity created for the price of the sale of an immovable or as a condition of the transfer of immovable property (Article 530, paragraph 1)";
+}
+pub relation terme_de_rachat_stipule(b: Bien, annees: Integer) kind empirical {
+    key(b);
+    label fr official "terme stipulé avant lequel la rente ne peut être remboursée, en années (article 530, alinéa 3)";
+    label en unofficial "stipulated term, in years, before which the annuity may not be redeemed (Article 530, paragraph 3)";
+}
+pub relation bateau_ou_usine_non_fixee_par_des_piliers(b: Bien) kind empirical {
+    label fr official "bateau, bac, navire, moulin ou bain sur bateau, et généralement usine non fixée par des piliers et ne faisant point partie de la maison (article 531)";
+    label en unofficial "boat, ferry, ship, mill or bath on a boat, and generally any works not fixed on pillars and not forming part of the house (Article 531)";
+}
+pub relation materiau_de_demolition_ou_assemble(b: Bien) kind empirical {
+    label fr official "matériau provenant de la démolition d'un édifice, ou assemblé pour en construire un nouveau (article 532)";
+    label en unofficial "material coming from the demolition of a building, or gathered to build a new one (Article 532)";
+}
+pub relation employe_par_l_ouvrier_dans_une_construction(b: Bien) kind empirical {
+    label fr official "le matériau est employé par l'ouvrier dans une construction (article 532)";
+    label en unofficial "the material is used by the workman in a construction (Article 532)";
+}
+pub relation n_appartient_pas_a_un_particulier(b: Bien) kind empirical {
+    label fr official "le bien n'appartient pas à des particuliers (article 537, alinéa 2)";
+    label en unofficial "the asset does not belong to private persons (Article 537, paragraph 2)";
+}
+pub relation succession_sans_heritier_ou_abandonnee(b: Bien) kind empirical {
+    label fr official "le bien vient d'une personne décédée sans héritiers, ou d'une succession abandonnée (article 539)";
+    label en unofficial "the asset comes from a person who died without heirs, or from an abandoned estate (Article 539)";
+}
+pub relation droit_acquis_des_habitants_de_la_commune(b: Bien) kind empirical {
+    label fr official "les habitants d'une ou plusieurs communes ont un droit acquis à la propriété ou au produit du bien (article 542)";
+    label en unofficial "the inhabitants of one or more communes have a vested right to the property or produce of the asset (Article 542)";
+}
+
+// --- Article 515-14 : les animaux ------------------------------------------------------------
+
+@source(CC_ART515_14)
+rule AnimalSoumisAuRegimeDesBiens(b: Bien) strict {
+    label fr official "Article 515-14. Les animaux sont des êtres vivants doués de sensibilité ; sous réserve des lois qui les protègent, ils sont soumis au régime des biens";
+    label en unofficial "Article 515-14. Animals are living beings endowed with sentience; subject to the laws protecting them, they are governed by the law of property";
+    when animal(b);
+    then bien_classe(b);
+}
+
+// --- Articles 518 à 523 : immeubles par nature ------------------------------------------------
+
+@source(CC_ART518) {
+    rule ImmeubleParNatureFondsEtBatiment(b: Bien) strict {
+        label fr official "Article 518. Les fonds de terre et les bâtiments sont immeubles par leur nature";
+        label en unofficial "Article 518. Plots of land and buildings are immovable by their nature";
+        when fonds_de_terre_ou_batiment(b);
+        then immeuble_par_nature(b);
+    }
+}
+
+@source(CC_ART519)
+rule ImmeubleParNatureMoulin(b: Bien) strict {
+    label fr official "Article 519. Les moulins à vent ou à eau, fixés sur piliers et faisant partie du bâtiment, sont aussi immeubles par leur nature";
+    label en unofficial "Article 519. Wind or water mills, fixed on pillars and forming part of the building, are also immovable by their nature";
+    when moulin_fixe_sur_piliers_faisant_partie_du_batiment(b);
+    then immeuble_par_nature(b);
+}
+
+@source(CC_ART520) {
+    rule ImmeubleRecoltePendante(b: Bien) strict {
+        label fr official "Article 520, alinéa 1. Les récoltes pendantes par les racines et les fruits des arbres non encore recueillis sont immeubles";
+        label en unofficial "Article 520, paragraph 1. Crops hanging by the roots and the fruits of trees not yet gathered are immovable";
+        when recolte_pendante_par_les_racines(b);
+        then immeuble_par_nature(b);
+    }
+    rule MeubleGrainCoupe(b: Bien) strict {
+        label fr official "Article 520, alinéas 2 et 3. Dès que les grains sont coupés et les fruits détachés, quoique non enlevés, ils sont meubles ; si une partie seulement de la récolte est coupée, cette partie seule est meuble";
+        label en unofficial "Article 520, paragraphs 2 and 3. Once grains are cut and fruits detached, although not removed, they are movable; if only part of the crop is cut, that part alone is movable";
+        when grain_coupe_ou_fruit_detache(b);
+        then meuble_par_nature(b);
+    }
+}
+
+@source(CC_ART521)
+rule MeubleCoupeAbattue(b: Bien) strict {
+    label fr official "Article 521. Les coupes ordinaires des bois taillis ou de futaies mises en coupes réglées ne deviennent meubles qu'au fur et à mesure que les arbres sont abattus";
+    label en unofficial "Article 521. Ordinary cuts of coppice or of timber under regulated cutting become movable only as the trees are felled";
+    when arbre_de_taillis_abattu(b);
+    then meuble_par_nature(b);
+}
+
+@source(CC_ART522) {
+    rule RegimeDesImmeublesAnimauxDuFermier(b: Bien, f: Fonds) strict {
+        label fr official "Article 522, alinéa 1. Les animaux que le propriétaire du fonds livre au fermier ou au métayer pour la culture sont soumis au régime des immeubles tant qu'ils demeurent attachés au fonds par l'effet de la convention";
+        label en unofficial "Article 522, paragraph 1. Animals handed by the owner of the land to the tenant farmer or sharecropper for cultivation are governed by the law of immovables as long as they remain attached to the land by the agreement";
+        when livre_au_fermier_ou_metayer_pour_la_culture(b, f)
+            and attache_au_fonds_par_l_effet_de_la_convention(b, f);
+        then soumis_au_regime_des_immeubles(b);
+    }
+    rule RegimeDesMeublesCheptelATiers(b: Bien, f: Fonds) strict {
+        label fr official "Article 522, alinéa 2. Les animaux donnés à cheptel à d'autres qu'au fermier ou métayer sont soumis au régime des meubles";
+        label en unofficial "Article 522, paragraph 2. Animals given on livestock lease to persons other than the tenant farmer or sharecropper are governed by the law of movables";
+        when donne_a_cheptel_a_un_autre_que_le_fermier(b, f);
+        then soumis_au_regime_des_meubles(b);
+    }
+}
+
+@source(CC_ART523)
+rule ImmeubleTuyauxDEau(b: Bien, f: Fonds) strict {
+    label fr official "Article 523. Les tuyaux servant à la conduite des eaux dans une maison ou autre héritage sont immeubles et font partie du fonds auquel ils sont attachés";
+    label en unofficial "Article 523. Pipes conveying water in a house or other tenement are immovable and form part of the land to which they are attached";
+    when tuyau_de_conduite_des_eaux(b, f);
+    then immeuble_par_nature(b);
+}
+
+// --- Articles 524 et 525 : immeubles par destination -------------------------------------------
+
+pub relation attache_a_perpetuelle_demeure(b: Bien, f: Fonds) kind derived {
+    label fr official "effet mobilier attaché au fonds à perpétuelle demeure (articles 524, alinéa 10, et 525)";
+    label en unofficial "movable effect attached to the land in perpetuity (Articles 524, paragraph 10, and 525)";
+}
+
+@source(CC_ART524) {
+    rule ImmeubleParDestinationServiceDuFonds(b: Bien, f: Fonds) strict {
+        label fr official "Article 524, alinéas 1 à 9. Les objets que le propriétaire d'un fonds y a placés pour le service et l'exploitation de ce fonds — ustensiles aratoires, semences données aux fermiers, ruches à miel, pressoirs, chaudières, alambics, cuves et tonnes, ustensiles des forges et usines, pailles et engrais — sont immeubles par destination ; il en est de même des animaux placés aux mêmes fins";
+        label en unofficial "Article 524, paragraphs 1 to 9. Objects placed by the owner of land for the service and working of that land — farming implements, seed given to tenants, beehives, presses, boilers, stills, vats and tuns, implements of forges and factories, straw and manure — are immovable by destination; the same applies to animals placed for the same purposes";
+        when place_par_le_proprietaire_pour_le_service_et_l_exploitation(b, f);
+        then immeuble_par_destination(b);
+    }
+    rule ImmeubleParDestinationPerpetuelleDemeure(b: Bien, f: Fonds) strict {
+        label fr official "Article 524, alinéa 10. Sont aussi immeubles par destination tous effets mobiliers que le propriétaire a attachés au fonds à perpétuelle demeure";
+        label en unofficial "Article 524, paragraph 10. All movable effects attached by the owner to the land in perpetuity are also immovable by destination";
+        when attache_a_perpetuelle_demeure(b, f);
+        then immeuble_par_destination(b);
+    }
+}
+
+@source(CC_ART525) {
+    rule PerpetuelleDemeureParScellement(b: Bien, f: Fonds) strict {
+        label fr official "Article 525, alinéa 1. Le propriétaire est censé avoir attaché à son fonds des effets mobiliers à perpétuelle demeure quand ils y sont scellés en plâtre, à chaux ou à ciment";
+        label en unofficial "Article 525, paragraph 1. The owner is deemed to have attached movable effects to his land in perpetuity when they are sealed there with plaster, lime or cement";
+        when scelle_en_platre_a_chaux_ou_a_ciment(b, f);
+        then attache_a_perpetuelle_demeure(b, f);
+    }
+    rule PerpetuelleDemeureParImpossibiliteDeDetacher(b: Bien, f: Fonds) strict {
+        label fr official "Article 525, alinéa 1. Il en est de même lorsque les effets mobiliers ne peuvent être détachés sans être fracturés ou détériorés, ou sans briser ou détériorer la partie du fonds à laquelle ils sont attachés";
+        label en unofficial "Article 525, paragraph 1. The same applies when the movable effects cannot be detached without being broken or damaged, or without breaking or damaging the part of the land they are attached to";
+        when ne_peut_etre_detache_sans_fracture_ni_deterioration(b, f);
+        then attache_a_perpetuelle_demeure(b, f);
+    }
+    rule PerpetuelleDemeureGlacesEtOrnements(b: Bien, f: Fonds) strict {
+        label fr official "Article 525, alinéas 2 et 3. Les glaces d'un appartement sont censées mises à perpétuelle demeure lorsque le parquet sur lequel elles sont attachées fait corps avec la boiserie ; il en est de même des tableaux et autres ornements";
+        label en unofficial "Article 525, paragraphs 2 and 3. Mirrors of an apartment are deemed placed in perpetuity when the board they are attached to is integral with the panelling; the same applies to paintings and other ornaments";
+        when glace_dont_le_parquet_fait_corps_avec_la_boiserie(b, f);
+        then attache_a_perpetuelle_demeure(b, f);
+    }
+    rule ImmeubleStatueDansUneNiche(b: Bien, f: Fonds) strict {
+        label fr official "Article 525, alinéa 4. Quant aux statues, elles sont immeubles lorsqu'elles sont placées dans une niche pratiquée exprès pour les recevoir, encore qu'elles puissent être enlevées sans fracture ni détérioration";
+        label en unofficial "Article 525, paragraph 4. As to statues, they are immovable when placed in a niche made expressly to receive them, even though they may be removed without breakage or damage";
+        when statue_dans_une_niche_pratiquee_expres(b, f);
+        then immeuble_par_destination(b);
+    }
+}
+
+// --- Article 526 : immeubles par l'objet -------------------------------------------------------
+
+@source(CC_ART526) {
+    rule ImmeubleParObjetUsufruit(b: Bien) strict {
+        label fr official "Article 526, alinéa 2. Est immeuble par l'objet auquel il s'applique l'usufruit des choses immobilières";
+        label en unofficial "Article 526, paragraph 2. The usufruct of immovable things is immovable by the object to which it applies";
+        when usufruit_de_chose_immobiliere(b);
+        then immeuble_par_l_objet(b);
+    }
+    rule ImmeubleParObjetServitude(b: Bien) strict {
+        label fr official "Article 526, alinéa 3. Sont immeubles par l'objet les servitudes ou services fonciers";
+        label en unofficial "Article 526, paragraph 3. Servitudes are immovable by the object to which they apply";
+        when droit_de_servitude_fonciere(b);
+        then immeuble_par_l_objet(b);
+    }
+    rule ImmeubleParObjetAction(b: Bien) strict {
+        label fr official "Article 526, alinéa 4. Sont immeubles par l'objet les actions qui tendent à revendiquer un immeuble";
+        label en unofficial "Article 526, paragraph 4. Actions seeking to claim an immovable are immovable by the object to which they apply";
+        when action_tendant_a_revendiquer_un_immeuble(b);
+        then immeuble_par_l_objet(b);
+    }
+}
+
+// --- Articles 528 à 532 : meubles ---------------------------------------------------------------
+
+@source(CC_ART528)
+rule MeubleParNatureTransportable(b: Bien) strict {
+    label fr official "Article 528. Sont meubles par leur nature les biens qui peuvent se transporter d'un lieu à un autre";
+    label en unofficial "Article 528. Assets that can be moved from one place to another are movable by their nature";
+    when peut_se_transporter_d_un_lieu_a_un_autre(b);
+    then meuble_par_nature(b);
+}
+
+@source(CC_ART529) {
+    rule MeubleLegalObligationEtAction(b: Bien) strict {
+        label fr official "Article 529, alinéa 1. Sont meubles par la détermination de la loi les obligations et actions qui ont pour objet des sommes exigibles ou des effets mobiliers";
+        label en unofficial "Article 529, paragraph 1. Obligations and actions whose object is sums due or movable effects are movable by operation of law";
+        when obligation_ou_action_sur_somme_exigible_ou_effet_mobilier(b);
+        then meuble_par_determination_de_la_loi(b);
+    }
+    rule MeubleLegalActionDeCompagnie(b: Bien) strict {
+        label fr official "Article 529, alinéa 1. Sont meubles par la détermination de la loi les actions ou intérêts dans les compagnies de finance, de commerce ou d'industrie, encore que des immeubles dépendant de ces entreprises appartiennent aux compagnies ; ces actions sont réputées meubles à l'égard de chaque associé seulement, tant que dure la société";
+        label en unofficial "Article 529, paragraph 1. Shares or interests in finance, trade or industry companies are movable by operation of law, even though immovables belonging to those undertakings are owned by the companies; those shares are deemed movable as regards each partner only, while the company lasts";
+        when action_ou_interet_dans_une_compagnie(b);
+        then meuble_par_determination_de_la_loi(b);
+    }
+    rule MeubleLegalRente(b: Bien) strict {
+        label fr official "Article 529, alinéa 2. Sont aussi meubles par la détermination de la loi les rentes perpétuelles ou viagères, soit sur l'État, soit sur des particuliers";
+        label en unofficial "Article 529, paragraph 2. Perpetual or life annuities, whether on the State or on private persons, are also movable by operation of law";
+        when rente_perpetuelle_ou_viagere(b);
+        then meuble_par_determination_de_la_loi(b);
+    }
+}
+
+pub relation rente_essentiellement_rachetable(b: Bien) kind derived {
+    label fr official "rente essentiellement rachetable (article 530, alinéa 1)";
+    label en unofficial "annuity essentially redeemable (Article 530, paragraph 1)";
+}
+pub relation stipulation_de_terme_nulle(b: Bien) kind derived {
+    label fr official "la stipulation de terme est nulle : le terme excède trente ans (article 530, alinéa 3)";
+    label en unofficial "the stipulation of a term is void: the term exceeds thirty years (Article 530, paragraph 3)";
+}
+pub relation stipulation_de_terme_valable(b: Bien) kind derived {
+    label fr official "la stipulation de terme est valable : le terme n'excède pas trente ans (article 530, alinéa 3)";
+    label en unofficial "the stipulation of a term is valid: the term does not exceed thirty years (Article 530, paragraph 3)";
+}
+
+@source(CC_ART530) {
+    pub relation creancier_rente(b: Bien, p: Personne) kind empirical {
+        label fr official "créancier de la rente";
+        label en unofficial "annuity creditor";
+    }
+    pub relation terme_rente_stipule_exerce(b: Bien, p: Personne) kind empirical {
+        label fr official "stipulation du terme de la rente exercée";
+        label en unofficial "annuity term stipulation exercised";
+    }
+    pub relation terme_rente_excessif_stipule(b: Bien, p: Personne) kind empirical {
+        label fr official "stipulation d'un terme excessif exercée";
+        label en unofficial "excessive term stipulation exercised";
+    }
+    rule P4PouvoirStipulerTermeRente530(b: Bien, p: Personne, annees: Integer) strict {
+        label fr official "Article 530. Le créancier peut stipuler un terme de rachat";
+        label en unofficial "Article 530. The creditor may stipulate a redemption term";
+        when creancier_rente(b, p)
+            and rente_essentiellement_rachetable(b)
+            and terme_de_rachat_stipule(b, annees)
+            and annees <= 30;
+        then power P4PouvoirStipulerTermeRente530Actif {
+            holder p;
+            over b;
+            exercise terme_rente_stipule_exerce(b, p);
+            effect stipulation_de_terme_valable(b);
+            valid_when rente_essentiellement_rachetable(b);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4InterdictionTermeRenteExcessif530(b: Bien, p: Personne, annees: Integer) strict {
+        label fr official "Article 530. Le créancier ne peut stipuler un terme supérieur à trente ans";
+        label en unofficial "Article 530. The creditor may not stipulate a term exceeding thirty years";
+        when creancier_rente(b, p)
+            and rente_essentiellement_rachetable(b)
+            and terme_de_rachat_stipule(b, annees)
+            and annees > 30;
+        then prohibition P4InterdictionTermeRenteExcessif530Actif {
+            bearer p;
+            action terme_rente_excessif_stipule(b, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionTermeRenteExcessif530(b: Bien, p: Personne, annees: Integer) strict {
+        label fr official "Article 530. Le créancier doit maintenir l'absence de terme supérieur à trente ans";
+        label en unofficial "Article 530. The creditor must maintain the absence of a term exceeding thirty years";
+        when creancier_rente(b, p)
+            and rente_essentiellement_rachetable(b)
+            and terme_de_rachat_stipule(b, annees)
+            and annees > 30;
+        then duty MaintenanceInterdictionTermeRenteExcessif530Duty {
+            bearer p;
+            goal maintenance {
+                condition not terme_rente_excessif_stipule(b, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule RenteRachetable(b: Bien) strict {
+        label fr official "Article 530, alinéa 1. Toute rente établie à perpétuité pour le prix de la vente d'un immeuble, ou comme condition de la cession d'un fonds immobilier, est essentiellement rachetable";
+        label en unofficial "Article 530, paragraph 1. Any perpetual annuity created for the price of the sale of an immovable, or as a condition of the transfer of immovable property, is essentially redeemable";
+        when rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(b);
+        then rente_essentiellement_rachetable(b);
+    }
+    rule TermeDeRachatExcedantTrenteAns(b: Bien, annees: Integer) strict {
+        label fr official "Article 530, alinéa 3. Le terme stipulé ne peut jamais excéder trente ans ; toute stipulation contraire est nulle";
+        label en unofficial "Article 530, paragraph 3. The stipulated term may never exceed thirty years; any stipulation to the contrary is void";
+        when rente_essentiellement_rachetable(b)
+            and terme_de_rachat_stipule(b, annees)
+            and annees > 30;
+        then stipulation_de_terme_nulle(b);
+    }
+    rule TermeDeRachatAdmis(b: Bien, annees: Integer) strict {
+        label fr official "Article 530, alinéa 3. Le créancier peut stipuler que la rente ne pourra lui être remboursée qu'après un certain terme, lequel ne peut jamais excéder trente ans";
+        label en unofficial "Article 530, paragraph 3. The creditor may stipulate that the annuity may be redeemed only after a certain term, which may never exceed thirty years";
+        when rente_essentiellement_rachetable(b)
+            and terme_de_rachat_stipule(b, annees)
+            and annees <= 30;
+        then stipulation_de_terme_valable(b);
+    }
+}
+
+@source(CC_ART531)
+rule MeubleBateauxEtUsinesNonFixees(b: Bien) strict {
+    label fr official "Article 531. Les bateaux, bacs, navires, moulins et bains sur bateaux, et généralement toutes usines non fixées par des piliers et ne faisant point partie de la maison, sont meubles";
+    label en unofficial "Article 531. Boats, ferries, ships, mills and baths on boats, and generally any works not fixed on pillars and not forming part of the house, are movable";
+    when bateau_ou_usine_non_fixee_par_des_piliers(b);
+    then meuble_par_nature(b);
+}
+
+@source(CC_ART532)
+rule MeubleMateriauxJusquaEmploi(b: Bien) strict {
+    label fr official "Article 532. Les matériaux provenant de la démolition d'un édifice, ceux assemblés pour en construire un nouveau, sont meubles jusqu'à ce qu'ils soient employés par l'ouvrier dans une construction";
+    label en unofficial "Article 532. Materials from the demolition of a building, and those gathered to build a new one, are movable until used by the workman in a construction";
+    when materiau_de_demolition_ou_assemble(b)
+        and not_known(employe_par_l_ouvrier_dans_une_construction(b));
+    then meuble_par_nature(b);
+}
+
+// --- Article 517 : les trois genres d'immeubles, et 516 et 527 : les deux classes ---------------
+
+@source(CC_ART517) {
+    rule ImmeubleParSesTroisGenresNature(b: Bien) strict {
+        label fr official "Article 517. Les biens sont immeubles par leur nature";
+        label en unofficial "Article 517. Assets are immovable by their nature";
+        when immeuble_par_nature(b);
+        then immeuble(b);
+    }
+    rule ImmeubleParSesTroisGenresDestination(b: Bien) strict {
+        label fr official "Article 517. Les biens sont immeubles par leur destination";
+        label en unofficial "Article 517. Assets are immovable by their destination";
+        when immeuble_par_destination(b);
+        then immeuble(b);
+    }
+    rule ImmeubleParSesTroisGenresObjet(b: Bien) strict {
+        label fr official "Article 517. Les biens sont immeubles par l'objet auquel ils s'appliquent";
+        label en unofficial "Article 517. Assets are immovable by the object to which they apply";
+        when immeuble_par_l_objet(b);
+        then immeuble(b);
+    }
+}
+
+@source(CC_ART527) {
+    rule MeubleParSesDeuxGenresNature(b: Bien) strict {
+        label fr official "Article 527. Les biens sont meubles par leur nature";
+        label en unofficial "Article 527. Assets are movable by their nature";
+        when meuble_par_nature(b);
+        then meuble(b);
+    }
+    rule MeubleParSesDeuxGenresLoi(b: Bien) strict {
+        label fr official "Article 527. Les biens sont meubles par la détermination de la loi";
+        label en unofficial "Article 527. Assets are movable by operation of law";
+        when meuble_par_determination_de_la_loi(b);
+        then meuble(b);
+    }
+}
+
+@source(CC_ART516) {
+    rule ToutBienEstMeubleOuImmeubleBrancheImmeuble(b: Bien) strict {
+        label fr official "Article 516. Tous les biens sont meubles ou immeubles : le bien rangé parmi les immeubles est classé";
+        label en unofficial "Article 516. All assets are movable or immovable: an asset ranked among immovables is classified";
+        when immeuble(b);
+        then bien_classe(b);
+    }
+    rule ToutBienEstMeubleOuImmeubleBrancheMeuble(b: Bien) strict {
+        label fr official "Article 516. Tous les biens sont meubles ou immeubles : le bien rangé parmi les meubles est classé";
+        label en unofficial "Article 516. All assets are movable or immovable: an asset ranked among movables is classified";
+        when meuble(b);
+        then bien_classe(b);
+    }
+}
+
+// --- Articles 533 à 536 : les mots de la loi et de l'homme -------------------------------------
+//
+// Ces articles ne classent pas les biens : ils disent ce que COMPREND un mot
+// employé dans un acte. La liste des choses exclues du mot « meuble » (533)
+// et celle des choses comprises dans « meubles meublants » (534) sont
+// fermées par le texte, donc exécutées.
+
+pub enum EspeceDeChose {
+    label fr official "Espèce de chose nommée par les articles 533 à 536";
+    label en unofficial "Kind of thing named by Articles 533 to 536";
+    ArgentComptant,
+    Pierrerie,
+    DetteActive,
+    Livre,
+    Medaille,
+    InstrumentDesSciencesOuArts,
+    LingeDeCorps,
+    Equipage,
+    Arme,
+    Denree,
+    ObjetDUnCommerce,
+    MeubleDUsageEtDOrnementDesAppartements,
+    TableauOuStatueDuMeubleDUnAppartement,
+    CollectionDeTableauxEnGalerie,
+    AutreEffetMobilier
+}
+
+pub relation espece_de_la_chose(b: Bien, espece: EspeceDeChose) kind empirical {
+    key(b);
+    label fr official "espèce de la chose, telle que les articles 533 à 536 la nomment";
+    label en unofficial "kind of the thing, as Articles 533 to 536 name it";
+}
+pub relation comprise_sous_le_mot_meuble(b: Bien) kind derived {
+    label fr official "la chose est comprise sous le mot « meuble » employé seul (article 533)";
+    label en unofficial "the thing is included under the word \"movable\" used alone (Article 533)";
+}
+pub relation exclue_du_mot_meuble(b: Bien) kind derived {
+    label fr official "la chose est exclue du mot « meuble » employé seul (article 533)";
+    label en unofficial "the thing is excluded from the word \"movable\" used alone (Article 533)";
+}
+pub relation comprise_sous_meubles_meublants(b: Bien) kind derived {
+    label fr official "la chose est comprise sous les mots « meubles meublants » (article 534)";
+    label en unofficial "the thing is included under the words \"furnishing movables\" (Article 534)";
+}
+pub relation exclue_des_meubles_meublants(b: Bien) kind derived {
+    label fr official "la chose est exclue des mots « meubles meublants » (article 534)";
+    label en unofficial "the thing is excluded from the words \"furnishing movables\" (Article 534)";
+}
+
+@source(CC_ART533) {
+    rule MotMeubleExclutArgentComptant(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas l'argent comptant";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include ready money";
+        when espece_de_la_chose(b, ArgentComptant);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutPierreries(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les pierreries";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include precious stones";
+        when espece_de_la_chose(b, Pierrerie);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutDettesActives(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les dettes actives";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include debts owed";
+        when espece_de_la_chose(b, DetteActive);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutLivres(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les livres";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include books";
+        when espece_de_la_chose(b, Livre);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutMedailles(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les médailles";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include medals";
+        when espece_de_la_chose(b, Medaille);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutInstrumentsDesSciences(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les instruments des sciences, des arts et métiers";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include instruments of the sciences, arts and crafts";
+        when espece_de_la_chose(b, InstrumentDesSciencesOuArts);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutLingeDeCorps(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas le linge de corps";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include body linen";
+        when espece_de_la_chose(b, LingeDeCorps);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutEquipages(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les équipages";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include equipages";
+        when espece_de_la_chose(b, Equipage);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutArmes(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les armes";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include weapons";
+        when espece_de_la_chose(b, Arme);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutDenrees(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas les grains, vins, foins et autres denrées";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include grain, wine, hay and other commodities";
+        when espece_de_la_chose(b, Denree);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleExclutObjetDeCommerce(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul, ne comprend pas ce qui fait l'objet d'un commerce";
+        label en unofficial "Article 533. The word \"movable\", used alone, does not include what is the object of a trade";
+        when espece_de_la_chose(b, ObjetDUnCommerce);
+        then exclue_du_mot_meuble(b);
+    }
+    rule MotMeubleComprendLeReste(b: Bien) strict {
+        label fr official "Article 533. Le mot « meuble », employé seul dans les dispositions de la loi ou de l'homme, comprend ce que les exclusions qu'il énumère ne retirent pas";
+        label en unofficial "Article 533. The word \"movable\", used alone in provisions of law or of man, includes what its listed exclusions do not remove";
+        when meuble(b)
+            and not_known(exclue_du_mot_meuble(b));
+        then comprise_sous_le_mot_meuble(b);
+    }
+}
+
+@source(CC_ART534) {
+    rule MeublesMeublantsComprennentLAmeublement(b: Bien) strict {
+        label fr official "Article 534, alinéa 1. Les mots « meubles meublants » ne comprennent que les meubles destinés à l'usage et à l'ornement des appartements, comme tapisseries, lits, sièges, glaces, pendules, tables et porcelaines";
+        label en unofficial "Article 534, paragraph 1. The words \"furnishing movables\" include only movables intended for the use and ornament of apartments, such as tapestries, beds, seats, mirrors, clocks, tables and porcelain";
+        when espece_de_la_chose(b, MeubleDUsageEtDOrnementDesAppartements);
+        then comprise_sous_meubles_meublants(b);
+    }
+    rule MeublesMeublantsComprennentTableauxDuMeuble(b: Bien) strict {
+        label fr official "Article 534, alinéa 2. Les tableaux et les statues qui font partie du meuble d'un appartement y sont aussi compris";
+        label en unofficial "Article 534, paragraph 2. Paintings and statues forming part of the furniture of an apartment are also included";
+        when espece_de_la_chose(b, TableauOuStatueDuMeubleDUnAppartement);
+        then comprise_sous_meubles_meublants(b);
+    }
+    rule MeublesMeublantsExcluentLesCollections(b: Bien) strict {
+        label fr official "Article 534, alinéas 2 et 3. Ne sont pas compris les collections de tableaux qui peuvent être dans les galeries ou pièces particulières ; des porcelaines, celles seulement qui font partie de la décoration d'un appartement sont comprises";
+        label en unofficial "Article 534, paragraphs 2 and 3. Collections of paintings kept in galleries or separate rooms are not included; of porcelain, only what forms part of the decoration of an apartment is included";
+        when espece_de_la_chose(b, CollectionDeTableauxEnGalerie);
+        then exclue_des_meubles_meublants(b);
+    }
+}
+
+// --- Articles 537 à 543 : les biens et ceux qui les possèdent ----------------------------------
+
+pub relation libre_disposition(b: Bien, p: Personne) kind derived {
+    label fr official "le particulier a la libre disposition du bien qui lui appartient, sous les modifications établies par les lois (article 537, alinéa 1)";
+    label en unofficial "the private owner freely disposes of the asset belonging to him, subject to the modifications established by statute (Article 537, paragraph 1)";
+}
+pub relation inalienable_hors_des_formes_particulieres(b: Bien) kind derived {
+    label fr official "le bien n'appartenant pas à des particuliers est administré et ne peut être aliéné que dans les formes et suivant les règles qui lui sont particulières (article 537, alinéa 2)";
+    label en unofficial "an asset not belonging to private persons is administered and may be alienated only in the forms and under the rules particular to it (Article 537, paragraph 2)";
+}
+pub relation disposition_bien_prive_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "libre disposition du bien privé exercée";
+    label en unofficial "free disposal of private asset exercised";
+}
+pub relation alienation_hors_formes_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "aliénation hors des formes particulières exercée";
+    label en unofficial "alienation outside particular forms exercised";
+}
+pub relation administrateur_du_bien(b: Bien, p: Personne) kind empirical {
+    label fr official "administrateur du bien hors patrimoine privé";
+    label en unofficial "administrator of asset outside private patrimony";
+}
+pub relation appartient_a_l_etat(b: Bien) kind derived {
+    label fr official "le bien appartient à l'État (article 539)";
+    label en unofficial "the asset belongs to the State (Article 539)";
+}
+pub relation bien_communal(b: Bien) kind derived {
+    label fr official "le bien est communal (article 542)";
+    label en unofficial "the asset is communal (Article 542)";
+}
+
+pub enum EspeceDeDroitSurLeBien {
+    label fr official "Espèce de droit que l'on peut avoir sur les biens (article 543)";
+    label en unofficial "Kind of right one may have over assets (Article 543)";
+    Propriete,
+    SimpleJouissance,
+    ServiceFoncierAPretendre
+}
+
+pub relation droit_sur_le_bien(b: Bien, p: Personne, espece: EspeceDeDroitSurLeBien) kind derived {
+    label fr official "espèce du droit que la personne a sur le bien : propriété, simple jouissance ou service foncier à prétendre (article 543)";
+    label en unofficial "kind of right the person has over the asset: ownership, mere enjoyment or a servitude to claim (Article 543)";
+}
+
+@source(CC_ART537) {
+    rule P4LiberteDispositionBienPrive537(b: Bien, p: Personne) strict {
+        label fr official "Article 537. Le particulier peut disposer librement de son bien";
+        label en unofficial "Article 537. The private person may freely dispose of the asset";
+        when proprietaire_du_bien(b, p)
+            and not_known(n_appartient_pas_a_un_particulier(b));
+        then liberty P4LiberteDispositionBienPrive537Actif {
+            holder p;
+            action disposition_bien_prive_exercee(b, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule P4InterdictionAlienationHorsFormes537(b: Bien, p: Personne) strict {
+        label fr official "Article 537. L'administrateur ne peut aliéner le bien hors des formes particulières";
+        label en unofficial "Article 537. The administrator may not alienate the asset outside the particular forms";
+        when n_appartient_pas_a_un_particulier(b)
+            and administrateur_du_bien(b, p);
+        then prohibition P4InterdictionAlienationHorsFormes537Actif {
+            bearer p;
+            action alienation_hors_formes_exercee(b, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionAlienationHorsFormes537(b: Bien, p: Personne) strict {
+        label fr official "Article 537. L'administrateur doit maintenir l'absence d'aliénation hors des formes particulières";
+        label en unofficial "Article 537. The administrator must maintain the absence of alienation outside the particular forms";
+        when n_appartient_pas_a_un_particulier(b)
+            and administrateur_du_bien(b, p);
+        then duty MaintenanceInterdictionAlienationHorsFormes537Duty {
+            bearer p;
+            goal maintenance {
+                condition not alienation_hors_formes_exercee(b, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule LibreDispositionDuParticulier(b: Bien, p: Personne) strict {
+        label fr official "Article 537, alinéa 1. Les particuliers ont la libre disposition des biens qui leur appartiennent, sous les modifications établies par les lois";
+        label en unofficial "Article 537, paragraph 1. Private persons have free disposal of the assets belonging to them, subject to the modifications established by statute";
+        when proprietaire_du_bien(b, p)
+            and not_known(n_appartient_pas_a_un_particulier(b));
+        then libre_disposition(b, p);
+    }
+    rule BienHorsDuPatrimoineDesParticuliers(b: Bien) strict {
+        label fr official "Article 537, alinéa 2. Les biens qui n'appartiennent pas à des particuliers sont administrés et ne peuvent être aliénés que dans les formes et suivant les règles qui leur sont particulières";
+        label en unofficial "Article 537, paragraph 2. Assets not belonging to private persons are administered and may be alienated only in the forms and under the rules particular to them";
+        when n_appartient_pas_a_un_particulier(b);
+        then inalienable_hors_des_formes_particulieres(b);
+    }
+}
+
+@source(CC_ART539)
+rule SuccessionVacanteALEtat(b: Bien) strict {
+    label fr official "Article 539. Les biens des personnes qui décèdent sans héritiers ou dont les successions sont abandonnées appartiennent à l'État";
+    label en unofficial "Article 539. The assets of persons dying without heirs, or whose estates are abandoned, belong to the State";
+    when succession_sans_heritier_ou_abandonnee(b);
+    then appartient_a_l_etat(b);
+}
+
+@source(CC_ART542)
+rule BienCommunal(b: Bien) strict {
+    label fr official "Article 542. Les biens communaux sont ceux à la propriété ou au produit desquels les habitants d'une ou plusieurs communes ont un droit acquis";
+    label en unofficial "Article 542. Communal assets are those to the ownership or produce of which the inhabitants of one or more communes have a vested right";
+    when droit_acquis_des_habitants_de_la_commune(b);
+    then bien_communal(b);
+}

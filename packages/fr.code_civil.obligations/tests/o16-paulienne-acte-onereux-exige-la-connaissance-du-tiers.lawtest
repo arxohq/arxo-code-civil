@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1341-2 : la fraude est établie, mais l'acte est À TITRE ONÉREUX — le créancier
+// doit établir EN OUTRE que le tiers cocontractant avait connaissance de la fraude.
+// Cette connaissance n'est pas établie : l'inopposabilité n'est pas prononcée.
+test "urn:query:fr-code-civil-obligations-o16-paulienne-acte-onereux-exige-la-connaissance-du-tiers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": acte_du_debiteur(entity_ref("urn:fr:cc:obligations:pau:a"), entity_ref("urn:fr:cc:obligations:pau:c"), entity_ref("urn:fr:cc:obligations:pau:D")) { origin case_input; }
+        assert "f2": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obligations:pau:c"), entity_ref("urn:fr:cc:obligations:pau:CR")) { origin case_input; }
+        assert "f3": fraude_aux_droits_du_creancier(entity_ref("urn:fr:cc:obligations:pau:a")) { origin adjudicated; }
+        assert "f4": acte_a_titre_onereux(entity_ref("urn:fr:cc:obligations:pau:a")) { origin case_input; }
+        assert "f5": tiers_cocontractant(entity_ref("urn:fr:cc:obligations:pau:a"), entity_ref("urn:fr:cc:obligations:pau:T")) { origin case_input; }
+    }
+    evaluate truth(acte_inopposable_au_creancier(entity_ref("urn:fr:cc:obligations:pau:a"), entity_ref("urn:fr:cc:obligations:pau:CR")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

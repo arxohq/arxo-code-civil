@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 147 : un époux encore marié — empêchement.
+test "urn:query:fr-code-civil-famille-m03-bigamie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": epoux(entity_ref("urn:fr:cc:fam:c:m"), entity_ref("urn:fr:cc:fam:c:a"), entity_ref("urn:fr:cc:fam:c:b")) { origin case_input; }
+        assert "f2": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:c:b")) { origin case_input; }
+    }
+    evaluate truth(empechement_de_bigamie(entity_ref("urn:fr:cc:fam:c:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EmpechementDeBigamieSecondEpoux);
+}

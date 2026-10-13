@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-16 : cession du 1er mars 2021 sans notification, action du 1er mars 2026.
+test "urn:query:fr-code-civil-successions-i26-nullite-de-la-cession-dans-les-cinq-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": cession_sans_notification(entity_ref("urn:fr:cc:successions:ind:i26:I")) { origin case_input; }
+        assert "f2": cession_operee_le(entity_ref("urn:fr:cc:successions:ind:i26:I"), @2021-03-01) { origin case_input; }
+        assert "f3": action_en_nullite_de_la_cession_le(entity_ref("urn:fr:cc:successions:ind:i26:I"), @2026-03-01) { origin case_input; }
+    }
+    evaluate truth(nullite_de_la_cession_encourue(entity_ref("urn:fr:cc:successions:ind:i26:I")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NulliteDeLaCessionEncourue);
+}

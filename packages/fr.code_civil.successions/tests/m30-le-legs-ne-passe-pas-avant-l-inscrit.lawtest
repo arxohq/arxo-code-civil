@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 796 : le légataire de somme d'argent ne passe pas avant le créancier inscrit.
+test "urn:query:fr-code-civil-successions-m30-le-legs-ne-passe-pas-avant-l-inscrit" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m30:S"), entity_ref("urn:fr:cc:successions:adm:m30:P1"), LegataireDeSommeDArgent) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m30:S"), entity_ref("urn:fr:cc:successions:adm:m30:P2"), CreancierInscrit) { origin case_input; }
+    }
+    evaluate truth(paye_avant(entity_ref("urn:fr:cc:successions:adm:m30:S"), entity_ref("urn:fr:cc:successions:adm:m30:P1"), entity_ref("urn:fr:cc:successions:adm:m30:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-SAUVEGARDEPOURBESOINTEMPORAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": condition_de_protection_remplie(entity_ref("urn:law:catalog:sauvegardepourbesointemporaire:v0")) { origin case_input; }
+        assert "cat-1": besoin_protection_temporaire(entity_ref("urn:law:catalog:sauvegardepourbesointemporaire:v0")) { origin case_input; }
+    }
+    evaluate truth(sauvegarde_justice_admissible(entity_ref("urn:law:catalog:sauvegardepourbesointemporaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,141 @@
+// LIVRE IV, TITRE Ier, CHAPITRES II ET III : GARANTIE AUTONOME ET LETTRE
+// D'INTENTION (articles 2321 et 2322), dans leur rédaction de 2006.
+//
+// Ces articles ne relèvent pas du corridor du cautionnement : l'ordonnance
+// n° 2021-1192 ne les a pas modifiés (version en vigueur depuis le
+// 24 mars 2006). Aucun filtre de loi applicable n'y est posé.
+//
+// DEUX CANAUX (2321, al. 2). « Abus ou fraude manifestes » du bénéficiaire est
+// une appréciation déléguée au juge (§47.3) ; la « collusion » avec le donneur
+// d'ordre est un fait à établir (origine `adjudicated` dans le cas).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2321,
+    CC_ART2322,
+    GarantieAutonome,
+    LettreDIntention,
+    Personne,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation garantie_autonome(g: GarantieAutonome, garant: Personne, beneficiaire: Personne) kind empirical {
+    key(g);
+    label fr official "engagement par lequel le garant s'oblige, en considération d'une obligation souscrite par un tiers, à verser une somme (article 2321)";
+    label en unofficial "undertaking by which the guarantor, in view of an obligation of a third party, agrees to pay a sum (Article 2321)";
+}
+pub relation somme_de_la_garantie(g: GarantieAutonome, m: Money) kind empirical {
+    key(g);
+    label fr official "somme que le garant s'oblige à verser (article 2321)";
+    label en unofficial "sum the guarantor undertakes to pay (Article 2321)";
+}
+pub relation appel_de_la_garantie(g: GarantieAutonome) kind empirical {
+    label fr official "le bénéficiaire appelle la garantie, à première demande ou suivant les modalités convenues (article 2321)";
+    label en unofficial "the beneficiary calls the guarantee, on first demand or as agreed (Article 2321)";
+}
+pub relation collusion_avec_le_donneur_d_ordre(g: GarantieAutonome) kind empirical {
+    label fr official "collusion du bénéficiaire avec le donneur d'ordre, établie (article 2321, al. 2)";
+    label en unofficial "collusion between the beneficiary and the instructing party, established (Article 2321, para. 2)";
+}
+pub relation exception_tenant_a_l_obligation_garantie(g: GarantieAutonome, x: Text) kind empirical {
+    label fr official "exception tenant à l'obligation garantie, invoquée par le garant (article 2321, al. 3)";
+    label en unofficial "defence based on the guaranteed obligation, raised by the guarantor (Article 2321, para. 3)";
+}
+pub relation convention_de_transmission_avec_l_obligation(g: GarantieAutonome) kind empirical {
+    label fr official "convention contraire : la garantie suit l'obligation garantie (article 2321, al. 4)";
+    label en unofficial "contrary agreement: the guarantee follows the guaranteed obligation (Article 2321, para. 4)";
+}
+pub relation obligation_garantie_cedee(g: GarantieAutonome) kind empirical {
+    label fr official "l'obligation garantie a été cédée ou transmise (article 2321, al. 4)";
+    label en unofficial "the guaranteed obligation was assigned or transferred (Article 2321, para. 4)";
+}
+pub relation lettre_d_intention(l: LettreDIntention, emetteur: Personne, debiteur_soutenu: Personne) kind empirical {
+    key(l);
+    label fr official "engagement de faire ou de ne pas faire ayant pour objet le soutien apporté à un débiteur dans l'exécution de son obligation (article 2322)";
+    label en unofficial "undertaking to act or refrain aimed at supporting a debtor in performing its obligation (Article 2322)";
+}
+
+@source(CC_ART2321)
+pub external judgment relation abus_ou_fraude_manifestes(g: GarantieAutonome) {
+    authority Court;
+    label fr official "l'appel de la garantie procède d'un abus ou d'une fraude manifestes du bénéficiaire (article 2321, al. 2)";
+    label en unofficial "the call on the guarantee is a manifest abuse or fraud by the beneficiary (Article 2321, para. 2)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation garant_tenu_de_payer(g: GarantieAutonome, m: Money) kind derived {
+    key(g);
+    label fr official "le garant est tenu de verser la somme appelée (article 2321)";
+    label en unofficial "the guarantor must pay the sum called (Article 2321)";
+}
+pub relation garant_libere_pour_abus_ou_fraude(g: GarantieAutonome) kind derived {
+    label fr official "le garant n'est pas tenu en cas d'abus ou de fraude manifestes du bénéficiaire (article 2321, al. 2)";
+    label en unofficial "the guarantor is not bound in case of the beneficiary's manifest abuse or fraud (Article 2321, para. 2)";
+}
+pub relation garant_libere_pour_collusion(g: GarantieAutonome) kind derived {
+    label fr official "le garant n'est pas tenu en cas de collusion du bénéficiaire avec le donneur d'ordre (article 2321, al. 2)";
+    label en unofficial "the guarantor is not bound in case of collusion between the beneficiary and the instructing party (Article 2321, para. 2)";
+}
+pub relation exception_inopposable_par_le_garant(g: GarantieAutonome, x: Text) kind derived {
+    label fr official "le garant ne peut opposer aucune exception tenant à l'obligation garantie (article 2321, al. 3)";
+    label en unofficial "the guarantor cannot raise any defence based on the guaranteed obligation (Article 2321, para. 3)";
+}
+pub relation garantie_ne_suit_pas_l_obligation(g: GarantieAutonome) kind derived {
+    label fr official "sauf convention contraire, la garantie autonome ne suit pas l'obligation garantie (article 2321, al. 4)";
+    label en unofficial "unless otherwise agreed, the independent guarantee does not follow the guaranteed obligation (Article 2321, para. 4)";
+}
+pub relation soutien_du_debiteur_promis(l: LettreDIntention, p: Personne) kind derived {
+    label fr official "l'émetteur s'engage à soutenir le débiteur dans l'exécution de son obligation envers son créancier (article 2322)";
+    label en unofficial "the issuer undertakes to support the debtor in performing its obligation to its creditor (Article 2322)";
+}
+
+// --- 2321 -----------------------------------------------------------------------------------
+
+@source(CC_ART2321) {
+    rule GarantAbusOuFraude(g: GarantieAutonome, a: Personne, b: Personne) strict {
+        label fr official "Article 2321, alinéa 2. Le garant n'est pas tenu en cas d'abus ou de fraude manifestes du bénéficiaire";
+        label en unofficial "Article 2321, paragraph 2. The guarantor is not bound in case of the beneficiary's manifest abuse or fraud";
+        when garantie_autonome(g, a, b) and appel_de_la_garantie(g) and abus_ou_fraude_manifestes(g);
+        then garant_libere_pour_abus_ou_fraude(g);
+    }
+    rule GarantCollusion(g: GarantieAutonome, a: Personne, b: Personne) strict {
+        label fr official "Article 2321, alinéa 2. Le garant n'est pas tenu en cas de collusion du bénéficiaire avec le donneur d'ordre";
+        label en unofficial "Article 2321, paragraph 2. The guarantor is not bound in case of collusion between the beneficiary and the instructing party";
+        when garantie_autonome(g, a, b) and appel_de_la_garantie(g) and collusion_avec_le_donneur_d_ordre(g);
+        then garant_libere_pour_collusion(g);
+    }
+    rule GarantTenuDePayer(g: GarantieAutonome, a: Personne, b: Personne, m: Money) strict {
+        label fr official "Article 2321, alinéa 1. Le garant s'oblige à verser une somme, à première demande ou suivant les modalités convenues";
+        label en unofficial "Article 2321, paragraph 1. The guarantor undertakes to pay a sum, on first demand or as agreed";
+        when garantie_autonome(g, a, b) and appel_de_la_garantie(g) and somme_de_la_garantie(g, m)
+            and not_known(garant_libere_pour_abus_ou_fraude(g)) and not_known(garant_libere_pour_collusion(g));
+        then garant_tenu_de_payer(g, m);
+    }
+    rule ExceptionsInopposables(g: GarantieAutonome, a: Personne, b: Personne, x: Text) strict {
+        label fr official "Article 2321, alinéa 3. Le garant ne peut opposer aucune exception tenant à l'obligation garantie";
+        label en unofficial "Article 2321, paragraph 3. The guarantor cannot raise any defence based on the guaranteed obligation";
+        when garantie_autonome(g, a, b) and exception_tenant_a_l_obligation_garantie(g, x);
+        then exception_inopposable_par_le_garant(g, x);
+    }
+    rule GarantieNonAccessoire(g: GarantieAutonome, a: Personne, b: Personne) strict {
+        label fr official "Article 2321, alinéa 4. Sauf convention contraire, cette sûreté ne suit pas l'obligation garantie";
+        label en unofficial "Article 2321, paragraph 4. Unless otherwise agreed, this security does not follow the guaranteed obligation";
+        when garantie_autonome(g, a, b) and obligation_garantie_cedee(g) and not_known(convention_de_transmission_avec_l_obligation(g));
+        then garantie_ne_suit_pas_l_obligation(g);
+    }
+}
+
+// --- 2322 -----------------------------------------------------------------------------------
+
+@source(CC_ART2322)
+rule SoutienDuDebiteur(l: LettreDIntention, e: Personne, p: Personne) strict {
+    label fr official "Article 2322. La lettre d'intention est l'engagement de faire ou de ne pas faire ayant pour objet le soutien apporté à un débiteur dans l'exécution de son obligation envers son créancier";
+    label en unofficial "Article 2322. A letter of intent is an undertaking to act or refrain aimed at supporting a debtor in performing its obligation to its creditor";
+    when lettre_d_intention(l, e, p);
+    then soutien_du_debiteur_promis(l, p);
+}

@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 811 : l'État doit demander l'envoi en possession au tribunal.
+test "urn:query:fr-code-civil-successions-m47-envoi-en-possession-a-demander" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": etat_pretend_a_la_succession(entity_ref("urn:fr:cc:successions:adm:m47:S")) { origin case_input; }
+    }
+    evaluate truth(envoi_en_possession_a_demander(entity_ref("urn:fr:cc:successions:adm:m47:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EnvoiEnPossessionADemander);
+}

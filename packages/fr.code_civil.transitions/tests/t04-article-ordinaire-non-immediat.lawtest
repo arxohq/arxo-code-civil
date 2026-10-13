@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Ordonnance 2016-131 art. 9 : l article 1195 (imprévision) n est pas dans la liste des applications immédiates.
+test "urn:query:fr-code-civil-transitions-t04-article-ordinaire-non-immediat" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": contrat_conclu_le(entity_ref("urn:fr:cc:transitions:c16"), @2015-01-01) { origin case_input; }
+        assert "f2": article_invoque(entity_ref("urn:fr:cc:transitions:c16"), "1195") { origin case_input; }
+    }
+    evaluate truth(applicable_des_l_entree_en_vigueur_2016(entity_ref("urn:fr:cc:transitions:c16"), "1195"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

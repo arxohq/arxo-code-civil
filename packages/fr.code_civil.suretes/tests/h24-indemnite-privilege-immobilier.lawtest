@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2377, 2° : indemnité 20 000, plafond 12 000 — 14 000 EUR privilégiés sur les immeubles.
+test "urn:query:fr-code-civil-suretes-h24-indemnite-privilege-immobilier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:h24:P"), entity_ref("urn:fr:cc:suretes:h24:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:h24:P"), PrivilegeImmobilierGeneral) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:h24:P"), 1000 EUR) { origin case_input; }
+        assert "f4": privilege_immobilier_invoque(entity_ref("urn:fr:cc:suretes:h24:P"), RemunerationsEtIndemnitesImmobilieres) { origin case_input; }
+        assert "f5": indemnite_de_licenciement(entity_ref("urn:fr:cc:suretes:h24:P"), 20000 EUR) { origin case_input; }
+        assert "f6": plafond_l3253_2(entity_ref("urn:fr:cc:suretes:h24:P"), 12000 EUR) { origin case_input; }
+    }
+    evaluate truth(portion_privilegiee_de_l_indemnite(entity_ref("urn:fr:cc:suretes:h24:P"), 14000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(QuartAuDelaDuPlafondImmobilier);
+}

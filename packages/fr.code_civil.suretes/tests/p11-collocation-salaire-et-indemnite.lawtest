@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2331, 3° : la collocation vient pour 1 000 de salaires et 14 000 d'indemnité — 15 000 EUR.
+test "urn:query:fr-code-civil-suretes-p11-collocation-salaire-et-indemnite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:p10:S1"), entity_ref("urn:fr:cc:suretes:p10:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:p10:S1"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:p10:S1"), 1000 EUR) { origin case_input; }
+        assert "f4": privilege_general_invoque(entity_ref("urn:fr:cc:suretes:p10:S1"), RemunerationsEtIndemnites) { origin case_input; }
+        assert "f5": indemnite_de_licenciement(entity_ref("urn:fr:cc:suretes:p10:S1"), 20000 EUR) { origin case_input; }
+        assert "f6": plafond_l3253_2(entity_ref("urn:fr:cc:suretes:p10:S1"), 12000 EUR) { origin case_input; }
+    }
+    evaluate truth(montant_admis(entity_ref("urn:fr:cc:suretes:p10:S1"), 15000 EUR));
+    expect truth_status == TRUE_ONLY;
+}

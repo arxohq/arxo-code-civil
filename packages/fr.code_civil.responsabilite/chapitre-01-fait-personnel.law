@@ -1,0 +1,321 @@
+// CHAPITRE Ier — LA RESPONSABILITÉ EXTRACONTRACTUELLE EN GÉNÉRAL
+// (articles 1240 à 1244).
+//
+// L'obligation de réparer est écrite en NORME (§§122-137), non en tête
+// littérale : le porteur, le bénéficiaire et l'objet sont nommés, et le cas
+// peut demander si elle est active, exécutée ou violée. La condition de
+// chaque régime reste distincte — faute personnelle (1240, 1241), garde
+// d'une chose (1242 al. 1), fait d'autrui (1242 al. 4 à 8), animal (1243),
+// ruine d'un bâtiment (1244) — parce que le texte les distingue et que la
+// preuve n'y pèse pas sur la même partie.
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    Bien,
+    CC_ART1240,
+    CC_ART1241,
+    CC_ART1242,
+    CC_ART1243,
+    CC_ART1244,
+    Dommage,
+    Fait,
+    Personne,
+    a_cause,
+    chose_sous_la_garde,
+    eleve_ou_apprenti_sous_surveillance,
+    enfant_confie_a_un_tiers_par_decision,
+    enfant_mineur_sous_autorite_parentale,
+    fait_de_l_animal,
+    fait_de_la_personne,
+    faute_commise,
+    instituteur,
+    negligence_ou_imprudence,
+    prepose_dans_ses_fonctions,
+    preuve_de_n_avoir_pu_empecher_le_fait,
+    ruine_du_batiment,
+    ruine_par_defaut_d_entretien_ou_vice,
+    victime,
+};
+
+pub relation responsable_du_dommage(d: Dommage, responsable: Personne) kind derived {
+    label fr official "cette personne est tenue de réparer ce dommage";
+    label en unofficial "this person is liable to repair this damage";
+}
+pub relation repare(d: Dommage, responsable: Personne) kind empirical {
+    label fr official "le dommage a été réparé par cette personne";
+    label en unofficial "the damage has been repaired by this person";
+}
+pub relation responsabilite_du_fait_d_autrui(d: Dommage, repondant: Personne, auteur: Personne) kind derived {
+    label fr official "cette personne répond du dommage causé par le fait d'une autre (article 1242)";
+    label en unofficial "this person answers for damage caused by another's act (Article 1242)";
+}
+
+@source(CC_ART1240) {
+    rule ResponsabiliteDuFaitPersonnel(f: Fait, d: Dommage, auteur: Personne) defeasible {
+        label fr official "Article 1240. Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer";
+        label en unofficial "Article 1240. Any human act causing damage to another obliges the person through whose fault it happened to repair it";
+        when fait_de_la_personne(f, auteur) and a_cause(f, d) and faute_commise(f, auteur);
+        then responsable_du_dommage(d, auteur);
+    }
+    rule ObligationDeReparer(d: Dommage, auteur: Personne, victime_du_dommage: Personne) defeasible {
+        label fr official "Article 1240. Celui qui est responsable du dommage est obligé de le réparer envers la victime";
+        label en unofficial "Article 1240. The person liable for the damage owes its reparation to the victim";
+        when responsable_du_dommage(d, auteur) and victime(d, victime_du_dommage);
+        then duty ReparerLeDommage {
+            bearer auteur;
+            beneficiary victime_du_dommage;
+            achieve repare(d, auteur) during [@2016-10-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART1241)
+rule ResponsabiliteDeLaNegligence(f: Fait, d: Dommage, auteur: Personne) defeasible {
+    label fr official "Article 1241. Chacun est responsable du dommage qu'il a causé non seulement par son fait, mais encore par sa négligence ou par son imprudence";
+    label en unofficial "Article 1241. Everyone is liable for damage caused not only by his act, but also by his negligence or imprudence";
+    when fait_de_la_personne(f, auteur) and a_cause(f, d) and negligence_ou_imprudence(f, auteur);
+    then responsable_du_dommage(d, auteur);
+}
+pub relation reparer_dommage_negligence_1241(d: Dommage, auteur: Personne) kind empirical {
+    label fr official "l'auteur de la négligence répare le dommage";
+    label en unofficial "the negligent person repairs the damage";
+}
+@source(CC_ART1241)
+rule PositionDevoirReparerDommageNegligence(f: Fait, d: Dommage, auteur: Personne) strict {
+    label fr official "Article 1241. L'auteur de la négligence doit réparer le dommage";
+    label en unofficial "Article 1241. The negligent person must repair the damage";
+    when fait_de_la_personne(f, auteur) and a_cause(f, d)
+        and negligence_ou_imprudence(f, auteur);
+    then duty DevoirReparerDommageNegligence {
+        bearer auteur;
+        goal achievement {
+            condition reparer_dommage_negligence_1241(d, auteur);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1242) {
+    rule ResponsabiliteDuFaitDesChoses(f: Fait, d: Dommage, gardien: Personne, chose: Bien) defeasible {
+        label fr official "Article 1242, alinéa 1. On est responsable du dommage causé par le fait des choses que l'on a sous sa garde";
+        label en unofficial "Article 1242, paragraph 1. One is liable for damage caused by things in one's keeping";
+        when chose_sous_la_garde(f, gardien, chose) and a_cause(f, d);
+        then responsable_du_dommage(d, gardien);
+    }
+    rule ResponsabiliteDesParents(f: Fait, d: Dommage, parent: Personne, enfant: Personne) defeasible {
+        label fr official "Article 1242, alinéa 4. Les parents, en tant qu'ils exercent l'autorité parentale, sont de plein droit solidairement responsables du dommage causé par leurs enfants mineurs";
+        label en unofficial "Article 1242, paragraph 4. Parents exercising parental authority are jointly and strictly liable for damage caused by their minor children";
+        when enfant_mineur_sous_autorite_parentale(f, parent, enfant) and a_cause(f, d)
+            and not_known(enfant_confie_a_un_tiers_par_decision(f, enfant));
+        then responsabilite_du_fait_d_autrui(d, parent, enfant);
+    }
+    rule ResponsabiliteDesCommettants(f: Fait, d: Dommage, commettant: Personne, prepose: Personne) defeasible {
+        label fr official "Article 1242, alinéa 5. Les maîtres et les commettants répondent du dommage causé par leurs domestiques et préposés dans les fonctions auxquelles ils les ont employés";
+        label en unofficial "Article 1242, paragraph 5. Masters and employers answer for damage caused by their servants and employees in the duties for which they employed them";
+        when prepose_dans_ses_fonctions(f, commettant, prepose) and a_cause(f, d);
+        then responsabilite_du_fait_d_autrui(d, commettant, prepose);
+    }
+    rule ResponsabiliteDesInstituteursEtArtisans(f: Fait, d: Dommage, maitre: Personne, eleve: Personne) defeasible {
+        label fr official "Article 1242, alinéa 6. Les instituteurs et les artisans répondent du dommage causé par leurs élèves et apprentis pendant le temps qu'ils sont sous leur surveillance";
+        label en unofficial "Article 1242, paragraph 6. Schoolteachers and craftsmen answer for damage caused by their pupils and apprentices while under their supervision";
+        when eleve_ou_apprenti_sous_surveillance(f, maitre, eleve) and a_cause(f, d);
+        then responsabilite_du_fait_d_autrui(d, maitre, eleve);
+    }
+    rule ResponsabiliteDuFaitDAutruiEstUneResponsabilite(d: Dommage, repondant: Personne, auteur: Personne) defeasible {
+        label fr official "Article 1242. Celui qui répond du fait d'autrui est responsable du dommage";
+        label en unofficial "Article 1242. The person answering for another's act is liable for the damage";
+        when responsabilite_du_fait_d_autrui(d, repondant, auteur);
+        then responsable_du_dommage(d, repondant);
+    }
+    pub relation reparer_dommage_fait_autrui_1242(d: Dommage, repondant: Personne) kind empirical {
+        label fr official "la personne qui répond du fait d'autrui répare le dommage";
+        label en unofficial "the person answering for another's act repairs the damage";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirReparerDommageFaitAutrui(d: Dommage, repondant: Personne, auteur: Personne) strict {
+        label fr official "Article 1242. La personne qui répond du fait d'autrui doit réparer le dommage";
+        label en unofficial "Article 1242. The person answering for another's act must repair the damage";
+        when responsabilite_du_fait_d_autrui(d, repondant, auteur);
+        then duty DevoirReparerDommageFaitAutrui {
+            bearer repondant;
+            goal achievement {
+                condition reparer_dommage_fait_autrui_1242(d, repondant);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    // L'alinéa 7 nomme SES bénéficiaires : « les parents et les artisans ».
+    // Le commettant n'y figure pas, et deux règles valent mieux qu'une tête
+    // dont les variables ne seraient liées par aucune prémisse (LDC-E4101).
+    rule PreuveDuParentDeNAvoirPuEmpecherLeFait(f: Fait, d: Dommage, parent: Personne,
+                                                 enfant: Personne) defeater {
+        label fr official "Article 1242, alinéa 7. La responsabilité des parents a lieu à moins qu'ils ne prouvent qu'ils n'ont pu empêcher le fait qui y donne lieu";
+        label en unofficial "Article 1242, paragraph 7. Parents' liability applies unless they prove they could not prevent the event";
+        when enfant_mineur_sous_autorite_parentale(f, parent, enfant) and a_cause(f, d)
+            and preuve_de_n_avoir_pu_empecher_le_fait(f, parent);
+        defeat responsabilite_du_fait_d_autrui(d, parent, enfant);
+    }
+    rule PreuveDeLArtisanDeNAvoirPuEmpecherLeFait(f: Fait, d: Dommage, artisan: Personne,
+                                                   apprenti: Personne) defeater {
+        label fr official "Article 1242, alinéa 7. La responsabilité des artisans a lieu à moins qu'ils ne prouvent qu'ils n'ont pu empêcher le fait ; l'instituteur, lui, relève de l'alinéa 8";
+        label en unofficial "Article 1242, paragraph 7. Craftsmen's liability applies unless they prove they could not prevent the event; the schoolteacher falls under paragraph 8";
+        when eleve_ou_apprenti_sous_surveillance(f, artisan, apprenti) and a_cause(f, d)
+            and preuve_de_n_avoir_pu_empecher_le_fait(f, artisan)
+            and not_known(instituteur(f, artisan));
+        defeat responsabilite_du_fait_d_autrui(d, artisan, apprenti);
+    }
+    rule FauteDeLInstituteurAProuver(f: Fait, d: Dommage, maitre: Personne, eleve: Personne) defeater {
+        label fr official "Article 1242, alinéa 8. En ce qui concerne les instituteurs, les fautes invoquées contre eux doivent être prouvées par le demandeur : sans faute prouvée, la responsabilité du fait de l'élève n'est pas engagée";
+        label en unofficial "Article 1242, paragraph 8. As for schoolteachers, the faults alleged against them must be proved by the claimant: without proven fault, liability for the pupil's act does not arise";
+        when eleve_ou_apprenti_sous_surveillance(f, maitre, eleve) and a_cause(f, d)
+            and instituteur(f, maitre) and not_known(faute_commise(f, maitre));
+        defeat responsabilite_du_fait_d_autrui(d, maitre, eleve);
+    }
+    pub relation reparer_dommage_chose_gardee_1242(d: Dommage, gardien: Personne) kind empirical {
+        label fr official "le gardien répare le dommage causé par la chose";
+        label en unofficial "the keeper repairs the damage caused by the thing";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirReparerDommageChoseGardee(f: Fait, d: Dommage, gardien: Personne, chose: Bien) strict {
+        label fr official "Article 1242. Le gardien doit réparer le dommage causé par la chose";
+        label en unofficial "Article 1242. The keeper must repair the damage caused by the thing";
+        when chose_sous_la_garde(f, gardien, chose) and a_cause(f, d);
+        then duty DevoirReparerDommageChoseGardee {
+            bearer gardien;
+            goal achievement {
+                condition reparer_dommage_chose_gardee_1242(d, gardien);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    pub relation reparer_dommage_enfant_1242(d: Dommage, parent: Personne) kind empirical {
+        label fr official "le parent répare le dommage causé par son enfant mineur";
+        label en unofficial "the parent repairs damage caused by the minor child";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirReparerDommageEnfant(f: Fait, d: Dommage, parent: Personne, enfant: Personne) strict {
+        label fr official "Article 1242. Le parent doit réparer le dommage causé par son enfant mineur";
+        label en unofficial "Article 1242. The parent must repair damage caused by the minor child";
+        when enfant_mineur_sous_autorite_parentale(f, parent, enfant)
+            and a_cause(f, d)
+            and responsabilite_du_fait_d_autrui(d, parent, enfant);
+        then duty DevoirReparerDommageEnfant {
+            bearer parent;
+            goal achievement {
+                condition reparer_dommage_enfant_1242(d, parent);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    pub relation reparer_dommage_prepose_1242(d: Dommage, commettant: Personne) kind empirical {
+        label fr official "le commettant répare le dommage causé par son préposé";
+        label en unofficial "the employer repairs damage caused by the employee";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirReparerDommagePrepose(f: Fait, d: Dommage, commettant: Personne, prepose: Personne) strict {
+        label fr official "Article 1242. Le commettant doit réparer le dommage causé par son préposé";
+        label en unofficial "Article 1242. The employer must repair damage caused by the employee";
+        when prepose_dans_ses_fonctions(f, commettant, prepose)
+            and a_cause(f, d)
+            and responsabilite_du_fait_d_autrui(d, commettant, prepose);
+        then duty DevoirReparerDommagePrepose {
+            bearer commettant;
+            goal achievement {
+                condition reparer_dommage_prepose_1242(d, commettant);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    pub relation reparer_dommage_eleve_1242(d: Dommage, maitre: Personne) kind empirical {
+        label fr official "le maître répare le dommage causé par son élève ou apprenti";
+        label en unofficial "the teacher or craftsman repairs damage caused by the pupil or apprentice";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirReparerDommageEleve(f: Fait, d: Dommage, maitre: Personne, eleve: Personne) strict {
+        label fr official "Article 1242. Le maître doit réparer le dommage causé par son élève ou apprenti";
+        label en unofficial "Article 1242. The teacher or craftsman must repair damage caused by the pupil or apprentice";
+        when eleve_ou_apprenti_sous_surveillance(f, maitre, eleve)
+            and a_cause(f, d)
+            and responsabilite_du_fait_d_autrui(d, maitre, eleve);
+        then duty DevoirReparerDommageEleve {
+            bearer maitre;
+            goal achievement {
+                condition reparer_dommage_eleve_1242(d, maitre);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    pub relation prouver_faute_instituteur_1242(f: Fait, maitre: Personne) kind empirical {
+        label fr official "le demandeur prouve la faute de l'instituteur";
+        label en unofficial "the claimant proves the teacher's fault";
+    }
+    @source(CC_ART1242)
+    rule PositionDevoirProuverFauteInstituteur(f: Fait, maitre: Personne) strict {
+        label fr official "Article 1242. La faute de l'instituteur doit être prouvée";
+        label en unofficial "Article 1242. The teacher's fault must be proved";
+        when instituteur(f, maitre)
+            and faute_commise(f, maitre);
+        then duty DevoirProuverFauteInstituteur {
+            bearer entity_ref("urn:fr:cc:responsabilite:demandeur");
+            goal achievement {
+                condition prouver_faute_instituteur_1242(f, maitre);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+@source(CC_ART1243)
+rule ResponsabiliteDuFaitDesAnimaux(f: Fait, d: Dommage, gardien: Personne) defeasible {
+    label fr official "Article 1243. Le propriétaire d'un animal, ou celui qui s'en sert, est responsable du dommage que l'animal a causé, soit que l'animal fût sous sa garde, soit qu'il fût égaré ou échappé";
+    label en unofficial "Article 1243. The owner of an animal, or whoever uses it, is liable for the damage the animal caused, whether it was in his keeping or had strayed or escaped";
+    when fait_de_l_animal(f, gardien) and a_cause(f, d);
+    then responsable_du_dommage(d, gardien);
+}
+pub relation reparer_dommage_animal_1243(d: Dommage, gardien: Personne) kind empirical {
+    label fr official "le gardien de l'animal répare le dommage";
+    label en unofficial "the animal keeper repairs the damage";
+}
+@source(CC_ART1243)
+rule PositionDevoirReparerDommageAnimal(f: Fait, d: Dommage, gardien: Personne) strict {
+    label fr official "Article 1243. Le gardien de l'animal doit réparer le dommage";
+    label en unofficial "Article 1243. The animal keeper must repair the damage";
+    when fait_de_l_animal(f, gardien) and a_cause(f, d);
+    then duty DevoirReparerDommageAnimal {
+        bearer gardien;
+        goal achievement {
+            condition reparer_dommage_animal_1243(d, gardien);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART1244)
+rule ResponsabiliteDuFaitDesBatiments(f: Fait, d: Dommage, proprietaire: Personne) defeasible {
+    label fr official "Article 1244. Le propriétaire d'un bâtiment est responsable du dommage causé par sa ruine, lorsqu'elle est arrivée par une suite du défaut d'entretien ou par le vice de sa construction";
+    label en unofficial "Article 1244. The owner of a building is liable for damage caused by its ruin, where the ruin resulted from lack of maintenance or a construction defect";
+    when ruine_du_batiment(f, proprietaire) and ruine_par_defaut_d_entretien_ou_vice(f) and a_cause(f, d);
+    then responsable_du_dommage(d, proprietaire);
+}
+pub relation reparer_dommage_batiment_1244(d: Dommage, proprietaire: Personne) kind empirical {
+    label fr official "le propriétaire répare le dommage causé par la ruine du bâtiment";
+    label en unofficial "the owner repairs the damage caused by the building's ruin";
+}
+@source(CC_ART1244)
+rule PositionDevoirReparerDommageBatiment(f: Fait, d: Dommage, proprietaire: Personne) strict {
+    label fr official "Article 1244. Le propriétaire doit réparer le dommage causé par la ruine du bâtiment";
+    label en unofficial "Article 1244. The owner must repair damage caused by the building's ruin";
+    when ruine_du_batiment(f, proprietaire)
+        and ruine_par_defaut_d_entretien_ou_vice(f)
+        and a_cause(f, d);
+    then duty DevoirReparerDommageBatiment {
+        bearer proprietaire;
+        goal achievement {
+            condition reparer_dommage_batiment_1244(d, proprietaire);
+            window [@2016-10-01, infinity];
+        };
+    };
+}

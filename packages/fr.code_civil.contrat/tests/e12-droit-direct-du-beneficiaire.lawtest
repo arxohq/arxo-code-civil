@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1205 et 1206 al. 1 : le bénéficiaire précisément désigné est investi d'un droit direct à la prestation contre le promettant dès la stipulation.
+test "urn:query:fr-code-civil-contrat-e12-droit-direct-du-beneficiaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e12"), @2019-03-01) { origin case_input; }
+        assert "f2": stipulation_pour_autrui(entity_ref("urn:fr:cc:contrat:e12:s"), entity_ref("urn:fr:cc:contrat:e12"), entity_ref("urn:fr:cc:contrat:e12:p1"), entity_ref("urn:fr:cc:contrat:e12:p2"), entity_ref("urn:fr:cc:contrat:e12:beneficiaire")) { origin case_input; }
+        assert "f3": beneficiaire_precisement_designe_ou_determinable(entity_ref("urn:fr:cc:contrat:e12:s")) { origin case_input; }
+    }
+    evaluate truth(droit_direct_du_beneficiaire(entity_ref("urn:fr:cc:contrat:e12:s"), entity_ref("urn:fr:cc:contrat:e12:beneficiaire")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DroitDirectDuBeneficiaire);
+}

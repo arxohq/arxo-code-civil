@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2321, al. 2 : le juge retient la fraude manifeste — le garant n'est pas tenu.
+test "urn:query:fr-code-civil-suretes-r02-fraude-manifeste-retenue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": garantie_autonome(entity_ref("urn:fr:cc:suretes:r02:G"), entity_ref("urn:fr:cc:suretes:r02:A"), entity_ref("urn:fr:cc:suretes:r02:B")) { origin case_input; }
+        assert "f2": appel_de_la_garantie(entity_ref("urn:fr:cc:suretes:r02:G")) { origin case_input; }
+        assert "f3": somme_de_la_garantie(entity_ref("urn:fr:cc:suretes:r02:G"), 50000 EUR) { origin case_input; }
+        assert "f4": abus_ou_fraude_manifestes(entity_ref("urn:fr:cc:suretes:r02:G")) { origin adjudicated; }
+    }
+    evaluate truth(garant_libere_pour_abus_ou_fraude(entity_ref("urn:fr:cc:suretes:r02:G")));
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+    expect judgment_requests(0);
+}

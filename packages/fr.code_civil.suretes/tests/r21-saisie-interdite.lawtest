@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-10 : créancier personnel de l'agent — ne peut saisir le patrimoine affecté.
+test "urn:query:fr-code-civil-suretes-r21-saisie-interdite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": agent_des_suretes(entity_ref("urn:fr:cc:suretes:r21:M"), entity_ref("urn:fr:cc:suretes:r21:A")) { origin case_input; }
+        assert "f2": convention_de_designation_ecrite(entity_ref("urn:fr:cc:suretes:r21:M")) { origin case_input; }
+        assert "f3": ecrit_mentionne_qualite_objet_duree_pouvoirs(entity_ref("urn:fr:cc:suretes:r21:M")) { origin case_input; }
+        assert "f4": saisissant(entity_ref("urn:fr:cc:suretes:r21:M"), entity_ref("urn:fr:cc:suretes:r21:Z")) { origin case_input; }
+    }
+    evaluate truth(saisie_interdite(entity_ref("urn:fr:cc:suretes:r21:M"), entity_ref("urn:fr:cc:suretes:r21:Z")));
+    expect truth_status == TRUE_ONLY;
+}

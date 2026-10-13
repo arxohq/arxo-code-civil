@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 514: final accounts fall due three calendar months after the mission ends.
+test "urn:query:fr-code-civil-personnes-tg12-fin-mission-trois-mois-jour" {
+    given {
+        context { decision_time @2026-06-30T09:00:00Z; knowledge_time @2026-06-30T09:00:00Z; legal_time @2026-06-30; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg12:m"), entity_ref("urn:fr:cc:personnes:tg12:p"), entity_ref("urn:fr:cc:personnes:tg12:t"), @2020-01-01) { origin adjudicated; }
+        assert "f2": fin_mission_tuteur_le(entity_ref("urn:fr:cc:personnes:tg12:t"), @2026-03-31) { origin adjudicated; }
+    }
+    evaluate truth(echeance_remise_fin_mission(entity_ref("urn:fr:cc:personnes:tg12:m"), @2026-06-30));
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceRemiseFinMission);
+}

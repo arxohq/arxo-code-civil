@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2418, al. 1 : le syndicat des copropriétaires, dispensé d'inscription, prime l'hypothèque inscrite en 2015 pour les trois dernières années — rang 1.
+test "urn:query:fr-code-civil-suretes-h12-syndicat-prime-les-hypotheques" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:h12:D"), 1000 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:h12:S"), entity_ref("urn:fr:cc:suretes:h12:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:h12:S"), PrivilegeDuSyndicatDesCoproprietaires) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:h12:S"), 300 EUR) { origin case_input; }
+        assert "f5": collocation_du_syndicat(entity_ref("urn:fr:cc:suretes:h12:S")) { origin case_input; }
+        assert "f6": collocation_dans(entity_ref("urn:fr:cc:suretes:h12:H"), entity_ref("urn:fr:cc:suretes:h12:D")) { origin case_input; }
+        assert "f7": cause_de_preference(entity_ref("urn:fr:cc:suretes:h12:H"), HypothequeConventionnelle) { origin case_input; }
+        assert "f8": creance_en_principal(entity_ref("urn:fr:cc:suretes:h12:H"), 900 EUR) { origin case_input; }
+        assert "f9": date_de_rang(entity_ref("urn:fr:cc:suretes:h12:H"), @2015-01-01) { origin case_input; }
+    }
+    evaluate truth(rang_de_la_collocation(entity_ref("urn:fr:cc:suretes:h12:S"), 1));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ClasseDuSyndicat);
+}

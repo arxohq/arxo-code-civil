@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2409 : hypothèque conventionnelle sans acte notarié — nulle.
+test "urn:query:fr-code-civil-suretes-r27-hypotheque-sous-seing-prive" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:r27:S"), entity_ref("urn:fr:cc:suretes:r27:B"), entity_ref("urn:fr:cc:suretes:r27:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:r27:S"), Conventionnelle) { origin case_input; }
+        assert "f3": constituant_capable_de_disposer(entity_ref("urn:fr:cc:suretes:r27:S")) { origin case_input; }
+        assert "f4": acte_designe_nature_et_situation(entity_ref("urn:fr:cc:suretes:r27:S")) { origin case_input; }
+        assert "f5": cause_determinee_dans_l_acte(entity_ref("urn:fr:cc:suretes:r27:S")) { origin case_input; }
+        assert "f6": somme_determinee_dans_l_acte(entity_ref("urn:fr:cc:suretes:r27:S"), 200000 EUR) { origin case_input; }
+    }
+    evaluate truth(hypotheque_conventionnelle_nulle(entity_ref("urn:fr:cc:suretes:r27:S")));
+    expect truth_status == TRUE_ONLY;
+}

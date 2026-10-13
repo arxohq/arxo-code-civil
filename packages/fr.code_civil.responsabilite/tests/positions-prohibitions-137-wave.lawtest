@@ -1,0 +1,114 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-9-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_defectueux(entity_ref("urn:resp:137:9:p")) { origin case_input; }
+        assert "b": producteur(entity_ref("urn:resp:137:9:p"), entity_ref("urn:resp:137:9:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionInvoquerConformiteDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-9-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_defectueux(entity_ref("urn:resp:137:9:p")) { origin case_input; }
+        assert "b": producteur(entity_ref("urn:resp:137:9:p"), entity_ref("urn:resp:137:9:personne")) { origin case_input; }
+        assert "c": invoquer_conformite_comme_exoneration_1245_9(entity_ref("urn:resp:137:9:p"), entity_ref("urn:resp:137:9:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionInvoquerConformite, VIOLATED);
+    expect position(MaintenanceInterdictionInvoquerConformiteDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-11-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_en_cause(entity_ref("urn:resp:137:11:f"), entity_ref("urn:resp:137:11:p")) { origin case_input; }
+        assert "b": dommage_par_element_du_corps_humain(entity_ref("urn:resp:137:11:f")) { origin case_input; }
+        assert "c": producteur(entity_ref("urn:resp:137:11:p"), entity_ref("urn:resp:137:11:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionInvoquerRisqueDeveloppementDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-11-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_en_cause(entity_ref("urn:resp:137:11:f"), entity_ref("urn:resp:137:11:p")) { origin case_input; }
+        assert "b": dommage_par_element_du_corps_humain(entity_ref("urn:resp:137:11:f")) { origin case_input; }
+        assert "c": producteur(entity_ref("urn:resp:137:11:p"), entity_ref("urn:resp:137:11:personne")) { origin case_input; }
+        assert "d": invoquer_risque_developpement_1245_11(entity_ref("urn:resp:137:11:f"), entity_ref("urn:resp:137:11:p"), entity_ref("urn:resp:137:11:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionInvoquerRisqueDeveloppement, VIOLATED);
+    expect position(MaintenanceInterdictionInvoquerRisqueDeveloppementDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-13-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_en_cause(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "b": a_cause(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:d")) { origin case_input; }
+        assert "c": producteur(entity_ref("urn:resp:137:13:p"), entity_ref("urn:resp:137:13:personne")) { origin case_input; }
+        assert "d": defaut_prouve(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "e": produit_defectueux(entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "f": fait_d_un_tiers_ayant_concouru(entity_ref("urn:resp:137:13:f")) { origin case_input; }
+        assert "g": atteinte_a_la_personne(entity_ref("urn:resp:137:13:d")) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionReductionParFaitTiersDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-13-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": produit_en_cause(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "b": a_cause(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:d")) { origin case_input; }
+        assert "c": producteur(entity_ref("urn:resp:137:13:p"), entity_ref("urn:resp:137:13:personne")) { origin case_input; }
+        assert "d": defaut_prouve(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "e": produit_defectueux(entity_ref("urn:resp:137:13:p")) { origin case_input; }
+        assert "f": fait_d_un_tiers_ayant_concouru(entity_ref("urn:resp:137:13:f")) { origin case_input; }
+        assert "g": reduire_responsabilite_par_fait_tiers_1245_13(entity_ref("urn:resp:137:13:f"), entity_ref("urn:resp:137:13:d"), entity_ref("urn:resp:137:13:personne")) { origin case_input; }
+        assert "h": atteinte_a_la_personne(entity_ref("urn:resp:137:13:d")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionReductionParFaitTiers, VIOLATED);
+    expect position(MaintenanceInterdictionReductionParFaitTiersDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-14-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": clause_limitative(entity_ref("urn:resp:137:14:cl"), entity_ref("urn:resp:137:14:p")) { origin case_input; }
+        assert "b": producteur(entity_ref("urn:resp:137:14:p"), entity_ref("urn:resp:137:14:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionStipulerClauseLimitativeDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-14-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": clause_limitative(entity_ref("urn:resp:137:14:cl"), entity_ref("urn:resp:137:14:p")) { origin case_input; }
+        assert "b": producteur(entity_ref("urn:resp:137:14:p"), entity_ref("urn:resp:137:14:personne")) { origin case_input; }
+        assert "c": stipuler_clause_limitative_1245_14(entity_ref("urn:resp:137:14:cl"), entity_ref("urn:resp:137:14:p"), entity_ref("urn:resp:137:14:personne")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionStipulerClauseLimitative, VIOLATED);
+    expect position(MaintenanceInterdictionStipulerClauseLimitativeDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-15-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": terme_de_l_extinction(entity_ref("urn:resp:137:15:d"), @2026-01-01) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionAgirApresExtinctionDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-15-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": terme_de_l_extinction(entity_ref("urn:resp:137:15:d"), @2026-01-01) { origin case_input; }
+        assert "b": agir_apres_extinction_responsabilite_1245_15(entity_ref("urn:resp:137:15:d")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionAgirApresExtinction, VIOLATED);
+    expect position(MaintenanceInterdictionAgirApresExtinctionDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1245-16-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": action_prescrite_le(entity_ref("urn:resp:137:16:d"), @2026-01-01) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionEngagerActionApresPrescriptionDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1245-16-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "a": action_prescrite_le(entity_ref("urn:resp:137:16:d"), @2026-01-01) { origin case_input; }
+        assert "b": engager_action_apres_prescription_1245_16(entity_ref("urn:resp:137:16:d")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionEngagerActionApresPrescription, VIOLATED);
+    expect position(MaintenanceInterdictionEngagerActionApresPrescriptionDuty, VIOLATED); }
+
+test "urn:query:fr-code-civil-responsabilite-137-1303-3-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "a": autre_action_ouverte(entity_ref("urn:resp:137:1303:e")) { origin case_input; } }
+    evaluate positions();
+    expect position(MaintenanceInterdictionAgirMalgreAutreActionDuty, ACTIVE); }
+test "urn:query:fr-code-civil-responsabilite-137-1303-3-violated" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "a": autre_action_ouverte(entity_ref("urn:resp:137:1303:e")) { origin case_input; }
+        assert "b": agir_sur_fondement_enrichissement_1303_3(entity_ref("urn:resp:137:1303:e")) { origin case_input; } }
+    evaluate positions();
+    expect position(InterdictionAgirMalgreAutreAction, VIOLATED);
+    expect position(MaintenanceInterdictionAgirMalgreAutreActionDuty, VIOLATED); }

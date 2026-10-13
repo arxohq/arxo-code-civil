@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1248 : association créée le 1er mars 2020, instance introduite le 1er mars 2025 — cinq ans accomplis.
+test "urn:query:fr-code-civil-responsabilite-r56-association-au-cinquieme-anniversaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": demandeur_ecologique(entity_ref("urn:fr:cc:resp:v2r:d"), entity_ref("urn:fr:cc:resp:v2r:asso"), AssociationDeProtectionDeLaNature) { origin case_input; }
+        assert "f2": association_creee_le(entity_ref("urn:fr:cc:resp:v2r:asso"), @2020-03-01) { origin case_input; }
+        assert "f3": instance_introduite_le(entity_ref("urn:fr:cc:resp:v2r:d"), @2025-03-01) { origin case_input; }
+    }
+    evaluate truth(qualite_pour_agir_en_reparation_ecologique(entity_ref("urn:fr:cc:resp:v2r:d"), entity_ref("urn:fr:cc:resp:v2r:asso")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(AssociationCreeeDepuisCinqAns);
+}

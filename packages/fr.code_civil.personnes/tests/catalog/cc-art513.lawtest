@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DISPENSEJUDICIAIREDECOMPTE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": ouverture_tutelle_gestion(entity_ref("urn:law:catalog:dispensejudiciairedecompte:v0"), entity_ref("urn:law:catalog:dispensejudiciairedecompte:v1"), entity_ref("urn:law:catalog:dispensejudiciairedecompte:v2"), @2026-01-15) { origin case_input; }
+        assert "cat-1": interet_du_mineur_388_1(entity_ref("urn:law:catalog:dispensejudiciairedecompte:v1")) { origin case_input; }
+    }
+    evaluate truth(dispense_judiciaire_de_compte(entity_ref("urn:law:catalog:dispensejudiciairedecompte:v0")));
+    expect truth_status == TRUE_ONLY;
+}

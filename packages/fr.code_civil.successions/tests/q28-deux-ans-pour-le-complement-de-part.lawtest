@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 889, alinéa 2 : partage du 30 juin 2024 — action jusqu'au 30 juin 2026.
+test "urn:query:fr-code-civil-successions-q28-deux-ans-pour-le-complement-de-part" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": partage_realise_le(entity_ref("urn:fr:cc:successions:par:q28:S"), @2024-06-30) { origin case_input; }
+    }
+    evaluate truth(fin_de_l_action_en_complement(entity_ref("urn:fr:cc:successions:par:q28:S"), @2026-06-30));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DeuxAnsPourLeComplementDePart);
+}

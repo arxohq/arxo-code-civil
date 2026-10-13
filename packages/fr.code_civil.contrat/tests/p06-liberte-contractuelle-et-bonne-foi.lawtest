@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1102 al. 1 et 1104 al. 1, §122 : la liberté de contracter est une liberté de la partie ; la bonne foi est un devoir de MAINTIEN : il reste ACTIF pendant toute la fenêtre, l'exécution de bonne foi étant continue.
+test "urn:query:fr-code-civil-contrat-p06-liberte-contractuelle-et-bonne-foi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:p06"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:p06"), entity_ref("urn:fr:cc:contrat:p06:p1")) { origin case_input; }
+        assert "f3": execute_de_bonne_foi(entity_ref("urn:fr:cc:contrat:p06"), entity_ref("urn:fr:cc:contrat:p06:p1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteDeContracter, ACTIVE);
+    expect position(NegocierFormerEtExecuterDeBonneFoi, ACTIVE);
+}

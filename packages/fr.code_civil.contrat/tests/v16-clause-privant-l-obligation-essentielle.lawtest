@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1170 : toute clause qui prive de sa substance l'obligation essentielle du débiteur est réputée non écrite — sans condition d'adhésion.
+test "urn:query:fr-code-civil-contrat-v16-clause-privant-l-obligation-essentielle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v16"), @2019-03-01) { origin case_input; }
+        assert "f2": clause_du_contrat(entity_ref("urn:fr:cc:contrat:v16:clause"), entity_ref("urn:fr:cc:contrat:v16")) { origin case_input; }
+        assert "f3": clause_prive_l_obligation_essentielle_de_sa_substance(entity_ref("urn:fr:cc:contrat:v16:clause")) { origin case_input; }
+    }
+    evaluate truth(clause_reputee_non_ecrite(entity_ref("urn:fr:cc:contrat:v16:clause")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ClausePrivantDeSaSubstanceLObligationEssentielle);
+}

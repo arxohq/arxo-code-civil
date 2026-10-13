@@ -1,0 +1,341 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    Bail,
+    CC_ART1764,
+    CC_ART1766,
+    CC_ART1768,
+    CC_ART1769,
+    CC_ART1770,
+    CC_ART1771,
+    CC_ART1772,
+    CC_ART1773,
+    CC_ART1774,
+    CC_ART1775,
+    CC_ART1777,
+    CC_ART1778,
+    Personne,
+    avertissement_des_usurpations_donne,
+    bail_a_ferme,
+    bail_a_ferme_d_une_annee,
+    bail_a_ferme_pluriannuel,
+    bail_donne_au_proprietaire_une_quotite_en_nature,
+    bail_ecrit,
+    bail_expire,
+    bail_rural_sans_ecrit_renouvele,
+    bail_sans_ecrit,
+    bailleur,
+    bailleur_rural_peut_faire_resilier,
+    cas_fortuit_extraordinaire,
+    cause_du_dommage_existante_et_connue_au_bail,
+    clauses_du_bail_rural_inexecutees,
+    conge_ecrit_six_mois_avant_le_terme,
+    contravention_du_preneur_rural,
+    culture_abandonnee_ou_deraisonnable,
+    demande_remise_du_prix_par_fermier,
+    dommage_pour_le_bailleur_rural,
+    dommages_interets_de_l_inexecution_du_bail,
+    estimation_de_la_remise_a_la_fin_du_bail,
+    fermier_entrant,
+    fermier_indemnise_par_les_recoltes_precedentes,
+    fermier_sortant,
+    heritage_non_garni_de_bestiaux_et_ustensiles,
+    logements_convenables_dus_au_fermier_entrant,
+    logements_convenables_dus_au_fermier_sortant,
+    pailles_et_engrais_a_laisser,
+    pailles_et_engrais_laisses,
+    pailles_et_engrais_recus_a_l_entree,
+    perte_apres_separation_des_fruits,
+    perte_atteint_la_moitie_de_la_recolte,
+    preneur,
+    preneur_charge_du_cas_fortuit,
+    preneur_en_demeure_de_delivrer_la_portion,
+    preneur_laisse_en_jouissance,
+    preneur_tenu_des_depens_faute_d_avertissement,
+    proprietaire_peut_rentrer_en_jouissance,
+    proprietaire_peut_retenir_pailles_suivant_estimation,
+    proprietaire_supporte_sa_part_de_la_perte,
+    recolte_enlevee_par_cas_fortuit,
+    recolte_totale,
+    remise_du_prix_de_location_due,
+    remise_du_prix_demandee_par_le_fermier,
+    stipulation_de_tous_les_cas_fortuits_prevus_ou_imprevus,
+    stipulation_expresse_des_cas_fortuits,
+    usurpation_commise_sur_les_fonds,
+};
+
+// Section III du chapitre II : du bail à ferme (articles 1764 à 1778).
+//
+// La moitié de récolte des articles 1769 et 1770 est écrite sans division :
+// deux fois la perte atteint la récolte entière. Le seuil est donc exact, et
+// il est gardé par une paire — la moitié juste, et une unité en dessous.
+//
+// L'article 1765 renvoie l'augmentation et la diminution de prix pour
+// contenance au titre « De la vente » ; l'article 1767 impose d'engranger
+// « dans les lieux à ce destinés d'après le bail », ce que seul le bail dit.
+// Leurs frontières sont déclarées.
+
+@source(CC_ART1764)
+rule ContraventionOuvreLaRentreeEnJouissance(b: Bail) strict {
+    label fr official "Article 1764. En cas de contravention, le propriétaire a droit de rentrer en jouissance et le preneur est condamné aux dommages-intérêts";
+    label en unofficial "Article 1764. In case of contravention, the owner is entitled to resume enjoyment and the lessee is ordered to pay damages";
+    when bail_a_ferme(b) and contravention_du_preneur_rural(b);
+    then proprietaire_peut_rentrer_en_jouissance(b);
+}
+
+@source(CC_ART1764)
+rule DommagesInteretsDeLInexecutionDuBailRural(b: Bail) strict {
+    label fr official "Article 1764. Le preneur est condamné aux dommages-intérêts résultant de l'inexécution du bail";
+    label en unofficial "Article 1764. The lessee is ordered to pay the damages resulting from the non-performance of the lease";
+    when bail_a_ferme(b) and contravention_du_preneur_rural(b);
+    then dommages_interets_de_l_inexecution_du_bail(b);
+}
+
+// Article 1766 : quatre manquements nommés, mais la résiliation suppose en
+// outre un DOMMAGE pour le bailleur — le texte le pose pour tous.
+@source(CC_ART1766)
+rule ResiliationRuralePourDefautDeGarnissement(b: Bail) strict {
+    label fr official "Article 1766. Si le preneur ne garnit pas l'héritage des bestiaux et ustensiles nécessaires et qu'il en résulte un dommage, le bailleur peut faire résilier le bail";
+    label en unofficial "Article 1766. If the lessee does not stock the estate with the necessary livestock and implements and damage results, the lessor may have the lease terminated";
+    when bail_a_ferme(b) and heritage_non_garni_de_bestiaux_et_ustensiles(b)
+        and dommage_pour_le_bailleur_rural(b);
+    then bailleur_rural_peut_faire_resilier(b);
+}
+
+@source(CC_ART1766)
+rule ResiliationRuralePourCultureAbandonnee(b: Bail) strict {
+    label fr official "Article 1766. Si le preneur abandonne la culture ou ne cultive pas raisonnablement et qu'il en résulte un dommage, le bailleur peut faire résilier le bail";
+    label en unofficial "Article 1766. If the lessee abandons the cultivation or does not cultivate reasonably and damage results, the lessor may have the lease terminated";
+    when bail_a_ferme(b) and culture_abandonnee_ou_deraisonnable(b)
+        and dommage_pour_le_bailleur_rural(b);
+    then bailleur_rural_peut_faire_resilier(b);
+}
+
+@source(CC_ART1766)
+rule ResiliationRuralePourInexecutionDesClauses(b: Bail) strict {
+    label fr official "Article 1766. Si le preneur n'exécute pas les clauses du bail et qu'il en résulte un dommage, le bailleur peut faire résilier le bail";
+    label en unofficial "Article 1766. If the lessee does not perform the clauses of the lease and damage results, the lessor may have the lease terminated";
+    when bail_a_ferme(b) and clauses_du_bail_rural_inexecutees(b)
+        and dommage_pour_le_bailleur_rural(b);
+    then bailleur_rural_peut_faire_resilier(b);
+}
+
+@source(CC_ART1766)
+rule ResiliationRuraleParLeFaitDuPreneurOuvreLesDommagesInterets(b: Bail) strict {
+    label fr official "Article 1766, alinéa 2. En cas de résiliation provenant du fait du preneur, celui-ci est tenu des dommages et intérêts comme il est dit à l'article 1764";
+    label en unofficial "Article 1766, second paragraph. Where termination arises from the lessee's act, he owes damages as stated in Article 1764";
+    when bailleur_rural_peut_faire_resilier(b);
+    then dommages_interets_de_l_inexecution_du_bail(b);
+}
+
+@source(CC_ART1768)
+rule PreneurTenuDAvertirDesUsurpations(b: Bail) strict {
+    label fr official "Article 1768. Le preneur d'un bien rural est tenu, sous peine de tous dépens, dommages et intérêts, d'avertir le propriétaire des usurpations";
+    label en unofficial "Article 1768. The lessee of rural property is bound, on pain of all costs and damages, to warn the owner of encroachments";
+    when bail_a_ferme(b) and usurpation_commise_sur_les_fonds(b)
+        and not_known(avertissement_des_usurpations_donne(b));
+    then preneur_tenu_des_depens_faute_d_avertissement(b);
+}
+pub relation avertissement_usurpations_donne_par_preneur(b: Bail) kind empirical {
+    label fr official "avertissement des usurpations donné par le preneur";
+    label en unofficial "encroachment warning given by the lessee";
+}
+@source(CC_ART1768)
+rule P4DevoirAvertirUsurpations1768(b: Bail, p: Personne, l: Personne) strict {
+    label fr official "Article 1768. Le preneur rural doit avertir le propriétaire des usurpations";
+    label en unofficial "Article 1768. The rural lessee must warn the owner of encroachments";
+    when bail_a_ferme(b) and preneur(b, p) and bailleur(b, l)
+        and usurpation_commise_sur_les_fonds(b);
+    then duty P4DevoirAvertirUsurpations1768Actif {
+        bearer p;
+        beneficiary l;
+        achieve avertissement_usurpations_donne_par_preneur(b) during [@1804-03-21, infinity);
+    };
+}
+
+// La moitié des articles 1769 et 1770, sans division : deux fois la perte
+// atteint la récolte entière.
+@source(CC_ART1769, CC_ART1770)
+rule PerteAtteintLaMoitieDeLaRecolte(b: Bail, totale: Integer, perdue: Integer) strict {
+    label fr official "Articles 1769 et 1770. La totalité ou la moitié au moins d'une récolte est enlevée lorsque deux fois la perte atteint la récolte entière";
+    label en unofficial "Articles 1769 and 1770. The whole or at least half of a crop is carried off where twice the loss reaches the whole crop";
+    when bail_a_ferme(b) and recolte_totale(b, totale) and recolte_enlevee_par_cas_fortuit(b, perdue)
+        and perdue * 2 >= totale;
+    then perte_atteint_la_moitie_de_la_recolte(b);
+}
+
+@source(CC_ART1769)
+rule RemiseDuPrixPourBailPluriannuel(b: Bail) strict {
+    label fr official "Article 1769, alinéa 1. Dans un bail de plusieurs années, le fermier peut demander une remise du prix, à moins qu'il ne soit indemnisé par les récoltes précédentes";
+    label en unofficial "Article 1769, first paragraph. In a lease of several years, the farmer may claim a reduction of the price, unless compensated by the previous crops";
+    when bail_a_ferme_pluriannuel(b) and perte_atteint_la_moitie_de_la_recolte(b)
+        and not_known(fermier_indemnise_par_les_recoltes_precedentes(b))
+        and not_known(preneur_charge_du_cas_fortuit(b))
+        and not_known(perte_apres_separation_des_fruits(b))
+        and not_known(cause_du_dommage_existante_et_connue_au_bail(b));
+    then remise_du_prix_de_location_due(b);
+}
+
+@source(CC_ART1769)
+rule PositionPouvoirRemisePrixFermier(b: Bail, p: Personne) strict {
+    label fr official "Article 1769. Pouvoir du fermier de demander une remise du prix";
+    label en unofficial "Article 1769. Farmer's power to seek a rent reduction";
+    when fermier_sortant(b, p) and bail_a_ferme_pluriannuel(b)
+        and perte_atteint_la_moitie_de_la_recolte(b)
+        and not_known(fermier_indemnise_par_les_recoltes_precedentes(b))
+        and not_known(preneur_charge_du_cas_fortuit(b))
+        and not_known(perte_apres_separation_des_fruits(b))
+        and not_known(cause_du_dommage_existante_et_connue_au_bail(b));
+    then power PouvoirRemisePrixFermier {
+        holder p;
+        exercise demande_remise_du_prix_par_fermier(b);
+        valid_when remise_du_prix_de_location_due(b);
+        effect remise_du_prix_demandee_par_le_fermier(b);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1769)
+rule EstimationDeLaRemiseALaFinDuBail(b: Bail) strict {
+    label fr official "Article 1769, alinéa 2. L'estimation de la remise ne peut avoir lieu qu'à la fin du bail, où se fait la compensation de toutes les années de jouissance";
+    label en unofficial "Article 1769, second paragraph. The reduction may be assessed only at the end of the lease, when all years of enjoyment are set off";
+    when bail_a_ferme_pluriannuel(b) and remise_du_prix_de_location_due(b);
+    then estimation_de_la_remise_a_la_fin_du_bail(b);
+}
+
+@source(CC_ART1770)
+rule DechargeProportionnellePourBailDUnAn(b: Bail) strict {
+    label fr official "Article 1770. Si le bail n'est que d'une année et que la perte soit de la totalité ou au moins de la moitié des fruits, le preneur est déchargé d'une partie proportionnelle du prix";
+    label en unofficial "Article 1770. If the lease is for one year only and the loss is of the whole or at least half the fruits, the lessee is discharged of a proportionate part of the price";
+    when bail_a_ferme_d_une_annee(b) and perte_atteint_la_moitie_de_la_recolte(b)
+        and not_known(preneur_charge_du_cas_fortuit(b))
+        and not_known(perte_apres_separation_des_fruits(b))
+        and not_known(cause_du_dommage_existante_et_connue_au_bail(b));
+    then remise_du_prix_de_location_due(b);
+}
+
+// Article 1771 : la perte après séparation ferme la remise, sauf quotité en
+// nature — et la réserve de cette exception est la demeure du preneur.
+@source(CC_ART1771)
+rule ProprietaireSupporteSaPartDeLaPerteEnNature(b: Bail) strict {
+    label fr official "Article 1771, alinéa 1. Si le bail donne au propriétaire une quotité de la récolte en nature, il supporte sa part de la perte, pourvu que le preneur ne fût pas en demeure";
+    label en unofficial "Article 1771, first paragraph. If the lease gives the owner a share of the crop in kind, he bears his share of the loss, provided the lessee was not in default";
+    when perte_apres_separation_des_fruits(b) and bail_donne_au_proprietaire_une_quotite_en_nature(b)
+        and not_known(preneur_en_demeure_de_delivrer_la_portion(b));
+    then proprietaire_supporte_sa_part_de_la_perte(b);
+}
+
+// Articles 1772 et 1773 : la stipulation ordinaire ne couvre pas le cas fortuit
+// extraordinaire ; seule la stipulation « de tous les cas fortuits prévus ou
+// imprévus » l'atteint.
+@source(CC_ART1772, CC_ART1773)
+rule PreneurChargeDesCasFortuitsOrdinaires(b: Bail) strict {
+    label fr official "Articles 1772 et 1773. La stipulation expresse ne s'entend que des cas fortuits ordinaires, tels que grêle, feu du ciel, gelée ou coulure";
+    label en unofficial "Articles 1772 and 1773. The express stipulation covers only ordinary fortuitous events, such as hail, lightning, frost or blight";
+    when stipulation_expresse_des_cas_fortuits(b)
+        and not_known(cas_fortuit_extraordinaire(b));
+    then preneur_charge_du_cas_fortuit(b);
+}
+
+@source(CC_ART1773)
+rule PreneurChargeDesCasFortuitsExtraordinairesParStipulationTotale(b: Bail) strict {
+    label fr official "Article 1773, alinéa 2. Le cas fortuit extraordinaire n'est à la charge du preneur que s'il a été chargé de tous les cas fortuits prévus ou imprévus";
+    label en unofficial "Article 1773, second paragraph. An extraordinary fortuitous event falls on the lessee only if he was charged with all fortuitous events, foreseen or unforeseen";
+    when cas_fortuit_extraordinaire(b) and stipulation_de_tous_les_cas_fortuits_prevus_ou_imprevus(b);
+    then preneur_charge_du_cas_fortuit(b);
+}
+
+// Article 1774 lu avec 1775 : la durée du bail rural verbal est celle de la
+// récolte, et le congé écrit six mois avant le terme est la seule manière d'y
+// mettre fin.
+@source(CC_ART1774, CC_ART1775)
+rule NouveauBailRuralFauteDeCongeEcrit(b: Bail) strict {
+    label fr official "Article 1775. À défaut de congé donné par écrit six mois au moins avant le terme, il s'opère un nouveau bail réglé par l'article 1774";
+    label en unofficial "Article 1775. In default of written notice at least six months before the term, a new lease arises governed by Article 1774";
+    when bail_a_ferme(b) and bail_sans_ecrit(b) and bail_expire(b)
+        and not_known(conge_ecrit_six_mois_avant_le_terme(b));
+    then bail_rural_sans_ecrit_renouvele(b);
+}
+
+@source(CC_ART1775)
+rule NouveauBailRuralSiLePreneurResteApresUnBailEcrit(b: Bail) strict {
+    label fr official "Article 1775, alinéa 3. Il en est de même si, à l'expiration des baux écrits, le preneur reste et est laissé en possession";
+    label en unofficial "Article 1775, third paragraph. The same applies if, on expiry of written leases, the lessee remains and is left in possession";
+    when bail_a_ferme(b) and bail_ecrit(b) and bail_expire(b) and preneur_laisse_en_jouissance(b);
+    then bail_rural_sans_ecrit_renouvele(b);
+}
+
+@source(CC_ART1777)
+rule FacilitesReciproquesEntreFermierSortantEtEntrant(b: Bail, sortant: Personne, entrant: Personne) strict {
+    label fr official "Article 1777. Le fermier sortant laisse au fermier entrant les logements convenables et autres facilités pour les travaux de l'année suivante";
+    label en unofficial "Article 1777. The outgoing farmer leaves the incoming farmer suitable housing and other facilities for the following year's work";
+    when fermier_sortant(b, sortant) and fermier_entrant(b, entrant);
+    then logements_convenables_dus_au_fermier_entrant(b);
+}
+pub relation facilites_fermier_entrant_fournies(b: Bail) kind empirical {
+    label fr official "facilités fournies au fermier entrant";
+    label en unofficial "facilities provided to the incoming farmer";
+}
+@source(CC_ART1777)
+rule P4DevoirFacilitesFermierEntrant1777(b: Bail, sortant: Personne, entrant: Personne) strict {
+    label fr official "Article 1777. Le fermier sortant doit fournir les facilités convenables au fermier entrant";
+    label en unofficial "Article 1777. The outgoing farmer must provide suitable facilities to the incoming farmer";
+    when fermier_sortant(b, sortant) and fermier_entrant(b, entrant);
+    then duty P4DevoirFacilitesFermierEntrant1777Actif {
+        bearer sortant;
+        beneficiary entrant;
+        achieve facilites_fermier_entrant_fournies(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1777)
+rule FacilitesDuesAuFermierSortant(b: Bail, sortant: Personne, entrant: Personne) strict {
+    label fr official "Article 1777. Réciproquement, le fermier entrant procure au fermier sortant les logements convenables pour la consommation des fourrages et les récoltes restant à faire";
+    label en unofficial "Article 1777. Reciprocally, the incoming farmer provides the outgoing farmer with suitable housing for consuming the fodder and for the crops still to be gathered";
+    when fermier_sortant(b, sortant) and fermier_entrant(b, entrant);
+    then logements_convenables_dus_au_fermier_sortant(b);
+}
+pub relation facilites_fermier_sortant_fournies(b: Bail) kind empirical {
+    label fr official "facilités fournies au fermier sortant";
+    label en unofficial "facilities provided to the outgoing farmer";
+}
+@source(CC_ART1777)
+rule P4DevoirFacilitesFermierSortant1777(b: Bail, sortant: Personne, entrant: Personne) strict {
+    label fr official "Article 1777. Le fermier entrant doit fournir les facilités convenables au fermier sortant";
+    label en unofficial "Article 1777. The incoming farmer must provide suitable facilities to the outgoing farmer";
+    when fermier_sortant(b, sortant) and fermier_entrant(b, entrant);
+    then duty P4DevoirFacilitesFermierSortant1777Actif {
+        bearer entrant;
+        beneficiary sortant;
+        achieve facilites_fermier_sortant_fournies(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1778)
+rule PaillesEtEngraisALaisserSiRecusALEntree(b: Bail, sortant: Personne) strict {
+    label fr official "Article 1778. Le fermier sortant doit laisser les pailles et engrais de l'année s'il les a reçus lors de son entrée en jouissance";
+    label en unofficial "Article 1778. The outgoing farmer must leave the year's straw and manure if he received them on entering into enjoyment";
+    when fermier_sortant(b, sortant) and pailles_et_engrais_recus_a_l_entree(b);
+    then pailles_et_engrais_a_laisser(b);
+}
+
+@source(CC_ART1778)
+rule PositionDevoirLaisserPaillesEtEngrais(b: Bail, sortant: Personne) strict {
+    label fr official "Article 1778. Devoir du fermier sortant de laisser pailles et engrais";
+    label en unofficial "Article 1778. Outgoing farmer's duty to leave straw and manure";
+    when fermier_sortant(b, sortant) and pailles_et_engrais_recus_a_l_entree(b);
+    then duty LaisserPaillesEtEngrais {
+        bearer sortant;
+        achieve pailles_et_engrais_laisses(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1778)
+rule RetenueDesPaillesSuivantEstimation(b: Bail, sortant: Personne) strict {
+    label fr official "Article 1778. Quand même le fermier sortant ne les aurait pas reçus, le propriétaire peut les retenir suivant l'estimation";
+    label en unofficial "Article 1778. Even if the outgoing farmer did not receive them, the owner may retain them subject to valuation";
+    when fermier_sortant(b, sortant) and not_known(pailles_et_engrais_recus_a_l_entree(b));
+    then proprietaire_peut_retenir_pailles_suivant_estimation(b);
+}

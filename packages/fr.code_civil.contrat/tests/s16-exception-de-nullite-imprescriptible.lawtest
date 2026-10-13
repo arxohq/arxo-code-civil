@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1185 : l'exception de nullité ne se prescrit pas si elle se rapporte à un contrat qui n'a reçu aucune exécution.
+test "urn:query:fr-code-civil-contrat-s16-exception-de-nullite-imprescriptible" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s16"), @2019-03-01) { origin case_input; }
+        assert "f2": exception_de_nullite_opposee(entity_ref("urn:fr:cc:contrat:s16")) { origin case_input; }
+    }
+    evaluate truth(exception_de_nullite_imprescriptible(entity_ref("urn:fr:cc:contrat:s16")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ExceptionDeNulliteImprescriptible);
+}

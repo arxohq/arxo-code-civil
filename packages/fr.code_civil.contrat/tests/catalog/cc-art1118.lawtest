@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-RETRACTATIONDELACCEPTATION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": retractation_de_l_acceptation_parvenue_le(entity_ref("urn:law:catalog:retractationdelacceptation:v0"), @2026-01-14) { origin case_input; }
+        assert "cat-1": offre_du_contrat(entity_ref("urn:law:catalog:retractationdelacceptation:v0"), entity_ref("urn:law:catalog:retractationdelacceptation:v1")) { origin case_input; }
+        assert "cat-2": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:retractationdelacceptation:v1")) { origin case_input; }
+        assert "cat-3": acceptation_parvenue_a_l_offrant_le(entity_ref("urn:law:catalog:retractationdelacceptation:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(retractation_de_l_acceptation_efficace(entity_ref("urn:law:catalog:retractationdelacceptation:v0")));
+    expect truth_status == TRUE_ONLY;
+}

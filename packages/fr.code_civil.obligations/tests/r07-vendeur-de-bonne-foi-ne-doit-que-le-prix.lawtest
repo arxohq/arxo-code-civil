@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1352-2, al. 1 : celui qui, l'ayant reçue DE BONNE FOI, a vendu la chose ne doit
+// restituer QUE LE PRIX DE LA VENTE — 6 000 EUR, quand bien même la chose en vaudrait
+// 9 000 au jour de la restitution.
+test "urn:query:fr-code-civil-obligations-r07-vendeur-de-bonne-foi-ne-doit-que-le-prix" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": restitution_due(entity_ref("urn:fr:cc:obligations:rvb:r"), entity_ref("urn:fr:cc:obligations:rvb:D"), entity_ref("urn:fr:cc:obligations:rvb:CR")) { origin case_input; }
+        assert "f2": chose_vendue_par_celui_qui_l_a_recue(entity_ref("urn:fr:cc:obligations:rvb:r"), 6000 EUR) { origin case_input; }
+        assert "f3": valeur_au_jour_de_la_restitution(entity_ref("urn:fr:cc:obligations:rvb:r"), 9000 EUR) { origin case_input; }
+        assert "f4": recu_de_bonne_foi(entity_ref("urn:fr:cc:obligations:rvb:r")) { origin adjudicated; }
+    }
+    evaluate truth(restitution_du_prix_de_vente(entity_ref("urn:fr:cc:obligations:rvb:r"), 6000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RestitutionDuSeulPrixDeVente);
+}

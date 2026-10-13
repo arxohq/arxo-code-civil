@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 815-3, alinéa 6 : les autres indivisaires ont été informés.
+test "urn:query:fr-code-civil-successions-i07-decision-opposable-apres-information" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": total_des_parts(entity_ref("urn:fr:cc:successions:ind:i07:I"), 3000) { origin case_input; }
+        assert "f2": parts_favorables(entity_ref("urn:fr:cc:successions:ind:i07:I"), 2000) { origin case_input; }
+        assert "f3": acte_envisage(entity_ref("urn:fr:cc:successions:ind:i07:I"), ActeDAdministration) { origin case_input; }
+        assert "f4": autres_indivisaires_informes(entity_ref("urn:fr:cc:successions:ind:i07:I")) { origin case_input; }
+    }
+    evaluate truth(decision_opposable_aux_autres(entity_ref("urn:fr:cc:successions:ind:i07:I")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DecisionOpposableApresInformation);
+}

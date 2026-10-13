@@ -1,0 +1,461 @@
+// CHAPITRE II — DONATIONS ENTRE VIFS (articles 931 à 966).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART931,
+    CC_ART931_1,
+    CC_ART932,
+    CC_ART933,
+    CC_ART935,
+    CC_ART936,
+    CC_ART937,
+    CC_ART938,
+    CC_ART939,
+    CC_ART940,
+    CC_ART941,
+    CC_ART943,
+    CC_ART944,
+    CC_ART945,
+    CC_ART946,
+    CC_ART948,
+    CC_ART949,
+    CC_ART950,
+    CC_ART951,
+    CC_ART952,
+    CC_ART953,
+    CC_ART954,
+    CC_ART955,
+    CC_ART956,
+    CC_ART957,
+    CC_ART958,
+    CC_ART959,
+    CC_ART960,
+    CC_ART961,
+    CC_ART962,
+    CC_ART963,
+    CC_ART964,
+    CC_ART965,
+    CC_ART966,
+    Liberalite,
+    liberalite_nulle,
+};
+
+pub relation acte_de_donation_notarie_avec_minute(l: Liberalite) kind empirical { label fr official "l'acte de donation est reçu par notaire et conservé en minute"; label en unofficial "the gift instrument is notarized and retained as an original"; }
+pub relation donation_formellement_valable(l: Liberalite) kind derived { label fr official "donation conforme aux formes légales"; label en unofficial "gift complying with statutory form"; }
+pub relation vice_de_forme_de_la_donation(l: Liberalite) kind empirical { label fr official "la donation est affectée d'un vice de forme"; label en unofficial "the gift is affected by a defect of form"; }
+pub relation donation_refaite_en_forme_legale(l: Liberalite) kind empirical { label fr official "la donation a été refaite dans la forme légale"; label en unofficial "the gift has been remade in statutory form"; }
+pub relation heritier_confirme_ou_execute_apres_deces(l: Liberalite) kind empirical { label fr official "après le décès, un héritier confirme ou exécute volontairement la donation"; label en unofficial "after death, an heir confirms or voluntarily performs the gift"; }
+pub relation renonciation_a_opposer_la_nullite(l: Liberalite) kind derived { label fr official "renonciation à opposer le vice de forme ou une autre nullité"; label en unofficial "waiver of the right to invoke a defect of form or other nullity"; }
+pub relation acceptation_expresse_de_la_donation(l: Liberalite) kind empirical { label fr official "la donation est acceptée en termes exprès"; label en unofficial "the gift is accepted in express terms"; }
+pub relation acceptation_authentique_posterieure_notifiee(l: Liberalite) kind empirical { label fr official "l'acceptation postérieure authentique a été notifiée au donateur"; label en unofficial "the later authentic acceptance has been notified to the donor"; }
+pub relation donation_engage_donateur(l: Liberalite) kind derived { label fr official "donation qui engage le donateur et produit effet"; label en unofficial "gift binding the donor and taking effect"; }
+pub relation acceptation_par_donataire_ou_mandataire_habilite(l: Liberalite) kind empirical { label fr official "acceptation par le donataire majeur ou par un mandataire spécialement ou généralement habilité"; label en unofficial "acceptance by the adult donee or an agent specifically or generally empowered"; }
+pub relation procuration_notariee_annexee(l: Liberalite) kind empirical { label fr official "la procuration notariée est annexée à la minute"; label en unofficial "the notarized power of attorney is annexed to the original"; }
+pub relation acceptation_valable(l: Liberalite) kind derived { label fr official "acceptation valable de la donation"; label en unofficial "valid acceptance of the gift"; }
+pub relation donataire_mineur_ou_en_tutelle(l: Liberalite) kind empirical { label fr official "le donataire est mineur non émancipé ou majeur en tutelle"; label en unofficial "the donee is an unemancipated minor or an adult under guardianship"; }
+pub relation acceptation_par_tuteur_ou_ascendant(l: Liberalite) kind empirical { label fr official "la donation est acceptée par le tuteur ou un ascendant habilité"; label en unofficial "the gift is accepted by the guardian or an authorized ascendant"; }
+pub relation donataire_sourd_muet_sait_ecrire(l: Liberalite) kind empirical { label fr official "le donataire sourd-muet sait écrire"; label en unofficial "the deaf-mute donee can write"; }
+pub relation acceptation_par_curateur_special(l: Liberalite) kind empirical { label fr official "l'acceptation est faite par un curateur nommé spécialement"; label en unofficial "acceptance is made by a specially appointed curator"; }
+pub relation etablissement_utilite_publique_autorise(l: Liberalite) kind empirical { label fr official "les administrateurs de l'établissement d'utilité publique sont dûment autorisés à accepter"; label en unofficial "the public-benefit institution's administrators are duly authorized to accept"; }
+pub relation propriete_transferee_au_donataire(l: Liberalite) kind derived { label fr official "propriété des objets donnés transférée au donataire par le seul consentement"; label en unofficial "ownership of the donated objects transferred to the donee by consent alone"; }
+pub relation donation_portant_bien_hypothecable(l: Liberalite) kind empirical { label fr official "la donation porte sur un bien susceptible d'hypothèque"; label en unofficial "the gift concerns property capable of being mortgaged"; }
+pub relation donation_publiee_service_foncier(l: Liberalite) kind empirical { label fr official "la donation, l'acceptation et sa notification sont publiées au service de publicité foncière"; label en unofficial "the gift, acceptance and notification are published at the land registry"; }
+pub relation publication_fonciere_requise(l: Liberalite) kind derived { label fr official "publication foncière requise"; label en unofficial "land registration required"; }
+pub relation publication_a_charge_representant(l: Liberalite) kind derived { label fr official "publication à la diligence du tuteur, curateur ou administrateur"; label en unofficial "publication to be arranged by the guardian, curator or administrator"; }
+pub relation defaut_publication_opposable(l: Liberalite) kind derived { label fr official "défaut de publication opposable par une personne intéressée"; label en unofficial "failure to publish may be invoked by an interested person"; }
+pub relation personne_interessee_non_chargee_publication(l: Liberalite) kind empirical { label fr official "une personne intéressée n'est ni chargée de publier, ni son ayant cause, ni le donateur"; label en unofficial "an interested person is neither responsible for publication, nor that person's successor, nor the donor"; }
+pub relation biens_a_venir_compris(l: Liberalite) kind empirical { label fr official "la donation comprend des biens à venir"; label en unofficial "the gift includes future property"; }
+pub relation condition_depend_seule_volonte_donateur(l: Liberalite) kind empirical { label fr official "l'exécution de la condition dépend de la seule volonté du donateur"; label en unofficial "performance of the condition depends solely on the donor's will"; }
+pub relation charges_ulterieures_non_exprimees(l: Liberalite) kind empirical { label fr official "la donation impose des dettes ou charges ultérieures non exprimées dans l'acte ou l'état annexé"; label en unofficial "the gift imposes later debts or charges not stated in the instrument or annexed schedule"; }
+pub relation effet_ou_somme_reserve_non_disposee(l: Liberalite) kind empirical { label fr official "le donateur est mort sans disposer de l'effet ou de la somme qu'il s'était réservé"; label en unofficial "the donor died without disposing of the reserved object or sum"; }
+pub relation effet_reserve_revient_aux_heritiers(l: Liberalite) kind derived { label fr official "effet ou somme réservé appartenant aux héritiers du donateur"; label en unofficial "reserved object or sum belonging to the donor's heirs"; }
+pub relation etat_estimatif_mobilier_signe_annexe(l: Liberalite) kind empirical { label fr official "un état estimatif signé des meubles est annexé à la minute"; label en unofficial "a signed valuation schedule of movables is annexed to the original"; }
+pub relation reserve_jouissance_ou_usufruit(l: Liberalite) kind empirical { label fr official "le donateur réserve la jouissance ou l'usufruit à lui-même ou à autrui"; label en unofficial "the donor reserves enjoyment or usufruct for the donor or another person"; }
+pub relation reserve_usufruit_permisse(l: Liberalite) kind derived { label fr official "réserve de jouissance ou d'usufruit permise"; label en unofficial "permitted reservation of enjoyment or usufruct"; }
+pub relation meuble_non_existant_fin_usufruit(l: Liberalite) kind empirical { label fr official "un meuble donné n'existe plus à l'expiration de l'usufruit"; label en unofficial "a donated movable no longer exists when usufruct ends"; }
+pub relation action_valeur_etat_estimatif(l: Liberalite) kind derived { label fr official "action contre le donateur ou ses héritiers dans la limite de l'état estimatif"; label en unofficial "claim against the donor or heirs up to the scheduled value"; }
+pub relation droit_retour_stipule_predeces(l: Liberalite) kind empirical { label fr official "un droit de retour est stipulé pour le prédécès du donataire ou de ses descendants"; label en unofficial "a right of return is stipulated for the donee's or descendants' prior death"; }
+pub relation droit_retour_au_seul_donateur(l: Liberalite) kind empirical { label fr official "le droit de retour est stipulé au seul profit du donateur"; label en unofficial "the right of return is stipulated solely for the donor"; }
+pub relation droit_retour_valable(l: Liberalite) kind derived { label fr official "droit de retour valablement stipulé"; label en unofficial "validly stipulated right of return"; }
+pub relation retour_resout_alienations_et_charges(l: Liberalite) kind derived { label fr official "retour résolvant aliénations et charges et restituant le bien au donateur"; label en unofficial "return unwinding transfers and charges and restoring the property to the donor"; }
+pub relation inexecution_conditions_donation(l: Liberalite) kind empirical { label fr official "les conditions de la donation ne sont pas exécutées"; label en unofficial "the conditions of the gift are not performed"; }
+pub relation ingratitude_du_donataire(l: Liberalite) kind empirical { label fr official "ingratitude du donataire : attentat à la vie, sévices, infraction, injure grave ou refus d'aliments"; label en unofficial "donee's ingratitude: attempt on life, cruelty, offence, serious insult or refusal of maintenance"; }
+pub relation survenance_enfant_prevue_par_acte(l: Liberalite) kind empirical { label fr official "l'acte prévoit la révocation pour survenance d'un enfant du donateur"; label en unofficial "the instrument provides for revocation if the donor later has a child"; }
+pub relation revocation_donation_demandable(l: Liberalite) kind derived { label fr official "révocation de la donation demandable"; label en unofficial "revocation of the gift may be sought"; }
+pub relation biens_reviennent_libres_au_donateur(l: Liberalite) kind derived { label fr official "biens donnés revenant au donateur libres des charges du donataire"; label en unofficial "donated property returning to the donor free of the donee's charges"; }
+pub relation fait_ingratitude_connu_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date du fait d'ingratitude ou de sa connaissance"; label en unofficial "date of the ingratitude event or its discovery"; }
+pub relation demande_revocation_donation_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de la demande en révocation de la donation"; label en unofficial "date of the application to revoke the gift"; }
+pub relation demande_ingratitude_dans_delai(l: Liberalite) kind derived { label fr official "demande pour ingratitude formée dans l'année"; label en unofficial "ingratitude application brought within one year"; }
+pub relation alienation_anterieure_publication_demande(l: Liberalite) kind empirical { label fr official "l'aliénation ou la charge réelle précède la publication de la demande en révocation"; label en unofficial "the transfer or real charge predates publication of the revocation application"; }
+pub relation alienation_preservee(l: Liberalite) kind derived { label fr official "aliénation ou charge réelle préservée malgré la révocation"; label en unofficial "transfer or real charge preserved despite revocation"; }
+pub relation donation_en_faveur_mariage(l: Liberalite) kind empirical { label fr official "la donation est faite en faveur du mariage"; label en unofficial "the gift is made in consideration of marriage"; }
+pub relation enfant_survenu_ou_adopte(l: Liberalite) kind empirical { label fr official "un enfant du donateur est survenu ou a été adopté"; label en unofficial "the donor later had or adopted a child"; }
+pub relation naissance_ou_adoption_notifiee(l: Liberalite) kind empirical { label fr official "la naissance ou l'adoption a été notifiée au donataire"; label en unofficial "the birth or adoption was notified to the donee"; }
+pub relation restitution_fruits_depuis_notification(l: Liberalite) kind derived { label fr official "restitution des fruits à compter de la notification"; label en unofficial "restitution of fruits from notification"; }
+pub relation renonciation_revocation_survenance_enfant(l: Liberalite) kind empirical { label fr official "le donateur renonce à la révocation pour survenance d'enfant"; label en unofficial "the donor waives revocation for a later child"; }
+pub relation dernier_enfant_ne_ou_adopte_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de naissance ou d'adoption du dernier enfant"; label en unofficial "date of birth or adoption of the last child"; }
+pub relation action_survenance_enfant_dans_delai(l: Liberalite) kind derived { label fr official "action en révocation exercée dans les cinq ans par le donateur"; label en unofficial "revocation action exercised by the donor within five years"; }
+
+@source(CC_ART931) rule DonationNotarieeValable(l: Liberalite) strict { label fr official "Article 931. La donation entre vifs est reçue par notaire et conservée en minute à peine de nullité"; label en unofficial "Article 931. An inter vivos gift is notarized and retained as an original on pain of nullity"; when acte_de_donation_notarie_avec_minute(l); then donation_formellement_valable(l); }
+pub relation recevoir_donation_notariee_931(l: Liberalite) kind empirical { label fr official "le notaire reçoit la donation et la conserve en minute"; label en unofficial "the notary receives the gift and retains it as an original"; }
+pub relation donation_entre_vifs_a_passer(l: Liberalite) kind empirical { label fr official "un acte portant donation entre vifs est à passer devant notaire"; label en unofficial "a deed of gift inter vivos is to be executed before a notary"; }
+@source(CC_ART931)
+rule PositionDevoirRecevoirDonationNotariee(l: Liberalite) strict {
+    label fr official "Article 931. Le notaire doit recevoir la donation en minute";
+    label en unofficial "Article 931. The notary must receive and retain the gift";
+    when donation_entre_vifs_a_passer(l);
+    then duty DevoirRecevoirDonationNotariee {
+        bearer entity_ref("urn:fr:cc:liberalites:notaire");
+        goal achievement { condition recevoir_donation_notariee_931(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART931_1) { rule DonationRefaiteApresVice(l: Liberalite) strict { label fr official "Article 931-1, alinéa 1. La donation viciée en la forme doit être refaite dans la forme légale"; label en unofficial "Article 931-1, paragraph 1. A gift defective in form must be remade in statutory form"; when vice_de_forme_de_la_donation(l) and donation_refaite_en_forme_legale(l); then donation_formellement_valable(l); } rule HeritierRenonceANullite(l: Liberalite) strict { label fr official "Article 931-1, alinéa 2. La confirmation ou exécution après décès emporte renonciation à opposer la nullité"; label en unofficial "Article 931-1, paragraph 2. Confirmation or performance after death waives the right to invoke nullity"; when heritier_confirme_ou_execute_apres_deces(l); then renonciation_a_opposer_la_nullite(l); } }
+pub relation refaire_donation_forme_legale_931_1(l: Liberalite) kind empirical { label fr official "le donateur refait la donation dans la forme légale"; label en unofficial "the donor remakes the gift in the statutory form"; }
+@source(CC_ART931_1)
+rule PositionDevoirRefaireDonationFormeLegale(l: Liberalite) strict {
+    label fr official "Article 931-1. La donation viciée doit être refaite dans la forme légale";
+    label en unofficial "Article 931-1. A defective gift must be remade in statutory form";
+    when vice_de_forme_de_la_donation(l);
+    then duty DevoirRefaireDonationFormeLegale {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition refaire_donation_forme_legale_931_1(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART932) { rule AcceptationExpresseEngage(l: Liberalite) strict { label fr official "Article 932, alinéa 1. La donation engage le donateur du jour de son acceptation expresse"; label en unofficial "Article 932, paragraph 1. A gift binds the donor from express acceptance"; when acceptation_expresse_de_la_donation(l); then donation_engage_donateur(l); } rule AcceptationPosterieureNotifiee(l: Liberalite) strict { label fr official "Article 932, alinéa 2. L'acceptation authentique postérieure produit effet à sa notification"; label en unofficial "Article 932, paragraph 2. Later authentic acceptance takes effect upon notification"; when acceptation_authentique_posterieure_notifiee(l); then donation_engage_donateur(l); } }
+pub relation accepter_donation_932(l: Liberalite) kind empirical { label fr official "le donataire accepte expressément la donation"; label en unofficial "the donee expressly accepts the gift"; }
+@source(CC_ART932)
+rule PositionPouvoirAccepterDonation(l: Liberalite) strict {
+    label fr official "Article 932. Le donataire peut accepter la donation";
+    label en unofficial "Article 932. The donee may accept the gift";
+    when acceptation_expresse_de_la_donation(l) and accepter_donation_932(l);
+    then liberty PouvoirAccepterDonation {
+        holder entity_ref("urn:fr:cc:liberalites:donataire");
+        action accepter_donation_932(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART933) rule AcceptationParMandataire(l: Liberalite) strict { label fr official "Article 933. Le donataire majeur accepte lui-même ou par mandataire habilité avec procuration notariée annexée"; label en unofficial "Article 933. An adult donee accepts personally or through an empowered agent with an annexed notarized power"; when acceptation_par_donataire_ou_mandataire_habilite(l) and procuration_notariee_annexee(l); then acceptation_valable(l); }
+pub relation accepter_donation_mandataire_933(l: Liberalite) kind empirical { label fr official "le donataire accepte lui-même ou par mandataire avec procuration annexée"; label en unofficial "the donee accepts personally or through an agent with an annexed power"; }
+@source(CC_ART933)
+rule PositionPouvoirAccepterDonationMandataire(l: Liberalite) strict {
+    label fr official "Article 933. Le donataire peut accepter la donation lui-même ou par mandataire";
+    label en unofficial "Article 933. The donee may accept personally or through an agent";
+    when acceptation_par_donataire_ou_mandataire_habilite(l)
+        and procuration_notariee_annexee(l)
+        and accepter_donation_mandataire_933(l);
+    then liberty PouvoirAccepterDonationMandataire {
+        holder entity_ref("urn:fr:cc:liberalites:donataire");
+        action accepter_donation_mandataire_933(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART935) rule AcceptationMineurOuTutelle(l: Liberalite) strict { label fr official "Article 935. La donation au mineur ou au majeur en tutelle est acceptée par le tuteur ou un ascendant habilité"; label en unofficial "Article 935. A gift to a minor or protected adult is accepted by the guardian or authorized ascendant"; when donataire_mineur_ou_en_tutelle(l) and acceptation_par_tuteur_ou_ascendant(l); then acceptation_valable(l); }
+pub relation accepter_donation_protege_935(l: Liberalite) kind empirical { label fr official "le tuteur ou ascendant accepte la donation du protégé"; label en unofficial "the guardian or ascendant accepts the protected person's gift"; }
+@source(CC_ART935)
+rule PositionDevoirAccepterDonationProtege(l: Liberalite) strict {
+    label fr official "Article 935. Le tuteur ou ascendant doit accepter la donation";
+    label en unofficial "Article 935. The guardian or ascendant must accept the gift";
+    when donataire_mineur_ou_en_tutelle(l);
+    then duty DevoirAccepterDonationProtege {
+        bearer entity_ref("urn:fr:cc:liberalites:tuteur-ou-ascendant");
+        goal achievement { condition accepter_donation_protege_935(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART936) { rule SourdMuetSachantEcrire(l: Liberalite) strict { label fr official "Article 936, alinéa 1. Le sourd-muet sachant écrire accepte lui-même ou par mandataire"; label en unofficial "Article 936, paragraph 1. A deaf-mute person who can write accepts personally or through an agent"; when donataire_sourd_muet_sait_ecrire(l) and acceptation_par_donataire_ou_mandataire_habilite(l); then acceptation_valable(l); } rule CurateurSpecialAccepte(l: Liberalite) strict { label fr official "Article 936, alinéa 2. À défaut d'écriture, un curateur spécialement nommé accepte"; label en unofficial "Article 936, paragraph 2. If unable to write, a specially appointed curator accepts"; when acceptation_par_curateur_special(l); then acceptation_valable(l); } }
+@source(CC_ART937) rule EtablissementAutoriseAccepte(l: Liberalite) strict { label fr official "Article 937. Les administrateurs dûment autorisés acceptent pour l'établissement d'utilité publique"; label en unofficial "Article 937. Duly authorized administrators accept for the public-benefit institution"; when etablissement_utilite_publique_autorise(l); then acceptation_valable(l); }
+@source(CC_ART938) rule TransfertParConsentement(l: Liberalite) strict { label fr official "Article 938. La donation acceptée est parfaite et transfère la propriété par le seul consentement"; label en unofficial "Article 938. An accepted gift is complete and transfers ownership by consent alone"; when acceptation_valable(l); then propriete_transferee_au_donataire(l); }
+@source(CC_ART939) rule PublicationBienHypothecable(l: Liberalite) strict { label fr official "Article 939. La donation d'un bien hypothécable requiert la publication de l'acte et de l'acceptation"; label en unofficial "Article 939. A gift of mortgageable property requires publication of the instrument and acceptance"; when donation_portant_bien_hypothecable(l); then publication_fonciere_requise(l); }
+pub relation publier_donation_hypothecable_939(l: Liberalite) kind empirical { label fr official "la donation hypothécable est publiée"; label en unofficial "the mortgageable gift is published"; }
+@source(CC_ART939)
+rule PositionDevoirPublierDonationHypothecable(l: Liberalite) strict {
+    label fr official "Article 939. La donation hypothécable doit être publiée";
+    label en unofficial "Article 939. A mortgageable gift must be published";
+    when donation_portant_bien_hypothecable(l);
+    then duty DevoirPublierDonationHypothecable {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition publier_donation_hypothecable_939(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART940) rule PublicationParRepresentant(l: Liberalite) strict { label fr official "Article 940. Pour le mineur, le majeur en tutelle ou l'établissement public, le représentant assure la publication"; label en unofficial "Article 940. For a minor, protected adult or public institution, the representative arranges publication"; when donataire_mineur_ou_en_tutelle(l); then publication_a_charge_representant(l); }
+pub relation publier_donation_representant_940(l: Liberalite) kind empirical { label fr official "le représentant publie la donation au service de publicité foncière"; label en unofficial "the representative publishes the gift at the land registry"; }
+@source(CC_ART940)
+rule PositionDevoirPublierDonationRepresentant(l: Liberalite) strict {
+    label fr official "Article 940. Le représentant doit assurer la publication";
+    label en unofficial "Article 940. The representative must arrange publication";
+    when donataire_mineur_ou_en_tutelle(l);
+    then duty DevoirPublierDonationRepresentant {
+        bearer entity_ref("urn:fr:cc:liberalites:representant");
+        goal achievement { condition publier_donation_representant_940(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART941) rule OpposabiliteDefautPublication(l: Liberalite) strict { label fr official "Article 941. Toute personne intéressée non exclue peut opposer le défaut de publication"; label en unofficial "Article 941. Any non-excluded interested person may invoke failure to publish"; when personne_interessee_non_chargee_publication(l) and not_known(donation_publiee_service_foncier(l)); then defaut_publication_opposable(l); }
+pub relation opposer_defaut_publication_941(l: Liberalite) kind empirical { label fr official "la personne intéressée oppose le défaut de publication"; label en unofficial "the interested person invokes failure to publish"; }
+@source(CC_ART941)
+rule PositionPouvoirOpposerDefautPublication(l: Liberalite) strict {
+    label fr official "Article 941. La personne intéressée peut opposer le défaut de publication";
+    label en unofficial "Article 941. An interested person may invoke failure to publish";
+    when personne_interessee_non_chargee_publication(l) and opposer_defaut_publication_941(l);
+    then liberty PouvoirOpposerDefautPublication {
+        holder entity_ref("urn:fr:cc:liberalites:personne-interessee");
+        action opposer_defaut_publication_941(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART943) rule NulliteBiensAVenir(l: Liberalite) strict { label fr official "Article 943. La donation est nulle quant aux biens à venir"; label en unofficial "Article 943. A gift is void as to future property"; when biens_a_venir_compris(l); then liberalite_nulle(l); }
+pub relation consentir_donation_biens_avenir_943(l: Liberalite) kind empirical { label fr official "le donateur consent une donation portant sur des biens à venir"; label en unofficial "the donor makes a gift covering future property"; }
+@source(CC_ART943)
+rule PositionInterdictionConsentirDonationBiensAvenir(l: Liberalite) strict {
+    label fr official "Article 943. Le donateur ne peut consentir une donation de biens à venir";
+    label en unofficial "Article 943. The donor may not give future property";
+    when biens_a_venir_compris(l);
+    then prohibition InterdictionConsentirDonationBiensAvenir {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        action consentir_donation_biens_avenir_943(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART943)
+rule PositionDevoirMaintenirInterdictionBiensAvenir(l: Liberalite) strict {
+    label fr official "Article 943. Devoir de maintenir l'interdiction des biens à venir";
+    label en unofficial "Article 943. Duty to maintain the prohibition on future property";
+    when biens_a_venir_compris(l);
+    then duty MaintenirInterdictionBiensAvenir {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition consentir_donation_biens_avenir_943(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART944) rule NulliteConditionPotestative(l: Liberalite) strict { label fr official "Article 944. La condition dépendant de la seule volonté du donateur rend la donation nulle"; label en unofficial "Article 944. A condition depending solely on the donor's will makes the gift void"; when condition_depend_seule_volonte_donateur(l); then liberalite_nulle(l); }
+pub relation stipuler_condition_potestative_944(l: Liberalite) kind empirical { label fr official "le donateur stipule une condition dépendant de sa seule volonté"; label en unofficial "the donor stipulates a condition depending solely on own will"; }
+@source(CC_ART944)
+rule PositionInterdictionStipulerConditionPotestative(l: Liberalite) strict {
+    label fr official "Article 944. Le donateur ne peut stipuler une condition potestative";
+    label en unofficial "Article 944. The donor may not stipulate a potestative condition";
+    when condition_depend_seule_volonte_donateur(l);
+    then prohibition InterdictionStipulerConditionPotestative {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        action stipuler_condition_potestative_944(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART944)
+rule PositionDevoirMaintenirInterdictionConditionPotestative(l: Liberalite) strict {
+    label fr official "Article 944. Devoir de maintenir l'interdiction de la condition potestative";
+    label en unofficial "Article 944. Duty to maintain the prohibition on a potestative condition";
+    when condition_depend_seule_volonte_donateur(l);
+    then duty MaintenirInterdictionConditionPotestative {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition stipuler_condition_potestative_944(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART945) rule NulliteChargesNonExprimees(l: Liberalite) strict { label fr official "Article 945. Les dettes ou charges ultérieures non exprimées rendent la donation nulle"; label en unofficial "Article 945. Later unstated debts or charges make the gift void"; when charges_ulterieures_non_exprimees(l); then liberalite_nulle(l); }
+pub relation stipuler_charges_non_exprimees_945(l: Liberalite) kind empirical { label fr official "le donateur stipule des dettes ou charges ultérieures non exprimées"; label en unofficial "the donor stipulates later unstated debts or charges"; }
+@source(CC_ART945)
+rule PositionInterdictionStipulerChargesNonExprimees(l: Liberalite) strict {
+    label fr official "Article 945. Le donateur ne peut stipuler des charges non exprimées";
+    label en unofficial "Article 945. The donor may not stipulate unstated charges";
+    when charges_ulterieures_non_exprimees(l);
+    then prohibition InterdictionStipulerChargesNonExprimees {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        action stipuler_charges_non_exprimees_945(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART945)
+rule PositionDevoirMaintenirInterdictionChargesNonExprimees(l: Liberalite) strict {
+    label fr official "Article 945. Devoir de maintenir l'interdiction des charges non exprimées";
+    label en unofficial "Article 945. Duty to maintain the prohibition on unstated charges";
+    when charges_ulterieures_non_exprimees(l);
+    then duty MaintenirInterdictionChargesNonExprimees {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition stipuler_charges_non_exprimees_945(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART946) rule ReserveNonDisposeeAuxHeritiers(l: Liberalite) strict { label fr official "Article 946. L'effet ou la somme réservé et non disposé appartient aux héritiers du donateur"; label en unofficial "Article 946. A reserved object or sum not disposed of belongs to the donor's heirs"; when effet_ou_somme_reserve_non_disposee(l); then effet_reserve_revient_aux_heritiers(l); }
+@source(CC_ART948) rule EtatEstimatifMobilier(l: Liberalite) strict { label fr official "Article 948. La donation mobilière n'est valable que pour les effets portés à l'état estimatif signé et annexé"; label en unofficial "Article 948. A gift of movables is valid only for items in the signed annexed valuation schedule"; when etat_estimatif_mobilier_signe_annexe(l); then donation_formellement_valable(l); }
+@source(CC_ART949) rule ReserveUsufruitPermise(l: Liberalite) strict { label fr official "Article 949. Le donateur peut réserver la jouissance ou l'usufruit à lui-même ou à autrui"; label en unofficial "Article 949. The donor may reserve enjoyment or usufruct for the donor or another"; when reserve_jouissance_ou_usufruit(l); then reserve_usufruit_permisse(l); }
+pub relation accepter_donation_sourd_muet_936(l: Liberalite) kind empirical { label fr official "le donataire sourd-muet accepte la donation"; label en unofficial "the deaf-mute donee accepts the gift"; }
+@source(CC_ART936)
+rule PositionPouvoirAccepterDonationSourdMuet(l: Liberalite) strict {
+    label fr official "Article 936. Le donataire sourd-muet peut accepter la donation";
+    label en unofficial "Article 936. The deaf-mute donee may accept the gift";
+    when donataire_sourd_muet_sait_ecrire(l)
+        and acceptation_par_donataire_ou_mandataire_habilite(l)
+        and accepter_donation_sourd_muet_936(l);
+    then liberty PouvoirAccepterDonationSourdMuet {
+        holder entity_ref("urn:fr:cc:liberalites:donataire-sourd-muet");
+        action accepter_donation_sourd_muet_936(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation accepter_donation_etablissement_937(l: Liberalite) kind empirical { label fr official "les administrateurs autorisés acceptent la donation"; label en unofficial "authorized administrators accept the gift"; }
+@source(CC_ART937)
+rule PositionDevoirAccepterDonationEtablissement(l: Liberalite) strict {
+    label fr official "Article 937. Les administrateurs autorisés doivent accepter la donation";
+    label en unofficial "Article 937. Authorized administrators must accept the gift";
+    when etablissement_utilite_publique_autorise(l);
+    then duty DevoirAccepterDonationEtablissement {
+        bearer entity_ref("urn:fr:cc:liberalites:administrateurs-autorises");
+        goal achievement { condition accepter_donation_etablissement_937(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation stipuler_retour_seul_donateur_951(l: Liberalite) kind empirical { label fr official "le donateur stipule le retour à son seul profit"; label en unofficial "the donor stipulates return solely for the donor"; }
+@source(CC_ART951)
+rule PositionInterdictionStipulerRetourAutreQueDonateur(l: Liberalite) strict {
+    label fr official "Article 951. Le retour ne peut être stipulé qu'au profit du seul donateur";
+    label en unofficial "Article 951. Return may be stipulated only for the donor";
+    when droit_retour_stipule_predeces(l) and droit_retour_au_seul_donateur(l);
+    then prohibition InterdictionStipulerRetourAutreQueDonateur {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        action stipuler_retour_seul_donateur_951(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART951)
+rule PositionDevoirMaintenirRetourAuDonateur(l: Liberalite) strict {
+    label fr official "Article 951. Devoir de maintenir le retour au seul donateur";
+    label en unofficial "Article 951. Duty to maintain return solely to the donor";
+    when droit_retour_stipule_predeces(l) and droit_retour_au_seul_donateur(l);
+    then duty MaintenirRetourAuDonateur {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition stipuler_retour_seul_donateur_951(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation demander_revocation_donation_953(l: Liberalite) kind empirical { label fr official "le donateur demande la révocation de la donation"; label en unofficial "the donor seeks revocation of the gift"; }
+@source(CC_ART953)
+rule PositionPouvoirDemanderRevocationDonation(l: Liberalite) strict {
+    label fr official "Article 953. Le donateur peut demander la révocation";
+    label en unofficial "Article 953. The donor may seek revocation";
+    when inexecution_conditions_donation(l) and demander_revocation_donation_953(l);
+    then liberty PouvoirDemanderRevocationDonation {
+        holder entity_ref("urn:fr:cc:liberalites:donateur");
+        action demander_revocation_donation_953(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation demander_revocation_956(l: Liberalite) kind empirical { label fr official "le donateur demande la révocation en justice"; label en unofficial "the donor seeks revocation in court"; }
+@source(CC_ART956)
+rule PositionDevoirDemanderRevocation(l: Liberalite) strict {
+    label fr official "Article 956. La révocation doit être demandée";
+    label en unofficial "Article 956. Revocation must be sought";
+    when inexecution_conditions_donation(l);
+    then duty DevoirDemanderRevocation {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition demander_revocation_956(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation former_demande_ingratitude_957(l: Liberalite, fait: Date, demande: Date) kind empirical { key(l); label fr official "le donateur forme la demande en révocation pour ingratitude"; label en unofficial "the donor files the application to revoke for ingratitude"; }
+@source(CC_ART957)
+rule PositionDevoirFormerDemandeIngratitude(l: Liberalite, fait: Date, demande: Date) strict {
+    label fr official "Article 957. La demande pour ingratitude doit être formée dans l'année";
+    label en unofficial "Article 957. The application for ingratitude must be filed within one year";
+    when fait_ingratitude_connu_le(l, fait) and demande_revocation_donation_le(l, demande) and demande <= add_calendar_period(fait, 1 calendar_year);
+    then duty DevoirFormerDemandeIngratitude {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition former_demande_ingratitude_957(l, fait, demande); window [@1804-01-01, infinity); };
+    };
+}
+pub relation demander_revocation_survenance_960(l: Liberalite) kind empirical { label fr official "le donateur demande la révocation pour survenance d'enfant"; label en unofficial "the donor seeks revocation for a later child"; }
+@source(CC_ART960)
+rule PositionPouvoirDemanderRevocationSurvenance(l: Liberalite) strict {
+    label fr official "Article 960. Le donateur peut demander la révocation pour survenance d'enfant";
+    label en unofficial "Article 960. The donor may seek revocation for a later child";
+    when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l)
+        and demander_revocation_survenance_960(l);
+    then liberty PouvoirDemanderRevocationSurvenance {
+        holder entity_ref("urn:fr:cc:liberalites:donateur");
+        action demander_revocation_survenance_960(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation demander_revocation_enfant_concu_961(l: Liberalite) kind empirical { label fr official "le donateur demande la révocation malgré la conception antérieure"; label en unofficial "the donor seeks revocation despite prior conception"; }
+@source(CC_ART961)
+rule PositionPouvoirDemanderRevocationEnfantConcu(l: Liberalite) strict {
+    label fr official "Article 961. Le donateur peut demander la révocation si l'enfant était conçu";
+    label en unofficial "Article 961. The donor may seek revocation if the child was conceived";
+    when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l)
+        and demander_revocation_enfant_concu_961(l);
+    then liberty PouvoirDemanderRevocationEnfantConcu {
+        holder entity_ref("urn:fr:cc:liberalites:donateur");
+        action demander_revocation_enfant_concu_961(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation restituer_fruits_962(l: Liberalite) kind empirical { label fr official "le donataire restitue les fruits"; label en unofficial "the donee restores the fruits"; }
+@source(CC_ART962)
+rule PositionDevoirRestituerFruits(l: Liberalite) strict {
+    label fr official "Article 962. Le donataire doit restituer les fruits";
+    label en unofficial "Article 962. The donee must restore the fruits";
+    when naissance_ou_adoption_notifiee(l);
+    then duty DevoirRestituerFruits {
+        bearer entity_ref("urn:fr:cc:liberalites:donataire");
+        goal achievement { condition restituer_fruits_962(l); window [@1804-01-01, infinity); };
+    };
+}
+pub relation renoncer_revocation_965(l: Liberalite) kind empirical { label fr official "le donateur renonce à la révocation"; label en unofficial "the donor waives revocation"; }
+@source(CC_ART965)
+rule PositionPouvoirRenoncerRevocation(l: Liberalite) strict {
+    label fr official "Article 965. Le donateur peut renoncer à la révocation";
+    label en unofficial "Article 965. The donor may waive revocation";
+    when renonciation_revocation_survenance_enfant(l) and renoncer_revocation_965(l);
+    then liberty PouvoirRenoncerRevocation {
+        holder entity_ref("urn:fr:cc:liberalites:donateur");
+        action renoncer_revocation_965(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation exercer_action_survenance_966(l: Liberalite, naissance: Date, demande: Date) kind empirical { key(l); label fr official "le donateur exerce l'action dans le délai"; label en unofficial "the donor exercises the action within the time limit"; }
+@source(CC_ART966)
+rule PositionDevoirExercerActionSurvenance(l: Liberalite, naissance: Date, demande: Date) strict {
+    label fr official "Article 966. L'action du donateur doit être exercée dans les cinq ans";
+    label en unofficial "Article 966. The donor's action must be exercised within five years";
+    when dernier_enfant_ne_ou_adopte_le(l, naissance) and demande_revocation_donation_le(l, demande) and demande <= add_calendar_period(naissance, 5 calendar_year);
+    then duty DevoirExercerActionSurvenance {
+        bearer entity_ref("urn:fr:cc:liberalites:donateur");
+        goal achievement { condition exercer_action_survenance_966(l, naissance, demande); window [@1804-01-01, infinity); };
+    };
+}
+pub relation reserver_jouissance_949(l: Liberalite) kind empirical { label fr official "le donateur réserve la jouissance ou l'usufruit"; label en unofficial "the donor reserves enjoyment or usufruct"; }
+@source(CC_ART949)
+rule PositionPouvoirReserverJouissance(l: Liberalite) strict {
+    label fr official "Article 949. Le donateur peut réserver la jouissance ou l'usufruit";
+    label en unofficial "Article 949. The donor may reserve enjoyment or usufruct";
+    when reserve_jouissance_ou_usufruit(l) and reserver_jouissance_949(l);
+    then liberty PouvoirReserverJouissance {
+        holder entity_ref("urn:fr:cc:liberalites:donateur");
+        action reserver_jouissance_949(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART950) rule ActionMeublesDisparus(l: Liberalite) strict { label fr official "Article 950. À la fin de l'usufruit, les meubles absents ouvrent une action dans la limite de l'état estimatif"; label en unofficial "Article 950. At the end of usufruct, missing movables open a claim up to the scheduled value"; when meuble_non_existant_fin_usufruit(l) and etat_estimatif_mobilier_signe_annexe(l); then action_valeur_etat_estimatif(l); }
+pub relation demander_valeur_meubles_disparus_950(l: Liberalite) kind empirical { label fr official "le propriétaire demande la valeur des meubles disparus"; label en unofficial "the owner claims the value of missing movables"; }
+@source(CC_ART950)
+rule PositionPouvoirDemanderValeurMeubles(l: Liberalite) strict {
+    label fr official "Article 950. Le propriétaire peut demander la valeur des meubles disparus";
+    label en unofficial "Article 950. The owner may claim the value of missing movables";
+    when meuble_non_existant_fin_usufruit(l) and etat_estimatif_mobilier_signe_annexe(l)
+        and demander_valeur_meubles_disparus_950(l);
+    then liberty PouvoirDemanderValeurMeubles {
+        holder entity_ref("urn:fr:cc:liberalites:proprietaire");
+        action demander_valeur_meubles_disparus_950(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART951) rule RetourAuSeulDonateur(l: Liberalite) strict { label fr official "Article 951. Le retour pour prédécès ne peut être stipulé qu'au profit du seul donateur"; label en unofficial "Article 951. Return for prior death may be stipulated solely for the donor"; when droit_retour_stipule_predeces(l) and droit_retour_au_seul_donateur(l); then droit_retour_valable(l); }
+@source(CC_ART952) rule EffetDuRetour(l: Liberalite) strict { label fr official "Article 952. Le retour résout les aliénations et fait revenir les biens libres au donateur"; label en unofficial "Article 952. Return unwinds transfers and restores the property free to the donor"; when droit_retour_valable(l); then retour_resout_alienations_et_charges(l); }
+@source(CC_ART953) { rule RevocationPourInexecution(l: Liberalite) strict { label fr official "Article 953. L'inexécution des conditions ouvre la révocation"; label en unofficial "Article 953. Non-performance of conditions opens revocation"; when inexecution_conditions_donation(l); then revocation_donation_demandable(l); } rule RevocationPourIngratitude(l: Liberalite) strict { label fr official "Article 953. L'ingratitude ouvre la révocation"; label en unofficial "Article 953. Ingratitude opens revocation"; when ingratitude_du_donataire(l); then revocation_donation_demandable(l); } rule RevocationPourSurvenanceEnfant(l: Liberalite) strict { label fr official "Article 953. La survenance d'enfant ouvre la révocation prévue par l'acte"; label en unofficial "Article 953. A later child opens revocation provided by the instrument"; when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l); then revocation_donation_demandable(l); } }
+@source(CC_ART954) rule RetourPourInexecution(l: Liberalite) strict { label fr official "Article 954. La révocation pour inexécution fait revenir les biens libres au donateur"; label en unofficial "Article 954. Revocation for non-performance restores the property free to the donor"; when inexecution_conditions_donation(l) and revocation_donation_demandable(l); then biens_reviennent_libres_au_donateur(l); }
+@source(CC_ART955) rule CasDIngratitude(l: Liberalite) strict { label fr official "Article 955. L'attentat à la vie, les sévices, infractions, injures graves ou le refus d'aliments constituent l'ingratitude"; label en unofficial "Article 955. Attempt on life, cruelty, offences, serious insults or refusal of maintenance constitute ingratitude"; when ingratitude_du_donataire(l); then revocation_donation_demandable(l); }
+@source(CC_ART956) rule RevocationJamaisDePleinDroit(l: Liberalite) strict { label fr official "Article 956. La révocation pour inexécution ou ingratitude doit être demandée et n'a jamais lieu de plein droit"; label en unofficial "Article 956. Revocation for non-performance or ingratitude must be sought and never occurs automatically"; when inexecution_conditions_donation(l); then revocation_donation_demandable(l); }
+@source(CC_ART957) rule IngratitudeDansUnAn(l: Liberalite, fait: Date, demande: Date) strict { label fr official "Article 957. La demande pour ingratitude est formée dans l'année du fait ou de sa connaissance"; label en unofficial "Article 957. An ingratitude application is brought within one year after the event or its discovery"; when fait_ingratitude_connu_le(l, fait) and demande_revocation_donation_le(l, demande) and demande <= add_calendar_period(fait, 1 calendar_year); then demande_ingratitude_dans_delai(l); }
+@source(CC_ART958) rule AlienationAnterieurePreservee(l: Liberalite) strict { label fr official "Article 958. L'aliénation ou la charge antérieure à la publication de la demande est préservée"; label en unofficial "Article 958. A transfer or charge predating publication of the application is preserved"; when alienation_anterieure_publication_demande(l); then alienation_preservee(l); }
+@source(CC_ART959) rule MariageExclutIngratitude(l: Liberalite) strict { label fr official "Article 959. La donation en faveur du mariage n'est pas révocable pour ingratitude"; label en unofficial "Article 959. A gift in consideration of marriage is not revocable for ingratitude"; when donation_en_faveur_mariage(l) and ingratitude_du_donataire(l); then alienation_preservee(l); }
+@source(CC_ART960) rule SurvenanceEnfantPrevue(l: Liberalite) strict { label fr official "Article 960. Si l'acte le prévoit, la survenance ou l'adoption d'un enfant ouvre la révocation"; label en unofficial "Article 960. If provided by the instrument, the later birth or adoption of a child opens revocation"; when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l); then revocation_donation_demandable(l); }
+@source(CC_ART961) rule EnfantConcuPermetRevocation(l: Liberalite) strict { label fr official "Article 961. La révocation demeure possible si l'enfant était conçu lors de la donation"; label en unofficial "Article 961. Revocation remains possible if the child was conceived when the gift was made"; when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l); then revocation_donation_demandable(l); }
+@source(CC_ART962) rule FruitsDepuisNotification(l: Liberalite) strict { label fr official "Article 962. Le donataire restitue les fruits à compter de la notification de la naissance ou de l'adoption"; label en unofficial "Article 962. The donee restores fruits from notification of the birth or adoption"; when naissance_ou_adoption_notifiee(l); then restitution_fruits_depuis_notification(l); }
+@source(CC_ART963) rule RetourLibreApresSurvenance(l: Liberalite) strict { label fr official "Article 963. La donation révoquée pour survenance d'enfant revient libre au patrimoine du donateur"; label en unofficial "Article 963. A gift revoked for a later child returns free to the donor's estate"; when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l); then biens_reviennent_libres_au_donateur(l); }
+@source(CC_ART964) rule MortEnfantSansEffet(l: Liberalite) strict { label fr official "Article 964. La mort de l'enfant est sans effet sur la révocation déjà ouverte"; label en unofficial "Article 964. The child's death does not affect the revocation already opened"; when survenance_enfant_prevue_par_acte(l) and enfant_survenu_ou_adopte(l); then revocation_donation_demandable(l); }
+@source(CC_ART965) rule RenonciationARevocation(l: Liberalite) strict { label fr official "Article 965. Le donateur peut renoncer à tout moment à la révocation pour survenance d'enfant"; label en unofficial "Article 965. The donor may waive revocation for a later child at any time"; when renonciation_revocation_survenance_enfant(l); then alienation_preservee(l); }
+@source(CC_ART966) rule ActionCinqAnsDernierEnfant(l: Liberalite, naissance: Date, demande: Date) strict { label fr official "Article 966. L'action du seul donateur est exercée dans les cinq ans de la naissance ou adoption du dernier enfant"; label en unofficial "Article 966. The donor alone exercises the action within five years after the last child's birth or adoption"; when dernier_enfant_ne_ou_adopte_le(l, naissance) and demande_revocation_donation_le(l, demande) and demande <= add_calendar_period(naissance, 5 calendar_year); then action_survenance_enfant_dans_delai(l); }

@@ -1,0 +1,455 @@
+// CODE CIVIL — LIVRE III, TITRE IV : DU RÉGIME GÉNÉRAL DES OBLIGATIONS
+// (articles 1304 à 1352-9) ET TITRE IV BIS : DE LA PREUVE DES OBLIGATIONS
+// (articles 1353 à 1386-1). Paquet CC-10.
+//
+// SUPPORT. L'obligation formalisée ici est la `Creance` du concentrateur
+// `fr.code_civil.core` : un rapport entre un créancier et un ou plusieurs
+// débiteurs, éventuellement porteur d'un objet monétaire. Le paquet ne crée
+// aucun second type d'obligation ; les entités qu'il déclare (condition,
+// terme, paiement, cession, délégation, restitution, écrit) sont les
+// OPÉRATIONS et les ACTES qui portent sur cette créance, non l'obligation
+// elle-même.
+//
+// LOI APPLICABLE. Les articles de ce titre sont issus de l'ordonnance
+// n° 2016-131, entrée en vigueur le 1er octobre 2016. Le paquet n'épingle
+// que la rédaction en vigueur : la version antérieure au 1er octobre 2016
+// n'est pas formalisée, et le rattachement d'une situation à l'une ou à
+// l'autre est lu chez `fr.code_civil.transitions` (corridor de 2016,
+// corridor de 2018 pour les articles que la loi de ratification a modifiés).
+// La situation juridique dont on cherche la loi applicable est une entité
+// propre du cas, reliée à la créance par `situation_de_la_creance` : le
+// concentrateur est gelé et `Creance` ne peut pas devenir un sous-type de
+// `SituationJuridique` (DECISIONS.md, D-CC10-01).
+//
+// TROIS CANAUX (DECISION-0194). Le texte délègue une APPRÉCIATION (l'intérêt
+// d'acquitter une dette plutôt qu'une autre, la carence qui compromet les
+// droits, l'impossibilité morale, le motif légitime de refus, la force
+// majeure) → `external judgment relation … { authority Court; }`. Le texte
+// exige un FAIT ÉTABLI (la fraude, la connaissance de la fraude par le tiers,
+// la valeur de la jouissance fixée par le juge, la mauvaise foi de celui qui
+// a reçu) → `kind empirical`, fourni par le cas avec `origin adjudicated`.
+//
+// CE QUE LE PAQUET NE FAIT PAS : le taux de l'intérêt légal (code monétaire
+// et financier, article L. 313-2) et le seuil de la preuve par écrit
+// (article 1359 : « montant fixé par décret ») ne sont pas dans le Code —
+// ce sont des entrées du cas, jamais des nombres inventés. Détail : README.
+//
+// Fichiers :
+//   package.law                           — types, entrées du cas, canaux, politique §86
+//   titre-04-chapitre-01-modalites.law    — art. 1304 à 1320
+//   titre-04-chapitre-02-operations.law   — art. 1321 à 1340
+//   titre-04-chapitre-03-actions.law      — art. 1341 à 1341-3
+//   titre-04-chapitre-04-extinction.law   — art. 1342 à 1351-1
+//   titre-04-chapitre-05-restitutions.law — art. 1352 à 1352-9
+//   titre-04-bis-preuve.law               — art. 1353 à 1386-1
+//   corridors.law                         — rattachement aux réformes de 2016 et 2018
+//   sources.law                           — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+import fr.code_civil.core version "0.1.0";
+import fr.code_civil.transitions version "0.1.0";
+
+use self::{
+    CC_ART1305_1,
+    CC_ART1307_2,
+    CC_ART1341_1,
+    CC_ART1342_10,
+    CC_ART1345,
+    CC_ART1351,
+    CC_ART1360,
+};
+
+type Personne = fr.code_civil.core::Personne;
+type Creance = fr.code_civil.core::Creance;
+type Bien = fr.code_civil.core::Bien;
+type SituationJuridique = fr.code_civil.transitions::SituationJuridique;
+
+// Politique §86 : les délais de ce titre sont calendaires et courent du jour
+// de l'acte ou de l'événement (mise en demeure, paiement, échéance) ; le Code
+// n'y prévoit aucun jour ouvrable. Une seule politique suffit : les unités du
+// titre — les deux mois de l'article 1345-1, l'année entière de l'article
+// 1343-2, les deux années de l'article 1343-5 — sont toutes calendaires.
+deadline policy CC_OBLIGATIONS_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+// --- Entités : les opérations et les actes portant sur la créance -------------------------
+
+pub entity Condition {
+    label fr official "Condition : événement futur et incertain dont dépend l'obligation (article 1304)";
+    label en unofficial "Condition: future and uncertain event on which the obligation depends (Article 1304)";
+}
+pub entity Terme {
+    label fr official "Terme : événement futur et certain qui diffère l'exigibilité (article 1305)";
+    label en unofficial "Term: future and certain event deferring enforceability (Article 1305)";
+}
+pub entity Prestation {
+    label fr official "Prestation : objet de l'obligation cumulative, alternative ou facultative (articles 1306 à 1308)";
+    label en unofficial "Performance: object of a cumulative, alternative or optional obligation (Articles 1306 to 1308)";
+}
+pub entity Paiement {
+    label fr official "Paiement : exécution volontaire de la prestation due (article 1342)";
+    label en unofficial "Payment: voluntary performance of what is owed (Article 1342)";
+}
+pub entity MiseEnDemeure {
+    label fr official "Mise en demeure du débiteur ou du créancier (articles 1344 à 1345-3)";
+    label en unofficial "Formal notice to the debtor or to the creditor (Articles 1344 to 1345-3)";
+}
+pub entity Cession {
+    label fr official "Cession de créance ou cession de dette (articles 1321 à 1328-1)";
+    label en unofficial "Assignment of a claim or of a debt (Articles 1321 to 1328-1)";
+}
+pub entity Novation {
+    label fr official "Novation : contrat substituant une obligation nouvelle à l'obligation éteinte (article 1329)";
+    label en unofficial "Novation: contract substituting a new obligation for the extinguished one (Article 1329)";
+}
+pub entity Delegation {
+    label fr official "Délégation : opération entre délégant, délégué et délégataire (article 1336)";
+    label en unofficial "Delegation: transaction between delegator, delegate and delegatee (Article 1336)";
+}
+pub entity Subrogation {
+    label fr official "Subrogation légale ou conventionnelle (articles 1346 à 1346-5)";
+    label en unofficial "Subrogation, by operation of law or by agreement (Articles 1346 to 1346-5)";
+}
+pub entity RemiseDeDette {
+    label fr official "Remise de dette : contrat par lequel le créancier libère le débiteur (article 1350)";
+    label en unofficial "Release of debt: contract by which the creditor discharges the debtor (Article 1350)";
+}
+pub entity Restitution {
+    label fr official "Restitution consécutive à l'anéantissement d'un contrat (articles 1352 à 1352-9)";
+    label en unofficial "Restitution following the annulment of a contract (Articles 1352 to 1352-9)";
+}
+pub entity ActeJuridique {
+    label fr official "Acte juridique dont la preuve est en cause (titre IV bis)";
+    label en unofficial "Legal act whose proof is at issue (Title IV bis)";
+}
+pub entity Ecrit {
+    label fr official "Écrit : suite de signes dotés d'une signification intelligible, quel que soit le support (article 1365)";
+    label en unofficial "Writing: sequence of signs with an intelligible meaning, whatever the medium (Article 1365)";
+}
+pub entity Presomption {
+    label fr official "Présomption légale attachée à un acte ou à un fait (article 1354)";
+    label en unofficial "Legal presumption attached to an act or a fact (Article 1354)";
+}
+pub entity Serment {
+    label fr official "Serment décisoire ou déféré d'office (articles 1384 à 1386-1)";
+    label en unofficial "Decisive oath or oath administered by the court (Articles 1384 to 1386-1)";
+}
+pub entity Aveu {
+    label fr official "Aveu judiciaire ou extrajudiciaire (articles 1383 à 1383-2)";
+    label en unofficial "Judicial or extrajudicial admission (Articles 1383 to 1383-2)";
+}
+
+// --- Énumérations -------------------------------------------------------------------------
+
+pub enum EspeceDeCondition {
+    label fr official "Condition suspensive ou résolutoire (article 1304, alinéas 2 et 3)";
+    label en unofficial "Suspensive or resolutory condition (Article 1304, paragraphs 2 and 3)";
+    Suspensive,
+    Resolutoire
+}
+pub enum EspeceDObligationPlurale {
+    label fr official "Obligation cumulative, alternative ou facultative (articles 1306 à 1308)";
+    label en unofficial "Cumulative, alternative or optional obligation (Articles 1306 to 1308)";
+    Cumulative,
+    Alternative,
+    Facultative
+}
+pub enum EspeceDePresomption {
+    label fr official "Présomption simple, mixte ou irréfragable (article 1354, alinéa 2)";
+    label en unofficial "Rebuttable, mixed or irrebuttable presumption (Article 1354, paragraph 2)";
+    Simple,
+    Mixte,
+    Irrefragable
+}
+pub enum ModeDeMiseEnDemeure {
+    label fr official "Mode de mise en demeure du débiteur (article 1344)";
+    label en unofficial "Manner of giving formal notice to the debtor (Article 1344)";
+    Sommation,
+    ActePortantInterpellationSuffisante,
+    SeuleExigibiliteStipulee
+}
+pub enum SupplementALEcrit {
+    label fr official "Ce qui supplée l'écrit (article 1361)";
+    label en unofficial "What stands in for the writing (Article 1361)";
+    AveuJudiciaire,
+    SermentDecisoire,
+    CommencementDePreuveParEcrit
+}
+pub enum FormeDeLEcrit {
+    label fr official "Écrit authentique ou sous signature privée (article 1364)";
+    label en unofficial "Authentic instrument or private signature document (Article 1364)";
+    Authentique,
+    SousSignaturePrivee
+}
+pub enum ObjetDeLObligationInexecutee {
+    label fr official "Objet de l'obligation dont le créancier refuse l'exécution (articles 1345-1 et 1345-2)";
+    label en unofficial "Object of the obligation whose performance the creditor refuses (Articles 1345-1 and 1345-2)";
+    SommeDArgent,
+    LivraisonDUneChose,
+    AutreObjet
+}
+
+// --- Canal 1 : appréciations déléguées au juge (DECISION-0194) ------------------------------
+
+@source(CC_ART1342_10)
+pub external judgment relation plus_d_interet_d_acquitter(payeur: Personne, preferee: Creance, autre: Creance) {
+    authority Court;
+    label fr official "parmi les dettes échues, le débiteur avait plus d'intérêt d'acquitter la première que la seconde (article 1342-10, alinéa 2)";
+    label en unofficial "among the matured debts, the debtor had more interest in discharging the first than the second (Article 1342-10, paragraph 2)";
+}
+
+@source(CC_ART1342_10)
+pub external judgment relation egalite_d_interet_d_acquitter(payeur: Personne, une: Creance, autre: Creance) {
+    authority Court;
+    label fr official "le débiteur avait le même intérêt d'acquitter l'une et l'autre de ces dettes échues : « à égalité d'intérêt » (article 1342-10, alinéa 2)";
+    label en unofficial "the debtor had the same interest in discharging either of these matured debts: \"at equal interest\" (Article 1342-10, paragraph 2)";
+}
+
+@source(CC_ART1341_1)
+pub external judgment relation carence_compromettant_les_droits(c: Creance, debiteur_negligent: Personne) {
+    authority Court;
+    label fr official "la carence du débiteur dans l'exercice de ses droits et actions à caractère patrimonial compromet les droits de son créancier (article 1341-1)";
+    label en unofficial "the debtor's failure to exercise his patrimonial rights and actions jeopardizes his creditor's rights (Article 1341-1)";
+}
+
+@source(CC_ART1345)
+pub external judgment relation refus_sans_motif_legitime(m: MiseEnDemeure) {
+    authority Court;
+    label fr official "le créancier a refusé le paiement qui lui était dû SANS MOTIF LÉGITIME (article 1345, alinéa 1) — l'appréciation est celle du juge, et le texte la pose sous cette forme négative : c'est elle qui est demandée, non son contraire";
+    label en unofficial "the creditor refused the payment due to him WITHOUT LEGITIMATE REASON (Article 1345, paragraph 1) — the assessment is the court's, and the text frames it in this negative form: that is what is asked, not its opposite";
+}
+
+@source(CC_ART1351)
+pub external judgment relation force_majeure_definitive(c: Creance) {
+    authority Court;
+    label fr official "l'impossibilité d'exécuter procède d'un cas de force majeure et elle est définitive (article 1351) ; la notion est définie à l'article 1218, hors de ce paquet";
+    label en unofficial "the impossibility to perform arises from force majeure and is definitive (Article 1351); the notion is defined in Article 1218, outside this package";
+}
+
+@source(CC_ART1307_2)
+pub external judgment relation force_majeure_sur_la_prestation(p: Prestation) {
+    authority Court;
+    label fr official "l'impossibilité d'exécuter cette prestation procède d'un cas de force majeure (articles 1307-2, 1307-4, 1307-5, 1308)";
+    label en unofficial "the impossibility to perform this performance arises from force majeure (Articles 1307-2, 1307-4, 1307-5, 1308)";
+}
+
+@source(CC_ART1360)
+pub external judgment relation impossibilite_de_se_procurer_un_ecrit(a: ActeJuridique) {
+    authority Court;
+    label fr official "impossibilité matérielle ou morale de se procurer un écrit (article 1360)";
+    label en unofficial "material or moral impossibility of obtaining a writing (Article 1360)";
+}
+
+@source(CC_ART1305_1)
+pub external judgment relation terme_fixe_par_le_juge(t: Terme, jour: Date) {
+    authority Court;
+    label fr official "à défaut d'accord, le juge fixe le terme en considération de la nature de l'obligation et de la situation des parties (article 1305-1, alinéa 2)";
+    label en unofficial "absent agreement, the court sets the term having regard to the nature of the obligation and the parties' situation (Article 1305-1, paragraph 2)";
+}
+
+// --- Canal 2 : faits établis, donnés par le cas avec `origin adjudicated` -------------------
+
+pub relation fraude_aux_droits_du_creancier(a: ActeJuridique) kind empirical {
+    label fr official "l'acte a été fait par le débiteur en fraude des droits de son créancier (article 1341-2) — fait établi par le juge";
+    label en unofficial "the act was done by the debtor in fraud of his creditor's rights (Article 1341-2) — fact established by the court";
+}
+pub relation connaissance_de_la_fraude(a: ActeJuridique, tiers: Personne) kind empirical {
+    label fr official "le tiers cocontractant avait connaissance de la fraude (article 1341-2) — fait établi par le juge";
+    label en unofficial "the contracting third party knew of the fraud (Article 1341-2) — fact established by the court";
+}
+pub relation valeur_de_la_jouissance(r: Restitution, v: Money) kind empirical {
+    key(r);
+    label fr official "valeur de la jouissance, évaluée par le juge au jour où il se prononce (article 1352-3, alinéa 2) — fait établi par le juge";
+    label en unofficial "value of the enjoyment, assessed by the court on the day of its ruling (Article 1352-3, paragraph 2) — fact established by the court";
+}
+pub relation recu_de_mauvaise_foi(r: Restitution) kind empirical {
+    label fr official "celui qui a reçu était de mauvaise foi (articles 1352-1, 1352-2, 1352-7) — fait établi par le juge";
+    label en unofficial "the recipient was in bad faith (Articles 1352-1, 1352-2, 1352-7) — fact established by the court";
+}
+pub relation recu_de_bonne_foi(r: Restitution) kind empirical {
+    label fr official "celui qui a reçu était de bonne foi (articles 1352-1, 1352-2, 1352-7) — fait établi par le juge";
+    label en unofficial "the recipient was in good faith (Articles 1352-1, 1352-2, 1352-7) — fact established by the court";
+}
+pub relation delai_de_grace_accorde(c: Creance, echeance_reportee: Date) kind empirical {
+    label fr official "le juge a reporté ou échelonné le paiement (article 1343-5) — fait établi par le juge";
+    label en unofficial "the court deferred or spread the payment (Article 1343-5) — fact established by the court";
+}
+pub relation anatocisme_ordonne_par_le_juge(c: Creance) kind empirical {
+    label fr official "une décision de justice précise que les intérêts échus produiront intérêt (article 1343-2) — fait établi par le juge";
+    label en unofficial "a court decision provides that matured interest shall bear interest (Article 1343-2) — fact established by the court";
+}
+
+// --- Entrées du cas : la créance et ses parties ---------------------------------------------
+
+pub relation situation_de_la_creance(s: SituationJuridique, c: Creance) kind empirical {
+    label fr official "situation juridique dont on cherche la loi applicable, rattachée à cette créance (corridor de 2016)";
+    label en unofficial "legal situation whose applicable law is sought, attached to this claim (2016 corridor)";
+}
+pub relation dette_du_debiteur(d: Personne, c: Creance) kind empirical {
+    label fr official "dette de ce débiteur : un débiteur peut en avoir plusieurs (article 1342-10)";
+    label en unofficial "debt of this debtor: one debtor may have several (Article 1342-10)";
+}
+pub relation date_de_naissance_de_la_dette(c: Creance, jour: Date) kind empirical {
+    key(c);
+    label fr official "date à laquelle la dette est née, pour départager les dettes échues par ancienneté (article 1342-10, alinéa 2)";
+    label en unofficial "date the debt arose, to rank matured debts by age (Article 1342-10, paragraph 2)";
+}
+pub relation date_d_exigibilite(c: Creance, jour: Date) kind empirical {
+    key(c);
+    label fr official "date à laquelle la dette devient exigible (articles 1305-2, 1342, 1347-1)";
+    label en unofficial "date the debt becomes enforceable (Articles 1305-2, 1342, 1347-1)";
+}
+pub relation obligation_solidaire_entre_debiteurs(c: Creance) kind empirical {
+    label fr official "la solidarité entre les débiteurs est établie par la loi ou par le contrat (article 1310)";
+    label en unofficial "solidarity between the debtors is established by law or by contract (Article 1310)";
+}
+pub relation obligation_solidaire_entre_creanciers(c: Creance) kind empirical {
+    label fr official "la solidarité entre les créanciers est établie par la loi ou par le contrat (articles 1310, 1311)";
+    label en unofficial "solidarity between the creditors is established by law or by contract (Articles 1310, 1311)";
+}
+pub relation prestation_indivisible(c: Creance) kind empirical {
+    label fr official "la prestation due est indivisible, par nature ou par contrat (article 1320)";
+    label en unofficial "the performance owed is indivisible, by nature or by contract (Article 1320)";
+}
+pub relation part_contributive_convenue(c: Creance, d: Personne, part: Rational) kind empirical {
+    key(c, d);
+    label fr official "part contributive du codébiteur réglée autrement que par parts égales, par la loi ou par le contrat (articles 1309, alinéa 1, et 1317, alinéa 1)";
+    label en unofficial "contributive share of the co-debtor set otherwise than in equal shares, by law or by contract (Articles 1309, paragraph 1, and 1317, paragraph 1)";
+}
+pub relation codebiteur_insolvable(c: Creance, d: Personne) kind empirical {
+    label fr official "codébiteur solidaire insolvable, dont la part se répartit entre les solvables (article 1317, alinéa 3)";
+    label en unofficial "insolvent joint debtor whose share is spread among the solvent ones (Article 1317, paragraph 3)";
+}
+pub relation remise_de_solidarite(c: Creance, d: Personne) kind empirical {
+    label fr official "le créancier a consenti à ce codébiteur une remise de solidarité (articles 1316 et 1317, alinéa 3)";
+    label en unofficial "the creditor granted this joint debtor a release from solidarity (Articles 1316 and 1317, paragraph 3)";
+}
+pub relation a_paye_la_dette(c: Creance, d: Personne, montant: Money) kind empirical {
+    key(c, d);
+    label fr official "ce codébiteur a payé le montant indiqué au créancier (article 1317, alinéa 2)";
+    label en unofficial "this joint debtor paid the indicated amount to the creditor (Article 1317, paragraph 2)";
+}
+pub relation affaire_ne_concernant_qu_un_codebiteur(c: Creance, d: Personne) kind empirical {
+    label fr official "la dette procède d'une affaire qui ne concerne que ce codébiteur (article 1318)";
+    label en unofficial "the debt arises from a matter concerning only this joint debtor (Article 1318)";
+}
+
+// --- Entrées du cas : conditions, termes, prestations ---------------------------------------
+
+pub relation condition_de_l_obligation(c: Creance, k: Condition) kind empirical {
+    label fr official "condition dont dépend l'obligation (article 1304)";
+    label en unofficial "condition on which the obligation depends (Article 1304)";
+}
+pub relation espece_de_la_condition(k: Condition, e: EspeceDeCondition) kind empirical {
+    key(k);
+    label fr official "condition suspensive ou résolutoire (article 1304)";
+    label en unofficial "suspensive or resolutory condition (Article 1304)";
+}
+pub relation condition_accomplie(k: Condition) kind empirical {
+    label fr official "la condition s'est accomplie (articles 1304-6 et 1304-7)";
+    label en unofficial "the condition has been fulfilled (Articles 1304-6 and 1304-7)";
+}
+pub relation condition_defaillie(k: Condition) kind empirical {
+    label fr official "la condition a défailli (article 1304-6, alinéa 3)";
+    label en unofficial "the condition has failed (Article 1304-6, paragraph 3)";
+}
+pub relation condition_illicite(k: Condition) kind empirical {
+    label fr official "la condition n'est pas licite (article 1304-1)";
+    label en unofficial "the condition is not lawful (Article 1304-1)";
+}
+pub relation realisation_dependant_de_la_seule_volonte_du_debiteur(k: Condition) kind empirical {
+    label fr official "la réalisation de la condition dépend de la seule volonté du débiteur (article 1304-2)";
+    label en unofficial "the fulfilment of the condition depends on the debtor's will alone (Article 1304-2)";
+}
+pub relation obligation_executee_en_connaissance_de_cause(c: Creance) kind empirical {
+    label fr official "l'obligation a été exécutée en connaissance de cause (article 1304-2, seconde phrase)";
+    label en unofficial "the obligation was performed with full knowledge (Article 1304-2, second sentence)";
+}
+pub relation accomplissement_empeche_par_l_interesse(k: Condition) kind empirical {
+    label fr official "celui qui avait intérêt à ce que la condition suspensive ne s'accomplisse pas en a empêché l'accomplissement (article 1304-3, alinéa 1)";
+    label en unofficial "the party interested in the suspensive condition not being fulfilled prevented its fulfilment (Article 1304-3, paragraph 1)";
+}
+pub relation accomplissement_provoque_par_l_interesse(k: Condition) kind empirical {
+    label fr official "l'accomplissement de la condition résolutoire a été provoqué par la partie qui y avait intérêt (article 1304-3, alinéa 2)";
+    label en unofficial "the fulfilment of the resolutory condition was brought about by the party interested in it (Article 1304-3, paragraph 2)";
+}
+pub relation condition_stipulee_dans_l_interet_exclusif(k: Condition, p: Personne) kind empirical {
+    label fr official "la condition est stipulée dans l'intérêt exclusif de cette partie (article 1304-4)";
+    label en unofficial "the condition is stipulated in this party's exclusive interest (Article 1304-4)";
+}
+pub relation renonciation_a_la_condition(k: Condition, p: Personne) kind empirical {
+    label fr official "cette partie renonce à la condition (article 1304-4)";
+    label en unofficial "this party waives the condition (Article 1304-4)";
+}
+pub relation retroactivite_convenue(k: Condition) kind empirical {
+    label fr official "les parties ont prévu que l'accomplissement de la condition rétroagira au jour du contrat (article 1304-6, alinéa 2)";
+    label en unofficial "the parties provided that fulfilment of the condition shall relate back to the day of the contract (Article 1304-6, paragraph 2)";
+}
+pub relation retroactivite_ecartee_par_convention(k: Condition) kind empirical {
+    label fr official "la convention des parties écarte la rétroactivité de la condition résolutoire (article 1304-7, alinéa 2)";
+    label en unofficial "the parties' agreement excludes the retroactivity of the resolutory condition (Article 1304-7, paragraph 2)";
+}
+pub relation prestations_utiles_au_fur_et_a_mesure(k: Condition) kind empirical {
+    label fr official "les prestations échangées ont trouvé leur utilité au fur et à mesure de l'exécution réciproque du contrat (article 1304-7, alinéa 2)";
+    label en unofficial "the exchanged performances found their use as the contract was reciprocally performed (Article 1304-7, paragraph 2)";
+}
+pub relation terme_de_l_obligation(c: Creance, t: Terme) kind empirical {
+    label fr official "terme qui diffère l'exigibilité de l'obligation (article 1305)";
+    label en unofficial "term deferring the enforceability of the obligation (Article 1305)";
+}
+pub relation echeance_du_terme(t: Terme, jour: Date) kind empirical {
+    key(t);
+    label fr official "date d'échéance du terme, lorsqu'elle est certaine (articles 1305 et 1305-2)";
+    label en unofficial "due date of the term, where certain (Articles 1305 and 1305-2)";
+}
+pub relation terme_stipule_en_faveur(t: Terme, p: Personne) kind empirical {
+    label fr official "la loi, la volonté des parties ou les circonstances établissent le terme en faveur de cette partie (article 1305-3, alinéa 1)";
+    label en unofficial "the law, the parties' will or the circumstances establish the term in this party's favour (Article 1305-3, paragraph 1)";
+}
+pub relation suretes_promises_non_fournies(c: Creance, d: Personne) kind empirical {
+    label fr official "le débiteur ne fournit pas les sûretés promises au créancier (article 1305-4)";
+    label en unofficial "the debtor fails to provide the security promised to the creditor (Article 1305-4)";
+}
+pub relation suretes_diminuees(c: Creance, d: Personne) kind empirical {
+    label fr official "le débiteur diminue les sûretés qui garantissent l'obligation (article 1305-4)";
+    label en unofficial "the debtor reduces the security guaranteeing the obligation (Article 1305-4)";
+}
+pub relation coobligation_du_debiteur(c: Creance, d: Personne, tenu_avec_lui: Personne) kind empirical {
+    label fr official "coobligé ou caution du débiteur déchu du terme (article 1305-5)";
+    label en unofficial "co-obligor or surety of the debtor who lost the benefit of the term (Article 1305-5)";
+}
+pub relation espece_de_l_obligation_plurale(c: Creance, e: EspeceDObligationPlurale) kind empirical {
+    key(c);
+    label fr official "obligation cumulative, alternative ou facultative (articles 1306 à 1308)";
+    label en unofficial "cumulative, alternative or optional obligation (Articles 1306 to 1308)";
+}
+pub relation prestation_de_l_obligation(c: Creance, p: Prestation) kind empirical {
+    label fr official "prestation comprise dans l'objet de l'obligation (articles 1306 à 1308)";
+    label en unofficial "performance included in the object of the obligation (Articles 1306 to 1308)";
+}
+pub relation prestation_executee(p: Prestation) kind empirical {
+    label fr official "cette prestation a été exécutée (articles 1306 et 1307)";
+    label en unofficial "this performance has been rendered (Articles 1306 and 1307)";
+}
+pub relation prestation_devenue_impossible(p: Prestation) kind empirical {
+    label fr official "cette prestation est devenue impossible (articles 1307-2 à 1307-5)";
+    label en unofficial "this performance has become impossible (Articles 1307-2 to 1307-5)";
+}
+pub relation prestation_choisie(c: Creance, p: Prestation) kind empirical {
+    label fr official "prestation choisie par celui à qui le choix appartient (article 1307-1, alinéa 3)";
+    label en unofficial "performance chosen by the party entitled to choose (Article 1307-1, paragraph 3)";
+}
+pub relation choix_appartenant_au_creancier(c: Creance) kind empirical {
+    label fr official "le choix entre les prestations a été attribué au créancier, par dérogation à l'article 1307-1, alinéa 1";
+    label en unofficial "the choice between performances was given to the creditor, by derogation from Article 1307-1, paragraph 1";
+}
+pub relation prestation_initialement_convenue(c: Creance, p: Prestation) kind empirical {
+    label fr official "prestation initialement convenue de l'obligation facultative (article 1308)";
+    label en unofficial "performance initially agreed in an optional obligation (Article 1308)";
+}

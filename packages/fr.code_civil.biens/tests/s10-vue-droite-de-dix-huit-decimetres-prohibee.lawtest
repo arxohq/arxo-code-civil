@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 678. Un décimètre de moins que dix-neuf, et la vue droite est
+// prohibée : aucune servitude de passage ne grève ici le fonds voisin.
+test "urn:query:fr-code-civil-biens-s10-vue-droite-dix-huit-decimetres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": ouverture_dans(entity_ref("urn:fr:cc:biens:s10:O"), entity_ref("urn:fr:cc:biens:s10:M")) { origin case_input; }
+        assert "f2": ouverture_sur_l_heritage(entity_ref("urn:fr:cc:biens:s10:O"), entity_ref("urn:fr:cc:biens:s10:V")) { origin case_input; }
+        assert "f3": espece_de_l_ouverture(entity_ref("urn:fr:cc:biens:s10:O"), VueDroiteOuFenetreDAspect) { origin case_input; }
+        assert "f4": distance_du_parement_exterieur_a_la_ligne_separative(entity_ref("urn:fr:cc:biens:s10:O"), 18 dm) { origin case_input; }
+    }
+    evaluate truth(vue_prohibee(entity_ref("urn:fr:cc:biens:s10:O")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

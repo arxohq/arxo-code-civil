@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1123 al. 3, canal §47.3 : le délai fixé par le tiers « doit être raisonnable » — question adressée au juge.
+test "urn:query:fr-code-civil-contrat-f11-pacte-delai-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f11"), @2015-06-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:f11"), "1123") { origin case_input; }
+        assert "f3": pacte_de_preference(entity_ref("urn:fr:cc:contrat:f11"), entity_ref("urn:fr:cc:contrat:f11:beneficiaire"), entity_ref("urn:fr:cc:contrat:f11:promettant")) { origin case_input; }
+        assert "f4": demande_ecrite_de_confirmation_du_pacte(entity_ref("urn:fr:cc:contrat:f11"), entity_ref("urn:fr:cc:contrat:f11:tiers"), @2017-06-30) { origin case_input; }
+        assert "f5": mention_de_l_effet_du_silence(entity_ref("urn:fr:cc:contrat:f11")) { origin case_input; }
+    }
+    evaluate truth(beneficiaire_forclos(entity_ref("urn:fr:cc:contrat:f11"), entity_ref("urn:fr:cc:contrat:f11:beneficiaire")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(delai_de_la_demande_raisonnable_1123, Court);
+}

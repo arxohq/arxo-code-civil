@@ -1,0 +1,222 @@
+// CHAPITRE II, SECTION 3 — LA FORME DU CONTRAT (art. 1172 à 1177).
+//
+// Le consensualisme est le principe, la forme l'exception (1172) ; les formes
+// exigées pour la preuve ou l'opposabilité ne touchent pas la validité (1173).
+// Les articles 1174 à 1177 règlent l'équivalent électronique de l'écrit.
+//
+// CE QUE LA SECTION NE FAIT PAS. L'article 1174 renvoie aux articles 1366,
+// 1367 et 1369 (l'écrit électronique et la signature), et l'article 1175 aux
+// articles 229-1 à 229-4 et 298 (le divorce par consentement mutuel) : ces
+// textes sont hors du sous-titre et hors de ce paquet. Leurs conditions sont
+// des entrées typées du cas, nommées comme telles.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1172,
+    CC_ART1173,
+    CC_ART1174,
+    CC_ART1175,
+    CC_ART1176,
+    CC_ART1177,
+    Contrat,
+    NatureDeLaNullite,
+    Personne,
+    Qualification,
+    cause_de_nullite,
+    formation_subordonnee_a_la_remise_d_une_chose,
+    forme_exigee_par_la_loi,
+    partie_au_contrat,
+    qualification_du_contrat,
+    regi_par_le_droit_nouveau,
+};
+
+// --- Entrées du cas ----------------------------------------------------------------------------
+
+pub relation regularisation_de_la_forme(c: Contrat) kind empirical {
+    label fr official "la forme manquante a été régularisée (article 1172, alinéa 2)";
+    label en unofficial "the missing form has been regularized (Article 1172, paragraph 2)";
+}
+pub relation chose_remise(c: Contrat) kind empirical {
+    label fr official "la chose dont la remise conditionne la formation du contrat a été remise (article 1172, alinéa 3)";
+    label en unofficial "the thing whose delivery conditions the contract's formation has been delivered (Article 1172, paragraph 3)";
+}
+pub relation forme_exigee_aux_fins_de_preuve_ou_d_opposabilite(c: Contrat) kind empirical {
+    label fr official "forme exigée aux fins de preuve ou d'opposabilité (article 1173)";
+    label en unofficial "form required for proof or enforceability against third parties (Article 1173)";
+}
+pub relation ecrit_exige_pour_la_validite(c: Contrat) kind empirical {
+    label fr official "un écrit est exigé pour la validité du contrat (article 1174, alinéa 1)";
+    label en unofficial "a writing is required for the contract's validity (Article 1174, paragraph 1)";
+}
+pub relation ecrit_electronique_conforme_aux_articles_1366_et_1367(c: Contrat) kind empirical {
+    label fr official "l'écrit est établi et conservé sous forme électronique dans les conditions des articles 1366 et 1367 (entrée typée : titre IV bis de la preuve, hors de ce paquet)";
+    label en unofficial "the writing is drawn up and kept electronically under Articles 1366 and 1367 (typed input: Title IV bis on evidence, outside this package)";
+}
+pub relation acte_authentique_requis(c: Contrat) kind empirical {
+    label fr official "un acte authentique est requis (article 1174, alinéa 1, renvoi au deuxième alinéa de l'article 1369)";
+    label en unofficial "an authentic instrument is required (Article 1174, paragraph 1, referring to Article 1369, paragraph 2)";
+}
+pub relation acte_authentique_electronique_conforme_a_l_article_1369(c: Contrat) kind empirical {
+    label fr official "l'acte authentique électronique satisfait au deuxième alinéa de l'article 1369 (entrée typée)";
+    label en unofficial "the electronic authentic instrument complies with Article 1369, paragraph 2 (typed input)";
+}
+pub relation mention_ecrite_de_la_main_de_celui_qui_s_oblige_exigee(c: Contrat) kind empirical {
+    label fr official "une mention écrite de la main même de celui qui s'oblige est exigée (article 1174, alinéa 2)";
+    label en unofficial "a handwritten statement by the person undertaking is required (Article 1174, paragraph 2)";
+}
+pub relation apposition_electronique_garantie_personnelle(c: Contrat, p: Personne) kind empirical {
+    label fr official "les conditions de l'apposition électronique garantissent qu'elle ne peut être effectuée que par celui qui s'oblige (article 1174, alinéa 2)";
+    label en unofficial "the conditions of the electronic affixing guarantee that only the person undertaking can effect it (Article 1174, paragraph 2)";
+}
+pub relation acte_sous_signature_privee_du_droit_de_la_famille_ou_des_successions(c: Contrat) kind empirical {
+    label fr official "acte sous signature privée relatif au droit de la famille et des successions (article 1175)";
+    label en unofficial "private signed instrument relating to family and succession law (Article 1175)";
+}
+pub relation convention_contresignee_par_avocats_et_deposee(c: Contrat) kind empirical {
+    label fr official "convention sous signature privée contresignée par avocats en présence des parties et déposée au rang des minutes d'un notaire selon les articles 229-1 à 229-4 ou 298 (entrée typée : livre Ier, hors de ce paquet)";
+    label en unofficial "private agreement countersigned by lawyers in the parties' presence and deposited with a notary under Articles 229-1 to 229-4 or 298 (typed input: Book I, outside this package)";
+}
+pub relation conditions_particulieres_de_lisibilite_ou_de_presentation(c: Contrat) kind empirical {
+    label fr official "l'écrit sur papier est soumis à des conditions particulières de lisibilité ou de présentation (article 1176, alinéa 1)";
+    label en unofficial "the paper writing is subject to particular conditions of legibility or presentation (Article 1176, paragraph 1)";
+}
+pub relation exigences_equivalentes_respectees(c: Contrat) kind empirical {
+    label fr official "l'écrit électronique répond à des exigences équivalentes (article 1176, alinéa 1)";
+    label en unofficial "the electronic writing meets equivalent requirements (Article 1176, paragraph 1)";
+}
+pub relation formulaire_detachable_exige(c: Contrat) kind empirical {
+    label fr official "un formulaire détachable est exigé (article 1176, alinéa 2)";
+    label en unofficial "a detachable form is required (Article 1176, paragraph 2)";
+}
+pub relation procede_electronique_d_acces_et_de_renvoi(c: Contrat) kind empirical {
+    label fr official "un procédé électronique permet d'accéder au formulaire et de le renvoyer par la même voie (article 1176, alinéa 2)";
+    label en unofficial "an electronic process allows access to the form and its return by the same means (Article 1176, paragraph 2)";
+}
+pub relation envoi_en_plusieurs_exemplaires_exige(c: Contrat) kind empirical {
+    label fr official "un envoi en plusieurs exemplaires est exigé (article 1177)";
+    label en unofficial "dispatch in several copies is required (Article 1177)";
+}
+pub relation ecrit_imprimable_par_le_destinataire(c: Contrat) kind empirical {
+    label fr official "l'écrit peut être imprimé par le destinataire (article 1177)";
+    label en unofficial "the writing can be printed by the addressee (Article 1177)";
+}
+
+// --- Têtes produites -----------------------------------------------------------------------------
+
+pub relation forme_respectee(c: Contrat) kind derived {
+    label fr official "la forme exigée par la loi pour la validité du contrat est respectée (articles 1172 à 1177)";
+    label en unofficial "the form required by statute for the contract's validity is complied with (Articles 1172 to 1177)";
+}
+pub relation forme_sans_effet_sur_la_validite(c: Contrat) kind derived {
+    label fr official "les formes exigées aux fins de preuve ou d'opposabilité sont sans effet sur la validité du contrat (article 1173)";
+    label en unofficial "forms required for proof or enforceability have no effect on the contract's validity (Article 1173)";
+}
+pub relation exception_a_l_ecrit_electronique(c: Contrat) kind derived {
+    label fr official "l'écrit électronique est exclu pour cet acte (article 1175)";
+    label en unofficial "the electronic writing is excluded for this instrument (Article 1175)";
+}
+
+// --- Articles 1172 à 1177 -------------------------------------------------------------------------
+
+@source(CC_ART1172) {
+    rule ConsensualismeDePrincipe(c: Contrat) strict {
+        label fr official "Article 1172, alinéa 1. Les contrats sont par principe consensuels : aucune forme n'est requise pour leur validité";
+        label en unofficial "Article 1172, paragraph 1. Contracts are consensual in principle: no form is required for their validity";
+        when regi_par_le_droit_nouveau(c) and not_known(forme_exigee_par_la_loi(c))
+            and not_known(formation_subordonnee_a_la_remise_d_une_chose(c));
+        then forme_respectee(c);
+    }
+    rule ContratSolennelNulFauteDeForme(c: Contrat) strict {
+        label fr official "Article 1172, alinéa 2. Par exception, la validité des contrats solennels est subordonnée à l'observation de formes déterminées par la loi, à défaut de laquelle le contrat est nul, sauf possible régularisation";
+        label en unofficial "Article 1172, paragraph 2. By exception, the validity of solemn contracts depends on statutory forms, failing which the contract is void, save possible regularization";
+        when regi_par_le_droit_nouveau(c) and qualification_du_contrat(c, Solennel)
+            and not_known(forme_respectee(c)) and not_known(regularisation_de_la_forme(c));
+        then cause_de_nullite(c, Absolue);
+    }
+    rule RegularisationDeLaForme(c: Contrat) strict {
+        label fr official "Article 1172, alinéa 2. La régularisation de la forme manquante sauve le contrat solennel";
+        label en unofficial "Article 1172, paragraph 2. Regularization of the missing form saves the solemn contract";
+        when regi_par_le_droit_nouveau(c) and qualification_du_contrat(c, Solennel)
+            and regularisation_de_la_forme(c);
+        then forme_respectee(c);
+    }
+    rule RemiseDeLaChose(c: Contrat) strict {
+        label fr official "Article 1172, alinéa 3. En outre, la loi subordonne la formation de certains contrats à la remise d'une chose";
+        label en unofficial "Article 1172, paragraph 3. In addition, statute subjects the formation of certain contracts to the delivery of a thing";
+        when regi_par_le_droit_nouveau(c) and formation_subordonnee_a_la_remise_d_une_chose(c)
+            and chose_remise(c);
+        then forme_respectee(c);
+    }
+}
+
+@source(CC_ART1173)
+rule FormeDePreuveSansEffetSurLaValidite(c: Contrat) strict {
+    label fr official "Article 1173. Les formes exigées aux fins de preuve ou d'opposabilité sont sans effet sur la validité des contrats";
+    label en unofficial "Article 1173. Forms required for proof or enforceability have no effect on contracts' validity";
+    when regi_par_le_droit_nouveau(c) and forme_exigee_aux_fins_de_preuve_ou_d_opposabilite(c);
+    then forme_sans_effet_sur_la_validite(c);
+}
+
+@source(CC_ART1174, CC_ART1175) {
+    rule EcritElectroniquePourLaValidite(c: Contrat) strict {
+        label fr official "Article 1174, alinéa 1. Lorsqu'un écrit est exigé pour la validité d'un contrat, il peut être établi et conservé sous forme électronique dans les conditions prévues aux articles 1366 et 1367";
+        label en unofficial "Article 1174, paragraph 1. Where a writing is required for a contract's validity, it may be drawn up and kept electronically under Articles 1366 and 1367";
+        when regi_par_le_droit_nouveau(c) and ecrit_exige_pour_la_validite(c)
+            and ecrit_electronique_conforme_aux_articles_1366_et_1367(c)
+            and not_known(acte_authentique_requis(c))
+            and not_known(acte_sous_signature_privee_du_droit_de_la_famille_ou_des_successions(c));
+        then forme_respectee(c);
+    }
+    rule ActeAuthentiqueElectronique(c: Contrat) strict {
+        label fr official "Article 1174, alinéa 1. Lorsqu'un acte authentique est requis, l'écrit électronique doit satisfaire au deuxième alinéa de l'article 1369";
+        label en unofficial "Article 1174, paragraph 1. Where an authentic instrument is required, the electronic writing must comply with Article 1369, paragraph 2";
+        when regi_par_le_droit_nouveau(c) and ecrit_exige_pour_la_validite(c)
+            and acte_authentique_requis(c)
+            and acte_authentique_electronique_conforme_a_l_article_1369(c);
+        then forme_respectee(c);
+    }
+    rule MentionManuscriteElectronique(c: Contrat, p: Personne) strict {
+        label fr official "Article 1174, alinéa 2. Lorsqu'est exigée une mention écrite de la main même de celui qui s'oblige, ce dernier peut l'apposer sous forme électronique si les conditions de cette apposition sont de nature à garantir qu'elle ne peut être effectuée que par lui-même";
+        label en unofficial "Article 1174, paragraph 2. Where a handwritten statement by the person undertaking is required, he may affix it electronically if the conditions guarantee that only he can do so";
+        when regi_par_le_droit_nouveau(c) and mention_ecrite_de_la_main_de_celui_qui_s_oblige_exigee(c)
+            and partie_au_contrat(c, p) and apposition_electronique_garantie_personnelle(c, p);
+        then forme_respectee(c);
+    }
+    rule ExceptionFamilleEtSuccessions(c: Contrat) strict {
+        label fr official "Article 1175. Il est fait exception aux dispositions de l'article 1174 pour les actes sous signature privée relatifs au droit de la famille et des successions, sauf les conventions contresignées par avocats et déposées au rang des minutes d'un notaire";
+        label en unofficial "Article 1175. Article 1174 does not apply to private signed instruments relating to family and succession law, save agreements countersigned by lawyers and deposited with a notary";
+        when regi_par_le_droit_nouveau(c)
+            and acte_sous_signature_privee_du_droit_de_la_famille_ou_des_successions(c)
+            and not_known(convention_contresignee_par_avocats_et_deposee(c));
+        then exception_a_l_ecrit_electronique(c);
+    }
+}
+
+@source(CC_ART1176) {
+    rule ExigencesEquivalentesDeLEcritElectronique(c: Contrat) strict {
+        label fr official "Article 1176, alinéa 1. Lorsque l'écrit sur papier est soumis à des conditions particulières de lisibilité ou de présentation, l'écrit électronique doit répondre à des exigences équivalentes";
+        label en unofficial "Article 1176, paragraph 1. Where the paper writing is subject to particular conditions of legibility or presentation, the electronic writing must meet equivalent requirements";
+        when regi_par_le_droit_nouveau(c) and conditions_particulieres_de_lisibilite_ou_de_presentation(c)
+            and exigences_equivalentes_respectees(c);
+        then forme_respectee(c);
+    }
+    rule FormulaireDetachableElectronique(c: Contrat) strict {
+        label fr official "Article 1176, alinéa 2. L'exigence d'un formulaire détachable est satisfaite par un procédé électronique qui permet d'accéder au formulaire et de le renvoyer par la même voie";
+        label en unofficial "Article 1176, paragraph 2. The requirement of a detachable form is met by an electronic process allowing access to the form and its return by the same means";
+        when regi_par_le_droit_nouveau(c) and formulaire_detachable_exige(c)
+            and procede_electronique_d_acces_et_de_renvoi(c);
+        then forme_respectee(c);
+    }
+}
+
+@source(CC_ART1177)
+rule EnvoiEnPlusieursExemplairesParVoieElectronique(c: Contrat) strict {
+    label fr official "Article 1177. L'exigence d'un envoi en plusieurs exemplaires est réputée satisfaite par voie électronique si l'écrit peut être imprimé par le destinataire";
+    label en unofficial "Article 1177. The requirement of dispatch in several copies is deemed met electronically if the writing can be printed by the addressee";
+    when regi_par_le_droit_nouveau(c) and envoi_en_plusieurs_exemplaires_exige(c)
+        and ecrit_imprimable_par_le_destinataire(c);
+    then forme_respectee(c);
+}

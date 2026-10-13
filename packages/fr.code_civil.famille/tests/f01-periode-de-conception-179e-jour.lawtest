@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 311 : date examinée le 1er janvier 2026, naissance le 2026-06-29.
+test "urn:query:fr-code-civil-famille-f01-periode-de-conception-179e-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": naissance_le(entity_ref("urn:fr:cc:fam:l:e"), @2026-06-29) { origin case_input; }
+        assert "f2": date_de_conception_examinee(entity_ref("urn:fr:cc:fam:l:e"), @2026-01-01) { origin case_input; }
+    }
+    evaluate truth(conception_possible_le(entity_ref("urn:fr:cc:fam:l:e"), @2026-01-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

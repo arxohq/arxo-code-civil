@@ -1,0 +1,26 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1831-2-pouvoir-second" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "contract": contrat_de_promotion_en_vigueur(entity_ref("urn:fr:cc12:p:e0179-1831-2a")) { origin case_input; }
+        assert "promoter": promoteur(entity_ref("urn:fr:cc12:p:e0179-1831-2a"), entity_ref("urn:fr:cc12:p:e0179-promoter-a")) { origin case_input; }
+        assert "owner": maitre_de_promotion(entity_ref("urn:fr:cc12:p:e0179-1831-2a"), entity_ref("urn:fr:cc12:p:e0179-owner-a")) { origin case_input; }
+        assert "acts": actes_de_realisation_dans_prix_global(entity_ref("urn:fr:cc12:p:e0179-1831-2a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4PouvoirGeneralPromoteur1831_2Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1831-2-devoir-second" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "promoter": promoteur(entity_ref("urn:fr:cc12:p:e0179-1831-2b"), entity_ref("urn:fr:cc12:p:e0179-promoter-b")) { origin case_input; }
+        assert "owner": maitre_de_promotion(entity_ref("urn:fr:cc12:p:e0179-1831-2b"), entity_ref("urn:fr:cc12:p:e0179-owner-b")) { origin case_input; }
+        assert "valid": engagement_valablement_contracte_au_nom_du_maitre(entity_ref("urn:fr:cc12:p:e0179-1831-2b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirExecuterEngagement1831_2Actif, ACTIVE);
+}

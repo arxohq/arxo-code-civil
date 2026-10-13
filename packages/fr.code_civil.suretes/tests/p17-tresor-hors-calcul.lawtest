@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2332-2 : le rang du Trésor dépend de ses propres lois — distribution non calculée.
+test "urn:query:fr-code-civil-suretes-p17-tresor-hors-calcul" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": prix_a_distribuer(entity_ref("urn:fr:cc:suretes:p17:D"), 1000 EUR) { origin case_input; }
+        assert "f2": collocation_dans(entity_ref("urn:fr:cc:suretes:p17:T"), entity_ref("urn:fr:cc:suretes:p17:D")) { origin case_input; }
+        assert "f3": cause_de_preference(entity_ref("urn:fr:cc:suretes:p17:T"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f4": creance_en_principal(entity_ref("urn:fr:cc:suretes:p17:T"), 100 EUR) { origin case_input; }
+        assert "f5": privilege_du_tresor_public(entity_ref("urn:fr:cc:suretes:p17:T")) { origin case_input; }
+        assert "f6": collocation_dans(entity_ref("urn:fr:cc:suretes:p17:X"), entity_ref("urn:fr:cc:suretes:p17:D")) { origin case_input; }
+        assert "f7": cause_de_preference(entity_ref("urn:fr:cc:suretes:p17:X"), Chirographaire) { origin case_input; }
+        assert "f8": creance_en_principal(entity_ref("urn:fr:cc:suretes:p17:X"), 500 EUR) { origin case_input; }
+    }
+    evaluate truth(somme_attribuee(entity_ref("urn:fr:cc:suretes:p17:X"), 500 EUR));
+    expect truth_status == NEITHER;
+}

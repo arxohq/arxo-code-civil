@@ -1,0 +1,211 @@
+// TITRE Ier DU LIVRE V — DISPOSITIONS RELATIVES AU LIVRE Ier
+// (articles 2492 à 2497).
+//
+// L'article 2493 ne dit pas qui est Français : il ajoute une CONDITION aux
+// articles 21-7 et 21-11, qui appartiennent au titre Ier bis du livre Ier et
+// ne sont pas formalisés. Ce paquet calcule donc la condition, non la
+// nationalité — la différence est portée par le nom des résultats.
+//
+// La condition pèse sur les DEUX parents (alinéa 1) et sur le seul parent
+// dont la filiation est établie (alinéa 2). Elle se lit donc par un compte :
+// autant de parents conformes que de parents dont la filiation est établie,
+// et au moins un. « Depuis plus d'un an » est une inégalité STRICTE : la
+// naissance doit tomber après le premier anniversaire du début du séjour.
+//
+// L'article 2494 garde le régime antérieur pour l'enfant né avant l'entrée en
+// vigueur de la loi n° 2018-778 à Mayotte. Cette date n'est pas devinée : elle
+// est la borne de début de la version en vigueur de l'article 2494 au registre
+// LEGIARTI, le 1er mars 2019. Un seul parent y suffit, et cinq ans, non un an.
+
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+use self::{
+    CC_ART2493,
+    CC_ART2494,
+    CC_ART2495,
+    CC_ART2496,
+    CC_ART2497,
+    Enfant,
+    MotifDuSursis,
+    Personne,
+    Reconnaissance,
+    date_d_examen_de_la_demande,
+    filiation_etablie_a_l_egard_de,
+    mention_portee_sur_l_acte_de_naissance,
+    motif_du_sursis,
+    naissance_le,
+    ne_a_mayotte,
+    parents_etrangers,
+    reconnaissance_de_l_enfant,
+    reconnaissance_faite_a_mayotte,
+    renouvellement_specialement_motive,
+    sejour_regulier_sous_titre_depuis,
+    simultanee_a_la_declaration_de_naissance,
+    sursis_decide_le,
+};
+
+pub relation parent_conforme(e: Enfant, parent: Personne) kind derived {
+    label fr official "ce parent remplit la condition de l'article 2493 : résidence en France régulière, sous couvert d'un titre de séjour, ininterrompue depuis plus d'un an au jour de la naissance";
+    label en unofficial "this parent meets the condition of Article 2493: regular residence in France, under a residence permit, uninterrupted for more than one year on the day of birth";
+}
+pub relation nombre_de_parents(e: Enfant, n: Integer) kind derived {
+    key(e);
+    label fr official "nombre de parents à l'égard desquels la filiation de l'enfant est établie (article 2493, alinéa 2)";
+    label en unofficial "number of parents with respect to whom the child's filiation is established (Article 2493, paragraph 2)";
+}
+pub relation nombre_de_parents_conformes(e: Enfant, n: Integer) kind derived {
+    key(e);
+    label fr official "nombre de parents qui remplissent la condition de l'article 2493";
+    label en unofficial "number of parents meeting the condition of Article 2493";
+}
+pub relation condition_de_l_article_2493_remplie(e: Enfant) kind derived {
+    label fr official "la condition de résidence de l'article 2493 est remplie : tous les parents dont la filiation est établie y satisfont";
+    label en unofficial "the residence condition of Article 2493 is met: every parent with established filiation satisfies it";
+}
+pub relation parent_justifiant_cinq_ans(e: Enfant, parent: Personne) kind derived {
+    label fr official "ce parent justifie de la période de cinq ans de résidence régulière mentionnée aux articles 21-7 et 21-11 (article 2494)";
+    label en unofficial "this parent establishes the five-year period of regular residence mentioned in Articles 21-7 and 21-11 (Article 2494)";
+}
+pub relation articles_21_7_et_21_11_applicables(e: Enfant) kind derived {
+    label fr official "les articles 21-7 et 21-11 sont applicables à cet enfant né à Mayotte (articles 2493, 2494)";
+    label en unofficial "Articles 21-7 and 21-11 are applicable to this child born in Mayotte (Articles 2493, 2494)";
+}
+pub relation regime_anterieur_applicable(e: Enfant) kind derived {
+    label fr official "l'enfant relève du régime antérieur à l'entrée en vigueur de la loi n° 2018-778 à Mayotte, le 1er mars 2019 (article 2494)";
+    label en unofficial "the child falls under the regime preceding the entry into force of Law No. 2018-778 in Mayotte, on 1 March 2019 (Article 2494)";
+}
+pub relation reconnaissance_recue_par_l_officier_de_mamoudzou(r: Reconnaissance) kind derived {
+    label fr official "la reconnaissance est reçue par l'officier de l'état civil de la commune de Mamoudzou (article 2496)";
+    label en unofficial "the acknowledgment is received by the registrar of the commune of Mamoudzou (Article 2496)";
+}
+pub relation sursis_expire_le(r: Reconnaissance, jour: Date) kind derived {
+    key(r);
+    label fr official "terme du sursis à l'enregistrement de la reconnaissance, renouvellement compris s'il a été décidé (article 2497)";
+    label en unofficial "end of the stay of registration of the acknowledgment, including renewal where decided (Article 2497)";
+}
+
+@source(CC_ART2493) {
+    rule ParentConformeParLaResidence(e: Enfant, parent: Personne, naissance: Date, depuis: Date) strict {
+        label fr official "Article 2493, alinéa 1. Le parent réside en France de manière régulière, sous couvert d'un titre de séjour, et de manière ininterrompue depuis plus d'un an à la date de la naissance";
+        label en unofficial "Article 2493, paragraph 1. The parent has resided in France regularly, under a residence permit, and without interruption for more than one year at the date of birth";
+        when filiation_etablie_a_l_egard_de(e, parent)
+            and naissance_le(e, naissance)
+            and sejour_regulier_sous_titre_depuis(e, parent, depuis)
+            and naissance > add_calendar_period(depuis, 1 calendar_year);
+        then parent_conforme(e, parent);
+    }
+    rule NombreDeParents(e: Enfant, parent: Personne) strict {
+        label fr official "Article 2493, alinéas 1 et 2. Nombre de parents à l'égard desquels la filiation est établie : deux, ou un seul";
+        label en unofficial "Article 2493, paragraphs 1 and 2. Number of parents with respect to whom filiation is established: two, or only one";
+        when filiation_etablie_a_l_egard_de(e, parent);
+        then nombre_de_parents(e, (count distinct x: Personne where filiation_etablie_a_l_egard_de(e, x)));
+    }
+    rule NombreDeParentsConformes(e: Enfant, parent: Personne) strict {
+        label fr official "Article 2493. Nombre de parents qui remplissent la condition de résidence";
+        label en unofficial "Article 2493. Number of parents meeting the residence condition";
+        when parent_conforme(e, parent);
+        then nombre_de_parents_conformes(e, (count distinct x: Personne where parent_conforme(e, x)));
+    }
+    rule ConditionRemplie(e: Enfant, n: Integer, conformes: Integer) strict {
+        label fr official "Article 2493. La condition est remplie lorsque tous les parents dont la filiation est établie y satisfont : les deux, ou le seul parent de l'alinéa 2";
+        label en unofficial "Article 2493. The condition is met when every parent with established filiation satisfies it: both, or the single parent of paragraph 2";
+        when ne_a_mayotte(e)
+            and nombre_de_parents(e, n) and n >= 1
+            and nombre_de_parents_conformes(e, conformes) and conformes == n;
+        then condition_de_l_article_2493_remplie(e);
+    }
+}
+
+@source(CC_ART2495) {
+    rule LaMentionVautJustificationPourCeParent(e: Enfant, parent: Personne) strict {
+        label fr official "Article 2495. La mention portée sur l'acte de naissance énonce qu'au jour de la naissance ce parent résidait en France de manière régulière, sous couvert d'un titre de séjour, et de manière ininterrompue depuis plus d'un an";
+        label en unofficial "Article 2495. The mention entered on the birth certificate states that on the day of birth this parent resided in France regularly, under a residence permit, and without interruption for more than one year";
+        when filiation_etablie_a_l_egard_de(e, parent)
+            and mention_portee_sur_l_acte_de_naissance(e, parent);
+        then parent_conforme(e, parent);
+    }
+}
+
+@source(CC_ART2494) {
+    rule DroitDuSolSousLaConditionDeMayotte(e: Enfant, naissance: Date) strict {
+        label fr official "Article 2494, première phrase. L'article 2493 s'applique à l'enfant né depuis l'entrée en vigueur de la loi n° 2018-778 à Mayotte : la condition remplie ouvre les articles 21-7 et 21-11";
+        label en unofficial "Article 2494, first sentence. Article 2493 applies to a child born since the entry into force of Law No. 2018-778 in Mayotte: the condition being met opens Articles 21-7 and 21-11";
+        when ne_a_mayotte(e)
+            and naissance_le(e, naissance) and naissance >= @2019-03-01
+            and condition_de_l_article_2493_remplie(e);
+        then articles_21_7_et_21_11_applicables(e);
+    }
+    rule RegimeAnterieurALaLoiDe2018(e: Enfant, naissance: Date) strict {
+        label fr official "Article 2494, seconde phrase. L'enfant né à Mayotte de parents étrangers avant l'entrée en vigueur de la loi n° 2018-778 relève du régime antérieur";
+        label en unofficial "Article 2494, second sentence. A child born in Mayotte to foreign parents before the entry into force of Law No. 2018-778 falls under the earlier regime";
+        when ne_a_mayotte(e) and parents_etrangers(e)
+            and naissance_le(e, naissance) and naissance < @2019-03-01;
+        then regime_anterieur_applicable(e);
+    }
+    rule ParentJustifiantCinqAns(e: Enfant, parent: Personne, examen: Date, depuis: Date) strict {
+        label fr official "Article 2494, seconde phrase. Le parent justifie avoir résidé en France de manière régulière pendant la période de cinq ans mentionnée aux articles 21-7 et 21-11";
+        label en unofficial "Article 2494, second sentence. The parent establishes regular residence in France during the five-year period mentioned in Articles 21-7 and 21-11";
+        when filiation_etablie_a_l_egard_de(e, parent)
+            and date_d_examen_de_la_demande(e, examen)
+            and sejour_regulier_sous_titre_depuis(e, parent, depuis)
+            and examen >= add_calendar_period(depuis, 5 calendar_year);
+        then parent_justifiant_cinq_ans(e, parent);
+    }
+    rule DroitDuSolSousLeRegimeAnterieur(e: Enfant, parent: Personne) strict {
+        label fr official "Article 2494, seconde phrase. Sous le régime antérieur, il suffit que L'UN des parents justifie des cinq ans : les articles 21-7 et 21-11 sont applicables";
+        label en unofficial "Article 2494, second sentence. Under the earlier regime it suffices that ONE parent establishes the five years: Articles 21-7 and 21-11 are applicable";
+        when regime_anterieur_applicable(e) and parent_justifiant_cinq_ans(e, parent);
+        then articles_21_7_et_21_11_applicables(e);
+    }
+}
+
+@source(CC_ART2496) {
+    rule ReconnaissanceRecueAMamoudzou(r: Reconnaissance) strict {
+        label fr official "Article 2496. Faite à Mayotte par acte reçu par l'officier de l'état civil, la reconnaissance est reçue par l'officier de l'état civil de la commune de Mamoudzou";
+        label en unofficial "Article 2496. Made in Mayotte by instrument received by the registrar, the acknowledgment is received by the registrar of the commune of Mamoudzou";
+        when reconnaissance_faite_a_mayotte(r)
+            and not_known(simultanee_a_la_declaration_de_naissance(r));
+        then reconnaissance_recue_par_l_officier_de_mamoudzou(r);
+    }
+}
+
+@source(CC_ART2497) {
+    rule SursisSimpleDeDeuxMois(r: Reconnaissance, e: Enfant, jour: Date) strict {
+        label fr official "Article 2497, première phrase. Lorsque l'enfant est né à Mayotte, la durée du sursis de la première phrase du troisième alinéa de l'article 316-1 ne peut excéder deux mois";
+        label en unofficial "Article 2497, first sentence. Where the child was born in Mayotte, the stay under the first sentence of the third paragraph of Article 316-1 may not exceed two months";
+        when reconnaissance_de_l_enfant(r, e) and ne_a_mayotte(e)
+            and motif_du_sursis(r, SursisSimple)
+            and sursis_decide_le(r, jour)
+            and not_known(renouvellement_specialement_motive(r));
+        then sursis_expire_le(r, add_calendar_period(jour, 2 calendar_month));
+    }
+    rule SursisSimpleRenouveleUneFois(r: Reconnaissance, e: Enfant, jour: Date) strict {
+        label fr official "Article 2497, première phrase. Le sursis de deux mois est renouvelable une fois par décision spécialement motivée : quatre mois au plus";
+        label en unofficial "Article 2497, first sentence. The two-month stay is renewable once by specially reasoned decision: four months at most";
+        when reconnaissance_de_l_enfant(r, e) and ne_a_mayotte(e)
+            and motif_du_sursis(r, SursisSimple)
+            and sursis_decide_le(r, jour)
+            and renouvellement_specialement_motive(r);
+        then sursis_expire_le(r, add_calendar_period(jour, 4 calendar_month));
+    }
+    rule SursisDeTroisMoisPourEnqueteALEtranger(r: Reconnaissance, e: Enfant, jour: Date) strict {
+        label fr official "Article 2497, seconde phrase. La durée du sursis est portée à trois mois lorsque l'enquête est menée, en totalité ou en partie, à l'étranger par l'autorité diplomatique ou consulaire";
+        label en unofficial "Article 2497, second sentence. The stay is extended to three months where the inquiry is conducted, wholly or partly, abroad by the diplomatic or consular authority";
+        when reconnaissance_de_l_enfant(r, e) and ne_a_mayotte(e)
+            and motif_du_sursis(r, EnqueteALEtranger)
+            and sursis_decide_le(r, jour)
+            and not_known(renouvellement_specialement_motive(r));
+        then sursis_expire_le(r, add_calendar_period(jour, 3 calendar_month));
+    }
+    rule SursisDeTroisMoisRenouveleUneFois(r: Reconnaissance, e: Enfant, jour: Date) strict {
+        label fr official "Article 2497, seconde phrase. Le sursis de trois mois est renouvelable une fois par décision spécialement motivée : six mois au plus";
+        label en unofficial "Article 2497, second sentence. The three-month stay is renewable once by specially reasoned decision: six months at most";
+        when reconnaissance_de_l_enfant(r, e) and ne_a_mayotte(e)
+            and motif_du_sursis(r, EnqueteALEtranger)
+            and sursis_decide_le(r, jour)
+            and renouvellement_specialement_motive(r);
+        then sursis_expire_le(r, add_calendar_period(jour, 6 calendar_month));
+    }
+}

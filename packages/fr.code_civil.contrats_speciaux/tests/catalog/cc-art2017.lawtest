@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CONSTITUANTPHYSIQUENEPEUTRENONCERTIERSPROTECTEUR" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": constituant_personne_physique(entity_ref("urn:law:catalog:constituantphysiquenepeutrenoncertiersprotecteur:v0")) { origin case_input; }
+        assert "cat-1": renonciation_faculte_tiers_protecteur(entity_ref("urn:law:catalog:constituantphysiquenepeutrenoncertiersprotecteur:v0")) { origin case_input; }
+    }
+    evaluate truth(renonciation_faculte_tiers_protecteur_exclue(entity_ref("urn:law:catalog:constituantphysiquenepeutrenoncertiersprotecteur:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-TIERSPROTECTEURDESIGNEETNOTIFIE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": tiers_protecteur_designe(entity_ref("urn:law:catalog:tiersprotecteurdesigneetnotifie:v0")) { origin case_input; }
+        assert "cat-1": fiduciaire_informe_tiers_protecteur(entity_ref("urn:law:catalog:tiersprotecteurdesigneetnotifie:v0")) { origin case_input; }
+    }
+    evaluate truth(designation_tiers_protecteur_opposable(entity_ref("urn:law:catalog:tiersprotecteurdesigneetnotifie:v0")));
+    expect truth_status == TRUE_ONLY;
+}

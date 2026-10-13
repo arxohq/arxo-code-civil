@@ -1,0 +1,391 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    Bail,
+    CC_ART1619,
+    CC_ART1620,
+    CC_ART1623,
+    CC_ART1655,
+    CC_ART1686,
+    CC_ART1687,
+    CC_ART1689,
+    CC_ART1690,
+    CC_ART1691,
+    CC_ART1693,
+    CC_ART1696,
+    CC_ART1697,
+    CC_ART1698,
+    CC_ART1699,
+    CC_ART1700,
+    CC_ART1701,
+    CC_ART1701_1,
+    CC_ART1758,
+    Cession,
+    Licitation,
+    PeriodeDuBailMeuble,
+    Personne,
+    Vente,
+    acceptation_du_transport_par_acte_authentique,
+    acheteur_n_a_pas_paye_le_prix,
+    acquereur_a_garde_l_immeuble,
+    acquereur_a_le_choix_du_supplement_ou_du_desistement,
+    articles_1689_a_1693_inapplicables,
+    augmentation_de_prix_pour_excedent_de_mesure,
+    bail_d_appartement_meuble_a_tant_par_an,
+    bail_d_appartement_meuble_a_tant_par_jour,
+    bail_d_appartement_meuble_a_tant_par_mois,
+    bail_en_vigueur,
+    bien_qu_aucun_copartageant_ne_veut_prendre,
+    cedant,
+    cession_a_un_coheritier_ou_coproprietaire,
+    cession_a_un_creancier_en_paiement,
+    cession_au_possesseur_de_l_heritage,
+    cession_regie_par_les_articles_1321_a_1326,
+    cessionnaire,
+    cessionnaire_saisi_a_l_egard_des_tiers,
+    chose_commune_non_partageable_commodement,
+    compensation_jusqu_a_due_concurrence,
+    coproprietaire,
+    coproprietaire_demande_l_appel_des_etrangers,
+    coproprietaire_mineur,
+    danger_de_perdre_la_chose_et_le_prix,
+    debiteur_a_paye_le_cedant,
+    debiteur_valablement_libere,
+    delai_judiciaire_passe_sans_paiement,
+    delivrance_du_droit_cede_operee,
+    dettes_et_charges_payees_par_le_vendeur,
+    deux_fonds_vendus_par_le_meme_contrat_pour_un_seul_prix,
+    difference_de_mesure_d_un_vingtieme,
+    droit_litigieux,
+    etrangers_appeles_a_la_licitation,
+    garantie_de_l_existence_du_droit_due,
+    garantie_limitee_a_la_qualite_d_heritier,
+    interets_du_supplement_de_prix_dus,
+    juge_peut_accorder_un_delai_a_l_acquereur,
+    moins_de_contenance_en_l_un_et_plus_en_l_autre,
+    periode_du_bail_meuble,
+    proces_et_contestation_sur_le_fond_du_droit,
+    remboursement_a_l_acquereur_de_la_succession_du,
+    remboursement_au_vendeur_de_la_succession_du,
+    reserve_expresse_lors_de_la_vente,
+    resolution_immobiliere_prononcee_aussitot,
+    resolution_prononcee_apres_le_delai,
+    retrait_litigieux_ouvert,
+    signification_du_transport_au_debiteur,
+    stipulation_contraire_sur_les_dettes,
+    titre_remis_au_cessionnaire,
+    vendeur_a_profite_des_fruits_ou_creances_de_la_succession,
+    vente_aux_encheres_et_partage_du_prix,
+    vente_d_un_droit_incorporel,
+    vente_d_une_succession_sans_specifier_les_objets,
+    vente_de_corps_certain_ou_de_fonds_distincts,
+    vente_immobiliere,
+};
+
+// Chapitres VII et VIII du titre VI : de la licitation (1686 à 1688) et du
+// transport des créances et autres droits incorporels (1689 à 1701-1), plus les
+// articles 1620, 1623 et 1655 laissés par les vagues précédentes.
+//
+// L'article 1688 renvoie le mode et les formalités de la licitation au titre
+// « Des successions » et au code de procédure ; sa frontière est déclarée.
+
+// --- Résolution judiciaire de la vente d'immeubles (1655) --------------------
+
+@source(CC_ART1655)
+rule ResolutionImmobiliereAussitotEnCasDeDanger(v: Vente) strict {
+    label fr official "Article 1655, alinéa 1. La résolution de la vente d'immeubles est prononcée aussitôt si le vendeur est en danger de perdre la chose et le prix";
+    label en unofficial "Article 1655, first paragraph. The rescission of a sale of immovables is pronounced at once if the seller is in danger of losing both thing and price";
+    when vente_immobiliere(v) and acheteur_n_a_pas_paye_le_prix(v)
+        and danger_de_perdre_la_chose_et_le_prix(v);
+    then resolution_immobiliere_prononcee_aussitot(v);
+}
+
+@source(CC_ART1655)
+rule DelaiJudiciaireADefautDeDanger(v: Vente) strict {
+    label fr official "Article 1655, alinéa 2. Si ce danger n'existe pas, le juge peut accorder à l'acquéreur un délai suivant les circonstances";
+    label en unofficial "Article 1655, second paragraph. If that danger does not exist, the court may grant the buyer time according to the circumstances";
+    when vente_immobiliere(v) and acheteur_n_a_pas_paye_le_prix(v)
+        and not_known(danger_de_perdre_la_chose_et_le_prix(v));
+    then juge_peut_accorder_un_delai_a_l_acquereur(v);
+}
+
+@source(CC_ART1655)
+rule ResolutionApresLeDelaiJudiciaire(v: Vente) strict {
+    label fr official "Article 1655, alinéa 3. Ce délai passé sans que l'acquéreur ait payé, la résolution de la vente est prononcée";
+    label en unofficial "Article 1655, third paragraph. That time having elapsed without the buyer paying, the rescission of the sale is pronounced";
+    when juge_peut_accorder_un_delai_a_l_acquereur(v) and delai_judiciaire_passe_sans_paiement(v);
+    then resolution_prononcee_apres_le_delai(v);
+}
+
+// --- Contenance, suite (1620 et 1623) ---------------------------------------
+
+@source(CC_ART1619, CC_ART1620)
+rule AugmentationDePrixPourExcedentDeMesure(v: Vente) strict {
+    label fr official "Article 1620. Lorsque la différence atteint le vingtième en plus, il y a lieu à augmentation de prix pour excédent de mesure";
+    label en unofficial "Article 1620. Where the difference reaches one twentieth in excess, there is ground for an increase of price for excess measure";
+    when difference_de_mesure_d_un_vingtieme(v) and vente_de_corps_certain_ou_de_fonds_distincts(v);
+    then augmentation_de_prix_pour_excedent_de_mesure(v);
+}
+
+@source(CC_ART1620)
+rule ChoixDeLAcquereurSurLAugmentationDePrix(v: Vente) strict {
+    label fr official "Article 1620. L'acquéreur a le choix de se désister du contrat ou de fournir le supplément du prix";
+    label en unofficial "Article 1620. The buyer has the choice of withdrawing from the contract or supplying the supplement of the price";
+    when augmentation_de_prix_pour_excedent_de_mesure(v);
+    then acquereur_a_le_choix_du_supplement_ou_du_desistement(v);
+}
+
+@source(CC_ART1620)
+rule InteretsDuSupplementSiLImmeubleEstGarde(v: Vente) strict {
+    label fr official "Article 1620. Le supplément du prix est dû avec les intérêts si l'acquéreur a gardé l'immeuble";
+    label en unofficial "Article 1620. The supplement of the price is owed with interest if the buyer kept the building";
+    when augmentation_de_prix_pour_excedent_de_mesure(v) and acquereur_a_garde_l_immeuble(v);
+    then interets_du_supplement_de_prix_dus(v);
+}
+
+@source(CC_ART1623)
+rule CompensationEntreDeuxFondsVendusEnsemble(v: Vente) strict {
+    label fr official "Article 1623. Si deux fonds vendus par le même contrat pour un seul prix ont l'un moins et l'autre plus de contenance, on fait compensation jusqu'à due concurrence";
+    label en unofficial "Article 1623. If two lands sold by the same contract for a single price are one short and the other in excess, a set-off is made up to the due amount";
+    when deux_fonds_vendus_par_le_meme_contrat_pour_un_seul_prix(v)
+        and moins_de_contenance_en_l_un_et_plus_en_l_autre(v);
+    then compensation_jusqu_a_due_concurrence(v);
+}
+
+// --- Licitation (1686 et 1687) ----------------------------------------------
+
+@source(CC_ART1686)
+rule LicitationDeLaChoseNonPartageableCommodement(l: Licitation) strict {
+    label fr official "Article 1686. Si une chose commune à plusieurs ne peut être partagée commodément et sans perte, la vente s'en fait aux enchères et le prix est partagé";
+    label en unofficial "Article 1686. If a thing held in common cannot be conveniently divided without loss, it is sold by auction and the price is shared";
+    when chose_commune_non_partageable_commodement(l);
+    then vente_aux_encheres_et_partage_du_prix(l);
+}
+
+@source(CC_ART1686)
+rule LicitationDuBienQueNulNeVeutPrendre(l: Licitation) strict {
+    label fr official "Article 1686. Si, dans un partage de gré à gré, il se trouve des biens qu'aucun copartageant ne peut ou ne veut prendre, la vente s'en fait aux enchères";
+    label en unofficial "Article 1686. If, in an amicable partition, there are assets none of the sharers can or will take, they are sold by auction";
+    when bien_qu_aucun_copartageant_ne_veut_prendre(l);
+    then vente_aux_encheres_et_partage_du_prix(l);
+}
+
+@source(CC_ART1687)
+rule EtrangersAppelesSurDemandeDUnCoproprietaire(l: Licitation) strict {
+    label fr official "Article 1687. Chacun des copropriétaires est maître de demander que les étrangers soient appelés à la licitation";
+    label en unofficial "Article 1687. Each co-owner is free to require that strangers be called to the auction";
+    when coproprietaire_demande_l_appel_des_etrangers(l);
+    then etrangers_appeles_a_la_licitation(l);
+}
+
+// La seconde branche de l'article 1687 est impérative : la minorité d'un
+// copropriétaire appelle NÉCESSAIREMENT les étrangers, sans demande.
+@source(CC_ART1687)
+rule EtrangersNecessairementAppelesSiUnCoproprietaireEstMineur(l: Licitation, p: Personne) strict {
+    label fr official "Article 1687. Les étrangers sont nécessairement appelés à la licitation lorsque l'un des copropriétaires est mineur";
+    label en unofficial "Article 1687. Strangers are necessarily called to the auction where one of the co-owners is a minor";
+    when coproprietaire(l, p) and coproprietaire_mineur(l, p);
+    then etrangers_appeles_a_la_licitation(l);
+}
+
+// --- Transport des créances (1689 à 1701-1) ---------------------------------
+
+// L'article 1701-1 soustrait ces règles aux cessions de créance des articles
+// 1321 à 1326 : la condition négative porte donc sur chacune d'elles.
+@source(CC_ART1689, CC_ART1701_1)
+rule DelivranceDuDroitCedeParLaRemiseDuTitre(t: Cession) strict {
+    label fr official "Article 1689. Dans le transport d'un droit ou d'une action, la délivrance s'opère entre le cédant et le cessionnaire par la remise du titre";
+    label en unofficial "Article 1689. In the assignment of a right or action, delivery is effected between assignor and assignee by handing over the instrument";
+    when titre_remis_au_cessionnaire(t)
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then delivrance_du_droit_cede_operee(t);
+}
+
+@source(CC_ART1690, CC_ART1701_1)
+rule CessionnaireSaisiParLaSignification(t: Cession) strict {
+    label fr official "Article 1690, alinéa 1. Le cessionnaire n'est saisi à l'égard des tiers que par la signification du transport faite au débiteur";
+    label en unofficial "Article 1690, first paragraph. The assignee is vested as against third parties only by notice of the assignment served on the debtor";
+    when signification_du_transport_au_debiteur(t)
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then cessionnaire_saisi_a_l_egard_des_tiers(t);
+}
+
+@source(CC_ART1690, CC_ART1701_1)
+rule CessionnaireSaisiParLAcceptationAuthentique(t: Cession) strict {
+    label fr official "Article 1690, alinéa 2. Le cessionnaire peut être également saisi par l'acceptation du transport faite par le débiteur dans un acte authentique";
+    label en unofficial "Article 1690, second paragraph. The assignee may equally be vested by the debtor's acceptance of the assignment in an authentic instrument";
+    when acceptation_du_transport_par_acte_authentique(t)
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then cessionnaire_saisi_a_l_egard_des_tiers(t);
+}
+
+@source(CC_ART1691, CC_ART1701_1)
+rule DebiteurLibereParLePaiementAnterieurALaSignification(t: Cession) strict {
+    label fr official "Article 1691. Si, avant la signification du transport, le débiteur avait payé le cédant, il est valablement libéré";
+    label en unofficial "Article 1691. If, before notice of the assignment, the debtor had paid the assignor, he is validly discharged";
+    when debiteur_a_paye_le_cedant(t)
+        and not_known(signification_du_transport_au_debiteur(t))
+        and not_known(acceptation_du_transport_par_acte_authentique(t))
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then debiteur_valablement_libere(t);
+}
+
+// Article 1693 : la garantie de l'EXISTENCE du droit survit à la clause de
+// non-garantie — c'est le pendant de l'article 1628 pour les incorporels.
+@source(CC_ART1693, CC_ART1701_1)
+rule GarantieDeLExistenceDuDroitIncorporel(t: Cession) strict {
+    label fr official "Article 1693. Celui qui vend un droit incorporel doit en garantir l'existence au temps du transport, quoique le transport soit fait sans garantie";
+    label en unofficial "Article 1693. One who sells an incorporeal right must warrant its existence at the time of the assignment, although made without warranty";
+    when vente_d_un_droit_incorporel(t)
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then garantie_de_l_existence_du_droit_due(t);
+}
+pub relation garantie_existence_du_droit_exercee(t: Cession) kind empirical {
+    label fr official "garantie de l'existence du droit exercée";
+    label en unofficial "warranty of the right's existence exercised";
+}
+@source(CC_ART1693, CC_ART1701_1)
+rule P4DevoirGarantirExistenceDroit1693(t: Cession, c: Personne, a: Personne) strict {
+    label fr official "Article 1693. Le cédant doit garantir l'existence du droit incorporel";
+    label en unofficial "Article 1693. The assignor must warrant the existence of the incorporeal right";
+    when vente_d_un_droit_incorporel(t) and cedant(t, c) and cessionnaire(t, a)
+        and not_known(cession_regie_par_les_articles_1321_a_1326(t));
+    then duty P4DevoirGarantirExistenceDroit1693Actif {
+        bearer c;
+        beneficiary a;
+        achieve garantie_existence_du_droit_exercee(t) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1701_1)
+rule ArticlesDuTransportInapplicablesAuxCessionsDeCreance(t: Cession) strict {
+    label fr official "Article 1701-1. Les articles 1689 à 1691 et 1693 ne s'appliquent pas aux cessions régies par les articles 1321 à 1326";
+    label en unofficial "Article 1701-1. Articles 1689 to 1691 and 1693 do not apply to assignments governed by Articles 1321 to 1326";
+    when cession_regie_par_les_articles_1321_a_1326(t);
+    then articles_1689_a_1693_inapplicables(t);
+}
+
+@source(CC_ART1696)
+rule GarantieLimiteeALaQualiteDHeritier(t: Cession) strict {
+    label fr official "Article 1696. Celui qui vend une succession sans en spécifier en détail les objets n'est tenu de garantir que sa qualité d'héritier";
+    label en unofficial "Article 1696. One who sells an estate without specifying its objects in detail warrants only his capacity as heir";
+    when vente_d_une_succession_sans_specifier_les_objets(t);
+    then garantie_limitee_a_la_qualite_d_heritier(t);
+}
+pub relation garantie_qualite_heritier_exercee(t: Cession) kind empirical {
+    label fr official "garantie de la qualité d'héritier exercée";
+    label en unofficial "warranty of heir capacity exercised";
+}
+@source(CC_ART1696)
+rule P4DevoirGarantirQualiteHeritier1696(t: Cession, c: Personne, a: Personne) strict {
+    label fr official "Article 1696. Le vendeur doit garantir sa qualité d'héritier";
+    label en unofficial "Article 1696. The seller must warrant the seller's capacity as heir";
+    when vente_d_une_succession_sans_specifier_les_objets(t)
+        and cedant(t, c) and cessionnaire(t, a);
+    then duty P4DevoirGarantirQualiteHeritier1696Actif {
+        bearer c;
+        beneficiary a;
+        achieve garantie_qualite_heritier_exercee(t) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1697)
+rule RemboursementDesFruitsEtCreancesDeLaSuccession(t: Cession) strict {
+    label fr official "Article 1697. Le vendeur qui a profité des fruits ou créances de la succession les rembourse à l'acquéreur, s'il ne les a expressément réservés";
+    label en unofficial "Article 1697. A seller who enjoyed the fruits or claims of the estate reimburses them to the buyer, unless he expressly reserved them";
+    when vente_d_une_succession_sans_specifier_les_objets(t)
+        and vendeur_a_profite_des_fruits_ou_creances_de_la_succession(t)
+        and not_known(reserve_expresse_lors_de_la_vente(t));
+    then remboursement_a_l_acquereur_de_la_succession_du(t);
+}
+pub relation fruits_ou_creances_non_reserves(t: Cession) kind empirical {
+    label fr official "fruits ou créances de la succession non réservés";
+    label en unofficial "unreserved fruits or claims of the estate";
+}
+pub relation remboursement_fruits_ou_creances_exerce(t: Cession) kind empirical {
+    label fr official "remboursement des fruits ou créances de la succession exercé";
+    label en unofficial "reimbursement of estate fruits or claims exercised";
+}
+@source(CC_ART1697)
+rule P4DevoirRembourserFruitsSuccession1697(t: Cession, c: Personne, a: Personne) strict {
+    label fr official "Article 1697. Le vendeur doit rembourser les fruits et créances non réservés";
+    label en unofficial "Article 1697. The seller must reimburse unreserved fruits and claims";
+    when vente_d_une_succession_sans_specifier_les_objets(t)
+        and cedant(t, c) and cessionnaire(t, a)
+        and fruits_ou_creances_non_reserves(t);
+    then duty P4DevoirRembourserFruitsSuccession1697Actif {
+        bearer c;
+        beneficiary a;
+        achieve remboursement_fruits_ou_creances_exerce(t) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1698)
+rule RemboursementDesDettesPayeesParLeVendeur(t: Cession) strict {
+    label fr official "Article 1698. L'acquéreur rembourse au vendeur ce que celui-ci a payé pour les dettes et charges de la succession, s'il n'y a stipulation contraire";
+    label en unofficial "Article 1698. The buyer reimburses the seller what he paid for the debts and charges of the estate, unless otherwise stipulated";
+    when vente_d_une_succession_sans_specifier_les_objets(t)
+        and dettes_et_charges_payees_par_le_vendeur(t)
+        and not_known(stipulation_contraire_sur_les_dettes(t));
+    then remboursement_au_vendeur_de_la_succession_du(t);
+}
+
+@source(CC_ART1700)
+rule DroitLitigieuxDesQuIlYAProces(t: Cession) strict {
+    label fr official "Article 1700. La chose est censée litigieuse dès qu'il y a procès et contestation sur le fond du droit";
+    label en unofficial "Article 1700. The thing is deemed litigious as soon as there is litigation and a dispute on the substance of the right";
+    when proces_et_contestation_sur_le_fond_du_droit(t);
+    then droit_litigieux(t);
+}
+
+// Article 1699 lu avec 1701 : le retrait litigieux est ouvert, sauf les trois
+// cas que l'article 1701 nomme — et ces trois cas sont des faits du dossier.
+@source(CC_ART1699, CC_ART1701)
+rule RetraitLitigieuxOuvertSaufLesTroisCasNommes(t: Cession) strict {
+    label fr official "Articles 1699 et 1701. Celui contre lequel un droit litigieux a été cédé peut s'en faire tenir quitte, hors les trois cas où l'article 1701 l'écarte";
+    label en unofficial "Articles 1699 and 1701. The person against whom a litigious right was assigned may be discharged, save the three cases where Article 1701 excludes it";
+    when droit_litigieux(t)
+        and not_known(cession_a_un_coheritier_ou_coproprietaire(t))
+        and not_known(cession_a_un_creancier_en_paiement(t))
+        and not_known(cession_au_possesseur_de_l_heritage(t));
+    then retrait_litigieux_ouvert(t);
+}
+
+// --- Bail d'appartement meublé (1758) ---------------------------------------
+
+@source(CC_ART1758)
+rule BailMeubleALAnnee(b: Bail) strict {
+    label fr official "Article 1758, alinéa 1. Le bail d'un appartement meublé est censé fait à l'année quand il a été fait à tant par an";
+    label en unofficial "Article 1758, first paragraph. The lease of a furnished flat is deemed made by the year when made at so much per year";
+    when bail_d_appartement_meuble_a_tant_par_an(b);
+    then periode_du_bail_meuble(b, Annee);
+}
+
+@source(CC_ART1758)
+rule BailMeubleAuMois(b: Bail) strict {
+    label fr official "Article 1758, alinéa 2. Le bail d'un appartement meublé est censé fait au mois quand il a été fait à tant par mois";
+    label en unofficial "Article 1758, second paragraph. The lease of a furnished flat is deemed made by the month when made at so much per month";
+    when bail_d_appartement_meuble_a_tant_par_mois(b);
+    then periode_du_bail_meuble(b, Mois);
+}
+
+@source(CC_ART1758)
+rule BailMeubleAuJour(b: Bail) strict {
+    label fr official "Article 1758, alinéa 3. Le bail d'un appartement meublé est censé fait au jour quand il a été fait à tant par jour";
+    label en unofficial "Article 1758, third paragraph. The lease of a furnished flat is deemed made by the day when made at so much per day";
+    when bail_d_appartement_meuble_a_tant_par_jour(b);
+    then periode_du_bail_meuble(b, Jour);
+}
+
+@source(CC_ART1758)
+rule BailMeubleSuivantLUsageDesLieux(b: Bail) strict {
+    label fr official "Article 1758, alinéa 4. Si rien ne constate la périodicité, la location est censée faite suivant l'usage des lieux";
+    label en unofficial "Article 1758, fourth paragraph. If nothing establishes the periodicity, the letting is deemed made according to local usage";
+    when bail_en_vigueur(b)
+        and not_known(bail_d_appartement_meuble_a_tant_par_an(b))
+        and not_known(bail_d_appartement_meuble_a_tant_par_mois(b))
+        and not_known(bail_d_appartement_meuble_a_tant_par_jour(b));
+    then periode_du_bail_meuble(b, UsageDesLieux);
+}

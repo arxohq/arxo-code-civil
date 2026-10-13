@@ -1,0 +1,416 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1625,
+    CC_ART1626,
+    CC_ART1627,
+    CC_ART1628,
+    CC_ART1629,
+    CC_ART1630,
+    CC_ART1631,
+    CC_ART1632,
+    CC_ART1633,
+    CC_ART1634,
+    CC_ART1635,
+    CC_ART1636,
+    CC_ART1637,
+    CC_ART1638,
+    CC_ART1640,
+    Personne,
+    Vente,
+    achat_aux_perils_et_risques,
+    acheteur,
+    acheteur_connaissait_le_danger_d_eviction,
+    acheteur_peut_faire_resilier_la_vente,
+    acquereur_peut_demander_resiliation_pour_servitudes,
+    acquereur_prefere_une_indemnite,
+    ameliorations_utiles_remboursees,
+    charges_pretendues_non_declarees,
+    chose_augmentee_de_prix_a_l_eviction,
+    chose_diminuee_de_valeur_a_l_eviction,
+    clause_de_non_garantie_stipulee,
+    condamnation_en_dernier_ressort_sans_appeler_le_vendeur,
+    convention_contraire_nulle,
+    convention_ecartant_la_garantie_du_fait_personnel,
+    demande_resiliation_pour_servitudes,
+    depenses_voluptuaires_ou_d_agrement_faites,
+    dommages_interets_et_loyaux_couts_dus,
+    eviction_resulte_du_fait_personnel_du_vendeur,
+    eviction_subie_en_partie,
+    eviction_subie_en_totalite,
+    frais_de_la_demande_en_garantie_faits,
+    fruits_rendus_au_proprietaire_evincant,
+    garantie_conventionnellement_ecartee,
+    garantie_d_eviction_cesse,
+    garantie_d_eviction_due,
+    garantie_de_la_chose_fournie,
+    garantie_du_fait_personnel_due,
+    garantie_due_defauts_caches,
+    garantie_due_possession_paisible,
+    garantie_eviction_fournie,
+    garantie_promise_ou_non_stipulee,
+    indemnisation_choisie_pour_servitudes,
+    indemnite_pour_servitudes_due,
+    partie_evincee_de_telle_consequence,
+    prix_restitue_apres_eviction,
+    prix_total_restitue,
+    profit_tire_des_degradations,
+    remboursement_de_la_partie_evincee_du,
+    remboursement_de_toutes_les_depenses_du,
+    remboursement_des_ameliorations_utiles_du,
+    remboursement_des_frais_de_garantie_du,
+    reparations_et_ameliorations_utiles_faites,
+    resiliation_demandee_pour_servitudes,
+    restitution_de_la_totalite_du_prix_due,
+    restitution_des_fruits_due,
+    restitution_du_prix_due,
+    restitution_du_prix_due_malgre_non_garantie,
+    retenue_du_vendeur_sur_le_prix,
+    servitudes_de_telle_importance,
+    servitudes_non_apparentes_non_declarees,
+    supplement_de_valeur_du_a_l_acquereur,
+    supplement_de_valeur_paye,
+    valeur_au_dessus_du_prix_de_vente,
+    valeur_de_la_partie_evincee_a_l_eviction,
+    vendeur,
+    vendeur_de_mauvaise_foi_du_fonds_d_autrui,
+    vendeur_prouve_moyens_suffisants,
+    vente_en_vigueur,
+    vente_non_resiliee_apres_eviction_partielle,
+};
+
+// Section II du chapitre IV : de la garantie en cas d'éviction (articles 1625 à 1640).
+//
+// L'éviction elle-même est un fait du cas : elle suppose un jugement ou un
+// trouble de droit établi, que ce paquet reçoit et ne déduit pas. Ce que le
+// Code dit, et que ce module exécute, c'est CE QUE DOIT le vendeur une fois
+// l'éviction subie, et QUAND cette dette tombe.
+//
+// L'article 1639 renvoie les autres questions de dommages et intérêts au titre
+// « Des contrats ou des obligations conventionnelles en général » : sa frontière
+// est déclarée dans articles.json, elle n'est pas formalisée ici.
+
+@source(CC_ART1625)
+rule DoubleObjetDeLaGarantie(v: Vente) strict {
+    label fr official "Article 1625. La garantie que le vendeur doit à l'acquéreur a deux objets : la possession paisible et les défauts cachés";
+    label en unofficial "Article 1625. The warranty the seller owes the buyer has two objects: peaceable possession and latent defects";
+    when vente_en_vigueur(v);
+    then garantie_due_possession_paisible(v);
+}
+
+@source(CC_ART1625)
+rule GarantieDesDefautsCaches(v: Vente) strict {
+    label fr official "Article 1625. Le second objet de la garantie est celui des défauts cachés de la chose vendue";
+    label en unofficial "Article 1625. The second object of the warranty is that of the latent defects of the thing sold";
+    when vente_en_vigueur(v);
+    then garantie_due_defauts_caches(v);
+}
+
+@source(CC_ART1625)
+rule PositionDevoirGarantieDeuxObjets(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1625. Devoir du vendeur de fournir la garantie à deux objets";
+    label en unofficial "Article 1625. Seller's duty to provide the two-object warranty";
+    when vente_en_vigueur(v) and vendeur(v, s) and acheteur(v, a);
+    then duty FournirGarantieDeuxObjets {
+        bearer s; beneficiary a;
+        achieve garantie_de_la_chose_fournie(v) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1626 : l'obligation existe « quoique lors de la vente il n'ait été
+// fait aucune stipulation ». Elle n'attend donc aucun fait de promesse.
+@source(CC_ART1626)
+rule GarantieDEvictionTotale(v: Vente) strict {
+    label fr official "Article 1626. Le vendeur est obligé de droit à garantir l'acquéreur de l'éviction qu'il souffre dans la totalité de l'objet vendu";
+    label en unofficial "Article 1626. The seller is bound as of right to warrant the buyer against eviction suffered as to the whole of the object sold";
+    when vente_en_vigueur(v) and eviction_subie_en_totalite(v);
+    then garantie_d_eviction_due(v);
+}
+
+@source(CC_ART1626)
+rule GarantieDEvictionPartielle(v: Vente) strict {
+    label fr official "Article 1626. Le vendeur est obligé de droit à garantir l'acquéreur de l'éviction qu'il souffre dans une partie de l'objet vendu";
+    label en unofficial "Article 1626. The seller is bound as of right to warrant the buyer against eviction suffered as to part of the object sold";
+    when vente_en_vigueur(v) and eviction_subie_en_partie(v);
+    then garantie_d_eviction_due(v);
+}
+
+@source(CC_ART1626)
+rule PositionGarantieDEvictionTotale(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1626. Obligation du vendeur de garantir l'acquéreur de l'éviction totale";
+    label en unofficial "Article 1626. Seller's duty to warrant the buyer against total eviction";
+    when vendeur(v, s) and acheteur(v, a)
+        and vente_en_vigueur(v) and eviction_subie_en_totalite(v);
+    then duty GarantirEvictionTotale {
+        bearer s; beneficiary a;
+        achieve garantie_eviction_fournie(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1626)
+rule PositionGarantieDEvictionPartielle(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1626. Obligation du vendeur de garantir l'acquéreur de l'éviction partielle";
+    label en unofficial "Article 1626. Seller's duty to warrant the buyer against partial eviction";
+    when vendeur(v, s) and acheteur(v, a)
+        and vente_en_vigueur(v) and eviction_subie_en_partie(v);
+    then duty GarantirEvictionPartielle {
+        bearer s; beneficiary a;
+        achieve garantie_eviction_fournie(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1626)
+rule GarantieDesChargesNonDeclarees(v: Vente) strict {
+    label fr official "Article 1626. Le vendeur garantit aussi les charges prétendues sur l'objet vendu et non déclarées lors de la vente";
+    label en unofficial "Article 1626. The seller also warrants against charges claimed on the object sold and not declared at the sale";
+    when vente_en_vigueur(v) and charges_pretendues_non_declarees(v);
+    then garantie_d_eviction_due(v);
+}
+
+@source(CC_ART1627)
+rule NonGarantieConventionnelle(v: Vente) strict {
+    label fr official "Article 1627. Les parties peuvent convenir que le vendeur ne sera soumis à aucune garantie";
+    label en unofficial "Article 1627. The parties may agree that the seller will be subject to no warranty";
+    when clause_de_non_garantie_stipulee(v);
+    then garantie_conventionnellement_ecartee(v);
+}
+
+// Article 1628 : le fait personnel survit à la clause de non-garantie. C'est une
+// norme d'exception, écrite en prédicat positif : « il demeure tenu ».
+@source(CC_ART1628)
+rule GarantieDuFaitPersonnelSubsiste(v: Vente) strict {
+    label fr official "Article 1628. Quoiqu'il ait été dit que le vendeur ne serait soumis à aucune garantie, il demeure tenu de celle qui résulte d'un fait qui lui est personnel";
+    label en unofficial "Article 1628. Although it was said the seller would be subject to no warranty, he remains liable on that arising from an act personal to him";
+    when clause_de_non_garantie_stipulee(v) and eviction_resulte_du_fait_personnel_du_vendeur(v);
+    then garantie_du_fait_personnel_due(v);
+}
+
+@source(CC_ART1628)
+rule ConventionEcartantLeFaitPersonnelNulle(v: Vente) strict {
+    label fr official "Article 1628. Toute convention écartant la garantie du fait personnel du vendeur est nulle";
+    label en unofficial "Article 1628. Any agreement setting aside the warranty for the seller's personal act is void";
+    when convention_ecartant_la_garantie_du_fait_personnel(v);
+    then convention_contraire_nulle(v);
+}
+
+// Article 1629 : la restitution du prix survit à la non-garantie, SAUF deux
+// causes d'exclusion nommées par le texte. Les deux sont des faits du cas ;
+// leur absence ne se déduit pas d'un silence, elle est constatée.
+@source(CC_ART1629)
+rule RestitutionDuPrixMalgreLaNonGarantie(v: Vente) strict {
+    label fr official "Article 1629. En cas de stipulation de non-garantie, le vendeur est tenu, en cas d'éviction, à la restitution du prix";
+    label en unofficial "Article 1629. Where non-warranty is stipulated, the seller is bound, upon eviction, to restore the price";
+    when clause_de_non_garantie_stipulee(v) and eviction_subie_en_totalite(v)
+        and not_known(acheteur_connaissait_le_danger_d_eviction(v))
+        and not_known(achat_aux_perils_et_risques(v));
+    then restitution_du_prix_due_malgre_non_garantie(v);
+}
+
+// Article 1630 : les quatre chefs de la demande de l'acquéreur évincé. Chacun a
+// sa règle, parce que chacun a sa condition propre dans le texte.
+@source(CC_ART1630)
+rule RestitutionDuPrixApresEviction(v: Vente) strict {
+    label fr official "Article 1630, 1°. L'acquéreur évincé a droit de demander contre le vendeur la restitution du prix";
+    label en unofficial "Article 1630, 1. The evicted buyer is entitled to claim restitution of the price from the seller";
+    when garantie_promise_ou_non_stipulee(v) and eviction_subie_en_totalite(v);
+    then restitution_du_prix_due(v);
+}
+
+@source(CC_ART1630)
+rule PositionRestituerPrixApresEviction(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1630. Obligation du vendeur de restituer le prix après l'éviction";
+    label en unofficial "Article 1630. Seller's duty to restore the price after eviction";
+    when vendeur(v, s) and acheteur(v, a)
+        and garantie_promise_ou_non_stipulee(v) and eviction_subie_en_totalite(v);
+    then duty RestituerPrixApresEviction {
+        bearer s; beneficiary a;
+        achieve prix_restitue_apres_eviction(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1630)
+rule RestitutionDesFruitsApresEviction(v: Vente) strict {
+    label fr official "Article 1630, 2°. L'acquéreur évincé a droit à la restitution des fruits lorsqu'il est obligé de les rendre au propriétaire qui l'évince";
+    label en unofficial "Article 1630, 2. The evicted buyer is entitled to restitution of the fruits where he must return them to the owner who evicts him";
+    when garantie_promise_ou_non_stipulee(v) and eviction_subie_en_totalite(v)
+        and fruits_rendus_au_proprietaire_evincant(v);
+    then restitution_des_fruits_due(v);
+}
+
+@source(CC_ART1630)
+rule FraisDeLaDemandeEnGarantie(v: Vente) strict {
+    label fr official "Article 1630, 3°. L'acquéreur évincé a droit aux frais faits sur la demande en garantie et à ceux faits par le demandeur originaire";
+    label en unofficial "Article 1630, 3. The evicted buyer is entitled to the costs of the warranty claim and to those of the original claimant";
+    when garantie_promise_ou_non_stipulee(v) and eviction_subie_en_totalite(v)
+        and frais_de_la_demande_en_garantie_faits(v);
+    then remboursement_des_frais_de_garantie_du(v);
+}
+
+@source(CC_ART1630)
+rule DommagesInteretsEtLoyauxCouts(v: Vente) strict {
+    label fr official "Article 1630, 4°. L'acquéreur évincé a droit aux dommages et intérêts ainsi qu'aux frais et loyaux coûts du contrat";
+    label en unofficial "Article 1630, 4. The evicted buyer is entitled to damages and to the costs and lawful expenses of the contract";
+    when garantie_promise_ou_non_stipulee(v) and eviction_subie_en_totalite(v);
+    then dommages_interets_et_loyaux_couts_dus(v);
+}
+
+// Article 1631 : la détérioration ne réduit pas la restitution. « Le vendeur
+// n'en est pas moins tenu de restituer la totalité du prix. »
+@source(CC_ART1631)
+rule TotaliteDuPrixMalgreLaDeterioration(v: Vente) strict {
+    label fr official "Article 1631. Quoique la chose soit diminuée de valeur à l'époque de l'éviction, le vendeur est tenu de restituer la totalité du prix";
+    label en unofficial "Article 1631. Although the thing is diminished in value at the time of the eviction, the seller must restore the whole of the price";
+    when restitution_du_prix_due(v) and chose_diminuee_de_valeur_a_l_eviction(v);
+    then restitution_de_la_totalite_du_prix_due(v);
+}
+
+@source(CC_ART1631)
+rule PositionRestituerTotaliteDuPrix(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1631. Obligation du vendeur de restituer la totalité du prix";
+    label en unofficial "Article 1631. Seller's duty to restore the whole price";
+    when vendeur(v, s) and acheteur(v, a)
+        and restitution_du_prix_due(v) and chose_diminuee_de_valeur_a_l_eviction(v);
+    then duty RestituerTotaliteDuPrix {
+        bearer s; beneficiary a;
+        achieve prix_total_restitue(v) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1632 : le seul tempérament nommé est le profit tiré par l'acheteur
+// de ses propres dégradations, retenu à concurrence de ce profit — pas au-delà.
+@source(CC_ART1632)
+rule RetenueDuProfitDesDegradations(v: Vente, gain: Money) strict {
+    label fr official "Article 1632. Si l'acquéreur a tiré profit des dégradations par lui faites, le vendeur a droit de retenir sur le prix une somme égale à ce profit";
+    label en unofficial "Article 1632. If the buyer profited from the deteriorations he caused, the seller may retain out of the price a sum equal to that profit";
+    when restitution_de_la_totalite_du_prix_due(v) and profit_tire_des_degradations(v, gain);
+    then retenue_du_vendeur_sur_le_prix(v, gain);
+}
+
+@source(CC_ART1633)
+rule SupplementDeValeurDuALAcquereur(v: Vente, surplus: Money) strict {
+    label fr official "Article 1633. Si la chose a augmenté de prix à l'époque de l'éviction, le vendeur doit à l'acquéreur ce qu'elle vaut au-dessus du prix de la vente";
+    label en unofficial "Article 1633. If the thing increased in price at the time of the eviction, the seller owes the buyer what it is worth above the price of the sale";
+    when restitution_du_prix_due(v) and chose_augmentee_de_prix_a_l_eviction(v)
+        and valeur_au_dessus_du_prix_de_vente(v, surplus);
+    then supplement_de_valeur_du_a_l_acquereur(v, surplus);
+}
+
+@source(CC_ART1633)
+rule PositionPayerSupplementDeValeur(v: Vente, s: Personne, a: Personne, surplus: Money) strict {
+    label fr official "Article 1633. Obligation du vendeur de payer le supplément de valeur";
+    label en unofficial "Article 1633. Seller's duty to pay the value supplement";
+    when vendeur(v, s) and acheteur(v, a)
+        and restitution_du_prix_due(v) and chose_augmentee_de_prix_a_l_eviction(v)
+        and valeur_au_dessus_du_prix_de_vente(v, surplus);
+    then duty PayerSupplementDeValeur {
+        bearer s; beneficiary a;
+        achieve supplement_de_valeur_paye(v, surplus) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1634)
+rule RemboursementDesAmeliorationsUtiles(v: Vente) strict {
+    label fr official "Article 1634. Le vendeur est tenu de rembourser ou de faire rembourser à l'acquéreur toutes les réparations et améliorations utiles faites au fonds";
+    label en unofficial "Article 1634. The seller must reimburse, or have reimbursed to the buyer, all useful repairs and improvements made to the land";
+    when garantie_d_eviction_due(v) and reparations_et_ameliorations_utiles_faites(v);
+    then remboursement_des_ameliorations_utiles_du(v);
+}
+
+@source(CC_ART1634)
+rule PositionRembourserAmeliorationsUtiles(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1634. Obligation du vendeur de rembourser les améliorations utiles";
+    label en unofficial "Article 1634. Seller's duty to reimburse useful improvements";
+    when vendeur(v, s) and acheteur(v, a)
+        and garantie_d_eviction_due(v) and reparations_et_ameliorations_utiles_faites(v);
+    then duty RembourserAmeliorationsUtiles {
+        bearer s; beneficiary a;
+        achieve ameliorations_utiles_remboursees(v) during [@1804-03-21, infinity);
+    };
+}
+
+// Article 1635 : la mauvaise foi élargit le remboursement jusqu'aux dépenses
+// voluptuaires, que l'article 1634 ne couvre pas.
+@source(CC_ART1635)
+rule RemboursementIntegralContreLeVendeurDeMauvaiseFoi(v: Vente) strict {
+    label fr official "Article 1635. Le vendeur qui avait vendu de mauvaise foi le fonds d'autrui rembourse toutes les dépenses, même voluptuaires ou d'agrément";
+    label en unofficial "Article 1635. A seller who sold another's land in bad faith reimburses all expenses, even voluptuary or ornamental ones";
+    when vendeur_de_mauvaise_foi_du_fonds_d_autrui(v) and depenses_voluptuaires_ou_d_agrement_faites(v);
+    then remboursement_de_toutes_les_depenses_du(v);
+}
+
+@source(CC_ART1636)
+rule ResiliationPourEvictionPartielleDeterminante(v: Vente) strict {
+    label fr official "Article 1636. Si l'acquéreur n'est évincé que d'une partie sans laquelle il n'eût point acheté, il peut faire résilier la vente";
+    label en unofficial "Article 1636. If the buyer is evicted only of a part without which he would not have bought, he may have the sale terminated";
+    when eviction_subie_en_partie(v) and partie_evincee_de_telle_consequence(v);
+    then acheteur_peut_faire_resilier_la_vente(v);
+}
+
+// Article 1637 : la valeur se prend À L'ÉPOQUE DE L'ÉVICTION, « et non
+// proportionnellement au prix total de la vente ». Aucune règle de proportion
+// n'est donc écrite ici : le montant est celui que le cas établit à cette date.
+@source(CC_ART1637)
+rule RemboursementDeLaPartieEvincee(v: Vente, valeur: Money) strict {
+    label fr official "Article 1637. Si la vente n'est pas résiliée, la valeur de la partie évincée est remboursée suivant l'estimation à l'époque de l'éviction";
+    label en unofficial "Article 1637. If the sale is not terminated, the value of the evicted part is reimbursed according to the valuation at the time of the eviction";
+    when eviction_subie_en_partie(v) and vente_non_resiliee_apres_eviction_partielle(v)
+        and valeur_de_la_partie_evincee_a_l_eviction(v, valeur);
+    then remboursement_de_la_partie_evincee_du(v, valeur);
+}
+
+@source(CC_ART1638)
+rule ResiliationPourServitudesNonApparentes(v: Vente) strict {
+    label fr official "Article 1638. L'acquéreur d'un héritage grevé de servitudes non apparentes non déclarées et de telle importance peut demander la résiliation du contrat";
+    label en unofficial "Article 1638. The buyer of an estate burdened with undeclared non-apparent servitudes of such importance may claim termination of the contract";
+    when servitudes_non_apparentes_non_declarees(v) and servitudes_de_telle_importance(v);
+    then acquereur_peut_demander_resiliation_pour_servitudes(v);
+}
+
+@source(CC_ART1638)
+rule PositionPouvoirResiliationPourServitudes(v: Vente, a: Personne) strict {
+    label fr official "Article 1638. Pouvoir de l'acquéreur de demander la résiliation pour servitudes";
+    label en unofficial "Article 1638. Buyer's power to seek termination for servitudes";
+    when acheteur(v, a) and servitudes_non_apparentes_non_declarees(v)
+        and servitudes_de_telle_importance(v);
+    then power PouvoirResiliationPourServitudes {
+        holder a;
+        exercise demande_resiliation_pour_servitudes(v);
+        valid_when servitudes_non_apparentes_non_declarees(v);
+        effect resiliation_demandee_pour_servitudes(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1638)
+rule IndemniteAuLieuDeResiliationPourServitudes(v: Vente) strict {
+    label fr official "Article 1638. L'acquéreur peut se contenter d'une indemnité au lieu de la résiliation";
+    label en unofficial "Article 1638. The buyer may be satisfied with an indemnity instead of termination";
+    when servitudes_non_apparentes_non_declarees(v) and servitudes_de_telle_importance(v)
+        and acquereur_prefere_une_indemnite(v);
+    then indemnite_pour_servitudes_due(v);
+}
+
+@source(CC_ART1638)
+rule PositionLiberteIndemnitePourServitudes(v: Vente, a: Personne) strict {
+    label fr official "Article 1638. Liberté de l'acquéreur de choisir l'indemnité";
+    label en unofficial "Article 1638. Buyer's liberty to choose indemnity";
+    when acheteur(v, a) and servitudes_non_apparentes_non_declarees(v)
+        and servitudes_de_telle_importance(v);
+    then liberty ChoisirIndemnitePourServitudes {
+        holder a;
+        action indemnisation_choisie_pour_servitudes(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+// Article 1640 : la garantie CESSE — les deux conditions sont cumulatives, et
+// la seconde est une preuve à la charge du vendeur, non une présomption.
+@source(CC_ART1640)
+rule CessationDeLaGarantieFauteDAppelEnGarantie(v: Vente) strict {
+    label fr official "Article 1640. La garantie pour cause d'éviction cesse lorsque l'acquéreur s'est laissé condamner en dernier ressort sans appeler son vendeur, si celui-ci prouve qu'il existait des moyens suffisants";
+    label en unofficial "Article 1640. The warranty for eviction ceases where the buyer let himself be condemned in last resort without calling his seller, if the latter proves sufficient means existed";
+    when condamnation_en_dernier_ressort_sans_appeler_le_vendeur(v) and vendeur_prouve_moyens_suffisants(v);
+    then garantie_d_eviction_cesse(v);
+}

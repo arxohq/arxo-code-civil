@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 333 al. 2 : possession d état conforme depuis le 1er mars 2015, action le 1er mars 2020 — fermée sauf au ministère public.
+test "urn:query:fr-code-civil-famille-f09-contestation-fermee-apres-cinq-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": possession_d_etat_conforme_au_titre_depuis(entity_ref("urn:fr:cc:fam:q:e"), @2015-03-01) { origin case_input; }
+        assert "f2": action_en_contestation_le(entity_ref("urn:fr:cc:fam:q:e"), @2020-03-01) { origin case_input; }
+    }
+    evaluate truth(contestation_fermee_sauf_ministere_public(entity_ref("urn:fr:cc:fam:q:e")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

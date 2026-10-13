@@ -1,0 +1,33 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1342-10, al. 2 : à égalité d'intérêt, l'imputation se fait sur la plus ancienne.
+// Le juge répond que l'intérêt est égal ; d1 est née le 10 janvier 2020, d2 le 1er mai
+// 2022 : d1 précède d2 et concentre seule l'imputation — min(1500, 3000) = 1 500 EUR.
+test "urn:query:fr-code-civil-obligations-p03-imputation-sur-la-plus-ancienne" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": paiement_du_debiteur(entity_ref("urn:fr:cc:obl:p:pay"), entity_ref("urn:fr:cc:obl:p:D")) { origin case_input; }
+        assert "f2": date_du_paiement(entity_ref("urn:fr:cc:obl:p:pay"), @2025-03-01) { origin case_input; }
+        assert "f3": montant_paye(entity_ref("urn:fr:cc:obl:p:pay"), 1500 EUR) { origin case_input; }
+        assert "f4": dette_du_debiteur(entity_ref("urn:fr:cc:obl:p:D"), entity_ref("urn:fr:cc:obl:p:d1")) { origin case_input; }
+        assert "f5": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obl:p:d1"), 3000 EUR) { origin case_input; }
+        assert "f6": date_de_naissance_de_la_dette(entity_ref("urn:fr:cc:obl:p:d1"), @2020-01-10) { origin case_input; }
+        assert "f7": date_d_exigibilite(entity_ref("urn:fr:cc:obl:p:d1"), @2024-01-10) { origin case_input; }
+        assert "f8": dette_du_debiteur(entity_ref("urn:fr:cc:obl:p:D"), entity_ref("urn:fr:cc:obl:p:d2")) { origin case_input; }
+        assert "f9": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obl:p:d2"), 2000 EUR) { origin case_input; }
+        assert "f10": date_de_naissance_de_la_dette(entity_ref("urn:fr:cc:obl:p:d2"), @2022-05-01) { origin case_input; }
+        assert "f11": date_d_exigibilite(entity_ref("urn:fr:cc:obl:p:d2"), @2024-06-01) { origin case_input; }
+        assert "f12": dette_du_debiteur(entity_ref("urn:fr:cc:obl:p:D"), entity_ref("urn:fr:cc:obl:p:d3")) { origin case_input; }
+        assert "f13": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obl:p:d3"), 1000 EUR) { origin case_input; }
+        assert "f14": date_de_naissance_de_la_dette(entity_ref("urn:fr:cc:obl:p:d3"), @2023-01-01) { origin case_input; }
+        assert "f15": date_d_exigibilite(entity_ref("urn:fr:cc:obl:p:d3"), @2027-01-01) { origin case_input; }
+        assert "f16": egalite_d_interet_d_acquitter(entity_ref("urn:fr:cc:obl:p:D"), entity_ref("urn:fr:cc:obl:p:d1"), entity_ref("urn:fr:cc:obl:p:d2")) { origin adjudicated; }
+    }
+    evaluate truth(imputation_du_paiement(entity_ref("urn:fr:cc:obl:p:pay"), entity_ref("urn:fr:cc:obl:p:d1"), 1500 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DettePrioritaireParLAnciennete);
+    expect applied(ImputationSurLaSeuleDetteDePremierRang);
+}

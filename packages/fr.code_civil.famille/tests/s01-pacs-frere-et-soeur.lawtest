@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 515-2 1° : frère et sœur (deuxième degré collatéral) — empêchement.
+test "urn:query:fr-code-civil-famille-s01-pacs-frere-et-soeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": graphe_familial(entity_ref("urn:fr:cc:fam:w:F")) { origin case_input; }
+        assert "f2": filiation_etablie(entity_ref("urn:fr:cc:fam:w:F"), entity_ref("urn:fr:cc:fam:w:pere"), entity_ref("urn:fr:cc:fam:w:x")) { origin case_input; }
+        assert "f3": filiation_etablie(entity_ref("urn:fr:cc:fam:w:F"), entity_ref("urn:fr:cc:fam:w:mere"), entity_ref("urn:fr:cc:fam:w:x")) { origin case_input; }
+        assert "f4": filiation_etablie(entity_ref("urn:fr:cc:fam:w:F"), entity_ref("urn:fr:cc:fam:w:pere"), entity_ref("urn:fr:cc:fam:w:y")) { origin case_input; }
+        assert "f5": filiation_etablie(entity_ref("urn:fr:cc:fam:w:F"), entity_ref("urn:fr:cc:fam:w:mere"), entity_ref("urn:fr:cc:fam:w:y")) { origin case_input; }
+        assert "f6": partenaires(entity_ref("urn:fr:cc:fam:w:pacs"), entity_ref("urn:fr:cc:fam:w:x"), entity_ref("urn:fr:cc:fam:w:y")) { origin case_input; }
+    }
+    evaluate truth(empechement_au_pacs(entity_ref("urn:fr:cc:fam:w:pacs")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

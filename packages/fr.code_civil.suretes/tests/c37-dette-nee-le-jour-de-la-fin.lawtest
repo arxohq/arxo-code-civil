@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2316 : dette née le 30 juin 2024, jour de la fin — non antérieure, non couverte.
+test "urn:query:fr-code-civil-suretes-c37-dette-nee-le-jour-de-la-fin" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c37:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c37:K"), entity_ref("urn:fr:cc:suretes:c37:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c37:K"), entity_ref("urn:fr:cc:suretes:c37:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c37:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c37:B")) { origin case_input; }
+        assert "f6": cautionnement_de_dettes_futures(entity_ref("urn:fr:cc:suretes:c37:K")) { origin case_input; }
+        assert "f7": terme_du_cautionnement(entity_ref("urn:fr:cc:suretes:c37:K"), @2024-06-30) { origin case_input; }
+        assert "f8": dette_garantie(entity_ref("urn:fr:cc:suretes:c37:K"), entity_ref("urn:fr:cc:suretes:c37:D")) { origin case_input; }
+        assert "f9": nee_le(entity_ref("urn:fr:cc:suretes:c37:D"), @2024-06-30) { origin case_input; }
+    }
+    evaluate truth(dette_couverte(entity_ref("urn:fr:cc:suretes:c37:K"), entity_ref("urn:fr:cc:suretes:c37:D")));
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,35 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1229 al. 3 : les prestations ayant trouvé leur utilité au fur et à mesure, il n'y a pas de restitution pour la période antérieure — la résolution est une résiliation.
+test "urn:query:fr-code-civil-contrat-i22-resolution-qualifiee-de-resiliation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:i22"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:i22"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:i22"), "1145") { origin case_input; }
+        assert "f4": accord_de_volontes(entity_ref("urn:fr:cc:contrat:i22")) { origin case_input; }
+        assert "f5": prestation_possible(entity_ref("urn:fr:cc:contrat:i22")) { origin case_input; }
+        assert "f6": prestation_determinee(entity_ref("urn:fr:cc:contrat:i22")) { origin case_input; }
+        assert "f7": partie_au_contrat(entity_ref("urn:fr:cc:contrat:i22"), entity_ref("urn:fr:cc:contrat:i22:creancier")) { origin case_input; }
+        assert "f8": personne_physique(entity_ref("urn:fr:cc:contrat:i22:creancier")) { origin case_input; }
+        assert "f9": consentement_donne_par(entity_ref("urn:fr:cc:contrat:i22"), entity_ref("urn:fr:cc:contrat:i22:creancier")) { origin case_input; }
+        assert "f10": sain_d_esprit(entity_ref("urn:fr:cc:contrat:i22"), entity_ref("urn:fr:cc:contrat:i22:creancier")) { origin case_input; }
+        assert "f11": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i22:o"), entity_ref("urn:fr:cc:contrat:i22")) { origin case_input; }
+        assert "f12": creancier_de_l_obligation(entity_ref("urn:fr:cc:contrat:i22:o"), entity_ref("urn:fr:cc:contrat:i22:creancier")) { origin case_input; }
+        assert "f13": debiteur_de_l_obligation(entity_ref("urn:fr:cc:contrat:i22:o"), entity_ref("urn:fr:cc:contrat:i22:debiteur")) { origin case_input; }
+        assert "f14": engagement_non_execute(entity_ref("urn:fr:cc:contrat:i22:o")) { origin case_input; }
+        assert "f15": inexecution_suffisamment_grave_1224(entity_ref("urn:fr:cc:contrat:i22:o")) { origin adjudicated; }
+        assert "f16": mise_en_demeure_de_satisfaire_le(entity_ref("urn:fr:cc:contrat:i22:o"), @2020-02-01) { origin case_input; }
+        assert "f17": delai_raisonnable_de_la_mise_en_demeure_1226(entity_ref("urn:fr:cc:contrat:i22:o")) { origin adjudicated; }
+        assert "f18": mise_en_demeure_mentionnant_le_droit_de_resoudre(entity_ref("urn:fr:cc:contrat:i22:o")) { origin case_input; }
+        assert "f19": inexecution_persiste(entity_ref("urn:fr:cc:contrat:i22:o")) { origin case_input; }
+        assert "f20": notification_de_resolution_motivee_le(entity_ref("urn:fr:cc:contrat:i22"), @2020-03-15) { origin case_input; }
+        assert "f21": prestations_utiles_au_fur_et_a_mesure(entity_ref("urn:fr:cc:contrat:i22")) { origin case_input; }
+    }
+    evaluate truth(resiliation(entity_ref("urn:fr:cc:contrat:i22")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ResolutionQualifieeDeResiliation);
+}

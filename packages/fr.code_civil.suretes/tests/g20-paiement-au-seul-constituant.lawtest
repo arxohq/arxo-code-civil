@@ -1,0 +1,13 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2362 : nantissement non notifié — seul le constituant reçoit paiement.
+test "urn:query:fr-code-civil-suretes-g20-paiement-au-seul-constituant" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": nantissement_de(entity_ref("urn:fr:cc:suretes:g20:S"), entity_ref("urn:fr:cc:suretes:g20:N")) { origin case_input; }
+    }
+    evaluate truth(seul_le_constituant_recoit_paiement(entity_ref("urn:fr:cc:suretes:g20:S")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 713, al. 1. Les biens qui n'ont pas de maître appartiennent à la
+// commune sur le territoire de laquelle ils sont situés.
+test "urn:query:fr-code-civil-biens-q03-bien-sans-maitre-commune" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": bien_sans_maitre(entity_ref("urn:fr:cc:biens:q03:B")) { origin case_input; }
+        assert "f2": situe_sur_le_territoire_de_la_commune(entity_ref("urn:fr:cc:biens:q03:B"), entity_ref("urn:fr:cc:biens:q03:COMMUNE")) { origin case_input; }
+    }
+    evaluate truth(bien_sans_maitre_appartient_a(entity_ref("urn:fr:cc:biens:q03:B"), entity_ref("urn:fr:cc:biens:q03:COMMUNE")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,218 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// §137: десять первых голов запретов с парой ACTIVE/VIOLATED.
+test "urn:query:fr-successions-137-option-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": ouverte_le(entity_ref("urn:p3:770:wave:s"), @2026-02-01) { origin case_input; }
+  assert "o": option_exercee_le(entity_ref("urn:p3:770:wave:s"), entity_ref("urn:p3:770:wave:h"), AcceptationPureEtSimple, @2026-01-10) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionOptionAvantOuverture, ACTIVE); }
+test "urn:query:fr-successions-137-option-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": ouverte_le(entity_ref("urn:p3:770:wave:s"), @2026-02-01) { origin case_input; }
+  assert "o": option_exercee_le(entity_ref("urn:p3:770:wave:s"), entity_ref("urn:p3:770:wave:h"), AcceptationPureEtSimple, @2026-01-10) { origin case_input; }
+  assert "a": option_prematuree_exercee(entity_ref("urn:p3:770:wave:s"), entity_ref("urn:p3:770:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionOptionAvantOuverture, VIOLATED); }
+
+test "urn:query:fr-successions-137-sommation-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": sommation_prematuree(entity_ref("urn:p3:771:wave:s"), entity_ref("urn:p3:771:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionSommationAvantQuatreMois, ACTIVE); }
+test "urn:query:fr-successions-137-sommation-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": sommation_prematuree(entity_ref("urn:p3:771:wave:s"), entity_ref("urn:p3:771:wave:h")) { origin case_input; }
+  assert "a": sommation_prematuree_exercee(entity_ref("urn:p3:771:wave:s"), entity_ref("urn:p3:771:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionSommationAvantQuatreMois, VIOLATED); }
+
+test "urn:query:fr-successions-137-recel-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": recel_ou_dissimulation_constate(entity_ref("urn:p3:778:wave:s"), entity_ref("urn:p3:778:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionReclamerBiensReceles, ACTIVE); }
+test "urn:query:fr-successions-137-recel-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": recel_ou_dissimulation_constate(entity_ref("urn:p3:778:wave:s"), entity_ref("urn:p3:778:wave:h")) { origin case_input; }
+  assert "a": reclamation_part_biens_receles_exercee(entity_ref("urn:p3:778:wave:s"), entity_ref("urn:p3:778:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionReclamerBiensReceles, VIOLATED); }
+
+test "urn:query:fr-successions-137-voie-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": publicite_de_la_declaration_le(entity_ref("urn:p3:792:wave:s"), @2026-01-01) { origin case_input; }
+  assert "c": creancier_successoral(entity_ref("urn:p3:792:wave:s"), entity_ref("urn:p3:792:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionVoieExecutionPendantDeclaration, ACTIVE); }
+test "urn:query:fr-successions-137-voie-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": publicite_de_la_declaration_le(entity_ref("urn:p3:792:wave:s"), @2026-01-01) { origin case_input; }
+  assert "c": creancier_successoral(entity_ref("urn:p3:792:wave:s"), entity_ref("urn:p3:792:wave:h")) { origin case_input; }
+  assert "a": voie_execution_ou_surete_exercee(entity_ref("urn:p3:792:wave:s"), entity_ref("urn:p3:792:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionVoieExecutionPendantDeclaration, VIOLATED); }
+
+test "urn:query:fr-successions-137-renonciation-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": option_exercee_le(entity_ref("urn:p3:801:wave:s"), entity_ref("urn:p3:801:wave:h"), AcceptationAConcurrenceDeLActifNet, @2026-01-01) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionRenoncerApresActifNet, ACTIVE); }
+test "urn:query:fr-successions-137-renonciation-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": option_exercee_le(entity_ref("urn:p3:801:wave:s"), entity_ref("urn:p3:801:wave:h"), AcceptationAConcurrenceDeLActifNet, @2026-01-01) { origin case_input; }
+  assert "a": renonciation_exercee(entity_ref("urn:p3:801:wave:s"), entity_ref("urn:p3:801:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionRenoncerApresActifNet, VIOLATED); }
+
+test "urn:query:fr-successions-137-garantie-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": fin_de_l_action_en_garantie(entity_ref("urn:p3:886:wave:s"), entity_ref("urn:p3:886:wave:h"), @2024-01-01) { origin case_input; }
+  assert "a": action_en_garantie_le(entity_ref("urn:p3:886:wave:s"), entity_ref("urn:p3:886:wave:h"), @2025-01-01) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActionGarantiePrescrite, ACTIVE); expect position(P3MaintenanceActionGarantiePrescrite, ACTIVE); }
+test "urn:query:fr-successions-137-garantie-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": fin_de_l_action_en_garantie(entity_ref("urn:p3:886:wave:s"), entity_ref("urn:p3:886:wave:h"), @2024-01-01) { origin case_input; }
+  assert "a": action_en_garantie_le(entity_ref("urn:p3:886:wave:s"), entity_ref("urn:p3:886:wave:h"), @2025-01-01) { origin case_input; }
+  assert "x": garantie_eviction_exercee(entity_ref("urn:p3:886:wave:s"), entity_ref("urn:p3:886:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActionGarantiePrescrite, VIOLATED); expect position(P3MaintenanceActionGarantiePrescrite, VIOLATED); }
+
+test "urn:query:fr-successions-137-rapport-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": rapport_du(entity_ref("urn:p3:858:wave:s"), entity_ref("urn:p3:858:wave:h"), entity_ref("urn:p3:858:wave:l")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionExigerRapportEnNature, ACTIVE); expect position(P3MaintenanceInterdictionExigerRapportEnNature, ACTIVE); }
+test "urn:query:fr-successions-137-rapport-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": rapport_du(entity_ref("urn:p3:858:wave:s"), entity_ref("urn:p3:858:wave:h"), entity_ref("urn:p3:858:wave:l")) { origin case_input; }
+  assert "x": exigence_rapport_nature_exercee(entity_ref("urn:p3:858:wave:s"), entity_ref("urn:p3:858:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionExigerRapportEnNature, VIOLATED); expect position(P3MaintenanceInterdictionExigerRapportEnNature, VIOLATED); }
+
+test "urn:query:fr-successions-137-conversion-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": conversion_du_logement_exclue(entity_ref("urn:p3:760:wave:s"), entity_ref("urn:p3:760:wave:c")) { origin case_input; }
+  assert "d": demande_de_conversion_le(entity_ref("urn:p3:760:wave:s"), @2026-01-01) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionConversionLogementContreVolonte, ACTIVE); }
+test "urn:query:fr-successions-137-conversion-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": conversion_du_logement_exclue(entity_ref("urn:p3:760:wave:s"), entity_ref("urn:p3:760:wave:c")) { origin case_input; }
+  assert "d": demande_de_conversion_le(entity_ref("urn:p3:760:wave:s"), @2026-01-01) { origin case_input; }
+  assert "x": conversion_logement_exercee(entity_ref("urn:p3:760:wave:s"), entity_ref("urn:p3:760:wave:c")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionConversionLogementContreVolonte, VIOLATED); }
+
+test "urn:query:fr-successions-137-recompense-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": pas_de_recompense_pour_l_excedent(entity_ref("urn:p3:7653:wave:s"), entity_ref("urn:p3:7653:wave:c")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionRecompenserExcedentDroitViager, ACTIVE); }
+test "urn:query:fr-successions-137-recompense-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": pas_de_recompense_pour_l_excedent(entity_ref("urn:p3:7653:wave:s"), entity_ref("urn:p3:7653:wave:c")) { origin case_input; }
+  assert "x": recompense_excedent_exercee(entity_ref("urn:p3:7653:wave:s"), entity_ref("urn:p3:7653:wave:c")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionRecompenserExcedentDroitViager, VIOLATED); }
+
+test "urn:query:fr-successions-137-cession-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": droits_incessibles(entity_ref("urn:p3:7581:wave:s"), entity_ref("urn:p3:7581:wave:c")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionCederDroitsConjointAvantOption, ACTIVE); }
+test "urn:query:fr-successions-137-cession-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": droits_incessibles(entity_ref("urn:p3:7581:wave:s"), entity_ref("urn:p3:7581:wave:c")) { origin case_input; }
+  assert "x": cession_droits_conjoint_exercee(entity_ref("urn:p3:7581:wave:s"), entity_ref("urn:p3:7581:wave:c")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionCederDroitsConjointAvantOption, VIOLATED); }
+
+// §137: остальные тринадцать prohibition-heads; каждая голова имеет
+// отдельный входной факт и отдельный action-факт нарушения.
+test "urn:query:fr-successions-137-795-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": declaration_conservation_non_publiee(entity_ref("urn:p3:795:wave:s"), entity_ref("urn:p3:795:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionOpposerConservationNonPubliee, ACTIVE); }
+test "urn:query:fr-successions-137-795-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": declaration_conservation_non_publiee(entity_ref("urn:p3:795:wave:s"), entity_ref("urn:p3:795:wave:h")) { origin case_input; }
+  assert "a": declaration_conservation_opposable_exercee(entity_ref("urn:p3:795:wave:s"), entity_ref("urn:p3:795:wave:h")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionOpposerConservationNonPubliee, VIOLATED); }
+
+test "urn:query:fr-successions-137-823-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": maintien_excessif_constate(entity_ref("urn:p3:823:wave:i"), entity_ref("urn:p3:823:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMaintienAuDelaCinqAns, ACTIVE); }
+test "urn:query:fr-successions-137-823-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": maintien_excessif_constate(entity_ref("urn:p3:823:wave:i"), entity_ref("urn:p3:823:wave:p")) { origin case_input; }
+  assert "a": maintien_indivision_exerce(entity_ref("urn:p3:823:wave:i"), entity_ref("urn:p3:823:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMaintienAuDelaCinqAns, VIOLATED); }
+
+test "urn:query:fr-successions-137-8134-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": mandataire_successoral(entity_ref("urn:p3:8134:wave:s"), entity_ref("urn:p3:8134:wave:p")) { origin case_input; }
+  assert "l": pouvoirs_du_mandataire_successoral_limites_a_784(entity_ref("urn:p3:8134:wave:s")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandataireAuDelaArticle784, ACTIVE); }
+test "urn:query:fr-successions-137-8134-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": mandataire_successoral(entity_ref("urn:p3:8134:wave:s"), entity_ref("urn:p3:8134:wave:p")) { origin case_input; }
+  assert "l": pouvoirs_du_mandataire_successoral_limites_a_784(entity_ref("urn:p3:8134:wave:s")) { origin case_input; }
+  assert "a": autorisation_administration_exercee(entity_ref("urn:p3:8134:wave:s"), entity_ref("urn:p3:8134:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandataireAuDelaArticle784, VIOLATED); }
+
+test "urn:query:fr-successions-137-8125-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": restitution_exclue(entity_ref("urn:p3:8125:wave:m")) { origin case_input; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:8125:wave:m"), entity_ref("urn:p3:8125:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionDemanderRestitutionApresRevocation, ACTIVE); }
+test "urn:query:fr-successions-137-8125-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": restitution_exclue(entity_ref("urn:p3:8125:wave:m")) { origin case_input; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:8125:wave:m"), entity_ref("urn:p3:8125:wave:p")) { origin case_input; }
+  assert "a": demande_restitution_remuneration_exercee(entity_ref("urn:p3:8125:wave:m"), entity_ref("urn:p3:8125:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionDemanderRestitutionApresRevocation, VIOLATED); }
+
+test "urn:query:fr-successions-137-81211-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:81211:wave:m"), entity_ref("urn:p3:81211:wave:p")) { origin case_input; }
+  assert "d": duree_du_mandat_excessive(entity_ref("urn:p3:81211:wave:m")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandatDureeExcessive, ACTIVE); }
+test "urn:query:fr-successions-137-81211-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:81211:wave:m"), entity_ref("urn:p3:81211:wave:p")) { origin case_input; }
+  assert "d": duree_du_mandat_excessive(entity_ref("urn:p3:81211:wave:m")) { origin case_input; }
+  assert "a": mandat_excessif_exerce(entity_ref("urn:p3:81211:wave:m"), entity_ref("urn:p3:81211:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandatDureeExcessive, VIOLATED); }
+
+test "urn:query:fr-successions-137-8124-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:8124:wave:m"), entity_ref("urn:p3:8124:wave:p")) { origin case_input; }
+  assert "f": mandat_termine(entity_ref("urn:p3:8124:wave:m")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActeApresFinMandat, ACTIVE); }
+test "urn:query:fr-successions-137-8124-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:8124:wave:m"), entity_ref("urn:p3:8124:wave:p")) { origin case_input; }
+  assert "f": mandat_termine(entity_ref("urn:p3:8124:wave:m")) { origin case_input; }
+  assert "a": acte_apres_fin_mandat_exerce(entity_ref("urn:p3:8124:wave:m"), entity_ref("urn:p3:8124:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActeApresFinMandat, VIOLATED); }
+
+test "urn:query:fr-successions-137-8104-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "s": curateur_succession(entity_ref("urn:p3:8104:wave:s"), entity_ref("urn:p3:8104:wave:p")) { origin case_input; }
+  assert "d": dette_a_payer(entity_ref("urn:p3:8104:wave:s"), AutreDetteSuccessorale) { origin case_input; }
+  assert "p": paiement_subordonne_au_projet(entity_ref("urn:p3:8104:wave:s"), AutreDetteSuccessorale) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionPayerDetteAvantProjet, ACTIVE); }
+test "urn:query:fr-successions-137-8104-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "s": curateur_succession(entity_ref("urn:p3:8104:wave:s"), entity_ref("urn:p3:8104:wave:p")) { origin case_input; }
+  assert "d": dette_a_payer(entity_ref("urn:p3:8104:wave:s"), AutreDetteSuccessorale) { origin case_input; }
+  assert "p": paiement_subordonne_au_projet(entity_ref("urn:p3:8104:wave:s"), AutreDetteSuccessorale) { origin case_input; }
+  assert "a": paiement_dette_conditionnel_exerce(entity_ref("urn:p3:8104:wave:s"), entity_ref("urn:p3:8104:wave:p"), AutreDetteSuccessorale) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionPayerDetteAvantProjet, VIOLATED); }
+
+test "urn:query:fr-successions-137-8103-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "a": adjudication_obligatoire(entity_ref("urn:p3:8103:wave:s")) { origin case_input; }
+  assert "e": adjudication_exigee_par(entity_ref("urn:p3:8103:wave:s"), entity_ref("urn:p3:8103:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionVenteSansAdjudication, ACTIVE); }
+test "urn:query:fr-successions-137-8103-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "a": adjudication_obligatoire(entity_ref("urn:p3:8103:wave:s")) { origin case_input; }
+  assert "e": adjudication_exigee_par(entity_ref("urn:p3:8103:wave:s"), entity_ref("urn:p3:8103:wave:p")) { origin case_input; }
+  assert "x": exigence_adjudication_exercee(entity_ref("urn:p3:8103:wave:s"), entity_ref("urn:p3:8103:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionVenteSansAdjudication, VIOLATED); }
+
+test "urn:query:fr-successions-137-8109-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": creancier_limite_a_l_actif_subsistant(entity_ref("urn:p3:8109:wave:s"), entity_ref("urn:p3:8109:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionPretendreActifIntegral, ACTIVE); }
+test "urn:query:fr-successions-137-8109-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": creancier_limite_a_l_actif_subsistant(entity_ref("urn:p3:8109:wave:s"), entity_ref("urn:p3:8109:wave:p")) { origin case_input; }
+  assert "a": pretention_actif_integral_exercee(entity_ref("urn:p3:8109:wave:s"), entity_ref("urn:p3:8109:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionPretendreActifIntegral, VIOLATED); }
+
+test "urn:query:fr-successions-137-81213-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:81213:wave:m"), entity_ref("urn:p3:81213:wave:p")) { origin case_input; }
+  assert "l": pouvoirs_du_mandataire_limites_a_784(entity_ref("urn:p3:81213:wave:m")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandataireHorsPouvoirs, ACTIVE); }
+test "urn:query:fr-successions-137-81213-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "m": mandataire_designe(entity_ref("urn:p3:81213:wave:m"), entity_ref("urn:p3:81213:wave:p")) { origin case_input; }
+  assert "l": pouvoirs_du_mandataire_limites_a_784(entity_ref("urn:p3:81213:wave:m")) { origin case_input; }
+  assert "a": acte_hors_pouvoirs_mandataire_exerce(entity_ref("urn:p3:81213:wave:m"), entity_ref("urn:p3:81213:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionMandataireHorsPouvoirs, VIOLATED); }
+
+test "urn:query:fr-successions-137-8132-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "j": designation_judiciaire_obligatoire(entity_ref("urn:p3:8132:wave:s")) { origin case_input; }
+  assert "c": administration_confiee_d_un_commun_accord(entity_ref("urn:p3:8132:wave:s"), entity_ref("urn:p3:8132:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionDesignationConventionnelleMandataire, ACTIVE); }
+test "urn:query:fr-successions-137-8132-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "j": designation_judiciaire_obligatoire(entity_ref("urn:p3:8132:wave:s")) { origin case_input; }
+  assert "c": administration_confiee_d_un_commun_accord(entity_ref("urn:p3:8132:wave:s"), entity_ref("urn:p3:8132:wave:p")) { origin case_input; }
+  assert "a": designation_conventionnelle_exercee(entity_ref("urn:p3:8132:wave:s"), entity_ref("urn:p3:8132:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionDesignationConventionnelleMandataire, VIOLATED); }
+
+test "urn:query:fr-successions-137-8139-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": mission_du_mandataire_successoral_terminee(entity_ref("urn:p3:8139:wave:s")) { origin case_input; }
+  assert "m": mandataire_successoral(entity_ref("urn:p3:8139:wave:s"), entity_ref("urn:p3:8139:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActeApresFinMission, ACTIVE); }
+test "urn:query:fr-successions-137-8139-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": mission_du_mandataire_successoral_terminee(entity_ref("urn:p3:8139:wave:s")) { origin case_input; }
+  assert "m": mandataire_successoral(entity_ref("urn:p3:8139:wave:s"), entity_ref("urn:p3:8139:wave:p")) { origin case_input; }
+  assert "a": acte_apres_fin_mission_exerce(entity_ref("urn:p3:8139:wave:s"), entity_ref("urn:p3:8139:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionActeApresFinMission, VIOLATED); }
+
+test "urn:query:fr-successions-137-7291-active" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": exclu_pour_indignite(entity_ref("urn:p3:7291:wave:s"), entity_ref("urn:p3:7291:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionJouissanceIndigne, ACTIVE); }
+test "urn:query:fr-successions-137-7291-violated" { given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+  assert "f": exclu_pour_indignite(entity_ref("urn:p3:7291:wave:s"), entity_ref("urn:p3:7291:wave:p")) { origin case_input; }
+  assert "a": jouissance_parentale_reclamee(entity_ref("urn:p3:7291:wave:s"), entity_ref("urn:p3:7291:wave:p")) { origin case_input; }
+ } evaluate positions(); expect position(P3PositionInterdictionJouissanceIndigne, VIOLATED); }

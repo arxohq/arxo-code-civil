@@ -1,0 +1,50 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CESSIONDECREANCEFUTUREADMISE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": creance_presente_ou_future(entity_ref("urn:kz:catalog:cessiondecreancefutureadmise:v1")) { origin case_input; }
+        assert "cat-1": cession_de_creance(entity_ref("urn:kz:catalog:cessiondecreancefutureadmise:v0"), entity_ref("urn:kz:catalog:cessiondecreancefutureadmise:v1")) { origin case_input; }
+    }
+    evaluate truth(cession_de_creance_future_admise(entity_ref("urn:kz:catalog:cessiondecreancefutureadmise:v0"), entity_ref("urn:kz:catalog:cessiondecreancefutureadmise:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-CESSIONETENDUEAUXACCESSOIRES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cession_de_creance(entity_ref("urn:kz:catalog:cessionetendueauxaccessoires:v0"), entity_ref("urn:kz:catalog:cessionetendueauxaccessoires:v1")) { origin case_input; }
+    }
+    evaluate truth(cession_etendue_aux_accessoires(entity_ref("urn:kz:catalog:cessionetendueauxaccessoires:v0"), entity_ref("urn:kz:catalog:cessionetendueauxaccessoires:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-CONSENTEMENTDUDEBITEURREQUIS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": creance_stipulee_incessible(entity_ref("urn:kz:catalog:consentementdudebiteurrequis:v0")) { origin case_input; }
+    }
+    evaluate truth(consentement_du_debiteur_requis(entity_ref("urn:kz:catalog:consentementdudebiteurrequis:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-CREANCETRANSMISEAUCESSIONNAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cedant(entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v0"), entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v2")) { origin case_input; }
+        assert "cat-1": cession_de_creance(entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v0"), entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v1")) { origin case_input; }
+        assert "cat-2": cessionnaire(entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v0"), entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v3")) { origin case_input; }
+    }
+    evaluate truth(creance_transmise_au_cessionnaire(entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v0"), entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v1"), entity_ref("urn:kz:catalog:creancetransmiseaucessionnaire:v3")));
+    expect truth_status == TRUE_ONLY;
+}

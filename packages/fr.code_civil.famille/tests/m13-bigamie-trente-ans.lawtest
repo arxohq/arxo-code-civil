@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 184 : bigamie, mariage du 2 mai 2000 — forclusion le 2 mai 2030.
+test "urn:query:fr-code-civil-famille-m13-bigamie-trente-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": epoux(entity_ref("urn:fr:cc:fam:j:m"), entity_ref("urn:fr:cc:fam:j:a"), entity_ref("urn:fr:cc:fam:j:b")) { origin case_input; }
+        assert "f2": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:j:a")) { origin case_input; }
+        assert "f3": celebre_le(entity_ref("urn:fr:cc:fam:j:m"), @2000-05-02) { origin case_input; }
+    }
+    evaluate truth(forclusion_le(entity_ref("urn:fr:cc:fam:j:m"), @2030-05-02));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ForclusionTrenteAns);
+}

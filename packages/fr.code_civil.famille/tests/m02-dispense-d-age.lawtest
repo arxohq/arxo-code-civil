@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 145 : la dispense d âge du procureur ouvre le mariage avant dix-huit ans.
+test "urn:query:fr-code-civil-famille-m02-dispense-d-age" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": ne_le(entity_ref("urn:fr:cc:fam:b:p"), @2009-06-15) { origin case_input; }
+        assert "f2": date_d_appreciation(entity_ref("urn:fr:cc:fam:b:p"), @2026-06-15) { origin case_input; }
+        assert "f3": dispense_d_age_du_procureur(entity_ref("urn:fr:cc:fam:b:p")) { origin adjudicated; }
+    }
+    evaluate truth(age_requis_pour_le_mariage(entity_ref("urn:fr:cc:fam:b:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseDAge);
+}

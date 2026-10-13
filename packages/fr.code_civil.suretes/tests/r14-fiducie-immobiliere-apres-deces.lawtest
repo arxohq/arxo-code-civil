@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-1 : le décès du constituant ne met pas fin à la fiducie-sûreté immobilière.
+test "urn:query:fr-code-civil-suretes-r14-fiducie-immobiliere-apres-deces" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fiducie_surete(entity_ref("urn:fr:cc:suretes:r14:S"), entity_ref("urn:fr:cc:suretes:r14:F"), entity_ref("urn:fr:cc:suretes:r14:C")) { origin case_input; }
+        assert "f2": fiducie_immobiliere(entity_ref("urn:fr:cc:suretes:r14:S")) { origin case_input; }
+        assert "f3": deces_du_constituant_personne_physique(entity_ref("urn:fr:cc:suretes:r14:S")) { origin case_input; }
+    }
+    evaluate truth(fiducie_maintenue_apres_deces(entity_ref("urn:fr:cc:suretes:r14:S")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(FiducieImmobiliereApresDeces);
+}

@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2286, 4° : le gagiste sans dépossession bénéficie du droit de rétention, même dessaisi.
+test "urn:query:fr-code-civil-suretes-r09-retention-gage-sans-depossession" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": beneficiaire_d_un_gage_sans_depossession(entity_ref("urn:fr:cc:suretes:r09:P"), entity_ref("urn:fr:cc:suretes:r09:X")) { origin case_input; }
+        assert "f2": dessaisissement_volontaire(entity_ref("urn:fr:cc:suretes:r09:P"), entity_ref("urn:fr:cc:suretes:r09:X")) { origin case_input; }
+    }
+    evaluate truth(droit_de_retention(entity_ref("urn:fr:cc:suretes:r09:P"), entity_ref("urn:fr:cc:suretes:r09:X")));
+    expect truth_status == TRUE_ONLY;
+}

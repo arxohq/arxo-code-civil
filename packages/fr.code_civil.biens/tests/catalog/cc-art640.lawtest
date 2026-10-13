@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-AGGRAVATIONINTERDITEAUFONDSSUPERIEUR" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": aggravation_par_le_proprietaire_superieur(entity_ref("urn:law:catalog:aggravationinterditeaufondssuperieur:v1")) { origin case_input; }
+        assert "cat-1": servitude_naturelle_d_ecoulement(entity_ref("urn:law:catalog:aggravationinterditeaufondssuperieur:v0"), entity_ref("urn:law:catalog:aggravationinterditeaufondssuperieur:v1")) { origin case_input; }
+    }
+    evaluate truth(aggravation_interdite_au_proprietaire_superieur(entity_ref("urn:law:catalog:aggravationinterditeaufondssuperieur:v1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DIGUEINTERDITEAUFONDSINFERIEUR" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": servitude_naturelle_d_ecoulement(entity_ref("urn:law:catalog:digueinterditeaufondsinferieur:v0"), entity_ref("urn:law:catalog:digueinterditeaufondsinferieur:v1")) { origin case_input; }
+        assert "cat-1": digue_elevee_par_le_proprietaire_inferieur(entity_ref("urn:law:catalog:digueinterditeaufondsinferieur:v0")) { origin case_input; }
+    }
+    evaluate truth(digue_interdite_au_proprietaire_inferieur(entity_ref("urn:law:catalog:digueinterditeaufondsinferieur:v0")));
+    expect truth_status == TRUE_ONLY;
+}

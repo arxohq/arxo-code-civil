@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// K4 : art. 2232 al. 2 — report au terme exclu du butoir ; cinq ans depuis le terme 2019-06-01.
+test "urn:query:fr-code-civil-k44-echeance-applicable-hors-butoir-par-report" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": naissance_du_droit_le(entity_ref("urn:fr:cc:presc:k44"), @2000-01-01) { origin case_input; }
+        assert "f2": nature_de_l_action(entity_ref("urn:fr:cc:presc:k44"), ActionPersonnelleOuMobiliere) { origin case_input; }
+        assert "f3": terme_arrive_le(entity_ref("urn:fr:cc:presc:k44"), @2019-06-01) { origin case_input; }
+        assert "f4": creance_exigible_depuis(entity_ref("urn:fr:cc:presc:k44"), @2019-06-01) { origin case_input; }
+        assert "f5": titulaire_connait_les_faits_le(entity_ref("urn:fr:cc:presc:k44"), @2019-06-01) { origin case_input; }
+        assert "f6": prescription_non_interrompue(entity_ref("urn:fr:cc:presc:k44")) { origin case_input; }
+    }
+    evaluate truth(date_d_echeance_applicable_le(entity_ref("urn:fr:cc:presc:k44"), @2024-06-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DateApplicableSansButoirOpposable);
+}

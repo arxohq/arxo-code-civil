@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 620. L'usufruit accordé jusqu'à ce qu'un tiers ait atteint un âge
+// fixe dure jusqu'à cette époque, « encore que le tiers soit mort avant
+// l'âge fixé » : au 1er juin 2028 l'usufruit court toujours.
+test "urn:query:fr-code-civil-biens-u09-terme-survit-a-la-mort-du-tiers" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": usufruit_sur(entity_ref("urn:fr:cc:biens:u09:U"), entity_ref("urn:fr:cc:biens:u09:B")) { origin case_input; }
+        assert "f2": usufruitier(entity_ref("urn:fr:cc:biens:u09:U"), entity_ref("urn:fr:cc:biens:u09:S")) { origin case_input; }
+        assert "f3": age_fixe_du_tiers_atteint_le(entity_ref("urn:fr:cc:biens:u09:U"), @2030-06-01) { origin case_input; }
+        assert "f4": tiers_mort_avant_l_age_fixe(entity_ref("urn:fr:cc:biens:u09:U")) { origin case_input; }
+        assert "f5": jour_de_reference(entity_ref("urn:fr:cc:biens:u09:U"), @2028-06-01) { origin case_input; }
+    }
+    evaluate truth(usufruit_eteint(entity_ref("urn:fr:cc:biens:u09:U")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == FALSE_ONLY;
+}

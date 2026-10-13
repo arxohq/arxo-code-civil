@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1250 : l'astreinte est liquidée au profit du demandeur, l'Office français de la biodiversité.
+test "urn:query:fr-code-civil-responsabilite-r59-astreinte-au-demandeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": demandeur_ecologique(entity_ref("urn:fr:cc:resp:v2u:d"), entity_ref("urn:fr:cc:resp:v2u:ofb"), OfficeFrancaisDeLaBiodiversite) { origin case_input; }
+        assert "f2": astreinte_prononcee(entity_ref("urn:fr:cc:resp:v2u:d")) { origin adjudicated; }
+    }
+    evaluate truth(astreinte_liquidee_au_profit_du_demandeur(entity_ref("urn:fr:cc:resp:v2u:d"), entity_ref("urn:fr:cc:resp:v2u:ofb")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(AstreinteAuDemandeur);
+}

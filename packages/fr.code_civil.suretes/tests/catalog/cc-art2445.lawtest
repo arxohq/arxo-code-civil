@@ -1,0 +1,29 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CREANCIERCONSERVESONRANG" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": certificat_omettant_une_inscription(entity_ref("urn:law:catalog:creancierconservesonrang:v0")) { origin case_input; }
+    }
+    evaluate truth(creancier_conserve_son_rang(entity_ref("urn:law:catalog:creancierconservesonrang:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DROITAFFRANCHI" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": certificat_omettant_une_inscription(entity_ref("urn:law:catalog:droitaffranchi:v0")) { origin case_input; }
+        assert "cat-1": certificat_requis_apres_publication_du_titre(entity_ref("urn:law:catalog:droitaffranchi:v0")) { origin case_input; }
+    }
+    evaluate truth(droit_affranchi_de_l_hypotheque(entity_ref("urn:law:catalog:droitaffranchi:v0")));
+    expect truth_status == TRUE_ONLY;
+}

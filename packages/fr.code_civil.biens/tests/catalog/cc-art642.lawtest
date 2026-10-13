@@ -1,0 +1,40 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-INDEMNITEAUPROPRIETAIREDELASOURCE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": usage_de_la_source_restreint_au_profit_des_habitants(entity_ref("urn:law:catalog:indemniteauproprietairedelasource:v0")) { origin case_input; }
+    }
+    evaluate truth(indemnite_reglee_par_experts_due_au_proprietaire(entity_ref("urn:law:catalog:indemniteauproprietairedelasource:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-LIBREUSAGEDELASOURCE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": source_dans_le_fonds(entity_ref("urn:law:catalog:libreusagedelasource:v0")) { origin case_input; }
+        assert "cat-1": proprietaire_du_bien(entity_ref("urn:law:catalog:libreusagedelasource:v0"), entity_ref("urn:law:catalog:libreusagedelasource:v1")) { origin case_input; }
+    }
+    evaluate truth(libre_usage_des_eaux_de_la_source(entity_ref("urn:law:catalog:libreusagedelasource:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SOURCERESTREINTEPARLESOUVRAGESTRENTENAIRES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": ouvrages_apparents_et_permanents_acheves_depuis_plus_de_trente_ans(entity_ref("urn:law:catalog:sourcerestreinteparlesouvragestrentenaires:v1"), entity_ref("urn:law:catalog:sourcerestreinteparlesouvragestrentenaires:v0")) { origin case_input; }
+        assert "cat-1": source_dans_le_fonds(entity_ref("urn:law:catalog:sourcerestreinteparlesouvragestrentenaires:v0")) { origin case_input; }
+    }
+    evaluate truth(usage_de_la_source_restreint_par_les_ouvrages_trentenaires(entity_ref("urn:law:catalog:sourcerestreinteparlesouvragestrentenaires:v0"), entity_ref("urn:law:catalog:sourcerestreinteparlesouvragestrentenaires:v1")));
+    expect truth_status == TRUE_ONLY;
+}

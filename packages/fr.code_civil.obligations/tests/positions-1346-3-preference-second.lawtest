@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+test "urn:query:fr-code-civil-obligations-positions-1346-3-preference-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": subrogation_de_la_creance(entity_ref("urn:fr:cc:obl:pref:s2"), entity_ref("urn:fr:cc:obl:pref:c2")) { origin case_input; }
+        assert "f2": creancier_paye_en_partie_seulement(entity_ref("urn:fr:cc:obl:pref:s2")) { origin case_input; }
+        assert "f3": fr.code_civil.core::creancier(entity_ref("urn:fr:cc:obl:pref:c2"), entity_ref("urn:fr:cc:obl:pref:cr2")) { origin case_input; }
+        assert "f4": subroge(entity_ref("urn:fr:cc:obl:pref:s2"), entity_ref("urn:fr:cc:obl:pref:p2")) { origin case_input; }
+        assert "f5": date_d_exigibilite(entity_ref("urn:fr:cc:obl:pref:c2"), @2026-09-02) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P2PositionLiberteExercerLaPreference, ACTIVE);
+}

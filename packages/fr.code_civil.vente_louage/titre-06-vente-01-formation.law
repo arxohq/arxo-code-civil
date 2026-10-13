@@ -1,0 +1,96 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1582,
+    CC_ART1583,
+    CC_ART1589,
+    CC_ART1591,
+    CC_ART1599,
+    Chose,
+    Personne,
+    Vente,
+    accord_sur_la_chose,
+    accord_sur_le_prix,
+    acheteur,
+    chose_appartient_a_un_tiers,
+    chose_delivree,
+    chose_vendue,
+    prix_convenu,
+    prix_determine_par_les_parties,
+    prix_paye_integralement,
+    promesse_reciproque_de_vente,
+    propriete_acquise_a_l_acheteur,
+    vendeur,
+    vente_nulle,
+    vente_parfaite,
+};
+
+// Article 1584 renvoie les effets des conditions aux principes généraux des
+// conventions : ces conditions sont donc des entrées typées, pas des effets
+// inventés par ce paquet spécialisé.
+
+@source(CC_ART1583)
+rule VenteParfaiteParAccord(v: Vente) strict {
+    label fr official "Article 1583. La vente est parfaite entre les parties dès l'accord sur la chose et le prix";
+    label en unofficial "Article 1583. The sale is perfected between the parties upon agreement on the thing and the price";
+    when accord_sur_la_chose(v) and accord_sur_le_prix(v);
+    then vente_parfaite(v);
+}
+
+@source(CC_ART1583)
+rule ProprieteAcquiseParAccord(v: Vente) strict {
+    label fr official "Article 1583. La propriété est acquise de droit à l'acheteur dès l'accord sur la chose et le prix";
+    label en unofficial "Article 1583. Ownership is acquired by operation of law upon agreement on the thing and the price";
+    when accord_sur_la_chose(v) and accord_sur_le_prix(v);
+    then propriete_acquise_a_l_acheteur(v);
+}
+
+@source(CC_ART1589)
+rule PromesseVautVente(v: Vente) strict {
+    label fr official "Article 1589. La promesse de vente vaut vente avec consentement réciproque sur la chose et le prix";
+    label en unofficial "Article 1589. A promise to sell is a sale with reciprocal consent on the thing and the price";
+    when promesse_reciproque_de_vente(v) and accord_sur_la_chose(v) and accord_sur_le_prix(v);
+    then vente_parfaite(v);
+}
+
+@source(CC_ART1591)
+rule PrixDoitEtreDetermine(v: Vente) strict {
+    label fr official "Article 1591. Le prix de la vente doit être déterminé et désigné par les parties";
+    label en unofficial "Article 1591. The sale price must be determined and specified by the parties";
+    when prix_determine_par_les_parties(v);
+    then accord_sur_le_prix(v);
+}
+
+@source(CC_ART1599)
+rule VenteDeLaChoseDAutruiNulle(v: Vente) strict {
+    label fr official "Article 1599. La vente de la chose d'autrui est nulle";
+    label en unofficial "Article 1599. The sale of another's property is void";
+    when chose_appartient_a_un_tiers(v);
+    then vente_nulle(v);
+}
+
+// Article 1582 : les obligations principales de la vente sont des positions,
+// activées par la convention, non des faits déduits après leur inexécution.
+@source(CC_ART1582)
+rule DelivranceDueParLeVendeur(v: Vente, s: Personne, a: Personne, c: Chose) strict {
+    label fr official "Article 1582. Le vendeur s'oblige à livrer la chose";
+    label en unofficial "Article 1582. The seller undertakes to deliver the thing";
+    when vendeur(v, s) and acheteur(v, a) and chose_vendue(v, c);
+    then duty DelivrerLaChose {
+        bearer s; beneficiary a;
+        achieve chose_delivree(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1582)
+rule PaiementDuPrixDuParAcheteur(v: Vente, s: Personne, a: Personne, p: Money) strict {
+    label fr official "Article 1582. L'acheteur s'oblige à payer le prix";
+    label en unofficial "Article 1582. The buyer undertakes to pay the price";
+    when vendeur(v, s) and acheteur(v, a) and prix_convenu(v, p);
+    then duty PayerLePrix {
+        bearer a; beneficiary s;
+        achieve prix_paye_integralement(v) during [@1804-03-21, infinity);
+    };
+}

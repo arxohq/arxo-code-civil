@@ -1,0 +1,331 @@
+// CODE CIVIL — LIVRE III, TITRE III, SOUS-TITRES II ET III (CC-09).
+//
+// La responsabilité extracontractuelle (articles 1240 à 1254) et les autres
+// sources d'obligations (1300 à 1303-4). C'est le premier paquet français où
+// la loi DÉLÈGUE l'appréciation : la faute, le défaut de sécurité « à
+// laquelle on peut légitimement s'attendre », l'atteinte « non négligeable »,
+// le trouble « excédant les inconvénients normaux », la gestion « utile ».
+//
+// TROIS CANAUX (DECISION-0194), choisis par le texte de chaque article :
+//
+//   1. le texte délègue une APPRÉCIATION → `external judgment relation … { authority Court; }` :
+//      sans réponse, le cas rend REQUIRES_JUDGMENT et porte une demande de
+//      jugement ; avec réponse, l'issue se calcule. Ici : `faute_commise`
+//      (1240), `negligence_ou_imprudence` (1241), `produit_defectueux` (1245-3),
+//      `atteinte_non_negligeable` (1247), `trouble_excedant_les_inconvenients_normaux`
+//      (1253), `gestion_utile` (1301), `faute_deliberee_en_vue_d_un_gain` (1254).
+//   2. le texte exige un FAIT ÉTABLI → `kind empirical`, donné par le cas avec
+//      l'origine `adjudicated` : le lien de causalité (« qui cause à autrui un
+//      dommage »), la garde de la chose, la qualité de préposé, la ruine du
+//      bâtiment et sa cause, la mise en circulation du produit.
+//   3. le texte DIT lui-même le contenu → règle productrice : l'enrichissement
+//      est injustifié quand il ne procède ni de l'exécution d'une obligation
+//      ni d'une intention libérale (1303-1), l'indemnité vaut la moindre des
+//      deux valeurs (1303), la plus forte en cas de mauvaise foi (1303-4).
+//
+// Un fait de cas qui paraphraserait la conclusion (« l'auteur est
+// responsable ») est interdit : le lint `evaluative-fact-without-producer`
+// le refuse, et le canal existe pour cela.
+//
+// Fichiers :
+//   package.law                         — types, entrées, canaux de jugement
+//   chapitre-01-fait-personnel.law      — art. 1240 à 1244
+//   chapitre-02-produits.law            — art. 1245 à 1245-17
+//   chapitre-03-ecologique-voisinage.law— art. 1246 à 1253
+//   sous-titre-03-quasi-contrats.law    — art. 1300 à 1303-4
+//   chapitre-02b-produits-seconde-vague.law — art. 1245-2 à 1245-16 (seconde vague)
+//   chapitre-03b-action-ecologique.law  — art. 1248 à 1252
+//   sous-titre-03b-quasi-contrats-seconde-vague.law — art. 1301-1 à 1302-3
+//   sources.law                         — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+import fr.code_civil.core version "0.1.0";
+
+use self::{
+    CC_ART1240,
+    CC_ART1241,
+    CC_ART1245_3,
+    CC_ART1247,
+    CC_ART1253,
+    CC_ART1254,
+    CC_ART1301,
+};
+
+type Personne = fr.code_civil.core::Personne;
+
+// Politique §86 : les délais du chapitre des produits (1245-6, 1245-15,
+// 1245-16) et de l'action écologique (1248) sont calendaires et courent du
+// jour de l'événement. Publique, pour qu'un paquet-cas la nomme sans la
+// recopier.
+pub deadline policy CC_RESPONSABILITE_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+type Bien = fr.code_civil.core::Bien;
+
+pub entity Fait {
+    label fr official "Fait dommageable : acte, omission, fait d'une chose ou d'une personne dont on répond";
+    label en unofficial "Damaging event: act, omission, act of a thing or of a person one answers for";
+}
+pub entity Dommage {
+    label fr official "Dommage dont la réparation est demandée";
+    label en unofficial "Damage whose reparation is sought";
+}
+pub entity Produit {
+    label fr official "Produit au sens de l'article 1245-2 : tout bien meuble, y compris l'électricité";
+    label en unofficial "Product within Article 1245-2: any movable, including electricity";
+}
+pub entity Gestion {
+    label fr official "Gestion de l'affaire d'autrui (article 1301)";
+    label en unofficial "Management of another's affair (Article 1301)";
+}
+pub entity Paiement {
+    label fr official "Paiement dont la restitution est demandée (article 1302)";
+    label en unofficial "Payment whose restitution is sought (Article 1302)";
+}
+pub entity Enrichissement {
+    label fr official "Déplacement de valeur invoqué au titre de l'enrichissement injustifié (article 1303)";
+    label en unofficial "Transfer of value invoked as unjustified enrichment (Article 1303)";
+}
+
+// --- Canal 1 : appréciations déléguées au juge (§47.3) -------------------------------------
+
+@source(CC_ART1240)
+pub external judgment relation faute_commise(f: Fait, auteur: Personne) {
+    authority Court;
+    label fr official "le fait est imputable à la faute de cette personne (article 1240)";
+    label en unofficial "the event is attributable to this person's fault (Article 1240)";
+}
+
+@source(CC_ART1241)
+pub external judgment relation negligence_ou_imprudence(f: Fait, auteur: Personne) {
+    authority Court;
+    label fr official "le dommage a été causé par la négligence ou l'imprudence de cette personne (article 1241)";
+    label en unofficial "the damage was caused by this person's negligence or imprudence (Article 1241)";
+}
+
+@source(CC_ART1245_3)
+pub external judgment relation produit_defectueux(p: Produit) {
+    authority Court;
+    label fr official "le produit n'offre pas la sécurité à laquelle on peut légitimement s'attendre (article 1245-3)";
+    label en unofficial "the product does not offer the safety one is legitimately entitled to expect (Article 1245-3)";
+}
+
+@source(CC_ART1247)
+pub external judgment relation atteinte_non_negligeable(d: Dommage) {
+    authority Court;
+    label fr official "atteinte non négligeable aux éléments ou aux fonctions des écosystèmes ou aux bénéfices collectifs tirés par l'homme de l'environnement (article 1247)";
+    label en unofficial "non-negligible harm to the elements or functions of ecosystems or to the collective benefits drawn by humans from the environment (Article 1247)";
+}
+
+@source(CC_ART1253)
+pub external judgment relation trouble_excedant_les_inconvenients_normaux(f: Fait) {
+    authority Court;
+    label fr official "le trouble excède les inconvénients normaux de voisinage (article 1253)";
+    label en unofficial "the disturbance exceeds the normal inconveniences of neighbourhood (Article 1253)";
+}
+
+@source(CC_ART1301)
+pub external judgment relation gestion_utile(g: Gestion) {
+    authority Court;
+    label fr official "l'affaire d'autrui a été gérée utilement (articles 1301, 1301-2)";
+    label en unofficial "the other's affair was usefully managed (Articles 1301, 1301-2)";
+}
+
+@source(CC_ART1254)
+pub external judgment relation faute_deliberee_en_vue_d_un_gain(f: Fait, auteur: Personne) {
+    authority Court;
+    label fr official "l'auteur du dommage a délibérément commis une faute en vue d'obtenir un gain ou une économie indu (article 1254, 1°)";
+    label en unofficial "the author of the damage deliberately committed a fault to obtain an undue gain or saving (Article 1254, 1°)";
+}
+
+// --- Canal 2 : faits établis, donnés par le cas (origine `adjudicated`) ---------------------
+
+pub relation a_cause(f: Fait, d: Dommage) kind empirical {
+    label fr official "le fait a causé ce dommage (lien de causalité établi)";
+    label en unofficial "the event caused this damage (established causal link)";
+}
+pub relation victime(d: Dommage, p: Personne) kind empirical {
+    key(d);
+    label fr official "personne qui subit le dommage";
+    label en unofficial "person who suffers the damage";
+}
+pub relation fait_de_la_personne(f: Fait, auteur: Personne) kind empirical {
+    label fr official "le fait est le fait personnel de cette personne";
+    label en unofficial "the event is this person's own act";
+}
+pub relation chose_sous_la_garde(f: Fait, gardien: Personne, chose: Bien) kind empirical {
+    label fr official "le fait est celui d'une chose que cette personne avait sous sa garde (article 1242, alinéa 1)";
+    label en unofficial "the event is that of a thing this person had in his keeping (Article 1242, paragraph 1)";
+}
+pub relation fait_de_l_animal(f: Fait, proprietaire_ou_usager: Personne) kind empirical {
+    label fr official "le dommage a été causé par l'animal dont cette personne est propriétaire ou qui est à son usage (article 1243)";
+    label en unofficial "the damage was caused by the animal owned or used by this person (Article 1243)";
+}
+pub relation ruine_du_batiment(f: Fait, proprietaire: Personne) kind empirical {
+    label fr official "le dommage a été causé par la ruine du bâtiment de cette personne (article 1244)";
+    label en unofficial "the damage was caused by the ruin of this person's building (Article 1244)";
+}
+pub relation ruine_par_defaut_d_entretien_ou_vice(f: Fait) kind empirical {
+    label fr official "la ruine est arrivée par suite du défaut d'entretien ou par le vice de la construction (article 1244)";
+    label en unofficial "the ruin occurred through lack of maintenance or a construction defect (Article 1244)";
+}
+pub relation enfant_mineur_sous_autorite_parentale(f: Fait, parent: Personne, enfant: Personne) kind empirical {
+    label fr official "le fait est celui d'un enfant mineur dont cette personne exerce l'autorité parentale (article 1242, alinéa 4)";
+    label en unofficial "the event is that of a minor child over whom this person exercises parental authority (Article 1242, paragraph 4)";
+}
+pub relation enfant_confie_a_un_tiers_par_decision(f: Fait, enfant: Personne) kind empirical {
+    label fr official "l'enfant a été confié à un tiers par une décision administrative ou judiciaire (article 1242, alinéa 4)";
+    label en unofficial "the child was entrusted to a third party by an administrative or judicial decision (Article 1242, paragraph 4)";
+}
+pub relation prepose_dans_ses_fonctions(f: Fait, commettant: Personne, prepose: Personne) kind empirical {
+    label fr official "le fait est celui d'un préposé dans les fonctions auxquelles il a été employé (article 1242, alinéa 5)";
+    label en unofficial "the event is that of an employee in the duties for which he was employed (Article 1242, paragraph 5)";
+}
+pub relation eleve_ou_apprenti_sous_surveillance(f: Fait, maitre: Personne, eleve: Personne) kind empirical {
+    label fr official "le fait est celui d'un élève ou d'un apprenti pendant le temps de la surveillance (article 1242, alinéa 6)";
+    label en unofficial "the event is that of a pupil or apprentice while under supervision (Article 1242, paragraph 6)";
+}
+pub relation instituteur(f: Fait, maitre: Personne) kind empirical {
+    label fr official "le maître est instituteur : les fautes invoquées contre lui doivent être prouvées par le demandeur (article 1242, alinéa 8)";
+    label en unofficial "the master is a schoolteacher: the faults alleged against him must be proved by the claimant (Article 1242, paragraph 8)";
+}
+pub relation preuve_de_n_avoir_pu_empecher_le_fait(f: Fait, repondant: Personne) kind empirical {
+    label fr official "le parent ou l'artisan prouve qu'il n'a pu empêcher le fait (article 1242, alinéa 7)";
+    label en unofficial "the parent or craftsman proves he could not prevent the event (Article 1242, paragraph 7)";
+}
+
+// --- Produits défectueux : faits du chapitre II ---------------------------------------------
+
+pub relation produit_en_cause(f: Fait, p: Produit) kind empirical {
+    label fr official "le dommage est causé par ce produit";
+    label en unofficial "the damage is caused by this product";
+}
+pub relation producteur(p: Produit, personne: Personne) kind empirical {
+    label fr official "producteur du produit au sens de l'article 1245-5, agissant à titre professionnel";
+    label en unofficial "producer of the product within Article 1245-5, acting professionally";
+}
+pub relation mise_en_circulation_le(p: Produit, jour: Date) kind empirical {
+    key(p);
+    label fr official "jour où le producteur s'est dessaisi volontairement du produit (article 1245-4)";
+    label en unofficial "day the producer voluntarily parted with the product (Article 1245-4)";
+}
+pub relation defaut_prouve(f: Fait, p: Produit) kind empirical {
+    label fr official "le demandeur a prouvé le dommage, le défaut et le lien de causalité entre le défaut et le dommage (article 1245-8)";
+    label en unofficial "the claimant proved the damage, the defect and the causal link between them (Article 1245-8)";
+}
+pub relation atteinte_a_la_personne(d: Dommage) kind empirical {
+    label fr official "le dommage résulte d'une atteinte à la personne (article 1245-1, alinéa 1)";
+    label en unofficial "the damage results from personal injury (Article 1245-1, paragraph 1)";
+}
+pub relation exoneration_invoquee_et_prouvee(p: Produit, motif: MotifDExoneration) kind empirical {
+    label fr official "le producteur prouve l'une des causes d'exonération de l'article 1245-10";
+    label en unofficial "the producer proves one of the exemptions of Article 1245-10";
+}
+pub relation dommage_par_element_du_corps_humain(f: Fait) kind empirical {
+    label fr official "le dommage a été causé par un élément du corps humain ou par les produits issus de celui-ci (article 1245-11)";
+    label en unofficial "the damage was caused by an element of the human body or products derived from it (Article 1245-11)";
+}
+
+pub enum MotifDExoneration {
+    label fr official "Causes d'exonération du producteur (article 1245-10)";
+    label en unofficial "Producer's exemptions (Article 1245-10)";
+    ProduitNonMisEnCirculation,
+    DefautPosterieurALaMiseEnCirculation,
+    ProduitNonDestineALaVente,
+    RisqueDeDeveloppement,
+    ConformiteARegleImperative
+}
+
+// --- Quasi-contrats : faits du sous-titre III -----------------------------------------------
+
+pub relation gerant(g: Gestion, personne: Personne) kind empirical {
+    key(g);
+    label fr official "celui qui gère l'affaire d'autrui (article 1301)";
+    label en unofficial "the person managing another's affair (Article 1301)";
+}
+pub relation maitre_de_l_affaire(g: Gestion, personne: Personne) kind empirical {
+    key(g);
+    label fr official "celui dont l'affaire est gérée (article 1301)";
+    label en unofficial "the person whose affair is managed (Article 1301)";
+}
+pub relation gestion_sans_y_etre_tenu(g: Gestion) kind empirical {
+    label fr official "le gérant agit sans y être tenu, à l'insu ou sans opposition du maître (article 1301)";
+    label en unofficial "the manager acts without being bound, unknown to or unopposed by the principal (Article 1301)";
+}
+pub relation depenses_du_gerant(g: Gestion, montant: Money) kind empirical {
+    key(g);
+    label fr official "dépenses faites par le gérant dans l'intérêt du maître (article 1301-2, alinéa 2)";
+    label en unofficial "expenses incurred by the manager in the principal's interest (Article 1301-2, paragraph 2)";
+}
+pub relation ratification_par_le_maitre(g: Gestion) kind empirical {
+    label fr official "le maître a ratifié la gestion (article 1301-3)";
+    label en unofficial "the principal ratified the management (Article 1301-3)";
+}
+pub relation paiement_recu_par(pa: Paiement, personne: Personne) kind empirical {
+    key(pa);
+    label fr official "celui qui a reçu le paiement";
+    label en unofficial "the person who received the payment";
+}
+pub relation paiement_fait_par(pa: Paiement, personne: Personne) kind empirical {
+    key(pa);
+    label fr official "celui qui a payé";
+    label en unofficial "the person who paid";
+}
+pub relation montant_paye(pa: Paiement, montant: Money) kind empirical {
+    key(pa);
+    label fr official "montant du paiement";
+    label en unofficial "amount of the payment";
+}
+pub relation dette_existante(pa: Paiement) kind empirical {
+    label fr official "le paiement correspond à une dette : tout paiement suppose une dette (article 1302, alinéa 1)";
+    label en unofficial "the payment corresponds to a debt: every payment presupposes a debt (Article 1302, paragraph 1)";
+}
+pub relation obligation_naturelle_volontairement_acquittee(pa: Paiement) kind empirical {
+    label fr official "obligation naturelle volontairement acquittée : la restitution n'est pas admise (article 1302, alinéa 2)";
+    label en unofficial "natural obligation voluntarily discharged: restitution is not allowed (Article 1302, paragraph 2)";
+}
+pub relation enrichi(e: Enrichissement, personne: Personne) kind empirical {
+    key(e);
+    label fr official "celui qui s'est enrichi";
+    label en unofficial "the enriched person";
+}
+pub relation appauvri(e: Enrichissement, personne: Personne) kind empirical {
+    key(e);
+    label fr official "celui qui s'est appauvri";
+    label en unofficial "the impoverished person";
+}
+pub relation valeur_de_l_enrichissement(e: Enrichissement, montant: Money) kind empirical {
+    key(e);
+    label fr official "valeur de l'enrichissement telle qu'elle subsiste au jour de la demande (articles 1303, 1303-4)";
+    label en unofficial "value of the enrichment as it subsists on the day of the claim (Articles 1303, 1303-4)";
+}
+pub relation valeur_de_l_appauvrissement(e: Enrichissement, montant: Money) kind empirical {
+    key(e);
+    label fr official "valeur de l'appauvrissement constatée au jour de la dépense (articles 1303, 1303-4)";
+    label en unofficial "value of the impoverishment recorded on the day of the expense (Articles 1303, 1303-4)";
+}
+pub relation execution_d_une_obligation(e: Enrichissement) kind empirical {
+    label fr official "l'enrichissement procède de l'accomplissement d'une obligation par l'appauvri (article 1303-1)";
+    label en unofficial "the enrichment arises from the impoverished person performing an obligation (Article 1303-1)";
+}
+pub relation intention_liberale(e: Enrichissement) kind empirical {
+    label fr official "l'enrichissement procède de l'intention libérale de l'appauvri (article 1303-1)";
+    label en unofficial "the enrichment arises from the impoverished person's liberal intent (Article 1303-1)";
+}
+pub relation acte_en_vue_d_un_profit_personnel(e: Enrichissement) kind empirical {
+    label fr official "l'appauvrissement procède d'un acte accompli par l'appauvri en vue d'un profit personnel (article 1303-2, alinéa 1)";
+    label en unofficial "the impoverishment arises from an act done by the impoverished person for personal profit (Article 1303-2, paragraph 1)";
+}
+pub relation autre_action_ouverte(e: Enrichissement) kind empirical {
+    label fr official "une autre action est ouverte à l'appauvri, ou se heurte à un obstacle de droit (article 1303-3)";
+    label en unofficial "another action is available to the impoverished person, or meets a legal obstacle (Article 1303-3)";
+}
+pub relation mauvaise_foi_de_l_enrichi(e: Enrichissement) kind empirical {
+    label fr official "mauvaise foi de l'enrichi (article 1303-4, seconde phrase)";
+    label en unofficial "bad faith of the enriched person (Article 1303-4, second sentence)";
+}

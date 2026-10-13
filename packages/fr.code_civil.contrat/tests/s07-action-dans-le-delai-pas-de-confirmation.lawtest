@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1183 al. 2 : l'action exercée le 30 juillet, avant l'échéance, fait obstacle à la confirmation réputée. Tête commune (D-15) : la confirmation par acte reste ouverte tant qu'une cause de nullité peut être retenue.
+test "urn:query:fr-code-civil-contrat-s07-action-dans-le-delai-pas-de-confirmation" {
+    given {
+        context { deadline_policy CC_CONTRAT_MOIS; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s07"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:s07"), "1183") { origin case_input; }
+        assert "f3": demande_ecrite_de_prendre_parti_le(entity_ref("urn:fr:cc:contrat:s07"), @2020-01-31) { origin case_input; }
+        assert "f4": cause_de_la_nullite_cessee(entity_ref("urn:fr:cc:contrat:s07")) { origin case_input; }
+        assert "f5": mention_de_la_confirmation_reputee(entity_ref("urn:fr:cc:contrat:s07")) { origin case_input; }
+        assert "f6": action_en_nullite_exercee_le(entity_ref("urn:fr:cc:contrat:s07"), @2020-07-30) { origin case_input; }
+    }
+    evaluate truth(contrat_confirme(entity_ref("urn:fr:cc:contrat:s07")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(contrepartie_illusoire_ou_derisoire, Court);
+}

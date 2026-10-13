@@ -1,0 +1,1388 @@
+// CHAPITRE IV, SECTION 5 — L'INEXÉCUTION DU CONTRAT (art. 1217 à 1231-7).
+//
+// Le cœur de la réforme. L'article 1217 ouvre une LISTE FERMÉE de cinq
+// sanctions ; chacune a ensuite ses conditions propres, et le texte dit
+// lui-même que celles qui ne sont pas incompatibles peuvent être cumulées et
+// que des dommages et intérêts peuvent toujours s'y ajouter.
+//
+// LA LISTE EST GARDÉE PAR PAIRES. Écrire les cinq tirets en une disjonction
+// `or` descendrait en règles `…/alt/N` dont le nom n'est pas stable : chaque
+// tiret est donc une règle nommée, et le caractère fermé de la liste est
+// éprouvé par un scénario « sanction hors liste → NEITHER ».
+//
+// LES POSITIONS SONT DES POSITIONS. Le droit de refuser d'exécuter (1219)
+// est une LIBERTÉ — l'action est celle de son titulaire. Le pouvoir de
+// résoudre le contrat par notification (1226) est un POUVOIR : il a un
+// exercice nommé, une condition de validité et un effet juridique, et son
+// effet est la résolution.
+//
+// LE TAUX LÉGAL N'EST PAS DANS LE CODE. Les articles 1231-6 et 1231-7 font
+// courir l'intérêt « au taux légal » : ce taux est fixé hors du Code civil
+// (Code monétaire et financier, article L. 313-2, arrêtés semestriels). Il est
+// donc une entrée typée du cas. Le Code ne nomme pas non plus la méthode de
+// décompte des jours : inventer ACT/365 remplacerait la norme par une
+// convention — le paquet produit le point de départ et la créance d'intérêts,
+// et déclare le calcul du montant comme frontière (README).
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_2016_ART1223,
+    CC_ART1217,
+    CC_ART1218,
+    CC_ART1219,
+    CC_ART1220,
+    CC_ART1221,
+    CC_ART1222,
+    CC_ART1223,
+    CC_ART1224,
+    CC_ART1225,
+    CC_ART1226,
+    CC_ART1227,
+    CC_ART1228,
+    CC_ART1229,
+    CC_ART1230,
+    CC_ART1231,
+    CC_ART1231_1,
+    CC_ART1231_2,
+    CC_ART1231_3,
+    CC_ART1231_4,
+    CC_ART1231_5,
+    CC_ART1231_6,
+    CC_ART1231_7,
+    Clause,
+    Contrat,
+    Creance,
+    Obligation,
+    Personne,
+    clause_du_contrat,
+    creancier_de_l_obligation,
+    debiteur_de_l_obligation,
+    force_obligatoire,
+    obligation_du_contrat,
+    redaction_2016_applicable,
+    redaction_2018_applicable,
+    regi_par_le_droit_nouveau,
+};
+
+pub enum SanctionDeLInexecution {
+    label fr official "Sanction ouverte au créancier de l'obligation inexécutée (article 1217)";
+    label en unofficial "Remedy open to the creditor of the unperformed obligation (Article 1217)";
+    RefusDExecuter,
+    ExecutionForceeEnNature,
+    ReductionDuPrix,
+    Resolution,
+    DommagesEtInterets
+}
+
+@source(CC_ART1231_1)
+rule P3DevoirPayerLesDommages(o: Obligation, c: Contrat, creancier: Personne, debiteur: Personne, jour: Date) strict {
+    label fr official "Articles 1231 et suivants. Le débiteur doit payer les dommages et intérêts dus au créancier";
+    label en unofficial "Articles 1231 et seq. The debtor must pay the damages owed to the creditor";
+    when dommages_et_interets_dus(o) and obligation_du_contrat(o, c)
+        and creancier_de_l_obligation(o, creancier)
+        and debiteur_de_l_obligation(o, debiteur)
+        and mise_en_demeure_de_satisfaire_le(o, jour);
+    then duty P3PositionDevoirPayerLesDommages {
+        bearer debiteur;
+        beneficiary creancier;
+        goal achievement {
+            condition dommages_et_interets_payes(o);
+            window [jour, infinity];
+        }
+    };
+}
+
+@source(CC_ART1231_6)
+rule P3DevoirPayerInteretsMoratoires(o: Obligation, c: Contrat, creancier: Personne, debiteur: Personne, jour: Date) strict {
+    label fr official "Article 1231-6. Le débiteur doit payer les intérêts moratoires";
+    label en unofficial "Article 1231-6. The debtor must pay default interest";
+    when interets_moratoires_courent_depuis(o, jour) and obligation_du_contrat(o, c)
+        and creancier_de_l_obligation(o, creancier)
+        and debiteur_de_l_obligation(o, debiteur);
+    then duty P3PositionDevoirPayerInteretsMoratoires {
+        bearer debiteur;
+        beneficiary creancier;
+        goal achievement {
+            condition interets_moratoires_payes(o);
+            window [jour, infinity];
+        }
+    };
+}
+
+@source(CC_ART1231_7)
+rule P3DevoirPayerInteretsCondamnation(c: Contrat, o: Obligation, creancier: Personne, debiteur: Personne, jour: Date) strict {
+    label fr official "Article 1231-7. La condamnation à une indemnité emporte intérêts au taux légal";
+    label en unofficial "Article 1231-7. An award of damages carries statutory interest";
+    when interets_de_la_condamnation_courent_depuis(c, jour)
+        and obligation_du_contrat(o, c)
+        and creancier_de_l_obligation(o, creancier)
+        and debiteur_de_l_obligation(o, debiteur);
+    then duty P3PositionDevoirPayerInteretsCondamnation {
+        bearer debiteur;
+        beneficiary creancier;
+        goal achievement {
+            condition interets_de_condamnation_payes(c);
+            window [jour, infinity];
+        }
+    };
+}
+
+// --- Entrées du cas -----------------------------------------------------------------------------------
+
+pub relation engagement_non_execute(o: Obligation) kind empirical {
+    label fr official "l'engagement n'a pas été exécuté (article 1217)";
+    label en unofficial "the undertaking has not been performed (Article 1217)";
+}
+pub relation engagement_imparfaitement_execute(o: Obligation) kind empirical {
+    label fr official "l'engagement a été imparfaitement exécuté (articles 1217 et 1223)";
+    label en unofficial "the undertaking was imperfectly performed (Articles 1217 and 1223)";
+}
+pub relation obligation_exigible(o: Obligation) kind empirical {
+    label fr official "l'obligation est exigible (article 1219)";
+    label en unofficial "the obligation is due (Article 1219)";
+}
+pub relation evenement_echappant_au_controle_du_debiteur(o: Obligation) kind empirical {
+    label fr official "un événement échappant au contrôle du débiteur empêche l'exécution de son obligation (article 1218, alinéa 1)";
+    label en unofficial "an event beyond the debtor's control prevents performance of his obligation (Article 1218, paragraph 1)";
+}
+pub relation empechement_temporaire(o: Obligation) kind empirical {
+    label fr official "l'empêchement est temporaire (article 1218, alinéa 2)";
+    label en unofficial "the impediment is temporary (Article 1218, paragraph 2)";
+}
+pub relation empechement_definitif(o: Obligation) kind empirical {
+    label fr official "l'empêchement est définitif (article 1218, alinéa 2)";
+    label en unofficial "the impediment is permanent (Article 1218, paragraph 2)";
+}
+pub relation refus_d_executer_oppose(o: Obligation, creancier: Personne) kind empirical {
+    label fr official "cette partie refuse d'exécuter son obligation (article 1219)";
+    label en unofficial "this party refuses to perform its obligation (Article 1219)";
+}
+pub relation suspension_notifiee_dans_les_meilleurs_delais(o: Obligation) kind empirical {
+    label fr official "la suspension a été notifiée dans les meilleurs délais (article 1220)";
+    label en unofficial "the suspension was notified as soon as possible (Article 1220)";
+}
+pub relation execution_en_nature_impossible(o: Obligation) kind empirical {
+    label fr official "l'exécution en nature est impossible (article 1221)";
+    label en unofficial "performance in kind is impossible (Article 1221)";
+}
+pub relation debiteur_de_bonne_foi(o: Obligation) kind empirical {
+    label fr official "le débiteur est de bonne foi (article 1221)";
+    label en unofficial "the debtor is in good faith (Article 1221)";
+}
+pub relation execution_par_le_creancier_a_cout_raisonnable(o: Obligation) kind empirical {
+    label fr official "le créancier a fait exécuter lui-même l'obligation dans un délai et à un coût raisonnables (article 1222, alinéa 1)";
+    label en unofficial "the creditor had the obligation performed himself within a reasonable time and at a reasonable cost (Article 1222, paragraph 1)";
+}
+pub relation autorisation_prealable_du_juge_a_la_destruction(o: Obligation) kind empirical {
+    label fr official "le juge a autorisé au préalable la destruction de ce qui a été fait en violation de l'obligation (article 1222, alinéa 1)";
+    label en unofficial "the court gave prior authorization to destroy what was done in breach of the obligation (Article 1222, paragraph 1)";
+}
+pub relation sommes_engagees_par_le_creancier(o: Obligation, m: Money) kind empirical {
+    key(o);
+    label fr official "sommes engagées par le créancier pour l'exécution ou la destruction (article 1222, alinéa 1)";
+    label en unofficial "sums spent by the creditor for the performance or the destruction (Article 1222, paragraph 1)";
+}
+pub relation avance_demandee_en_justice(o: Obligation) kind empirical {
+    label fr official "le créancier demande en justice que le débiteur avance les sommes nécessaires (article 1222, alinéa 2)";
+    label en unofficial "the creditor asks the court to order the debtor to advance the necessary sums (Article 1222, paragraph 2)";
+}
+pub relation prix_du_contrat(c: Contrat, m: Money) kind empirical {
+    key(c);
+    label fr official "prix convenu de la prestation (article 1223)";
+    label en unofficial "agreed price of the performance (Article 1223)";
+}
+pub relation termes_de_la_reduction_de_prix(c: Contrat, numerateur: Integer, denominateur: Decimal) kind empirical {
+    label fr official "termes de la fraction de réduction proportionnelle retenue pour l'exécution imparfaite (article 1223) : le Code ne donne pas la proportion, le cas la fournit";
+    label en unofficial "terms of the proportional price-reduction fraction retained for the imperfect performance (Article 1223): the Code gives no proportion, the case supplies it";
+}
+pub relation prix_non_encore_paye(c: Contrat) kind empirical {
+    label fr official "le créancier n'a pas encore payé tout ou partie de la prestation (article 1223, alinéa 1)";
+    label en unofficial "the creditor has not yet paid all or part of the performance (Article 1223, paragraph 1)";
+}
+pub relation decision_de_reduction_notifiee(c: Contrat) kind empirical {
+    label fr official "le créancier a notifié au débiteur sa décision de réduire le prix dans les meilleurs délais (article 1223)";
+    label en unofficial "the creditor notified the debtor of its decision to reduce the price as soon as possible (Article 1223)";
+}
+pub relation acceptation_ecrite_de_la_reduction(c: Contrat) kind empirical {
+    label fr official "l'acceptation par le débiteur de la décision de réduction de prix a été rédigée par écrit (article 1223, rédaction de 2018)";
+    label en unofficial "the debtor's acceptance of the price-reduction decision was put in writing (Article 1223, 2018 wording)";
+}
+pub relation reduction_demandee_au_juge(c: Contrat) kind empirical {
+    label fr official "le créancier ayant déjà payé demande au juge la réduction du prix (article 1223, rédaction de 2018)";
+    label en unofficial "the creditor having already paid asks the court to reduce the price (Article 1223, 2018 wording)";
+}
+pub relation execution_imparfaite_acceptee(c: Contrat) kind empirical {
+    label fr official "le créancier accepte une exécution imparfaite du contrat (article 1223, rédaction de 2016)";
+    label en unofficial "the creditor accepts an imperfect performance of the contract (Article 1223, 2016 wording)";
+}
+pub relation clause_resolutoire(cl: Clause) kind empirical {
+    label fr official "clause résolutoire précisant les engagements dont l'inexécution entraînera la résolution (article 1225, alinéa 1)";
+    label en unofficial "termination clause specifying the undertakings whose non-performance will terminate the contract (Article 1225, paragraph 1)";
+}
+pub relation clause_resolutoire_vise_l_engagement(cl: Clause, o: Obligation) kind empirical {
+    label fr official "la clause résolutoire vise cet engagement (article 1225, alinéa 1)";
+    label en unofficial "the termination clause covers this undertaking (Article 1225, paragraph 1)";
+}
+pub relation mise_en_demeure_infructueuse(o: Obligation) kind empirical {
+    label fr official "la mise en demeure est demeurée infructueuse (article 1225, alinéa 2)";
+    label en unofficial "the notice to perform remained fruitless (Article 1225, paragraph 2)";
+}
+pub relation mise_en_demeure_mentionnant_la_clause_resolutoire(o: Obligation) kind empirical {
+    label fr official "la mise en demeure mentionne expressément la clause résolutoire (article 1225, alinéa 2)";
+    label en unofficial "the notice expressly mentions the termination clause (Article 1225, paragraph 2)";
+}
+pub relation dispense_conventionnelle_de_mise_en_demeure(cl: Clause) kind empirical {
+    label fr official "il a été convenu que la résolution résulterait du seul fait de l'inexécution (article 1225, alinéa 2)";
+    label en unofficial "it was agreed that termination would result from the mere fact of non-performance (Article 1225, paragraph 2)";
+}
+pub relation urgence(o: Obligation) kind empirical {
+    label fr official "urgence dispensant de la mise en demeure préalable (article 1226, alinéa 1)";
+    label en unofficial "urgency dispensing with the prior notice (Article 1226, paragraph 1)";
+}
+pub relation mise_en_demeure_de_satisfaire_le(o: Obligation, jour: Date) kind empirical {
+    key(o);
+    label fr official "jour de la mise en demeure adressée au débiteur défaillant de satisfaire à son engagement (articles 1226 et 1231)";
+    label en unofficial "day of the notice to the defaulting debtor to satisfy his undertaking (Articles 1226 and 1231)";
+}
+pub relation delai_imparti_par_la_mise_en_demeure(o: Obligation, jour: Date) kind empirical {
+    key(o);
+    label fr official "expiration du délai imparti au débiteur par la mise en demeure (articles 1226 et 1231)";
+    label en unofficial "expiry of the period allowed to the debtor by the notice (Articles 1226 and 1231)";
+}
+pub relation mise_en_demeure_mentionnant_le_droit_de_resoudre(o: Obligation) kind empirical {
+    label fr official "la mise en demeure mentionne expressément qu'à défaut pour le débiteur de satisfaire à son obligation, le créancier sera en droit de résoudre le contrat (article 1226, alinéa 2)";
+    label en unofficial "the notice expressly states that failing performance the creditor will be entitled to terminate the contract (Article 1226, paragraph 2)";
+}
+pub relation inexecution_persiste(o: Obligation) kind empirical {
+    label fr official "l'inexécution persiste après la mise en demeure (article 1226, alinéa 3)";
+    label en unofficial "the non-performance persists after the notice (Article 1226, paragraph 3)";
+}
+pub relation notification_de_resolution_motivee_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le créancier a notifié au débiteur la résolution du contrat et les raisons qui la motivent (article 1226, alinéa 3)";
+    label en unofficial "day the creditor notified the debtor of the contract's termination and the reasons for it (Article 1226, paragraph 3)";
+}
+pub relation contestation_de_la_resolution_par_le_debiteur(c: Contrat) kind empirical {
+    label fr official "le débiteur a saisi le juge pour contester la résolution (article 1226, alinéa 4)";
+    label en unofficial "the debtor applied to the court to challenge the termination (Article 1226, paragraph 4)";
+}
+pub relation resolution_demandee_en_justice(c: Contrat) kind empirical {
+    label fr official "la résolution est demandée en justice (article 1227)";
+    label en unofficial "termination is sought in court (Article 1227)";
+}
+pub relation resolution_prononcee_par_le_juge_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour auquel le juge constate ou prononce la résolution (articles 1228 et 1229)";
+    label en unofficial "day on which the court finds or pronounces the termination (Articles 1228 and 1229)";
+}
+pub relation execution_ordonnee_par_le_juge(c: Contrat) kind empirical {
+    label fr official "le juge ordonne l'exécution du contrat, en accordant éventuellement un délai au débiteur (article 1228)";
+    label en unofficial "the court orders the contract's performance, possibly allowing the debtor time (Article 1228)";
+}
+pub relation dommages_et_interets_seuls_alloues(c: Contrat) kind empirical {
+    label fr official "le juge alloue seulement des dommages et intérêts (article 1228)";
+    label en unofficial "the court awards damages only (Article 1228)";
+}
+pub relation date_fixee_par_la_clause_resolutoire(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "date de prise d'effet prévue par la clause résolutoire (article 1229, alinéa 2)";
+    label en unofficial "effective date provided by the termination clause (Article 1229, paragraph 2)";
+}
+pub relation assignation_en_justice_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de l'assignation en justice (article 1229, alinéa 2)";
+    label en unofficial "day of the court summons (Article 1229, paragraph 2)";
+}
+pub relation prestations_utiles_seulement_par_l_execution_complete(c: Contrat) kind empirical {
+    label fr official "les prestations échangées ne pouvaient trouver leur utilité que par l'exécution complète du contrat (article 1229, alinéa 3)";
+    label en unofficial "the exchanged performances could be useful only through the contract's complete performance (Article 1229, paragraph 3)";
+}
+pub relation prestations_utiles_au_fur_et_a_mesure(c: Contrat) kind empirical {
+    label fr official "les prestations échangées ont trouvé leur utilité au fur et à mesure de l'exécution réciproque du contrat (article 1229, alinéa 3)";
+    label en unofficial "the exchanged performances were useful as the contract was reciprocally performed (Article 1229, paragraph 3)";
+}
+pub relation clause_survivant_a_la_resolution(cl: Clause) kind empirical {
+    label fr official "clause relative au règlement des différends, ou destinée à produire effet même en cas de résolution, telles les clauses de confidentialité et de non-concurrence (article 1230)";
+    label en unofficial "clause on dispute resolution, or intended to have effect even on termination, such as confidentiality and non-competition clauses (Article 1230)";
+}
+pub relation inexecution_definitive(o: Obligation) kind empirical {
+    label fr official "l'inexécution est définitive (articles 1231 et 1231-5, dernier alinéa)";
+    label en unofficial "the non-performance is definitive (Articles 1231 and 1231-5, last paragraph)";
+}
+pub relation retard_dans_l_execution(o: Obligation) kind empirical {
+    label fr official "retard dans l'exécution de l'obligation (article 1231-1)";
+    label en unofficial "delay in performing the obligation (Article 1231-1)";
+}
+pub relation perte_subie(o: Obligation, m: Money) kind empirical {
+    key(o);
+    label fr official "perte que le créancier a faite (article 1231-2)";
+    label en unofficial "loss suffered by the creditor (Article 1231-2)";
+}
+pub relation gain_manque(o: Obligation, m: Money) kind empirical {
+    key(o);
+    label fr official "gain dont le créancier a été privé (article 1231-2)";
+    label en unofficial "gain of which the creditor was deprived (Article 1231-2)";
+}
+pub relation dommage_prevu_ou_previsible_a_la_conclusion(o: Obligation) kind empirical {
+    label fr official "le dommage a été prévu ou pouvait être prévu lors de la conclusion du contrat (article 1231-3)";
+    label en unofficial "the harm was foreseen or could be foreseen when the contract was concluded (Article 1231-3)";
+}
+pub relation suite_immediate_et_directe_de_l_inexecution(o: Obligation) kind empirical {
+    label fr official "le dommage est une suite immédiate et directe de l'inexécution (article 1231-4)";
+    label en unofficial "the harm is an immediate and direct consequence of the non-performance (Article 1231-4)";
+}
+pub relation clause_penale(cl: Clause, o: Obligation, m: Money) kind empirical {
+    label fr official "clause stipulant que celui qui manquera d'exécuter paiera une certaine somme à titre de dommages et intérêts (article 1231-5, alinéa 1)";
+    label en unofficial "clause stipulating that the party failing to perform will pay a certain sum as damages (Article 1231-5, paragraph 1)";
+}
+pub relation penalite_moderee_ou_augmentee_par_le_juge(cl: Clause, m: Money) kind empirical {
+    label fr official "somme à laquelle le juge modère ou augmente la pénalité convenue (article 1231-5, alinéa 2)";
+    label en unofficial "sum to which the court reduces or increases the agreed penalty (Article 1231-5, paragraph 2)";
+}
+pub relation engagement_execute_en_partie(o: Obligation) kind empirical {
+    label fr official "l'engagement a été exécuté en partie (article 1231-5, alinéa 3)";
+    label en unofficial "the undertaking was performed in part (Article 1231-5, paragraph 3)";
+}
+pub relation penalite_diminuee_a_proportion_de_l_interet(cl: Clause, m: Money) kind empirical {
+    label fr official "somme à laquelle le juge diminue la pénalité à proportion de l'intérêt que l'exécution partielle a procuré au créancier (article 1231-5, alinéa 3)";
+    label en unofficial "sum to which the court reduces the penalty in proportion to the benefit the partial performance gave the creditor (Article 1231-5, paragraph 3)";
+}
+pub relation stipulation_contraire_au_pouvoir_du_juge(cl: Clause) kind empirical {
+    label fr official "stipulation contraire aux alinéas 2 et 3 de l'article 1231-5";
+    label en unofficial "stipulation contrary to paragraphs 2 and 3 of Article 1231-5";
+}
+pub relation obligation_de_somme_d_argent(o: Obligation, cr: Creance) kind empirical {
+    label fr official "obligation de somme d'argent, portée par une créance du concentrateur (article 1231-6)";
+    label en unofficial "monetary obligation, carried by a claim of the hub (Article 1231-6)";
+}
+pub relation taux_legal_applicable(o: Obligation, taux: Decimal) kind empirical {
+    label fr official "taux de l'intérêt légal applicable : fixé hors du Code civil (Code monétaire et financier, article L. 313-2, arrêtés semestriels) — entrée typée du cas";
+    label en unofficial "applicable statutory interest rate: set outside the Civil Code (Monetary and Financial Code, Article L. 313-2, half-yearly orders) — typed case input";
+}
+pub relation mauvaise_foi_du_debiteur_en_retard(o: Obligation) kind empirical {
+    label fr official "le débiteur en retard a causé, par sa mauvaise foi, un préjudice indépendant du retard (article 1231-6, alinéa 3)";
+    label en unofficial "the late debtor caused, through bad faith, harm independent of the delay (Article 1231-6, paragraph 3)";
+}
+pub relation condamnation_a_une_indemnite_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour du prononcé du jugement condamnant à une indemnité (article 1231-7, alinéa 1)";
+    label en unofficial "day of the judgment awarding an indemnity (Article 1231-7, paragraph 1)";
+}
+pub relation confirmation_pure_et_simple_en_appel(c: Contrat) kind empirical {
+    label fr official "confirmation pure et simple, par le juge d'appel, d'une décision allouant une indemnité en réparation d'un dommage (article 1231-7, alinéa 2)";
+    label en unofficial "pure and simple confirmation, by the appellate court, of a decision awarding an indemnity for harm (Article 1231-7, paragraph 2)";
+}
+pub relation decision_d_appel_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour de la décision d'appel (article 1231-7, alinéa 2)";
+    label en unofficial "day of the appellate decision (Article 1231-7, paragraph 2)";
+}
+pub relation derogation_du_juge_d_appel(c: Contrat) kind empirical {
+    label fr official "le juge d'appel déroge aux dispositions de l'alinéa 2 de l'article 1231-7";
+    label en unofficial "the appellate court derogates from Article 1231-7, paragraph 2";
+}
+pub relation obligation_contractuelle_executee(o: Obligation) kind empirical {
+    label fr official "l'obligation contractuelle a été exécutée";
+    label en unofficial "the contractual obligation was performed";
+}
+pub relation notification_de_resolution_adressee(c: Contrat, creancier: Personne) kind empirical {
+    label fr official "le créancier adresse au débiteur la notification de la résolution et des raisons qui la motivent : exercice du pouvoir de l'article 1226";
+    label en unofficial "the creditor sends the debtor notice of termination and its reasons: exercise of the Article 1226 power";
+}
+
+// --- Canaux §47.3 de la section ---------------------------------------------------------------------------
+
+@source(CC_ART1218)
+pub external judgment relation evenement_non_raisonnablement_previsible(o: Obligation) {
+    authority Court;
+    label fr official "l'événement ne pouvait être raisonnablement prévu lors de la conclusion du contrat (article 1218, alinéa 1)";
+    label en unofficial "the event could not reasonably have been foreseen when the contract was concluded (Article 1218, paragraph 1)";
+}
+
+@source(CC_ART1218)
+pub external judgment relation effets_non_evitables_par_des_mesures_appropriees(o: Obligation) {
+    authority Court;
+    label fr official "les effets de l'événement ne peuvent être évités par des mesures appropriées (article 1218, alinéa 1)";
+    label en unofficial "the event's effects cannot be avoided by appropriate measures (Article 1218, paragraph 1)";
+}
+
+@source(CC_ART1218)
+pub external judgment relation retard_justifiant_la_resolution(o: Obligation) {
+    authority Court;
+    label fr official "le retard qui résulterait de la suspension justifie la résolution du contrat (article 1218, alinéa 2)";
+    label en unofficial "the delay that the suspension would cause justifies terminating the contract (Article 1218, paragraph 2)";
+}
+
+@source(CC_ART1219)
+pub external judgment relation inexecution_suffisamment_grave_1219(o: Obligation) {
+    authority Court;
+    label fr official "l'inexécution de l'autre partie est suffisamment grave pour justifier le refus d'exécuter (article 1219)";
+    label en unofficial "the other party's non-performance is serious enough to justify refusing to perform (Article 1219)";
+}
+
+@source(CC_ART1220)
+pub external judgment relation inexecution_future_manifeste(o: Obligation) {
+    authority Court;
+    label fr official "il est manifeste que le cocontractant ne s'exécutera pas à l'échéance (article 1220)";
+    label en unofficial "it is manifest that the other party will not perform when due (Article 1220)";
+}
+
+@source(CC_ART1220)
+pub external judgment relation consequences_suffisamment_graves_1220(o: Obligation) {
+    authority Court;
+    label fr official "les conséquences de cette inexécution future sont suffisamment graves pour cette partie (article 1220)";
+    label en unofficial "the consequences of that future non-performance are serious enough for this party (Article 1220)";
+}
+
+@source(CC_ART1221)
+pub external judgment relation disproportion_manifeste(o: Obligation) {
+    authority Court;
+    label fr official "il existe une disproportion manifeste entre le coût de l'exécution en nature pour le débiteur de bonne foi et son intérêt pour le créancier (article 1221)";
+    label en unofficial "there is a manifest disproportion between the cost of performance in kind for the good-faith debtor and its benefit to the creditor (Article 1221)";
+}
+
+@source(CC_ART1224)
+pub external judgment relation inexecution_suffisamment_grave_1224(o: Obligation) {
+    authority Court;
+    label fr official "l'inexécution est suffisamment grave pour fonder la résolution (article 1224)";
+    label en unofficial "the non-performance is serious enough to ground termination (Article 1224)";
+}
+
+@source(CC_ART1226)
+pub external judgment relation delai_raisonnable_de_la_mise_en_demeure_1226(o: Obligation) {
+    authority Court;
+    label fr official "le délai imparti au débiteur par la mise en demeure était raisonnable (article 1226, alinéa 1)";
+    label en unofficial "the period allowed to the debtor by the notice was reasonable (Article 1226, paragraph 1)";
+}
+
+@source(CC_ART1231)
+pub external judgment relation delai_raisonnable_de_la_mise_en_demeure_1231(o: Obligation) {
+    authority Court;
+    label fr official "le délai imparti au débiteur pour s'exécuter était raisonnable (article 1231)";
+    label en unofficial "the period allowed to the debtor to perform was reasonable (Article 1231)";
+}
+
+@source(CC_ART1231_3)
+pub external judgment relation faute_lourde_ou_dolosive(o: Obligation) {
+    authority Court;
+    label fr official "l'inexécution est due à une faute lourde ou dolosive du débiteur (articles 1231-3 et 1231-4)";
+    label en unofficial "the non-performance is due to the debtor's gross or fraudulent fault (Articles 1231-3 and 1231-4)";
+}
+
+@source(CC_ART1231_5)
+pub external judgment relation penalite_manifestement_excessive_ou_derisoire(cl: Clause) {
+    authority Court;
+    label fr official "la pénalité convenue est manifestement excessive ou dérisoire (article 1231-5, alinéa 2)";
+    label en unofficial "the agreed penalty is manifestly excessive or derisory (Article 1231-5, paragraph 2)";
+}
+
+// --- Têtes produites ----------------------------------------------------------------------------------------
+
+pub relation inexecution_constatee(o: Obligation, c: Contrat, creancier: Personne) kind derived {
+    label fr official "la partie envers laquelle l'engagement n'a pas été exécuté, ou l'a été imparfaitement (article 1217, alinéa 1)";
+    label en unofficial "the party towards whom the undertaking was not performed, or was imperfectly performed (Article 1217, paragraph 1)";
+}
+pub relation sanction_ouverte(o: Obligation, s: SanctionDeLInexecution) kind derived {
+    label fr official "sanction que le créancier de l'obligation inexécutée peut mettre en œuvre (article 1217)";
+    label en unofficial "remedy the creditor of the unperformed obligation may deploy (Article 1217)";
+}
+pub relation cumul_avec_dommages_et_interets(o: Obligation) kind derived {
+    label fr official "des dommages et intérêts peuvent toujours s'ajouter aux sanctions qui ne sont pas incompatibles (article 1217, alinéa 2)";
+    label en unofficial "damages may always be added to remedies that are not incompatible (Article 1217, paragraph 2)";
+}
+pub relation force_majeure(o: Obligation) kind derived {
+    label fr official "il y a force majeure en matière contractuelle : les trois caractères de l'article 1218, alinéa 1, sont réunis";
+    label en unofficial "there is contractual force majeure: the three characteristics of Article 1218, paragraph 1, are met";
+}
+pub relation execution_suspendue(o: Obligation) kind derived {
+    label fr official "l'empêchement étant temporaire, l'exécution de l'obligation est suspendue (article 1218, alinéa 2)";
+    label en unofficial "the impediment being temporary, performance of the obligation is suspended (Article 1218, paragraph 2)";
+}
+pub relation contrat_resolu_de_plein_droit(c: Contrat) kind derived {
+    label fr official "l'empêchement étant définitif, le contrat est résolu de plein droit et les parties sont libérées de leurs obligations dans les conditions des articles 1351 et 1351-1 (article 1218, alinéa 2) — le régime de la libération relève du paquet des obligations (frontière déclarée)";
+    label en unofficial "the impediment being permanent, the contract is terminated by operation of law and the parties released under Articles 1351 and 1351-1 (Article 1218, paragraph 2) — the release regime belongs to the obligations package (declared boundary)";
+}
+pub relation refus_d_executer_fonde(o: Obligation, creancier: Personne) kind derived {
+    label fr official "la partie peut refuser d'exécuter son obligation, alors même qu'elle est exigible (article 1219)";
+    label en unofficial "the party may refuse to perform its obligation, even though it is due (Article 1219)";
+}
+pub relation suspension_preventive_fondee(o: Obligation, creancier: Personne) kind derived {
+    label fr official "la partie peut suspendre l'exécution de son obligation en raison d'une inexécution future manifeste (article 1220)";
+    label en unofficial "the party may suspend performance of its obligation because of a manifest future non-performance (Article 1220)";
+}
+pub relation suspension_preventive_exercee(o: Obligation, creancier: Personne) kind empirical {
+    key(o, creancier);
+    label fr official "la partie exerce sa faculté de suspendre l'exécution de son obligation (article 1220)";
+    label en unofficial "the party exercises its liberty to suspend performance of its obligation (Article 1220)";
+}
+pub relation poursuite_execution_forcee_exercee(o: Obligation, creancier: Personne) kind empirical {
+    key(o, creancier);
+    label fr official "le créancier poursuit l'exécution forcée en nature (article 1221)";
+    label en unofficial "the creditor pursues enforced performance in kind (Article 1221)";
+}
+pub relation demande_remboursement_des_sommes(o: Obligation, creancier: Personne) kind empirical {
+    key(o, creancier);
+    label fr official "le créancier demande le remboursement des sommes engagées (article 1222)";
+    label en unofficial "the creditor claims reimbursement of the sums spent (Article 1222)";
+}
+pub relation execution_forcee_en_nature_ouverte(o: Obligation) kind derived {
+    label fr official "le créancier peut, après mise en demeure, poursuivre l'exécution en nature de l'obligation (article 1221)";
+    label en unofficial "the creditor may, after notice, pursue performance in kind of the obligation (Article 1221)";
+}
+pub relation execution_forcee_en_nature_poursuivie(o: Obligation) kind institutional {
+    label fr official "l'exécution forcée en nature de l'obligation est poursuivie (article 1221)";
+    label en unofficial "performance in kind of the obligation is being enforced (Article 1221)";
+}
+pub relation execution_forcee_en_nature_refusee(o: Obligation) kind derived {
+    label fr official "l'exécution en nature est écartée : elle est impossible ou il existe une disproportion manifeste (article 1221)";
+    label en unofficial "performance in kind is excluded: it is impossible or there is a manifest disproportion (Article 1221)";
+}
+pub relation remboursement_des_sommes_engagees(o: Obligation, m: Money) kind derived {
+    key(o);
+    label fr official "le créancier peut demander au débiteur le remboursement des sommes engagées pour faire exécuter l'obligation ou détruire ce qui a été fait en violation (article 1222, alinéa 1)";
+    label en unofficial "the creditor may claim from the debtor reimbursement of the sums spent to have the obligation performed or to destroy what was done in breach (Article 1222, paragraph 1)";
+}
+pub relation remboursement_des_sommes_demande(o: Obligation, m: Money) kind institutional {
+    label fr official "le créancier a demandé au débiteur le remboursement des sommes engagées (article 1222)";
+    label en unofficial "the creditor has claimed from the debtor reimbursement of the sums spent (Article 1222)";
+}
+pub relation avance_des_sommes_ordonnable(o: Obligation) kind derived {
+    label fr official "le créancier peut demander en justice que le débiteur avance les sommes nécessaires à cette exécution ou à cette destruction (article 1222, alinéa 2)";
+    label en unofficial "the creditor may ask the court to order the debtor to advance the sums necessary for that performance or destruction (Article 1222, paragraph 2)";
+}
+pub relation reduction_de_prix(c: Contrat, m: Money) kind derived {
+    key(c);
+    label fr official "montant de la réduction proportionnelle du prix (article 1223) — arrondi au centime par la politique du paquet, non par la norme";
+    label en unofficial "amount of the proportional price reduction (Article 1223) — rounded to the cent by the package policy, not by the norm";
+}
+pub relation prix_reduit(c: Contrat, m: Money) kind derived {
+    key(c);
+    label fr official "prix après réduction proportionnelle (article 1223)";
+    label en unofficial "price after proportional reduction (Article 1223)";
+}
+pub relation decision_reduction_exercee(c: Contrat, creancier: Personne) kind empirical {
+    key(c, creancier);
+    label fr official "le créancier exerce sa décision de notifier la réduction proportionnelle du prix (article 1223)";
+    label en unofficial "the creditor exercises the decision to notify a proportional price reduction (Article 1223)";
+}
+pub relation demande_judiciaire_reduction_exercee(c: Contrat, creancier: Personne) kind empirical {
+    key(c, creancier);
+    label fr official "le créancier exerce son pouvoir de demander au juge la réduction du prix (article 1223)";
+    label en unofficial "the creditor exercises the power to ask the judge for a price reduction (Article 1223)";
+}
+pub relation resolution_ouverte(c: Contrat, o: Obligation) kind derived {
+    label fr official "la résolution du contrat est ouverte (article 1224)";
+    label en unofficial "termination of the contract is open (Article 1224)";
+}
+pub relation resolution_par_clause_acquise(c: Contrat, cl: Clause) kind derived {
+    label fr official "la clause résolutoire a joué : la résolution est acquise (article 1225)";
+    label en unofficial "the termination clause has operated: termination is acquired (Article 1225)";
+}
+pub relation contrat_resolu_par_notification(c: Contrat) kind institutional {
+    label fr official "effet du pouvoir de l'article 1226 : le contrat est résolu par la notification du créancier";
+    label en unofficial "effect of the Article 1226 power: the contract is terminated by the creditor's notification";
+}
+pub relation contrat_resolu(c: Contrat) kind derived {
+    label fr official "le contrat est résolu (articles 1224 à 1229)";
+    label en unofficial "the contract is terminated (Articles 1224 to 1229)";
+}
+pub relation notification_de_resolution(c: Contrat, creancier: Personne) kind derived {
+    label fr official "notification par laquelle le créancier résout le contrat à ses risques et périls (article 1226)";
+    label en unofficial "notification by which the creditor terminates the contract at its own risk (Article 1226)";
+}
+pub relation charge_de_prouver_la_gravite(c: Contrat, creancier: Personne) kind derived {
+    label fr official "le débiteur ayant saisi le juge, le créancier doit prouver la gravité de l'inexécution (article 1226, alinéa 4)";
+    label en unofficial "the debtor having applied to the court, the creditor must prove the seriousness of the non-performance (Article 1226, paragraph 4)";
+}
+pub relation pouvoir_du_juge_sur_la_resolution(c: Contrat) kind derived {
+    label fr official "le juge peut, selon les circonstances, constater ou prononcer la résolution, ordonner l'exécution du contrat ou allouer seulement des dommages et intérêts (article 1228)";
+    label en unofficial "the court may, according to the circumstances, find or pronounce termination, order performance, or award damages only (Article 1228)";
+}
+pub relation date_d_effet_de_la_resolution(c: Contrat, jour: Date) kind derived {
+    key(c);
+    label fr official "date à laquelle la résolution prend effet (article 1229, alinéa 2)";
+    label en unofficial "date on which the termination takes effect (Article 1229, paragraph 2)";
+}
+pub relation date_fixee_par_le_juge(c: Contrat) kind derived {
+    label fr official "le juge a fixé la date de prise d'effet de la résolution (article 1229, alinéa 2)";
+    label en unofficial "the court set the effective date of the termination (Article 1229, paragraph 2)";
+}
+pub relation restitution_integrale(c: Contrat) kind derived {
+    label fr official "les prestations n'ayant trouvé leur utilité que par l'exécution complète, les parties doivent restituer l'intégralité de ce qu'elles se sont procuré (article 1229, alinéa 3) ; le régime des restitutions est celui des articles 1352 à 1352-9 (frontière déclarée)";
+    label en unofficial "the performances being useful only through complete performance, the parties must restore everything they obtained from each other (Article 1229, paragraph 3); the restitution regime is that of Articles 1352 to 1352-9 (declared boundary)";
+}
+pub relation resiliation(c: Contrat) kind derived {
+    label fr official "les prestations ayant trouvé leur utilité au fur et à mesure, il n'y a pas lieu à restitution pour la période antérieure : la résolution est qualifiée de résiliation (article 1229, alinéa 3)";
+    label en unofficial "the performances having been useful as they went, there is no restitution for the earlier period: the termination is qualified as prospective termination (Article 1229, paragraph 3)";
+}
+pub relation clause_survit_a_la_resolution(cl: Clause) kind derived {
+    label fr official "la résolution n'affecte ni les clauses relatives au règlement des différends, ni celles destinées à produire effet même en cas de résolution (article 1230)";
+    label en unofficial "termination affects neither dispute-resolution clauses nor those intended to have effect even on termination (Article 1230)";
+}
+pub relation dommages_et_interets_dus(o: Obligation) kind derived {
+    label fr official "des dommages et intérêts sont dus au créancier (articles 1231 et 1231-1)";
+    label en unofficial "damages are owed to the creditor (Articles 1231 and 1231-1)";
+}
+pub relation dommages_et_interets_payes(o: Obligation) kind empirical {
+    key(o);
+    label fr official "le débiteur paie les dommages et intérêts dus (articles 1231 et suivants)";
+    label en unofficial "the debtor pays the damages owed (Articles 1231 et seq.)";
+}
+pub relation mise_en_demeure_prealable_requise(o: Obligation) kind derived {
+    label fr official "à moins que l'inexécution soit définitive, les dommages et intérêts ne sont dus que si le débiteur a préalablement été mis en demeure de s'exécuter dans un délai raisonnable (article 1231)";
+    label en unofficial "unless the non-performance is definitive, damages are owed only if the debtor was first given notice to perform within a reasonable period (Article 1231)";
+}
+pub relation debiteur_exonere_par_la_force_majeure(o: Obligation) kind derived {
+    label fr official "le débiteur justifie que l'exécution a été empêchée par la force majeure : il n'est pas condamné à des dommages et intérêts (article 1231-1)";
+    label en unofficial "the debtor shows that performance was prevented by force majeure: he is not ordered to pay damages (Article 1231-1)";
+}
+pub relation montant_des_dommages_et_interets(o: Obligation, m: Money) kind derived {
+    key(o);
+    label fr official "les dommages et intérêts dus au créancier sont, en général, de la perte qu'il a faite et du gain dont il a été privé (article 1231-2)";
+    label en unofficial "the damages owed to the creditor are, in general, the loss suffered and the gain of which he was deprived (Article 1231-2)";
+}
+pub relation dommage_reparable(o: Obligation) kind derived {
+    label fr official "dommage dont le débiteur est tenu (articles 1231-3 et 1231-4)";
+    label en unofficial "harm for which the debtor is liable (Articles 1231-3 and 1231-4)";
+}
+pub relation dommage_non_reparable_faute_de_previsibilite(o: Obligation) kind derived {
+    label fr official "le débiteur n'est tenu que des dommages prévus ou prévisibles lors de la conclusion : ce dommage ne l'est pas (article 1231-3)";
+    label en unofficial "the debtor is liable only for harm foreseen or foreseeable at conclusion: this harm is not (Article 1231-3)";
+}
+pub relation penalite_due(cl: Clause, m: Money) kind derived {
+    label fr official "somme due au titre de la clause pénale (article 1231-5)";
+    label en unofficial "sum owed under the penalty clause (Article 1231-5)";
+}
+pub relation stipulation_sur_la_penalite_reputee_non_ecrite(cl: Clause) kind derived {
+    label fr official "toute stipulation contraire aux alinéas 2 et 3 de l'article 1231-5 est réputée non écrite";
+    label en unofficial "any stipulation contrary to paragraphs 2 and 3 of Article 1231-5 is deemed unwritten";
+}
+pub relation interets_moratoires_courent_depuis(o: Obligation, jour: Date) kind derived {
+    key(o);
+    label fr official "les intérêts moratoires au taux légal courent depuis ce jour (article 1231-6, alinéa 1) ; le Code ne nomme pas la méthode de décompte des jours — le montant est hors du paquet (frontière déclarée)";
+    label en unofficial "statutory default interest runs from this day (Article 1231-6, paragraph 1); the Code does not name a day-count method — the amount is outside the package (declared boundary)";
+}
+pub relation interets_moratoires_payes(o: Obligation) kind empirical {
+    key(o);
+    label fr official "le débiteur paie les intérêts moratoires (article 1231-6)";
+    label en unofficial "the debtor pays the default interest (Article 1231-6)";
+}
+pub relation interets_dus_sans_justifier_d_une_perte(o: Obligation) kind derived {
+    label fr official "ces dommages et intérêts sont dus sans que le créancier soit tenu de justifier d'aucune perte (article 1231-6, alinéa 2)";
+    label en unofficial "that interest is owed without the creditor having to show any loss (Article 1231-6, paragraph 2)";
+}
+pub relation dommages_distincts_de_l_interet_moratoire(o: Obligation) kind derived {
+    label fr official "le créancier auquel son débiteur en retard a causé, par sa mauvaise foi, un préjudice indépendant du retard peut obtenir des dommages et intérêts distincts de l'intérêt moratoire (article 1231-6, alinéa 3)";
+    label en unofficial "a creditor to whom his late debtor caused, through bad faith, harm independent of the delay may obtain damages distinct from the default interest (Article 1231-6, paragraph 3)";
+}
+pub relation interets_de_la_condamnation_courent_depuis(c: Contrat, jour: Date) kind derived {
+    key(c);
+    label fr official "la condamnation à une indemnité emporte intérêts au taux légal à compter de cette date (article 1231-7)";
+    label en unofficial "the award of an indemnity carries statutory interest from this date (Article 1231-7)";
+}
+pub relation interets_de_condamnation_payes(c: Contrat) kind empirical {
+    key(c);
+    label fr official "le débiteur paie les intérêts de la condamnation (article 1231-7)";
+    label en unofficial "the debtor pays the judgment interest (Article 1231-7)";
+}
+
+// --- Article 1217 : la liste fermée des sanctions ------------------------------------------------------------
+
+@source(CC_ART1217) {
+    rule InexecutionConstatee(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1. La partie envers laquelle l'engagement n'a pas été exécuté peut mettre en œuvre les sanctions de l'inexécution";
+        label en unofficial "Article 1217, paragraph 1. The party towards whom the undertaking was not performed may deploy the remedies for non-performance";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and creancier_de_l_obligation(o, creancier)
+            and engagement_non_execute(o);
+        then inexecution_constatee(o, c, creancier);
+    }
+    rule InexecutionImparfaiteConstatee(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1. Il en va de même de la partie envers laquelle l'engagement a été imparfaitement exécuté";
+        label en unofficial "Article 1217, paragraph 1. The same holds for the party towards whom the undertaking was imperfectly performed";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and creancier_de_l_obligation(o, creancier)
+            and engagement_imparfaitement_execute(o);
+        then inexecution_constatee(o, c, creancier);
+    }
+    rule SanctionRefusDExecuter(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1, premier tiret. Le créancier peut refuser d'exécuter ou suspendre l'exécution de sa propre obligation";
+        label en unofficial "Article 1217, paragraph 1, first indent. The creditor may refuse to perform or suspend performance of its own obligation";
+        when inexecution_constatee(o, c, creancier);
+        then sanction_ouverte(o, RefusDExecuter);
+    }
+    rule SanctionExecutionForcee(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1, deuxième tiret. Le créancier peut poursuivre l'exécution forcée en nature de l'obligation";
+        label en unofficial "Article 1217, paragraph 1, second indent. The creditor may pursue enforced performance in kind of the obligation";
+        when inexecution_constatee(o, c, creancier);
+        then sanction_ouverte(o, ExecutionForceeEnNature);
+    }
+    rule SanctionReductionDuPrix(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1, troisième tiret. Le créancier peut obtenir une réduction du prix";
+        label en unofficial "Article 1217, paragraph 1, third indent. The creditor may obtain a reduction of the price";
+        when inexecution_constatee(o, c, creancier);
+        then sanction_ouverte(o, ReductionDuPrix);
+    }
+    rule SanctionResolution(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1, quatrième tiret. Le créancier peut provoquer la résolution du contrat";
+        label en unofficial "Article 1217, paragraph 1, fourth indent. The creditor may bring about the contract's termination";
+        when inexecution_constatee(o, c, creancier);
+        then sanction_ouverte(o, Resolution);
+    }
+    rule SanctionDommagesEtInterets(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 1, cinquième tiret. Le créancier peut demander réparation des conséquences de l'inexécution";
+        label en unofficial "Article 1217, paragraph 1, fifth indent. The creditor may seek reparation for the consequences of the non-performance";
+        when inexecution_constatee(o, c, creancier);
+        then sanction_ouverte(o, DommagesEtInterets);
+    }
+    rule CumulDesSanctions(o: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1217, alinéa 2. Les sanctions qui ne sont pas incompatibles peuvent être cumulées ; des dommages et intérêts peuvent toujours s'y ajouter";
+        label en unofficial "Article 1217, paragraph 2. Remedies that are not incompatible may be combined; damages may always be added";
+        when inexecution_constatee(o, c, creancier);
+        then cumul_avec_dommages_et_interets(o);
+    }
+}
+
+// --- Article 1218 : la force majeure ---------------------------------------------------------------------------
+
+@source(CC_ART1218) {
+    rule ForceMajeureContractuelle(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1218, alinéa 1. Il y a force majeure en matière contractuelle lorsqu'un événement échappant au contrôle du débiteur, qui ne pouvait être raisonnablement prévu lors de la conclusion du contrat et dont les effets ne peuvent être évités par des mesures appropriées, empêche l'exécution de son obligation";
+        label en unofficial "Article 1218, paragraph 1. There is contractual force majeure where an event beyond the debtor's control, which could not reasonably have been foreseen at conclusion and whose effects cannot be avoided by appropriate measures, prevents performance of his obligation";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and evenement_echappant_au_controle_du_debiteur(o)
+            and evenement_non_raisonnablement_previsible(o)
+            and effets_non_evitables_par_des_mesures_appropriees(o);
+        then force_majeure(o);
+    }
+    rule EmpechementTemporaireSuspend(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1218, alinéa 2. Si l'empêchement est temporaire, l'exécution de l'obligation est suspendue, à moins que le retard qui en résulterait ne justifie la résolution du contrat";
+        label en unofficial "Article 1218, paragraph 2. If the impediment is temporary, performance is suspended, unless the resulting delay justifies terminating the contract";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and force_majeure(o) and empechement_temporaire(o)
+            and not_known(retard_justifiant_la_resolution(o));
+        then execution_suspendue(o);
+    }
+    rule EmpechementDefinitifResout(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1218, alinéa 2. Si l'empêchement est définitif, le contrat est résolu de plein droit et les parties sont libérées de leurs obligations dans les conditions prévues aux articles 1351 et 1351-1";
+        label en unofficial "Article 1218, paragraph 2. If the impediment is permanent, the contract is terminated by operation of law and the parties are released under Articles 1351 and 1351-1";
+        when regi_par_le_droit_nouveau(c)
+            and force_majeure(o) and empechement_definitif(o) and obligation_du_contrat(o, c);
+        then contrat_resolu_de_plein_droit(c);
+    }
+    rule ResolutionParLeRetardTemporaire(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1218, alinéa 2. Le retard qui résulterait de la suspension peut justifier la résolution du contrat";
+        label en unofficial "Article 1218, paragraph 2. The delay that the suspension would cause may justify terminating the contract";
+        when regi_par_le_droit_nouveau(c)
+            and force_majeure(o) and empechement_temporaire(o)
+            and retard_justifiant_la_resolution(o) and obligation_du_contrat(o, c);
+        then contrat_resolu_de_plein_droit(c);
+    }
+}
+
+// --- Articles 1219 et 1220 : l'exception d'inexécution ------------------------------------------------------------
+
+@source(CC_ART1219) {
+    rule ExceptionDInexecution(o: Obligation, autre: Obligation, c: Contrat, creancier: Personne) strict {
+        label fr official "Article 1219. Une partie peut refuser d'exécuter son obligation, alors même que celle-ci est exigible, si l'autre n'exécute pas la sienne et si cette inexécution est suffisamment grave";
+        label en unofficial "Article 1219. A party may refuse to perform its obligation, even though due, if the other does not perform its own and that non-performance is serious enough";
+        when force_obligatoire(c) and obligation_du_contrat(o, c) and obligation_du_contrat(autre, c)
+            and debiteur_de_l_obligation(o, creancier)
+            and obligation_exigible(o)
+            and engagement_non_execute(autre)
+            and inexecution_suffisamment_grave_1219(autre);
+        then refus_d_executer_fonde(o, creancier);
+    }
+    rule LiberteDeRefuserDExecuter(o: Obligation, creancier: Personne) strict {
+        label fr official "Article 1219. Le refus d'exécuter est une faculté de son titulaire : il peut l'exercer ou non";
+        label en unofficial "Article 1219. The refusal to perform is a faculty of its holder: he may exercise it or not";
+        when refus_d_executer_fonde(o, creancier);
+        then liberty RefuserDExecuterSonObligation {
+            holder creancier;
+            action refus_d_executer_oppose(o, creancier);
+            window [@2016-10-01, infinity);
+        };
+    }
+}
+
+@source(CC_ART1220)
+rule SuspensionPreventive(o: Obligation, autre: Obligation, c: Contrat, creancier: Personne) strict {
+    label fr official "Article 1220. Une partie peut suspendre l'exécution de son obligation dès lors qu'il est manifeste que son cocontractant ne s'exécutera pas à l'échéance et que les conséquences de cette inexécution sont suffisamment graves pour elle ; cette suspension doit être notifiée dans les meilleurs délais";
+    label en unofficial "Article 1220. A party may suspend performance of its obligation once it is manifest that the other will not perform when due and the consequences are serious enough for it; the suspension must be notified as soon as possible";
+    when force_obligatoire(c) and obligation_du_contrat(o, c) and obligation_du_contrat(autre, c)
+        and debiteur_de_l_obligation(o, creancier)
+        and inexecution_future_manifeste(autre)
+        and consequences_suffisamment_graves_1220(autre)
+        and suspension_notifiee_dans_les_meilleurs_delais(o);
+    then suspension_preventive_fondee(o, creancier);
+}
+
+@source(CC_ART1220)
+rule P3LiberteSuspendreExecution(o: Obligation, c: Contrat, creancier: Personne, jour: Date) strict {
+    label fr official "Article 1220. Une partie peut suspendre l'exécution de son obligation";
+    label en unofficial "Article 1220. A party may suspend performance of its obligation";
+    when suspension_preventive_fondee(o, creancier)
+        and mise_en_demeure_de_satisfaire_le(o, jour);
+    then liberty P3PositionLiberteSuspendreExecution {
+        holder creancier;
+        action suspension_preventive_exercee(o, creancier);
+        window [jour, infinity];
+    };
+}
+
+// --- Articles 1221 et 1222 : l'exécution forcée en nature ------------------------------------------------------------
+
+@source(CC_ART1221) {
+    rule ExecutionForceeEnNatureOuverte(o: Obligation, c: Contrat, jour: Date) strict {
+        label fr official "Article 1221. Le créancier d'une obligation peut, après mise en demeure, en poursuivre l'exécution en nature sauf si cette exécution est impossible ou s'il existe une disproportion manifeste entre son coût pour le débiteur de bonne foi et son intérêt pour le créancier";
+        label en unofficial "Article 1221. The creditor of an obligation may, after notice, pursue its performance in kind unless that performance is impossible or there is a manifest disproportion between its cost to the good-faith debtor and its benefit to the creditor";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_de_satisfaire_le(o, jour)
+            and not_known(execution_en_nature_impossible(o))
+            and not_known(execution_forcee_en_nature_refusee(o));
+        then execution_forcee_en_nature_ouverte(o);
+    }
+    rule ExecutionEnNatureImpossible(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1221. L'exécution en nature est écartée lorsqu'elle est impossible";
+        label en unofficial "Article 1221. Performance in kind is excluded where it is impossible";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and execution_en_nature_impossible(o);
+        then execution_forcee_en_nature_refusee(o);
+    }
+    rule DisproportionManifesteEcarteLExecution(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1221. L'exécution en nature est écartée lorsqu'il existe une disproportion manifeste entre son coût pour le débiteur de bonne foi et son intérêt pour le créancier";
+        label en unofficial "Article 1221. Performance in kind is excluded where there is a manifest disproportion between its cost to the good-faith debtor and its benefit to the creditor";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and debiteur_de_bonne_foi(o) and disproportion_manifeste(o);
+        then execution_forcee_en_nature_refusee(o);
+    }
+}
+
+@source(CC_ART1221)
+rule P3PouvoirPoursuivreExecutionForcee(o: Obligation, c: Contrat, creancier: Personne, jour: Date) strict {
+    label fr official "Article 1221. Le créancier peut poursuivre l'exécution en nature";
+    label en unofficial "Article 1221. The creditor may pursue performance in kind";
+    when execution_forcee_en_nature_ouverte(o)
+        and creancier_de_l_obligation(o, creancier)
+        and mise_en_demeure_de_satisfaire_le(o, jour);
+    then power P3PositionPouvoirPoursuivreExecutionForcee {
+        holder creancier;
+        over o;
+        exercise poursuite_execution_forcee_exercee(o, creancier);
+        effect execution_forcee_en_nature_poursuivie(o);
+        valid_when execution_forcee_en_nature_ouverte(o);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1222) {
+    rule RemboursementDeLExecutionParUnTiers(o: Obligation, c: Contrat, jour: Date, m: Money) strict {
+        label fr official "Article 1222, alinéa 1. Après mise en demeure, le créancier peut, dans un délai et à un coût raisonnables, faire exécuter lui-même l'obligation et demander au débiteur le remboursement des sommes engagées à cette fin";
+        label en unofficial "Article 1222, paragraph 1. After notice, the creditor may, within a reasonable time and at a reasonable cost, have the obligation performed himself and claim from the debtor reimbursement of the sums spent";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_de_satisfaire_le(o, jour)
+            and execution_par_le_creancier_a_cout_raisonnable(o)
+            and sommes_engagees_par_le_creancier(o, m);
+        then remboursement_des_sommes_engagees(o, m);
+    }
+    rule RemboursementDeLaDestructionAutorisee(o: Obligation, c: Contrat, jour: Date, m: Money) strict {
+        label fr official "Article 1222, alinéa 1. Après mise en demeure, le créancier peut, sur autorisation préalable du juge, détruire ce qui a été fait en violation de l'obligation et demander le remboursement des sommes engagées";
+        label en unofficial "Article 1222, paragraph 1. After notice, the creditor may, with prior court authorization, destroy what was done in breach of the obligation and claim reimbursement of the sums spent";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_de_satisfaire_le(o, jour)
+            and autorisation_prealable_du_juge_a_la_destruction(o)
+            and sommes_engagees_par_le_creancier(o, m);
+        then remboursement_des_sommes_engagees(o, m);
+    }
+    rule AvanceDesSommesNecessaires(o: Obligation, c: Contrat, jour: Date) strict {
+        label fr official "Article 1222, alinéa 2. Le créancier peut aussi demander en justice que le débiteur avance les sommes nécessaires à cette exécution ou à cette destruction";
+        label en unofficial "Article 1222, paragraph 2. The creditor may also ask the court to order the debtor to advance the sums necessary for that performance or destruction";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_de_satisfaire_le(o, jour)
+            and avance_demandee_en_justice(o);
+        then avance_des_sommes_ordonnable(o);
+    }
+}
+
+@source(CC_ART1222)
+rule P3PouvoirDemanderRemboursement(o: Obligation, c: Contrat, creancier: Personne, jour: Date, m: Money) strict {
+    label fr official "Article 1222. Le créancier peut demander au débiteur le remboursement des sommes engagées";
+    label en unofficial "Article 1222. The creditor may claim reimbursement of the sums spent";
+    when remboursement_des_sommes_engagees(o, m)
+        and creancier_de_l_obligation(o, creancier)
+        and mise_en_demeure_de_satisfaire_le(o, jour);
+    then power P3PositionPouvoirDemanderRemboursement {
+        holder creancier;
+        over o;
+        exercise demande_remboursement_des_sommes(o, creancier);
+        effect remboursement_des_sommes_demande(o, m);
+        valid_when remboursement_des_sommes_engagees(o, m);
+        window [jour, infinity];
+    };
+}
+
+// --- Article 1223 : la réduction proportionnelle du prix, dans ses deux rédactions -------------------------------------
+//
+// POLITIQUE DU PAQUET, NON NORME (par renvoi à D-13 et au README de CC-07).
+// Le Code ne nomme aucune règle d'arrondi : la fraction de réduction est celle
+// que le cas fournit, et le produit `prix × fraction` est arrondi au centime,
+// demi-supérieur, UNE fois sur le quotient exact.
+
+@source(CC_ART1223) {
+    rule ReductionDuPrixNonPaye2018(c: Contrat, o: Obligation, jour: Date, p: Money, n: Integer, d: Decimal) strict {
+        label fr official "Article 1223, première phrase (rédaction de 2018). En cas d'exécution imparfaite de la prestation, le créancier peut, après mise en demeure et s'il n'a pas encore payé tout ou partie de la prestation, notifier dans les meilleurs délais au débiteur sa décision d'en réduire de manière proportionnelle le prix";
+        label en unofficial "Article 1223, first sentence (2018 wording). On imperfect performance, the creditor may, after notice and if it has not yet paid all or part of the performance, notify the debtor as soon as possible of its decision to reduce the price proportionally";
+        when redaction_2018_applicable(c, "1223") and obligation_du_contrat(o, c)
+            and engagement_imparfaitement_execute(o)
+            and mise_en_demeure_de_satisfaire_le(o, jour)
+            and prix_non_encore_paye(c)
+            and decision_de_reduction_notifiee(c)
+            and prix_du_contrat(c, p) and termes_de_la_reduction_de_prix(c, n, d);
+        then reduction_de_prix(c, div_round(p * n, d, 2, "HALF_UP"));
+    }
+    rule ReductionDuPrixDemandeeAuJuge2018(c: Contrat, o: Obligation, jour: Date, p: Money, n: Integer, d: Decimal) strict {
+        label fr official "Article 1223, dernière phrase (rédaction de 2018). Si le créancier a déjà payé, à défaut d'accord entre les parties, il peut demander au juge la réduction de prix";
+        label en unofficial "Article 1223, last sentence (2018 wording). If the creditor has already paid, absent agreement between the parties, it may ask the court for the price reduction";
+        when redaction_2018_applicable(c, "1223") and obligation_du_contrat(o, c)
+            and engagement_imparfaitement_execute(o)
+            and mise_en_demeure_de_satisfaire_le(o, jour)
+            and not_known(prix_non_encore_paye(c))
+            and reduction_demandee_au_juge(c)
+            and prix_du_contrat(c, p) and termes_de_la_reduction_de_prix(c, n, d);
+        then reduction_de_prix(c, div_round(p * n, d, 2, "HALF_UP"));
+    }
+    rule PrixReduit(c: Contrat, p: Money, r: Money) strict {
+        label fr official "Article 1223. Le prix réduit est le prix convenu diminué de la réduction proportionnelle";
+        label en unofficial "Article 1223. The reduced price is the agreed price less the proportional reduction";
+        when prix_du_contrat(c, p) and reduction_de_prix(c, r);
+        then prix_reduit(c, p - r);
+    }
+}
+
+@source(CC_ART1223)
+rule P3PouvoirNotifierReduction(c: Contrat, o: Obligation, creancier: Personne, jour: Date, m: Money) strict {
+    label fr official "Article 1223. Le créancier peut notifier sa décision de réduire proportionnellement le prix";
+    label en unofficial "Article 1223. The creditor may notify its decision to reduce the price proportionally";
+    when decision_de_reduction_notifiee(c)
+        and creancier_de_l_obligation(o, creancier)
+        and mise_en_demeure_de_satisfaire_le(o, jour)
+        and prix_du_contrat(c, m);
+    then power P3PositionPouvoirNotifierReduction {
+        holder creancier;
+        over c;
+        exercise decision_reduction_exercee(c, creancier);
+        effect reduction_de_prix(c, m);
+        valid_when decision_de_reduction_notifiee(c);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_ART1223)
+rule P3PouvoirDemanderReductionAuJuge(c: Contrat, o: Obligation, creancier: Personne, jour: Date, m: Money) strict {
+    label fr official "Article 1223. Le créancier peut demander au juge la réduction du prix";
+    label en unofficial "Article 1223. The creditor may ask the judge for a price reduction";
+    when reduction_demandee_au_juge(c)
+        and creancier_de_l_obligation(o, creancier)
+        and mise_en_demeure_de_satisfaire_le(o, jour)
+        and prix_du_contrat(c, m);
+    then power P3PositionPouvoirDemanderReductionAuJuge {
+        holder creancier;
+        over c;
+        exercise demande_judiciaire_reduction_exercee(c, creancier);
+        effect reduction_de_prix(c, m);
+        valid_when reduction_demandee_au_juge(c);
+        window [jour, infinity];
+    };
+}
+
+@source(CC_2016_ART1223, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule ReductionDuPrixSollicitee2016(c: Contrat, o: Obligation, jour: Date, p: Money, n: Integer, d: Decimal) strict {
+        label fr official "Article 1223, alinéa 1 (rédaction de l'ordonnance de 2016). Le créancier peut, après mise en demeure, accepter une exécution imparfaite du contrat et solliciter une réduction proportionnelle du prix";
+        label en unofficial "Article 1223, paragraph 1 (2016 ordinance wording). The creditor may, after notice, accept an imperfect performance and request a proportional reduction of the price";
+        when redaction_2016_applicable(c, "1223") and obligation_du_contrat(o, c)
+            and engagement_imparfaitement_execute(o)
+            and mise_en_demeure_de_satisfaire_le(o, jour)
+            and execution_imparfaite_acceptee(c)
+            and prix_du_contrat(c, p) and termes_de_la_reduction_de_prix(c, n, d);
+        then reduction_de_prix(c, div_round(p * n, d, 2, "HALF_UP"));
+    }
+    rule NotificationDeLaReductionSiNonPaye2016(c: Contrat, o: Obligation, p: Money, n: Integer, d: Decimal) strict {
+        label fr official "Article 1223, alinéa 2 (rédaction de l'ordonnance de 2016). S'il n'a pas encore payé, le créancier notifie sa décision de réduire le prix dans les meilleurs délais";
+        label en unofficial "Article 1223, paragraph 2 (2016 ordinance wording). If it has not yet paid, the creditor notifies its decision to reduce the price as soon as possible";
+        when redaction_2016_applicable(c, "1223") and obligation_du_contrat(o, c)
+            and engagement_imparfaitement_execute(o)
+            and prix_non_encore_paye(c)
+            and decision_de_reduction_notifiee(c)
+            and prix_du_contrat(c, p) and termes_de_la_reduction_de_prix(c, n, d);
+        then reduction_de_prix(c, div_round(p * n, d, 2, "HALF_UP"));
+    }
+}
+
+// --- Articles 1224 à 1230 : la résolution ---------------------------------------------------------------------------
+
+@source(CC_ART1224) {
+    rule ResolutionParClauseResolutoire(c: Contrat, o: Obligation, cl: Clause) strict {
+        label fr official "Article 1224. La résolution résulte de l'application d'une clause résolutoire";
+        label en unofficial "Article 1224. Termination results from the application of a termination clause";
+        when force_obligatoire(c) and obligation_du_contrat(o, c) and clause_du_contrat(cl, c)
+            and clause_resolutoire(cl) and clause_resolutoire_vise_l_engagement(cl, o)
+            and engagement_non_execute(o);
+        then resolution_ouverte(c, o);
+    }
+    rule ResolutionParNotificationOuverte(c: Contrat, o: Obligation) strict {
+        label fr official "Article 1224. La résolution résulte, en cas d'inexécution suffisamment grave, d'une notification du créancier au débiteur";
+        label en unofficial "Article 1224. Termination results, in case of sufficiently serious non-performance, from a notification by the creditor to the debtor";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and engagement_non_execute(o) and inexecution_suffisamment_grave_1224(o);
+        then resolution_ouverte(c, o);
+    }
+    rule ResolutionJudiciaireOuverte(c: Contrat, o: Obligation) strict {
+        label fr official "Article 1224. La résolution résulte aussi d'une décision de justice";
+        label en unofficial "Article 1224. Termination also results from a court decision";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and engagement_non_execute(o) and resolution_demandee_en_justice(c);
+        then resolution_ouverte(c, o);
+    }
+}
+
+@source(CC_ART1225) {
+    rule ClauseResolutoireApresMiseEnDemeure(c: Contrat, o: Obligation, cl: Clause) strict {
+        label fr official "Article 1225, alinéa 2. La résolution est subordonnée à une mise en demeure infructueuse ; la mise en demeure ne produit effet que si elle mentionne expressément la clause résolutoire";
+        label en unofficial "Article 1225, paragraph 2. Termination is subject to a fruitless notice; the notice takes effect only if it expressly mentions the termination clause";
+        when resolution_ouverte(c, o) and clause_du_contrat(cl, c) and clause_resolutoire(cl)
+            and clause_resolutoire_vise_l_engagement(cl, o)
+            and mise_en_demeure_infructueuse(o)
+            and mise_en_demeure_mentionnant_la_clause_resolutoire(o);
+        then resolution_par_clause_acquise(c, cl);
+    }
+    rule ClauseResolutoireSansMiseEnDemeure(c: Contrat, o: Obligation, cl: Clause) strict {
+        label fr official "Article 1225, alinéa 2. La mise en demeure n'est pas requise s'il a été convenu que la résolution résulterait du seul fait de l'inexécution";
+        label en unofficial "Article 1225, paragraph 2. Notice is not required if it was agreed that termination would result from the mere fact of non-performance";
+        when resolution_ouverte(c, o) and clause_du_contrat(cl, c) and clause_resolutoire(cl)
+            and clause_resolutoire_vise_l_engagement(cl, o)
+            and dispense_conventionnelle_de_mise_en_demeure(cl);
+        then resolution_par_clause_acquise(c, cl);
+    }
+    rule ResolutionAcquiseParLaClause(c: Contrat, cl: Clause) strict {
+        label fr official "Article 1225. La clause résolutoire acquise emporte résolution du contrat";
+        label en unofficial "Article 1225. An acquired termination clause terminates the contract";
+        when resolution_par_clause_acquise(c, cl);
+        then contrat_resolu(c);
+    }
+}
+
+@source(CC_ART1226) {
+    rule PouvoirDeResoudreParNotification(c: Contrat, o: Obligation, creancier: Personne, jour: Date) strict {
+        label fr official "Article 1226, alinéas 1 à 3. Le créancier peut, à ses risques et périls, résoudre le contrat par voie de notification ; sauf urgence, il doit préalablement mettre en demeure le débiteur défaillant de satisfaire à son engagement dans un délai raisonnable, la mise en demeure mentionnant expressément qu'à défaut le créancier sera en droit de résoudre le contrat";
+        label en unofficial "Article 1226, paragraphs 1 to 3. The creditor may, at its own risk, terminate the contract by notification; save in urgency, it must first give the defaulting debtor notice to perform within a reasonable period, the notice expressly stating that failing performance the creditor will be entitled to terminate";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and creancier_de_l_obligation(o, creancier)
+            and engagement_non_execute(o)
+            and mise_en_demeure_de_satisfaire_le(o, jour)
+            and delai_raisonnable_de_la_mise_en_demeure_1226(o)
+            and mise_en_demeure_mentionnant_le_droit_de_resoudre(o);
+        then power ResoudreParNotification {
+            holder creancier;
+            exercise notification_de_resolution_adressee(c, creancier);
+            valid_when inexecution_persiste(o);
+            effect contrat_resolu_par_notification(c);
+        };
+    }
+    rule ResolutionParNotificationEnCasDUrgence(c: Contrat, o: Obligation, creancier: Personne) strict {
+        label fr official "Article 1226, alinéa 1. En cas d'urgence, le créancier est dispensé de la mise en demeure préalable";
+        label en unofficial "Article 1226, paragraph 1. In case of urgency, the creditor is dispensed from the prior notice";
+        when force_obligatoire(c) and obligation_du_contrat(o, c)
+            and creancier_de_l_obligation(o, creancier)
+            and engagement_non_execute(o) and urgence(o);
+        then notification_de_resolution(c, creancier);
+    }
+    rule ResolutionNotifieeEtMotivee(c: Contrat, o: Obligation, creancier: Personne, jour: Date) strict {
+        label fr official "Article 1226, alinéa 3. Lorsque l'inexécution persiste, le créancier notifie au débiteur la résolution du contrat et les raisons qui la motivent";
+        label en unofficial "Article 1226, paragraph 3. Where the non-performance persists, the creditor notifies the debtor of the contract's termination and the reasons for it";
+        when creancier_de_l_obligation(o, creancier) and obligation_du_contrat(o, c)
+            and inexecution_persiste(o) and notification_de_resolution_motivee_le(c, jour);
+        then contrat_resolu(c);
+    }
+    rule ChargeDeLaPreuveDeLaGravite(c: Contrat, o: Obligation, creancier: Personne) strict {
+        label fr official "Article 1226, alinéa 4. Le débiteur peut à tout moment saisir le juge pour contester la résolution ; le créancier doit alors prouver la gravité de l'inexécution";
+        label en unofficial "Article 1226, paragraph 4. The debtor may at any time apply to the court to challenge the termination; the creditor must then prove the seriousness of the non-performance";
+        when contrat_resolu(c) and obligation_du_contrat(o, c)
+            and creancier_de_l_obligation(o, creancier)
+            and contestation_de_la_resolution_par_le_debiteur(c);
+        then charge_de_prouver_la_gravite(c, creancier);
+    }
+}
+
+@source(CC_ART1227)
+rule ResolutionToujoursDemandableEnJustice(c: Contrat, o: Obligation) strict {
+    label fr official "Article 1227. La résolution peut, en toute hypothèse, être demandée en justice";
+    label en unofficial "Article 1227. Termination may, in any event, be sought in court";
+    when force_obligatoire(c) and obligation_du_contrat(o, c) and resolution_demandee_en_justice(c);
+    then resolution_ouverte(c, o);
+}
+
+@source(CC_ART1228) {
+    rule JugeProncantLaResolution(c: Contrat, jour: Date) strict {
+        label fr official "Article 1228. Le juge peut, selon les circonstances, constater ou prononcer la résolution";
+        label en unofficial "Article 1228. The court may, according to the circumstances, find or pronounce termination";
+        when resolution_demandee_en_justice(c) and resolution_prononcee_par_le_juge_le(c, jour);
+        then contrat_resolu(c);
+    }
+    rule JugeOrdonnantLExecution(c: Contrat) strict {
+        label fr official "Article 1228. Le juge peut ordonner l'exécution du contrat, en accordant éventuellement un délai au débiteur";
+        label en unofficial "Article 1228. The court may order the contract's performance, possibly allowing the debtor time";
+        when resolution_demandee_en_justice(c) and execution_ordonnee_par_le_juge(c);
+        then pouvoir_du_juge_sur_la_resolution(c);
+    }
+    rule JugeAllouantSeulementDesDommagesEtInterets(c: Contrat) strict {
+        label fr official "Article 1228. Le juge peut allouer seulement des dommages et intérêts";
+        label en unofficial "Article 1228. The court may award damages only";
+        when resolution_demandee_en_justice(c) and dommages_et_interets_seuls_alloues(c);
+        then pouvoir_du_juge_sur_la_resolution(c);
+    }
+}
+
+@source(CC_ART1229) {
+    rule DateDEffetParLaClauseResolutoire(c: Contrat, cl: Clause, jour: Date) strict {
+        label fr official "Article 1229, alinéa 2. La résolution prend effet dans les conditions prévues par la clause résolutoire";
+        label en unofficial "Article 1229, paragraph 2. Termination takes effect under the conditions provided by the termination clause";
+        when resolution_par_clause_acquise(c, cl) and date_fixee_par_la_clause_resolutoire(c, jour);
+        then date_d_effet_de_la_resolution(c, jour);
+    }
+    rule DateDEffetParLaNotification(c: Contrat, jour: Date) strict {
+        label fr official "Article 1229, alinéa 2. La résolution prend effet à la date de la réception par le débiteur de la notification faite par le créancier";
+        label en unofficial "Article 1229, paragraph 2. Termination takes effect on the date the debtor receives the creditor's notification";
+        when contrat_resolu(c) and notification_de_resolution_motivee_le(c, jour);
+        then date_d_effet_de_la_resolution(c, jour);
+    }
+    rule DateDEffetFixeeParLeJuge(c: Contrat, jour: Date) strict {
+        label fr official "Article 1229, alinéa 2. La résolution prend effet à la date fixée par le juge";
+        label en unofficial "Article 1229, paragraph 2. Termination takes effect on the date set by the court";
+        when contrat_resolu(c) and resolution_prononcee_par_le_juge_le(c, jour);
+        then date_d_effet_de_la_resolution(c, jour);
+    }
+    rule JugeAFixeUneDate(c: Contrat, jour: Date) strict {
+        label fr official "Article 1229, alinéa 2. Constat qu'une date a été fixée par le juge";
+        label en unofficial "Article 1229, paragraph 2. Finding that the court set a date";
+        when resolution_prononcee_par_le_juge_le(c, jour);
+        then date_fixee_par_le_juge(c);
+    }
+    rule DateDEffetAuJourDeLAssignation(c: Contrat, jour: Date) strict {
+        label fr official "Article 1229, alinéa 2. A défaut de date fixée par le juge, la résolution prend effet au jour de l'assignation en justice";
+        label en unofficial "Article 1229, paragraph 2. Failing a date set by the court, termination takes effect on the day of the court summons";
+        when contrat_resolu(c) and assignation_en_justice_le(c, jour)
+            and not_known(date_fixee_par_le_juge(c));
+        then date_d_effet_de_la_resolution(c, jour);
+    }
+    rule RestitutionIntegrale(c: Contrat) strict {
+        label fr official "Article 1229, alinéas 3 et 4. Lorsque les prestations échangées ne pouvaient trouver leur utilité que par l'exécution complète du contrat résolu, les parties doivent restituer l'intégralité de ce qu'elles se sont procuré ; les restitutions ont lieu dans les conditions des articles 1352 à 1352-9";
+        label en unofficial "Article 1229, paragraphs 3 and 4. Where the exchanged performances could be useful only through the complete performance of the terminated contract, the parties must restore everything they obtained; restitution takes place under Articles 1352 to 1352-9";
+        when contrat_resolu(c) and prestations_utiles_seulement_par_l_execution_complete(c);
+        then restitution_integrale(c);
+    }
+    rule ResolutionQualifieeDeResiliation(c: Contrat) strict {
+        label fr official "Article 1229, alinéa 3. Lorsque les prestations échangées ont trouvé leur utilité au fur et à mesure de l'exécution réciproque, il n'y a pas lieu à restitution pour la période antérieure : la résolution est qualifiée de résiliation";
+        label en unofficial "Article 1229, paragraph 3. Where the exchanged performances were useful as the contract was reciprocally performed, there is no restitution for the earlier period: the termination is qualified as prospective";
+        when contrat_resolu(c) and prestations_utiles_au_fur_et_a_mesure(c);
+        then resiliation(c);
+    }
+}
+
+@source(CC_ART1230)
+rule ClausesSurvivantALaResolution(c: Contrat, cl: Clause) strict {
+    label fr official "Article 1230. La résolution n'affecte ni les clauses relatives au règlement des différends, ni celles destinées à produire effet même en cas de résolution, telles les clauses de confidentialité et de non-concurrence";
+    label en unofficial "Article 1230. Termination affects neither dispute-resolution clauses nor those intended to have effect even on termination, such as confidentiality and non-competition clauses";
+    when contrat_resolu(c) and clause_du_contrat(cl, c) and clause_survivant_a_la_resolution(cl);
+    then clause_survit_a_la_resolution(cl);
+}
+
+// --- Articles 1231 à 1231-7 : les dommages et intérêts -----------------------------------------------------------------
+
+@source(CC_ART1231) {
+    rule MiseEnDemeurePrealableAuxDommagesEtInterets(o: Obligation, c: Contrat, jour: Date, echeance: Date) strict {
+        label fr official "Article 1231. A moins que l'inexécution soit définitive, les dommages et intérêts ne sont dus que si le débiteur a préalablement été mis en demeure de s'exécuter dans un délai raisonnable";
+        label en unofficial "Article 1231. Unless the non-performance is definitive, damages are owed only if the debtor was first given notice to perform within a reasonable period";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_de_satisfaire_le(o, jour)
+            and delai_imparti_par_la_mise_en_demeure(o, echeance)
+            and delai_raisonnable_de_la_mise_en_demeure_1231(o);
+        then mise_en_demeure_prealable_requise(o);
+    }
+    rule InexecutionDefinitiveDispenseDeMiseEnDemeure(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231. Lorsque l'inexécution est définitive, la mise en demeure n'est pas requise";
+        label en unofficial "Article 1231. Where the non-performance is definitive, notice is not required";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and inexecution_definitive(o);
+        then mise_en_demeure_prealable_requise(o);
+    }
+}
+
+@source(CC_ART1231_1) {
+    rule DommagesEtInteretsPourInexecution(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231-1. Le débiteur est condamné, s'il y a lieu, au paiement de dommages et intérêts à raison de l'inexécution de l'obligation, s'il ne justifie pas que l'exécution a été empêchée par la force majeure";
+        label en unofficial "Article 1231-1. The debtor is ordered, where appropriate, to pay damages for the non-performance of the obligation, unless he shows that performance was prevented by force majeure";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and mise_en_demeure_prealable_requise(o)
+            and not_known(force_majeure(o));
+        then dommages_et_interets_dus(o);
+    }
+    rule DommagesEtInteretsPourRetard(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231-1. Le débiteur est condamné, s'il y a lieu, au paiement de dommages et intérêts à raison du retard dans l'exécution, s'il ne justifie pas que l'exécution a été empêchée par la force majeure";
+        label en unofficial "Article 1231-1. The debtor is ordered, where appropriate, to pay damages for delay in performance, unless he shows that performance was prevented by force majeure";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and retard_dans_l_execution(o) and mise_en_demeure_prealable_requise(o)
+            and not_known(force_majeure(o));
+        then dommages_et_interets_dus(o);
+    }
+    rule ExonerationParLaForceMajeure(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231-1. Le débiteur qui justifie que l'exécution a été empêchée par la force majeure n'est pas condamné à des dommages et intérêts";
+        label en unofficial "Article 1231-1. A debtor who shows that performance was prevented by force majeure is not ordered to pay damages";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and engagement_non_execute(o) and force_majeure(o);
+        then debiteur_exonere_par_la_force_majeure(o);
+    }
+}
+
+@source(CC_ART1231_2)
+rule MontantDesDommagesEtInterets(o: Obligation, c: Contrat, perte: Money, gain: Money) strict {
+    label fr official "Article 1231-2. Les dommages et intérêts dus au créancier sont, en général, de la perte qu'il a faite et du gain dont il a été privé, sauf les exceptions et modifications ci-après";
+    label en unofficial "Article 1231-2. The damages owed to the creditor are, in general, the loss he suffered and the gain of which he was deprived, subject to the following exceptions";
+    when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+        and dommages_et_interets_dus(o) and dommage_reparable(o)
+        and perte_subie(o, perte) and gain_manque(o, gain);
+    then montant_des_dommages_et_interets(o, perte + gain);
+}
+
+@source(CC_ART1231_3, CC_ART1231_4) {
+    rule DommagePrevisibleEtDirect(o: Obligation, c: Contrat) strict {
+        label fr official "Articles 1231-3 et 1231-4. Le débiteur n'est tenu que des dommages et intérêts qui ont été prévus ou qui pouvaient être prévus lors de la conclusion du contrat, et qui sont une suite immédiate et directe de l'inexécution";
+        label en unofficial "Articles 1231-3 and 1231-4. The debtor is liable only for harm foreseen or foreseeable at the contract's conclusion which is an immediate and direct consequence of the non-performance";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and dommages_et_interets_dus(o) and dommage_prevu_ou_previsible_a_la_conclusion(o)
+            and suite_immediate_et_directe_de_l_inexecution(o);
+        then dommage_reparable(o);
+    }
+    rule FauteLourdeEcarteLaPrevisibilite(o: Obligation, c: Contrat) strict {
+        label fr official "Articles 1231-3 et 1231-4. Lorsque l'inexécution est due à une faute lourde ou dolosive, le débiteur répond aussi du dommage imprévisible, mais seulement de ce qui est une suite immédiate et directe de l'inexécution";
+        label en unofficial "Articles 1231-3 and 1231-4. Where the non-performance is due to gross or fraudulent fault, the debtor is also liable for unforeseeable harm, but only for what is an immediate and direct consequence of the non-performance";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and dommages_et_interets_dus(o) and faute_lourde_ou_dolosive(o)
+            and suite_immediate_et_directe_de_l_inexecution(o);
+        then dommage_reparable(o);
+    }
+    rule DommageImprevisibleNonReparable(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231-3. Hors faute lourde ou dolosive, le dommage qui n'a pas été prévu et ne pouvait l'être lors de la conclusion n'est pas réparable";
+        label en unofficial "Article 1231-3. Absent gross or fraudulent fault, harm neither foreseen nor foreseeable at conclusion is not recoverable";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and dommages_et_interets_dus(o)
+            and not_known(dommage_prevu_ou_previsible_a_la_conclusion(o))
+            and not_known(faute_lourde_ou_dolosive(o));
+        then dommage_non_reparable_faute_de_previsibilite(o);
+    }
+    rule DommageIndirectNonReparable(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1231-4. Dans le cas même où l'inexécution résulte d'une faute lourde ou dolosive, les dommages et intérêts ne comprennent que ce qui est une suite immédiate et directe de l'inexécution";
+        label en unofficial "Article 1231-4. Even where the non-performance results from gross or fraudulent fault, damages cover only what is an immediate and direct consequence of it";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and dommages_et_interets_dus(o)
+            and not_known(suite_immediate_et_directe_de_l_inexecution(o));
+        then dommage_non_reparable_faute_de_previsibilite(o);
+    }
+}
+
+@source(CC_ART1231_5) {
+    rule PenaliteConvenue(cl: Clause, o: Obligation, c: Contrat, m: Money, jour: Date) strict {
+        label fr official "Article 1231-5, alinéas 1 et 5. Lorsque le contrat stipule que celui qui manquera de l'exécuter paiera une certaine somme à titre de dommages et intérêts, il ne peut être alloué à l'autre partie une somme plus forte ni moindre ; sauf inexécution définitive, la pénalité n'est encourue que lorsque le débiteur est mis en demeure";
+        label en unofficial "Article 1231-5, paragraphs 1 and 5. Where the contract stipulates that the party failing to perform will pay a certain sum as damages, no greater or lesser sum may be awarded; save definitive non-performance, the penalty is incurred only when the debtor is given notice";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and clause_penale(cl, o, m) and engagement_non_execute(o)
+            and mise_en_demeure_de_satisfaire_le(o, jour)
+            and not_known(penalite_manifestement_excessive_ou_derisoire(cl))
+            and not_known(engagement_execute_en_partie(o));
+        then penalite_due(cl, m);
+    }
+    rule PenaliteEncourueSansMiseEnDemeure(cl: Clause, o: Obligation, c: Contrat, m: Money) strict {
+        label fr official "Article 1231-5, alinéa 5. Lorsque l'inexécution est définitive, la pénalité est encourue sans mise en demeure";
+        label en unofficial "Article 1231-5, paragraph 5. Where the non-performance is definitive, the penalty is incurred without notice";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and clause_penale(cl, o, m) and inexecution_definitive(o)
+            and not_known(penalite_manifestement_excessive_ou_derisoire(cl))
+            and not_known(engagement_execute_en_partie(o));
+        then penalite_due(cl, m);
+    }
+    rule PenaliteModereeOuAugmentee(cl: Clause, o: Obligation, c: Contrat, m: Money, retenue: Money) strict {
+        label fr official "Article 1231-5, alinéa 2. Le juge peut, même d'office, modérer ou augmenter la pénalité convenue si elle est manifestement excessive ou dérisoire";
+        label en unofficial "Article 1231-5, paragraph 2. The court may, even of its own motion, reduce or increase the agreed penalty if it is manifestly excessive or derisory";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and clause_penale(cl, o, m) and engagement_non_execute(o)
+            and penalite_manifestement_excessive_ou_derisoire(cl)
+            and penalite_moderee_ou_augmentee_par_le_juge(cl, retenue);
+        then penalite_due(cl, retenue);
+    }
+    rule PenaliteDiminueeParLExecutionPartielle(cl: Clause, o: Obligation, c: Contrat, m: Money, retenue: Money) strict {
+        label fr official "Article 1231-5, alinéa 3. Lorsque l'engagement a été exécuté en partie, la pénalité convenue peut être diminuée par le juge, même d'office, à proportion de l'intérêt que l'exécution partielle a procuré au créancier";
+        label en unofficial "Article 1231-5, paragraph 3. Where the undertaking was partly performed, the agreed penalty may be reduced by the court, even of its own motion, in proportion to the benefit the partial performance gave the creditor";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and clause_penale(cl, o, m) and engagement_execute_en_partie(o)
+            and penalite_diminuee_a_proportion_de_l_interet(cl, retenue);
+        then penalite_due(cl, retenue);
+    }
+    rule StipulationContraireReputeeNonEcrite(cl: Clause, c: Contrat) strict {
+        label fr official "Article 1231-5, alinéa 4. Toute stipulation contraire aux deux alinéas précédents est réputée non écrite";
+        label en unofficial "Article 1231-5, paragraph 4. Any stipulation contrary to the two preceding paragraphs is deemed unwritten";
+        when clause_du_contrat(cl, c) and regi_par_le_droit_nouveau(c)
+            and stipulation_contraire_au_pouvoir_du_juge(cl);
+        then stipulation_sur_la_penalite_reputee_non_ecrite(cl);
+    }
+}
+
+@source(CC_ART1231_6) {
+    rule InteretsMoratoiresDepuisLaMiseEnDemeure(o: Obligation, c: Contrat, cr: Creance, taux: Decimal, jour: Date) strict {
+        label fr official "Article 1231-6, alinéa 1. Les dommages et intérêts dus à raison du retard dans le paiement d'une obligation de somme d'argent consistent dans l'intérêt au taux légal, à compter de la mise en demeure";
+        label en unofficial "Article 1231-6, paragraph 1. Damages for delay in paying a monetary obligation consist of interest at the statutory rate, from the notice to pay";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and obligation_de_somme_d_argent(o, cr) and retard_dans_l_execution(o)
+            and taux_legal_applicable(o, taux)
+            and mise_en_demeure_de_satisfaire_le(o, jour);
+        then interets_moratoires_courent_depuis(o, jour);
+    }
+    rule InteretsDusSansPerte(o: Obligation, c: Contrat, jour: Date) strict {
+        label fr official "Article 1231-6, alinéa 2. Ces dommages et intérêts sont dus sans que le créancier soit tenu de justifier d'aucune perte";
+        label en unofficial "Article 1231-6, paragraph 2. That interest is owed without the creditor having to show any loss";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and interets_moratoires_courent_depuis(o, jour);
+        then interets_dus_sans_justifier_d_une_perte(o);
+    }
+    rule DommagesDistinctsPourMauvaiseFoi(o: Obligation, c: Contrat, jour: Date) strict {
+        label fr official "Article 1231-6, alinéa 3. Le créancier auquel son débiteur en retard a causé, par sa mauvaise foi, un préjudice indépendant de ce retard peut obtenir des dommages et intérêts distincts de l'intérêt moratoire";
+        label en unofficial "Article 1231-6, paragraph 3. A creditor to whom his late debtor caused, through bad faith, harm independent of the delay may obtain damages distinct from the default interest";
+        when obligation_du_contrat(o, c) and regi_par_le_droit_nouveau(c)
+            and interets_moratoires_courent_depuis(o, jour) and mauvaise_foi_du_debiteur_en_retard(o);
+        then dommages_distincts_de_l_interet_moratoire(o);
+    }
+}
+
+@source(CC_ART1231_7) {
+    rule InteretsDeLaCondamnationDesLeProncee(c: Contrat, jour: Date, taux: Decimal, o: Obligation) strict {
+        label fr official "Article 1231-7, alinéa 1. En toute matière, la condamnation à une indemnité emporte intérêts au taux légal même en l'absence de demande ou de disposition spéciale du jugement ; ces intérêts courent à compter du prononcé du jugement à moins que le juge n'en décide autrement";
+        label en unofficial "Article 1231-7, paragraph 1. In all matters, an award of an indemnity carries statutory interest even absent a request or a special provision of the judgment; that interest runs from the pronouncement of the judgment unless the court decides otherwise";
+        when force_obligatoire(c) and condamnation_a_une_indemnite_le(c, jour)
+            and obligation_du_contrat(o, c) and taux_legal_applicable(o, taux);
+        then interets_de_la_condamnation_courent_depuis(c, jour);
+    }
+    rule InteretsDepuisLePremierJugementEnCasDeConfirmation(c: Contrat, jour: Date) strict {
+        label fr official "Article 1231-7, alinéa 2. En cas de confirmation pure et simple par le juge d'appel d'une décision allouant une indemnité en réparation d'un dommage, celle-ci porte de plein droit intérêt au taux légal à compter du jugement de première instance";
+        label en unofficial "Article 1231-7, paragraph 2. Where the appellate court purely and simply confirms a decision awarding an indemnity for harm, it bears statutory interest by operation of law from the first-instance judgment";
+        when confirmation_pure_et_simple_en_appel(c) and condamnation_a_une_indemnite_le(c, jour)
+            and not_known(derogation_du_juge_d_appel(c));
+        then interets_de_la_condamnation_courent_depuis(c, jour);
+    }
+    rule InteretsDepuisLaDecisionDAppel(c: Contrat, jour: Date) strict {
+        label fr official "Article 1231-7, alinéa 2. Dans les autres cas, l'indemnité allouée en appel porte intérêt à compter de la décision d'appel";
+        label en unofficial "Article 1231-7, paragraph 2. In other cases, the indemnity awarded on appeal bears interest from the appellate decision";
+        when decision_d_appel_le(c, jour) and not_known(confirmation_pure_et_simple_en_appel(c));
+        then interets_de_la_condamnation_courent_depuis(c, jour);
+    }
+}

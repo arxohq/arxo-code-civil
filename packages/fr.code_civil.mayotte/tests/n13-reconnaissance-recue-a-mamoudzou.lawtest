@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2496 : reconnaissance faite à Mayotte, non simultanée à la déclaration de naissance.
+test "urn:query:fr-code-civil-mayotte-n13-reconnaissance-recue-a-mamoudzou" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": reconnaissance_faite_a_mayotte(entity_ref("urn:fr:cc:may:m:rec")) { origin case_input; }
+    }
+    evaluate truth(reconnaissance_recue_par_l_officier_de_mamoudzou(entity_ref("urn:fr:cc:may:m:rec")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ReconnaissanceRecueAMamoudzou);
+}

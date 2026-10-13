@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1247 : sans appréciation d une atteinte non négligeable, pas de préjudice écologique — question au juge.
+test "urn:query:fr-code-civil-responsabilite-r21-atteinte-negligeable-non-reparable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": victime(entity_ref("urn:fr:cc:resp:q:d"), entity_ref("urn:fr:cc:resp:q:etat")) { origin case_input; }
+    }
+    evaluate truth(prejudice_ecologique(entity_ref("urn:fr:cc:resp:q:d")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(atteinte_non_negligeable, Court);
+}

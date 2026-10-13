@@ -1,0 +1,83 @@
+// TITRE IV — POUVOIRS, PUBLICITÉ ET EFFETS COMPLÉMENTAIRES.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART113,
+    CC_ART114,
+    CC_ART115,
+    CC_ART116,
+    CC_ART117,
+    CC_ART118,
+    CC_ART119,
+    CC_ART123,
+    CC_ART124,
+    CC_ART127,
+    CC_ART129,
+    CC_ART130,
+    Personne,
+};
+
+pub relation representant_absent_designe(p: Personne) kind empirical { label fr official "un représentant du présumé absent est désigné par le juge"; label en unofficial "a representative of the presumed absentee is appointed by the court"; }
+pub relation administration_tutelle_majeur_applicable(p: Personne) kind derived { label fr official "l'administration suit les règles de la tutelle des majeurs sans conseil"; label en unofficial "administration follows adult-guardianship rules without a council"; }
+pub relation mission_representant_absent_revoquee(p: Personne) kind empirical { label fr official "le juge met fin à la mission du représentant du présumé absent"; label en unofficial "the court terminates the presumed absentee representative's appointment"; }
+pub relation representation_absent_prend_fin(p: Personne) kind derived { label fr official "la représentation du présumé absent prend fin"; label en unofficial "representation of the presumed absentee ends"; }
+pub relation partage_amiable_absent(p: Personne) kind empirical { label fr official "le présumé absent est appelé à un partage amiable"; label en unofficial "the presumed absentee is called to an amicable partition"; }
+pub relation approbation_judiciaire_partage(p: Personne) kind empirical { label fr official "l'état liquidatif du partage est approuvé par le juge"; label en unofficial "the partition account is approved by the court"; }
+pub relation partage_absent_admissible(p: Personne) kind derived { label fr official "le partage intéressant le présumé absent est admissible"; label en unofficial "the partition involving the presumed absentee is available"; }
+pub relation demande_concernant_absent(p: Personne) kind empirical { label fr official "une demande concernant le présumé absent est présentée"; label en unofficial "an application concerning the presumed absentee is made"; }
+pub relation ministere_public_a_entendre(p: Personne) kind derived { label fr official "le ministère public doit être entendu sur la demande"; label en unofficial "the public prosecutor must be heard on the application"; }
+pub relation retour_absent_et_demande_fin_mesures(p: Personne) kind empirical { label fr official "le présumé absent reparaît et demande la fin des mesures"; label en unofficial "the presumed absentee returns and seeks termination of measures"; }
+pub relation biens_geres_a_restituer(p: Personne) kind derived { label fr official "les biens gérés ou acquis pour le compte de l'absent doivent lui être restitués"; label en unofficial "property managed or acquired for the absentee must be returned"; }
+pub relation droit_acquis_sans_fraude_absence(p: Personne) kind empirical { label fr official "un droit a été acquis sans fraude sur le fondement de la présomption d'absence"; label en unofficial "a right was acquired without fraud on the basis of presumed absence"; }
+pub relation droit_absence_maintenu(p: Personne) kind derived { label fr official "le droit acquis sans fraude est maintenu"; label en unofficial "the right acquired without fraud is preserved"; }
+pub relation extraits_requete_deux_journaux(p: Personne) kind empirical { label fr official "les extraits de la requête sont publiés dans deux journaux compétents"; label en unofficial "extracts of the application are published in two competent newspapers"; }
+pub relation publicite_requete_absence_satisfaite(p: Personne) kind derived { label fr official "la publicité de la requête en absence est satisfaite"; label en unofficial "publication of the absence application is satisfied"; }
+pub relation jugement_absence_publie_dans_delai(p: Personne) kind empirical { label fr official "le jugement déclaratif est publié dans le délai fixé"; label en unofficial "the declaratory judgment is published within the fixed period"; }
+pub relation jugement_absence_effectif(p: Personne) kind derived { label fr official "le jugement déclaratif d'absence demeure effectif"; label en unofficial "the declaration-of-absence judgment remains effective"; }
+pub relation existence_prouvee_apres_jugement(p: Personne) kind empirical { label fr official "l'existence de l'absent est prouvée après le jugement déclaratif"; label en unofficial "the absentee's existence is proved after the declaratory judgment"; }
+pub relation annulation_jugement_absence_admissible(p: Personne) kind derived { label fr official "l'annulation du jugement déclaratif peut être poursuivie"; label en unofficial "annulment of the declaration-of-absence judgment may be sought"; }
+pub relation existence_absent_judiciairement_constatee(p: Personne) kind empirical { label fr official "l'existence de l'absent est judiciairement constatée"; label en unofficial "the absentee's existence is judicially established"; }
+pub relation biens_absent_a_recouvrer(p: Personne) kind derived { label fr official "l'absent recouvre ses biens, leur prix ou leurs remplois"; label en unofficial "the absentee recovers property, its price or replacement assets"; }
+pub relation budget_famille_absent_fixe_par_juge(p: Personne) kind empirical { label fr official "le juge fixe les sommes annuelles d'entretien de la famille et les dépenses d'administration"; label en unofficial "the court fixes annual family-maintenance and administration amounts"; }
+pub relation budget_representation_absent_applicable(p: Personne) kind derived { label fr official "le budget judiciaire de représentation de l'absent est applicable"; label en unofficial "the judicial budget for absentee representation applies"; }
+pub relation requete_absence_publiee_et_transmise(p: Personne) kind empirical { label fr official "la requête publiée est transmise au tribunal par le procureur"; label en unofficial "the published application is sent to the court through the prosecutor"; }
+pub relation instruction_declaration_absence_ouverte(p: Personne) kind derived { label fr official "l'instruction de la déclaration d'absence est ouverte"; label en unofficial "examination of the declaration-of-absence application is open"; }
+
+@source(CC_ART113)
+rule RegimeRepresentationAbsent(p: Personne) strict { label fr official "Article 113. Le représentant désigné administre sous le régime de la tutelle des majeurs sans conseil"; label en unofficial "Article 113. The appointed representative administers under adult guardianship without a council"; when representant_absent_designe(p); then administration_tutelle_majeur_applicable(p); }
+
+@source(CC_ART115)
+rule FinMissionRepresentantAbsent(p: Personne) strict { label fr official "Article 115. Le juge peut mettre fin à la mission ou remplacer le représentant"; label en unofficial "Article 115. The court may terminate or replace the representative"; when mission_representant_absent_revoquee(p); then representation_absent_prend_fin(p); }
+
+@source(CC_ART116)
+rule PartageAbsentApprouve(p: Personne) strict { label fr official "Article 116. Le partage amiable intéressant l'absent exige l'approbation judiciaire de l'état liquidatif"; label en unofficial "Article 116. An amicable partition involving the absentee requires judicial approval of the account"; when partage_amiable_absent(p) and approbation_judiciaire_partage(p); then partage_absent_admissible(p); }
+
+@source(CC_ART117)
+rule AuditionMinisterePublicAbsence(p: Personne) strict { label fr official "Article 117. Le ministère public est entendu sur toute demande concernant le présumé absent"; label en unofficial "Article 117. The public prosecutor is heard on every application concerning the presumed absentee"; when demande_concernant_absent(p); then ministere_public_a_entendre(p); }
+
+@source(CC_ART118)
+rule RetourAbsentRestitutionBiens(p: Personne) strict { label fr official "Article 118. Le retour et la demande de fin des mesures emportent restitution des biens gérés"; label en unofficial "Article 118. Return and a request to end measures entail restoration of managed property"; when retour_absent_et_demande_fin_mesures(p); then biens_geres_a_restituer(p); }
+
+@source(CC_ART119)
+rule MaintienDroitsSansFraude(p: Personne) strict { label fr official "Article 119. Les droits acquis sans fraude sur la présomption d'absence ne sont pas remis en cause"; label en unofficial "Article 119. Rights acquired without fraud on presumed absence are not disturbed"; when droit_acquis_sans_fraude_absence(p); then droit_absence_maintenu(p); }
+
+@source(CC_ART123)
+rule PubliciteRequeteDeuxJournaux(p: Personne) strict { label fr official "Article 123. Les extraits visés de la requête sont publiés dans deux journaux"; label en unofficial "Article 123. Approved extracts of the application are published in two newspapers"; when extraits_requete_deux_journaux(p); then publicite_requete_absence_satisfaite(p); }
+
+@source(CC_ART127)
+rule PublicationMaintientJugementAbsence(p: Personne) strict { label fr official "Article 127. La publication dans le délai empêche que la décision soit non avenue"; label en unofficial "Article 127. Publication within the period prevents the decision from lapsing"; when jugement_absence_publie_dans_delai(p); then jugement_absence_effectif(p); }
+
+@source(CC_ART129)
+rule AnnulationApresRetourAbsent(p: Personne) strict { label fr official "Article 129. Le retour ou la preuve d'existence après jugement ouvre l'annulation"; label en unofficial "Article 129. Return or proof of existence after judgment opens annulment"; when existence_prouvee_apres_jugement(p); then annulation_jugement_absence_admissible(p); }
+
+@source(CC_ART130)
+rule RecouvrementBiensAbsent(p: Personne) strict { label fr official "Article 130. L'existence judiciairement constatée fait recouvrer les biens, leur prix ou leurs remplois"; label en unofficial "Article 130. Judicially established existence restores property, its price or replacement assets"; when existence_absent_judiciairement_constatee(p); then biens_absent_a_recouvrer(p); }
+
+@source(CC_ART114)
+rule BudgetRepresentationAbsent(p: Personne) strict { label fr official "Article 114. Les sommes et dépenses fixées par le juge gouvernent l'entretien et l'administration"; label en unofficial "Article 114. Court-fixed amounts and expenses govern maintenance and administration"; when budget_famille_absent_fixe_par_juge(p); then budget_representation_absent_applicable(p); }
+
+@source(CC_ART124)
+rule TransmissionRequetePubliee(p: Personne) strict { label fr official "Article 124. Après publication, la requête transmise par le procureur ouvre l'instruction du tribunal"; label en unofficial "Article 124. After publication, the application sent through the prosecutor opens court examination"; when requete_absence_publiee_et_transmise(p); then instruction_declaration_absence_ouverte(p); }

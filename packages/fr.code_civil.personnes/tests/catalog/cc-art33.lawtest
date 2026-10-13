@@ -1,0 +1,39 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-SANCTIONPECUNIAIREOUTREMER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": application_titre_nationalite_outre_mer(entity_ref("urn:law:catalog:sanctionpecuniaireoutremer:v0")) { origin case_input; }
+        assert "cat-1": contre_valeur_euro_en_monnaie_locale_etablie(entity_ref("urn:law:catalog:sanctionpecuniaireoutremer:v0")) { origin case_input; }
+    }
+    evaluate truth(sanction_article_68_prononcee_en_monnaie_locale(entity_ref("urn:law:catalog:sanctionpecuniaireoutremer:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-TERMINOLOGIECOLLECTIVITEOUTREMER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": application_titre_nationalite_outre_mer(entity_ref("urn:law:catalog:terminologiecollectiviteoutremer:v0")) { origin case_input; }
+    }
+    evaluate truth(termes_collectivite_ou_nouvelle_caledonie_substitues(entity_ref("urn:law:catalog:terminologiecollectiviteoutremer:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-TERMINOLOGIEJURIDICTIONOUTREMER" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": application_titre_nationalite_outre_mer(entity_ref("urn:law:catalog:terminologiejuridictionoutremer:v0")) { origin case_input; }
+    }
+    evaluate truth(termes_tribunal_premiere_instance_substitues(entity_ref("urn:law:catalog:terminologiejuridictionoutremer:v0")));
+    expect truth_status == TRUE_ONLY;
+}

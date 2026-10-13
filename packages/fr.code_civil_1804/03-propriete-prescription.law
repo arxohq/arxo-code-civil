@@ -1,0 +1,167 @@
+// LIVRE II TITRE II and LIVRE III TITRE XX — property and prescription:
+// ownership is the right to enjoy and dispose of a thing (544); no one may be
+// compelled to cede his property (545); a possessor is in good faith when he
+// possesses as owner under a translative title whose defects he does not know
+// (550); all actions, real or personal, are prescribed by thirty years (2262);
+// an immovable is acquired by a good-faith possessor with just title in ten
+// or twenty years (2265); «en fait de meubles, la possession vaut titre» —
+// but a lost or stolen thing may be revendicated for three years (2279); a
+// thing bought at a fair is restored only against the price (2280).
+//
+// BOUNDARY: the 2265 term is ten years if the owner lives in the appeal-court
+// district, otherwise twenty; the case does not name this — twenty is taken
+// (the fact `dans_le_ressort` opens ten).
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART2228,
+    CC_ART2229,
+    CC_ART2248,
+    CC_ART2260,
+    CC_ART2261,
+    CC_ART2262,
+    CC_ART2265,
+    CC_ART2279,
+    CC_ART2280,
+    CC_ART544,
+    CC_ART545,
+    CC_ART550,
+    Causa,
+    Persona,
+    Res,
+};
+
+deadline policy OECD_CODE_CIVIL_1804_PRESCRIPTION {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+relation proprietaire(persona: Persona, res: Res) kind institutional { label fr official "propriétaire"; label en unofficial "person is owner of the thing under the Code (544)"; }
+relation proprietaire_alienavit(persona: Persona, res: Res) kind institutional { label fr official "propriété acquise à l’acheteur"; label en unofficial "the owner sold the thing: ownership passed to the buyer (1583)"; }
+relation possesseur_de_bonne_foi(persona: Persona, res: Res) kind institutional { label fr official "possesseur de bonne foi"; label en unofficial "possesses as owner under a title whose defects he does not know (550)"; }
+relation possession_utile(persona: Persona, res: Res) kind institutional { label fr official "possession continue, paisible, publique, à titre de propriétaire"; label en unofficial "possession capable of founding prescription (2228–2229)"; }
+relation dans_le_ressort(persona: Persona, res: Res) kind empirical { label fr official "le véritable propriétaire habite dans le ressort du tribunal d’appel"; label en unofficial "the true owner lives in the appeal-court district of the immovable — ten years instead of twenty (2265)"; }
+relation prescription_acquise(persona: Persona, res: Res) kind institutional { label fr official "prescription acquise"; label en unofficial "the possessor has acquired ownership by prescription (2262, 2265)"; }
+relation action_prescrite(causa: Causa) kind institutional { label fr official "action prescrite par trente ans"; label en unofficial "the action is prescribed by thirty years (2262)"; }
+relation possession_vaut_titre(persona: Persona, res: Res) kind institutional { label fr official "possession vaut titre"; label en unofficial "good-faith possession of a movable itself serves as title (2279)"; }
+relation revendication_meuble_perdu(dominus: Persona, possessor: Persona, res: Res) kind institutional { label fr official "revendication de la chose perdue ou volée"; label en unofficial "a lost or stolen movable may be revendicated from the possessor for three years (2279)"; }
+relation achete_en_foire(persona: Persona, res: Res) kind empirical { label fr official "achetée dans une foire, un marché ou une vente publique"; label en unofficial "the possessor bought the stolen thing at a fair, market, public sale, or from a dealer in such things (2280)"; }
+relation restitution_contre_prix(dominus: Persona, possessor: Persona, res: Res) kind institutional { label fr official "ne peut se la faire rendre qu’en remboursant le prix"; label en unofficial "the owner recovers the thing only by reimbursing the possessor the price paid (2280)"; }
+
+@source(CC_ART544)
+rule ProprietaireOriginaire(x: Persona, r: Res, y: Persona) strict { label fr official "La propriété est le droit de jouir et disposer des choses"; label en unofficial "The case’s original owner is owner under the Code until he has alienated the thing or the possessor has prescribed it (544; 1583; 2262, 2265)"; when doctrine.ius_privatum::dominus_originarius(x, r) and doctrine.ius_privatum::possessor(y, r) and not_known(proprietaire_alienavit(x, r)) and not_known(prescription_acquise(y, r)); then proprietaire(x, r); }
+@source(CC_ART550)
+rule PossesseurDeBonneFoi(y: Persona, r: Res) strict { label fr official "Le possesseur est de bonne foi quand il possède comme propriétaire, en vertu d’un titre translatif de propriété dont il ignore les vices"; label en unofficial "One who possesses as owner under a just title, unaware of its defects, is a possessor in good faith (550)"; when doctrine.ius_privatum::possessor(y, r) and doctrine.ius_privatum::bona_fides(y, r) and doctrine.ius_privatum::iusta_causa_possessionis(y, r); then possesseur_de_bonne_foi(y, r); }
+@source(CC_ART550)
+rule PossesseurDeBonneFoiParVente(v: Persona, y: Persona, r: Res) strict { label fr official "en vertu d’un titre translatif de propriété dont il ignore les vices"; label en unofficial "One who bought and received the thing, unaware that the seller was not owner, possesses under a translative title — possessor in good faith (550)"; when doctrine.ius_privatum::possessor(y, r) and doctrine.ius_privatum::bona_fides(y, r) and doctrine.ius_privatum::venditio(v, y, r) and doctrine.ius_privatum::traditio(v, y, r); then possesseur_de_bonne_foi(y, r); }
+@source(CC_ART2228, CC_ART2229)
+rule PossessionUtile(y: Persona, r: Res, n: Integer) strict { label fr official "Pour pouvoir prescrire, il faut une possession continue et non interrompue, paisible, publique, non équivoque, et à titre de propriétaire"; label en unofficial "Continuous possession as owner is possession capable of founding prescription (2228–2229)"; when doctrine.ius_privatum::possessio_continua_annos(y, r, n) and doctrine.ius_privatum::iusta_causa_possessionis(y, r); then possession_utile(y, r); }
+@source(CC_ART2262)
+rule PrescriptionTrentenaire(c: Causa, n: Integer) strict { label fr official "Toutes les actions, tant réelles que personnelles, sont prescrites par trente ans"; label en unofficial "All actions, real or personal, are prescribed by thirty years without title and without an objection of bad faith (2262)"; when doctrine.ius_privatum::actio_nata_ante_annos(c, n) and n >= 30; then action_prescrite(c); }
+@source(CC_ART2262)
+rule PrescriptionTrentenaireAcquisitive(y: Persona, r: Res, n: Integer) strict { label fr official "prescrites par trente ans … sans titre"; label en unofficial "Thirty years of possession as owner confer ownership even without title (2262, 2229)"; when doctrine.ius_privatum::possessio_continua_annos(y, r, n) and n >= 30 and possession_utile(y, r); then prescription_acquise(y, r); }
+@source(CC_ART2265)
+rule PrescriptionVingtAns(y: Persona, r: Res, n: Integer) strict { label fr official "Celui qui acquiert de bonne foi, et par juste titre, un immeuble, en prescrit la propriété … par vingt ans"; label en unofficial "A good-faith acquirer of an immovable by just title prescribes ownership in twenty years (2265)"; when doctrine.ius_privatum::possessio_continua_annos(y, r, n) and doctrine.ius_privatum::res_immobilis(r) and n >= 20 and possesseur_de_bonne_foi(y, r); then prescription_acquise(y, r); }
+@source(CC_ART2265)
+rule PrescriptionDixAns(y: Persona, r: Res, n: Integer) strict { label fr official "par dix ans, si le véritable propriétaire habite dans le ressort du tribunal d’appel"; label en unofficial "In ten years if the true owner lives in the appeal-court district (2265)"; when doctrine.ius_privatum::possessio_continua_annos(y, r, n) and doctrine.ius_privatum::res_immobilis(r) and n >= 10 and possesseur_de_bonne_foi(y, r) and dans_le_ressort(y, r); then prescription_acquise(y, r); }
+@source(CC_ART2279)
+rule PossessionVautTitre(y: Persona, r: Res, x: Persona) strict { label fr official "En fait de meubles, la possession vaut titre"; label en unofficial "Good-faith possession of a movable itself serves as title — except if lost or stolen (2279)"; when doctrine.ius_privatum::res_mobilis(r) and possesseur_de_bonne_foi(y, r) and doctrine.ius_privatum::dominus_originarius(x, r) and not_known(doctrine.ius_privatum::res_domino_ablata(x, r)); then possession_vaut_titre(y, r); }
+@source(CC_ART2279)
+rule RevendicationMeublePerdu(x: Persona, y: Persona, r: Res, c: Causa) strict { label fr official "celui qui a perdu ou auquel il a été volé une chose, peut la revendiquer pendant trois ans"; label en unofficial "The owner may revendicate a lost or stolen movable from the possessor for three years (2279)"; when doctrine.ius_privatum::res_mobilis(r) and doctrine.ius_privatum::res_domino_ablata(x, r) and doctrine.ius_privatum::possessor(y, r) and doctrine.ius_privatum::petitio(c, x, y) and doctrine.ius_privatum::petitio_de_re(c, r) and not_known(action_prescrite(c)); then revendication_meuble_perdu(x, y, r); }
+@source(CC_ART2280)
+rule RestitutionContrePrix(x: Persona, y: Persona, r: Res) strict { label fr official "le propriétaire originaire ne peut se la faire rendre qu’en remboursant au possesseur le prix"; label en unofficial "A thing bought at a fair or from a dealer is restored to the owner only against the price paid (2280)"; when revendication_meuble_perdu(x, y, r) and achete_en_foire(y, r); then restitution_contre_prix(x, y, r); }
+@source(CC_ART545)
+rule NulNeCedeSaPropriete(x: Persona, y: Persona, r: Res, c: Causa) strict { label fr official "Nul ne peut être contraint de céder sa propriété"; label en unofficial "The owner may revendicate his thing from a possessor who has not become owner: no one may be compelled to cede his property (545, 544)"; when proprietaire(x, r) and doctrine.ius_privatum::petitio(c, x, y) and doctrine.ius_privatum::petitio_de_re(c, r) and doctrine.ius_privatum::possessor(y, r) and not_known(proprietaire(y, r)); then revendication(x, y, c); }
+relation revendication(dominus: Persona, possessor: Persona, causa: Causa) kind institutional { label fr official "revendication"; label en unofficial "the owner has revendication of his thing from the possessor (544–545)"; }
+@source(CC_ART2279)
+rule PossessionVautTitreExclut(x: Persona, y: Persona, r: Res, c: Causa) strict { label fr official "la possession vaut titre"; label en unofficial "Against a good-faith possessor of a movable, revendication does not lie: possession serves as title (2279)"; when revendication(x, y, c) and doctrine.ius_privatum::petitio_de_re(c, r) and possession_vaut_titre(y, r); then revendication_exclue(x, y, c); }
+relation revendication_exclue(dominus: Persona, possessor: Persona, causa: Causa) kind institutional { label fr official "revendication exclue"; label en unofficial "revendication is excluded: possession of the movable serves as title (2279)"; }
+@source(CC_ART2262)
+rule PrescriptionExclut(x: Persona, y: Persona, c: Causa) strict { label fr official "action prescrite"; label en unofficial "An action prescribed by limitation is an excluded remedy (2262)"; when action_prescrite(c) and doctrine.ius_privatum::petitio(c, x, y); then action_eteinte(x, y, c); }
+relation action_eteinte(actor: Persona, reus: Persona, causa: Causa) kind institutional { label fr official "action éteinte par la prescription"; label en unofficial "the claimant’s action against the defendant is prescribed (2262)"; }
+
+// OECD TIME AXIS. Dates belong to the case, not the term: the unit «trente
+// ans» is read from art. 2262 and executed by a calendar step. Each case
+// chooses month-end policy (§86), so there is no hidden default for a debt
+// arising on 29 February. Art. 2261 requires the last day to expire: on the
+// échéance date itself the action is not yet prescribed; from the next day
+// it is.
+pub relation creance_exigible_depuis(causa: Causa, jour: Date) kind empirical {
+    label fr official "créance exigible depuis ce jour";
+    label en unofficial "the claim became enforceable on this day";
+}
+pub relation action_introduite_le(causa: Causa, jour: Date) kind empirical {
+    label fr official "action introduite ce jour";
+    label en unofficial "the action was brought on this day";
+}
+pub relation reconnaissance_du_debiteur_le(causa: Causa, jour: Date) kind empirical {
+    label fr official "reconnaissance par le débiteur ce jour";
+    label en unofficial "the debtor acknowledged the creditor’s right on this day";
+}
+pub relation prescription_interrompue_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "prescription interrompue ce jour";
+    label en unofficial "prescription was interrupted on this day";
+}
+pub relation prescription_non_interrompue(causa: Causa) kind empirical {
+    label fr official "prescription non interrompue";
+    label en unofficial "prescription was not interrupted";
+}
+pub relation action_prescrite_le(causa: Causa, jour: Date) kind institutional {
+    label fr official "action prescrite à cette date";
+    label en unofficial "by this date the claim is prescribed";
+}
+
+@source(CC_ART2248)
+rule ReconnaissanceInterromptPrescription(c: Causa, jour: Date) strict {
+    label fr official "La prescription est interrompue par la reconnaissance que le débiteur fait du droit";
+    label en unofficial "the debtor’s acknowledgement of the creditor’s right interrupts prescription (2248)";
+    when reconnaissance_du_debiteur_le(c, jour);
+    then prescription_interrompue_le(c, jour);
+}
+
+@source(CC_ART2260, CC_ART2261, CC_ART2262)
+rule ActionPrescriteTrenteAns(c: Causa, depart: Date, saisine: Date) strict {
+    label fr official "Toutes les actions sont prescrites par trente ans; la prescription est acquise lorsque le dernier jour du terme est accompli";
+    label en unofficial "without interruption the action is prescribed after the last day of the thirty-year term (2260–2262)";
+    when creance_exigible_depuis(c, depart)
+        and action_introduite_le(c, saisine)
+        and prescription_non_interrompue(c)
+        and saisine > add_calendar_period(depart, 30 calendar_year);
+    then action_prescrite_le(c, saisine);
+}
+
+@source(CC_ART2260, CC_ART2261, CC_ART2262)
+rule ActionNonPrescriteAvantTrenteAns(c: Causa, depart: Date, saisine: Date) strict {
+    label fr official "le dernier jour du terme n'est pas encore accompli";
+    label en unofficial "until the last day of the thirty-year term ends, the action is not prescribed (2260–2262)";
+    when creance_exigible_depuis(c, depart)
+        and action_introduite_le(c, saisine)
+        and prescription_non_interrompue(c)
+        and saisine <= add_calendar_period(depart, 30 calendar_year);
+    then not action_prescrite_le(c, saisine);
+}
+
+@source(CC_ART2248, CC_ART2260, CC_ART2261, CC_ART2262)
+rule ActionPrescriteApresInterruption(c: Causa, reprise: Date, saisine: Date) strict {
+    label fr official "prescription interrompue; nouveau délai trentenaire";
+    label en unofficial "after acknowledgement the term runs anew and the action is prescribed after a new thirty-year term (2248, 2260–2262)";
+    when prescription_interrompue_le(c, reprise)
+        and action_introduite_le(c, saisine)
+        and saisine > add_calendar_period(reprise, 30 calendar_year);
+    then action_prescrite_le(c, saisine);
+}
+
+@source(CC_ART2248, CC_ART2260, CC_ART2261, CC_ART2262)
+rule ActionNonPrescriteApresInterruption(c: Causa, reprise: Date, saisine: Date) strict {
+    label fr official "prescription interrompue; nouveau délai trentenaire non accompli";
+    label en unofficial "after acknowledgement the new thirty-year term has not yet expired (2248, 2260–2262)";
+    when prescription_interrompue_le(c, reprise)
+        and action_introduite_le(c, saisine)
+        and saisine <= add_calendar_period(reprise, 30 calendar_year);
+    then not action_prescrite_le(c, saisine);
+}

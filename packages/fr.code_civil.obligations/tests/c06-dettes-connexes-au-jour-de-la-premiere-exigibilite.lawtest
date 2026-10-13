@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1348-1, al. 2 : pour les dettes connexes, la compensation est réputée s'être
+// produite AU JOUR DE L'EXIGIBILITÉ DE LA PREMIÈRE d'entre elles — ici le 10 janvier
+// 2025, et non le 1er février.
+test "urn:query:fr-code-civil-obligations-c06-dettes-connexes-au-jour-de-la-premiere-exigibilite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": dettes_connexes(entity_ref("urn:fr:cc:obligations:con:c1"), entity_ref("urn:fr:cc:obligations:con:c2")) { origin case_input; }
+        assert "f2": date_d_exigibilite(entity_ref("urn:fr:cc:obligations:con:c1"), @2025-01-10) { origin case_input; }
+        assert "f3": date_d_exigibilite(entity_ref("urn:fr:cc:obligations:con:c2"), @2025-02-01) { origin case_input; }
+    }
+    evaluate truth(compensation_des_dettes_connexes_au_jour_de_la_premiere_exigibilite(entity_ref("urn:fr:cc:obligations:con:c1"), entity_ref("urn:fr:cc:obligations:con:c2"), @2025-01-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CompensationDesDettesConnexes);
+}

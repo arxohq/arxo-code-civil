@@ -1,0 +1,879 @@
+// CHAPITRE VIII — DU PARTAGE : RAPPORT DES LIBÉRALITÉS, PAIEMENT DES DETTES,
+// EFFETS ET GARANTIE, NULLITÉ ET COMPLÉMENT DE PART (articles 843 à 892).
+//
+// Le chapitre dit QUI rapporte, COMBIEN, et DANS QUEL DÉLAI l'on attaque un
+// partage :
+//
+//   — le rapport est dû de tout ce que l'héritier a reçu du défunt par
+//     donation, sauf don fait hors part successorale ; les legs sont réputés
+//     hors part (843) ; l'excédent de la quotité disponible est sujet à
+//     réduction, matière du paquet des libéralités (844) ; le renonçant
+//     retient le don sauf exigence expresse, et alors rapporte en valeur
+//     (845) ; le donataire qui n'était pas héritier présomptif ne rapporte
+//     pas sans exigence expresse (846) ;
+//   — ce qui échappe au rapport : nourriture, entretien, éducation,
+//     apprentissage, équipement ordinaire, noces et présents d'usage (852),
+//     profits de conventions sans avantage indirect (853), bien péri par cas
+//     fortuit (855) ;
+//   — la VALEUR rapportée : celle du bien à l'époque du partage d'après son
+//     état à l'époque de la donation ; celle de l'aliénation si le bien a été
+//     vendu ; le montant nominal pour une somme d'argent, sauf emploi (860,
+//     860-1) ; les fruits courent de l'ouverture, les intérêts du jour où le
+//     rapport est déterminé (856) ;
+//   — les DETTES : le copartageant débiteur en est alloti et la dette s'éteint
+//     par confusion à due concurrence (864), les cohéritiers contribuent à
+//     proportion de leur part (870, 873), la part de l'insolvable se répartit
+//     au marc le franc (876) ;
+//   — les DÉLAIS : deux ans pour la préférence sur les meubles (881), deux ans
+//     pour la garantie d'éviction (886), deux ans pour le complément de part,
+//     dû dès que la lésion dépasse LE QUART (889).
+//
+// Le quart de l'article 889 se vérifie sans division : la lésion dépasse le
+// quart quand `4 × part reçue < 3 × droits`.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART843,
+    CC_ART846,
+    CC_ART851,
+    CC_ART852,
+    CC_ART853,
+    CC_ART855,
+    CC_ART858,
+    CC_ART860,
+    CC_ART860_1,
+    CC_ART864,
+    CC_ART881,
+    CC_ART884,
+    CC_ART886,
+    CC_ART889,
+    CC_ART891,
+    CC_ART892,
+    Personne,
+    Succession,
+    ouverte_le,
+};
+
+pub entity LiberaliteRapportable {
+    label fr official "Libéralité reçue du défunt dont il faut dire si elle est rapportable (articles 843 à 860-1)";
+    label en unofficial "Gift received from the deceased, to be classified as accountable or not (Articles 843 to 860-1)";
+}
+
+pub enum NatureDeLaLiberalite {
+    label fr official "Nature de la libéralité reçue du défunt (articles 843 à 853)";
+    label en unofficial "Nature of the gift received from the deceased (Articles 843 to 853)";
+    DonationEnAvancementDePartSuccessorale,
+    DonationHorsPartSuccessorale,
+    Legs,
+    FraisDeNourritureEntretienEducationOuApprentissage,
+    FraisOrdinairesDEquipementOuDeNoces,
+    PresentDUsage,
+    ProfitDUneConventionSansAvantageIndirect
+}
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation liberalite_recue(s: Succession, h: Personne, l: LiberaliteRapportable, nature: NatureDeLaLiberalite) kind empirical {
+    key(l);
+    label fr official "libéralité reçue du défunt par cet héritier, et sa nature (articles 843 à 853)";
+    label en unofficial "gift received from the deceased by this heir, and its nature (Articles 843 to 853)";
+}
+pub relation donataire_de_liberalite(s: Succession, h: Personne, l: LiberaliteRapportable) kind empirical {
+    label fr official "personne donataire de la libéralité";
+    label en unofficial "donee of the gift";
+}
+pub relation donataire_non_heritier_presomptif(s: Succession, l: LiberaliteRapportable) kind empirical {
+    label fr official "le donataire n'était pas héritier présomptif lors de la donation (article 846)";
+    label en unofficial "the donee was not a presumptive heir at the time of the gift (Article 846)";
+}
+pub relation rapport_expressement_exige(s: Succession, l: LiberaliteRapportable) kind empirical {
+    label fr official "le disposant a expressément exigé le rapport (articles 845, 846, 852)";
+    label en unofficial "the disposer expressly required the gift to be brought into account (Articles 845, 846, 852)";
+}
+pub relation bien_peri_par_cas_fortuit(s: Succession, l: LiberaliteRapportable) kind empirical {
+    label fr official "le bien donné a péri par cas fortuit et sans la faute du donataire (article 855)";
+    label en unofficial "the gifted property perished by chance and without the donee's fault (Article 855)";
+}
+pub relation indemnite_employee_a_la_reconstitution(s: Succession, l: LiberaliteRapportable) kind empirical {
+    label fr official "l'indemnité perçue en raison de la perte a servi à reconstituer le bien (article 855, alinéa 2)";
+    label en unofficial "the indemnity received for the loss was used to restore the property (Article 855, paragraph 2)";
+}
+pub relation valeur_du_bien_au_partage(s: Succession, l: LiberaliteRapportable, montant: Money) kind empirical {
+    key(l);
+    label fr official "valeur du bien donné à l'époque du partage, d'après son état à l'époque de la donation (article 860)";
+    label en unofficial "value of the gifted property at the time of partition, in the state it was in when given (Article 860)";
+}
+pub relation bien_aliene_avant_le_partage(s: Succession, l: LiberaliteRapportable, montant: Money) kind empirical {
+    key(l);
+    label fr official "le bien a été aliéné avant le partage : valeur à l'époque de l'aliénation (article 860, alinéa 2)";
+    label en unofficial "the property was sold before the partition: value at the time of sale (Article 860, paragraph 2)";
+}
+pub relation somme_d_argent_donnee(s: Succession, l: LiberaliteRapportable, montant: Money) kind empirical {
+    key(l);
+    label fr official "somme d'argent donnée (article 860-1)";
+    label en unofficial "sum of money given (Article 860-1)";
+}
+pub relation somme_employee_a_acquerir_un_bien(s: Succession, l: LiberaliteRapportable) kind empirical {
+    label fr official "la somme donnée a servi à acquérir un bien (article 860-1)";
+    label en unofficial "the sum given was used to acquire property (Article 860-1)";
+}
+pub relation creance_de_la_masse_contre(s: Succession, h: Personne, montant: Money) kind empirical {
+    key(s, h);
+    label fr official "créance de la masse partageable contre ce copartageant (article 864)";
+    label en unofficial "claim of the divisible mass against this co-sharer (Article 864)";
+}
+pub relation droits_dans_la_masse(s: Succession, h: Personne, montant: Money) kind empirical {
+    key(s, h);
+    label fr official "valeur des droits de ce copartageant dans la masse partageable (articles 864, 889)";
+    label en unofficial "value of this co-sharer's rights in the divisible mass (Articles 864, 889)";
+}
+pub relation part_effectivement_recue(s: Succession, h: Personne, montant: Money) kind empirical {
+    key(s, h);
+    label fr official "valeur effectivement reçue par le copartageant dans le partage, estimée à l'époque du partage (article 889)";
+    label en unofficial "value actually received by the co-sharer in the partition, estimated at the time of partition (Article 889)";
+}
+pub relation partage_realise_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour du partage (articles 886, 889)";
+    label en unofficial "day of the partition (Articles 886, 889)";
+}
+pub relation action_en_complement_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de l'action en complément de part (article 889, alinéa 2)";
+    label en unofficial "day the action for a supplementary share was brought (Article 889, paragraph 2)";
+}
+pub relation transaction_apres_le_partage(s: Succession) kind empirical {
+    label fr official "une transaction est intervenue à la suite du partage sur les difficultés qu'il présentait (article 890, alinéa 2)";
+    label en unofficial "a settlement followed the partition on the difficulties it raised (Article 890, paragraph 2)";
+}
+pub relation cession_aleatoire_de_droits_indivis(s: Succession, h: Personne) kind empirical {
+    label fr official "vente de droits indivis à un indivisaire comportant un aléa défini et accepté (article 891)";
+    label en unofficial "sale of undivided rights to a co-owner with a defined and accepted risk (Article 891)";
+}
+pub relation eviction_subie_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de l'éviction ou de la découverte du trouble (articles 884, 886)";
+    label en unofficial "day of the eviction or of the discovery of the disturbance (Articles 884, 886)";
+}
+pub relation cause_anterieure_au_partage(s: Succession, h: Personne) kind empirical {
+    label fr official "l'éviction ou le trouble procède d'une cause antérieure au partage (article 884)";
+    label en unofficial "the eviction or disturbance arises from a cause predating the partition (Article 884)";
+}
+pub relation eviction_par_la_faute_du_coheritier(s: Succession, h: Personne) kind empirical {
+    label fr official "le cohéritier souffre l'éviction par sa faute (article 884, alinéa 2)";
+    label en unofficial "the co-heir suffers the eviction through his own fault (Article 884, paragraph 2)";
+}
+pub relation garantie_exceptee_par_clause(s: Succession, h: Personne) kind empirical {
+    label fr official "une clause particulière et expresse de l'acte de partage excepte cette espèce d'éviction (article 884, alinéa 2)";
+    label en unofficial "an express clause of the partition deed excludes this kind of eviction (Article 884, paragraph 2)";
+}
+pub relation action_en_garantie_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de l'action en garantie (article 886)";
+    label en unofficial "day the warranty action was brought (Article 886)";
+}
+pub relation preference_demandee_le(s: Succession, creancier: Personne, jour: Date) kind empirical {
+    key(s, creancier);
+    label fr official "jour où le créancier manifeste son intention d'être préféré sur les meubles (articles 879, 881)";
+    label en unofficial "day the creditor expresses the intention to be preferred over the movables (Articles 879, 881)";
+}
+pub relation preference_sur_les_meubles_exercee(s: Succession, creancier: Personne, jour: Date) kind institutional {
+    label fr official "le créancier a exercé son droit de préférence sur les meubles (article 881)";
+    label en unofficial "the creditor has exercised the preference right over the movables (Article 881)";
+}
+pub relation preference_meubles_exercee(s: Succession, creancier: Personne) kind empirical {
+    label fr official "droit de préférence sur les meubles exercé";
+    label en unofficial "preference right over movables exercised";
+}
+pub relation cession_droits_aleatoire_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "cession aléatoire de droits indivis exercée";
+    label en unofficial "aleatory assignment of undivided rights exercised";
+}
+pub relation droits_indivis_cedes_avec_alea(s: Succession, h: Personne) kind institutional {
+    label fr official "les droits indivis sont cédés avec un aléa défini et accepté (article 891)";
+    label en unofficial "the undivided rights are sold with a defined and accepted risk (Article 891)";
+}
+pub relation bien_indivis_omis(s: Succession) kind empirical {
+    label fr official "un bien indivis a été omis du partage (article 892)";
+    label en unofficial "an undivided asset was omitted from the partition (Article 892)";
+}
+
+// --- Résultats -------------------------------------------------------------------------------
+
+pub relation rapport_du(s: Succession, h: Personne, l: LiberaliteRapportable) kind derived {
+    label fr official "l'héritier doit le rapport de cette libéralité (articles 843, 851)";
+    label en unofficial "the heir must bring this gift into account (Articles 843, 851)";
+}
+pub relation rapport_liberalite_exerce(s: Succession, h: Personne, l: LiberaliteRapportable) kind empirical {
+    key(s, h, l);
+    label fr official "rapport de la libéralité exercé";
+    label en unofficial "accounting for the gift exercised";
+}
+pub relation rapport_liberalite_851_exerce(s: Succession, h: Personne, l: LiberaliteRapportable) kind empirical {
+    label fr official "rapport de la libéralité exercé selon l'article 851";
+    label en unofficial "accounting for the gift exercised under Article 851";
+}
+pub relation dispense_de_rapport(s: Succession, l: LiberaliteRapportable) kind derived {
+    label fr official "la libéralité échappe au rapport : don hors part successorale, legs, frais d'entretien ou présent d'usage (articles 843, 852, 853, 855)";
+    label en unofficial "the gift escapes the duty to account: gift outside the share, legacy, maintenance costs or customary present (Articles 843, 852, 853, 855)";
+}
+pub relation valeur_rapportable(s: Succession, h: Personne, montant: Money) kind derived {
+    label fr official "valeur que l'héritier doit rapporter (articles 860, 860-1)";
+    label en unofficial "value the heir must bring into account (Articles 860, 860-1)";
+}
+pub relation rapport_somme_exerce(s: Succession, h: Personne, montant: Money) kind empirical {
+    label fr official "rapport de la somme d'argent exercé";
+    label en unofficial "accounting for the money exercised";
+}
+pub relation rapport_valeur_exerce(s: Succession, h: Personne, montant: Money) kind empirical {
+    key(s, h);
+    label fr official "rapport de la valeur exercé";
+    label en unofficial "accounting for the value exercised";
+}
+pub relation rapport_en_moins_prenant(s: Succession, h: Personne) kind derived {
+    label fr official "le rapport se fait en moins prenant, et ne peut être exigé en nature sauf stipulation contraire (article 858)";
+    label en unofficial "the account is taken by deduction from the share, and cannot be demanded in kind absent contrary stipulation (Article 858)";
+}
+pub relation exigence_rapport_nature_exercee(s: Succession, h: Personne) kind empirical {
+    key(s, h);
+    label fr official "exigence du rapport en nature exercée";
+    label en unofficial "demand for in-kind accounting exercised";
+}
+pub relation alloti_de_sa_dette(s: Succession, h: Personne) kind derived {
+    label fr official "le copartageant débiteur est alloti de sa dette : elle s'éteint par confusion à concurrence de ses droits (article 864)";
+    label en unofficial "the debtor co-sharer is allotted his debt: it is extinguished by merger up to his rights (Article 864)";
+}
+pub relation allotissement_dette_exerce(s: Succession, h: Personne) kind empirical {
+    label fr official "imputation de la dette sur les droits exercée";
+    label en unofficial "allocation of the debt against the share exercised";
+}
+pub relation solde_de_la_dette_du(s: Succession, h: Personne, montant: Money) kind derived {
+    key(s, h);
+    label fr official "solde de la dette qui excède les droits du débiteur dans la masse (article 864, alinéa 2)";
+    label en unofficial "balance of the debt exceeding the debtor's rights in the mass (Article 864, paragraph 2)";
+}
+pub relation paiement_solde_dette_exerce(s: Succession, h: Personne, montant: Money) kind empirical {
+    key(s, h);
+    label fr official "paiement du solde de la dette exercé";
+    label en unofficial "payment of the debt balance exercised";
+}
+pub relation garantie_des_lots_due(s: Succession, h: Personne) kind derived {
+    label fr official "les cohéritiers sont garants de l'éviction procédant d'une cause antérieure au partage (article 884)";
+    label en unofficial "the co-heirs warrant against eviction arising from a cause predating the partition (Article 884)";
+}
+pub relation garantie_eviction_exercee(s: Succession, h: Personne) kind empirical {
+    key(s, h);
+    label fr official "garantie contre l'éviction exercée";
+    label en unofficial "eviction warranty exercised";
+}
+pub relation action_en_garantie_engagee(s: Succession, h: Personne) kind institutional {
+    label fr official "le copartageant a exercé l'action en garantie (article 886)";
+    label en unofficial "the co-sharer has brought the warranty action (Article 886)";
+}
+pub relation fin_de_l_action_en_garantie(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des deux ans de l'action en garantie (article 886)";
+    label en unofficial "last day of the two-year warranty action (Article 886)";
+}
+pub relation action_en_garantie_prescrite(s: Succession, h: Personne) kind derived {
+    label fr official "l'action en garantie est prescrite : plus de deux ans depuis l'éviction (article 886)";
+    label en unofficial "the warranty action is time-barred: more than two years since the eviction (Article 886)";
+}
+pub relation lesion_de_plus_du_quart(s: Succession, h: Personne) kind derived {
+    label fr official "le copartageant a subi une lésion de plus du quart (article 889)";
+    label en unofficial "the co-sharer suffered a loss of more than a quarter (Article 889)";
+}
+pub relation fin_de_l_action_en_complement(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des deux ans de l'action en complément de part (article 889, alinéa 2)";
+    label en unofficial "last day of the two-year action for a supplementary share (Article 889, paragraph 2)";
+}
+pub relation complement_de_part_du(s: Succession, h: Personne) kind derived {
+    label fr official "le complément de part est dû : lésion de plus du quart, action exercée dans les deux ans (articles 889, 890, 891)";
+    label en unofficial "the supplementary share is due: loss of more than a quarter, action brought within two years (Articles 889, 890, 891)";
+}
+pub relation complement_de_part_demande(s: Succession, h: Personne) kind institutional {
+    label fr official "le copartageant lésé a exercé l'action en complément de part (articles 889 et 890)";
+    label en unofficial "the injured co-sharer has brought the action for a supplement of share (Articles 889 and 890)";
+}
+pub relation action_complement_exercee(s: Succession, h: Personne) kind empirical {
+    key(s, h);
+    label fr official "action en complément de part exercée";
+    label en unofficial "supplementary share action exercised";
+}
+pub relation fin_de_la_preference_sur_les_meubles(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des deux ans du droit de préférence sur les meubles (article 881)";
+    label en unofficial "last day of the two-year preference right over movables (Article 881)";
+}
+pub relation preference_sur_les_meubles_prescrite(s: Succession, creancier: Personne) kind derived {
+    label fr official "le droit de préférence sur les meubles est prescrit (article 881)";
+    label en unofficial "the preference right over movables is time-barred (Article 881)";
+}
+pub relation partage_complementaire_du(s: Succession) kind derived {
+    label fr official "la simple omission d'un bien indivis donne lieu à un partage complémentaire portant sur ce bien (article 892)";
+    label en unofficial "the mere omission of an undivided asset gives rise to a supplementary partition of that asset (Article 892)";
+}
+pub relation partage_complementaire_demande(s: Succession) kind institutional {
+    label fr official "le partage complémentaire portant sur le bien omis est demandé (article 892)";
+    label en unofficial "a supplementary partition of the omitted asset is sought (Article 892)";
+}
+pub relation action_partage_complementaire_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "action en partage complémentaire exercée";
+    label en unofficial "supplementary partition action exercised";
+}
+pub relation heritier_demandeur_partage_complementaire(s: Succession, h: Personne) kind empirical {
+    label fr official "héritier demandeur du partage complémentaire";
+    label en unofficial "heir requesting supplementary partition";
+}
+
+// --- Articles 843 à 855 : qui rapporte -----------------------------------------------------------
+
+@source(CC_ART843, CC_ART851) {
+    rule RapportDeLaDonationEnAvancementDePart(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 843, alinéa 1. Tout héritier venant à la succession doit rapporter ce qu'il a reçu du défunt par donation entre vifs, à moins qu'elle ne lui ait été faite expressément hors part successorale";
+        label en unofficial "Article 843, paragraph 1. Every heir coming to the estate must account for what he received from the deceased by inter vivos gift, unless it was expressly made outside his share";
+        when liberalite_recue(s, h, l, DonationEnAvancementDePartSuccessorale)
+            and not_known(dispense_de_rapport(s, l));
+        then rapport_du(s, h, l);
+    }
+    rule DonHorsPartSuccessoraleDispense(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 843, alinéa 1. Le don fait expressément hors part successorale n'est pas rapportable";
+        label en unofficial "Article 843, paragraph 1. A gift expressly made outside the share is not accountable";
+        when liberalite_recue(s, h, l, DonationHorsPartSuccessorale);
+        then dispense_de_rapport(s, l);
+    }
+    rule LegsReputeHorsPart(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 843, alinéa 2. Les legs faits à un héritier sont réputés faits hors part successorale, à moins que le testateur n'ait exprimé la volonté contraire";
+        label en unofficial "Article 843, paragraph 2. Legacies to an heir are deemed made outside his share, unless the testator expressed the contrary";
+        when liberalite_recue(s, h, l, Legs) and not_known(rapport_expressement_exige(s, l));
+        then dispense_de_rapport(s, l);
+    }
+}
+
+@source(CC_ART843)
+rule P3DevoirRapporterDonation(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 843. Tout héritier venant à la succession doit rapporter ce qu'il a reçu du défunt";
+    label en unofficial "Article 843. Every heir coming to the estate must account for what he received";
+    when liberalite_recue(s, h, l, DonationEnAvancementDePartSuccessorale)
+        and not_known(dispense_de_rapport(s, l));
+    then duty P3PositionDevoirRapporterDonation {
+        bearer h;
+        goal achievement {
+            condition rapport_liberalite_exerce(s, h, l);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART851)
+rule P3DevoirRapporterDonation851(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 851. Le rapport est pareillement dû en cas de donation-partage";
+    label en unofficial "Article 851. Accounting is likewise due for a partition gift";
+    when liberalite_recue(s, h, l, DonationEnAvancementDePartSuccessorale)
+        and not_known(dispense_de_rapport(s, l));
+    then duty P3PositionDevoirRapporterDonation851 {
+        bearer h;
+        goal achievement {
+            condition rapport_liberalite_851_exerce(s, h, l);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART881)
+rule P3PouvoirExercerPreferenceMeubles(s: Succession, creancier: Personne, jour: Date) strict {
+    label fr official "Article 881. Le créancier peut exercer son droit de préférence sur les meubles";
+    label en unofficial "Article 881. The creditor may exercise the preference right over movables";
+    when preference_demandee_le(s, creancier, jour)
+        and not_known(preference_sur_les_meubles_prescrite(s, creancier));
+    then power P3PositionPouvoirExercerPreferenceMeubles {
+        holder creancier;
+        over s;
+        exercise preference_meubles_exercee(s, creancier);
+        effect preference_sur_les_meubles_exercee(s, creancier, jour);
+        valid_when preference_demandee_le(s, creancier, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART891)
+rule P3PouvoirCederDroitsIndivisAleatoire(s: Succession, h: Personne) strict {
+    label fr official "Article 891. La vente de droits indivis peut comporter un aléa défini et accepté";
+    label en unofficial "Article 891. The sale of undivided rights may include a defined accepted risk";
+    when cession_aleatoire_de_droits_indivis(s, h);
+    then power P3PositionPouvoirCederDroitsIndivisAleatoire {
+        holder h;
+        over s;
+        exercise cession_droits_aleatoire_exercee(s, h);
+        effect droits_indivis_cedes_avec_alea(s, h);
+        valid_when cession_aleatoire_de_droits_indivis(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART846)
+rule DonataireNonHeritierPresomptif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 846. Le donataire qui n'était pas héritier présomptif lors de la donation ne doit pas le rapport, à moins que le donateur ne l'ait expressément exigé";
+    label en unofficial "Article 846. A donee who was not a presumptive heir when the gift was made owes no account, unless the donor expressly required it";
+    when donataire_non_heritier_presomptif(s, l)
+        and not_known(rapport_expressement_exige(s, l));
+    then dispense_de_rapport(s, l);
+}
+
+@source(CC_ART852, CC_ART853) {
+    rule FraisDEntretienNonRapportables(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 852, alinéa 1. Les frais de nourriture, d'entretien, d'éducation et d'apprentissage ne doivent pas être rapportés, sauf volonté contraire du disposant";
+        label en unofficial "Article 852, paragraph 1. Food, maintenance, education and apprenticeship costs are not accountable, absent contrary intention";
+        when liberalite_recue(s, h, l, FraisDeNourritureEntretienEducationOuApprentissage)
+            and not_known(rapport_expressement_exige(s, l));
+        then dispense_de_rapport(s, l);
+    }
+    rule EquipementEtNocesNonRapportables(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 852, alinéa 1. Les frais ordinaires d'équipement et ceux de noces ne doivent pas être rapportés";
+        label en unofficial "Article 852, paragraph 1. Ordinary outfitting and wedding costs are not accountable";
+        when liberalite_recue(s, h, l, FraisOrdinairesDEquipementOuDeNoces)
+            and not_known(rapport_expressement_exige(s, l));
+        then dispense_de_rapport(s, l);
+    }
+    rule PresentDUsageNonRapportable(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 852. Les présents d'usage ne doivent pas être rapportés ; leur caractère s'apprécie à la date où ils sont consentis et compte tenu de la fortune du disposant";
+        label en unofficial "Article 852. Customary presents are not accountable; their character is assessed when made and in light of the disposer's wealth";
+        when liberalite_recue(s, h, l, PresentDUsage) and not_known(rapport_expressement_exige(s, l));
+        then dispense_de_rapport(s, l);
+    }
+    rule ProfitDeConventionNonRapportable(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 853. Il en est de même des profits que l'héritier a pu retirer des conventions passées avec le défunt, si elles ne présentaient aucun avantage indirect";
+        label en unofficial "Article 853. The same applies to profits the heir drew from agreements with the deceased that carried no indirect advantage";
+        when liberalite_recue(s, h, l, ProfitDUneConventionSansAvantageIndirect);
+        then dispense_de_rapport(s, l);
+    }
+}
+
+@source(CC_ART855) {
+    rule BienPeriParCasFortuit(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+        label fr official "Article 855, alinéa 1. Le bien qui a péri par cas fortuit et sans la faute du donataire n'est pas sujet à rapport";
+        label en unofficial "Article 855, paragraph 1. Property that perished by chance and without the donee's fault is not accountable";
+        when bien_peri_par_cas_fortuit(s, l)
+            and not_known(indemnite_employee_a_la_reconstitution(s, l));
+        then dispense_de_rapport(s, l);
+    }
+}
+
+@source(CC_ART846)
+rule PositionRapport846Actif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 846. la libéralité du non-héritier présomptif n'est pas rapportable sans exigence expresse";
+    label en unofficial "Article 846. a gift to a non-presumptive heir is not accountable without an express requirement";
+    when donataire_de_liberalite(s, h, l)
+        and donataire_non_heritier_presomptif(s, l)
+        and not_known(rapport_expressement_exige(s, l));
+    then liberty P3LiberteRapport846Actif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART852)
+rule PositionRapport852FraisActif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 852. les frais de nourriture, entretien, éducation et apprentissage ne sont pas rapportables";
+    label en unofficial "Article 852. food, maintenance, education and training expenses are not accountable";
+    when liberalite_recue(s, h, l, FraisDeNourritureEntretienEducationOuApprentissage)
+        and not_known(rapport_expressement_exige(s, l));
+    then liberty P3LiberteRapport852FraisActif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART852)
+rule PositionRapport852EquipementActif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 852. les frais ordinaires d'équipement et de noces ne sont pas rapportables";
+    label en unofficial "Article 852. ordinary equipment and wedding expenses are not accountable";
+    when liberalite_recue(s, h, l, FraisOrdinairesDEquipementOuDeNoces)
+        and not_known(rapport_expressement_exige(s, l));
+    then liberty P3LiberteRapport852EquipementActif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART852)
+rule PositionRapport852PresentActif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 852. les présents d'usage ne sont pas rapportables";
+    label en unofficial "Article 852. customary presents are not accountable";
+    when liberalite_recue(s, h, l, PresentDUsage)
+        and not_known(rapport_expressement_exige(s, l));
+    then liberty P3LiberteRapport852PresentActif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART853)
+rule PositionRapport853Actif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 853. les profits d'une convention sans avantage indirect ne sont pas rapportables";
+    label en unofficial "Article 853. gains from a convention without an indirect benefit are not accountable";
+    when liberalite_recue(s, h, l, ProfitDUneConventionSansAvantageIndirect);
+    then liberty P3LiberteRapport853Actif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART855)
+rule PositionRapport855Actif(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 855. le bien péri par cas fortuit n'est pas rapportable";
+    label en unofficial "Article 855. property lost by chance is not accountable";
+    when donataire_de_liberalite(s, h, l)
+        and bien_peri_par_cas_fortuit(s, l)
+        and not_known(indemnite_employee_a_la_reconstitution(s, l));
+    then liberty P3LiberteRapport855Actif {
+        holder h;
+        action dispense_de_rapport(s, l);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Articles 858 à 860-1 : combien se rapporte ----------------------------------------------------
+
+@source(CC_ART858)
+rule RapportEnMoinsPrenant(s: Succession, h: Personne, l: LiberaliteRapportable) strict {
+    label fr official "Article 858. Le rapport se fait en moins prenant et ne peut être exigé en nature, sauf stipulation contraire de l'acte de donation";
+    label en unofficial "Article 858. The account is taken by deduction and cannot be demanded in kind, absent contrary stipulation in the deed of gift";
+    when rapport_du(s, h, l);
+    then rapport_en_moins_prenant(s, h);
+}
+
+@source(CC_ART886)
+rule P3PouvoirExercerActionGarantie(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 886. L'action en garantie peut être exercée dans les deux ans";
+    label en unofficial "Article 886. The warranty action may be brought within two years";
+    when action_en_garantie_le(s, h, jour)
+        and not_known(action_en_garantie_prescrite(s, h));
+    then power P3PositionPouvoirExercerActionGarantie {
+        holder h;
+        over s;
+        exercise garantie_eviction_exercee(s, h);
+        effect action_en_garantie_engagee(s, h);
+        valid_when action_en_garantie_le(s, h, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART886)
+rule P3InterdictionActionGarantiePrescrite(s: Succession, h: Personne) strict {
+    label fr official "Article 886. L'action introduite après le délai est prescrite";
+    label en unofficial "Article 886. An action brought after the period is time-barred";
+    when action_en_garantie_prescrite(s, h);
+    then prohibition P3PositionInterdictionActionGarantiePrescrite {
+        bearer h;
+        action garantie_eviction_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+@source(CC_ART886)
+pub relation P3ViolationActionGarantiePrescrite(s: Succession, h: Personne) kind derived {
+    label fr official "Article 886. action en garantie exercée après prescription";
+    label en unofficial "Article 886. warranty action exercised after limitation";
+}
+@source(CC_ART886)
+rule P3ViolationActionGarantiePrescriteRule(s: Succession, h: Personne) strict {
+    label fr official "Article 886. interdiction de l'action en garantie prescrite";
+    label en unofficial "Article 886. prohibition on the time-barred warranty action";
+    when garantie_eviction_exercee(s, h);
+    then P3ViolationActionGarantiePrescrite(s, h);
+}
+@source(CC_ART886)
+rule P3MaintenanceActionGarantiePrescriteRule(s: Succession, h: Personne) strict {
+    label fr official "Article 886. devoir de maintenir l'interdiction de l'action prescrite";
+    label en unofficial "Article 886. duty to maintain the prohibition on the time-barred action";
+    when action_en_garantie_prescrite(s, h);
+    then duty P3MaintenanceActionGarantiePrescrite {
+        bearer h;
+        goal maintenance {
+            condition not P3ViolationActionGarantiePrescrite(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART892)
+rule P3PouvoirDemanderPartageComplementaire(s: Succession, h: Personne) strict {
+    label fr official "Article 892. L'omission d'un bien indivis donne lieu à un partage complémentaire";
+    label en unofficial "Article 892. Omission of an undivided asset gives rise to supplementary partition";
+    when bien_indivis_omis(s) and partage_complementaire_du(s)
+        and heritier_demandeur_partage_complementaire(s, h);
+    then power P3PositionPouvoirDemanderPartageComplementaire {
+        holder h;
+        over s;
+        exercise action_partage_complementaire_exercee(s, h);
+        effect partage_complementaire_demande(s);
+        valid_when bien_indivis_omis(s);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART858)
+rule P3InterdictionExigerRapportEnNature(s: Succession, h: Personne) strict {
+    label fr official "Article 858. Le rapport se fait en moins prenant et ne peut être exigé en nature";
+    label en unofficial "Article 858. Accounting cannot be demanded in kind";
+    when rapport_du(s, h, _);
+    then prohibition P3PositionInterdictionExigerRapportEnNature {
+        bearer h;
+        action exigence_rapport_nature_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART858)
+rule P3MaintenanceInterdictionExigerRapportEnNatureRule(s: Succession, h: Personne) strict {
+    label fr official "Article 858. Devoir de maintenir l'interdiction d'exiger le rapport en nature";
+    label en unofficial "Article 858. Duty to maintain the prohibition on demanding accounting in kind";
+    when rapport_du(s, h, _);
+    then duty P3MaintenanceInterdictionExigerRapportEnNature {
+        bearer h;
+        goal maintenance {
+            condition not exigence_rapport_nature_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART860) {
+    rule ValeurAuPartage(s: Succession, h: Personne, l: LiberaliteRapportable, montant: Money) strict {
+        label fr official "Article 860, alinéa 1. Le rapport est dû de la valeur du bien donné à l'époque du partage, d'après son état à l'époque de la donation";
+        label en unofficial "Article 860, paragraph 1. The account is due for the value of the gifted property at the time of partition, in the state it was in when given";
+        when rapport_du(s, h, l) and valeur_du_bien_au_partage(s, l, montant)
+            and not_known(bien_aliene(s, l));
+        then valeur_rapportable(s, h, montant);
+    }
+    rule ValeurALAlienation(s: Succession, h: Personne, l: LiberaliteRapportable, montant: Money) strict {
+        label fr official "Article 860, alinéa 2. Si le bien a été aliéné avant le partage, on tient compte de la valeur qu'il avait à l'époque de l'aliénation";
+        label en unofficial "Article 860, paragraph 2. If the property was sold before the partition, the value at the time of sale is taken";
+        when rapport_du(s, h, l) and bien_aliene_avant_le_partage(s, l, montant);
+        then valeur_rapportable(s, h, montant);
+    }
+    rule BienAliene(s: Succession, l: LiberaliteRapportable, montant: Money) strict {
+        label fr official "Article 860, alinéa 2. Le bien donné a été aliéné avant le partage";
+        label en unofficial "Article 860, paragraph 2. The gifted property was sold before the partition";
+        when bien_aliene_avant_le_partage(s, l, montant);
+        then bien_aliene(s, l);
+    }
+}
+
+@source(CC_ART860)
+rule P3DevoirRapporterValeurBien(s: Succession, h: Personne, montant: Money) strict {
+    label fr official "Article 860. Le rapport est dû de la valeur du bien donné à l'époque du partage";
+    label en unofficial "Article 860. The account is due for the value of the gifted property at partition";
+    when valeur_rapportable(s, h, montant);
+    then duty P3PositionDevoirRapporterValeurBien {
+        bearer h;
+        goal achievement {
+            condition rapport_valeur_exerce(s, h, montant);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+pub relation bien_aliene(s: Succession, l: LiberaliteRapportable) kind derived {
+    label fr official "le bien donné a été aliéné avant le partage (article 860, alinéa 2)";
+    label en unofficial "the gifted property was sold before the partition (Article 860, paragraph 2)";
+}
+
+@source(CC_ART860_1)
+rule RapportDUneSommeDArgent(s: Succession, h: Personne, l: LiberaliteRapportable, montant: Money) strict {
+    label fr official "Article 860-1. Le rapport d'une somme d'argent est égal à son montant ; toutefois, si elle a servi à acquérir un bien, le rapport est dû de la valeur de ce bien";
+    label en unofficial "Article 860-1. The account for a sum of money equals its amount; however, if it was used to acquire property, the account is due for that property's value";
+    when rapport_du(s, h, l) and somme_d_argent_donnee(s, l, montant)
+        and not_known(somme_employee_a_acquerir_un_bien(s, l));
+    then valeur_rapportable(s, h, montant);
+}
+
+@source(CC_ART860_1)
+rule P3DevoirRapporterSomme8601(s: Succession, h: Personne, l: LiberaliteRapportable, montant: Money) strict {
+    label fr official "Article 860-1. Le rapport de la somme d'argent est dû selon le montant ou la valeur du bien acquis";
+    label en unofficial "Article 860-1. The money gift must be accounted for by amount or acquired-property value";
+    when rapport_du(s, h, l)
+        and somme_d_argent_donnee(s, l, montant);
+    then duty P3DevoirRapporterSomme8601Actif {
+        bearer h;
+        goal achievement {
+            condition rapport_somme_exerce(s, h, montant);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 864 : le copartageant débiteur ----------------------------------------------------------
+
+@source(CC_ART864) {
+    rule AllotiDeSaDette(s: Succession, h: Personne, dette: Money, droits: Money) strict {
+        label fr official "Article 864, alinéa 1. Lorsque la masse partageable comprend une créance contre l'un des copartageants, ce dernier en est alloti dans le partage à concurrence de ses droits";
+        label en unofficial "Article 864, paragraph 1. Where the divisible mass includes a claim against a co-sharer, he is allotted it up to his rights";
+        when creance_de_la_masse_contre(s, h, dette) and droits_dans_la_masse(s, h, droits);
+        then alloti_de_sa_dette(s, h);
+    }
+    rule SoldeDeLaDette(s: Succession, h: Personne, dette: Money, droits: Money) strict {
+        label fr official "Article 864, alinéa 2. Si le montant de la dette excède les droits du débiteur dans la masse, il doit le paiement du solde";
+        label en unofficial "Article 864, paragraph 2. If the debt exceeds the debtor's rights in the mass, he must pay the balance";
+        when creance_de_la_masse_contre(s, h, dette) and droits_dans_la_masse(s, h, droits) and dette > droits;
+        then solde_de_la_dette_du(s, h, dette - droits);
+    }
+}
+
+@source(CC_ART864)
+rule P3DevoirPayerSoldeDette(s: Succession, h: Personne, montant: Money) strict {
+    label fr official "Article 864. Si le montant de la dette excède les droits du débiteur dans la masse, il doit le paiement du solde";
+    label en unofficial "Article 864. If the debt exceeds the debtor's rights, he must pay the balance";
+    when solde_de_la_dette_du(s, h, montant);
+    then duty P3PositionDevoirPayerSoldeDette {
+        bearer h;
+        goal achievement {
+            condition paiement_solde_dette_exerce(s, h, montant);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART864)
+rule P3DevoirAllotirDette864(s: Succession, h: Personne) strict {
+    label fr official "Article 864. La créance contre le copartageant est imputée sur ses droits";
+    label en unofficial "Article 864. The claim against the co-sharer is allocated against that co-sharer's share";
+    when alloti_de_sa_dette(s, h);
+        then duty P3DevoirAllotirDette864Actif {
+        bearer h;
+        goal achievement {
+            condition allotissement_dette_exerce(s, h);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Articles 884 à 886 : garantie des lots ---------------------------------------------------------
+
+@source(CC_ART884) {
+    rule GarantieDesLots(s: Succession, h: Personne) strict {
+        label fr official "Article 884, alinéa 1. Les cohéritiers demeurent garants les uns envers les autres des troubles et évictions procédant d'une cause antérieure au partage";
+        label en unofficial "Article 884, paragraph 1. Co-heirs warrant each other against disturbances and evictions arising from a cause predating the partition";
+        when cause_anterieure_au_partage(s, h)
+            and not_known(eviction_par_la_faute_du_coheritier(s, h))
+            and not_known(garantie_exceptee_par_clause(s, h));
+        then garantie_des_lots_due(s, h);
+    }
+}
+
+@source(CC_ART884)
+rule P3DevoirGarantieEviction(s: Succession, h: Personne) strict {
+    label fr official "Article 884. Les cohéritiers demeurent garants des troubles et évictions antérieurs au partage";
+    label en unofficial "Article 884. Co-heirs warrant against prior disturbances and evictions";
+    when garantie_des_lots_due(s, h);
+    then duty P3PositionDevoirGarantieEviction {
+        bearer h;
+        goal achievement {
+            condition garantie_eviction_exercee(s, h);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART886) {
+    rule DeuxAnsPourLaGarantie(s: Succession, h: Personne, eviction: Date) strict {
+        label fr official "Article 886. L'action en garantie se prescrit par deux ans à compter de l'éviction ou de la découverte du trouble";
+        label en unofficial "Article 886. The warranty action is time-barred two years after the eviction or the discovery of the disturbance";
+        when eviction_subie_le(s, h, eviction);
+        then fin_de_l_action_en_garantie(s, h, add_calendar_period(eviction, 2 calendar_year));
+    }
+    rule GarantiePrescrite(s: Succession, h: Personne, fin: Date, demande: Date) strict {
+        label fr official "Article 886. L'action introduite après ce délai est prescrite";
+        label en unofficial "Article 886. An action brought after that period is time-barred";
+        when fin_de_l_action_en_garantie(s, h, fin) and action_en_garantie_le(s, h, demande) and demande > fin;
+        then action_en_garantie_prescrite(s, h);
+    }
+}
+
+// --- Articles 889 à 892 : lésion et complément de part ------------------------------------------------
+
+@source(CC_ART889) {
+    rule LesionDePlusDuQuart(s: Succession, h: Personne, recu: Money, droits: Money) strict {
+        label fr official "Article 889, alinéa 1. La lésion de plus du quart s'apprécie sur la valeur des objets à l'époque du partage : elle est acquise lorsque quatre fois la part reçue est inférieure à trois fois les droits";
+        label en unofficial "Article 889, paragraph 1. A loss of more than a quarter is assessed on values at the time of partition: it exists where four times the share received is less than three times the rights";
+        when part_effectivement_recue(s, h, recu) and droits_dans_la_masse(s, h, droits)
+            and 4 * recu < 3 * droits;
+        then lesion_de_plus_du_quart(s, h);
+    }
+    rule DeuxAnsPourLeComplementDePart(s: Succession, partage: Date) strict {
+        label fr official "Article 889, alinéa 2. L'action en complément de part se prescrit par deux ans à compter du partage";
+        label en unofficial "Article 889, paragraph 2. The action for a supplementary share is time-barred two years after the partition";
+        when partage_realise_le(s, partage);
+        then fin_de_l_action_en_complement(s, add_calendar_period(partage, 2 calendar_year));
+    }
+    rule ComplementDePartDu(s: Succession, h: Personne, fin: Date, demande: Date) strict {
+        label fr official "Articles 889 à 891. Le complément de part est dû lorsque la lésion de plus du quart est établie et l'action exercée dans les deux ans, hors transaction postérieure et hors cession aléatoire";
+        label en unofficial "Articles 889 to 891. The supplementary share is due where a loss of more than a quarter is established and the action brought within two years, absent a later settlement or an aleatory sale";
+        when lesion_de_plus_du_quart(s, h) and fin_de_l_action_en_complement(s, fin)
+            and action_en_complement_le(s, h, demande) and demande <= fin
+            and not_known(transaction_apres_le_partage(s))
+            and not_known(cession_aleatoire_de_droits_indivis(s, h));
+        then complement_de_part_du(s, h);
+    }
+}
+
+@source(CC_ART889)
+rule P3PouvoirDemanderComplementPart(s: Succession, h: Personne) strict {
+    label fr official "Article 889. L'action en complément de part est ouverte en cas de lésion de plus du quart";
+    label en unofficial "Article 889. A supplementary share action is available for a loss exceeding one quarter";
+    when complement_de_part_du(s, h);
+    then power P3PositionPouvoirDemanderComplementPart {
+        holder h;
+        over s;
+        exercise action_complement_exercee(s, h);
+        effect complement_de_part_demande(s, h);
+        valid_when complement_de_part_du(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART889)
+rule P3PouvoirExercerComplementPart889(s: Succession, h: Personne) strict {
+    label fr official "Article 889. Le copartageant lésé peut exercer l'action en complément de part";
+    label en unofficial "Article 889. The co-sharer harmed by lesion may exercise the supplementary-share action";
+    when lesion_de_plus_du_quart(s, h)
+        and complement_de_part_du(s, h);
+    then power P3PouvoirExercerComplementPart889Actif {
+        holder h;
+        over s;
+        exercise action_complement_exercee(s, h);
+        effect complement_de_part_demande(s, h);
+        valid_when lesion_de_plus_du_quart(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART892)
+rule PartageComplementairePourBienOmis(s: Succession) strict {
+    label fr official "Article 892. La simple omission d'un bien indivis donne lieu à un partage complémentaire portant sur ce bien";
+    label en unofficial "Article 892. The mere omission of an undivided asset gives rise to a supplementary partition of that asset";
+    when bien_indivis_omis(s);
+    then partage_complementaire_du(s);
+}
+
+// --- Article 881 : la préférence sur les meubles ---------------------------------------------------------
+
+@source(CC_ART881) {
+    rule DeuxAnsPourLaPreference(s: Succession, ouverture: Date) strict {
+        label fr official "Article 881, alinéa 1. Le droit de préférence se prescrit, relativement aux meubles, par deux ans à compter de l'ouverture de la succession";
+        label en unofficial "Article 881, paragraph 1. The preference right over movables is time-barred two years after the estate opens";
+        when ouverte_le(s, ouverture);
+        then fin_de_la_preference_sur_les_meubles(s, add_calendar_period(ouverture, 2 calendar_year));
+    }
+    rule PreferencePrescrite(s: Succession, creancier: Personne, fin: Date, demande: Date) strict {
+        label fr official "Article 881, alinéa 1. La préférence demandée après ce délai est prescrite";
+        label en unofficial "Article 881, paragraph 1. A preference claimed after that period is time-barred";
+        when fin_de_la_preference_sur_les_meubles(s, fin) and preference_demandee_le(s, creancier, demande)
+            and demande > fin;
+        then preference_sur_les_meubles_prescrite(s, creancier);
+    }
+}

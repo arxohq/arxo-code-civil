@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 860, alinéa 2 : la valeur au partage n'est plus retenue quand le bien a été aliéné.
+test "urn:query:fr-code-civil-successions-q15-valeur-au-partage-ecartee-par-l-alienation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": liberalite_recue(entity_ref("urn:fr:cc:successions:par:q15:S"), entity_ref("urn:fr:cc:successions:par:q15:H"), entity_ref("urn:fr:cc:successions:par:q15:L"), DonationEnAvancementDePartSuccessorale) { origin case_input; }
+        assert "f2": valeur_du_bien_au_partage(entity_ref("urn:fr:cc:successions:par:q15:S"), entity_ref("urn:fr:cc:successions:par:q15:L"), 120000 EUR) { origin case_input; }
+        assert "f3": bien_aliene_avant_le_partage(entity_ref("urn:fr:cc:successions:par:q15:S"), entity_ref("urn:fr:cc:successions:par:q15:L"), 95000 EUR) { origin case_input; }
+    }
+    evaluate truth(valeur_rapportable(entity_ref("urn:fr:cc:successions:par:q15:S"), entity_ref("urn:fr:cc:successions:par:q15:H"), 120000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

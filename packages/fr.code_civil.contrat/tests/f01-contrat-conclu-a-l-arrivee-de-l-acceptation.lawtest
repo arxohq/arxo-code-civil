@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1114 et 1121 : offre complète, acceptation parvenue le 10 mars 2019 dans le délai fixé — le contrat est conclu ce jour-là.
+test "urn:query:fr-code-civil-contrat-f01-contrat-conclu-a-l-arrivee-de-l-acceptation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:f01"), @2019-03-01) { origin case_input; }
+        assert "f2": offre_du_contrat(entity_ref("urn:fr:cc:contrat:f01:offre"), entity_ref("urn:fr:cc:contrat:f01")) { origin case_input; }
+        assert "f3": offre_comprend_les_elements_essentiels(entity_ref("urn:fr:cc:contrat:f01:offre")) { origin case_input; }
+        assert "f4": volonte_d_etre_lie(entity_ref("urn:fr:cc:contrat:f01:offre")) { origin case_input; }
+        assert "f5": auteur_de_l_offre(entity_ref("urn:fr:cc:contrat:f01:offre"), entity_ref("urn:fr:cc:contrat:f01:offrant")) { origin case_input; }
+        assert "f6": delai_fixe_par_l_auteur_de_l_offre(entity_ref("urn:fr:cc:contrat:f01:offre"), @2019-03-31) { origin case_input; }
+        assert "f7": acceptation_parvenue_a_l_offrant_le(entity_ref("urn:fr:cc:contrat:f01:offre"), @2019-03-10) { origin case_input; }
+    }
+    evaluate truth(contrat_conclu(entity_ref("urn:fr:cc:contrat:f01"), @2019-03-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ContratConcluParLArriveeDeLAcceptation);
+}

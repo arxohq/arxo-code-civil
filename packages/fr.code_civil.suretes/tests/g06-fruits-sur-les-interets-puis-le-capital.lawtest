@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2345 : fruits 700, intérêts dus 500 — 200 EUR s'imputent sur le capital.
+test "urn:query:fr-code-civil-suretes-g06-fruits-sur-les-interets-puis-le-capital" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": gage_constitue(entity_ref("urn:fr:cc:suretes:g06:S"), entity_ref("urn:fr:cc:suretes:g06:B"), entity_ref("urn:fr:cc:suretes:g06:P")) { origin case_input; }
+        assert "f2": nature_de_la_surete(entity_ref("urn:fr:cc:suretes:g06:S"), GageDeMeublesCorporels) { origin case_input; }
+        assert "f3": creancier_detenteur(entity_ref("urn:fr:cc:suretes:g06:S")) { origin case_input; }
+        assert "f4": fruits_percus(entity_ref("urn:fr:cc:suretes:g06:S"), 700 EUR) { origin case_input; }
+        assert "f5": interets_dus(entity_ref("urn:fr:cc:suretes:g06:S"), 500 EUR) { origin case_input; }
+    }
+    evaluate truth(fruits_imputes_sur_le_capital(entity_ref("urn:fr:cc:suretes:g06:S"), 200 EUR));
+    expect truth_status == TRUE_ONLY;
+}

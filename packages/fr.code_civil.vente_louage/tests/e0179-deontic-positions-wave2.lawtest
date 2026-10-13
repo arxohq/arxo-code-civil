@@ -1,0 +1,57 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1831-3-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "promoter": promoteur(entity_ref("urn:fr:cc12:e0179:1831-3:a:p"), entity_ref("urn:fr:cc12:e0179:1831-3:a:pr")) { origin case_input; }
+        assert "owner": maitre_de_promotion(entity_ref("urn:fr:cc12:e0179:1831-3:a:p"), entity_ref("urn:fr:cc12:e0179:1831-3:a:m")) { origin case_input; }
+        assert "substitution": substitution_du_promoteur_sans_accord_du_maitre(entity_ref("urn:fr:cc12:e0179:1831-3:a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionSubstitutionPromoteur1831_3Actif, ACTIVE);
+    expect position(P4MaintenanceInterdictionSubstitutionPromoteur1831_3Duty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1831-3-violated" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "promoter": promoteur(entity_ref("urn:fr:cc12:e0179:1831-3:b:p"), entity_ref("urn:fr:cc12:e0179:1831-3:b:pr")) { origin case_input; }
+        assert "owner": maitre_de_promotion(entity_ref("urn:fr:cc12:e0179:1831-3:b:p"), entity_ref("urn:fr:cc12:e0179:1831-3:b:m")) { origin case_input; }
+        assert "substitution": substitution_du_promoteur_sans_accord_du_maitre(entity_ref("urn:fr:cc12:e0179:1831-3:b:p")) { origin case_input; }
+        assert "attempt": substitution_promoteur_exercee(entity_ref("urn:fr:cc12:e0179:1831-3:b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionSubstitutionPromoteur1831_3Actif, VIOLATED);
+    expect position(P4MaintenanceInterdictionSubstitutionPromoteur1831_3Duty, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:a:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:a:v"), entity_ref("urn:fr:cc12:e0179:1642-1:a:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:a:v"), entity_ref("urn:fr:cc12:e0179:1642-1:a:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:e0179:1642-1:a:v"), @2024-01-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:e0179:1642-1:a:v"), @2024-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantDelai1642_1Actif, ACTIVE);
+    expect position(P4MaintenanceInterdictionDechargeAvantDelai1642_1Duty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-violated" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:b:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:b:v"), entity_ref("urn:fr:cc12:e0179:1642-1:b:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:b:v"), entity_ref("urn:fr:cc12:e0179:1642-1:b:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:e0179:1642-1:b:v"), @2024-01-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:e0179:1642-1:b:v"), @2024-01-10) { origin case_input; }
+        assert "attempt": decharge_vendeur_avant_delai_exercee(entity_ref("urn:fr:cc12:e0179:1642-1:b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantDelai1642_1Actif, VIOLATED);
+    expect position(P4MaintenanceInterdictionDechargeAvantDelai1642_1Duty, VIOLATED);
+}

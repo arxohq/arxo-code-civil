@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2399 : majorité le 10 mai 2024, inscription requise le 10 mai 2025 — dans le délai d'un an.
+test "urn:query:fr-code-civil-suretes-d15-majeur-dans-l-annee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:d15:S"), entity_ref("urn:fr:cc:suretes:d15:B"), entity_ref("urn:fr:cc:suretes:d15:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:d15:S"), Legale) { origin case_input; }
+        assert "f3": hypotheque_legale_generale(entity_ref("urn:fr:cc:suretes:d15:S"), MineurOuMajeurEnTutelle) { origin case_input; }
+        assert "f4": fin_de_l_incapacite_le(entity_ref("urn:fr:cc:suretes:d15:S"), @2024-05-10) { origin case_input; }
+        assert "f5": inscription_requise_le(entity_ref("urn:fr:cc:suretes:d15:S"), @2025-05-10) { origin case_input; }
+    }
+    evaluate truth(inscription_2399_dans_le_delai(entity_ref("urn:fr:cc:suretes:d15:S")));
+    expect truth_status == TRUE_ONLY;
+}

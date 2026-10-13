@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1383-2, al. 4, in fine : l'erreur de fait invoquée rend l'aveu révocable —
+// et il n'est plus irrévocable.
+test "urn:query:fr-code-civil-obligations-e25-aveu-judiciaire-revocable-pour-erreur-de-fait" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": aveu_fait(entity_ref("urn:fr:cc:obligations:ave:av"), entity_ref("urn:fr:cc:obligations:ave:P"), entity_ref("urn:fr:cc:obligations:ave:a")) { origin case_input; }
+        assert "f2": aveu_judiciaire(entity_ref("urn:fr:cc:obligations:ave:av")) { origin case_input; }
+        assert "f3": erreur_de_fait_invoquee(entity_ref("urn:fr:cc:obligations:ave:av")) { origin case_input; }
+    }
+    evaluate truth(aveu_irrevocable(entity_ref("urn:fr:cc:obligations:ave:av")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    expect applied(AveuRevocablePourErreurDeFait);
+}

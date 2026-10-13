@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 595, al. 2. « pour un temps qui excède neuf ans » est strict : un
+// bail de neuf ans tout juste ne l'excède pas, et le mécanisme des périodes
+// ne se déclenche pas.
+test "urn:query:fr-code-civil-biens-u05-bail-neuf-ans-n-excede-pas" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": bail_de_l_usufruitier(entity_ref("urn:fr:cc:biens:u05:BAIL"), entity_ref("urn:fr:cc:biens:u05:U")) { origin case_input; }
+        assert "f2": duree_du_bail_en_annees(entity_ref("urn:fr:cc:biens:u05:BAIL"), 9) { origin case_input; }
+        assert "f3": debut_du_bail(entity_ref("urn:fr:cc:biens:u05:BAIL"), @2000-01-01) { origin case_input; }
+        assert "f4": cessation_de_l_usufruit_le(entity_ref("urn:fr:cc:biens:u05:U"), @2006-06-01) { origin case_input; }
+    }
+    evaluate truth(bail_excede_neuf_ans(entity_ref("urn:fr:cc:biens:u05:BAIL")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

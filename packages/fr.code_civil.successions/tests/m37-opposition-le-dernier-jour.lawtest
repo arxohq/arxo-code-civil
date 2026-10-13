@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 810-8 : notification le 15 juin 2026, réclamation le 15 septembre 2026.
+test "urn:query:fr-code-civil-successions-m37-opposition-le-dernier-jour" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": notification_du_projet_de_realisation_le(entity_ref("urn:fr:cc:successions:adm:m37:S"), entity_ref("urn:fr:cc:successions:adm:m37:P"), @2026-06-15) { origin case_input; }
+        assert "f2": reclamation_de_la_succession_le(entity_ref("urn:fr:cc:successions:adm:m37:S"), entity_ref("urn:fr:cc:successions:adm:m37:P"), @2026-09-15) { origin case_input; }
+    }
+    evaluate truth(opposition_a_la_realisation_recevable(entity_ref("urn:fr:cc:successions:adm:m37:S"), entity_ref("urn:fr:cc:successions:adm:m37:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(OppositionDansLeDelai);
+}

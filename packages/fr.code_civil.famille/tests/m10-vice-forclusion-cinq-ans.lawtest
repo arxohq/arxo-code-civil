@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 180 et 181 : vice du consentement, mariage du 2 mai 2020 — nullité recevable jusqu au 2 mai 2025.
+test "urn:query:fr-code-civil-famille-m10-vice-forclusion-cinq-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": celebre_le(entity_ref("urn:fr:cc:fam:i:m"), @2020-05-02) { origin case_input; }
+        assert "f2": consentement_vicie(entity_ref("urn:fr:cc:fam:i:m"), entity_ref("urn:fr:cc:fam:i:a")) { origin adjudicated; }
+    }
+    evaluate truth(forclusion_le(entity_ref("urn:fr:cc:fam:i:m"), @2025-05-02));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ForclusionCinqAnsDuVice);
+}

@@ -1,0 +1,245 @@
+// CHAPITRE IV, SECTION 4 — LA CESSION DE CONTRAT (art. 1216 à 1216-3).
+//
+// Le cédant cède sa qualité de partie au contrat au cessionnaire, avec
+// l'accord du cédé. Trois conditions cumulatives dans l'article 1216 :
+// l'accord du cédé, un écrit à peine de nullité, et — lorsque l'accord a été
+// donné par avance — la notification au cédé ou sa prise d'acte.
+//
+// L'ARTICLE 1216-3 EST INTERPRÉTATIF (loi n° 2018-287, article 16, I) : sa
+// rédaction ratifiée vaut pour les cessions conclues dès le 1er octobre 2016,
+// donc une seule règle, ancrée sur le texte en vigueur.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1216,
+    CC_ART1216_1,
+    CC_ART1216_2,
+    CC_ART1216_3,
+    Cession,
+    Contrat,
+    Personne,
+    regi_par_le_droit_nouveau,
+};
+
+// --- Entrées du cas ---------------------------------------------------------------------------------
+
+pub relation cession_du_contrat(cess: Cession, c: Contrat) kind empirical {
+    key(cess);
+    label fr official "cession portant sur ce contrat (article 1216)";
+    label en unofficial "assignment relating to this contract (Article 1216)";
+}
+pub relation cedant(cess: Cession, p: Personne) kind empirical {
+    key(cess);
+    label fr official "cédant : le contractant qui cède sa qualité de partie";
+    label en unofficial "assignor: the party who assigns its status as a party";
+}
+pub relation cessionnaire(cess: Cession, p: Personne) kind empirical {
+    key(cess);
+    label fr official "cessionnaire : le tiers à qui la qualité de partie est cédée";
+    label en unofficial "assignee: the third party to whom the status of party is assigned";
+}
+pub relation cede(cess: Cession, p: Personne) kind empirical {
+    key(cess);
+    label fr official "cédé : le cocontractant du cédant";
+    label en unofficial "assigned party: the assignor's counterparty";
+}
+pub relation accord_du_cede(cess: Cession) kind empirical {
+    label fr official "le cédé a donné son accord à la cession (article 1216, alinéa 1)";
+    label en unofficial "the assigned party consented to the assignment (Article 1216, paragraph 1)";
+}
+pub relation accord_du_cede_donne_par_avance(cess: Cession) kind empirical {
+    label fr official "l'accord du cédé a été donné par avance, notamment dans le contrat conclu entre les futurs cédant et cédé (article 1216, alinéa 2)";
+    label en unofficial "the assigned party's consent was given in advance, in particular in the contract between the future assignor and assigned party (Article 1216, paragraph 2)";
+}
+pub relation cession_notifiee_au_cede(cess: Cession) kind empirical {
+    label fr official "la cession a été notifiée au cédé, ou celui-ci en a pris acte (article 1216, alinéa 2)";
+    label en unofficial "the assignment was notified to the assigned party, or the latter took note of it (Article 1216, paragraph 2)";
+}
+pub relation cession_constatee_par_ecrit(cess: Cession) kind empirical {
+    label fr official "la cession est constatée par écrit (article 1216, alinéa 3)";
+    label en unofficial "the assignment is evidenced in writing (Article 1216, paragraph 3)";
+}
+pub relation consentement_expres_du_cede_a_la_liberation(cess: Cession) kind empirical {
+    label fr official "le cédé a expressément consenti à libérer le cédant pour l'avenir (article 1216-1, alinéa 1)";
+    label en unofficial "the assigned party expressly consented to release the assignor for the future (Article 1216-1, paragraph 1)";
+}
+pub relation clause_contraire_a_la_solidarite(cess: Cession) kind empirical {
+    label fr official "une clause écarte la tenue solidaire du cédant (article 1216-1, alinéa 2)";
+    label en unofficial "a clause excludes the assignor's joint liability (Article 1216-1, paragraph 2)";
+}
+pub relation exception_inherente_a_la_dette(cess: Cession) kind empirical {
+    label fr official "exception inhérente à la dette, telle que la nullité, l'exception d'inexécution, la résolution ou la compensation de dettes connexes (article 1216-2, alinéa 1)";
+    label en unofficial "defence inherent in the debt, such as nullity, the defence of non-performance, termination or set-off of connected debts (Article 1216-2, paragraph 1)";
+}
+pub relation exception_personnelle_au_cedant(cess: Cession) kind empirical {
+    label fr official "exception personnelle au cédant (article 1216-2, alinéa 1)";
+    label en unofficial "defence personal to the assignor (Article 1216-2, paragraph 1)";
+}
+pub relation exception_opposable_au_cedant(cess: Cession) kind empirical {
+    label fr official "exception que le cédé aurait pu opposer au cédant (article 1216-2, alinéa 2)";
+    label en unofficial "defence the assigned party could have raised against the assignor (Article 1216-2, paragraph 2)";
+}
+pub relation surete_consentie_par_le_cedant_ou_un_tiers(cess: Cession) kind empirical {
+    label fr official "sûreté consentie par le cédant ou par des tiers (article 1216-3, alinéa 1)";
+    label en unofficial "security granted by the assignor or by third parties (Article 1216-3, paragraph 1)";
+}
+pub relation accord_du_garant_au_maintien(cess: Cession) kind empirical {
+    label fr official "le garant a donné son accord au maintien de la sûreté (article 1216-3, alinéa 1)";
+    label en unofficial "the guarantor consented to the security being maintained (Article 1216-3, paragraph 1)";
+}
+pub relation codebiteur_solidaire_du_cedant(cess: Cession, codebiteur: Personne) kind empirical {
+    label fr official "codébiteur solidaire du cédant (article 1216-3, alinéa 2)";
+    label en unofficial "co-debtor jointly liable with the assignor (Article 1216-3, paragraph 2)";
+}
+
+// --- Têtes produites ----------------------------------------------------------------------------------
+
+pub relation cession_valable(cess: Cession) kind derived {
+    label fr official "la cession de contrat est valablement formée (article 1216)";
+    label en unofficial "the assignment of contract is validly made (Article 1216)";
+}
+pub relation cession_nulle_faute_d_ecrit(cess: Cession) kind derived {
+    label fr official "la cession doit être constatée par écrit, à peine de nullité (article 1216, alinéa 3)";
+    label en unofficial "the assignment must be evidenced in writing, on pain of nullity (Article 1216, paragraph 3)";
+}
+pub relation cession_opposable_au_cede(cess: Cession) kind derived {
+    label fr official "la cession produit effet à l'égard du cédé (article 1216, alinéas 1 et 2)";
+    label en unofficial "the assignment takes effect against the assigned party (Article 1216, paragraphs 1 and 2)";
+}
+pub relation cedant_libere(cess: Cession, cedant_libere: Personne) kind derived {
+    label fr official "la cession de contrat libère le cédant pour l'avenir (article 1216-1, alinéa 1)";
+    label en unofficial "the assignment releases the assignor for the future (Article 1216-1, paragraph 1)";
+}
+pub relation cedant_tenu_solidairement(cess: Cession, p: Personne) kind derived {
+    label fr official "à défaut de consentement exprès du cédé, et sauf clause contraire, le cédant est tenu solidairement à l'exécution du contrat (article 1216-1, alinéa 2)";
+    label en unofficial "absent the assigned party's express consent, and unless otherwise agreed, the assignor is jointly liable for performance (Article 1216-1, paragraph 2)";
+}
+pub relation exception_opposable_par_le_cessionnaire(cess: Cession) kind derived {
+    label fr official "le cessionnaire peut opposer au cédé les exceptions inhérentes à la dette (article 1216-2, alinéa 1)";
+    label en unofficial "the assignee may raise against the assigned party the defences inherent in the debt (Article 1216-2, paragraph 1)";
+}
+pub relation exception_non_opposable_par_le_cessionnaire(cess: Cession) kind derived {
+    label fr official "le cessionnaire ne peut opposer au cédé les exceptions personnelles au cédant (article 1216-2, alinéa 1)";
+    label en unofficial "the assignee may not raise against the assigned party the defences personal to the assignor (Article 1216-2, paragraph 1)";
+}
+pub relation exception_opposable_par_le_cede(cess: Cession) kind derived {
+    label fr official "le cédé peut opposer au cessionnaire toutes les exceptions qu'il aurait pu opposer au cédant (article 1216-2, alinéa 2)";
+    label en unofficial "the assigned party may raise against the assignee all the defences it could have raised against the assignor (Article 1216-2, paragraph 2)";
+}
+pub relation surete_maintenue(cess: Cession) kind derived {
+    label fr official "la sûreté subsiste (article 1216-3, alinéa 1)";
+    label en unofficial "the security subsists (Article 1216-3, paragraph 1)";
+}
+pub relation surete_eteinte(cess: Cession) kind derived {
+    label fr official "la sûreté consentie par le cédant ou par des tiers ne subsiste pas faute de leur accord (article 1216-3, alinéa 1)";
+    label en unofficial "the security granted by the assignor or by third parties does not subsist for want of their consent (Article 1216-3, paragraph 1)";
+}
+pub relation codebiteurs_tenus_deduction_faite_de_la_part_du_cedant(cess: Cession, codebiteur: Personne) kind derived {
+    label fr official "si le cédant est libéré, ses codébiteurs solidaires restent tenus déduction faite de sa part dans la dette (article 1216-3, alinéa 2)";
+    label en unofficial "if the assignor is released, his joint co-debtors remain liable less his share of the debt (Article 1216-3, paragraph 2)";
+}
+
+// --- Articles 1216 à 1216-3 ------------------------------------------------------------------------------
+
+@source(CC_ART1216) {
+    rule CessionValable(cess: Cession, c: Contrat) strict {
+        label fr official "Article 1216, alinéas 1 et 3. Un contractant peut céder sa qualité de partie au contrat à un tiers avec l'accord de son cocontractant ; la cession doit être constatée par écrit, à peine de nullité";
+        label en unofficial "Article 1216, paragraphs 1 and 3. A party may assign its status as a party to a third person with the counterparty's consent; the assignment must be evidenced in writing, on pain of nullity";
+        when regi_par_le_droit_nouveau(c) and cession_du_contrat(cess, c)
+            and accord_du_cede(cess) and cession_constatee_par_ecrit(cess);
+        then cession_valable(cess);
+    }
+    rule CessionNulleFauteDEcrit(cess: Cession, c: Contrat) strict {
+        label fr official "Article 1216, alinéa 3. La cession doit être constatée par écrit, à peine de nullité";
+        label en unofficial "Article 1216, paragraph 3. The assignment must be evidenced in writing, on pain of nullity";
+        when regi_par_le_droit_nouveau(c) and cession_du_contrat(cess, c)
+            and not_known(cession_constatee_par_ecrit(cess));
+        then cession_nulle_faute_d_ecrit(cess);
+    }
+    rule CessionOpposableParLAccordImmediat(cess: Cession) strict {
+        label fr official "Article 1216, alinéa 1. L'accord du cédé rend la cession opposable à celui-ci";
+        label en unofficial "Article 1216, paragraph 1. The assigned party's consent makes the assignment effective against it";
+        when cession_valable(cess) and not_known(accord_du_cede_donne_par_avance(cess));
+        then cession_opposable_au_cede(cess);
+    }
+    rule CessionOpposableParLaNotification(cess: Cession) strict {
+        label fr official "Article 1216, alinéa 2. Lorsque l'accord a été donné par avance, la cession produit effet à l'égard du cédé lorsque le contrat conclu entre le cédant et le cessionnaire lui est notifié ou lorsqu'il en prend acte";
+        label en unofficial "Article 1216, paragraph 2. Where consent was given in advance, the assignment takes effect against the assigned party when the contract between assignor and assignee is notified to it or it takes note of it";
+        when cession_valable(cess) and accord_du_cede_donne_par_avance(cess)
+            and cession_notifiee_au_cede(cess);
+        then cession_opposable_au_cede(cess);
+    }
+}
+
+@source(CC_ART1216_1) {
+    rule CedantLibereParConsentementExpres(cess: Cession, p: Personne) strict {
+        label fr official "Article 1216-1, alinéa 1. Si le cédé y a expressément consenti, la cession de contrat libère le cédant pour l'avenir";
+        label en unofficial "Article 1216-1, paragraph 1. If the assigned party expressly consented, the assignment releases the assignor for the future";
+        when cession_opposable_au_cede(cess) and cedant(cess, p)
+            and consentement_expres_du_cede_a_la_liberation(cess);
+        then cedant_libere(cess, p);
+    }
+    rule CedantTenuSolidairement(cess: Cession, p: Personne) strict {
+        label fr official "Article 1216-1, alinéa 2. A défaut, et sauf clause contraire, le cédant est tenu solidairement à l'exécution du contrat";
+        label en unofficial "Article 1216-1, paragraph 2. Failing that, and unless otherwise agreed, the assignor is jointly liable for the contract's performance";
+        when cession_opposable_au_cede(cess) and cedant(cess, p)
+            and not_known(consentement_expres_du_cede_a_la_liberation(cess))
+            and not_known(clause_contraire_a_la_solidarite(cess));
+        then cedant_tenu_solidairement(cess, p);
+    }
+}
+
+@source(CC_ART1216_2) {
+    rule ExceptionInherenteOpposableParLeCessionnaire(cess: Cession) strict {
+        label fr official "Article 1216-2, alinéa 1. Le cessionnaire peut opposer au cédé les exceptions inhérentes à la dette, telles que la nullité, l'exception d'inexécution, la résolution ou la compensation de dettes connexes";
+        label en unofficial "Article 1216-2, paragraph 1. The assignee may raise against the assigned party the defences inherent in the debt, such as nullity, the defence of non-performance, termination or set-off of connected debts";
+        when cession_opposable_au_cede(cess) and exception_inherente_a_la_dette(cess);
+        then exception_opposable_par_le_cessionnaire(cess);
+    }
+    rule ExceptionPersonnelleNonOpposable(cess: Cession) strict {
+        label fr official "Article 1216-2, alinéa 1. Le cessionnaire ne peut opposer au cédé les exceptions personnelles au cédant";
+        label en unofficial "Article 1216-2, paragraph 1. The assignee may not raise against the assigned party the defences personal to the assignor";
+        when cession_opposable_au_cede(cess) and exception_personnelle_au_cedant(cess);
+        then exception_non_opposable_par_le_cessionnaire(cess);
+    }
+    rule ExceptionsDuCedeContreLeCessionnaire(cess: Cession) strict {
+        label fr official "Article 1216-2, alinéa 2. Le cédé peut opposer au cessionnaire toutes les exceptions qu'il aurait pu opposer au cédant";
+        label en unofficial "Article 1216-2, paragraph 2. The assigned party may raise against the assignee all the defences it could have raised against the assignor";
+        when cession_opposable_au_cede(cess) and exception_opposable_au_cedant(cess);
+        then exception_opposable_par_le_cede(cess);
+    }
+}
+
+@source(CC_ART1216_3) {
+    rule SuretesMaintenuesSiLeCedantNEstPasLibere(cess: Cession, p: Personne) strict {
+        label fr official "Article 1216-3, alinéa 1. Si le cédant n'est pas libéré par le cédé, les sûretés qui ont pu être consenties subsistent";
+        label en unofficial "Article 1216-3, paragraph 1. If the assignor is not released by the assigned party, the securities granted subsist";
+        when cession_opposable_au_cede(cess) and cedant(cess, p)
+            and surete_consentie_par_le_cedant_ou_un_tiers(cess)
+            and not_known(cedant_libere(cess, p));
+        then surete_maintenue(cess);
+    }
+    rule SuretesMaintenuesParAccordDuGarant(cess: Cession, p: Personne) strict {
+        label fr official "Article 1216-3, alinéa 1. Dans le cas contraire, les sûretés consenties par le cédant ou par des tiers ne subsistent qu'avec leur accord";
+        label en unofficial "Article 1216-3, paragraph 1. Otherwise, the securities granted by the assignor or by third parties subsist only with their consent";
+        when cedant_libere(cess, p) and surete_consentie_par_le_cedant_ou_un_tiers(cess)
+            and accord_du_garant_au_maintien(cess);
+        then surete_maintenue(cess);
+    }
+    rule SuretesEteintesFauteDAccord(cess: Cession, p: Personne) strict {
+        label fr official "Article 1216-3, alinéa 1. Les sûretés consenties par le cédant ou par des tiers ne subsistent pas si le cédant est libéré et que le garant n'y consent pas";
+        label en unofficial "Article 1216-3, paragraph 1. The securities granted by the assignor or third parties do not subsist if the assignor is released and the guarantor does not consent";
+        when cedant_libere(cess, p) and surete_consentie_par_le_cedant_ou_un_tiers(cess)
+            and not_known(accord_du_garant_au_maintien(cess));
+        then surete_eteinte(cess);
+    }
+    rule CodebiteursTenusDeductionFaite(cess: Cession, p: Personne, codebiteur: Personne) strict {
+        label fr official "Article 1216-3, alinéa 2. Si le cédant est libéré, ses codébiteurs solidaires restent tenus déduction faite de sa part dans la dette";
+        label en unofficial "Article 1216-3, paragraph 2. If the assignor is released, his joint co-debtors remain liable less his share of the debt";
+        when cedant_libere(cess, p) and codebiteur_solidaire_du_cedant(cess, codebiteur);
+        then codebiteurs_tenus_deduction_faite_de_la_part_du_cedant(cess, codebiteur);
+    }
+}

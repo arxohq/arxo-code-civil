@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-PASCOMPTEGESTION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": gestion_premier_gratifie(entity_ref("urn:law:catalog:pascomptegestion:v0")) { origin case_input; }
+        assert "cat-1": liberalite_residuelle(entity_ref("urn:law:catalog:pascomptegestion:v0")) { origin case_input; }
+    }
+    evaluate truth(aucun_compte_gestion_du(entity_ref("urn:law:catalog:pascomptegestion:v0")));
+    expect truth_status == TRUE_ONLY;
+}

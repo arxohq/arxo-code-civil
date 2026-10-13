@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 889 : reçu 75 000 EUR — la lésion est du quart exactement, pas davantage.
+test "urn:query:fr-code-civil-successions-q27-lesion-du-quart-tout-juste" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": part_effectivement_recue(entity_ref("urn:fr:cc:successions:par:q27:S"), entity_ref("urn:fr:cc:successions:par:q27:H"), 75000 EUR) { origin case_input; }
+        assert "f2": droits_dans_la_masse(entity_ref("urn:fr:cc:successions:par:q27:S"), entity_ref("urn:fr:cc:successions:par:q27:H"), 100000 EUR) { origin case_input; }
+    }
+    evaluate truth(lesion_de_plus_du_quart(entity_ref("urn:fr:cc:successions:par:q27:S"), entity_ref("urn:fr:cc:successions:par:q27:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1350-2, al. 2 : la remise consentie à l'une des cautions solidaires NE LIBÈRE
+// PAS le débiteur principal — le sens inverse de l'alinéa 1.
+test "urn:query:fr-code-civil-obligations-c10-remise-a-une-caution-ne-libere-pas-le-debiteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": remise_consentie_a_une_caution(entity_ref("urn:fr:cc:obligations:rca:r"), entity_ref("urn:fr:cc:obligations:rca:c"), entity_ref("urn:fr:cc:obligations:rca:K")) { origin case_input; }
+    }
+    evaluate truth(debiteur_principal_non_libere(entity_ref("urn:fr:cc:obligations:rca:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RemiseAUneCautionNeLiberePasLeDebiteur);
+}

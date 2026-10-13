@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 792 : créance déclarée le 1er mai 2026, sans sûreté — éteinte à l'égard de la succession.
+test "urn:query:fr-code-civil-successions-o28-creance-chirographaire-tardive-eteinte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": publicite_de_la_declaration_le(entity_ref("urn:fr:cc:successions:opt:o28:S"), @2025-01-31) { origin case_input; }
+        assert "f2": creance_declaree_le(entity_ref("urn:fr:cc:successions:opt:o28:S"), entity_ref("urn:fr:cc:successions:opt:o28:cr"), @2026-05-01) { origin case_input; }
+    }
+    evaluate truth(creance_eteinte_a_l_egard_de_la_succession(entity_ref("urn:fr:cc:successions:opt:o28:S"), entity_ref("urn:fr:cc:successions:opt:o28:cr")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(CreanceTardiveEteinte);
+}

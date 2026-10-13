@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2273 : le titre nul par défaut de forme ne sert pas à la prescription de dix ans.
+test "urn:query:fr-code-civil-v16-titre-nul-en-la-forme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": chose_possedee(entity_ref("urn:fr:cc:presc:v16"), Immeuble) { origin case_input; }
+        assert "f2": possesseur(entity_ref("urn:fr:cc:presc:v16"), entity_ref("urn:fr:cc:presc:v16:pers")) { origin case_input; }
+        assert "f3": possession_commencee_le(entity_ref("urn:fr:cc:presc:v16"), @2012-09-01) { origin case_input; }
+        assert "f4": possession_continue_et_non_interrompue(entity_ref("urn:fr:cc:presc:v16")) { origin adjudicated; }
+        assert "f5": possession_paisible(entity_ref("urn:fr:cc:presc:v16")) { origin adjudicated; }
+        assert "f6": possession_publique(entity_ref("urn:fr:cc:presc:v16")) { origin adjudicated; }
+        assert "f7": possession_non_equivoque(entity_ref("urn:fr:cc:presc:v16")) { origin adjudicated; }
+        assert "f8": juste_titre(entity_ref("urn:fr:cc:presc:v16")) { origin case_input; }
+        assert "f9": titre_nul_par_defaut_de_forme(entity_ref("urn:fr:cc:presc:v16")) { origin adjudicated; }
+    }
+    evaluate truth(propriete_acquise_le(entity_ref("urn:fr:cc:presc:v16"), @2022-09-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,658 @@
+// TITRE IV DU LIVRE V — IMMATRICULATION DES IMMEUBLES ET DROITS SUR LES
+// IMMEUBLES (articles 2509 à 2534).
+//
+// À Mayotte, la publicité foncière ne passe pas par le fichier immobilier mais
+// par le LIVRE FONCIER tenu par le service de la conservation de la propriété
+// immobilière (2513). Le titre chiffre quatre choses, et ce sont elles que ce
+// module calcule :
+//
+//   — ce qui s'immatricule : tout immeuble bâti ou non, sauf le domaine
+//     public ; les droits collectifs coutumiers n'y entrent qu'une fois
+//     convertis en droits individuels (2511) ;
+//   — ce qui s'inscrit : la liste close de l'article 2521, où le bail ne se
+//     publie qu'au-delà de DOUZE ANS et la quittance à partir de TROIS ANNÉES
+//     de loyer non échu, les servitudes naturelles ou légales étant dispensées ;
+//   — l'ordre des inscriptions : l'effet relatif (2523), l'inopposabilité du
+//     droit non inscrit (2528) et le RANG des formalités requises le même jour
+//     (2529), qui se règle par la date des TITRES et non par l'ordre des dépôts ;
+//   — les délais : six mois pour régulariser en la forme authentique l'acte
+//     souscrit sous une autre forme, à peine de caducité (2524, alinéa 2).
+//
+// L'article 2529 porte cinq alinéas qui se contrediraient si on les lisait à
+// plat : l'alinéa 5 donne « en toute hypothèse » le premier rang aux
+// hypothèques légales des articles 2393 (1°, 2° et 3°) et 2402 (5°). Les
+// alinéas 1 à 4 sont donc lus sur la CONCURRENCE ORDINAIRE — celle où aucune
+// des deux formalités n'est une de ces hypothèques légales — et l'alinéa 5 sur
+// la concurrence tout entière. Aucun rang contradictoire n'est produit.
+//
+// Les paires de formalités sont énumérées une seule fois, par le numéro de
+// dépôt croissant ; le texte dit précisément que ce numéro NE FAIT PAS le
+// rang, et le paquet ne s'en sert que pour ne pas compter deux fois la même
+// paire.
+
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+use self::{
+    Acte,
+    CC_ART2511,
+    CC_ART2512,
+    CC_ART2515,
+    CC_ART2521,
+    CC_ART2523,
+    CC_ART2524,
+    CC_ART2525,
+    CC_ART2527,
+    CC_ART2528,
+    CC_ART2529,
+    CC_ART2530,
+    CC_ART2531,
+    CC_ART2532,
+    Droit,
+    Formalite,
+    Immeuble,
+    NatureDeLaFormalite,
+    NatureDuBien,
+    NatureDuDroit,
+    Personne,
+    PrivilegeGeneral,
+    acquis_par_prescription_ou_accession,
+    acte_sous_une_autre_forme_le,
+    acte_translatif_ou_declaratif,
+    annees_de_loyer_non_echues,
+    aucune_regularisation_constatee,
+    bien_offert_en_hypotheque,
+    conforme_au_titre_iv,
+    conversion_en_droits_individuels,
+    date_d_appreciation,
+    date_du_titre,
+    depend_du_domaine_public,
+    droit_collectif_coutumier,
+    droit_concurrent_du_meme_auteur,
+    droit_de_l_auteur_inscrit,
+    droit_inscrit_le,
+    droit_non_revele_lors_de_l_immatriculation,
+    droit_sur,
+    duree_du_bail_en_mois,
+    duree_du_droit_jusqu_au,
+    formalite_requise_le,
+    formalite_sur,
+    hypotheque_conventionnelle,
+    immeuble_immatricule,
+    jour_de_l_hypotheque,
+    nature_de_la_formalite,
+    nature_du_droit,
+    parcelle_de_sepulture_privee,
+    passe_en_forme_authentique,
+    passe_hors_de_mayotte,
+    privilege_invoque,
+    proprietaire_inscrit,
+    regularise_le,
+    servitude_naturelle_ou_legale,
+    situe_a_mayotte,
+    tiers_charge_de_publier,
+};
+
+// --- Entrée propre au rang -----------------------------------------------------------------------
+
+pub relation numero_de_depot(f: Formalite, n: Integer) kind empirical {
+    key(f);
+    label fr official "numéro d'ordre du dépôt enregistré ; l'article 2529 dit que le rang se règle « quel que soit l'ordre des dépôts »";
+    label en unofficial "sequence number of the registered filing; Article 2529 states that rank is settled \"whatever the order of the filings\"";
+}
+pub relation officier_instrumentaire(f: Formalite, p: Personne) kind empirical {
+    key(f);
+    label fr official "officier ministériel ou autorité publique devant qui l'acte a été dressé (article 2525)";
+    label en unofficial "ministerial officer or public authority before whom the instrument was drawn up (Article 2525)";
+}
+pub relation titulaire_du_droit(d: Droit, p: Personne) kind empirical {
+    key(d);
+    label fr official "titulaire du droit dont l'inscription est en cause";
+    label en unofficial "holder of the right whose entry is at issue";
+}
+
+// --- Appréciation déléguée (DECISION-0194, canal du jugement §47.3) --------------------------------
+
+@source(CC_ART2525)
+pub external judgment relation inscription_faite_sans_delai(f: Formalite) {
+    authority Court;
+    label fr official "l'inscription a été faite « sans délai » au sens de l'article 2525 : la promptitude exigée est une appréciation, non un nombre de jours que le Code fixerait";
+    label en unofficial "the entry was made \"without delay\" within the meaning of Article 2525: the required promptness is an appraisal, not a number of days the Code would fix";
+}
+
+// --- Résultats -------------------------------------------------------------------------------------
+
+pub relation immatriculable(i: Immeuble) kind derived {
+    label fr official "l'immeuble entre dans le régime de l'immatriculation du livre foncier de Mayotte (article 2511)";
+    label en unofficial "the immovable falls within the registration regime of the Mayotte land register (Article 2511)";
+}
+pub relation hors_du_regime_de_l_immatriculation(i: Immeuble) kind derived {
+    label fr official "l'immeuble est hors du régime de l'immatriculation (article 2511, alinéas 1 et 4)";
+    label en unofficial "the immovable is outside the registration regime (Article 2511, paragraphs 1 and 4)";
+}
+pub relation droit_reel_de_l_article_2521(d: Droit) kind derived {
+    label fr official "le droit figure au 1° de l'article 2521 : droit réel immobilier soumis à publicité";
+    label en unofficial "the right appears under 1° of Article 2521: immovable real right subject to publicity";
+}
+pub relation dispense_de_publicite(d: Droit) kind derived {
+    label fr official "la servitude dérive de la situation naturelle des lieux ou est établie par la loi : elle est dispensée de publicité (article 2521, dernier alinéa)";
+    label en unofficial "the servitude derives from the natural situation of the premises or is established by law: it is exempt from publicity (Article 2521, last paragraph)";
+}
+pub relation soumis_a_inscription(d: Droit) kind derived {
+    label fr official "le droit est soumis à inscription sur le livre foncier aux fins d'opposabilité aux tiers (article 2521)";
+    label en unofficial "the right is subject to entry in the land register for the purpose of being set up against third parties (Article 2521)";
+}
+pub relation droit_inscrit(d: Droit) kind derived {
+    label fr official "le droit est inscrit sur le livre foncier";
+    label en unofficial "the right is entered in the land register";
+}
+pub relation opposable_aux_tiers(d: Droit) kind derived {
+    label fr official "le droit est opposable aux tiers : il a été publié par immatriculation ou inscription (article 2512, alinéa 2)";
+    label en unofficial "the right may be set up against third parties: it was published by registration or entry (Article 2512, paragraph 2)";
+}
+pub relation inopposable_au_tiers(d: Droit, concurrent: Droit) kind derived {
+    label fr official "le droit est inopposable au tiers titulaire du droit concurrent (article 2528)";
+    label en unofficial "the right cannot be set up against the third party holding the competing right (Article 2528)";
+}
+pub relation inscription_recevable(d: Droit) kind derived {
+    label fr official "l'inscription du droit peut être opérée : l'auteur immédiat est inscrit et, s'il ne s'agit pas de la propriété, le propriétaire l'est aussi (articles 2523, 2527)";
+    label en unofficial "the right may be entered: the immediate predecessor is entered and, for a right other than ownership, so is the owner (Articles 2523, 2527)";
+}
+pub relation revendication_irrecevable(d: Droit) kind derived {
+    label fr official "l'action tendant à la revendication de ce droit est irrecevable : il n'a pas été révélé au cours de la procédure d'immatriculation (article 2515)";
+    label en unofficial "the action claiming this right is inadmissible: it was not disclosed during the registration procedure (Article 2515)";
+}
+pub relation caducite_le(a: Acte, jour: Date) kind derived {
+    key(a);
+    label fr official "jour au-delà duquel l'acte souscrit sous une autre forme est caduc faute d'acte authentique ou de demande en justice : six mois (article 2524, alinéa 2)";
+    label en unofficial "day beyond which an instrument executed in another form lapses for want of an authentic instrument or court application: six months (Article 2524, paragraph 2)";
+}
+pub relation acte_regularise_en_temps_utile(a: Acte) kind derived {
+    label fr official "l'acte a été suivi d'un acte authentique ou d'une demande en justice dans les six mois (article 2524, alinéa 2)";
+    label en unofficial "the instrument was followed by an authentic instrument or court application within six months (Article 2524, paragraph 2)";
+}
+pub relation acte_caduc(a: Acte) kind derived {
+    label fr official "l'acte est caduc (article 2524, alinéa 2)";
+    label en unofficial "the instrument has lapsed (Article 2524, paragraph 2)";
+}
+pub relation formalites_concurrentes(premiere: Formalite, seconde: Formalite) kind derived {
+    label fr official "deux formalités requises le même jour relativement au même immeuble, énumérées une fois par numéro de dépôt croissant (article 2529)";
+    label en unofficial "two formalities requested on the same day in respect of the same immovable, listed once by ascending filing number (Article 2529)";
+}
+pub relation concurrence_ordinaire(premiere: Formalite, seconde: Formalite) kind derived {
+    label fr official "concurrence où aucune des deux formalités n'est une hypothèque légale des articles 2393 (1°, 2°, 3°) et 2402 (5°) : les alinéas 1 à 4 de l'article 2529 s'y appliquent";
+    label en unofficial "competition in which neither formality is a legal mortgage under Articles 2393 (1°, 2°, 3°) and 2402 (5°): paragraphs 1 to 4 of Article 2529 apply";
+}
+pub relation rang_anterieur(premiere: Formalite, seconde: Formalite) kind derived {
+    label fr official "la première formalité est réputée d'un rang antérieur à la seconde (article 2529)";
+    label en unofficial "the first formality is deemed to rank ahead of the second (Article 2529)";
+}
+pub relation meme_rang(premiere: Formalite, seconde: Formalite) kind derived {
+    label fr official "les formalités sont réputées du même rang (article 2529, alinéa 3)";
+    label en unofficial "the formalities are deemed to rank equally (Article 2529, paragraph 3)";
+}
+pub relation privilege_general_applicable(c: fr.code_civil.core::Creance) kind derived {
+    label fr official "le privilège général sur les immeubles invoqué est applicable à Mayotte (article 2530)";
+    label en unofficial "the general preference over immovables claimed is applicable in Mayotte (Article 2530)";
+}
+pub relation exonere_d_inscription(c: fr.code_civil.core::Creance) kind derived {
+    label fr official "le privilège est exonéré de l'inscription sur le livre foncier (article 2530)";
+    label en unofficial "the preference is exempt from entry in the land register (Article 2530)";
+}
+pub relation susceptible_d_hypotheque(b: fr.code_civil.core::Bien) kind derived {
+    label fr official "le bien est susceptible d'hypothèque (article 2531)";
+    label en unofficial "the asset may be mortgaged (Article 2531)";
+}
+pub relation hypotheque_conventionnelle_valable(a: Acte) kind derived {
+    label fr official "l'hypothèque conventionnelle est valablement consentie (article 2532)";
+    label en unofficial "the contractual mortgage is validly granted (Article 2532)";
+}
+
+// --- Article 2511 : ce qui s'immatricule -------------------------------------------------------------
+
+@source(CC_ART2511) {
+    rule ImmeubleImmatriculable(i: Immeuble) strict {
+        label fr official "Article 2511, alinéa 1. Sont immatriculés sur le livre foncier de Mayotte les immeubles de toute nature, bâtis ou non, à l'exception de ceux dépendant du domaine public";
+        label en unofficial "Article 2511, paragraph 1. Immovables of every kind, built upon or not, are registered in the Mayotte land register, except those forming part of public property";
+        when situe_a_mayotte(i)
+            and not_known(depend_du_domaine_public(i))
+            and not_known(droit_collectif_coutumier(i));
+        then immatriculable(i);
+    }
+    rule DomainePublicHorsRegime(i: Immeuble) strict {
+        label fr official "Article 2511, alinéa 1. L'immeuble dépendant du domaine public est hors du régime de l'immatriculation";
+        label en unofficial "Article 2511, paragraph 1. An immovable forming part of public property is outside the registration regime";
+        when situe_a_mayotte(i) and depend_du_domaine_public(i);
+        then hors_du_regime_de_l_immatriculation(i);
+    }
+    rule SepulturePriveeImmatriculable(i: Immeuble) strict {
+        label fr official "Article 2511, alinéa 3. Les parcelles d'immeubles sur lesquelles sont édifiées des sépultures privées peuvent être immatriculées";
+        label en unofficial "Article 2511, paragraph 3. Parcels on which private burial places are erected may be registered";
+        when situe_a_mayotte(i) and parcelle_de_sepulture_privee(i)
+            and not_known(depend_du_domaine_public(i));
+        then immatriculable(i);
+    }
+    rule DroitsCollectifsCoutumiersHorsRegime(i: Immeuble) strict {
+        label fr official "Article 2511, alinéa 4. Les droits collectifs immobiliers consacrés par la coutume ne sont pas soumis au régime de l'immatriculation";
+        label en unofficial "Article 2511, paragraph 4. Collective immovable rights recognised by custom are not subject to the registration regime";
+        when situe_a_mayotte(i) and droit_collectif_coutumier(i)
+            and not_known(conversion_en_droits_individuels(i));
+        then hors_du_regime_de_l_immatriculation(i);
+    }
+    rule LaConversionOuvreLImmatriculation(i: Immeuble) strict {
+        label fr official "Article 2511, alinéa 4. Leur conversion en droits individuels de propriété permet l'immatriculation de l'immeuble";
+        label en unofficial "Article 2511, paragraph 4. Their conversion into individual ownership rights permits registration of the immovable";
+        when situe_a_mayotte(i) and droit_collectif_coutumier(i)
+            and conversion_en_droits_individuels(i)
+            and not_known(depend_du_domaine_public(i));
+        then immatriculable(i);
+    }
+}
+
+// --- Article 2521 : ce qui s'inscrit -------------------------------------------------------------
+
+@source(CC_ART2521) {
+    rule ProprieteImmobiliereInscrite(d: Droit) strict {
+        label fr official "Article 2521, 1° a. La propriété immobilière est inscrite sur le livre foncier aux fins d'opposabilité aux tiers";
+        label en unofficial "Article 2521, 1° a. Immovable ownership is entered in the land register for the purpose of being set up against third parties";
+        when nature_du_droit(d, ProprieteImmobiliere);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule UsufruitInscrit(d: Droit) strict {
+        label fr official "Article 2521, 1° b. L'usufruit de la même propriété établi par la volonté de l'homme est inscrit";
+        label en unofficial "Article 2521, 1° b. Usufruct of the same ownership created by human will is entered";
+        when nature_du_droit(d, Usufruit);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule UsageEtHabitationInscrits(d: Droit) strict {
+        label fr official "Article 2521, 1° c. L'usage et l'habitation sont inscrits";
+        label en unofficial "Article 2521, 1° c. Use and habitation are entered";
+        when nature_du_droit(d, UsageEtHabitation);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule EmphyteoseInscrite(d: Droit) strict {
+        label fr official "Article 2521, 1° d. L'emphytéose, régie par les articles L. 451-1 à L. 451-12 du code rural et de la pêche maritime, est inscrite";
+        label en unofficial "Article 2521, 1° d. Emphyteusis, governed by Articles L. 451-1 to L. 451-12 of the Rural and Maritime Fishing Code, is entered";
+        when nature_du_droit(d, Emphyteose);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule SuperficieInscrite(d: Droit) strict {
+        label fr official "Article 2521, 1° e. La superficie est inscrite";
+        label en unofficial "Article 2521, 1° e. The surface right is entered";
+        when nature_du_droit(d, Superficie);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule GageImmobilierInscrit(d: Droit) strict {
+        label fr official "Article 2521, 1° g. Le gage immobilier est inscrit";
+        label en unofficial "Article 2521, 1° g. The immovable pledge is entered";
+        when nature_du_droit(d, GageImmobilier);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule OccupationDuDomainePublicInscrite(d: Droit) strict {
+        label fr official "Article 2521, 1° h. Le droit réel résultant d'un titre d'occupation du domaine public de l'Etat ou de l'un de ses établissements publics est inscrit";
+        label en unofficial "Article 2521, 1° h. The real right arising from a title to occupy State public property or that of one of its public bodies is entered";
+        when nature_du_droit(d, DroitDOccupationDuDomainePublic);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule PrivilegesEtHypothequesInscrits(d: Droit) strict {
+        label fr official "Article 2521, 1° i. Les privilèges et hypothèques sont inscrits";
+        label en unofficial "Article 2521, 1° i. Preferential claims and mortgages are entered";
+        when nature_du_droit(d, PrivilegeOuHypotheque);
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule ServitudeDeSituationNaturelleOuLegaleDispensee(d: Droit) strict {
+        label fr official "Article 2521, dernier alinéa. Les servitudes qui dérivent de la situation naturelle des lieux ou qui sont établies par la loi sont dispensées de publicité";
+        label en unofficial "Article 2521, last paragraph. Servitudes deriving from the natural situation of the premises or established by law are exempt from publicity";
+        when nature_du_droit(d, Servitude) and servitude_naturelle_ou_legale(d);
+        then dispense_de_publicite(d);
+    }
+    rule ServitudeConventionnelleInscrite(d: Droit) strict {
+        label fr official "Article 2521, 1° f. Les servitudes sont inscrites, hormis celles que le dernier alinéa dispense de publicité";
+        label en unofficial "Article 2521, 1° f. Servitudes are entered, except those the last paragraph exempts from publicity";
+        when nature_du_droit(d, Servitude) and not_known(servitude_naturelle_ou_legale(d));
+        then droit_reel_de_l_article_2521(d);
+    }
+    rule DroitReelSoumisAInscription(d: Droit) strict {
+        label fr official "Article 2521, 1°. Le droit réel immobilier énuméré est soumis à inscription aux fins d'opposabilité aux tiers";
+        label en unofficial "Article 2521, 1°. The listed immovable real right is subject to entry for the purpose of being set up against third parties";
+        when droit_reel_de_l_article_2521(d);
+        then soumis_a_inscription(d);
+    }
+    rule BailDePlusDeDouzeAns(d: Droit, mois: Integer) strict {
+        label fr official "Article 2521, 2°. Les baux d'une durée supérieure à douze ans sont inscrits : douze ans tout juste ne suffisent pas";
+        label en unofficial "Article 2521, 2°. Leases of more than twelve years are entered: exactly twelve years does not suffice";
+        when nature_du_droit(d, Bail) and duree_du_bail_en_mois(d, mois) and mois > 144;
+        then soumis_a_inscription(d);
+    }
+    rule QuittanceDeTroisAnnees(d: Droit, annees: Integer) strict {
+        label fr official "Article 2521, 2°. Même pour un bail de moindre durée, les quittances ou cessions d'une durée équivalente à trois années de loyer ou fermage non échus sont inscrites";
+        label en unofficial "Article 2521, 2°. Even for a shorter lease, receipts or assignments equivalent to three years of rent not yet due are entered";
+        when nature_du_droit(d, QuittanceOuCession) and annees_de_loyer_non_echues(d, annees) and annees >= 3;
+        then soumis_a_inscription(d);
+    }
+    rule ResolutionEtAnnulationInscrites(d: Droit) strict {
+        label fr official "Article 2521, 3°. Les droits résultant des actes ou décisions constatant ou prononçant la résolution, la révocation, l'annulation ou la rescision d'une convention ou d'une disposition à cause de mort sont inscrits";
+        label en unofficial "Article 2521, 3°. Rights arising from acts or decisions establishing or pronouncing rescission, revocation, annulment or avoidance of an agreement or of a disposition upon death are entered";
+        when nature_du_droit(d, ResolutionOuAnnulation);
+        then soumis_a_inscription(d);
+    }
+}
+
+// --- Article 2512 : l'inscription fait l'opposabilité ------------------------------------------------
+
+@source(CC_ART2512) {
+    rule DroitInscrit(d: Droit, jour: Date) strict {
+        label fr official "Le droit porté au livre foncier est inscrit à la date de son inscription";
+        label en unofficial "A right carried in the land register is entered as of the date of its entry";
+        when droit_inscrit_le(d, jour);
+        then droit_inscrit(d);
+    }
+    rule OpposabiliteParLaPublicite(d: Droit) strict {
+        label fr official "Article 2512, alinéa 2. Les droits mentionnés à l'article 2521 ne sont opposables aux tiers que s'ils ont été publiés par voie d'immatriculation ou d'inscription sur le livre foncier";
+        label en unofficial "Article 2512, paragraph 2. The rights mentioned in Article 2521 may be set up against third parties only if published by registration or entry in the land register";
+        when soumis_a_inscription(d) and droit_inscrit(d);
+        then opposable_aux_tiers(d);
+    }
+    rule DispenseDePubliciteEtOpposabilite(d: Droit) strict {
+        label fr official "Article 2521, dernier alinéa, et article 2512. La servitude dispensée de publicité est opposable sans inscription";
+        label en unofficial "Article 2521, last paragraph, and Article 2512. A servitude exempt from publicity may be set up without entry";
+        when dispense_de_publicite(d);
+        then opposable_aux_tiers(d);
+    }
+}
+
+// --- Article 2523 et 2527 : effet relatif ------------------------------------------------------------
+
+@source(CC_ART2523, CC_ART2527) {
+    rule InscriptionDeLaProprieteRecevable(d: Droit) strict {
+        label fr official "Articles 2523, alinéa 1, et 2527. Le titulaire ne peut être inscrit avant que le droit de son auteur immédiat n'ait été lui-même inscrit ; le conservateur le vérifie";
+        label en unofficial "Articles 2523, paragraph 1, and 2527. The holder may not be entered before the right of his immediate predecessor has itself been entered; the registrar verifies this";
+        when nature_du_droit(d, ProprieteImmobiliere) and droit_de_l_auteur_inscrit(d);
+        then inscription_recevable(d);
+    }
+    rule InscriptionDUnAutreDroitApresLeProprietaire(d: Droit, i: Immeuble) strict {
+        label fr official "Article 2523, alinéa 2. Le titulaire d'un droit autre que la propriété ne peut être inscrit qu'après l'inscription du propriétaire de l'immeuble";
+        label en unofficial "Article 2523, paragraph 2. The holder of a right other than ownership may be entered only after the owner of the immovable has been entered";
+        when droit_reel_de_l_article_2521(d) and not_known(nature_du_droit(d, ProprieteImmobiliere))
+            and droit_sur(d, i) and proprietaire_inscrit(i)
+            and droit_de_l_auteur_inscrit(d);
+        then inscription_recevable(d);
+    }
+    rule PrescriptionEtAccessionDispensentDeLOrdre(d: Droit) strict {
+        label fr official "Article 2523, alinéa 2. La règle ne joue pas si l'immeuble a été acquis par prescription ou accession";
+        label en unofficial "Article 2523, paragraph 2. The rule does not apply where the immovable was acquired by prescription or accession";
+        when droit_reel_de_l_article_2521(d) and acquis_par_prescription_ou_accession(d);
+        then inscription_recevable(d);
+    }
+}
+
+// --- Article 2515 : le droit non révélé ---------------------------------------------------------------
+
+@source(CC_ART2515)
+rule RevendicationNonRevelee(d: Droit, i: Immeuble) strict {
+    label fr official "Article 2515. L'action tendant à la revendication d'un droit sur l'immeuble non révélé au cours de la procédure d'immatriculation est irrecevable";
+    label en unofficial "Article 2515. An action claiming a right over the immovable that was not disclosed during the registration procedure is inadmissible";
+    when droit_sur(d, i) and immeuble_immatricule(i)
+        and droit_non_revele_lors_de_l_immatriculation(d);
+    then revendication_irrecevable(d);
+}
+
+// --- Article 2524 : six mois pour régulariser ---------------------------------------------------------
+
+@source(CC_ART2524) {
+    rule DelaiDeRegularisation(a: Acte, jour: Date) strict {
+        label fr official "Article 2524, alinéa 2. L'acte entre vifs souscrit sous une autre forme doit être suivi, à peine de caducité, d'un acte authentique ou d'une demande en justice, dans les six mois qui suivent sa passation";
+        label en unofficial "Article 2524, paragraph 2. An inter vivos instrument executed in another form must be followed, on pain of lapse, by an authentic instrument or a court application, within six months of its execution";
+        when acte_translatif_ou_declaratif(a) and acte_sous_une_autre_forme_le(a, jour);
+        then caducite_le(a, add_calendar_period(jour, 6 calendar_month));
+    }
+    rule RegularisationDansLeDelai(a: Acte, terme: Date, fait: Date) strict {
+        label fr official "Article 2524, alinéa 2. L'acte authentique ou la demande en justice intervenue dans les six mois sauve l'acte";
+        label en unofficial "Article 2524, paragraph 2. An authentic instrument or court application within the six months saves the instrument";
+        when caducite_le(a, terme) and regularise_le(a, fait) and fait <= terme;
+        then acte_regularise_en_temps_utile(a);
+    }
+    rule CaduciteParRegularisationTardive(a: Acte, terme: Date, fait: Date) strict {
+        label fr official "Article 2524, alinéa 2. L'acte authentique passé après les six mois ne sauve plus l'acte : il est caduc";
+        label en unofficial "Article 2524, paragraph 2. An authentic instrument executed after the six months no longer saves it: the instrument has lapsed";
+        when caducite_le(a, terme) and regularise_le(a, fait) and fait > terme;
+        then acte_caduc(a);
+    }
+    rule CaduciteFauteDeRegularisation(a: Acte, terme: Date, examen: Date) strict {
+        label fr official "Article 2524, alinéa 2. Le délai expiré sans acte authentique ni demande en justice, constatés comme n'étant pas intervenus, emporte caducité";
+        label en unofficial "Article 2524, paragraph 2. The period having expired with no authentic instrument or court application, established as not having occurred, brings about the lapse";
+        when caducite_le(a, terme) and aucune_regularisation_constatee(a)
+            and date_d_appreciation(a, examen) and examen > terme;
+        then acte_caduc(a);
+    }
+}
+
+// --- Article 2525 : l'officier ministériel doit faire inscrire -----------------------------------------
+
+@source(CC_ART2525)
+rule ObligationDeFaireInscrire(f: Formalite, officier: Personne, titulaire: Personne, d: Droit) defeasible {
+    label fr official "Article 2525. Les officiers ministériels et les autorités publiques sont tenus de faire inscrire, sans délai et indépendamment de la volonté des parties, les droits résultant des actes dressés devant eux";
+    label en unofficial "Article 2525. Ministerial officers and public authorities are bound to have the rights arising from instruments drawn up before them entered, without delay and independently of the parties' will";
+    when officier_instrumentaire(f, officier) and soumis_a_inscription(d)
+        and titulaire_du_droit(d, titulaire);
+    then duty FaireInscrireSansDelai {
+        bearer officier;
+        beneficiary titulaire;
+        achieve inscription_faite_sans_delai(f) during [@2006-03-24, infinity);
+    };
+}
+
+// Position §122, additive to the existing duty relation above: the officer's
+// bearer, the right-holder beneficiary, the judgment-valued performance and
+// the open window remain explicit without replacing the source rule.
+@source(CC_ART2525)
+rule Position2525FaireInscrireRule(f: Formalite, officier: Personne, titulaire: Personne, d: Droit) defeasible {
+    label fr official "Article 2525. L'officier ministériel est tenu de faire inscrire le droit sans délai";
+    label en unofficial "Article 2525. The ministerial officer is bound to have the right entered without delay";
+    when officier_instrumentaire(f, officier) and soumis_a_inscription(d)
+        and titulaire_du_droit(d, titulaire);
+    then duty Position2525FaireInscrire {
+        bearer officier;
+        beneficiary titulaire;
+        achieve inscription_faite_sans_delai(f) during [@2006-03-24, infinity);
+    };
+}
+
+// --- Article 2528 : l'inopposabilité du droit non inscrit ----------------------------------------------
+
+@source(CC_ART2528) {
+    rule InopposabiliteFauteDInscription(d: Droit, concurrent: Droit) strict {
+        label fr official "Article 2528, alinéa 1. Les droits soumis à inscription sont, s'ils n'ont pas été inscrits, inopposables aux tiers qui, sur le même immeuble, ont acquis du même auteur des droits concurrents soumis à inscription";
+        label en unofficial "Article 2528, paragraph 1. Rights subject to entry are, if not entered, unenforceable against third parties who acquired competing rights subject to entry over the same immovable from the same predecessor";
+        when soumis_a_inscription(d) and not_known(droit_inscrit(d))
+            and droit_concurrent_du_meme_auteur(d, concurrent)
+            and soumis_a_inscription(concurrent)
+            and not_known(tiers_charge_de_publier(concurrent));
+        then inopposable_au_tiers(d, concurrent);
+    }
+    rule InopposabiliteParInscriptionAnterieureDuTiers(d: Droit, concurrent: Droit,
+                                                        sienne: Date, autre: Date) strict {
+        label fr official "Article 2528, alinéa 2. Ces droits sont également inopposables, s'ils ont été inscrits, lorsque les droits invoqués par ces tiers ont été antérieurement inscrits";
+        label en unofficial "Article 2528, paragraph 2. Those rights are likewise unenforceable, though entered, where the rights invoked by those third parties were entered earlier";
+        when soumis_a_inscription(d) and droit_inscrit_le(d, sienne)
+            and droit_concurrent_du_meme_auteur(d, concurrent)
+            and droit_inscrit_le(concurrent, autre) and autre < sienne
+            and not_known(tiers_charge_de_publier(concurrent));
+        then inopposable_au_tiers(d, concurrent);
+    }
+}
+
+// --- Article 2529 : le rang des formalités du même jour -------------------------------------------------
+
+@source(CC_ART2529) {
+    rule FormalitesDuMemeJour(premiere: Formalite, seconde: Formalite, i: Immeuble, jour: Date,
+                               rang_depot_premier: Integer, rang_depot_second: Integer) strict {
+        label fr official "Article 2529. Plusieurs formalités requises le même jour relativement au même immeuble ; la paire est énumérée une fois, par numéro de dépôt croissant";
+        label en unofficial "Article 2529. Several formalities requested on the same day in respect of the same immovable; the pair is listed once, by ascending filing number";
+        when formalite_sur(premiere, i) and formalite_sur(seconde, i)
+            and formalite_requise_le(premiere, jour) and formalite_requise_le(seconde, jour)
+            and numero_de_depot(premiere, rang_depot_premier)
+            and numero_de_depot(seconde, rang_depot_second)
+            and rang_depot_premier < rang_depot_second;
+        then formalites_concurrentes(premiere, seconde);
+    }
+    rule ConcurrenceOrdinaire(premiere: Formalite, seconde: Formalite) strict {
+        label fr official "Article 2529, alinéas 1 à 4. Concurrence où aucune des deux formalités n'est une hypothèque légale des articles 2393 (1°, 2°, 3°) et 2402 (5°), que l'alinéa 5 place en toute hypothèse au premier rang";
+        label en unofficial "Article 2529, paragraphs 1 to 4. Competition in which neither formality is a legal mortgage under Articles 2393 (1°, 2°, 3°) and 2402 (5°), which paragraph 5 places first in any event";
+        when formalites_concurrentes(premiere, seconde)
+            and not_known(nature_de_la_formalite(premiere, HypothequeLegalePrivilegiee))
+            and not_known(nature_de_la_formalite(seconde, HypothequeLegalePrivilegiee));
+        then concurrence_ordinaire(premiere, seconde);
+    }
+    rule TitreLePlusAncienDAbord(premiere: Formalite, seconde: Formalite,
+                                  titre_premier: Date, titre_second: Date) strict {
+        label fr official "Article 2529, alinéa 1. Celle qui est requise en vertu du titre dont la date est la plus ancienne est réputée d'un rang antérieur, quel que soit l'ordre des dépôts enregistrés";
+        label en unofficial "Article 2529, paragraph 1. The one requested under the title bearing the earlier date is deemed to rank first, whatever the order of the registered filings";
+        when concurrence_ordinaire(premiere, seconde)
+            and date_du_titre(premiere, titre_premier) and date_du_titre(seconde, titre_second)
+            and titre_premier < titre_second;
+        then rang_anterieur(premiere, seconde);
+    }
+    rule TitreLePlusAncienDAbordEnSensInverse(premiere: Formalite, seconde: Formalite,
+                                               titre_premier: Date, titre_second: Date) strict {
+        label fr official "Article 2529, alinéa 1. La même règle joue lorsque le titre le plus ancien est celui de la formalité déposée la seconde";
+        label en unofficial "Article 2529, paragraph 1. The same rule applies where the earlier title belongs to the formality filed second";
+        when concurrence_ordinaire(premiere, seconde)
+            and date_du_titre(premiere, titre_premier) and date_du_titre(seconde, titre_second)
+            and titre_second < titre_premier;
+        then rang_anterieur(seconde, premiere);
+    }
+    rule HypothequePrimeAuMemeJourEtALaMemeDate(premiere: Formalite, seconde: Formalite,
+                                                  titre: Date) strict {
+        label fr official "Article 2529, alinéa 2. Formalité obligatoire et inscription d'hypothèque requises le même jour, l'acte à publier et le titre de l'inscription portant la même date : l'inscription est réputée d'un rang antérieur";
+        label en unofficial "Article 2529, paragraph 2. A mandatory formality and a mortgage entry requested on the same day, the act to be published and the title of the entry bearing the same date: the entry is deemed to rank first";
+        when concurrence_ordinaire(premiere, seconde)
+            and nature_de_la_formalite(premiere, InscriptionDHypotheque)
+            and nature_de_la_formalite(seconde, FormaliteObligatoire)
+            and date_du_titre(premiere, titre) and date_du_titre(seconde, titre);
+        then rang_anterieur(premiere, seconde);
+    }
+    rule HypothequePrimeAuMemeJourEnSensInverse(premiere: Formalite, seconde: Formalite,
+                                                 titre: Date) strict {
+        label fr official "Article 2529, alinéa 2. La même règle joue lorsque l'inscription d'hypothèque a été déposée la seconde";
+        label en unofficial "Article 2529, paragraph 2. The same rule applies where the mortgage entry was filed second";
+        when concurrence_ordinaire(premiere, seconde)
+            and nature_de_la_formalite(premiere, FormaliteObligatoire)
+            and nature_de_la_formalite(seconde, InscriptionDHypotheque)
+            and date_du_titre(premiere, titre) and date_du_titre(seconde, titre);
+        then rang_anterieur(seconde, premiere);
+    }
+    rule FormalitesObligatoiresDuMemeRang(premiere: Formalite, seconde: Formalite, titre: Date) strict {
+        label fr official "Article 2529, alinéa 3. Si des formalités concurrentes obligatoires sont requises le même jour et si les actes à publier portent la même date, les formalités sont réputées du même rang";
+        label en unofficial "Article 2529, paragraph 3. If competing mandatory formalities are requested on the same day and the acts to be published bear the same date, the formalities are deemed to rank equally";
+        when concurrence_ordinaire(premiere, seconde)
+            and nature_de_la_formalite(premiere, FormaliteObligatoire)
+            and nature_de_la_formalite(seconde, FormaliteObligatoire)
+            and date_du_titre(premiere, titre) and date_du_titre(seconde, titre);
+        then meme_rang(premiere, seconde);
+    }
+    rule CommandementPrefereALaMemeDate(premiere: Formalite, seconde: Formalite, titre: Date) strict {
+        label fr official "Article 2529, alinéa 4. Lorsque les titres sont de la même date, la publicité du commandement valant saisie est réputée d'un rang préférable";
+        label en unofficial "Article 2529, paragraph 4. Where the titles bear the same date, publication of the notice operating as seizure is deemed to rank preferably";
+        when concurrence_ordinaire(premiere, seconde)
+            and nature_de_la_formalite(premiere, CommandementValantSaisie)
+            and date_du_titre(premiere, titre) and date_du_titre(seconde, titre);
+        then rang_anterieur(premiere, seconde);
+    }
+    rule CommandementPrefereEnSensInverse(premiere: Formalite, seconde: Formalite, titre: Date) strict {
+        label fr official "Article 2529, alinéa 4. La même préférence joue lorsque le commandement a été déposé le second";
+        label en unofficial "Article 2529, paragraph 4. The same preference applies where the notice was filed second";
+        when concurrence_ordinaire(premiere, seconde)
+            and nature_de_la_formalite(seconde, CommandementValantSaisie)
+            and date_du_titre(premiere, titre) and date_du_titre(seconde, titre);
+        then rang_anterieur(seconde, premiere);
+    }
+    rule HypothequeLegaleAvantToute(premiere: Formalite, seconde: Formalite) strict {
+        label fr official "Article 2529, alinéa 5. En toute hypothèse, les inscriptions des hypothèques légales des articles 2393 (1°, 2° et 3°) et 2402 (5°) sont réputées d'un rang antérieur à celui de toute autre formalité requise le même jour";
+        label en unofficial "Article 2529, paragraph 5. In any event, entries of the legal mortgages of Articles 2393 (1°, 2° and 3°) and 2402 (5°) are deemed to rank ahead of any other formality requested on the same day";
+        when formalites_concurrentes(premiere, seconde)
+            and nature_de_la_formalite(premiere, HypothequeLegalePrivilegiee)
+            and not_known(nature_de_la_formalite(seconde, HypothequeLegalePrivilegiee));
+        then rang_anterieur(premiere, seconde);
+    }
+    rule HypothequeLegaleAvantTouteEnSensInverse(premiere: Formalite, seconde: Formalite) strict {
+        label fr official "Article 2529, alinéa 5. La même priorité joue lorsque l'hypothèque légale a été déposée la seconde";
+        label en unofficial "Article 2529, paragraph 5. The same priority applies where the legal mortgage was filed second";
+        when formalites_concurrentes(premiere, seconde)
+            and nature_de_la_formalite(seconde, HypothequeLegalePrivilegiee)
+            and not_known(nature_de_la_formalite(premiere, HypothequeLegalePrivilegiee));
+        then rang_anterieur(seconde, premiere);
+    }
+}
+
+// --- Articles 2530 à 2532 : privilèges, biens hypothécables, forme ---------------------------------------
+
+@source(CC_ART2530) {
+    rule PrivilegeDesFraisDeJustice(c: fr.code_civil.core::Creance) strict {
+        label fr official "Article 2530. Par dérogation à l'article 2377, les frais de justice sont l'un des deux seuls privilèges généraux sur les immeubles applicables à Mayotte";
+        label en unofficial "Article 2530. By derogation from Article 2377, legal costs are one of the only two general preferences over immovables applicable in Mayotte";
+        when privilege_invoque(c, FraisDeJustice);
+        then privilege_general_applicable(c);
+    }
+    rule PrivilegeDuTresorPublic(c: fr.code_civil.core::Creance) strict {
+        label fr official "Article 2530. Les droits du Trésor public sont l'autre privilège général sur les immeubles applicable à Mayotte";
+        label en unofficial "Article 2530. The Public Treasury's claims are the other general preference over immovables applicable in Mayotte";
+        when privilege_invoque(c, DroitsDuTresorPublic);
+        then privilege_general_applicable(c);
+    }
+    rule PrivilegesExoneresDInscription(c: fr.code_civil.core::Creance) strict {
+        label fr official "Article 2530. Ces deux privilèges sont exonérés de l'inscription sur le livre foncier";
+        label en unofficial "Article 2530. Those two preferences are exempt from entry in the land register";
+        when privilege_general_applicable(c);
+        then exonere_d_inscription(c);
+    }
+}
+
+@source(CC_ART2531) {
+    rule ImmeubleDansLeCommerceHypothecable(b: fr.code_civil.core::Bien) strict {
+        label fr official "Article 2531, 1°. Sont seuls susceptibles d'hypothèques les biens immobiliers qui sont dans le commerce et leurs accessoires réputés immeubles";
+        label en unofficial "Article 2531, 1°. Only immovables in commerce and their accessories deemed immovable may be mortgaged";
+        when bien_offert_en_hypotheque(b, BienImmobilierDansLeCommerce);
+        then susceptible_d_hypotheque(b);
+    }
+    rule UsufruitHypothecablePendantSaDuree(b: fr.code_civil.core::Bien, terme: Date, jour: Date) strict {
+        label fr official "Article 2531, 2°. L'usufruit des mêmes biens et accessoires est hypothécable pendant le temps de sa durée";
+        label en unofficial "Article 2531, 2°. Usufruct of the same assets and accessories may be mortgaged during its term";
+        when bien_offert_en_hypotheque(b, UsufruitDesMemesBiens)
+            and duree_du_droit_jusqu_au(b, terme)
+            and jour_de_l_hypotheque(b, jour) and jour <= terme;
+        then susceptible_d_hypotheque(b);
+    }
+    rule EmphyteoseHypothecablePendantSaDuree(b: fr.code_civil.core::Bien, terme: Date, jour: Date) strict {
+        label fr official "Article 2531, 3°. L'emphytéose est hypothécable pendant le temps de sa durée";
+        label en unofficial "Article 2531, 3°. Emphyteusis may be mortgaged during its term";
+        when bien_offert_en_hypotheque(b, EmphyteoseDuBien)
+            and duree_du_droit_jusqu_au(b, terme)
+            and jour_de_l_hypotheque(b, jour) and jour <= terme;
+        then susceptible_d_hypotheque(b);
+    }
+    rule SuperficieHypothecable(b: fr.code_civil.core::Bien) strict {
+        label fr official "Article 2531, 4°. Le droit de superficie est susceptible d'hypothèque";
+        label en unofficial "Article 2531, 4°. The surface right may be mortgaged";
+        when bien_offert_en_hypotheque(b, DroitDeSuperficie);
+        then susceptible_d_hypotheque(b);
+    }
+}
+
+@source(CC_ART2532) {
+    rule HypothequeConventionnelleParActeAuthentique(a: Acte) strict {
+        label fr official "Article 2532, alinéa 1. L'hypothèque conventionnelle ne peut être consentie que par un acte passé en forme authentique";
+        label en unofficial "Article 2532, paragraph 1. A contractual mortgage may be granted only by an instrument executed in authentic form";
+        when hypotheque_conventionnelle(a) and passe_en_forme_authentique(a)
+            and not_known(passe_hors_de_mayotte(a));
+        then hypotheque_conventionnelle_valable(a);
+    }
+    rule ContratPasseHorsDeMayotte(a: Acte) strict {
+        label fr official "Article 2532, alinéa 2. Les contrats passés hors de Mayotte ne peuvent valablement constituer une hypothèque sur des immeubles situés à Mayotte qu'à la condition d'être conformes aux dispositions du titre IV";
+        label en unofficial "Article 2532, paragraph 2. Contracts made outside Mayotte may validly create a mortgage over immovables situated in Mayotte only if they comply with Title IV";
+        when hypotheque_conventionnelle(a) and passe_en_forme_authentique(a)
+            and passe_hors_de_mayotte(a) and conforme_au_titre_iv(a);
+        then hypotheque_conventionnelle_valable(a);
+    }
+}

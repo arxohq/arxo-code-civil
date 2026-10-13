@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 128 al. 3 et 132 : le mariage de l absent est dissous et le reste.
+test "urn:query:fr-code-civil-personnes-p22-mariage-dissous" {
+    given {
+        context { decision_time @2026-03-15T09:00:00Z; knowledge_time @2026-03-15T09:00:00Z; legal_time @2026-03-15; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": jugement_declaratif_transcrit_le(entity_ref("urn:fr:cc:pers:d2:p"), @2026-01-12) { origin case_input; }
+    }
+    evaluate truth(mariage_dissous(entity_ref("urn:fr:cc:pers:d2:p")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

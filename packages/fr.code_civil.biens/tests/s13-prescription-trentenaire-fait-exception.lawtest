@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 672, al. 1. La plantation est bien à une distance moindre, mais la
+// prescription trentenaire est établie : le voisin ne peut rien exiger.
+test "urn:query:fr-code-civil-biens-s13-prescription-trentenaire-exception" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": plantee_sur(entity_ref("urn:fr:cc:biens:s13:P"), entity_ref("urn:fr:cc:biens:s13:F")) { origin case_input; }
+        assert "f2": voisin(entity_ref("urn:fr:cc:biens:s13:F"), entity_ref("urn:fr:cc:biens:s13:V")) { origin case_input; }
+        assert "f3": aucun_reglement_ni_usage_sur_les_distances(entity_ref("urn:fr:cc:biens:s13:F")) { origin case_input; }
+        assert "f4": hauteur_de_la_plantation(entity_ref("urn:fr:cc:biens:s13:P"), 5 m) { origin case_input; }
+        assert "f5": distance_a_la_ligne_separative(entity_ref("urn:fr:cc:biens:s13:P"), 0.8 m) { origin case_input; }
+        assert "f6": prescription_trentenaire_de_la_plantation(entity_ref("urn:fr:cc:biens:s13:P")) { origin case_input; }
+    }
+    evaluate truth(droit_d_exiger_l_arrachage_ou_la_reduction(entity_ref("urn:fr:cc:biens:s13:V"), entity_ref("urn:fr:cc:biens:s13:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

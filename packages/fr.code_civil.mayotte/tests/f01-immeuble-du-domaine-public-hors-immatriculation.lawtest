@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2511, alinéa 1 : l'immeuble dépendant du domaine public est hors du régime.
+test "urn:query:fr-code-civil-mayotte-f01-immeuble-du-domaine-public-hors-immatriculation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": situe_a_mayotte(entity_ref("urn:fr:cc:may:o:imm")) { origin case_input; }
+        assert "f2": depend_du_domaine_public(entity_ref("urn:fr:cc:may:o:imm")) { origin case_input; }
+    }
+    evaluate truth(hors_du_regime_de_l_immatriculation(entity_ref("urn:fr:cc:may:o:imm")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DomainePublicHorsRegime);
+}

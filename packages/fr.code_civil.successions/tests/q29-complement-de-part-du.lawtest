@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 889 : lésion de plus du quart, action du 30 juin 2026 — complément dû.
+test "urn:query:fr-code-civil-successions-q29-complement-de-part-du" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": part_effectivement_recue(entity_ref("urn:fr:cc:successions:par:q29:S"), entity_ref("urn:fr:cc:successions:par:q29:H"), 74000 EUR) { origin case_input; }
+        assert "f2": droits_dans_la_masse(entity_ref("urn:fr:cc:successions:par:q29:S"), entity_ref("urn:fr:cc:successions:par:q29:H"), 100000 EUR) { origin case_input; }
+        assert "f3": partage_realise_le(entity_ref("urn:fr:cc:successions:par:q29:S"), @2024-06-30) { origin case_input; }
+        assert "f4": action_en_complement_le(entity_ref("urn:fr:cc:successions:par:q29:S"), entity_ref("urn:fr:cc:successions:par:q29:H"), @2026-06-30) { origin case_input; }
+    }
+    evaluate truth(complement_de_part_du(entity_ref("urn:fr:cc:successions:par:q29:S"), entity_ref("urn:fr:cc:successions:par:q29:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ComplementDePartDu);
+}

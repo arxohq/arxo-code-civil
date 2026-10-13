@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-RENOUVELLEMENTNONEXIGIBLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:renouvellementnonexigible:v0")) { origin case_input; }
+        assert "cat-1": renouvellement_exige_par_une_partie(entity_ref("urn:law:catalog:renouvellementnonexigible:v0"), entity_ref("urn:law:catalog:renouvellementnonexigible:v1")) { origin case_input; }
+        assert "cat-2": duree_du_contrat(entity_ref("urn:law:catalog:renouvellementnonexigible:v0"), DureeDeterminee) { origin case_input; }
+    }
+    evaluate truth(renouvellement_non_exigible(entity_ref("urn:law:catalog:renouvellementnonexigible:v0"), entity_ref("urn:law:catalog:renouvellementnonexigible:v1")));
+    expect truth_status == TRUE_ONLY;
+}

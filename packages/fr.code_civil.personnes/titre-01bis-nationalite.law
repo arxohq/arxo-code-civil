@@ -1,0 +1,448 @@
+// TITRE Ier BIS — DE LA NATIONALITE FRANCAISE.
+// Les décisions d'enregistrement, d'opposition, de naturalisation et de
+// déchéance sont des faits adjudicated. Le paquet calcule les âges, durées,
+// fenêtres et conséquences que le Code fixe lui-même.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART18,
+    CC_ART18_1,
+    CC_ART19_3,
+    CC_ART20_2,
+    CC_ART21_11,
+    CC_ART21_12,
+    CC_ART21_13,
+    CC_ART21_17,
+    CC_ART21_18,
+    CC_ART21_19,
+    CC_ART21_2,
+    CC_ART21_4,
+    CC_ART21_7,
+    CC_ART21_8,
+    CC_ART23,
+    CC_ART23_4,
+    CC_ART25,
+    CC_ART25_1,
+    CC_ART26_3,
+    CC_ART26_4,
+    CC_ART30,
+    Personne,
+    date_d_appreciation,
+    ne_le,
+};
+
+pub relation parent_francais(parent: Personne, enfant: Personne) kind empirical { label fr official "le parent est français au regard de l'enfant"; label en unofficial "the parent is French in relation to the child"; }
+pub relation ne_en_france(p: Personne) kind empirical { label fr official "la personne est née en France"; label en unofficial "the person was born in France"; }
+pub relation parent_ne_en_france(parent: Personne, enfant: Personne) kind empirical { label fr official "le parent de l'enfant est lui-même né en France"; label en unofficial "the child's parent was also born in France"; }
+pub relation un_seul_parent_francais(p: Personne) kind empirical { label fr official "un seul parent de la personne est français"; label en unofficial "only one of the person's parents is French"; }
+pub relation nationalite_francaise(p: Personne) kind derived { label fr official "la personne possède la nationalité française"; label en unofficial "the person holds French nationality"; }
+pub relation renonciation_nationalite_admissible(p: Personne) kind derived { label fr official "la renonciation à la nationalité est dans la fenêtre légale"; label en unofficial "renunciation of nationality falls within the statutory window"; }
+pub relation renonciation_irrevocable_a_seize_ans(p: Personne) kind derived { label fr official "à seize ans, la personne peut renoncer à la faculté de répudier la nationalité"; label en unofficial "at sixteen, the person may waive the right to disclaim nationality"; }
+pub relation renoncer_nationalite(p: Personne) kind empirical { label fr official "la personne exerce sa faculté de répudier la nationalité"; label en unofficial "the person exercises the right to disclaim nationality"; }
+pub relation renoncer_faculte_revendication(p: Personne) kind empirical { label fr official "la personne renonce à sa faculté de répudier la nationalité"; label en unofficial "the person waives the right to disclaim nationality"; }
+
+@source(CC_ART18)
+rule Article18Nationalite(parent: Personne, enfant: Personne) defeasible { label fr official "Article 18. Est français l'enfant dont l'un des parents au moins est français"; label en unofficial "Article 18. A child with at least one French parent is French"; when parent_francais(parent, enfant); then nationalite_francaise(enfant); }
+@source(CC_ART18)
+rule PositionPouvoirReclamerNationaliteParFiliation(enfant: Personne) strict {
+    label fr official "Article 18. L'enfant peut réclamer la nationalité française résultant de sa filiation";
+    label en unofficial "Article 18. A child may claim French nationality resulting from filiation";
+    when nationalite_francaise(enfant) and reclamer_nationalite(enfant);
+    then liberty PouvoirReclamerNationaliteParFiliation {
+        holder enfant;
+        action reclamer_nationalite(enfant);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART18_1)
+rule Article18_1Nationalite(p: Personne, naissance: Date, jour: Date) defeasible { label fr official "Article 18-1. L'enfant né à l'étranger d'un seul parent français peut répudier dans les six mois précédant sa majorité et les douze mois suivants"; label en unofficial "Article 18-1. A foreign-born child with only one French parent may disclaim in the six months before majority and twelve months after"; when ne_le(p, naissance) and date_d_appreciation(p, jour) and un_seul_parent_francais(p) and not_known(ne_en_france(p)) and jour >= add_calendar_period(add_calendar_period(naissance, 17 calendar_year), 6 calendar_month) and jour <= add_calendar_period(naissance, 19 calendar_year); then renonciation_nationalite_admissible(p); }
+
+@source(CC_ART18_1)
+rule PositionPouvoirRenoncerNationalite(p: Personne) strict {
+    label fr official "Article 18-1. L'enfant peut répudier la nationalité dans la fenêtre légale";
+    label en unofficial "Article 18-1. The child may disclaim nationality within the statutory window";
+    when renonciation_nationalite_admissible(p) and renoncer_nationalite(p);
+    then liberty PouvoirRenoncerNationalite {
+        holder p;
+        action renoncer_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART19_3)
+rule Article19_3Nationalite(p: Personne, parent: Personne) defeasible { label fr official "Article 19-3. Est français l'enfant né en France lorsque l'un de ses parents y est lui-même né"; label en unofficial "Article 19-3. A child born in France is French when a parent was also born there"; when ne_en_france(p) and parent_ne_en_france(parent, p); then nationalite_francaise(p); }
+@source(CC_ART19_3)
+rule PositionPouvoirReclamerNationaliteNaissanceFrance(enfant: Personne) strict {
+    label fr official "Article 19-3. L'enfant peut réclamer la nationalité française résultant de sa naissance";
+    label en unofficial "Article 19-3. A child may claim French nationality resulting from birth";
+    when nationalite_francaise(enfant) and reclamer_nationalite(enfant);
+    then liberty PouvoirReclamerNationaliteNaissanceFrance {
+        holder enfant;
+        action reclamer_nationalite(enfant);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART20_2)
+rule Article20_2Nationalite(p: Personne, naissance: Date, jour: Date) defeasible { label fr official "Article 20-2. La faculté de répudier peut être perdue volontairement à partir de seize ans"; label en unofficial "Article 20-2. The right to disclaim may be voluntarily waived from age sixteen"; when ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 16 calendar_year); then renonciation_irrevocable_a_seize_ans(p); }
+
+@source(CC_ART20_2)
+rule PositionPouvoirRenoncerFaculteNationalite(p: Personne) strict {
+    label fr official "Article 20-2. La personne peut renoncer volontairement à la faculté de répudier";
+    label en unofficial "Article 20-2. A person may voluntarily waive the right to disclaim";
+    when renonciation_irrevocable_a_seize_ans(p) and renoncer_faculte_revendication(p);
+    then liberty PouvoirRenoncerFaculteNationalite {
+        holder p;
+        action renoncer_faculte_revendication(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation mariage_avec_francais_le(p: Personne, conjoint: Personne, jour: Date) kind empirical { key(p); label fr official "jour du mariage avec le conjoint français"; label en unofficial "date of marriage to the French spouse"; }
+pub relation communaute_de_vie_maintenue(p: Personne, conjoint: Personne) kind empirical { label fr official "la communauté de vie affective et matérielle n'a pas cessé"; label en unofficial "emotional and material marital life has not ceased"; }
+pub relation conjoint_reste_francais(p: Personne, conjoint: Personne) kind empirical { label fr official "le conjoint a conservé la nationalité française"; label en unofficial "the spouse retained French nationality"; }
+pub relation residence_trois_ans_depuis_mariage(p: Personne) kind empirical { label fr official "la personne justifie trois ans de résidence régulière et ininterrompue en France depuis le mariage"; label en unofficial "the person proves three years of lawful uninterrupted residence in France since marriage"; }
+pub relation conjoint_inscrit_registre_francais_etranger(p: Personne) kind empirical { label fr official "le conjoint français était inscrit au registre des Français établis hors de France"; label en unofficial "the French spouse was registered as a French national abroad"; }
+pub relation declaration_mariage_admissible_le(p: Personne, jour: Date) kind derived { key(p); label fr official "premier jour d'admissibilité de la déclaration de nationalité par mariage"; label en unofficial "first admissible date for nationality declaration by marriage"; }
+pub relation declarer_nationalite_par_mariage(p: Personne) kind empirical { label fr official "la personne souscrit une déclaration de nationalité par mariage"; label en unofficial "the person makes a nationality declaration by marriage"; }
+
+@source(CC_ART21_2) {
+    rule DeclarationMariageQuatreAnsResidence(p: Personne, conjoint: Personne, mariage: Date) defeasible { label fr official "Article 21-2. Avec communauté de vie et condition de résidence ou d'inscription, la déclaration est ouverte quatre ans après le mariage"; label en unofficial "Article 21-2. With continuing marital life and residence or registration, declaration opens four years after marriage"; when mariage_avec_francais_le(p, conjoint, mariage) and communaute_de_vie_maintenue(p, conjoint) and conjoint_reste_francais(p, conjoint) and residence_trois_ans_depuis_mariage(p); then declaration_mariage_admissible_le(p, add_calendar_period(mariage, 4 calendar_year)); }
+    rule DeclarationMariageQuatreAnsInscription(p: Personne, conjoint: Personne, mariage: Date) defeasible { label fr official "Article 21-2. L'inscription du conjoint français à l'étranger maintient le délai de quatre ans"; label en unofficial "Article 21-2. Registration of the French spouse abroad preserves the four-year period"; when mariage_avec_francais_le(p, conjoint, mariage) and communaute_de_vie_maintenue(p, conjoint) and conjoint_reste_francais(p, conjoint) and conjoint_inscrit_registre_francais_etranger(p); then declaration_mariage_admissible_le(p, add_calendar_period(mariage, 4 calendar_year)); }
+    rule DeclarationMariageCinqAns(p: Personne, conjoint: Personne, mariage: Date) defeasible { label fr official "Article 21-2. A défaut de résidence de trois ans ou d'inscription, le délai est porté à cinq ans"; label en unofficial "Article 21-2. Without three-year residence or registration, the period is five years"; when mariage_avec_francais_le(p, conjoint, mariage) and communaute_de_vie_maintenue(p, conjoint) and conjoint_reste_francais(p, conjoint) and not_known(residence_trois_ans_depuis_mariage(p)) and not_known(conjoint_inscrit_registre_francais_etranger(p)); then declaration_mariage_admissible_le(p, add_calendar_period(mariage, 5 calendar_year)); }
+}
+
+@source(CC_ART21_2)
+rule PositionPouvoirDeclarerNationaliteParMariage(p: Personne) strict {
+    label fr official "Article 21-2. La personne peut souscrire une déclaration de nationalité par mariage lorsque les conditions sont réunies";
+    label en unofficial "Article 21-2. A person may make a nationality declaration by marriage when the conditions are met";
+    when declaration_mariage_admissible_le(p, _) and declarer_nationalite_par_mariage(p);
+    then liberty PouvoirDeclarerNationaliteParMariage {
+        holder p;
+        action declarer_nationalite_par_mariage(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation declaration_nationalite_enregistree_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour d'enregistrement de la déclaration de nationalité"; label en unofficial "date the nationality declaration was registered"; }
+pub relation opposition_gouvernementale_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour de l'opposition du Gouvernement"; label en unofficial "date of Government opposition"; }
+pub relation opposition_gouvernementale_dans_delai(p: Personne) kind derived { label fr official "l'opposition gouvernementale est intervenue dans le délai de deux ans"; label en unofficial "Government opposition was made within two years"; }
+pub relation opposer_enregistrement_nationalite(p: Personne) kind empirical { label fr official "le Gouvernement forme opposition à l'enregistrement"; label en unofficial "the Government opposes the registration"; }
+
+@source(CC_ART21_4)
+rule Article21_4Nationalite(p: Personne, enregistrement: Date, opposition: Date) defeasible { label fr official "Article 21-4. L'opposition du Gouvernement doit intervenir dans les deux ans de l'enregistrement"; label en unofficial "Article 21-4. Government opposition must occur within two years after registration"; when declaration_nationalite_enregistree_le(p, enregistrement) and opposition_gouvernementale_le(p, opposition) and opposition <= add_calendar_period(enregistrement, 2 calendar_year); then opposition_gouvernementale_dans_delai(p); }
+@source(CC_ART21_4)
+rule PositionPouvoirOpposerEnregistrement(p: Personne) strict {
+    label fr official "Article 21-4. Le Gouvernement peut s'opposer, dans un délai de deux ans, à l'acquisition de la nationalité par le conjoint étranger";
+    label en unofficial "Article 21-4. The Government may oppose, within two years, the acquisition of nationality by the foreign spouse";
+    when declaration_nationalite_enregistree_le(p, _);
+    then liberty PouvoirOpposerEnregistrement {
+        holder entity_ref("urn:fr:cc:personnes:gouvernement");
+        action opposer_enregistrement_nationalite(p);
+        window [@2009-01-01, infinity);
+    };
+}
+
+pub relation annees_residence_france_depuis_onze_ans(p: Personne, n: Integer) kind empirical { key(p); label fr official "nombre d'années de résidence habituelle en France depuis l'âge de onze ans"; label en unofficial "years of habitual residence in France since age eleven"; }
+pub relation annees_residence_france_depuis_huit_ans(p: Personne, n: Integer) kind empirical { key(p); label fr official "nombre d'années de résidence habituelle en France depuis l'âge de huit ans"; label en unofficial "years of habitual residence in France since age eight"; }
+pub relation consentement_mineur_declaration(p: Personne) kind empirical { label fr official "le mineur a consenti à la déclaration"; label en unofficial "the minor consented to the declaration"; }
+pub relation acquisition_a_majorite_admissible(p: Personne) kind derived { label fr official "la personne née en France acquiert la nationalité à sa majorité"; label en unofficial "the France-born person acquires nationality at majority"; }
+pub relation declaration_seize_ans_admissible(p: Personne) kind derived { label fr official "la déclaration personnelle est admissible à seize ans"; label en unofficial "personal declaration is admissible at sixteen"; }
+pub relation declaration_treize_ans_admissible(p: Personne) kind derived { label fr official "la déclaration avec consentement est admissible à treize ans"; label en unofficial "declaration with consent is admissible at thirteen"; }
+pub relation declarer_nationalite_a_seize_ans(p: Personne) kind empirical { label fr official "le mineur exerce sa déclaration de nationalité à seize ans"; label en unofficial "the minor makes the nationality declaration at sixteen"; }
+pub relation declarer_nationalite_a_treize_ans(p: Personne) kind empirical { label fr official "les représentants exercent la déclaration de nationalité à treize ans"; label en unofficial "the representatives make the nationality declaration at thirteen"; }
+pub relation reclamer_nationalite(p: Personne) kind empirical { label fr official "la personne réclame la nationalité française"; label en unofficial "the person claims French nationality"; }
+pub relation declarer_possession_nationalite(p: Personne) kind empirical { label fr official "la personne déclare sa possession d'état de Français"; label en unofficial "the person declares possession of French status"; }
+
+@source(CC_ART21_7)
+rule Article21_7Nationalite(p: Personne, naissance: Date, jour: Date, residence: Integer) defeasible { label fr official "Article 21-7. A la majorité, la naissance en France et cinq ans de résidence depuis onze ans emportent acquisition"; label en unofficial "Article 21-7. At majority, birth in France and five years' residence since eleven entail acquisition"; when ne_en_france(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 18 calendar_year) and annees_residence_france_depuis_onze_ans(p, residence) and residence >= 5; then acquisition_a_majorite_admissible(p); }
+@source(CC_ART21_7)
+rule PositionPouvoirReclamerNationaliteMajorite(p: Personne) strict {
+    label fr official "Article 21-7. La personne peut réclamer la nationalité acquise à la majorité";
+    label en unofficial "Article 21-7. A person may claim nationality acquired at majority";
+    when acquisition_a_majorite_admissible(p) and reclamer_nationalite(p);
+    then liberty PouvoirReclamerNationaliteMajorite {
+        holder p;
+        action reclamer_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART21_8)
+rule Article21_8Nationalite(p: Personne, naissance: Date, jour: Date) defeasible { label fr official "Article 21-8. La faculté de décliner la nationalité s'exerce dans les six mois avant la majorité et les douze mois après"; label en unofficial "Article 21-8. The right to decline nationality is exercised in the six months before majority and twelve months after"; when ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(add_calendar_period(naissance, 17 calendar_year), 6 calendar_month) and jour <= add_calendar_period(naissance, 19 calendar_year); then renonciation_nationalite_admissible(p); }
+pub relation decliner_nationalite(p: Personne) kind empirical { label fr official "la personne décline la nationalité française"; label en unofficial "the person declines French nationality"; }
+@source(CC_ART21_8)
+rule PositionPouvoirDeclinerNationalite(p: Personne) strict {
+    label fr official "Article 21-8. La personne peut décliner la nationalité dans la fenêtre légale";
+    label en unofficial "Article 21-8. A person may decline nationality within the statutory window";
+    when renonciation_nationalite_admissible(p) and decliner_nationalite(p);
+    then liberty PouvoirDeclinerNationalite {
+        holder p;
+        action decliner_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART21_11) {
+    rule DeclarationASeizeAns(p: Personne, naissance: Date, jour: Date, residence: Integer) defeasible { label fr official "Article 21-11, alinéa 1. A seize ans, le mineur né en France déclare avec cinq ans de résidence depuis onze ans"; label en unofficial "Article 21-11, paragraph 1. At sixteen, a France-born minor declares with five years' residence since eleven"; when ne_en_france(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 16 calendar_year) and annees_residence_france_depuis_onze_ans(p, residence) and residence >= 5; then declaration_seize_ans_admissible(p); }
+    rule DeclarationATreizeAns(p: Personne, naissance: Date, jour: Date, residence: Integer) defeasible { label fr official "Article 21-11, alinéa 2. A treize ans, les représentants déclarent avec cinq ans de résidence depuis huit ans et le consentement du mineur"; label en unofficial "Article 21-11, paragraph 2. At thirteen, representatives declare with five years' residence since eight and the minor's consent"; when ne_en_france(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 13 calendar_year) and annees_residence_france_depuis_huit_ans(p, residence) and residence >= 5 and consentement_mineur_declaration(p); then declaration_treize_ans_admissible(p); }
+}
+
+@source(CC_ART21_11)
+rule PositionPouvoirDeclarerNationaliteSeizeAns(p: Personne) strict {
+    label fr official "Article 21-11, alinéa 1. Le mineur peut déclarer sa nationalité à seize ans";
+    label en unofficial "Article 21-11, paragraph 1. A minor may declare nationality at sixteen";
+    when declaration_seize_ans_admissible(p) and declarer_nationalite_a_seize_ans(p);
+    then liberty PouvoirDeclarerNationaliteSeizeAns {
+        holder p;
+        action declarer_nationalite_a_seize_ans(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART21_11)
+rule PositionPouvoirDeclarerNationaliteTreizeAns(p: Personne) strict {
+    label fr official "Article 21-11, alinéa 2. Les représentants peuvent déclarer la nationalité à treize ans";
+    label en unofficial "Article 21-11, paragraph 2. Representatives may declare nationality at thirteen";
+    when declaration_treize_ans_admissible(p) and declarer_nationalite_a_treize_ans(p);
+    then liberty PouvoirDeclarerNationaliteTreizeAns {
+        holder p;
+        action declarer_nationalite_a_treize_ans(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation adoption_simple_et_residence_france(p: Personne) kind empirical { label fr official "la personne a fait l'objet d'une adoption simple et réside en France"; label en unofficial "the person was simply adopted and resides in France"; }
+@source(CC_ART21_12)
+rule Article21_12Nationalite(p: Personne, naissance: Date, jour: Date) defeasible { label fr official "Article 21-12. Avant la majorité, l'enfant adopté simplement et résidant en France peut réclamer la nationalité"; label en unofficial "Article 21-12. Before majority, a simply adopted child residing in France may claim nationality"; when adoption_simple_et_residence_france(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour < add_calendar_period(naissance, 18 calendar_year); then nationalite_francaise(p); }
+
+@source(CC_ART21_12)
+rule PositionPouvoirReclamerNationalite(p: Personne) strict {
+    label fr official "Article 21-12. L'enfant adopté simplement peut réclamer la nationalité";
+    label en unofficial "Article 21-12. A simply adopted child may claim nationality";
+    when nationalite_francaise(p) and reclamer_nationalite(p);
+    then liberty PouvoirReclamerNationalite {
+        holder p;
+        action reclamer_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation possession_etat_francais_depuis(p: Personne, jour: Date) kind empirical { key(p); label fr official "début de la possession constante d'état de Français"; label en unofficial "start of constant possession of French status"; }
+pub relation declaration_possession_etat_admissible_le(p: Personne, jour: Date) kind derived { key(p); label fr official "date d'admissibilité après dix ans de possession d'état"; label en unofficial "admissibility date after ten years' possession of status"; }
+@source(CC_ART21_13)
+rule Article21_13Nationalite(p: Personne, debut: Date) defeasible { label fr official "Article 21-13. Dix ans de possession constante d'état de Français ouvrent la déclaration"; label en unofficial "Article 21-13. Ten years' constant possession of French status open the declaration"; when possession_etat_francais_depuis(p, debut); then declaration_possession_etat_admissible_le(p, add_calendar_period(debut, 10 calendar_year)); }
+
+@source(CC_ART21_13)
+rule PositionPouvoirDeclarerPossessionNationalite(p: Personne) strict {
+    label fr official "Article 21-13. La personne peut déclarer sa possession d'état de Français";
+    label en unofficial "Article 21-13. A person may declare possession of French status";
+    when declaration_possession_etat_admissible_le(p, _) and declarer_possession_nationalite(p);
+    then liberty PouvoirDeclarerPossessionNationalite {
+        holder p;
+        action declarer_possession_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation residence_habituelle_france_depuis(p: Personne, jour: Date) kind empirical { key(p); label fr official "début de la résidence habituelle en France"; label en unofficial "start of habitual residence in France"; }
+pub relation cas_reduction_stage_deux_ans_21_18(p: Personne) kind empirical { label fr official "la personne relève d'un cas de réduction du stage à deux ans énuméré à l'article 21-18"; label en unofficial "the person falls within a listed two-year reduction case under Article 21-18"; }
+pub relation cas_dispense_stage_21_19(p: Personne) kind empirical { label fr official "la personne relève d'un cas de dispense de stage énuméré à l'article 21-19"; label en unofficial "the person falls within a listed residence waiver under Article 21-19"; }
+pub relation naturalisation_admissible_le(p: Personne, jour: Date) kind derived { key(p); label fr official "premier jour où la condition de stage pour naturalisation est remplie"; label en unofficial "first day the residence condition for naturalization is met"; }
+pub relation demander_naturalisation(p: Personne) kind empirical { label fr official "la personne demande sa naturalisation"; label en unofficial "the person applies for naturalization"; }
+@source(CC_ART21_17)
+rule Article21_17Nationalite(p: Personne, debut: Date) defeasible { label fr official "Article 21-17. La naturalisation exige cinq ans de résidence habituelle précédant la demande"; label en unofficial "Article 21-17. Naturalization requires five years' habitual residence before application"; when residence_habituelle_france_depuis(p, debut) and not_known(cas_reduction_stage_deux_ans_21_18(p)) and not_known(cas_dispense_stage_21_19(p)); then naturalisation_admissible_le(p, add_calendar_period(debut, 5 calendar_year)); }
+@source(CC_ART21_17)
+rule PositionPouvoirDemanderNaturalisation(p: Personne) strict {
+    label fr official "Article 21-17. La personne peut demander la naturalisation lorsque le stage est rempli";
+    label en unofficial "Article 21-17. A person may apply for naturalization when the residence period is met";
+    when naturalisation_admissible_le(p, _) and demander_naturalisation(p);
+    then liberty PouvoirDemanderNaturalisation {
+        holder p;
+        action demander_naturalisation(p);
+        window [@1804-03-21, infinity);
+    };
+}
+@source(CC_ART21_18)
+rule Article21_18Nationalite(p: Personne, debut: Date) defeasible { label fr official "Article 21-18. Les cas énumérés réduisent le stage à deux ans"; label en unofficial "Article 21-18. The listed cases reduce residence to two years"; when residence_habituelle_france_depuis(p, debut) and cas_reduction_stage_deux_ans_21_18(p); then naturalisation_admissible_le(p, add_calendar_period(debut, 2 calendar_year)); }
+@source(CC_ART21_18)
+rule PositionPouvoirDemanderNaturalisationStageReduit(p: Personne) strict {
+    label fr official "Article 21-18. La personne peut demander la naturalisation après le stage réduit";
+    label en unofficial "Article 21-18. A person may apply for naturalization after the reduced residence period";
+    when naturalisation_admissible_le(p, _) and cas_reduction_stage_deux_ans_21_18(p) and demander_naturalisation(p);
+    then liberty PouvoirDemanderNaturalisationStageReduit {
+        holder p;
+        action demander_naturalisation(p);
+        window [@1804-03-21, infinity);
+    };
+}
+@source(CC_ART21_19)
+rule Article21_19Nationalite(p: Personne, jour: Date) defeasible { label fr official "Article 21-19. Les cas énumérés dispensent de stage"; label en unofficial "Article 21-19. The listed cases waive residence"; when cas_dispense_stage_21_19(p) and date_d_appreciation(p, jour); then naturalisation_admissible_le(p, jour); }
+@source(CC_ART21_19)
+rule PositionPouvoirDemanderNaturalisationSansStage(p: Personne) strict {
+    label fr official "Article 21-19. La personne peut demander la naturalisation sans stage";
+    label en unofficial "Article 21-19. A person may apply for naturalization without a residence period";
+    when naturalisation_admissible_le(p, _) and cas_dispense_stage_21_19(p) and demander_naturalisation(p);
+    then liberty PouvoirDemanderNaturalisationSansStage {
+        holder p;
+        action demander_naturalisation(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation acquisition_nationalite_etrangere_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour d'acquisition volontaire d'une nationalité étrangère"; label en unofficial "date of voluntary acquisition of a foreign nationality"; }
+pub relation perte_nationalite_declaree(p: Personne) kind derived { label fr official "la perte de la nationalité française peut être déclarée"; label en unofficial "loss of French nationality may be declared"; }
+pub relation declarer_perte_nationalite(p: Personne) kind empirical { label fr official "la personne déclare perdre la qualité de Français"; label en unofficial "the person declares loss of French status"; }
+pub relation perte_autorisee_par_decret(p: Personne) kind empirical { label fr official "la perte de nationalité a été autorisée par décret"; label en unofficial "loss of nationality was authorized by decree"; }
+pub relation declarer_perte_nationalite_par_decret(p: Personne) kind empirical { label fr official "la personne déclare la perte autorisée par décret"; label en unofficial "the person declares loss authorized by decree"; }
+@source(CC_ART23)
+rule Article23Nationalite(p: Personne, jour: Date) defeasible { label fr official "Article 23. Le Français qui acquiert volontairement une nationalité étrangère peut déclarer perdre la qualité de Français"; label en unofficial "Article 23. A French national voluntarily acquiring foreign nationality may declare loss of French status"; when acquisition_nationalite_etrangere_le(p, jour) and nationalite_francaise(p); then perte_nationalite_declaree(p); }
+@source(CC_ART23)
+rule PositionPouvoirDeclarerPerteNationalite(p: Personne) strict {
+    label fr official "Article 23. Le Français peut déclarer perdre la qualité de Français";
+    label en unofficial "Article 23. A French national may declare loss of French status";
+    when perte_nationalite_declaree(p) and declarer_perte_nationalite(p);
+    then liberty PouvoirDeclarerPerteNationalite {
+        holder p;
+        action declarer_perte_nationalite(p);
+        window [@1804-03-21, infinity);
+    };
+}
+@source(CC_ART23_4)
+rule Article23_4Nationalite(p: Personne) defeasible { label fr official "Article 23-4. La perte autorisée par décret prend effet selon la décision"; label en unofficial "Article 23-4. Loss authorized by decree takes effect under the decision"; when perte_autorisee_par_decret(p); then perte_nationalite_declaree(p); }
+@source(CC_ART23_4)
+rule PositionPouvoirDeclarerPerteAutoriseeParDecret(p: Personne) strict {
+    label fr official "Article 23-4. La personne peut déclarer la perte autorisée par décret";
+    label en unofficial "Article 23-4. A person may declare loss authorized by decree";
+    when perte_autorisee_par_decret(p) and declarer_perte_nationalite_par_decret(p);
+    then liberty PouvoirDeclarerPerteAutoriseeParDecret {
+        holder p;
+        action declarer_perte_nationalite_par_decret(p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation decheance_prononcee_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour du décret prononçant la déchéance"; label en unofficial "date of the decree ordering deprivation"; }
+pub relation acquisition_nationalite_francaise_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour de l'acquisition de la nationalité française"; label en unofficial "date French nationality was acquired"; }
+pub relation fait_decheance_commis_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour du fait invoqué pour la déchéance"; label en unofficial "date of the conduct relied on for deprivation"; }
+pub relation fait_decheance_article_25_1_premier(p: Personne) kind empirical { label fr official "le fait relève du 1° de l'article 25"; label en unofficial "the conduct falls under Article 25(1)"; }
+pub relation decheance_rendrait_apatride(p: Personne) kind empirical { label fr official "la déchéance rendrait la personne apatride"; label en unofficial "deprivation would render the person stateless"; }
+pub relation prononcer_decheance(p: Personne) kind empirical { label fr official "une autorité prononce la déchéance de nationalité"; label en unofficial "an authority orders deprivation of nationality"; }
+pub relation decheance_dans_fenetres_legales(p: Personne) kind derived { label fr official "la déchéance respecte les fenêtres temporelles de l'article 25-1"; label en unofficial "deprivation complies with the Article 25-1 time windows"; }
+pub relation decheance_hors_fenetres_legales(p: Personne) kind empirical { label fr official "la déchéance est prononcée hors des fenêtres temporelles"; label en unofficial "deprivation is ordered outside the statutory windows"; }
+@source(CC_ART25)
+rule Article25Nationalite(p: Personne) defeater { label fr official "Article 25. Nul ne peut être déchu si la déchéance le rend apatride"; label en unofficial "Article 25. No one may be deprived if deprivation would render the person stateless"; when decheance_rendrait_apatride(p); defeat perte_nationalite_declaree(p); }
+@source(CC_ART25)
+rule PositionInterdictionDecheanceApatridie(p: Personne) strict {
+    label fr official "Article 25. La déchéance qui rend apatride est interdite";
+    label en unofficial "Article 25. Deprivation rendering a person stateless is prohibited";
+    when decheance_rendrait_apatride(p);
+    then prohibition InterdictionDecheanceApatridie {
+        bearer entity_ref("urn:fr:cc:personnes:autorite-decheance");
+        action prononcer_decheance(p);
+        window [@1993-01-01, infinity);
+    };
+}
+@source(CC_ART25)
+rule MaintenanceInterdictionDecheanceApatridie(p: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionDecheanceApatridie";
+    label en unofficial "Maintain prohibition InterdictionDecheanceApatridie";
+    when decheance_rendrait_apatride(p);
+    then duty MaintenanceInterdictionDecheanceApatridieDuty {
+        bearer entity_ref("urn:fr:cc:personnes:autorite-decheance");
+        goal maintenance {
+            condition not prononcer_decheance(p);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+@source(CC_ART25_1) {
+    rule DecheanceDixAns(p: Personne, acquisition: Date, fait: Date, decret: Date) defeasible { label fr official "Article 25-1. Le fait doit précéder l'acquisition ou survenir dans les dix ans, et la déchéance dans les dix ans du fait"; label en unofficial "Article 25-1. Conduct must precede acquisition or occur within ten years, and deprivation within ten years of conduct"; when acquisition_nationalite_francaise_le(p, acquisition) and fait_decheance_commis_le(p, fait) and decheance_prononcee_le(p, decret) and fait <= add_calendar_period(acquisition, 10 calendar_year) and decret <= add_calendar_period(fait, 10 calendar_year) and not_known(fait_decheance_article_25_1_premier(p)) and not_known(decheance_rendrait_apatride(p)); then decheance_dans_fenetres_legales(p); }
+    rule DecheanceQuinzeAnsPremier(p: Personne, acquisition: Date, fait: Date, decret: Date) defeasible { label fr official "Article 25-1. Pour le 1° de l'article 25, les deux délais sont portés à quinze ans"; label en unofficial "Article 25-1. For Article 25(1), both periods are extended to fifteen years"; when acquisition_nationalite_francaise_le(p, acquisition) and fait_decheance_commis_le(p, fait) and decheance_prononcee_le(p, decret) and fait <= add_calendar_period(acquisition, 15 calendar_year) and decret <= add_calendar_period(fait, 15 calendar_year) and fait_decheance_article_25_1_premier(p) and not_known(decheance_rendrait_apatride(p)); then decheance_dans_fenetres_legales(p); }
+}
+@source(CC_ART25_1)
+rule PositionInterdictionDecheanceHorsDelai(p: Personne) strict {
+    label fr official "Article 25-1. La déchéance hors des délais légaux est interdite";
+    label en unofficial "Article 25-1. Deprivation outside the statutory periods is prohibited";
+    when decheance_hors_fenetres_legales(p);
+    then prohibition InterdictionDecheanceHorsDelai {
+        bearer entity_ref("urn:fr:cc:personnes:autorite-decheance");
+        action prononcer_decheance(p);
+        window [@1993-01-01, infinity);
+    };
+}
+@source(CC_ART25_1)
+rule MaintenanceInterdictionDecheanceHorsDelai(p: Personne) strict {
+    label fr official "Maintenir l'interdiction InterdictionDecheanceHorsDelai";
+    label en unofficial "Maintain prohibition InterdictionDecheanceHorsDelai";
+    when decheance_hors_fenetres_legales(p);
+    then duty MaintenanceInterdictionDecheanceHorsDelaiDuty {
+        bearer entity_ref("urn:fr:cc:personnes:autorite-decheance");
+        goal maintenance {
+            condition not prononcer_decheance(p);
+            window [@1804-03-21, infinity);
+        };
+    };
+}
+
+
+pub relation refus_enregistrement_notifie_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour de notification du refus d'enregistrement"; label en unofficial "date notice of refusal to register was given"; }
+pub relation delai_contestation_refus_expire_le(p: Personne, jour: Date) kind derived { key(p); label fr official "terme de six mois de la contestation du refus d'enregistrement"; label en unofficial "end of the six-month challenge to refusal to register"; }
+pub relation delai_contestation_ministere_expire_le(p: Personne, jour: Date) kind derived { key(p); label fr official "terme de deux ans de la contestation ministérielle de l'enregistrement"; label en unofficial "end of the two-year ministerial challenge to registration"; }
+pub relation contester_refus_enregistrement(p: Personne) kind empirical { label fr official "la personne conteste le refus d'enregistrement"; label en unofficial "the person challenges the refusal to register"; }
+pub relation ministere_public(m: Personne) kind empirical { label fr official "la personne agit comme ministère public"; label en unofficial "the person acts as public prosecutor"; }
+pub relation contester_enregistrement_nationalite(m: Personne, p: Personne) kind empirical { label fr official "le ministère public conteste l'enregistrement de la déclaration"; label en unofficial "the public prosecutor challenges the nationality registration"; }
+@source(CC_ART26_3)
+rule Article26_3Nationalite(p: Personne, notification: Date) defeasible { label fr official "Article 26-3. Le refus d'enregistrement se conteste dans les six mois de sa notification"; label en unofficial "Article 26-3. Refusal to register is challenged within six months of notice"; when refus_enregistrement_notifie_le(p, notification); then delai_contestation_refus_expire_le(p, add_calendar_period(notification, 6 calendar_month)); }
+@source(CC_ART26_3)
+rule PositionPouvoirContesterRefusEnregistrement(p: Personne) strict {
+    label fr official "Article 26-3. La personne peut contester le refus d'enregistrement dans les six mois";
+    label en unofficial "Article 26-3. A person may challenge the refusal to register within six months";
+    when delai_contestation_refus_expire_le(p, _) and contester_refus_enregistrement(p);
+    then liberty PouvoirContesterRefusEnregistrement {
+        holder p;
+        action contester_refus_enregistrement(p);
+        window [@1804-03-21, infinity);
+    };
+}
+@source(CC_ART26_4)
+rule Article26_4Nationalite(p: Personne, enregistrement: Date) defeasible { label fr official "Article 26-4. Le ministère public conteste l'enregistrement dans les deux ans"; label en unofficial "Article 26-4. The public prosecutor challenges registration within two years"; when declaration_nationalite_enregistree_le(p, enregistrement); then delai_contestation_ministere_expire_le(p, add_calendar_period(enregistrement, 2 calendar_year)); }
+@source(CC_ART26_4)
+rule PositionPouvoirContesterEnregistrement(m: Personne, p: Personne) strict {
+    label fr official "Article 26-4. Le ministère public peut contester l'enregistrement dans les deux ans";
+    label en unofficial "Article 26-4. The public prosecutor may challenge registration within two years";
+    when ministere_public(m) and delai_contestation_ministere_expire_le(p, _);
+    then liberty PouvoirContesterEnregistrement {
+        holder m;
+        action contester_enregistrement_nationalite(m, p);
+        window [@1804-03-21, infinity);
+    };
+}
+
+pub relation certificat_nationalite_delivre(p: Personne) kind empirical { label fr official "un certificat de nationalité française a été délivré"; label en unofficial "a French nationality certificate was issued"; }
+pub relation nationalite_mise_en_cause(p: Personne) kind empirical { label fr official "la nationalité de la personne est mise en cause"; label en unofficial "the person's nationality is at issue"; }
+pub relation charge_preuve_nationalite_sur_personne(p: Personne) kind derived { label fr official "la charge de prouver la nationalité incombe à la personne dont elle est en cause"; label en unofficial "the burden of proving nationality lies on the person whose nationality is at issue"; }
+pub relation charge_preuve_sur_contestant_certificat(p: Personne) kind derived { label fr official "en présence d'un certificat, la charge incombe à celui qui conteste"; label en unofficial "with a certificate, the burden lies on the challenger"; }
+pub relation prouver_nationalite(p: Personne) kind empirical { label fr official "la personne apporte la preuve de sa nationalité"; label en unofficial "the person proves their nationality"; }
+@source(CC_ART30) {
+    rule ChargePreuveGeneraleNationalite(p: Personne) defeasible { label fr official "Article 30. La charge de la preuve incombe à celui dont la nationalité est en cause"; label en unofficial "Article 30. The burden of proof lies on the person whose nationality is at issue"; when nationalite_mise_en_cause(p) and not_known(certificat_nationalite_delivre(p)); then charge_preuve_nationalite_sur_personne(p); }
+    rule ChargePreuveAvecCertificat(p: Personne) defeasible { label fr official "Article 30. Le certificat renverse la charge sur celui qui conteste la nationalité"; label en unofficial "Article 30. A certificate shifts the burden to the challenger"; when certificat_nationalite_delivre(p); then charge_preuve_sur_contestant_certificat(p); }
+}
+@source(CC_ART30)
+rule PositionDevoirProuverNationalite(p: Personne) strict {
+    label fr official "Article 30. La personne doit prouver sa nationalité lorsqu'elle est mise en cause";
+    label en unofficial "Article 30. A person must prove their nationality when it is at issue";
+    when nationalite_mise_en_cause(p);
+    then duty DevoirProuverNationalite {
+        bearer p;
+        goal achievement {
+            condition prouver_nationalite(p);
+            window [@1804-03-21, infinity];
+        };
+    };
+}

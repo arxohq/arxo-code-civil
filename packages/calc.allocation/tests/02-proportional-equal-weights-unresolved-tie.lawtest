@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+// Те же 100.00 на три равных веса, но приоритетов нет. Остаток — одна
+// единица, претендентов с равным остатком — трое, ранг у всех 0, группа
+// размером 3, граница проходит внутри группы. Пакет НЕ выбирает победителя:
+// неразрешённое равенство названо на каждом из троих, доли не выведены.
+test "три равных веса без приоритетов: граница раздачи проходит по равным остаткам" {
+    given {
+
+        assert "02-proportional-equal-weights-unresolved-tie-1": allocation_mode(entity_ref("urn:calc:allocation:test:alloc"), Proportional) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-2": allocation_total(entity_ref("urn:calc:allocation:test:alloc"), 100.00 EUR) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-3": allocation_precision(entity_ref("urn:calc:allocation:test:alloc"), 2) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-4": allocation_unit(entity_ref("urn:calc:allocation:test:alloc"), 0.01 EUR) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-5": allocation_remainder_policy(entity_ref("urn:calc:allocation:test:alloc"), LargestRemainder) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-6": recipient_of(entity_ref("urn:calc:allocation:test:r1"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-7": recipient_weight(entity_ref("urn:calc:allocation:test:r1"), 1.0) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-8": recipient_of(entity_ref("urn:calc:allocation:test:r2"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-9": recipient_weight(entity_ref("urn:calc:allocation:test:r2"), 1.0) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-10": recipient_of(entity_ref("urn:calc:allocation:test:r3"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "02-proportional-equal-weights-unresolved-tie-11": recipient_weight(entity_ref("urn:calc:allocation:test:r3"), 1.0) { origin case_input; }
+    }
+
+    evaluate truth(allocation_unresolved_tie(entity_ref("urn:calc:allocation:test:alloc"), entity_ref("urn:calc:allocation:test:r1")));
+
+    expect result_kind == PROPOSITION;
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

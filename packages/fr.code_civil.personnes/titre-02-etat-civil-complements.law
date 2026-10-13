@@ -1,0 +1,471 @@
+// TITRE II — FORMALITÉS ET DÉLAIS EXÉCUTABLES COMPLÉMENTAIRES.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    ActeEtatCivil,
+    CC_ART100,
+    CC_ART101,
+    CC_ART101_1,
+    CC_ART101_2,
+    CC_ART108,
+    CC_ART34,
+    CC_ART34_1,
+    CC_ART35,
+    CC_ART36,
+    CC_ART37,
+    CC_ART38,
+    CC_ART39,
+    CC_ART40,
+    CC_ART46,
+    CC_ART48,
+    CC_ART49,
+    CC_ART50,
+    CC_ART51,
+    CC_ART52,
+    CC_ART53,
+    CC_ART54,
+    CC_ART56,
+    CC_ART57_1,
+    CC_ART58,
+    CC_ART59,
+    CC_ART60,
+    CC_ART60_1,
+    CC_ART61,
+    CC_ART61_1,
+    CC_ART61_2,
+    CC_ART61_3,
+    CC_ART61_3_1,
+    CC_ART61_3_2,
+    CC_ART61_4,
+    CC_ART61_5,
+    CC_ART61_6,
+    CC_ART61_7,
+    CC_ART61_8,
+    CC_ART62_1,
+    CC_ART63,
+    CC_ART64,
+    CC_ART65,
+    CC_ART66,
+    CC_ART67,
+    CC_ART68,
+    CC_ART69,
+    CC_ART70,
+    CC_ART71,
+    CC_ART74,
+    CC_ART74_1,
+    CC_ART75,
+    CC_ART76,
+    CC_ART78,
+    CC_ART79_1,
+    CC_ART80,
+    CC_ART81,
+    CC_ART82,
+    CC_ART84,
+    CC_ART85,
+    CC_ART86,
+    CC_ART87,
+    CC_ART88,
+    CC_ART89,
+    CC_ART90,
+    CC_ART91,
+    CC_ART92,
+    CC_ART93,
+    CC_ART95,
+    CC_ART96,
+    CC_ART96_1,
+    CC_ART96_2,
+    CC_ART97,
+    CC_ART98,
+    CC_ART98_1,
+    CC_ART98_2,
+    CC_ART98_3,
+    CC_ART98_4,
+    CC_ART99_1,
+    CC_ART99_2,
+    Personne,
+    accouchement_le,
+    acte_etat_civil_complet,
+    date_d_appreciation,
+    ne_le,
+};
+
+pub entity OfficierEtatCivil { label fr official "officier de l'état civil"; label en unofficial "civil registrar"; }
+
+pub relation declaration_recue_par(o: OfficierEtatCivil, a: ActeEtatCivil) kind empirical { label fr official "l'officier reçoit la déclaration destinée à l'acte"; label en unofficial "the registrar receives the declaration for the record"; }
+pub relation mentions_conformes_aux_declarations(a: ActeEtatCivil) kind derived { label fr official "l'acte ne contient que les déclarations et mentions légalement requises"; label en unofficial "the record contains only declarations and legally required particulars"; }
+pub relation representant_muni_pouvoir_special_authentique(p: Personne, a: ActeEtatCivil) kind empirical { label fr official "le représentant est muni d'un pouvoir spécial et authentique"; label en unofficial "the representative holds a special authentic power"; }
+pub relation representation_acte_admissible(p: Personne, a: ActeEtatCivil) kind derived { label fr official "la représentation pour l'acte est admissible"; label en unofficial "representation for the record is admissible"; }
+pub relation acte_a_mentionner(a: ActeEtatCivil, cible: ActeEtatCivil) kind empirical { label fr official "l'acte doit être mentionné en marge de l'acte cible"; label en unofficial "the record must be noted in the margin of the target record"; }
+pub relation avis_mention_recu_le(cible: ActeEtatCivil, jour: Date) kind empirical { key(cible); label fr official "jour de réception de l'avis de mention marginale"; label en unofficial "date the marginal-note notice was received"; }
+pub relation mention_marginale_due_le(cible: ActeEtatCivil, jour: Date) kind derived { key(cible); label fr official "terme de trois jours pour la mention marginale"; label en unofficial "three-day deadline for the marginal note"; }
+pub relation faute_officier_etat_civil(o: OfficierEtatCivil, a: ActeEtatCivil) kind empirical { label fr official "une faute de l'officier dans l'exercice de ses fonctions est établie"; label en unofficial "fault by the registrar in office is established"; }
+pub relation responsabilite_civile_officier(o: OfficierEtatCivil) kind derived { label fr official "la responsabilité civile de l'officier est engagée"; label en unofficial "the registrar incurs civil liability"; }
+pub relation pere_ou_professionnel_accouchement_declare(a: ActeEtatCivil, p: Personne) kind empirical { label fr official "le père ou un professionnel ayant assisté à l'accouchement déclare la naissance"; label en unofficial "the father or an attending professional declares the birth"; }
+pub relation declarant_naissance_habilite(a: ActeEtatCivil, p: Personne) kind derived { label fr official "la personne est habilitée à déclarer la naissance"; label en unofficial "the person is entitled to declare the birth"; }
+pub relation enfant_nouveau_ne_trouve(a: ActeEtatCivil, p: Personne) kind empirical { label fr official "la personne a trouvé un enfant nouveau-né"; label en unofficial "the person found a newborn child"; }
+pub relation enfant_remis_officier_avec_objets(a: ActeEtatCivil, p: Personne) kind empirical { label fr official "l'enfant, les vêtements et objets ont été remis à l'officier"; label en unofficial "the child, clothing and objects were handed to the registrar"; }
+pub relation declaration_enfant_trouvee_conforme(a: ActeEtatCivil) kind derived { label fr official "la déclaration de l'enfant trouvé satisfait l'article 58"; label en unofficial "the found-child declaration complies with Article 58"; }
+pub relation changement_nom_ou_prenom_concerne(p: Personne) kind empirical { label fr official "la personne est concernée par un changement de nom ou de prénom"; label en unofficial "the person is concerned by a change of name or forename"; }
+pub relation consentement_personnel_changement(p: Personne) kind empirical { label fr official "la personne a donné son consentement personnel au changement"; label en unofficial "the person personally consented to the change"; }
+pub relation changement_identite_admissible(p: Personne) kind derived { label fr official "le changement de nom ou prénom satisfait la condition de consentement"; label en unofficial "the change of name or forename meets the consent condition"; }
+pub relation publication_mariage_commencee_le(a: ActeEtatCivil, jour: Date) kind empirical { key(a); label fr official "premier jour de publication du mariage"; label en unofficial "first day of marriage banns"; }
+pub relation mariage_celebrable_le(a: ActeEtatCivil, jour: Date) kind derived { key(a); label fr official "premier jour où le mariage peut être célébré après publication"; label en unofficial "first day marriage may be celebrated after banns"; }
+pub relation rectification_acte_executee(a: ActeEtatCivil) kind empirical { label fr official "la rectification ou l'annulation de l'acte a été exécutée"; label en unofficial "correction or cancellation of the record was carried out"; }
+pub relation copie_conforme_acte_rectifie(a: ActeEtatCivil) kind derived { label fr official "les copies reproduisent uniquement l'acte rectifié"; label en unofficial "copies reproduce only the corrected record"; }
+pub relation epoux_residence_separee(p: Personne) kind empirical { label fr official "l'époux a une résidence séparée sans atteinte aux règles de communauté de vie"; label en unofficial "the spouse has a separate residence without breaching marital-life rules"; }
+pub relation domicile_epoux_independant(p: Personne) kind derived { label fr official "l'époux peut avoir un domicile distinct"; label en unofficial "the spouse may have a separate domicile"; }
+pub relation temoin_acte(p: Personne, a: ActeEtatCivil) kind empirical { label fr official "la personne est témoin de l'acte"; label en unofficial "the person is a witness to the record"; }
+pub relation temoin_acte_admissible(p: Personne, a: ActeEtatCivil) kind derived { label fr official "le témoin satisfait à la condition d'âge"; label en unofficial "the witness meets the age requirement"; }
+pub relation lecture_et_invitation_signature_effectuees(a: ActeEtatCivil) kind empirical { label fr official "lecture de l'acte et invitation à le lire avant signature ont été effectuées"; label en unofficial "the record was read and the parties were invited to read it before signing"; }
+pub relation formalite_lecture_acte_satisfaite(a: ActeEtatCivil) kind derived { label fr official "la formalité de lecture de l'acte est satisfaite"; label en unofficial "the record-reading formality is satisfied"; }
+pub relation signatures_ou_causes_absence_indiquees(a: ActeEtatCivil) kind empirical { label fr official "les signatures ou les causes empêchant de signer sont indiquées"; label en unofficial "signatures or reasons preventing signature are stated"; }
+pub relation formalite_signature_acte_satisfaite(a: ActeEtatCivil) kind derived { label fr official "la formalité de signature de l'acte est satisfaite"; label en unofficial "the record-signature formality is satisfied"; }
+pub relation registres_absents_perdus_ou_detruits(a: ActeEtatCivil) kind empirical { label fr official "les registres sont inexistants, perdus ou détruits"; label en unofficial "the registers are absent, lost or destroyed"; }
+pub relation declarations_trois_temoins_devant_notaire(a: ActeEtatCivil) kind empirical { label fr official "un acte de notoriété repose sur au moins trois témoins devant notaire"; label en unofficial "a notoriety instrument rests on at least three witnesses before a notary"; }
+pub relation preuve_substitutive_etat_civil_admissible(a: ActeEtatCivil) kind derived { label fr official "la preuve substitutive de l'état civil est admissible"; label en unofficial "substitute proof of civil status is admissible"; }
+pub relation acte_francais_etranger_recu_agent_consulaire(a: ActeEtatCivil) kind empirical { label fr official "l'acte d'un Français à l'étranger est reçu par un agent diplomatique ou consulaire selon la loi française"; label en unofficial "the record of a French national abroad is received by a diplomatic or consular agent under French law"; }
+pub relation acte_etranger_consulaire_valable(a: ActeEtatCivil) kind derived { label fr official "l'acte consulaire étranger est valable"; label en unofficial "the foreign consular record is valid"; }
+pub relation alteration_ou_faux_acte(a: ActeEtatCivil) kind empirical { label fr official "l'acte est altéré, faux ou inscrit hors registre"; label en unofficial "the record is altered, false, or entered outside the register"; }
+pub relation dommages_interets_etat_civil_ouverts(a: ActeEtatCivil) kind derived { label fr official "l'altération ou le faux ouvre des dommages-intérêts"; label en unofficial "alteration or falsity opens damages"; }
+pub relation jugement_etat_civil_conteste(a: ActeEtatCivil) kind empirical { label fr official "une partie intéressée conteste le jugement relatif à l'état civil"; label en unofficial "an interested party challenges a civil-status judgment"; }
+pub relation recours_jugement_etat_civil_admissible(a: ActeEtatCivil) kind derived { label fr official "le recours contre le jugement d'état civil est admissible"; label en unofficial "an appeal against the civil-status judgment is available"; }
+pub relation reconnaissance_portee_marge_naissance(a: ActeEtatCivil) kind empirical { label fr official "la reconnaissance est portée en marge de l'acte de naissance"; label en unofficial "the acknowledgment is entered in the margin of the birth record"; }
+pub relation avis_autre_parent_requis(a: ActeEtatCivil) kind derived { label fr official "l'autre parent doit être avisé par lettre recommandée"; label en unofficial "the other parent must be notified by registered letter"; }
+pub relation naissance_pendant_voyage_maritime(a: ActeEtatCivil) kind empirical { label fr official "la naissance a eu lieu pendant un voyage maritime"; label en unofficial "the birth occurred during a sea voyage"; }
+pub relation acte_naissance_maritime_du_le(a: ActeEtatCivil, jour: Date) kind derived { key(a); label fr official "terme de trois jours de l'acte de naissance maritime"; label en unofficial "three-day deadline for the maritime birth record"; }
+pub relation demande_changement_prenom(p: Personne) kind empirical { label fr official "la personne demande un changement de prénom"; label en unofficial "the person requests a change of forename"; }
+pub relation demande_changement_prenom_recevable(p: Personne) kind derived { label fr official "la demande de changement de prénom est recevable"; label en unofficial "the forename-change request is admissible"; }
+pub relation interet_legitime_changement_nom(p: Personne) kind empirical { label fr official "la personne justifie d'un intérêt légitime au changement de nom"; label en unofficial "the person proves a legitimate interest in changing surname"; }
+pub relation demande_changement_nom_admissible(p: Personne) kind derived { label fr official "la demande de changement de nom est admissible"; label en unofficial "the surname-change request is available"; }
+pub relation decret_changement_nom_publie_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour de publication du décret de changement de nom"; label en unofficial "publication date of the surname-change decree"; }
+pub relation opposition_changement_nom_expire_le(p: Personne, jour: Date) kind derived { key(p); label fr official "terme du délai d'opposition au changement de nom"; label en unofficial "deadline for objecting to the surname change"; }
+pub relation parent_beneficie_changement_nom(p: Personne) kind empirical { label fr official "un parent de l'enfant bénéficie du changement de nom"; label en unofficial "one of the child's parents benefits from the surname change"; }
+pub relation changement_nom_etendu_enfant(p: Personne) kind derived { label fr official "le changement de nom s'étend de plein droit à l'enfant"; label en unofficial "the surname change automatically extends to the child"; }
+pub relation pieces_penales_jointes_demande_identite(p: Personne) kind empirical { label fr official "le bulletin pénal et les attestations de fichiers requis sont joints"; label en unofficial "the required criminal-record and register statements are attached"; }
+pub relation dossier_changement_identite_complet(p: Personne) kind derived { label fr official "le dossier de changement d'identité contient les pièces requises"; label en unofficial "the identity-change application contains the required documents"; }
+pub relation choix_changement_nom_premiere_fois(p: Personne) kind empirical { label fr official "la personne majeure exerce pour la première fois le choix de nom de l'article 61-3-1"; label en unofficial "the adult exercises the Article 61-3-1 surname choice for the first time"; }
+pub relation changement_nom_simplifie_admissible(p: Personne) kind derived { label fr official "le changement de nom simplifié est admissible"; label en unofficial "the simplified surname change is available"; }
+pub relation faits_suffisants_sexe_vecu(p: Personne) kind empirical { label fr official "une réunion suffisante de faits établit le sexe dans lequel la personne se présente et est connue"; label en unofficial "sufficient facts establish the sex in which the person presents and is known"; }
+pub relation consentement_libre_eclaire_modification_sexe(p: Personne) kind empirical { label fr official "la personne consent librement et de manière éclairée à la modification de la mention du sexe"; label en unofficial "the person freely and knowingly consents to changing the sex entry"; }
+pub relation modification_mention_sexe_admissible(p: Personne) kind derived { label fr official "la modification de la mention du sexe est admissible"; label en unofficial "changing the sex entry is available"; }
+pub relation decision_modification_sexe_definitive_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour où la décision de modification du sexe passe en force de chose jugée"; label en unofficial "date the sex-entry decision became final"; }
+pub relation mention_modification_sexe_due_le(p: Personne, jour: Date) kind derived { key(p); label fr official "terme de quinze jours pour la mention marginale du sexe"; label en unofficial "fifteen-day deadline for the marginal sex-entry note"; }
+pub relation modification_sexe_enregistree(p: Personne) kind empirical { label fr official "la modification de la mention du sexe est enregistrée"; label en unofficial "the change to the sex entry is registered"; }
+pub relation obligations_et_filiation_anterieures_maintenues(p: Personne) kind derived { label fr official "les obligations envers les tiers et les filiations antérieures sont maintenues"; label en unofficial "prior third-party obligations and filiation are preserved"; }
+pub relation reconnaissance_paternelle_bloquee_secret(a: ActeEtatCivil) kind empirical { label fr official "la transcription de reconnaissance paternelle est bloquée par le secret de la mère"; label en unofficial "transcription of paternal acknowledgment is blocked by the mother's secrecy"; }
+pub relation recherche_acte_naissance_par_procureur(a: ActeEtatCivil) kind derived { label fr official "le procureur recherche la date et le lieu de l'acte de naissance"; label en unofficial "the prosecutor searches for the date and place of the birth record"; }
+pub relation mentions_publication_mariage_completes(a: ActeEtatCivil) kind empirical { label fr official "la publication mentionne identités, professions, domiciles, résidences et lieu du mariage"; label en unofficial "the banns state identities, occupations, domiciles, residences and marriage place"; }
+pub relation publication_mariage_conforme(a: ActeEtatCivil) kind derived { label fr official "la publication du mariage est conforme"; label en unofficial "the marriage banns comply"; }
+pub relation mariage_non_celebre_dans_annee(a: ActeEtatCivil) kind empirical { label fr official "le mariage n'a pas été célébré dans l'année suivant la publication"; label en unofficial "the marriage was not celebrated within one year after banns"; }
+pub relation nouvelle_publication_mariage_requise(a: ActeEtatCivil) kind derived { label fr official "une nouvelle publication est requise avant célébration"; label en unofficial "new banns are required before celebration"; }
+pub relation opposition_mariage_recue(a: ActeEtatCivil) kind empirical { label fr official "une opposition au mariage est reçue"; label en unofficial "an objection to marriage is received"; }
+pub relation mention_opposition_mariage_requise(a: ActeEtatCivil) kind derived { label fr official "l'opposition doit être mentionnée sans délai au registre"; label en unofficial "the objection must be entered in the register without delay"; }
+pub relation certificats_absence_opposition_toutes_communes(a: ActeEtatCivil) kind empirical { label fr official "toutes les communes de publication certifient l'absence d'opposition"; label en unofficial "all banns municipalities certify absence of objection"; }
+pub relation absence_opposition_mariage_etablie(a: ActeEtatCivil) kind derived { label fr official "l'absence d'opposition au mariage est établie"; label en unofficial "absence of objection to marriage is established"; }
+pub relation extrait_naissance_delivre_le(a: ActeEtatCivil, jour: Date) kind empirical { key(a); label fr official "jour de délivrance de l'extrait de naissance du futur époux"; label en unofficial "date the future spouse's birth extract was issued"; }
+pub relation date_appreciation_acte(a: ActeEtatCivil, jour: Date) kind empirical { key(a); label fr official "jour d'appréciation de la formalité de l'acte"; label en unofficial "date on which the record formality is assessed"; }
+pub relation extrait_naissance_valable_mariage(a: ActeEtatCivil) kind derived { label fr official "l'extrait de naissance de moins de trois mois est valable pour le mariage"; label en unofficial "the birth extract under three months old is valid for marriage"; }
+pub relation residence_commune_mariage_depuis_un_mois(p: Personne) kind empirical { label fr official "l'époux ou son parent réside dans la commune depuis au moins un mois continu"; label en unofficial "the spouse or parent has lived in the municipality for at least one continuous month"; }
+pub relation commune_celebration_mariage_admissible(p: Personne) kind derived { label fr official "la commune est admissible pour célébrer le mariage"; label en unofficial "the municipality is available for celebrating the marriage"; }
+pub relation ceremonie_mariage_deux_a_quatre_temoins(a: ActeEtatCivil) kind empirical { label fr official "la cérémonie se tient en présence de deux à quatre témoins"; label en unofficial "the ceremony is held before two to four witnesses"; }
+pub relation ceremonie_mariage_conforme(a: ActeEtatCivil) kind derived { label fr official "la cérémonie respecte le nombre légal de témoins"; label en unofficial "the ceremony meets the statutory witness count"; }
+pub relation mariage_mentions_epoux_parents_consentements_temoins(a: ActeEtatCivil) kind empirical { label fr official "l'acte de mariage contient les groupes de mentions des époux, parents, consentements et témoins"; label en unofficial "the marriage record contains spouse, parent, consent and witness particulars"; }
+pub relation certificat_enfant_ne_vivant_viable(a: ActeEtatCivil) kind empirical { label fr official "un certificat établit que l'enfant est né vivant et viable avant son décès"; label en unofficial "a certificate establishes live and viable birth before death"; }
+pub relation actes_naissance_et_deces_a_etablir(a: ActeEtatCivil) kind derived { label fr official "un acte de naissance et un acte de décès doivent être établis"; label en unofficial "a birth record and a death record must be made"; }
+pub relation deces_hors_commune_domicile(a: ActeEtatCivil) kind empirical { label fr official "le décès est survenu hors de la commune du dernier domicile"; label en unofficial "death occurred outside the municipality of last domicile"; }
+pub relation expedition_deces_a_transmettre(a: ActeEtatCivil) kind derived { label fr official "une expédition de l'acte de décès doit être transmise au dernier domicile"; label en unofficial "a copy of the death record must be sent to the last domicile"; }
+pub relation corps_retrouve_identifie(a: ActeEtatCivil) kind empirical { label fr official "le corps d'une personne décédée est retrouvé et identifié"; label en unofficial "a deceased person's body is found and identified"; }
+pub relation acte_deces_a_dresser(a: ActeEtatCivil) kind derived { label fr official "un acte de décès doit être dressé"; label en unofficial "a death record must be made"; }
+pub relation disparition_danger_sans_corps(p: Personne) kind empirical { label fr official "la personne a disparu dans des circonstances mettant sa vie en danger sans corps retrouvé"; label en unofficial "the person disappeared in life-threatening circumstances and no body was found"; }
+pub relation declaration_judiciaire_deces_admissible(p: Personne) kind derived { label fr official "la déclaration judiciaire de décès est admissible"; label en unofficial "judicial declaration of death is available"; }
+pub relation jugement_deces_transcrit(a: ActeEtatCivil) kind empirical { label fr official "le jugement déclaratif de décès est transcrit sur les registres"; label en unofficial "the declaration-of-death judgment is transcribed in the registers"; }
+pub relation jugement_deces_tient_lieu_acte(a: ActeEtatCivil) kind derived { label fr official "le jugement transcrit tient lieu d'acte de décès"; label en unofficial "the transcribed judgment serves as a death record"; }
+pub relation personne_reapparait_apres_jugement_deces(p: Personne) kind empirical { label fr official "la personne reparaît après le jugement déclaratif de décès"; label en unofficial "the person reappears after the declaration-of-death judgment"; }
+pub relation annulation_jugement_deces_admissible(p: Personne) kind derived { label fr official "l'annulation du jugement déclaratif de décès peut être poursuivie"; label en unofficial "annulment of the declaration-of-death judgment may be sought"; }
+pub relation acte_militaire_recu_autorite_habilitee(a: ActeEtatCivil) kind empirical { label fr official "l'acte militaire est reçu par l'autorité habilitée en opération"; label en unofficial "the military record is received by the authorized operational authority"; }
+pub relation acte_militaire_valable(a: ActeEtatCivil) kind derived { label fr official "l'acte militaire est valablement reçu"; label en unofficial "the military record is validly received"; }
+pub relation naissance_et_mariage_etrangers_non_deja_constates(a: ActeEtatCivil) kind empirical { label fr official "la naissance et le mariage étrangers ne sont pas déjà constatés dans un registre français"; label en unofficial "the foreign birth and marriage are not already recorded in a French register"; }
+pub relation acte_unique_tient_lieu_naissance_mariage(a: ActeEtatCivil) kind derived { label fr official "l'acte unique tient lieu d'acte de naissance et de mariage"; label en unofficial "the single record serves as both birth and marriage records"; }
+pub relation erreur_materielle_acte(a: ActeEtatCivil) kind empirical { label fr official "une erreur ou omission purement matérielle entache l'acte"; label en unofficial "a purely clerical error or omission affects the record"; }
+pub relation rectification_administrative_admissible(a: ActeEtatCivil) kind derived { label fr official "la rectification administrative de l'erreur matérielle est admissible"; label en unofficial "administrative correction of the clerical error is available"; }
+pub relation declaration_deces_parent_ou_informateur_exact(a: ActeEtatCivil) kind empirical { label fr official "le décès est déclaré par un parent ou une personne disposant des renseignements les plus exacts"; label en unofficial "death is declared by a relative or person with the most accurate information"; }
+pub relation declarant_deces_habilite(a: ActeEtatCivil) kind derived { label fr official "le déclarant du décès est habilité"; label en unofficial "the death declarant is entitled"; }
+pub relation tribunal_deces_territorialement_designe(p: Personne) kind empirical { label fr official "le tribunal saisi correspond au lieu de mort, disparition, domicile, port d'attache ou, subsidiairement, Paris"; label en unofficial "the court seized corresponds to death, disappearance, domicile, home port or, subsidiarily, Paris"; }
+pub relation requete_declaration_deces_competente(p: Personne) kind derived { label fr official "la requête en déclaration de décès est territorialement compétente"; label en unofficial "the declaration-of-death application has proper venue"; }
+pub relation consentement_mariage_militaire_constate(p: Personne) kind empirical { label fr official "le consentement au mariage militaire a été constaté avant l'opération ou le décès"; label en unofficial "consent to the military marriage was established before the operation or death"; }
+pub relation autorisations_ministres_mariage_militaire(p: Personne) kind empirical { label fr official "les autorisations des ministres de la justice et de la défense ont été données pour cause grave"; label en unofficial "the justice and defense ministers authorized the marriage for serious reasons"; }
+pub relation mariage_militaire_sans_comparution_admissible(p: Personne) kind derived { label fr official "le mariage militaire sans comparution personnelle est admissible"; label en unofficial "military marriage without personal appearance is available"; }
+pub relation acte_deces_militaire_a_rectifier(a: ActeEtatCivil) kind empirical { label fr official "un acte de décès militaire comporte une erreur rectifiable"; label en unofficial "a military death record contains a correctable error"; }
+pub relation rectification_acte_deces_militaire_admissible(a: ActeEtatCivil) kind derived { label fr official "la rectification administrative de l'acte de décès militaire est admissible"; label en unofficial "administrative correction of the military death record is available"; }
+pub relation mariage_etranger_avant_acquisition_non_transcrit(a: ActeEtatCivil) kind empirical { label fr official "le mariage étranger antérieur à l'acquisition de nationalité n'est pas déjà transcrit en France"; label en unofficial "the foreign marriage predating nationality acquisition is not already recorded in France"; }
+pub relation acte_tenant_lieu_mariage_a_dresser(a: ActeEtatCivil) kind derived { label fr official "un acte tenant lieu d'acte de mariage doit être dressé"; label en unofficial "a substitute marriage record must be made"; }
+pub relation mentions_complementaires_actes_98_presentes(a: ActeEtatCivil) kind empirical { label fr official "les actes des articles 98 à 98-2 portent date, officier, signature, marges et décisions de nationalité"; label en unofficial "records under Articles 98 to 98-2 state date, registrar, signature, marginal notes and nationality decisions"; }
+pub relation acte_98_complet(a: ActeEtatCivil) kind derived { label fr official "l'acte tenant lieu contient les mentions complémentaires obligatoires"; label en unofficial "the substitute record contains the required supplementary particulars"; }
+pub relation officier_habilite_actes_98(a: ActeEtatCivil) kind empirical { label fr official "l'officier est habilité à dresser les actes des articles 98 à 98-2"; label en unofficial "the registrar is authorized to make records under Articles 98 to 98-2"; }
+pub relation copie_ou_extrait_delivre(a: ActeEtatCivil) kind empirical { label fr official "une copie intégrale ou un extrait de l'acte est délivré"; label en unofficial "a full copy or extract of the record is issued"; }
+pub relation publicite_acte_etat_civil_assuree(a: ActeEtatCivil) kind derived { label fr official "la publicité de l'acte de l'état civil est assurée"; label en unofficial "publication of the civil-status record is ensured"; }
+pub relation deces_insuffisamment_etabli(p: Personne) kind empirical { label fr official "le tribunal estime le décès insuffisamment établi"; label en unofficial "the court considers death insufficiently established"; }
+pub relation information_complementaire_deces_admissible(p: Personne) kind derived { label fr official "une mesure d'information complémentaire sur le décès est admissible"; label en unofficial "a supplementary death inquiry is available"; }
+pub relation mentions_generales_acte_presentes(a: ActeEtatCivil) kind empirical { label fr official "l'acte porte date, heure, officier, identités, professions, domiciles et indications de naissance requises"; label en unofficial "the record states date, time, registrar, identities, occupations, domiciles and required birth particulars"; }
+pub relation acte_general_complet(a: ActeEtatCivil) kind derived { label fr official "l'acte contient les mentions générales obligatoires"; label en unofficial "the record contains the mandatory general particulars"; }
+pub relation acte_etabli_par_officier_sous_controle_procureur(a: ActeEtatCivil) kind empirical { label fr official "l'acte est établi par l'officier sous le contrôle du procureur"; label en unofficial "the record is made by the registrar under prosecutorial supervision"; }
+pub relation autorite_acte_etat_civil_competente(a: ActeEtatCivil) kind derived { label fr official "l'autorité d'établissement de l'acte est compétente"; label en unofficial "the authority making the record is competent"; }
+pub relation registre_double_ou_systeme_securise(a: ActeEtatCivil) kind empirical { label fr official "l'acte est inscrit en double registre ou dans un traitement sécurisé dispensé du double"; label en unofficial "the record is entered in duplicate registers or a secure system exempt from duplication"; }
+pub relation conservation_registre_conforme(a: ActeEtatCivil) kind derived { label fr official "la conservation du registre est conforme"; label en unofficial "register preservation complies"; }
+pub relation contravention_formalite_officier(a: ActeEtatCivil) kind empirical { label fr official "un fonctionnaire a contrevenu aux formalités précédentes"; label en unofficial "an official breached the preceding formalities"; }
+pub relation amende_etat_civil_entre_trois_et_trente_euros(a: ActeEtatCivil) kind derived { label fr official "l'amende civile est comprise entre trois et trente euros"; label en unofficial "the civil fine is between three and thirty euros"; }
+pub relation verification_registres_par_procureur(a: ActeEtatCivil) kind empirical { label fr official "le procureur vérifie les registres et dresse procès-verbal"; label en unofficial "the prosecutor inspects the registers and draws up a report"; }
+pub relation poursuite_contravention_registre_admissible(a: ActeEtatCivil) kind derived { label fr official "la dénonciation et la poursuite de la contravention au registre sont admissibles"; label en unofficial "reporting and prosecution of the register breach are available"; }
+pub relation decision_changement_identite_rendue(p: Personne) kind empirical { label fr official "une décision de changement de prénom ou de nom est rendue"; label en unofficial "a decision changing forename or surname is made"; }
+pub relation mention_changement_identite_requise(p: Personne) kind derived { label fr official "la décision doit être mentionnée en marge des actes concernés"; label en unofficial "the decision must be noted in the margin of affected records"; }
+pub relation opposition_mariage_signee_et_signifiee(a: ActeEtatCivil) kind empirical { label fr official "l'opposition est signée, accompagnée de la procuration et signifiée aux parties et à l'officier"; label en unofficial "the objection is signed, accompanied by the power and served on the parties and registrar"; }
+pub relation opposition_mariage_formellement_valable(a: ActeEtatCivil) kind derived { label fr official "l'opposition au mariage satisfait aux formes"; label en unofficial "the marriage objection meets formal requirements"; }
+pub relation mainlevee_opposition_non_remise(a: ActeEtatCivil) kind empirical { label fr official "aucune mainlevée de l'opposition n'est remise à l'officier"; label en unofficial "no release of the objection is delivered to the registrar"; }
+pub relation celebration_mariage_interdite(a: ActeEtatCivil) kind derived { label fr official "la célébration du mariage est interdite tant que l'opposition subsiste"; label en unofficial "celebration of marriage is prohibited while the objection remains"; }
+pub relation acte_naissance_indisponible_trois_temoins(a: ActeEtatCivil) kind empirical { label fr official "l'acte de naissance est indisponible et un acte de notoriété repose sur au moins trois témoins"; label en unofficial "the birth record is unavailable and a notoriety instrument rests on at least three witnesses"; }
+pub relation acte_notoriete_remplace_naissance(a: ActeEtatCivil) kind derived { label fr official "l'acte de notoriété remplace l'acte de naissance pour le mariage"; label en unofficial "the notoriety instrument replaces the birth record for marriage"; }
+pub relation temoins_mariage_confirmes(a: ActeEtatCivil) kind empirical { label fr official "les futurs époux confirment ou remplacent les témoins avant la célébration"; label en unofficial "the future spouses confirm or replace witnesses before celebration"; }
+pub relation liste_temoins_mariage_definitive(a: ActeEtatCivil) kind derived { label fr official "la liste des témoins du mariage est définitive"; label en unofficial "the marriage witness list is final"; }
+pub relation proces_verbal_mort_violente(a: ActeEtatCivil) kind empirical { label fr official "un officier de police assisté d'un médecin dresse procès-verbal de la mort violente"; label en unofficial "a police officer assisted by a doctor reports the violent death"; }
+pub relation inhumation_mort_violente_admissible(a: ActeEtatCivil) kind derived { label fr official "l'inhumation après mort violente est admissible"; label en unofficial "burial after violent death is available"; }
+pub relation renseignements_mort_violente_transmis(a: ActeEtatCivil) kind empirical { label fr official "les renseignements du procès-verbal sont transmis immédiatement à l'officier"; label en unofficial "the report particulars are immediately sent to the registrar"; }
+pub relation acte_deces_mort_violente_a_rediger(a: ActeEtatCivil) kind derived { label fr official "l'acte de décès doit être rédigé à partir des renseignements transmis"; label en unofficial "the death record must be made from the transmitted particulars"; }
+pub relation deces_etablissement_penitentiaire_signale(a: ActeEtatCivil) kind empirical { label fr official "le gardien signale immédiatement le décès en établissement pénitentiaire"; label en unofficial "the custodian immediately reports death in a penal institution"; }
+pub relation acte_deces_penitentiaire_a_rediger(a: ActeEtatCivil) kind derived { label fr official "l'officier doit dresser l'acte de décès pénitentiaire"; label en unofficial "the registrar must make the penal-institution death record"; }
+pub relation circonstance_mort_violente_omise_registre(a: ActeEtatCivil) kind empirical { label fr official "la circonstance violente ou pénitentiaire est omise de l'acte de décès"; label en unofficial "the violent or penal circumstance is omitted from the death record"; }
+pub relation neutralite_mentions_deces_respectee(a: ActeEtatCivil) kind derived { label fr official "l'acte de décès respecte la neutralité des mentions"; label en unofficial "the death record observes neutrality of particulars"; }
+pub relation deces_pendant_voyage_maritime(a: ActeEtatCivil) kind empirical { label fr official "le décès survient pendant un voyage maritime"; label en unofficial "death occurs during a sea voyage"; }
+pub relation deces_survenu_a(a: ActeEtatCivil, instant: Instant) kind empirical { key(a); label fr official "instant du décès"; label en unofficial "time of death"; }
+pub relation acte_deces_maritime_du_a(a: ActeEtatCivil, instant: Instant) kind derived { key(a); label fr official "terme de vingt-quatre heures de l'acte de décès maritime"; label en unofficial "twenty-four-hour deadline for the maritime death record"; }
+pub relation acte_militaire_inscrit_registre_special(a: ActeEtatCivil) kind empirical { label fr official "l'acte militaire est inscrit sur le registre spécial de la défense"; label en unofficial "the military record is entered in the special defense register"; }
+pub relation registre_militaire_conforme(a: ActeEtatCivil) kind derived { label fr official "l'acte militaire satisfait au registre spécial"; label en unofficial "the military record complies with the special-register requirement"; }
+pub relation publications_mariage_militaire_effectuees_si_possible(a: ActeEtatCivil) kind empirical { label fr official "les publications du mariage militaire sont faites au dernier domicile et dans l'unité autant que possible"; label en unofficial "military marriage banns are made at the last domicile and in the unit as far as possible"; }
+pub relation publicite_mariage_militaire_conforme(a: ActeEtatCivil) kind derived { label fr official "la publicité du mariage militaire est conforme aux circonstances"; label en unofficial "military marriage publication complies with circumstances"; }
+pub relation consentement_mariage_militaire_recu_le(p: Personne, jour: Date) kind empirical { key(p); label fr official "jour de réception du consentement au mariage militaire"; label en unofficial "date consent to military marriage was received"; }
+pub relation mariage_militaire_effet_le(p: Personne, jour: Date) kind derived { key(p); label fr official "date rétroactive d'effet du mariage militaire"; label en unofficial "retroactive effective date of the military marriage"; }
+pub relation naissance_etranger_acquerant_non_transcrite(a: ActeEtatCivil) kind empirical { label fr official "la naissance étrangère de l'acquérant ou réintégré n'est pas déjà transcrite en France"; label en unofficial "the acquiring or restored person's foreign birth is not already recorded in France"; }
+pub relation acte_tenant_lieu_naissance_a_dresser(a: ActeEtatCivil) kind derived { label fr official "un acte tenant lieu d'acte de naissance doit être dressé"; label en unofficial "a substitute birth record must be made"; }
+pub relation acte_substitutif_existe(a: ActeEtatCivil) kind empirical { label fr official "un acte substitutif des articles 98 à 98-2 existe"; label en unofficial "a substitute record under Articles 98 to 98-2 exists"; }
+pub relation transcription_acte_etranger_exclue(a: ActeEtatCivil) kind derived { label fr official "la transcription ultérieure de l'acte étranger est exclue"; label en unofficial "later transcription of the foreign record is excluded"; }
+pub relation rectification_ou_annulation_publiee(a: ActeEtatCivil) kind empirical { label fr official "la rectification ou annulation est publiée sur les registres"; label en unofficial "the correction or cancellation is published in the registers"; }
+pub relation rectification_opposable_a_tous(a: ActeEtatCivil) kind derived { label fr official "la rectification ou annulation est opposable à tous"; label en unofficial "the correction or cancellation is effective against everyone"; }
+pub relation livret_famille_delivre(a: ActeEtatCivil) kind empirical { label fr official "le livret de famille est délivré et tenu à jour"; label en unofficial "the family record book is issued and kept updated"; }
+
+@source(CC_ART35)
+rule ActeLimiteAuxDeclarations(o: OfficierEtatCivil, a: ActeEtatCivil) strict { label fr official "Article 35. L'officier n'insère que ce qui doit être déclaré et les mentions légalement requises"; label en unofficial "Article 35. The registrar inserts only declarations and legally required particulars"; when declaration_recue_par(o, a); then mentions_conformes_aux_declarations(a); }
+
+@source(CC_ART36)
+rule PouvoirSpecialAuthentique(p: Personne, a: ActeEtatCivil) strict { label fr official "Article 36. La représentation exige une procuration spéciale et authentique"; label en unofficial "Article 36. Representation requires a special authentic power"; when representant_muni_pouvoir_special_authentique(p, a); then representation_acte_admissible(p, a); }
+
+@source(CC_ART49)
+rule MentionMarginaleTroisJours(a: ActeEtatCivil, cible: ActeEtatCivil, reception: Date) strict { label fr official "Article 49. La mention marginale est portée dans les trois jours de l'avis"; label en unofficial "Article 49. The marginal note is entered within three days of notice"; when acte_a_mentionner(a, cible) and avis_mention_recu_le(cible, reception); then mention_marginale_due_le(cible, add_calendar_period(reception, 3 calendar_day)); }
+
+@source(CC_ART51)
+rule ResponsabiliteOfficierEtatCivil(o: OfficierEtatCivil, a: ActeEtatCivil) strict { label fr official "Article 51. Toute faute dans l'exercice des fonctions engage la responsabilité civile de l'officier"; label en unofficial "Article 51. Fault in office engages the registrar's civil liability"; when faute_officier_etat_civil(o, a); then responsabilite_civile_officier(o); }
+
+@source(CC_ART56)
+rule QualiteDeclarantNaissance(a: ActeEtatCivil, p: Personne) strict { label fr official "Article 56. Le père ou une personne ayant assisté à l'accouchement peut déclarer la naissance"; label en unofficial "Article 56. The father or an attending person may declare the birth"; when pere_ou_professionnel_accouchement_declare(a, p); then declarant_naissance_habilite(a, p); }
+
+@source(CC_ART58)
+rule DeclarationEnfantTrouve(a: ActeEtatCivil, p: Personne) strict { label fr official "Article 58. Le découvreur déclare l'enfant et le remet avec les vêtements et objets trouvés"; label en unofficial "Article 58. The finder declares the child and hands over the child, clothing and objects"; when enfant_nouveau_ne_trouve(a, p) and enfant_remis_officier_avec_objets(a, p); then declaration_enfant_trouvee_conforme(a); }
+
+@source(CC_ART61_3)
+rule ConsentementChangementApresTreizeAns(p: Personne, naissance: Date, jour: Date) strict { label fr official "Article 61-3. Après treize ans, le changement de nom ou prénom exige le consentement personnel"; label en unofficial "Article 61-3. From age thirteen, a change of name or forename requires personal consent"; when changement_nom_ou_prenom_concerne(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 13 calendar_year) and consentement_personnel_changement(p); then changement_identite_admissible(p); }
+
+@source(CC_ART64)
+rule PublicationMariageDixJours(a: ActeEtatCivil, debut: Date) strict { label fr official "Article 64. Le mariage ne peut être célébré avant le dixième jour suivant la publication"; label en unofficial "Article 64. Marriage may not be celebrated before the tenth day after publication"; when publication_mariage_commencee_le(a, debut); then mariage_celebrable_le(a, add_calendar_period(debut, 10 calendar_day)); }
+
+@source(CC_ART101)
+rule CopiesApresRectification(a: ActeEtatCivil) strict { label fr official "Article 101. Après rectification, aucune copie n'est délivrée sans la correction"; label en unofficial "Article 101. After correction, no copy is issued without the correction"; when rectification_acte_executee(a); then copie_conforme_acte_rectifie(a); }
+
+@source(CC_ART108)
+rule DomicileDistinctDesEpoux(p: Personne) strict { label fr official "Article 108. Les époux peuvent avoir un domicile distinct sans porter atteinte à la communauté de vie"; label en unofficial "Article 108. Spouses may have separate domiciles without affecting marital life"; when epoux_residence_separee(p); then domicile_epoux_independant(p); }
+
+@source(CC_ART37)
+rule AgeTemoinEtatCivil(p: Personne, a: ActeEtatCivil, naissance: Date, jour: Date) strict { label fr official "Article 37. Le témoin d'un acte de l'état civil doit avoir au moins dix-huit ans"; label en unofficial "Article 37. A witness to a civil-status record must be at least eighteen"; when temoin_acte(p, a) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour >= add_calendar_period(naissance, 18 calendar_year); then temoin_acte_admissible(p, a); }
+
+@source(CC_ART38)
+rule LectureActeEtatCivil(a: ActeEtatCivil) strict { label fr official "Article 38. L'acte est lu et les comparants sont invités à en prendre connaissance avant signature"; label en unofficial "Article 38. The record is read and parties are invited to inspect it before signing"; when lecture_et_invitation_signature_effectuees(a); then formalite_lecture_acte_satisfaite(a); }
+
+@source(CC_ART39)
+rule SignatureActeEtatCivil(a: ActeEtatCivil) strict { label fr official "Article 39. L'acte porte les signatures ou la cause empêchant de signer"; label en unofficial "Article 39. The record bears signatures or states the reason preventing signature"; when signatures_ou_causes_absence_indiquees(a); then formalite_signature_acte_satisfaite(a); }
+
+@source(CC_ART46)
+rule PreuveRegistresDisparus(a: ActeEtatCivil) strict { label fr official "Article 46. La disparition des registres permet un acte de notoriété fondé sur au moins trois témoins"; label en unofficial "Article 46. Missing registers permit a notoriety instrument based on at least three witnesses"; when registres_absents_perdus_ou_detruits(a) and declarations_trois_temoins_devant_notaire(a); then preuve_substitutive_etat_civil_admissible(a); }
+
+@source(CC_ART48)
+rule ValiditeActeConsulaireEtranger(a: ActeEtatCivil) strict { label fr official "Article 48. L'acte d'un Français à l'étranger reçu par l'agent compétent selon la loi française est valable"; label en unofficial "Article 48. A French national's foreign record received by the competent agent under French law is valid"; when acte_francais_etranger_recu_agent_consulaire(a); then acte_etranger_consulaire_valable(a); }
+
+@source(CC_ART52)
+rule DommagesAlterationActe(a: ActeEtatCivil) strict { label fr official "Article 52. L'altération, le faux ou l'inscription hors registre ouvre des dommages-intérêts"; label en unofficial "Article 52. Alteration, falsity or entry outside the register opens damages"; when alteration_ou_faux_acte(a); then dommages_interets_etat_civil_ouverts(a); }
+
+@source(CC_ART54)
+rule RecoursJugementEtatCivil(a: ActeEtatCivil) strict { label fr official "Article 54. Les parties intéressées peuvent se pourvoir contre le jugement relatif à l'état civil"; label en unofficial "Article 54. Interested parties may appeal a civil-status judgment"; when jugement_etat_civil_conteste(a); then recours_jugement_etat_civil_admissible(a); }
+
+@source(CC_ART57_1)
+rule AvisAutreParentReconnaissance(a: ActeEtatCivil) strict { label fr official "Article 57-1. La mention de reconnaissance impose d'aviser l'autre parent"; label en unofficial "Article 57-1. Entry of an acknowledgment requires notifying the other parent"; when reconnaissance_portee_marge_naissance(a); then avis_autre_parent_requis(a); }
+
+@source(CC_ART59)
+rule NaissanceMaritimeTroisJours(a: ActeEtatCivil, naissance: Date) strict { label fr official "Article 59. L'acte de naissance pendant un voyage maritime est dressé dans les trois jours"; label en unofficial "Article 59. A birth record during a sea voyage is made within three days"; when naissance_pendant_voyage_maritime(a) and accouchement_le(a, naissance); then acte_naissance_maritime_du_le(a, add_calendar_period(naissance, 3 calendar_day)); }
+
+@source(CC_ART60)
+rule DemandeChangementPrenom(p: Personne) strict { label fr official "Article 60. La personne dont l'acte français est détenu peut demander un changement de prénom"; label en unofficial "Article 60. A person whose French birth record is held may request a forename change"; when demande_changement_prenom(p); then demande_changement_prenom_recevable(p); }
+
+@source(CC_ART61)
+rule ChangementNomInteretLegitime(p: Personne) strict { label fr official "Article 61. L'intérêt légitime ouvre la demande de changement de nom"; label en unofficial "Article 61. A legitimate interest opens a surname-change request"; when interet_legitime_changement_nom(p); then demande_changement_nom_admissible(p); }
+
+@source(CC_ART61_1)
+rule OppositionChangementNomDeuxMois(p: Personne, pubjour: Date) strict { label fr official "Article 61-1. L'opposition au décret de changement de nom est ouverte pendant deux mois"; label en unofficial "Article 61-1. Objection to a surname-change decree is open for two months"; when decret_changement_nom_publie_le(p, pubjour); then opposition_changement_nom_expire_le(p, add_calendar_period(pubjour, 2 calendar_month)); }
+
+@source(CC_ART61_2)
+rule ExtensionNomEnfantMoinsTreizeAns(p: Personne, naissance: Date, jour: Date) strict { label fr official "Article 61-2. Le changement de nom s'étend de plein droit à l'enfant de moins de treize ans"; label en unofficial "Article 61-2. A surname change automatically extends to a child under thirteen"; when parent_beneficie_changement_nom(p) and ne_le(p, naissance) and date_d_appreciation(p, jour) and jour < add_calendar_period(naissance, 13 calendar_year); then changement_nom_etendu_enfant(p); }
+
+@source(CC_ART60_1)
+rule PiecesDemandeChangementPrenom(p: Personne) strict { label fr official "Article 60-1. Le majeur ou mineur de plus de treize ans joint les pièces pénales requises"; label en unofficial "Article 60-1. An adult or minor over thirteen attaches the required criminal-record documents"; when demande_changement_prenom(p) and pieces_penales_jointes_demande_identite(p); then dossier_changement_identite_complet(p); }
+
+@source(CC_ART61_3_1)
+rule ChoixNomUneSeuleFois(p: Personne) strict { label fr official "Article 61-3-1. Le majeur peut exercer une seule fois le choix simplifié de nom"; label en unofficial "Article 61-3-1. An adult may exercise the simplified surname choice once"; when choix_changement_nom_premiere_fois(p); then changement_nom_simplifie_admissible(p); }
+
+@source(CC_ART61_3_2)
+rule PiecesDemandeChangementNom(p: Personne) strict { label fr official "Article 61-3-2. La demande simplifiée comprend les pièces pénales requises"; label en unofficial "Article 61-3-2. The simplified application contains the required criminal-record documents"; when choix_changement_nom_premiere_fois(p) and pieces_penales_jointes_demande_identite(p); then dossier_changement_identite_complet(p); }
+
+@source(CC_ART61_5)
+rule FaitsModificationSexe(p: Personne) strict { label fr official "Article 61-5. Une réunion suffisante de faits ouvre la modification de la mention du sexe"; label en unofficial "Article 61-5. Sufficient facts open a change to the sex entry"; when faits_suffisants_sexe_vecu(p); then modification_mention_sexe_admissible(p); }
+
+@source(CC_ART61_6)
+rule ConsentementModificationSexe(p: Personne) strict { label fr official "Article 61-6. La demande judiciaire expose un consentement libre et éclairé et ses preuves"; label en unofficial "Article 61-6. The court application states free informed consent and its evidence"; when faits_suffisants_sexe_vecu(p) and consentement_libre_eclaire_modification_sexe(p); then modification_mention_sexe_admissible(p); }
+
+@source(CC_ART61_7)
+rule MentionSexeQuinzeJours(p: Personne, jugement: Date) strict { label fr official "Article 61-7. La décision définitive est mentionnée dans les quinze jours"; label en unofficial "Article 61-7. The final decision is entered within fifteen days"; when decision_modification_sexe_definitive_le(p, jugement); then mention_modification_sexe_due_le(p, add_calendar_period(jugement, 15 calendar_day)); }
+
+@source(CC_ART61_8)
+rule MaintienObligationsFiliations(p: Personne) strict { label fr official "Article 61-8. La modification du sexe est sans effet sur les obligations et filiations antérieures"; label en unofficial "Article 61-8. Changing the sex entry has no effect on prior obligations and filiation"; when modification_sexe_enregistree(p); then obligations_et_filiation_anterieures_maintenues(p); }
+
+@source(CC_ART62_1)
+rule RechercheActeEnfantSecret(a: ActeEtatCivil) strict { label fr official "Article 62-1. Le secret bloquant la transcription conduit le procureur à rechercher l'acte de naissance"; label en unofficial "Article 62-1. Secrecy blocking transcription leads the prosecutor to search for the birth record"; when reconnaissance_paternelle_bloquee_secret(a); then recherche_acte_naissance_par_procureur(a); }
+
+@source(CC_ART63)
+rule MentionsPublicationMariage(a: ActeEtatCivil) strict { label fr official "Article 63. La publication porte les mentions fermées relatives aux futurs époux et au lieu du mariage"; label en unofficial "Article 63. Banns contain the closed particulars concerning future spouses and marriage place"; when mentions_publication_mariage_completes(a); then publication_mariage_conforme(a); }
+
+@source(CC_ART65)
+rule NouvellePublicationApresUnAn(a: ActeEtatCivil) strict { label fr official "Article 65. Après un an sans célébration, une nouvelle publication est requise"; label en unofficial "Article 65. After one year without celebration, new banns are required"; when mariage_non_celebre_dans_annee(a); then nouvelle_publication_mariage_requise(a); }
+
+@source(CC_ART67)
+rule MentionOppositionMariage(a: ActeEtatCivil) strict { label fr official "Article 67. L'opposition est mentionnée sans délai sur le registre des mariages"; label en unofficial "Article 67. An objection is entered without delay in the marriage register"; when opposition_mariage_recue(a); then mention_opposition_mariage_requise(a); }
+
+@source(CC_ART69)
+rule CertificatsAbsenceOpposition(a: ActeEtatCivil) strict { label fr official "Article 69. Chaque commune transmet le certificat constatant l'absence d'opposition"; label en unofficial "Article 69. Each municipality sends a certificate establishing absence of objection"; when certificats_absence_opposition_toutes_communes(a); then absence_opposition_mariage_etablie(a); }
+
+@source(CC_ART70)
+rule ExtraitNaissanceTroisMois(a: ActeEtatCivil, delivrance: Date, jour: Date) strict { label fr official "Article 70. L'extrait français du futur époux ne date pas de plus de trois mois"; label en unofficial "Article 70. A future spouse's French birth extract is no more than three months old"; when extrait_naissance_delivre_le(a, delivrance) and date_appreciation_acte(a, jour) and jour <= add_calendar_period(delivrance, 3 calendar_month); then extrait_naissance_valable_mariage(a); }
+
+@source(CC_ART74)
+rule CommuneMariageResidenceUnMois(p: Personne) strict { label fr official "Article 74. Un mois continu de résidence de l'époux ou d'un parent rend la commune admissible"; label en unofficial "Article 74. One continuous month of residence by a spouse or parent makes the municipality available"; when residence_commune_mariage_depuis_un_mois(p); then commune_celebration_mariage_admissible(p); }
+
+@source(CC_ART75)
+rule TemoinsCeremonieMariage(a: ActeEtatCivil) strict { label fr official "Article 75. Le mariage est célébré en présence de deux à quatre témoins"; label en unofficial "Article 75. Marriage is celebrated before two to four witnesses"; when ceremonie_mariage_deux_a_quatre_temoins(a); then ceremonie_mariage_conforme(a); }
+
+@source(CC_ART76)
+rule MentionsActeMariage(a: ActeEtatCivil) strict { label fr official "Article 76. L'acte de mariage contient les groupes fermés de mentions légales"; label en unofficial "Article 76. The marriage record contains the closed groups of statutory particulars"; when mariage_mentions_epoux_parents_consentements_temoins(a); then acte_etat_civil_complet(a); }
+
+@source(CC_ART79_1)
+rule EnfantDecedeAvantDeclaration(a: ActeEtatCivil) strict { label fr official "Article 79-1. Le certificat de naissance vivante et viable impose un acte de naissance et un acte de décès"; label en unofficial "Article 79-1. A certificate of live viable birth requires birth and death records"; when certificat_enfant_ne_vivant_viable(a); then actes_naissance_et_deces_a_etablir(a); }
+
+@source(CC_ART80)
+rule TransmissionDecesDernierDomicile(a: ActeEtatCivil) strict { label fr official "Article 80. Le décès hors commune impose la transmission au dernier domicile"; label en unofficial "Article 80. Death outside the municipality requires transmission to the last domicile"; when deces_hors_commune_domicile(a); then expedition_deces_a_transmettre(a); }
+
+@source(CC_ART87)
+rule ActeDecesCorpsRetrouve(a: ActeEtatCivil) strict { label fr official "Article 87. Un corps retrouvé et identifié impose de dresser un acte de décès"; label en unofficial "Article 87. A found and identified body requires a death record"; when corps_retrouve_identifie(a); then acte_deces_a_dresser(a); }
+
+@source(CC_ART88)
+rule DeclarationJudiciaireDecesDisparu(p: Personne) strict { label fr official "Article 88. La disparition dangereuse sans corps retrouvé ouvre la déclaration judiciaire de décès"; label en unofficial "Article 88. Dangerous disappearance without a recovered body opens judicial declaration of death"; when disparition_danger_sans_corps(p); then declaration_judiciaire_deces_admissible(p); }
+
+@source(CC_ART91)
+rule TranscriptionJugementDeces(a: ActeEtatCivil) strict { label fr official "Article 91. Le jugement déclaratif transcrit tient lieu d'acte de décès"; label en unofficial "Article 91. The transcribed declaration-of-death judgment serves as a death record"; when jugement_deces_transcrit(a); then jugement_deces_tient_lieu_acte(a); }
+
+@source(CC_ART92)
+rule AnnulationJugementDecesRetour(p: Personne) strict { label fr official "Article 92. La réapparition ouvre l'annulation du jugement déclaratif de décès"; label en unofficial "Article 92. Reappearance opens annulment of the declaration-of-death judgment"; when personne_reapparait_apres_jugement_deces(p); then annulation_jugement_deces_admissible(p); }
+
+@source(CC_ART93)
+rule ActeEtatCivilMilitaire(a: ActeEtatCivil) strict { label fr official "Article 93. En opération, l'autorité militaire habilitée peut recevoir les actes d'état civil"; label en unofficial "Article 93. During operations, the authorized military authority may receive civil-status records"; when acte_militaire_recu_autorite_habilitee(a); then acte_militaire_valable(a); }
+
+@source(CC_ART98_2)
+rule ActeUniqueNaissanceMariage(a: ActeEtatCivil) strict { label fr official "Article 98-2. En l'absence d'actes français, un même acte peut tenir lieu de naissance et de mariage"; label en unofficial "Article 98-2. Without French records, one instrument may serve as birth and marriage records"; when naissance_et_mariage_etrangers_non_deja_constates(a); then acte_unique_tient_lieu_naissance_mariage(a); }
+
+@source(CC_ART99_1)
+rule RectificationErreurMaterielle(a: ActeEtatCivil) strict { label fr official "Article 99-1. L'officier rectifie administrativement les erreurs et omissions purement matérielles"; label en unofficial "Article 99-1. The registrar administratively corrects purely clerical errors and omissions"; when erreur_materielle_acte(a); then rectification_administrative_admissible(a); }
+
+@source(CC_ART78)
+rule QualiteDeclarantDeces(a: ActeEtatCivil) strict { label fr official "Article 78. Le décès est déclaré par un parent ou la personne disposant des renseignements les plus exacts"; label en unofficial "Article 78. Death is declared by a relative or the person with the most accurate information"; when declaration_deces_parent_ou_informateur_exact(a); then declarant_deces_habilite(a); }
+
+@source(CC_ART89)
+rule CompetenceTerritorialeDeclarationDeces(p: Personne) strict { label fr official "Article 89. La hiérarchie fermée des lieux détermine le tribunal de la déclaration de décès"; label en unofficial "Article 89. The closed hierarchy of places determines the court for declaration of death"; when tribunal_deces_territorialement_designe(p); then requete_declaration_deces_competente(p); }
+
+@source(CC_ART96_1)
+rule MariageMilitaireSansComparution(p: Personne) strict { label fr official "Article 96-1. Les doubles autorisations et le consentement constaté ouvrent le mariage militaire sans comparution"; label en unofficial "Article 96-1. Dual authorization and established consent open military marriage without appearance"; when autorisations_ministres_mariage_militaire(p) and consentement_mariage_militaire_constate(p); then mariage_militaire_sans_comparution_admissible(p); }
+
+@source(CC_ART97)
+rule RectificationDecesMilitaire(a: ActeEtatCivil) strict { label fr official "Article 97. L'acte de décès militaire peut faire l'objet d'une rectification administrative"; label en unofficial "Article 97. A military death record may be administratively corrected"; when acte_deces_militaire_a_rectifier(a); then rectification_acte_deces_militaire_admissible(a); }
+
+@source(CC_ART98_1)
+rule ActeTenantLieuMariageEtranger(a: ActeEtatCivil) strict { label fr official "Article 98-1. Le mariage étranger antérieur non transcrit donne lieu à un acte tenant lieu d'acte de mariage"; label en unofficial "Article 98-1. An earlier unrecorded foreign marriage gives rise to a substitute marriage record"; when mariage_etranger_avant_acquisition_non_transcrit(a); then acte_tenant_lieu_mariage_a_dresser(a); }
+
+@source(CC_ART98_3)
+rule MentionsComplementairesActesSubstitutifs(a: ActeEtatCivil) strict { label fr official "Article 98-3. Les actes substitutifs portent les mentions complémentaires fermées"; label en unofficial "Article 98-3. Substitute records contain the closed supplementary particulars"; when mentions_complementaires_actes_98_presentes(a); then acte_98_complet(a); }
+
+@source(CC_ART99_2)
+rule RectificationParOfficierHabilite(a: ActeEtatCivil) strict { label fr official "Article 99-2. L'officier habilité des articles 98 à 98-2 peut rectifier l'erreur matérielle"; label en unofficial "Article 99-2. An authorized Articles 98 to 98-2 registrar may correct a clerical error"; when officier_habilite_actes_98(a) and erreur_materielle_acte(a); then rectification_administrative_admissible(a); }
+
+@source(CC_ART101_1)
+rule PubliciteParCopiesExtraits(a: ActeEtatCivil) strict { label fr official "Article 101-1. La délivrance de copies intégrales ou d'extraits assure la publicité des actes"; label en unofficial "Article 101-1. Issuing full copies or extracts ensures publication of records"; when copie_ou_extrait_delivre(a); then publicite_acte_etat_civil_assuree(a); }
+
+@source(CC_ART90)
+rule InformationComplementaireDeces(p: Personne) strict { label fr official "Article 90. Si le décès est insuffisamment établi, le tribunal peut ordonner une information complémentaire"; label en unofficial "Article 90. If death is insufficiently established, the court may order a supplementary inquiry"; when deces_insuffisamment_etabli(p); then information_complementaire_deces_admissible(p); }
+
+@source(CC_ART34)
+rule MentionsGeneralesActe(a: ActeEtatCivil) strict { label fr official "Article 34. L'acte contient les mentions générales relatives à sa réception et aux personnes"; label en unofficial "Article 34. The record contains general particulars concerning receipt and persons"; when mentions_generales_acte_presentes(a); then acte_general_complet(a); }
+@source(CC_ART34_1)
+rule AutoriteEtatCivil(a: ActeEtatCivil) strict { label fr official "Article 34-1. L'officier établit l'acte sous le contrôle du procureur"; label en unofficial "Article 34-1. The registrar makes the record under prosecutorial supervision"; when acte_etabli_par_officier_sous_controle_procureur(a); then autorite_acte_etat_civil_competente(a); }
+@source(CC_ART40)
+rule ConservationRegistre(a: ActeEtatCivil) strict { label fr official "Article 40. Le double registre ou le traitement sécurisé assure la conservation conforme"; label en unofficial "Article 40. Duplicate registers or secure processing ensure compliant preservation"; when registre_double_ou_systeme_securise(a); then conservation_registre_conforme(a); }
+@source(CC_ART50)
+rule AmendeContraventionEtatCivil(a: ActeEtatCivil) strict { label fr official "Article 50. La contravention du fonctionnaire expose à une amende de trois à trente euros"; label en unofficial "Article 50. An official's breach carries a fine of three to thirty euros"; when contravention_formalite_officier(a); then amende_etat_civil_entre_trois_et_trente_euros(a); }
+@source(CC_ART53)
+rule ControleRegistresProcureur(a: ActeEtatCivil) strict { label fr official "Article 53. La vérification du procureur ouvre dénonciation et poursuite des contraventions"; label en unofficial "Article 53. Prosecutorial inspection opens reporting and prosecution of breaches"; when verification_registres_par_procureur(a); then poursuite_contravention_registre_admissible(a); }
+@source(CC_ART61_4)
+rule MentionChangementIdentite(p: Personne) strict { label fr official "Article 61-4. Les décisions de changement de prénom ou nom sont mentionnées sur les actes concernés"; label en unofficial "Article 61-4. Forename or surname change decisions are noted on affected records"; when decision_changement_identite_rendue(p); then mention_changement_identite_requise(p); }
+@source(CC_ART66)
+rule FormeOppositionMariage(a: ActeEtatCivil) strict { label fr official "Article 66. L'opposition signée et signifiée avec procuration satisfait aux formes"; label en unofficial "Article 66. A signed and served objection with power meets formal requirements"; when opposition_mariage_signee_et_signifiee(a); then opposition_mariage_formellement_valable(a); }
+@source(CC_ART68)
+rule InterdictionCelebrationSousOpposition(a: ActeEtatCivil) strict { label fr official "Article 68. Sans mainlevée, l'officier ne peut célébrer le mariage"; label en unofficial "Article 68. Without release, the registrar may not celebrate the marriage"; when opposition_mariage_recue(a) and mainlevee_opposition_non_remise(a); then celebration_mariage_interdite(a); }
+@source(CC_ART71)
+rule NotorieteRemplaceNaissance(a: ActeEtatCivil) strict { label fr official "Article 71. L'acte de notoriété fondé sur au moins trois témoins supplée l'acte de naissance indisponible"; label en unofficial "Article 71. A notoriety instrument based on at least three witnesses replaces an unavailable birth record"; when acte_naissance_indisponible_trois_temoins(a); then acte_notoriete_remplace_naissance(a); }
+@source(CC_ART74_1)
+rule ConfirmationTemoinsMariage(a: ActeEtatCivil) strict { label fr official "Article 74-1. Les futurs époux confirment ou remplacent leurs témoins avant célébration"; label en unofficial "Article 74-1. Future spouses confirm or replace witnesses before celebration"; when temoins_mariage_confirmes(a); then liste_temoins_mariage_definitive(a); }
+@source(CC_ART81)
+rule ProcesVerbalAvantInhumation(a: ActeEtatCivil) strict { label fr official "Article 81. La mort violente exige le procès-verbal policier et médical avant inhumation"; label en unofficial "Article 81. Violent death requires a police and medical report before burial"; when proces_verbal_mort_violente(a); then inhumation_mort_violente_admissible(a); }
+@source(CC_ART82)
+rule TransmissionMortViolente(a: ActeEtatCivil) strict { label fr official "Article 82. Les renseignements du procès-verbal sont transmis pour rédiger l'acte de décès"; label en unofficial "Article 82. Report particulars are sent to make the death record"; when renseignements_mort_violente_transmis(a); then acte_deces_mort_violente_a_rediger(a); }
+@source(CC_ART84)
+rule DecesPenitentiaire(a: ActeEtatCivil) strict { label fr official "Article 84. Le signalement immédiat du gardien impose à l'officier de dresser l'acte de décès"; label en unofficial "Article 84. Immediate custodian notice requires the registrar to make the death record"; when deces_etablissement_penitentiaire_signale(a); then acte_deces_penitentiaire_a_rediger(a); }
+@source(CC_ART85)
+rule NeutraliteActeDeces(a: ActeEtatCivil) strict { label fr official "Article 85. L'acte de décès ne mentionne pas la violence ni l'établissement pénitentiaire"; label en unofficial "Article 85. The death record does not mention violence or the penal institution"; when circonstance_mort_violente_omise_registre(a); then neutralite_mentions_deces_respectee(a); }
+@source(CC_ART86)
+rule DecesMaritimeVingtQuatreHeures(a: ActeEtatCivil, deces: Instant) strict { label fr official "Article 86. Le décès maritime est enregistré dans les vingt-quatre heures"; label en unofficial "Article 86. A maritime death is recorded within twenty-four hours"; when deces_pendant_voyage_maritime(a) and deces_survenu_a(a, deces); then acte_deces_maritime_du_a(a, add_duration(deces, 24 hour)); }
+@source(CC_ART95)
+rule RegistreSpecialMilitaire(a: ActeEtatCivil) strict { label fr official "Article 95. Les actes militaires sont dressés sur un registre spécial"; label en unofficial "Article 95. Military records are made in a special register"; when acte_militaire_inscrit_registre_special(a); then registre_militaire_conforme(a); }
+@source(CC_ART96)
+rule PubliciteMariageMilitaire(a: ActeEtatCivil) strict { label fr official "Article 96. Les publications sont faites au dernier domicile et dans l'unité dans la mesure des circonstances"; label en unofficial "Article 96. Banns are made at the last domicile and in the unit as circumstances allow"; when publications_mariage_militaire_effectuees_si_possible(a); then publicite_mariage_militaire_conforme(a); }
+@source(CC_ART96_2)
+rule EffetMariageMilitaireAuConsentement(p: Personne, jour: Date) strict { label fr official "Article 96-2. Les effets du mariage remontent au jour de réception du consentement"; label en unofficial "Article 96-2. Marriage effects relate back to the date consent was received"; when consentement_mariage_militaire_recu_le(p, jour); then mariage_militaire_effet_le(p, jour); }
+@source(CC_ART98)
+rule ActeTenantLieuNaissanceEtranger(a: ActeEtatCivil) strict { label fr official "Article 98. La naissance étrangère non transcrite de l'acquérant donne lieu à un acte tenant lieu de naissance"; label en unofficial "Article 98. An acquiring person's unrecorded foreign birth gives rise to a substitute birth record"; when naissance_etranger_acquerant_non_transcrite(a); then acte_tenant_lieu_naissance_a_dresser(a); }
+@source(CC_ART98_4)
+rule ExclusionTranscriptionApresActeSubstitutif(a: ActeEtatCivil) strict { label fr official "Article 98-4. L'acte substitutif fait perdre la faculté de transcrire ensuite l'acte étranger"; label en unofficial "Article 98-4. A substitute record removes the ability later to transcribe the foreign record"; when acte_substitutif_existe(a); then transcription_acte_etranger_exclue(a); }
+@source(CC_ART100)
+rule OpposabiliteRectificationPubliee(a: ActeEtatCivil) strict { label fr official "Article 100. La rectification ou annulation devient opposable à tous par sa publicité"; label en unofficial "Article 100. Correction or cancellation becomes effective against everyone through publication"; when rectification_ou_annulation_publiee(a); then rectification_opposable_a_tous(a); }
+@source(CC_ART101_2)
+rule PubliciteParLivretFamille(a: ActeEtatCivil) strict { label fr official "Article 101-2. Le livret de famille délivré et mis à jour assure aussi la publicité"; label en unofficial "Article 101-2. An issued and updated family record book also ensures publication"; when livret_famille_delivre(a); then publicite_acte_etat_civil_assuree(a); }

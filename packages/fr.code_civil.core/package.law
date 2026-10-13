@@ -1,0 +1,85 @@
+// CODE CIVIL — NOYAU COMMUN (CC-01) ET TITRE PRÉLIMINAIRE.
+//
+// Ce paquet est le concentrateur de la formalisation complète du Code civil
+// (plan docs/plans/domains/FR-CODE-CIVIL-FULL-PLAN.ru.md, §4.4) : il déclare
+// les types que tous les paquets `fr.code_civil.*` partagent — les personnes,
+// les biens, la créance comme support juridique propre — et il porte le Titre
+// préliminaire (articles 1 à 6-1), seul endroit du Code qui parle de l'entrée
+// en vigueur et de la non-rétroactivité des lois (article 2).
+//
+// TYPES DE PERSONNES. `Personne` dérive du type standard `Actor` : la
+// relation standard `has_role` §43 n'accepte qu'un Actor, et le calculateur
+// `calc.kinship` type ses arêtes par `Actor` — les personnes du concentrateur
+// y entrent sans entité jumelle.
+//
+// L'API publique de ce paquet est gelée après le pilote B1 (successions) :
+// toute modification repasse par les importateurs et leurs verrous.
+
+language "law.core" version "0.2";
+package fr.code_civil.core version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-core";
+
+pub entity Personne : Actor {
+    label fr official "Personne, sujet de droit civil";
+    label en unofficial "Person, subject of civil law";
+}
+pub entity PersonnePhysique : Personne {
+    label fr official "Personne physique";
+    label en unofficial "Natural person";
+}
+pub entity PersonneMorale : Personne {
+    label fr official "Personne morale";
+    label en unofficial "Legal person";
+}
+pub entity Bien {
+    label fr official "Bien, meuble ou immeuble (livre II)";
+    label en unofficial "Asset, movable or immovable (Book II)";
+}
+pub entity Creance {
+    label fr official "Créance : rapport d'obligation entre un créancier et un débiteur (livre III)";
+    label en unofficial "Claim: obligation relationship between a creditor and a debtor (Book III)";
+}
+
+// --- Créance : support juridique propre (plan §4.4) ---------------------------------------
+//
+// La créance n'est PAS un sous-type de `calc.obligations::Position` : celle-ci
+// est une position comptable de journal, branchée seulement là où un solde est
+// tenu. Ici, le rapport d'obligation lui-même : qui doit quoi à qui.
+
+pub relation creancier(c: Creance, p: Personne) kind empirical {
+    key(c);
+    label fr official "créancier de la créance";
+    label en unofficial "creditor of the claim";
+}
+pub relation debiteur(c: Creance, p: Personne) kind empirical {
+    label fr official "débiteur de la créance (plusieurs en cas de pluralité, livre III titre IV)";
+    label en unofficial "debtor of the claim (several in case of plurality, Book III Title IV)";
+}
+pub relation objet_monetaire(c: Creance, m: Money) kind empirical {
+    key(c);
+    label fr official "montant de la créance de somme d'argent";
+    label en unofficial "amount of the monetary claim";
+}
+
+// --- Contrat de demande de jugement (DECISION-0194) -----------------------------------------
+//
+// Les éléments d'appréciation du Code (faute, bonne foi, délai raisonnable,
+// intérêt de l'enfant, cause légitime…) sont déclarés PAR ARTICLE dans le
+// paquet qui porte la norme, jamais dans un catalogue commun :
+//   external judgment relation <element>(…) { authority Court; label fr official "…"; }
+// Le concentrateur ne fournit que la juridiction saisie, quand un texte la nomme,
+// pour les faits établis par décision (origine `adjudicated` dans le cas).
+
+pub enum Juridiction {
+    label fr official "Juridiction ou autorité qui prononce ou constate (nommée par le texte)";
+    label en unofficial "Court or authority that rules or records (named by the text)";
+    TribunalJudiciaire,
+    JugeAuxAffairesFamiliales,
+    JugeDesContentieuxDeLaProtection,
+    JugeDesTutelles,
+    CourDAppel,
+    CourDeCassation,
+    ProcureurDeLaRepublique,
+    OfficierDeLEtatCivil,
+    Notaire
+}

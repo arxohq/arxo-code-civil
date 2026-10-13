@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2276, alinéa 1 : en fait de meubles, la possession vaut titre.
+test "urn:query:fr-code-civil-v18-en-fait-de-meubles" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": chose_possedee(entity_ref("urn:fr:cc:presc:v18"), Meuble) { origin case_input; }
+        assert "f2": possesseur(entity_ref("urn:fr:cc:presc:v18"), entity_ref("urn:fr:cc:presc:v18:pers")) { origin case_input; }
+        assert "f3": possession_commencee_le(entity_ref("urn:fr:cc:presc:v18"), @2024-02-01) { origin case_input; }
+    }
+    evaluate truth(possession_vaut_titre(entity_ref("urn:fr:cc:presc:v18")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EnFaitDeMeublesPossessionVautTitre);
+}

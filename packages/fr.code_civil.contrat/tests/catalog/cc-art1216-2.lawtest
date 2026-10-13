@@ -1,0 +1,41 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-EXCEPTIONINHERENTEOPPOSABLEPARLECESSIONNAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": cession_opposable_au_cede(entity_ref("urn:law:catalog:exceptioninherenteopposableparlecessionnaire:v0")) { origin case_input; }
+        assert "cat-1": exception_inherente_a_la_dette(entity_ref("urn:law:catalog:exceptioninherenteopposableparlecessionnaire:v0")) { origin case_input; }
+    }
+    evaluate truth(exception_opposable_par_le_cessionnaire(entity_ref("urn:law:catalog:exceptioninherenteopposableparlecessionnaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-EXCEPTIONPERSONNELLENONOPPOSABLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": exception_personnelle_au_cedant(entity_ref("urn:law:catalog:exceptionpersonnellenonopposable:v0")) { origin case_input; }
+        assert "cat-1": cession_opposable_au_cede(entity_ref("urn:law:catalog:exceptionpersonnellenonopposable:v0")) { origin case_input; }
+    }
+    evaluate truth(exception_non_opposable_par_le_cessionnaire(entity_ref("urn:law:catalog:exceptionpersonnellenonopposable:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-EXCEPTIONSDUCEDECONTRELECESSIONNAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": exception_opposable_au_cedant(entity_ref("urn:law:catalog:exceptionsducedecontrelecessionnaire:v0")) { origin case_input; }
+        assert "cat-1": cession_opposable_au_cede(entity_ref("urn:law:catalog:exceptionsducedecontrelecessionnaire:v0")) { origin case_input; }
+    }
+    evaluate truth(exception_opposable_par_le_cede(entity_ref("urn:law:catalog:exceptionsducedecontrelecessionnaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}

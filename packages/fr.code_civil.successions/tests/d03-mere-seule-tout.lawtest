@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 748 al. 3 : à défaut d ascendant dans l autre branche, la mère recueille tout.
+test "urn:query:fr-code-civil-successions-d03-mere-seule-tout" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:d2:S"), entity_ref("urn:fr:cc:successions:d2:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:d2:S"), @2026-03-01) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:d2:S"), entity_ref("urn:fr:cc:successions:d2:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:d2:F"), entity_ref("urn:fr:cc:successions:d2:P"), entity_ref("urn:fr:cc:successions:d2:D")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:d2:F"), entity_ref("urn:fr:cc:successions:d2:M"), entity_ref("urn:fr:cc:successions:d2:D")) { origin case_input; }
+        assert "f6": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:d2:S"), entity_ref("urn:fr:cc:successions:d2:M")) { origin case_input; }
+        assert "f7": predecede(entity_ref("urn:fr:cc:successions:d2:S"), entity_ref("urn:fr:cc:successions:d2:P")) { origin case_input; }
+    }
+    evaluate truth(part_hereditaire(entity_ref("urn:fr:cc:successions:d2:S"), entity_ref("urn:fr:cc:successions:d2:M"), 1 / 1));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(UnParentSeul);
+}

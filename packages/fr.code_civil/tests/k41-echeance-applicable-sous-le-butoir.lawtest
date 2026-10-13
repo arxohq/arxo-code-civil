@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// K4 : cinq ans depuis 2012, butoir 2032 — la date applicable est l'échéance ordinaire.
+test "urn:query:fr-code-civil-k41-echeance-applicable-sous-le-butoir" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": creance_exigible_depuis(entity_ref("urn:fr:cc:presc:k41"), @2012-01-01) { origin case_input; }
+        assert "f2": titulaire_connait_les_faits_le(entity_ref("urn:fr:cc:presc:k41"), @2012-01-01) { origin case_input; }
+        assert "f3": prescription_non_interrompue(entity_ref("urn:fr:cc:presc:k41")) { origin case_input; }
+        assert "f4": naissance_du_droit_le(entity_ref("urn:fr:cc:presc:k41"), @2012-01-01) { origin case_input; }
+        assert "f5": nature_de_l_action(entity_ref("urn:fr:cc:presc:k41"), ActionPersonnelleOuMobiliere) { origin case_input; }
+    }
+    evaluate truth(date_d_echeance_applicable_le(entity_ref("urn:fr:cc:presc:k41"), @2017-01-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DateApplicableSousLeButoir);
+}

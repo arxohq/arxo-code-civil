@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1240 : sans lien de causalité établi, pas de responsabilité ; le lien peut encore être établi, donc la voie de la négligence reste adressée au juge (E-0101).
+test "urn:query:fr-code-civil-responsabilite-r04-sans-lien-de-causalite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fait_de_la_personne(entity_ref("urn:fr:cc:resp:b:f"), entity_ref("urn:fr:cc:resp:b:auteur")) { origin case_input; }
+        assert "f2": faute_commise(entity_ref("urn:fr:cc:resp:b:f"), entity_ref("urn:fr:cc:resp:b:auteur")) { origin adjudicated; }
+    }
+    evaluate truth(responsable_du_dommage(entity_ref("urn:fr:cc:resp:b:d"), entity_ref("urn:fr:cc:resp:b:auteur")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+}

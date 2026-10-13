@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2314, canal §47.3 : subrogation devenue impossible ; la faute du créancier n'est pas encore appréciée.
+test "urn:query:fr-code-civil-suretes-c33-perte-de-subrogation-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c33:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c33:K"), entity_ref("urn:fr:cc:suretes:c33:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c33:K"), entity_ref("urn:fr:cc:suretes:c33:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c33:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c33:B")) { origin case_input; }
+        assert "f6": subrogation_devenue_impossible(entity_ref("urn:fr:cc:suretes:c33:K")) { origin case_input; }
+        assert "f7": prejudice_de_la_perte_de_subrogation(entity_ref("urn:fr:cc:suretes:c33:K"), 3000 EUR) { origin adjudicated; }
+    }
+    evaluate truth(caution_dechargee(entity_ref("urn:fr:cc:suretes:c33:K"), 3000 EUR));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(faute_du_creancier_2314, Court);
+}

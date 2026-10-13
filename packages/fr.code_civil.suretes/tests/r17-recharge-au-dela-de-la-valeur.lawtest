@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-5 : constituant personne physique, recharge de 120 000 pour une valeur estimée de 100 000 — au-delà de la limite.
+test "urn:query:fr-code-civil-suretes-r17-recharge-au-dela-de-la-valeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fiducie_surete(entity_ref("urn:fr:cc:suretes:r17:S"), entity_ref("urn:fr:cc:suretes:r17:F"), entity_ref("urn:fr:cc:suretes:r17:C")) { origin case_input; }
+        assert "f2": fiducie_immobiliere(entity_ref("urn:fr:cc:suretes:r17:S")) { origin case_input; }
+        assert "f3": constituant_personne_physique(entity_ref("urn:fr:cc:suretes:r17:S")) { origin case_input; }
+        assert "f4": convention_de_rechargement(entity_ref("urn:fr:cc:suretes:r17:X"), entity_ref("urn:fr:cc:suretes:r17:S"), entity_ref("urn:fr:cc:suretes:r17:N"), 120000 EUR) { origin case_input; }
+        assert "f5": valeur_estimee_au_jour_de_la_recharge(entity_ref("urn:fr:cc:suretes:r17:X"), 100000 EUR) { origin case_input; }
+    }
+    evaluate truth(rechargement_au_dela_de_la_valeur(entity_ref("urn:fr:cc:suretes:r17:X")));
+    expect truth_status == TRUE_ONLY;
+}

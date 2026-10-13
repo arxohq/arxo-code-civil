@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 813, alinéa 2 : l'acceptation à concurrence de l'actif net écarte l'accord des héritiers.
+test "urn:query:fr-code-civil-successions-m75-mandat-conventionnel-ecarte" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": option_exercee_le(entity_ref("urn:fr:cc:successions:adm:m75:S"), entity_ref("urn:fr:cc:successions:adm:m75:P1"), AcceptationAConcurrenceDeLActifNet, @2026-04-01) { origin case_input; }
+        assert "f2": administration_confiee_d_un_commun_accord(entity_ref("urn:fr:cc:successions:adm:m75:S"), entity_ref("urn:fr:cc:successions:adm:m75:P2")) { origin case_input; }
+    }
+    evaluate truth(mandat_conventionnel_valable(entity_ref("urn:fr:cc:successions:adm:m75:S"), entity_ref("urn:fr:cc:successions:adm:m75:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,34 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-REPRESENTATIONCONVENTIONNELLELAISSELEXERCICE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": represente(entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v0"), entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v2")) { origin case_input; }
+        assert "cat-1": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v1")) { origin case_input; }
+        assert "cat-2": representation_pour_le_contrat(entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v0"), entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v1")) { origin case_input; }
+        assert "cat-3": representation_conventionnelle(entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v0")) { origin case_input; }
+    }
+    evaluate truth(represente_conserve_l_exercice_de_ses_droits(entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v0"), entity_ref("urn:law:catalog:representationconventionnellelaisselexercice:v2")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-REPRESENTATIONLEGALEDESSAISITLEREPRESENTE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": represente(entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v0"), entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v2")) { origin case_input; }
+        assert "cat-1": regi_par_le_droit_nouveau(entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v1")) { origin case_input; }
+        assert "cat-2": representation_legale_ou_judiciaire(entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v0")) { origin case_input; }
+        assert "cat-3": representation_pour_le_contrat(entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v0"), entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v1")) { origin case_input; }
+    }
+    evaluate truth(represente_dessaisi(entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v0"), entity_ref("urn:law:catalog:representationlegaledessaisitlerepresente:v2")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,342 @@
+// LIVRE IV : DISPOSITIONS GÉNÉRALES (articles 2284 à 2287-1) ET DISTRIBUTION
+// DU PRIX ENTRE LES CRÉANCIERS.
+//
+// GAGE COMMUN ET CAUSES DE PRÉFÉRENCE (2285). Le prix des biens du débiteur se
+// distribue entre ses créanciers « par contribution, à moins qu'il n'y ait
+// entre les créanciers des causes légitimes de préférence ». Ce module porte
+// la mécanique commune à toutes les sûretés :
+//
+//   1. chaque collocation reçoit une CLASSE (entier) de sa cause de préférence
+//      — fixée par les articles 2332-1 à 2332-4 pour les meubles, 2378 et 2418
+//      pour les immeubles (modules `titre-02-*`) ;
+//   2. une collocation en PRÉCÈDE une autre de la même distribution si sa
+//      classe est plus petite, ou, à classe égale, selon l'ordre propre à la
+//      classe (dates d'inscription, de publication, règles du même jour) ;
+//   3. son RANG est 1 + le nombre de collocations qui la précèdent : forme
+//      close, sans itération ; deux collocations qui ne se précèdent pas
+//      l'une l'autre ont le même rang et viennent en concurrence (2285 :
+//      « par contribution » ; 2332-2 : « payés par concurrence ») ;
+//   4. la répartition elle-même est confiée à `calc.allocation` en mode
+//      Sequential : rangs croissants, chaque rang au plus ses créances, rang
+//      insuffisant partagé au prorata des créances.
+//
+// ARRONDI. La part au prorata est tronquée au centime et le reliquat
+// d'arrondi n'est attribué à personne (`Withheld`) : politique du paquet, non
+// norme — le Code ne dit pas à qui revient le centime (D-13, D-CC14-03).
+//
+// FRONTIÈRE. Une distribution où le texte ne départage pas deux collocations
+// (même date de publication entre un gagiste et un créancier hypothécaire,
+// 2419 ; rang du Trésor, 2332-2) n'est pas calculée : la frontière est nommée
+// (`distribution_non_calculee`), le paquet ne choisit pas.
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2284,
+    CC_ART2285,
+    CC_ART2286,
+    CC_ART2287,
+    CC_ART2287_1,
+    CauseDePreference,
+    Collocation,
+    Creance,
+    Distribution,
+    Personne,
+    date_utile,
+    montant_admis_calcule,
+};
+
+// --- 2284 à 2287-1 -------------------------------------------------------------------------
+
+pub relation engagement_personnel(p: Personne, c: Creance) kind empirical {
+    label fr official "la personne s'est obligée personnellement au titre de la créance (article 2284)";
+    label en unofficial "the person bound itself personally under the claim (Article 2284)";
+}
+pub relation droit_de_gage_general(c: Creance, p: Personne) kind derived {
+    label fr official "le débiteur est tenu de remplir son engagement sur tous ses biens mobiliers et immobiliers, présents et à venir (article 2284)";
+    label en unofficial "the debtor must fulfil its undertaking out of all its movable and immovable property, present and future (Article 2284)";
+}
+pub relation detenteur_de_la_chose(p: Personne, b: Bien) kind empirical {
+    label fr official "la personne détient la chose";
+    label en unofficial "the person holds the thing";
+}
+pub relation chose_remise_jusqu_au_paiement(p: Personne, b: Bien) kind empirical {
+    label fr official "la chose a été remise jusqu'au paiement de la créance (article 2286, 1°)";
+    label en unofficial "the thing was handed over until the claim is paid (Article 2286, 1°)";
+}
+pub relation creance_impayee_nee_du_contrat_obligeant_a_livrer(p: Personne, b: Bien) kind empirical {
+    label fr official "la créance impayée résulte du contrat qui oblige à livrer la chose (article 2286, 2°)";
+    label en unofficial "the unpaid claim arises from the contract requiring the thing to be delivered (Article 2286, 2°)";
+}
+pub relation creance_impayee_nee_de_la_detention(p: Personne, b: Bien) kind empirical {
+    label fr official "la créance impayée est née à l'occasion de la détention de la chose (article 2286, 3°)";
+    label en unofficial "the unpaid claim arose in connection with holding the thing (Article 2286, 3°)";
+}
+pub relation beneficiaire_d_un_gage_sans_depossession(p: Personne, b: Bien) kind empirical {
+    label fr official "la personne bénéficie d'un gage sans dépossession sur la chose (article 2286, 4°)";
+    label en unofficial "the person holds a non-possessory pledge over the thing (Article 2286, 4°)";
+}
+pub relation dessaisissement_volontaire(p: Personne, b: Bien) kind empirical {
+    label fr official "le rétenteur s'est volontairement dessaisi de la chose (article 2286, dernier alinéa)";
+    label en unofficial "the retainor voluntarily gave up the thing (Article 2286, last paragraph)";
+}
+pub relation droit_de_retention(p: Personne, b: Bien) kind derived {
+    label fr official "la personne peut se prévaloir d'un droit de rétention sur la chose (article 2286)";
+    label en unofficial "the person may rely on a right of retention over the thing (Article 2286)";
+}
+pub relation procedure_collective_ou_surendettement_ouverte(p: Personne) kind empirical {
+    label fr official "procédure de sauvegarde, redressement ou liquidation judiciaire, ou de surendettement, ouverte à l'égard du débiteur (article 2287)";
+    label en unofficial "safeguard, reorganisation or liquidation proceedings, or over-indebtedness proceedings, opened against the debtor (Article 2287)";
+}
+pub relation regles_des_procedures_reservees(p: Personne) kind derived {
+    label fr official "frontière : les règles de la procédure collective ou de surendettement s'appliquent nonobstant le livre IV (article 2287 ; code de commerce, code de la consommation)";
+    label en unofficial "boundary: insolvency or over-indebtedness rules apply notwithstanding Book IV (Article 2287; Commercial Code, Consumer Code)";
+}
+pub relation surete_personnelle_de_cette_nature(x: Text) kind derived {
+    label fr official "sûreté personnelle régie par le titre Ier (article 2287-1)";
+    label en unofficial "personal security governed by Title I (Article 2287-1)";
+}
+pub relation surete_personnelle_invoquee(x: Text) kind empirical {
+    label fr official "nature de la sûreté personnelle invoquée";
+    label en unofficial "nature of the personal security relied on";
+}
+
+@source(CC_ART2284)
+rule DroitDeGageGeneral(p: Personne, c: Creance) strict {
+    label fr official "Article 2284. Quiconque s'est obligé personnellement est tenu de remplir son engagement sur tous ses biens mobiliers et immobiliers, présents et à venir";
+    label en unofficial "Article 2284. Whoever has bound himself personally must fulfil the undertaking out of all his movable and immovable property, present and future";
+    when engagement_personnel(p, c);
+    then droit_de_gage_general(c, p);
+}
+
+@source(CC_ART2286) {
+    rule RetentionChoseRemise(p: Personne, b: Bien) strict {
+        label fr official "Article 2286, 1°. Celui à qui la chose a été remise jusqu'au paiement de sa créance";
+        label en unofficial "Article 2286, 1°. Whoever was handed the thing until its claim is paid";
+        when chose_remise_jusqu_au_paiement(p, b) and detenteur_de_la_chose(p, b) and not_known(dessaisissement_volontaire(p, b));
+        then droit_de_retention(p, b);
+    }
+    rule RetentionContratDeLivraison(p: Personne, b: Bien) strict {
+        label fr official "Article 2286, 2°. Celui dont la créance impayée résulte du contrat qui l'oblige à livrer la chose";
+        label en unofficial "Article 2286, 2°. Whoever has an unpaid claim under the contract requiring it to deliver the thing";
+        when creance_impayee_nee_du_contrat_obligeant_a_livrer(p, b) and detenteur_de_la_chose(p, b) and not_known(dessaisissement_volontaire(p, b));
+        then droit_de_retention(p, b);
+    }
+    rule RetentionConnexiteMaterielle(p: Personne, b: Bien) strict {
+        label fr official "Article 2286, 3°. Celui dont la créance impayée est née à l'occasion de la détention de la chose";
+        label en unofficial "Article 2286, 3°. Whoever has an unpaid claim that arose in connection with holding the thing";
+        when creance_impayee_nee_de_la_detention(p, b) and detenteur_de_la_chose(p, b) and not_known(dessaisissement_volontaire(p, b));
+        then droit_de_retention(p, b);
+    }
+    // 4° : le gagiste sans dépossession ne détient pas la chose ; la rétention
+    // est fictive et le dessaisissement volontaire ne la touche pas.
+    rule RetentionGageSansDepossession(p: Personne, b: Bien) strict {
+        label fr official "Article 2286, 4°. Celui qui bénéficie d'un gage sans dépossession";
+        label en unofficial "Article 2286, 4°. Whoever holds a non-possessory pledge";
+        when beneficiaire_d_un_gage_sans_depossession(p, b);
+        then droit_de_retention(p, b);
+    }
+}
+
+@source(CC_ART2287)
+rule ProceduresCollectivesReservees(p: Personne) strict {
+    label fr official "Article 2287. Les dispositions du présent livre ne font pas obstacle à l'application des règles prévues en cas d'ouverture d'une procédure collective ou de surendettement";
+    label en unofficial "Article 2287. This Book does not prevent the application of the rules governing insolvency or over-indebtedness proceedings";
+    when procedure_collective_ou_surendettement_ouverte(p);
+    then regles_des_procedures_reservees(p);
+}
+
+@source(CC_ART2287_1) {
+    rule SuretePersonnelleCautionnement() strict {
+        label fr official "Article 2287-1. Le cautionnement est une sûreté personnelle régie par le titre Ier";
+        label en unofficial "Article 2287-1. Suretyship is a personal security governed by Title I";
+        when surete_personnelle_invoquee("cautionnement");
+        then surete_personnelle_de_cette_nature("cautionnement");
+    }
+    rule SuretePersonnelleGarantieAutonome() strict {
+        label fr official "Article 2287-1. La garantie autonome est une sûreté personnelle régie par le titre Ier";
+        label en unofficial "Article 2287-1. The independent guarantee is a personal security governed by Title I";
+        when surete_personnelle_invoquee("garantie autonome");
+        then surete_personnelle_de_cette_nature("garantie autonome");
+    }
+    rule SuretePersonnelleLettreDIntention() strict {
+        label fr official "Article 2287-1. La lettre d'intention est une sûreté personnelle régie par le titre Ier";
+        label en unofficial "Article 2287-1. The letter of intent is a personal security governed by Title I";
+        when surete_personnelle_invoquee("lettre d'intention");
+        then surete_personnelle_de_cette_nature("lettre d'intention");
+    }
+}
+
+// --- 2285 : distribution du prix -------------------------------------------------------------
+
+pub relation prix_a_distribuer(d: Distribution, m: Money) kind empirical {
+    key(d);
+    label fr official "prix du bien à distribuer entre les créanciers (article 2285)";
+    label en unofficial "price of the asset to be distributed among the creditors (Article 2285)";
+}
+pub relation date_de_la_distribution(d: Distribution, jour: Date) kind empirical {
+    key(d);
+    label fr official "date de la distribution du prix";
+    label en unofficial "date of the distribution of the price";
+}
+pub relation collocation_dans(r: Collocation, d: Distribution) kind empirical {
+    key(r);
+    label fr official "la créance est produite à la distribution du prix";
+    label en unofficial "the claim is lodged in the distribution of the price";
+}
+pub relation cause_de_preference(r: Collocation, x: CauseDePreference) kind empirical {
+    key(r);
+    label fr official "cause légitime de préférence invoquée par la collocation (article 2285)";
+    label en unofficial "legitimate ground of preference relied on by the entry (Article 2285)";
+}
+pub relation creance_en_principal(r: Collocation, m: Money) kind empirical {
+    key(r);
+    label fr official "montant de la créance produite, en principal et accessoires admis";
+    label en unofficial "amount of the lodged claim, principal and admitted accessories";
+}
+pub relation date_de_rang(r: Collocation, jour: Date) kind empirical {
+    key(r);
+    label fr official "date d'inscription ou de publication qui donne rang (articles 2340, 2418, 2419)";
+    label en unofficial "date of registration or publication that confers rank (Articles 2340, 2418, 2419)";
+}
+
+pub relation classe_de_preference(r: Collocation, n: Integer) kind derived {
+    key(r);
+    label fr official "classe de la cause de préférence : les petites classes priment les grandes";
+    label en unofficial "class of the ground of preference: lower classes prevail over higher ones";
+}
+pub relation classe_ordonnee_par_date(n: Integer) kind derived {
+    label fr official "classe dont les collocations se rangent par date croissante d'inscription ou de publication";
+    label en unofficial "class whose entries rank by ascending registration or publication date";
+}
+pub relation precede(x: Collocation, r: Collocation) kind derived {
+    label fr official "la collocation x est payée avant la collocation r";
+    label en unofficial "entry x is paid before entry r";
+}
+pub relation rang_de_la_collocation(r: Collocation, n: Integer) kind derived {
+    key(r);
+    label fr official "rang de la collocation : un de plus que le nombre de collocations qui la précèdent ; rang égal, concours";
+    label en unofficial "rank of the entry: one more than the number of entries ahead of it; equal rank means pro rata";
+}
+pub relation montant_admis(r: Collocation, m: Money) kind derived {
+    key(r);
+    label fr official "montant pour lequel la collocation vient à son rang";
+    label en unofficial "amount for which the entry comes at its rank";
+}
+pub relation distribution_non_calculee(d: Distribution) kind derived {
+    label fr official "frontière : le texte ne départage pas deux collocations de cette distribution ; le paquet ne la calcule pas";
+    label en unofficial "boundary: the text does not rank two entries of this distribution; the package does not compute it";
+}
+pub relation somme_attribuee(r: Collocation, m: Money) kind derived {
+    key(r);
+    label fr official "somme attribuée à la collocation sur le prix";
+    label en unofficial "sum allotted to the entry out of the price";
+}
+pub relation reliquat_du_prix(d: Distribution, m: Money) kind derived {
+    key(d);
+    label fr official "reliquat du prix après paiement des créanciers colloqués (restitué selon les articles 2347, 2371, 2453, 2458)";
+    label en unofficial "balance of the price after paying the ranked creditors (returned under Articles 2347, 2371, 2453, 2458)";
+}
+
+@source(CC_ART2285) {
+    rule ChirographaireEnDerniereClasse(r: Collocation) strict {
+        label fr official "Article 2285. Le créancier sans cause légitime de préférence vient par contribution après les créanciers privilégiés et titulaires de sûretés";
+        label en unofficial "Article 2285. A creditor without a legitimate ground of preference shares pro rata after the preferred and secured creditors";
+        when cause_de_preference(r, Chirographaire);
+        then classe_de_preference(r, 99);
+    }
+    rule PrecedeParLaClasse(x: Collocation, r: Collocation, d: Distribution, a: Integer, b: Integer) strict {
+        label fr official "Article 2285. La cause de préférence de la classe la plus forte passe avant";
+        label en unofficial "Article 2285. The stronger class of preference is paid first";
+        when collocation_dans(x, d) and collocation_dans(r, d) and classe_de_preference(x, a) and classe_de_preference(r, b) and a < b;
+        then precede(x, r);
+    }
+    rule PrecedeParLaDate(x: Collocation, r: Collocation, d: Distribution, n: Integer, s: Date, t: Date) strict {
+        label fr official "Articles 2340, 2418 et 2419. Dans une classe ordonnée par date, l'inscription ou la publication la plus ancienne passe avant";
+        label en unofficial "Articles 2340, 2418 and 2419. Within a date-ordered class, the earliest registration or publication is paid first";
+        when collocation_dans(x, d) and collocation_dans(r, d) and classe_de_preference(x, n) and classe_de_preference(r, n)
+            and classe_ordonnee_par_date(n) and date_utile(x, s) and date_utile(r, t) and s < t;
+        then precede(x, r);
+    }
+    rule RangDeLaCollocation(r: Collocation, d: Distribution, n: Integer) strict {
+        label fr official "Article 2285. Rang de la collocation : un de plus que le nombre de collocations qui la précèdent";
+        label en unofficial "Article 2285. Rank of the entry: one more than the number of entries ahead of it";
+        when collocation_dans(r, d) and classe_de_preference(r, n);
+        then rang_de_la_collocation(r, 1 + (count distinct x: Collocation where precede(x, r)));
+    }
+    rule MontantAdmisParDefaut(r: Collocation, m: Money) strict {
+        label fr official "Article 2285. La collocation vient pour le montant de sa créance";
+        label en unofficial "Article 2285. The entry comes for the amount of its claim";
+        when creance_en_principal(r, m) and not_known(montant_admis_calcule(r));
+        then montant_admis(r, m);
+    }
+}
+
+// Passage au calculateur : le paquet déclare la distribution (mode, total,
+// précision, unité, politique de reliquat) et chaque collocation (rang,
+// montant) ; `calc.allocation` rend les parts.
+@source(CC_ART2285) {
+    rule DistributionSequentielle(d: Distribution, m: Money) strict {
+        label fr official "Article 2285. Le prix se distribue par ordre de préférence, puis par contribution";
+        label en unofficial "Article 2285. The price is distributed in order of preference, then pro rata";
+        when prix_a_distribuer(d, m) and not_known(distribution_non_calculee(d));
+        then calc.allocation::allocation_mode(d, calc.allocation::Sequential);
+    }
+    rule DistributionTotal(d: Distribution, m: Money) strict {
+        label fr official "Article 2285. Prix à distribuer";
+        label en unofficial "Article 2285. Price to be distributed";
+        when prix_a_distribuer(d, m) and not_known(distribution_non_calculee(d));
+        then calc.allocation::allocation_total(d, m);
+    }
+    rule DistributionPrecision(d: Distribution, m: Money) strict {
+        label fr official "Politique du paquet, non norme : parts arrêtées au centime";
+        label en unofficial "Package policy, not a norm: shares stated to the cent";
+        when prix_a_distribuer(d, m) and not_known(distribution_non_calculee(d));
+        then calc.allocation::allocation_precision(d, 2);
+    }
+    rule DistributionUnite(d: Distribution, m: Money) strict {
+        label fr official "Politique du paquet, non norme : unité monétaire d'un centime d'euro";
+        label en unofficial "Package policy, not a norm: monetary unit of one euro cent";
+        when prix_a_distribuer(d, m) and not_known(distribution_non_calculee(d));
+        then calc.allocation::allocation_unit(d, 0.01 EUR);
+    }
+    rule DistributionReliquatNonAttribue(d: Distribution, m: Money) strict {
+        label fr official "Politique du paquet, non norme : le reliquat d'arrondi du prorata n'est attribué à aucun créancier";
+        label en unofficial "Package policy, not a norm: the rounding remainder of the pro rata split is allotted to no creditor";
+        when prix_a_distribuer(d, m) and not_known(distribution_non_calculee(d));
+        then calc.allocation::allocation_remainder_policy(d, calc.allocation::Withheld);
+    }
+    rule CollocationBeneficiaire(r: Collocation, d: Distribution) strict {
+        label fr official "Article 2285. La créance produite participe à la distribution";
+        label en unofficial "Article 2285. The lodged claim takes part in the distribution";
+        when collocation_dans(r, d);
+        then calc.allocation::recipient_of(r, d);
+    }
+    rule CollocationRang(r: Collocation, n: Integer) strict {
+        label fr official "Article 2285. Rang de la collocation dans la distribution";
+        label en unofficial "Article 2285. Rank of the entry in the distribution";
+        when rang_de_la_collocation(r, n);
+        then calc.allocation::recipient_rank(r, n);
+    }
+    rule CollocationMontant(r: Collocation, m: Money) strict {
+        label fr official "Article 2285. Montant pour lequel la collocation vient";
+        label en unofficial "Article 2285. Amount for which the entry comes";
+        when montant_admis(r, m);
+        then calc.allocation::recipient_claim(r, m);
+    }
+    rule SommeAttribuee(r: Collocation, d: Distribution, m: Money) strict {
+        label fr official "Article 2285. Somme payée à la collocation sur le prix";
+        label en unofficial "Article 2285. Sum paid to the entry out of the price";
+        when collocation_dans(r, d) and calc.allocation::share_amount(d, r, m);
+        then somme_attribuee(r, m);
+    }
+    rule ReliquatDuPrix(d: Distribution, m: Money) strict {
+        label fr official "Article 2285. Ce qui reste du prix après les créanciers colloqués";
+        label en unofficial "Article 2285. What remains of the price after the ranked creditors";
+        when calc.allocation::allocation_settled(d) and calc.allocation::allocation_remainder(d, m);
+        then reliquat_du_prix(d, m);
+    }
+}

@@ -1,0 +1,126 @@
+// CHAPITRE III — LES ACTIONS OUVERTES AU CRÉANCIER (articles 1341 à 1341-3).
+//
+// TROIS CANAUX DANS QUATRE ARTICLES. L'action oblique (1341-1) suppose que la
+// carence du débiteur « compromette les droits » de son créancier : le texte
+// délègue cette appréciation au juge — canal du jugement. L'action paulienne
+// (1341-2) suppose la FRAUDE, et, pour un acte à titre onéreux, la CONNAISSANCE
+// de la fraude par le tiers : ce sont des faits établis, fournis par le cas
+// avec `origin adjudicated`. L'action directe (1341-3) n'existe que « dans les
+// cas déterminés par la loi » : le Code civil ne les énumère pas ici — le cas
+// doit nommer le texte qui l'ouvre (entrée typée, frontière déclarée).
+
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+use self::{
+    ActeJuridique,
+    CC_ART1341,
+    CC_ART1341_1,
+    CC_ART1341_2,
+    CC_ART1341_3,
+    Creance,
+    Personne,
+    carence_compromettant_les_droits,
+    connaissance_de_la_fraude,
+    fraude_aux_droits_du_creancier,
+};
+
+pub relation droit_exclusivement_rattache_a_la_personne(c: Creance) kind empirical {
+    label fr official "droit ou action exclusivement rattaché à la personne du débiteur, excepté de l'action oblique (article 1341-1, in fine)";
+    label en unofficial "right or action exclusively attached to the debtor's person, excepted from the oblique action (Article 1341-1, in fine)";
+}
+pub relation acte_du_debiteur(a: ActeJuridique, c: Creance, d: Personne) kind empirical {
+    label fr official "acte fait par le débiteur, attaqué par son créancier (article 1341-2)";
+    label en unofficial "act done by the debtor, challenged by his creditor (Article 1341-2)";
+}
+pub relation acte_a_titre_onereux(a: ActeJuridique) kind empirical {
+    label fr official "l'acte attaqué est à titre onéreux : la connaissance de la fraude par le tiers doit alors être établie (article 1341-2)";
+    label en unofficial "the challenged act is for valuable consideration: the third party's knowledge of the fraud must then be established (Article 1341-2)";
+}
+pub relation tiers_cocontractant(a: ActeJuridique, tiers: Personne) kind empirical {
+    label fr official "tiers cocontractant de l'acte attaqué (article 1341-2)";
+    label en unofficial "contracting third party to the challenged act (Article 1341-2)";
+}
+pub relation loi_ouvrant_l_action_directe(c: Creance, texte: Text) kind empirical {
+    label fr official "texte qui, dans les cas déterminés par la loi, ouvre au créancier l'action directe contre un débiteur de son débiteur (article 1341-3) — le Code ne les énumère pas ici : entrée du cas";
+    label en unofficial "text which, in the cases determined by law, opens the direct action to the creditor against his debtor's debtor (Article 1341-3) — the Code does not list them here: case input";
+}
+pub relation debiteur_de_son_debiteur(c: Creance, sous_debiteur: Personne) kind empirical {
+    label fr official "débiteur du débiteur, contre lequel l'action directe est exercée (article 1341-3)";
+    label en unofficial "the debtor's debtor, against whom the direct action is brought (Article 1341-3)";
+}
+
+pub relation droit_a_l_execution(c: Creance, cr: Personne) kind derived {
+    label fr official "le créancier a droit à l'exécution de l'obligation ; il peut y contraindre le débiteur dans les conditions prévues par la loi (article 1341)";
+    label en unofficial "the creditor is entitled to performance of the obligation; he may compel the debtor thereto under the conditions provided by law (Article 1341)";
+}
+pub relation action_oblique_ouverte(c: Creance, cr: Personne, d: Personne) kind derived {
+    label fr official "le créancier peut exercer, pour le compte de son débiteur, les droits et actions à caractère patrimonial dont la carence compromet ses propres droits (article 1341-1)";
+    label en unofficial "the creditor may exercise, on his debtor's behalf, the patrimonial rights and actions whose non-exercise jeopardizes his own rights (Article 1341-1)";
+}
+pub relation action_oblique_exclue(c: Creance) kind derived {
+    label fr official "les droits exclusivement rattachés à la personne du débiteur échappent à l'action oblique (article 1341-1, in fine)";
+    label en unofficial "rights exclusively attached to the debtor's person escape the oblique action (Article 1341-1, in fine)";
+}
+pub relation acte_inopposable_au_creancier(a: ActeJuridique, cr: Personne) kind derived {
+    label fr official "l'acte fait par le débiteur en fraude des droits de son créancier est déclaré inopposable à celui-ci (article 1341-2)";
+    label en unofficial "an act done by the debtor in fraud of his creditor's rights is declared unenforceable against him (Article 1341-2)";
+}
+pub relation action_directe_ouverte(c: Creance, cr: Personne, sous_debiteur: Personne) kind derived {
+    label fr official "dans les cas déterminés par la loi, le créancier peut agir directement en paiement de sa créance contre un débiteur de son débiteur (article 1341-3)";
+    label en unofficial "in the cases determined by law, the creditor may sue directly for payment of his claim against his debtor's debtor (Article 1341-3)";
+}
+
+@source(CC_ART1341)
+rule DroitALExecution(c: Creance, cr: Personne) strict {
+    label fr official "Article 1341. Le créancier a droit à l'exécution de l'obligation ; il peut y contraindre le débiteur dans les conditions prévues par la loi";
+    label en unofficial "Article 1341. The creditor is entitled to performance of the obligation; he may compel the debtor thereto under the conditions provided by law";
+    when fr.code_civil.core::creancier(c, cr);
+    then droit_a_l_execution(c, cr);
+}
+
+@source(CC_ART1341_1) {
+    rule ActionObliqueOuverte(c: Creance, cr: Personne, d: Personne) strict {
+        label fr official "Article 1341-1. Lorsque la carence du débiteur dans l'exercice de ses droits et actions à caractère patrimonial compromet les droits de son créancier, celui-ci peut les exercer pour le compte de son débiteur";
+        label en unofficial "Article 1341-1. Where the debtor's failure to exercise his patrimonial rights and actions jeopardizes his creditor's rights, the creditor may exercise them on his debtor's behalf";
+        when fr.code_civil.core::creancier(c, cr) and fr.code_civil.core::debiteur(c, d)
+            and carence_compromettant_les_droits(c, d)
+            and not_known(droit_exclusivement_rattache_a_la_personne(c));
+        then action_oblique_ouverte(c, cr, d);
+    }
+    rule ActionObliqueExclue(c: Creance) strict {
+        label fr official "Article 1341-1, in fine. A l'exception des droits et actions exclusivement rattachés à la personne du débiteur";
+        label en unofficial "Article 1341-1, in fine. Except for rights and actions exclusively attached to the debtor's person";
+        when droit_exclusivement_rattache_a_la_personne(c);
+        then action_oblique_exclue(c);
+    }
+}
+
+@source(CC_ART1341_2) {
+    rule ActionPaulienneActeGratuit(a: ActeJuridique, c: Creance, d: Personne, cr: Personne) strict {
+        label fr official "Article 1341-2. Le créancier peut aussi agir en son nom personnel pour faire déclarer inopposables à son égard les actes faits par son débiteur en fraude de ses droits ; l'acte à titre gratuit n'exige pas la preuve de la connaissance du tiers";
+        label en unofficial "Article 1341-2. The creditor may also sue in his own name to have acts done by his debtor in fraud of his rights declared unenforceable against him; a gratuitous act does not require proof of the third party's knowledge";
+        when acte_du_debiteur(a, c, d) and fr.code_civil.core::creancier(c, cr)
+            and fraude_aux_droits_du_creancier(a)
+            and not_known(acte_a_titre_onereux(a));
+        then acte_inopposable_au_creancier(a, cr);
+    }
+    rule ActionPaulienneActeOnereux(a: ActeJuridique, c: Creance, d: Personne, cr: Personne, tiers: Personne) strict {
+        label fr official "Article 1341-2. A charge d'établir, s'il s'agit d'un acte à titre onéreux, que le tiers cocontractant avait connaissance de la fraude";
+        label en unofficial "Article 1341-2. Subject to establishing, for an act for valuable consideration, that the contracting third party knew of the fraud";
+        when acte_du_debiteur(a, c, d) and fr.code_civil.core::creancier(c, cr)
+            and fraude_aux_droits_du_creancier(a) and acte_a_titre_onereux(a)
+            and tiers_cocontractant(a, tiers) and connaissance_de_la_fraude(a, tiers);
+        then acte_inopposable_au_creancier(a, cr);
+    }
+}
+
+@source(CC_ART1341_3)
+rule ActionDirecteOuverte(c: Creance, cr: Personne, sous_debiteur: Personne, texte: Text) strict {
+    label fr official "Article 1341-3. Dans les cas déterminés par la loi, le créancier peut agir directement en paiement de sa créance contre un débiteur de son débiteur ; le cas nomme le texte qui ouvre l'action";
+    label en unofficial "Article 1341-3. In the cases determined by law, the creditor may sue directly for payment of his claim against his debtor's debtor; the case names the text opening the action";
+    when fr.code_civil.core::creancier(c, cr) and loi_ouvrant_l_action_directe(c, texte)
+        and debiteur_de_son_debiteur(c, sous_debiteur);
+    then action_directe_ouverte(c, cr, sous_debiteur);
+}

@@ -1,0 +1,350 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1873_1,
+    CC_ART1873_10,
+    CC_ART1873_11,
+    CC_ART1873_12,
+    CC_ART1873_13,
+    CC_ART1873_15,
+    CC_ART1873_16,
+    CC_ART1873_17,
+    CC_ART1873_2,
+    CC_ART1873_5,
+    CC_ART1873_6,
+    CC_ART1873_7,
+    CC_ART1873_9,
+    ConventionIndivision,
+    Personne,
+    acquisition_part_defunt_admise,
+    acquisition_part_defunt_exercee,
+    acquisition_part_defunt_proportionnelle,
+    acte_dans_pouvoirs_gerant_indivision,
+    alienation_droits_indivis,
+    aucun_accord_remuneration_gerant,
+    aucune_convention_repartition_part_defunt,
+    aucune_stipulation_administration_pluralite,
+    biens_indivis_greves_usufruit,
+    clause_acquisition_part_defunt,
+    clause_etend_pouvoirs_gerant_indivision,
+    clause_extension_pouvoirs_reputee_non_ecrite,
+    coindivisaire_indivision,
+    communication_documents_gestion_demandee,
+    communication_documents_gestion_due,
+    compte_gestion_annuel_indivision,
+    consentement_tous_coindivisaires,
+    convention_designe_biens_et_quotes_parts,
+    convention_devient_duree_indeterminee,
+    convention_exercice_droits_indivis_admise,
+    convention_indivision_duree_indeterminee,
+    convention_indivision_ecrite,
+    convention_indivision_formellement_valide,
+    convention_nue_propriete_usufruit_exercee,
+    convention_nus_proprietaires_usufruitiers_admise,
+    creancier_personnel_indivisaire,
+    creancier_personnel_indivision,
+    creancier_peut_provoquer_partage,
+    creancier_peut_saisir_quote_part,
+    debiteur_ne_peut_pas_provoquer_partage,
+    debiteur_peut_provoquer_partage,
+    depense_conservation_biens_indivis,
+    disposition_meuble_exercee,
+    disposition_meuble_par_gerant_admise,
+    droits_preemption_substitution_applicables,
+    exercice_droits_indivis_exerce,
+    exigence_documents_gestion_exercee,
+    faute_gestion_gerant_indivision,
+    fautes_gestion_met_en_peril_indivision,
+    gerant_indivision_nomme,
+    gerant_indivision_personne,
+    gerant_non_indivisaire,
+    indivisaire_incapable_present,
+    majorite_indivisaires_nombre_et_parts,
+    meuble_exploitation_normale_ou_deperissable,
+    nomination_gerant_exercee,
+    nomination_gerant_indivision_admise,
+    operation_bloquee_par_opposition,
+    opposition_gerant_avant_operation,
+    opposition_operation_exercee,
+    part_devolue_personne_etrangere,
+    participation_depense_conservation_due,
+    pluralite_gerants_indivision,
+    plusieurs_acquereurs_part_defunt,
+    pouvoirs_gerant_maintenus_malgre_incapable,
+    pouvoirs_gerant_non_opposables_aux_usufruitiers,
+    pouvoirs_separes_gerants_indivision,
+    quote_part_indivise_saisie,
+    reddition_compte_indivision_conforme,
+    remuneration_gerant_indivision_due,
+    representation_indivisaires_valide,
+    responsabilite_gerant_indivision,
+    revocation_gerant_indivisaire_unanime,
+    revocation_gerant_indivisaire_valide,
+    revocation_gerant_non_indivisaire_valide,
+    revocation_judiciaire_gerant_indivision,
+    saisie_quote_part_exercee,
+    titulaire_indivision,
+    titulaire_nue_propriete_ou_usufruit,
+    titulaires_droits_indivis,
+    usufruitiers_non_parties_convention,
+};
+
+@source(CC_ART1873_1)
+rule ConventionExerciceDroitsIndivisAdmise(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: convention Exercice Droits Indivis Admise";
+    label fr official "Article 1873-1. Les propriétaires, nus-propriétaires ou usufruitiers de biens indivis peuvent convenir de l'exercice de leurs droits";
+    when titulaires_droits_indivis(c); then convention_exercice_droits_indivis_admise(c);
+}
+
+@source(CC_ART1873_1)
+rule P3PouvoirConvenirExerciceDroitsIndivis(c: ConventionIndivision, titulaire_: Personne) strict {
+    label fr official "Article 1873-1. Les titulaires de droits indivis peuvent en convenir l'exercice";
+    label en unofficial "Article 1873-1. Holders of undivided rights may agree on their exercise";
+    when titulaires_droits_indivis(c) and titulaire_indivision(c, titulaire_);
+    then power P3PositionPouvoirConvenirExerciceDroitsIndivis {
+        holder titulaire_;
+        over c;
+        exercise exercice_droits_indivis_exerce(c, titulaire_);
+        effect convention_exercice_droits_indivis_admise(c);
+        valid_when titulaires_droits_indivis(c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1873_2)
+rule ConventionIndivisionFormellementValide(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: convention Indivision Formellement Valide";
+    label fr official "Article 1873-2. La convention consentie par tous est écrite et désigne les biens et quotes-parts";
+    when consentement_tous_coindivisaires(c) and convention_indivision_ecrite(c)
+        and convention_designe_biens_et_quotes_parts(c);
+    then convention_indivision_formellement_valide(c);
+}
+
+@source(CC_ART1873_5) {
+    rule NominationGerantIndivisionAdmise(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: nomination Gerant Indivision Admise";
+        label fr official "Article 1873-5, alinéa 1. Les coïndivisaires peuvent nommer un ou plusieurs gérants, indivisaires ou non";
+        when gerant_indivision_nomme(c); then nomination_gerant_indivision_admise(c);
+    }
+    rule P3PouvoirNommerGerantIndivision(c: ConventionIndivision, coindivisaire_: Personne) strict {
+        label fr official "Article 1873-5. Les coïndivisaires peuvent nommer un ou plusieurs gérants";
+        label en unofficial "Article 1873-5. Co-owners may appoint one or more managers";
+        when gerant_indivision_nomme(c) and coindivisaire_indivision(c, coindivisaire_);
+        then power P3PositionPouvoirNommerGerantIndivision {
+            holder coindivisaire_;
+            over c;
+            exercise nomination_gerant_exercee(c, coindivisaire_);
+            effect nomination_gerant_indivision_admise(c);
+            valid_when gerant_indivision_nomme(c);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule RevocationGerantIndivisaireUnanime(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: revocation Gerant Indivisaire Unanime";
+        label fr official "Article 1873-5, alinéa 2. A défaut d'accord, le gérant indivisaire est révoqué à l'unanimité des autres";
+        when revocation_gerant_indivisaire_unanime(c); then revocation_gerant_indivisaire_valide(c);
+    }
+    rule RevocationGerantNonIndivisaireMajoritaire(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: revocation Gerant Non Indivisaire Majoritaire";
+        label fr official "Article 1873-5, alinéa 3. A défaut d'accord, le gérant non indivisaire est révoqué à la majorité en nombre et en parts";
+        when gerant_non_indivisaire(c) and majorite_indivisaires_nombre_et_parts(c);
+        then revocation_gerant_non_indivisaire_valide(c);
+    }
+    rule RevocationJudiciairePourPerilIndivision(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: revocation Judiciaire Pour Peril Indivision";
+        label fr official "Article 1873-5, alinéa 3. Le tribunal peut révoquer le gérant dont les fautes mettent l'indivision en péril";
+        when fautes_gestion_met_en_peril_indivision(c); then revocation_judiciaire_gerant_indivision(c);
+    }
+    rule RevocationGerantIndivisaireRendDureeIndeterminee(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: revocation Gerant Indivisaire Rend Duree Indeterminee";
+        label fr official "Article 1873-5, alinéa 4. La révocation du gérant indivisaire rend la convention indéterminée";
+        when revocation_gerant_indivisaire_valide(c); then convention_devient_duree_indeterminee(c);
+    }
+}
+
+@source(CC_ART1873_6) {
+    rule GerantRepresenteDansLimitePouvoirs(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: gerant Represente Dans Limite Pouvoirs";
+        label fr official "Article 1873-6, alinéa 1. Le gérant représente les indivisaires dans la limite de ses pouvoirs";
+        when acte_dans_pouvoirs_gerant_indivision(c); then representation_indivisaires_valide(c);
+    }
+    rule GerantPeutDisposerMeublesExploitationOuPerissables(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: gerant Peut Disposer Meubles Exploitation Ou Perissables";
+        label fr official "Article 1873-6, alinéa 2. Le gérant peut disposer des meubles nécessaires à l'exploitation normale ou difficiles à conserver";
+        when meuble_exploitation_normale_ou_deperissable(c); then disposition_meuble_par_gerant_admise(c);
+    }
+    rule P3PouvoirDisposerMeubleIndivision(c: ConventionIndivision, gerant_: Personne) strict {
+        label fr official "Article 1873-6. Le gérant peut disposer des meubles nécessaires ou difficiles à conserver";
+        label en unofficial "Article 1873-6. The manager may dispose of necessary or perishable movables";
+        when meuble_exploitation_normale_ou_deperissable(c) and gerant_indivision_personne(c, gerant_);
+        then power P3PositionPouvoirDisposerMeubleIndivision {
+            holder gerant_;
+            over c;
+            exercise disposition_meuble_exercee(c, gerant_);
+            effect disposition_meuble_par_gerant_admise(c);
+            valid_when meuble_exploitation_normale_ou_deperissable(c);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule ExtensionPouvoirsGerantNonEcrite(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: extension Pouvoirs Gerant Non Ecrite";
+        label fr official "Article 1873-6, alinéa 2. Toute clause extensive des pouvoirs du gérant est réputée non écrite";
+        when clause_etend_pouvoirs_gerant_indivision(c); then clause_extension_pouvoirs_reputee_non_ecrite(c);
+    }
+}
+
+@source(CC_ART1873_7)
+rule IncapableNeRetirePasPouvoirsGerant(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: incapable Ne Retire Pas Pouvoirs Gerant";
+    label fr official "Article 1873-7. Le gérant conserve ses pouvoirs même en présence d'un indivisaire incapable";
+    when indivisaire_incapable_present(c); then pouvoirs_gerant_maintenus_malgre_incapable(c);
+}
+
+@source(CC_ART1873_9) {
+    rule GerantsIndivisionOntPouvoirsSeparesParDefaut(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: gerants Indivision Ont Pouvoirs Separes Par Defaut";
+        label fr official "Article 1873-9. Sans stipulation spéciale, plusieurs gérants détiennent séparément leurs pouvoirs";
+        when pluralite_gerants_indivision(c) and aucune_stipulation_administration_pluralite(c);
+        then pouvoirs_separes_gerants_indivision(c);
+    }
+    rule OppositionGerantBloqueOperationAvantConclusion(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: opposition Gerant Bloque Operation Avant Conclusion";
+        label fr official "Article 1873-9. Chaque gérant peut s'opposer à une opération avant sa conclusion";
+        when opposition_gerant_avant_operation(c); then operation_bloquee_par_opposition(c);
+    }
+    rule P3PouvoirOppositionGerant(c: ConventionIndivision, gerant_: Personne) strict {
+        label fr official "Article 1873-9. Chaque gérant peut s'opposer à une opération avant sa conclusion";
+        label en unofficial "Article 1873-9. Each manager may oppose an operation before its conclusion";
+        when opposition_gerant_avant_operation(c) and gerant_indivision_personne(c, gerant_);
+        then power P3PositionPouvoirOppositionGerant {
+            holder gerant_;
+            over c;
+            exercise opposition_operation_exercee(c, gerant_);
+            effect operation_bloquee_par_opposition(c);
+            valid_when opposition_gerant_avant_operation(c);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+@source(CC_ART1873_11)
+rule P3PouvoirExigerDocumentsGestion(c: ConventionIndivision, indivisaire_: Personne) strict {
+    label fr official "Article 1873-11. Chaque indivisaire peut exiger les documents relatifs à la gestion";
+    label en unofficial "Article 1873-11. Each co-owner may require management documents";
+    when communication_documents_gestion_demandee(c) and coindivisaire_indivision(c, indivisaire_);
+    then power P3PositionPouvoirExigerDocumentsGestion {
+        holder indivisaire_;
+        over c;
+        exercise exigence_documents_gestion_exercee(c, indivisaire_);
+        effect communication_documents_gestion_due(c);
+        valid_when communication_documents_gestion_demandee(c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1873_13)
+rule P3PouvoirAcquerirPartDefunt(c: ConventionIndivision, titulaire_: Personne) strict {
+    label fr official "Article 1873-13. La convention peut donner la faculté d'acquérir la part du défunt";
+    label en unofficial "Article 1873-13. The agreement may grant the power to acquire the deceased owner's share";
+    when clause_acquisition_part_defunt(c) and titulaire_indivision(c, titulaire_);
+    then power P3PositionPouvoirAcquerirPartDefunt {
+        holder titulaire_;
+        over c;
+        exercise acquisition_part_defunt_exercee(c, titulaire_);
+        effect acquisition_part_defunt_admise(c);
+        valid_when clause_acquisition_part_defunt(c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1873_10) {
+    rule RemunerationGerantDueSaufAccordContraire(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: remuneration Gerant Due Sauf Accord Contraire";
+        label fr official "Article 1873-10, alinéa 1. Le gérant a droit à rémunération sauf accord contraire";
+        when aucun_accord_remuneration_gerant(c); then remuneration_gerant_indivision_due(c);
+    }
+    rule GerantIndivisionRepondDeSesFautes(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: gerant Indivision Repond De Ses Fautes";
+        label fr official "Article 1873-10, alinéa 2. Le gérant répond comme mandataire de ses fautes de gestion";
+        when faute_gestion_gerant_indivision(c); then responsabilite_gerant_indivision(c);
+    }
+}
+
+@source(CC_ART1873_11) {
+    rule CommunicationDocumentsGestionDue(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: communication Documents Gestion Due";
+        label fr official "Article 1873-11, alinéa 1. Chaque indivisaire peut exiger les documents relatifs à la gestion";
+        when communication_documents_gestion_demandee(c); then communication_documents_gestion_due(c);
+    }
+    rule CompteGestionAnnuelConforme(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: compte Gestion Annuel Conforme";
+        label fr official "Article 1873-11, alinéa 1. Le gérant rend annuellement un compte écrit des bénéfices et pertes";
+        when compte_gestion_annuel_indivision(c); then reddition_compte_indivision_conforme(c);
+    }
+    rule ParticipationDepenseConservationDue(c: ConventionIndivision, m: Money) strict { label en unofficial "Civil Code declaration: participation Depense Conservation Due";
+        label fr official "Article 1873-11, alinéa 2. Chaque indivisaire participe aux dépenses de conservation des biens indivis";
+        when depense_conservation_biens_indivis(c, m); then participation_depense_conservation_due(c, m);
+    }
+}
+
+@source(CC_ART1873_12) {
+    rule AlienationDroitsIndivisOuvrePreemptionEtSubstitution(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: alienation Droits Indivis Ouvre Preemption Et Substitution";
+        label fr official "Article 1873-12, alinéa 1. L'aliénation de droits indivis ouvre aux coïndivisaires les droits de préemption et substitution";
+        when alienation_droits_indivis(c); then droits_preemption_substitution_applicables(c);
+    }
+    rule DevolutionAEtrangerRendConventionIndeterminee(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: devolution AEtranger Rend Convention Indeterminee";
+        label fr official "Article 1873-12, alinéa 2. La dévolution d'une part à une personne étrangère rend la convention indéterminée";
+        when part_devolue_personne_etrangere(c); then convention_indivision_duree_indeterminee(c);
+    }
+}
+
+@source(CC_ART1873_13) {
+    rule ClauseAcquisitionPartDefuntAdmise(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: clause Acquisition Part Defunt Admise";
+        label fr official "Article 1873-13, alinéa 1. La convention peut donner aux survivants ou à l'héritier désigné la faculté d'acquérir la part du défunt";
+        when clause_acquisition_part_defunt(c); then acquisition_part_defunt_admise(c);
+    }
+    rule PlusieursAcquereursPartDefuntRepartisProportionnellement(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: plusieurs Acquereurs Part Defunt Repartis Proportionnellement";
+        label fr official "Article 1873-13, alinéa 2. Plusieurs bénéficiaires acquièrent par défaut proportionnellement à leurs droits";
+        when plusieurs_acquereurs_part_defunt(c) and aucune_convention_repartition_part_defunt(c);
+        then acquisition_part_defunt_proportionnelle(c);
+    }
+}
+
+@source(CC_ART1873_15) {
+    rule CreancierPersonnelPeutProvoquerPartageSiDebiteurLePeut(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: creancier Personnel Peut Provoquer Partage Si Debiteur Le Peut";
+        label fr official "Article 1873-15. Le créancier personnel ne provoque le partage que si son débiteur pourrait le provoquer";
+        when creancier_personnel_indivisaire(c) and debiteur_peut_provoquer_partage(c);
+        then creancier_peut_provoquer_partage(c);
+    }
+    rule SinonCreancierPeutSaisirQuotePart(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: sinon Creancier Peut Saisir Quote Part";
+        label fr official "Article 1873-15. Lorsque le débiteur ne peut provoquer le partage, son créancier peut saisir et vendre sa quote-part";
+        when creancier_personnel_indivisaire(c) and debiteur_ne_peut_pas_provoquer_partage(c);
+        then creancier_peut_saisir_quote_part(c);
+    }
+    rule P3PouvoirSaisirQuotePartIndivise(c: ConventionIndivision, creancier_: Personne) strict {
+        label fr official "Article 1873-15. Le créancier peut saisir et vendre la quote-part";
+        label en unofficial "Article 1873-15. The creditor may seize and sell the share";
+        when creancier_peut_saisir_quote_part(c) and creancier_personnel_indivision(c, creancier_);
+        then power P3PositionPouvoirSaisirQuotePartIndivise {
+            holder creancier_;
+            over c;
+            exercise saisie_quote_part_exercee(c, creancier_);
+            effect quote_part_indivise_saisie(c);
+            valid_when debiteur_ne_peut_pas_provoquer_partage(c);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+@source(CC_ART1873_16)
+rule ConventionEntreNusProprietairesEtUsufruitiersAdmise(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: convention Entre Nus Proprietaires Et Usufruitiers Admise";
+    label fr official "Article 1873-16. Les titulaires de nue-propriété et d'usufruit peuvent conclure des conventions sur les biens indivis";
+    when biens_indivis_greves_usufruit(c); then convention_nus_proprietaires_usufruitiers_admise(c);
+}
+
+@source(CC_ART1873_16)
+rule P3PouvoirConvenirEntreNueProprieteUsufruit(c: ConventionIndivision, titulaire_: Personne) strict {
+    label fr official "Article 1873-16. Les titulaires de nue-propriété et d'usufruit peuvent conclure des conventions";
+    label en unofficial "Article 1873-16. Bare owners and usufructuaries may conclude agreements";
+    when biens_indivis_greves_usufruit(c) and titulaire_nue_propriete_ou_usufruit(c, titulaire_);
+    then power P3PositionPouvoirConvenirEntreNueProprieteUsufruit {
+        holder titulaire_;
+        over c;
+        exercise convention_nue_propriete_usufruit_exercee(c, titulaire_);
+        effect convention_nus_proprietaires_usufruitiers_admise(c);
+        valid_when biens_indivis_greves_usufruit(c);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1873_17)
+rule PouvoirsGerantNonOpposablesAuxUsufruitiersNonParties(c: ConventionIndivision) strict { label en unofficial "Civil Code declaration: pouvoirs Gerant Non Opposables Aux Usufruitiers Non Parties";
+    label fr official "Article 1873-17. Les tiers ne peuvent opposer aux usufruitiers non parties les pouvoirs conférés au gérant par les nus-propriétaires";
+    when usufruitiers_non_parties_convention(c); then pouvoirs_gerant_non_opposables_aux_usufruitiers(c);
+}
+

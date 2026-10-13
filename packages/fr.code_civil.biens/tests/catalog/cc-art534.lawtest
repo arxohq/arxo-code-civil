@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-MEUBLESMEUBLANTSCOMPRENNENTLAMEUBLEMENT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": espece_de_la_chose(entity_ref("urn:law:catalog:meublesmeublantscomprennentlameublement:v0"), MeubleDUsageEtDOrnementDesAppartements) { origin case_input; }
+    }
+    evaluate truth(comprise_sous_meubles_meublants(entity_ref("urn:law:catalog:meublesmeublantscomprennentlameublement:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-MEUBLESMEUBLANTSEXCLUENTLESCOLLECTIONS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": espece_de_la_chose(entity_ref("urn:law:catalog:meublesmeublantsexcluentlescollections:v0"), CollectionDeTableauxEnGalerie) { origin case_input; }
+    }
+    evaluate truth(exclue_des_meubles_meublants(entity_ref("urn:law:catalog:meublesmeublantsexcluentlescollections:v0")));
+    expect truth_status == TRUE_ONLY;
+}

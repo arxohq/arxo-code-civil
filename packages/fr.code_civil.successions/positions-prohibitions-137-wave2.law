@@ -1,0 +1,189 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART795,
+    CC_ART810_3,
+    CC_ART810_4,
+    CC_ART810_9,
+    CC_ART812_1_1,
+    CC_ART812_1_3,
+    CC_ART812_4,
+    CC_ART812_5,
+    CC_ART813_4,
+    CC_ART823,
+    DetteDeLaSuccession,
+    Indivision,
+    Mandat,
+    Personne,
+    Succession,
+    acte_apres_fin_mandat_exerce,
+    acte_hors_pouvoirs_mandataire_exerce,
+    adjudication_exigee_par,
+    adjudication_obligatoire,
+    autorisation_administration_exercee,
+    creancier_limite_a_l_actif_subsistant,
+    curateur_succession,
+    declaration_conservation_non_publiee,
+    declaration_conservation_opposable_exercee,
+    demande_restitution_remuneration_exercee,
+    dette_a_payer,
+    duree_du_mandat_excessive,
+    exigence_adjudication_exercee,
+    maintien_excessif_constate,
+    maintien_indivision_exerce,
+    mandat_excessif_exerce,
+    mandat_termine,
+    mandataire_designe,
+    mandataire_successoral,
+    paiement_dette_conditionnel_exerce,
+    paiement_subordonne_au_projet,
+    pouvoirs_du_mandataire_limites_a_784,
+    pouvoirs_du_mandataire_successoral_limites_a_784,
+    pretention_actif_integral_exercee,
+    restitution_exclue,
+};
+
+// §137 : maintenance explicite des dix interdictions restantes de la vague.
+
+@source(CC_ART795)
+rule DeriveP3Wave2MaintenanceOpposerConservationNonPubliee(s: Succession, h: Personne) strict {
+    label fr official "Article 795. devoir de maintenir l'interdiction de rendre la conservation opposable";
+    label en unofficial "Article 795. duty to maintain the prohibition on making the conservation opposable";
+    when declaration_conservation_non_publiee(s, h);
+    then duty P3Wave2MaintenanceOpposerConservationNonPubliee {
+        bearer h;
+        goal maintenance {
+            condition not declaration_conservation_opposable_exercee(s, h);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART823)
+rule DeriveP3Wave2MaintenanceMaintienAuDelaCinqAns(i: Indivision, p: Personne) strict {
+    label fr official "Article 823. devoir de maintenir l'interdiction du maintien au-delà de cinq ans";
+    label en unofficial "Article 823. duty to maintain the prohibition on maintaining beyond five years";
+    when maintien_excessif_constate(i, p);
+    then duty P3Wave2MaintenanceMaintienAuDelaCinqAns {
+        bearer p;
+        goal maintenance {
+            condition not maintien_indivision_exerce(i, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART813_4)
+rule DeriveP3Wave2MaintenanceMandataireAuDelaArticle784(s: Succession, p: Personne) strict {
+    label fr official "Article 813-4. devoir de maintenir l'interdiction des pouvoirs au-delà de l'article 784";
+    label en unofficial "Article 813-4. duty to maintain the prohibition on powers beyond Article 784";
+    when mandataire_successoral(s, p) and pouvoirs_du_mandataire_successoral_limites_a_784(s);
+    then duty P3Wave2MaintenanceMandataireAuDelaArticle784 {
+        bearer p;
+        goal maintenance {
+            condition not autorisation_administration_exercee(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART812_5)
+rule DeriveP3Wave2MaintenanceDemanderRestitutionApresRevocation(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-5. devoir de maintenir l'interdiction de demander la restitution après révocation";
+    label en unofficial "Article 812-5. duty to maintain the prohibition on demanding restitution after revocation";
+    when restitution_exclue(m) and mandataire_designe(m, p);
+    then duty P3Wave2MaintenanceDemanderRestitutionApresRevocation {
+        bearer p;
+        goal maintenance {
+            condition not demande_restitution_remuneration_exercee(m, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART812_1_1)
+rule DeriveP3Wave2MaintenanceMandatDureeExcessive(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-1-1. devoir de maintenir l'interdiction du mandat excessif";
+    label en unofficial "Article 812-1-1. duty to maintain the prohibition on an excessive mandate";
+    when mandataire_designe(m, p) and duree_du_mandat_excessive(m);
+    then duty P3Wave2MaintenanceMandatDureeExcessive {
+        bearer p;
+        goal maintenance {
+            condition not mandat_excessif_exerce(m, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART812_4)
+rule DeriveP3Wave2MaintenanceActeApresFinMandat(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-4. devoir de maintenir l'interdiction de l'acte après le mandat";
+    label en unofficial "Article 812-4. duty to maintain the prohibition on the act after the mandate";
+    when mandataire_designe(m, p) and mandat_termine(m);
+    then duty P3Wave2MaintenanceActeApresFinMandat {
+        bearer p;
+        goal maintenance {
+            condition not acte_apres_fin_mandat_exerce(m, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART810_4)
+rule DeriveP3Wave2MaintenancePayerDetteAvantProjet(s: Succession, p: Personne, dette: DetteDeLaSuccession) strict {
+    label fr official "Article 810-4. devoir de maintenir l'interdiction du paiement avant le projet";
+    label en unofficial "Article 810-4. duty to maintain the prohibition on payment before the proposal";
+    when curateur_succession(s, p) and dette_a_payer(s, dette)
+        and paiement_subordonne_au_projet(s, dette);
+    then duty P3Wave2MaintenancePayerDetteAvantProjet {
+        bearer p;
+        goal maintenance {
+            condition not paiement_dette_conditionnel_exerce(s, p, dette);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART810_3)
+rule DeriveP3Wave2MaintenanceVenteSansAdjudication(s: Succession, p: Personne) strict {
+    label fr official "Article 810-3. devoir de maintenir l'interdiction de la vente sans adjudication";
+    label en unofficial "Article 810-3. duty to maintain the prohibition on sale without auction";
+    when adjudication_obligatoire(s) and adjudication_exigee_par(s, p);
+    then duty P3Wave2MaintenanceVenteSansAdjudication {
+        bearer p;
+        goal maintenance {
+            condition not exigence_adjudication_exercee(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART810_9)
+rule DeriveP3Wave2MaintenancePretendreActifIntegral(s: Succession, p: Personne) strict {
+    label fr official "Article 810-9. devoir de maintenir l'interdiction de prétendre à l'actif intégral";
+    label en unofficial "Article 810-9. duty to maintain the prohibition on claiming the entire estate";
+    when creancier_limite_a_l_actif_subsistant(s, p);
+    then duty P3Wave2MaintenancePretendreActifIntegral {
+        bearer p;
+        goal maintenance {
+            condition not pretention_actif_integral_exercee(s, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}
+
+@source(CC_ART812_1_3)
+rule DeriveP3Wave2MaintenanceMandataireHorsPouvoirs(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-1-3. devoir de maintenir l'interdiction d'agir hors pouvoirs";
+    label en unofficial "Article 812-1-3. duty to maintain the prohibition on acting beyond powers";
+    when mandataire_designe(m, p) and pouvoirs_du_mandataire_limites_a_784(m);
+    then duty P3Wave2MaintenanceMandataireHorsPouvoirs {
+        bearer p;
+        goal maintenance {
+            condition not acte_hors_pouvoirs_mandataire_exerce(m, p);
+            window [@2016-10-01, infinity);
+        }
+    };
+}

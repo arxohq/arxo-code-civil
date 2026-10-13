@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-13 : le fait d'un tiers a concouru — la responsabilité envers la victime n'est pas réduite.
+test "urn:query:fr-code-civil-responsabilite-r50-fait-d-un-tiers-sans-reduction" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": produit_en_cause(entity_ref("urn:fr:cc:resp:v2l:f"), entity_ref("urn:fr:cc:resp:v2l:prod")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:v2l:f"), entity_ref("urn:fr:cc:resp:v2l:d")) { origin adjudicated; }
+        assert "f3": atteinte_a_la_personne(entity_ref("urn:fr:cc:resp:v2l:d")) { origin case_input; }
+        assert "f4": producteur(entity_ref("urn:fr:cc:resp:v2l:prod"), entity_ref("urn:fr:cc:resp:v2l:fab")) { origin case_input; }
+        assert "f5": defaut_prouve(entity_ref("urn:fr:cc:resp:v2l:f"), entity_ref("urn:fr:cc:resp:v2l:prod")) { origin adjudicated; }
+        assert "f6": produit_defectueux(entity_ref("urn:fr:cc:resp:v2l:prod")) { origin adjudicated; }
+        assert "f7": fait_d_un_tiers_ayant_concouru(entity_ref("urn:fr:cc:resp:v2l:f")) { origin adjudicated; }
+    }
+    evaluate truth(responsabilite_non_reduite_par_le_tiers(entity_ref("urn:fr:cc:resp:v2l:d"), entity_ref("urn:fr:cc:resp:v2l:fab")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PasDeReductionPourLeFaitDUnTiers);
+}

@@ -1,0 +1,26 @@
+language "law.core" version "0.2";
+package examples.fr.code_civil.avant_apres_2016 version "0.1.0";
+namespace "urn:law:examples:fr:code-civil:avant-apres-2016";
+
+case Veille2016 {
+    context {
+        deadline_policy fr.code_civil.contrat::CC_CONTRAT_MOIS;
+        legal_time @2026-06-01;
+        knowledge_time @2026-06-01T10:00:00Z;
+        decision_time @2026-06-01T10:00:00Z;
+        timezone "Europe/Paris";
+    }
+    assert "conclu": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc-p4:c"), @2016-09-30) { origin case_input; }
+    assert "acte": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc-p4:c"), @2016-09-30) { origin case_input; }
+    assert "art1137": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc-p4:c"), "1137") { origin case_input; }
+    assert "art1223": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc-p4:c"), "1223") { origin case_input; }
+    assert "dissim": fr.code_civil.contrat::dissimulation_intentionnelle(entity_ref("urn:fr:cc-p4:c"), entity_ref("urn:fr:cc-p4:info"), entity_ref("urn:fr:cc-p4:vendeur"), entity_ref("urn:fr:cc-p4:acheteur")) { origin case_input; }
+    assert "valeur": fr.code_civil.contrat::information_porte_sur_l_estimation_de_la_valeur(entity_ref("urn:fr:cc-p4:info")) { origin case_input; }
+    assert "determinant": fr.code_civil.contrat::caractere_determinant_du_vice(entity_ref("urn:fr:cc-p4:c"), entity_ref("urn:fr:cc-p4:acheteur")) { origin adjudicated; }
+    assert "oblig": fr.code_civil.contrat::obligation_du_contrat(entity_ref("urn:fr:cc-p4:o"), entity_ref("urn:fr:cc-p4:c")) { origin case_input; }
+    assert "imparfait": fr.code_civil.contrat::engagement_imparfaitement_execute(entity_ref("urn:fr:cc-p4:o")) { origin case_input; }
+    assert "mise": fr.code_civil.contrat::mise_en_demeure_de_satisfaire_le(entity_ref("urn:fr:cc-p4:o"), @2020-02-01) { origin case_input; }
+    assert "prix": fr.code_civil.contrat::prix_du_contrat(entity_ref("urn:fr:cc-p4:c"), 1000 EUR) { origin case_input; }
+    assert "termes": fr.code_civil.contrat::termes_de_la_reduction_de_prix(entity_ref("urn:fr:cc-p4:c"), 1, 4.0) { origin case_input; }
+    assert "accepte": fr.code_civil.contrat::execution_imparfaite_acceptee(entity_ref("urn:fr:cc-p4:c")) { origin case_input; }
+}

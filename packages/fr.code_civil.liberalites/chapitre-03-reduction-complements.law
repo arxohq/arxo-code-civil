@@ -1,0 +1,147 @@
+// CHAPITRE III — COMPLÉMENTS D'IMPUTATION ET DE RÉDUCTION (917 à 928).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART917,
+    CC_ART918,
+    CC_ART919,
+    CC_ART919_2,
+    CC_ART921,
+    CC_ART924_1,
+    CC_ART924_2,
+    CC_ART924_3,
+    CC_ART924_4,
+    CC_ART927,
+    CC_ART928,
+    Liberalite,
+    Personne,
+    Succession,
+    hors_part_successorale,
+    indemnite_de_reduction,
+};
+
+pub relation usufruit_ou_rente_excede_quotite(l: Liberalite) kind empirical { label fr official "l'usufruit ou la rente viagère excède la quotité disponible"; label en unofficial "the usufruct or life annuity exceeds the disposable portion"; }
+pub relation option_reservataire_ouverte(l: Liberalite) kind derived { label fr official "l'héritier réservataire peut exécuter la disposition ou abandonner la propriété de la quotité disponible"; label en unofficial "the forced heir may perform the disposition or surrender ownership of the disposable portion"; }
+pub relation alienation_a_successible_direct_avec_rente_ou_usufruit(l: Liberalite) kind empirical { label fr official "aliénation à un successible en ligne directe à charge de rente, à fonds perdus ou avec réserve d'usufruit"; label en unofficial "transfer to a direct-line successor for an annuity, a sunk payment or with reserved usufruct"; }
+pub relation autre_successible_direct_n_a_pas_consenti(l: Liberalite) kind empirical { label fr official "un autre successible en ligne directe n'a pas consenti à l'aliénation"; label en unofficial "another direct-line successor did not consent to the transfer"; }
+pub relation imputation_sur_quotite_ouverte(l: Liberalite) kind derived { label fr official "la valeur en pleine propriété est imputable sur la quotité disponible"; label en unofficial "the full-ownership value is chargeable against the disposable portion"; }
+pub relation declaration_hors_part_expresse(l: Liberalite) kind empirical { label fr official "la donation est déclarée expressément hors part successorale"; label en unofficial "the gift is expressly declared outside the hereditary share"; }
+pub relation dispense_de_rapport(l: Liberalite) kind derived { label fr official "la libéralité n'est pas sujette au rapport"; label en unofficial "the disposition is exempt from collation"; }
+pub relation demandeur_est_reservataire_heritier_ou_ayant_cause(s: Succession, p: Personne) kind empirical { label fr official "le demandeur est héritier réservataire, son héritier ou son ayant cause"; label en unofficial "the claimant is a forced heir, that heir's heir or successor in title"; }
+pub relation action_en_reduction_ouverte(s: Succession, p: Personne) kind derived { label fr official "qualité pour demander la réduction des dispositions entre vifs"; label en unofficial "standing to seek reduction of inter vivos dispositions"; }
+pub relation connaissance_atteinte_reserve_le(s: Succession, p: Personne, jour: Date) kind empirical { key(s, p); label fr official "date à laquelle l'héritier a connu l'atteinte à sa réserve"; label en unofficial "date on which the heir learned of the impairment of the reserve"; }
+pub relation action_en_reduction_introduite_le(s: Succession, p: Personne, jour: Date) kind empirical { key(s, p); label fr official "date d'introduction de l'action en réduction"; label en unofficial "date on which the reduction action was brought"; }
+pub relation action_en_reduction_dans_les_delais(s: Succession, p: Personne) kind derived { label fr official "action en réduction introduite dans les délais de l'article 921"; label en unofficial "reduction action brought within the time limits in Article 921"; }
+pub relation notaire_constate_atteinte_possible(s: Succession, p: Personne) kind empirical { label fr official "le notaire constate une atteinte possible aux droits réservataires d'un héritier connu"; label en unofficial "the notary identifies a possible impairment of a known heir's forced share"; }
+pub relation information_individuelle_due(s: Succession, p: Personne) kind derived { label fr official "information individuelle due par le notaire sur le droit de demander la réduction"; label en unofficial "individual notice owed by the notary about the right to seek reduction"; }
+pub relation bien_appartient_encore_au_gratifie_et_reste_libre(l: Liberalite) kind empirical { label fr official "le bien appartient encore au gratifié et reste libre des charges et occupations nouvelles"; label en unofficial "the property still belongs to the beneficiary and remains free of new charges and occupation"; }
+pub relation mise_en_demeure_de_choisir_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date de mise en demeure de choisir la réduction en nature"; label en unofficial "date of formal notice to elect reduction in kind"; }
+pub relation choix_reduction_en_nature_le(l: Liberalite, jour: Date) kind empirical { key(l); label fr official "date du choix de la réduction en nature"; label en unofficial "date on which reduction in kind was elected"; }
+pub relation reduction_en_nature_ouverte(l: Liberalite) kind derived { label fr official "faculté d'exécuter la réduction en nature"; label en unofficial "right to perform reduction in kind"; }
+pub relation valeur_du_bien_pour_indemnite(l: Liberalite, v: Money) kind empirical { key(l); label fr official "valeur du bien à l'époque du partage ou de son aliénation, selon son état au jour de la libéralité"; label en unofficial "property value at partition or transfer, according to its condition when the disposition took effect"; }
+pub relation indemnite_evaluee_selon_article_924_2(l: Liberalite, v: Money) kind derived { key(l); label fr official "indemnité évaluée selon l'article 924-2"; label en unofficial "indemnity valued under Article 924-2"; }
+pub relation partage_intervenu(s: Succession) kind empirical { label fr official "le partage est intervenu"; label en unofficial "partition has occurred"; }
+pub relation vente_totale_du_bien(l: Liberalite) kind empirical { label fr official "le bien donné ou légué a été vendu en totalité"; label en unofficial "the donated or bequeathed property has been sold in full"; }
+pub relation indemnite_immediatement_exigible(s: Succession, l: Liberalite) kind derived { label fr official "indemnité de réduction immédiatement exigible"; label en unofficial "reduction indemnity immediately payable"; }
+pub relation debiteur_indemnite_insolvable_apres_discussion(s: Succession, l: Liberalite) kind empirical { label fr official "le débiteur de l'indemnité reste insolvable après discussion préalable de ses biens"; label en unofficial "the indemnity debtor remains insolvent after prior recourse against the debtor's assets"; }
+pub relation tiers_detient_bien_aliene(l: Liberalite) kind empirical { label fr official "un tiers détient le bien aliéné par le gratifié"; label en unofficial "a third party holds property transferred by the beneficiary"; }
+pub relation tous_reservataires_ont_consenti_alienation(l: Liberalite) kind empirical { label fr official "tous les héritiers réservataires présomptifs ont consenti à l'aliénation"; label en unofficial "all presumptive forced heirs consented to the transfer"; }
+pub relation action_contre_tiers_ouverte(s: Succession, l: Liberalite) kind derived { label fr official "action en réduction ou revendication ouverte contre le tiers détenteur"; label en unofficial "reduction or recovery action available against the third-party holder"; }
+pub relation legs_declare_preferable(l: Liberalite) kind empirical { label fr official "le testateur a expressément déclaré le legs préférable aux autres"; label en unofficial "the testator expressly declared the legacy preferred over the others"; }
+pub relation legs_reduit_apres_les_autres(l: Liberalite) kind derived { label fr official "legs préféré réduit seulement après les autres legs"; label en unofficial "preferred legacy reduced only after the other legacies"; }
+pub relation demande_reduction_dans_annee_du_deces(s: Succession, l: Liberalite) kind empirical { label fr official "la demande de réduction en nature est formée dans l'année du décès"; label en unofficial "the claim for reduction in kind is brought within one year after death"; }
+pub relation fruits_restitues_depuis_deces(s: Succession, l: Liberalite) kind derived { label fr official "fruits de l'excédent restitués à compter du décès"; label en unofficial "fruits of the excess restored from death"; }
+
+@source(CC_ART917)
+rule OptionUsufruitOuRenteExcessive(l: Liberalite) strict { label fr official "Article 917. L'usufruit ou la rente excédant la quotité ouvre l'option d'exécution ou d'abandon"; label en unofficial "Article 917. Usufruct or an annuity exceeding the disposable portion opens the option to perform or surrender"; when usufruit_ou_rente_excede_quotite(l); then option_reservataire_ouverte(l); }
+pub relation choisir_execution_ou_abandon_917(l: Liberalite) kind empirical { label fr official "le réservataire choisit l'exécution ou l'abandon"; label en unofficial "the forced heir chooses performance or surrender"; }
+@source(CC_ART917)
+rule PositionPouvoirChoisirExecutionOuAbandon(l: Liberalite) strict {
+    label fr official "Article 917. Le réservataire peut choisir l'exécution ou l'abandon";
+    label en unofficial "Article 917. The forced heir may choose performance or surrender";
+    when usufruit_ou_rente_excede_quotite(l) and choisir_execution_ou_abandon_917(l);
+    then liberty PouvoirChoisirExecutionOuAbandon {
+        holder entity_ref("urn:fr:cc:liberalites:reservataire");
+        action choisir_execution_ou_abandon_917(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART918)
+rule AlienationAuSuccessibleImputee(l: Liberalite) strict { label fr official "Article 918. L'aliénation qualifiée à un successible direct non consentie par les autres s'impute sur la quotité disponible"; label en unofficial "Article 918. A qualifying transfer to a direct successor not consented to by the others is charged against the disposable portion"; when alienation_a_successible_direct_avec_rente_ou_usufruit(l) and autre_successible_direct_n_a_pas_consenti(l); then imputation_sur_quotite_ouverte(l); }
+@source(CC_ART919) {
+ rule DonationExpresseHorsPartSansRapport(l: Liberalite) strict { label fr official "Article 919, alinéa 1. La donation expressément hors part n'est pas sujette au rapport"; label en unofficial "Article 919, paragraph 1. A gift expressly outside the hereditary share is exempt from collation"; when declaration_hors_part_expresse(l); then dispense_de_rapport(l); }
+ rule DeclarationHorsPartQualifieDonation(l: Liberalite) strict { label fr official "Article 919, alinéa 2. La déclaration hors part peut figurer dans l'acte ou être faite postérieurement dans la forme légale"; label en unofficial "Article 919, paragraph 2. The outside-share declaration may be in the instrument or made later in statutory form"; when declaration_hors_part_expresse(l); then hors_part_successorale(l); }
+}
+pub relation declarer_hors_part_919(l: Liberalite) kind empirical { label fr official "le disposant déclare la donation hors part"; label en unofficial "the donor declares the gift outside the hereditary share"; }
+@source(CC_ART919)
+rule PositionPouvoirDeclarerHorsPart(l: Liberalite) strict {
+    label fr official "Article 919. Le disposant peut déclarer la donation hors part";
+    label en unofficial "Article 919. The donor may declare the gift outside the hereditary share";
+    when declaration_hors_part_expresse(l) and declarer_hors_part_919(l);
+    then liberty PouvoirDeclarerHorsPart {
+        holder entity_ref("urn:fr:cc:liberalites:disposant");
+        action declarer_hors_part_919(l);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation declarer_hors_part_forme_legale_919_2(l: Liberalite) kind empirical { label fr official "le disposant fait la déclaration hors part dans la forme légale"; label en unofficial "the donor makes the outside-share declaration in statutory form"; }
+@source(CC_ART919_2)
+rule PositionDevoirDeclarerHorsPartFormeLegale(l: Liberalite) strict {
+    label fr official "Article 919, alinéa 2. La déclaration postérieure doit respecter la forme légale";
+    label en unofficial "Article 919, paragraph 2. A later declaration must comply with statutory form";
+    when declaration_hors_part_expresse(l);
+    then duty DevoirDeclarerHorsPartFormeLegale {
+        bearer entity_ref("urn:fr:cc:liberalites:disposant");
+        goal achievement { condition declarer_hors_part_forme_legale_919_2(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART921) {
+ rule QualitePourActionEnReduction(s: Succession, p: Personne) strict { label fr official "Article 921, alinéa 1. Seuls le réservataire, ses héritiers ou ayants cause demandent la réduction"; label en unofficial "Article 921, paragraph 1. Only a forced heir, that heir's heirs or successors in title may seek reduction"; when demandeur_est_reservataire_heritier_ou_ayant_cause(s, p); then action_en_reduction_ouverte(s, p); }
+ rule DelaiCinqAnsOuverture(s: Succession, p: Personne, ouverture: Date, demande: Date) strict { label fr official "Article 921, alinéa 2. L'action est introduite dans les cinq ans de l'ouverture et avant le butoir décennal"; label en unofficial "Article 921, paragraph 2. The action is brought within five years after opening and before the ten-year long-stop"; when fr.code_civil.successions::ouverte_le(s, ouverture) and action_en_reduction_introduite_le(s, p, demande) and demande <= add_calendar_period(ouverture, 5 calendar_year); then action_en_reduction_dans_les_delais(s, p); }
+ rule DelaiDeuxAnsConnaissance(s: Succession, p: Personne, ouverture: Date, connaissance: Date, demande: Date) strict { label fr official "Article 921, alinéa 2. L'action est introduite dans les deux ans de la connaissance sans dépasser dix ans du décès"; label en unofficial "Article 921, paragraph 2. The action is brought within two years after knowledge without exceeding ten years after death"; when fr.code_civil.successions::ouverte_le(s, ouverture) and connaissance_atteinte_reserve_le(s, p, connaissance) and action_en_reduction_introduite_le(s, p, demande) and demande <= add_calendar_period(connaissance, 2 calendar_year) and demande <= add_calendar_period(ouverture, 10 calendar_year); then action_en_reduction_dans_les_delais(s, p); }
+ rule InformationDuNotaire(s: Succession, p: Personne) strict { label fr official "Article 921, alinéa 3. Le notaire informe individuellement l'héritier connu d'une atteinte possible et de son droit à réduction"; label en unofficial "Article 921, paragraph 3. The notary individually informs a known heir of possible impairment and the right to reduction"; when notaire_constate_atteinte_possible(s, p); then information_individuelle_due(s, p); }
+}
+pub relation demander_reduction_921(s: Succession, p: Personne) kind empirical { key(s, p); label fr official "le réservataire demande la réduction"; label en unofficial "the forced heir seeks reduction"; }
+@source(CC_ART921)
+rule PositionPouvoirDemanderReduction(s: Succession, p: Personne) strict {
+    label fr official "Article 921. Le réservataire peut demander la réduction";
+    label en unofficial "Article 921. The forced heir may seek reduction";
+    when demandeur_est_reservataire_heritier_ou_ayant_cause(s, p)
+        and demander_reduction_921(s, p);
+    then liberty PouvoirDemanderReduction {
+        holder entity_ref("urn:fr:cc:liberalites:reservataire");
+        action demander_reduction_921(s, p);
+        window [@1804-01-01, infinity);
+    };
+}
+pub relation choisir_reduction_nature_924_1(l: Liberalite) kind empirical { label fr official "le réservataire choisit la réduction en nature"; label en unofficial "the forced heir chooses reduction in kind"; }
+@source(CC_ART924_1)
+rule PositionPouvoirChoisirReductionNature(l: Liberalite) strict {
+    label fr official "Article 924-1. Le réservataire peut choisir la réduction en nature";
+    label en unofficial "Article 924-1. The forced heir may choose reduction in kind";
+    when bien_appartient_encore_au_gratifie_et_reste_libre(l) and choisir_reduction_nature_924_1(l);
+    then liberty PouvoirChoisirReductionNature {
+        holder entity_ref("urn:fr:cc:liberalites:reservataire");
+        action choisir_reduction_nature_924_1(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART924_1) {
+ rule ReductionEnNatureConditions(l: Liberalite) strict { label fr official "Article 924-1, alinéa 1. Le bien encore détenu et libre ouvre la réduction en nature"; label en unofficial "Article 924-1, paragraph 1. Property still held and free opens reduction in kind"; when bien_appartient_encore_au_gratifie_et_reste_libre(l); then reduction_en_nature_ouverte(l); }
+ rule ChoixDansTroisMois(l: Liberalite, mise: Date, choix: Date) strict { label fr official "Article 924-1, alinéa 2. Le choix de la réduction en nature s'exerce dans les trois mois de la mise en demeure"; label en unofficial "Article 924-1, paragraph 2. Reduction in kind is elected within three months after formal notice"; when bien_appartient_encore_au_gratifie_et_reste_libre(l) and mise_en_demeure_de_choisir_le(l, mise) and choix_reduction_en_nature_le(l, choix) and choix <= add_calendar_period(mise, 3 calendar_month); then reduction_en_nature_ouverte(l); }
+}
+@source(CC_ART924_2)
+rule EvaluationIndemniteAuPartage(l: Liberalite, v: Money) strict { label fr official "Article 924-2. L'indemnité suit la valeur au partage ou à l'aliénation et l'état au jour de la libéralité"; label en unofficial "Article 924-2. The indemnity follows value at partition or transfer and condition when the disposition took effect"; when valeur_du_bien_pour_indemnite(l, v); then indemnite_evaluee_selon_article_924_2(l, v); }
+@source(CC_ART924_3) {
+ rule IndemniteExigibleAuPartage(s: Succession, l: Liberalite, x: Money) strict { label fr official "Article 924-3, alinéa 1. L'indemnité est payable au partage, sauf accord ou délai"; label en unofficial "Article 924-3, paragraph 1. The indemnity is payable at partition, absent agreement or extension"; when partage_intervenu(s) and indemnite_de_reduction(s, l, x); then indemnite_immediatement_exigible(s, l); }
+ rule VenteTotaleRendExigible(s: Succession, l: Liberalite, x: Money) strict { label fr official "Article 924-3, alinéa 3. La vente totale du bien rend immédiatement exigibles les sommes restantes"; label en unofficial "Article 924-3, paragraph 3. A full sale of the property makes the remaining sums immediately payable"; when vente_totale_du_bien(l) and indemnite_de_reduction(s, l, x); then indemnite_immediatement_exigible(s, l); }
+}
+@source(CC_ART924_4)
+rule ActionContreTiersDetenteur(s: Succession, l: Liberalite) strict { label fr official "Article 924-4. Après discussion et insolvabilité, l'action est ouverte contre le tiers détenteur sauf consentement de tous les réservataires"; label en unofficial "Article 924-4. After recourse and insolvency, an action lies against the third-party holder absent consent of all forced heirs"; when debiteur_indemnite_insolvable_apres_discussion(s, l) and tiers_detient_bien_aliene(l) and not_known(tous_reservataires_ont_consenti_alienation(l)); then action_contre_tiers_ouverte(s, l); }
+@source(CC_ART927)
+rule PreferenceExpresseDuLegs(l: Liberalite) strict { label fr official "Article 927. Le legs expressément préféré n'est réduit qu'après les autres"; label en unofficial "Article 927. An expressly preferred legacy is reduced only after the others"; when legs_declare_preferable(l); then legs_reduit_apres_les_autres(l); }
+@source(CC_ART928)
+rule FruitsDepuisDecesSiDemandeDansAnnee(s: Succession, l: Liberalite) strict { label fr official "Article 928. Si la demande est faite dans l'année, les fruits de l'excédent sont restitués depuis le décès"; label en unofficial "Article 928. If the claim is brought within one year, fruits of the excess are restored from death"; when demande_reduction_dans_annee_du_deces(s, l); then fruits_restitues_depuis_deces(s, l); }

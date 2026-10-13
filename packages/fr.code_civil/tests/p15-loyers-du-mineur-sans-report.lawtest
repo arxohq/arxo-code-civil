@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2235 : l'action en paiement de loyers court contre le mineur.
+test "urn:query:fr-code-civil-p15-loyers-du-mineur-sans-report" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": titulaire_mineur_ne_le(entity_ref("urn:fr:cc:presc:p15"), @2008-04-12) { origin case_input; }
+        assert "f2": action_en_paiement_periodique(entity_ref("urn:fr:cc:presc:p15")) { origin case_input; }
+    }
+    evaluate truth(point_de_depart_reporte_au(entity_ref("urn:fr:cc:presc:p15"), @2026-04-12));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

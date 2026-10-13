@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 345 : l enfant a quinze ans au jour de la demande — la voie de l alinéa 1 est fermée.
+test "urn:query:fr-code-civil-famille-a06-pleniere-enfant-de-quinze-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": adoption_pleniere_demandee(entity_ref("urn:fr:cc:fam:t:a")) { origin case_input; }
+        assert "f2": adopte(entity_ref("urn:fr:cc:fam:t:a"), entity_ref("urn:fr:cc:fam:t:enfant")) { origin case_input; }
+        assert "f3": ne_le(entity_ref("urn:fr:cc:fam:t:enfant"), @2011-05-01) { origin case_input; }
+        assert "f4": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:t:a"), @2026-06-01) { origin case_input; }
+        assert "f5": accueilli_au_foyer_depuis(entity_ref("urn:fr:cc:fam:t:a"), @2025-01-01) { origin case_input; }
+    }
+    evaluate truth(adoption_pleniere_permise(entity_ref("urn:fr:cc:fam:t:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

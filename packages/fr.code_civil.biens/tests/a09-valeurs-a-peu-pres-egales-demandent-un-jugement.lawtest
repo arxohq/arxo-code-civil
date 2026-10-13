@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 569. « ou en volume, si les valeurs sont à peu près égales » : le
+// Code ne donne aucun rapport chiffré, et l'appréciation revient au juge.
+// Sans sa réponse, la question de la partie principale par le volume reste
+// une demande de jugement.
+test "urn:query:fr-code-civil-biens-a09-valeurs-a-peu-pres-egales" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": choses_unies_separables(entity_ref("urn:fr:cc:biens:a09:A"), entity_ref("urn:fr:cc:biens:a09:B")) { origin case_input; }
+        assert "f2": plus_considerable_en_volume(entity_ref("urn:fr:cc:biens:a09:A"), entity_ref("urn:fr:cc:biens:a09:B")) { origin case_input; }
+        assert "f3": valeur_de_la_chose(entity_ref("urn:fr:cc:biens:a09:A"), 1000 EUR) { origin case_input; }
+        assert "f4": valeur_de_la_chose(entity_ref("urn:fr:cc:biens:a09:B"), 1000 EUR) { origin case_input; }
+    }
+    evaluate truth(partie_principale(entity_ref("urn:fr:cc:biens:a09:A")));
+    expect evaluation_status == REQUIRES_JUDGMENT;
+}

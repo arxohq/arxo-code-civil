@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 843, alinéa 1 : donation en avancement de part successorale — rapport dû.
+test "urn:query:fr-code-civil-successions-q01-donation-en-avancement-rapportable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": liberalite_recue(entity_ref("urn:fr:cc:successions:par:q01:S"), entity_ref("urn:fr:cc:successions:par:q01:H"), entity_ref("urn:fr:cc:successions:par:q01:L"), DonationEnAvancementDePartSuccessorale) { origin case_input; }
+    }
+    evaluate truth(rapport_du(entity_ref("urn:fr:cc:successions:par:q01:S"), entity_ref("urn:fr:cc:successions:par:q01:H"), entity_ref("urn:fr:cc:successions:par:q01:L")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RapportDeLaDonationEnAvancementDePart);
+}

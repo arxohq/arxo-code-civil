@@ -1,0 +1,396 @@
+// CODE CIVIL — LIVRE V : DISPOSITIONS APPLICABLES À MAYOTTE (CC-15).
+//
+// Le livre V ne répète pas le Code : il dit ce qui s'y applique et ce qui s'y
+// applique autrement. Deux matières y prennent une forme chiffrée, et ce sont
+// elles que ce paquet calcule.
+//
+// CE QUI SE CALCULE. D'abord l'attribution de la nationalité à l'enfant né à
+// Mayotte : l'article 2493 subordonne les articles 21-7 et 21-11 à la
+// résidence régulière des DEUX parents, sous couvert d'un titre de séjour,
+// « depuis plus d'un an » au jour de la naissance ; quand la filiation n'est
+// établie qu'à l'égard d'un parent, la condition ne pèse que sur lui. L'article
+// 2494 garde le régime antérieur pour l'enfant né avant le 1er mars 2019, où
+// cinq ans de résidence d'UN SEUL parent suffisent. Ensuite les sursis de
+// l'article 2497 (deux mois, trois mois quand l'enquête est menée à
+// l'étranger, chacun renouvelable une fois). Enfin le livre foncier : ce qui
+// s'immatricule (2511), ce qui s'inscrit et ce qui en est dispensé (2521),
+// l'effet relatif des inscriptions (2523), la caducité de l'acte non
+// régularisé dans les six mois (2524), l'inopposabilité du droit non inscrit
+// (2528), le rang des formalités requises le même jour (2529), les deux seuls
+// privilèges généraux immobiliers de Mayotte (2530) et la liste close des
+// biens hypothécables (2531).
+//
+// CE QUI RESTE AU TEXTE EXTÉRIEUR OU À LA DÉCISION. Les renvois d'application
+// (2491, 2500, 2503, 2508) désignent des tranches d'articles d'autres paquets :
+// ils sont épinglés, non exécutés — un pont entre paquets ne se fabrique pas
+// ici. Les modalités « fixées par décret en Conseil d'Etat » (2510, 2514,
+// 2524 alinéa 3) sont hors du Code. Le remplacement de termes de l'article
+// 2490 est une règle de lecture du texte, non un calcul sur des faits.
+//
+// Fichiers :
+//   package.law                        — types, entrées, politique des délais
+//   titre-01-nationalite-etat-civil.law — art. 2493 à 2497
+//   titre-04-livre-foncier.law          — art. 2511 à 2532
+//   sources.law                         — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+import fr.code_civil.core version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+
+// Politique §86 : les délais du livre V sont calendaires et courent du jour de
+// l'acte ou de l'événement ; le texte ne prévoit ici aucun jour ouvrable.
+// Un mois échéant un 31 tombe au dernier jour du mois (month_end).
+deadline policy CC_MAYOTTE_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+// --- Sujets ------------------------------------------------------------------------------------
+
+pub entity Enfant {
+    label fr official "Enfant né à Mayotte dont l'attribution de la nationalité est en cause (articles 2493 à 2495)";
+    label en unofficial "Child born in Mayotte whose attribution of nationality is at issue (Articles 2493 to 2495)";
+}
+pub entity Reconnaissance {
+    label fr official "Reconnaissance de paternité ou de maternité reçue à Mayotte (articles 2496, 2497)";
+    label en unofficial "Acknowledgment of paternity or maternity received in Mayotte (Articles 2496, 2497)";
+}
+pub entity Immeuble {
+    label fr official "Immeuble situé à Mayotte, immatriculé ou à immatriculer (articles 2510 à 2520)";
+    label en unofficial "Immovable situated in Mayotte, registered or to be registered (Articles 2510 to 2520)";
+}
+pub entity Droit {
+    label fr official "Droit sur un immeuble dont l'inscription au livre foncier est en cause (article 2521)";
+    label en unofficial "Right over an immovable whose entry in the land register is at issue (Article 2521)";
+}
+pub entity Formalite {
+    label fr official "Formalité requise du conservateur relativement à un immeuble (articles 2526, 2529)";
+    label en unofficial "Formality requested from the registrar in respect of an immovable (Articles 2526, 2529)";
+}
+pub entity Acte {
+    label fr official "Acte portant sur un droit susceptible d'être inscrit (article 2524)";
+    label en unofficial "Instrument bearing on a right capable of being entered (Article 2524)";
+}
+
+// --- Nomenclatures fermées du texte -------------------------------------------------------------
+
+pub enum NatureDuDroit {
+    label fr official "Nature du droit, telle que l'article 2521 l'énumère";
+    label en unofficial "Nature of the right, as listed by Article 2521";
+    // la propriété immobilière (2521, 1° a)
+    ProprieteImmobiliere,
+    // l'usufruit de la même propriété établi par la volonté de l'homme (2521, 1° b)
+    Usufruit,
+    // l'usage et l'habitation (2521, 1° c)
+    UsageEtHabitation,
+    // l'emphytéose (2521, 1° d)
+    Emphyteose,
+    // la superficie (2521, 1° e)
+    Superficie,
+    // les servitudes (2521, 1° f)
+    Servitude,
+    // le gage immobilier (2521, 1° g)
+    GageImmobilier,
+    // le droit réel résultant d'un titre d'occupation du domaine public (2521, 1° h)
+    DroitDOccupationDuDomainePublic,
+    // les privilèges et hypothèques (2521, 1° i)
+    PrivilegeOuHypotheque,
+    // un bail (2521, 2°)
+    Bail,
+    // une quittance ou cession de loyers ou fermages non échus (2521, 2°)
+    QuittanceOuCession,
+    // un acte ou une décision constatant la résolution, la révocation, l'annulation ou la rescision (2521, 3°)
+    ResolutionOuAnnulation
+}
+
+pub enum MotifDuSursis {
+    label fr official "Motif du sursis à l'enregistrement de la reconnaissance (article 2497)";
+    label en unofficial "Ground for staying registration of the acknowledgment (Article 2497)";
+    // sursis de la première phrase du troisième alinéa de l'article 316-1
+    SursisSimple,
+    // enquête menée, en totalité ou en partie, à l'étranger par l'autorité diplomatique ou consulaire
+    EnqueteALEtranger
+}
+
+pub enum PrivilegeGeneral {
+    label fr official "Privilège général sur les immeubles, dont l'article 2530 ferme la liste à Mayotte";
+    label en unofficial "General preferential claim over immovables, whose list Article 2530 closes for Mayotte";
+    // les frais de justice (2530)
+    FraisDeJustice,
+    // les droits du Trésor public (2530)
+    DroitsDuTresorPublic,
+    // les rémunérations des salariés et apprentis — privilège général immobilier de droit commun, écarté à Mayotte
+    SalairesEtApprentis,
+    // les frais funéraires — privilège général immobilier de droit commun, écarté à Mayotte
+    FraisFuneraires
+}
+
+pub enum NatureDuBien {
+    label fr official "Nature du bien offert en hypothèque, telle que l'article 2531 l'énumère";
+    label en unofficial "Nature of the asset offered as mortgage security, as listed by Article 2531";
+    // bien immobilier dans le commerce et ses accessoires réputés immeubles (2531, 1°)
+    BienImmobilierDansLeCommerce,
+    // l'usufruit des mêmes biens et accessoires (2531, 2°)
+    UsufruitDesMemesBiens,
+    // l'emphytéose (2531, 3°)
+    EmphyteoseDuBien,
+    // le droit de superficie (2531, 4°)
+    DroitDeSuperficie,
+    // un meuble — hors de la liste de l'article 2531
+    MeubleCorporel,
+    // un bien hors du commerce — hors de la liste de l'article 2531
+    BienHorsDuCommerce
+}
+
+pub enum NatureDeLaFormalite {
+    label fr official "Nature de la formalité requise le même jour, pour le rang de l'article 2529";
+    label en unofficial "Nature of the formality requested on the same day, for the ranking of Article 2529";
+    // formalité obligatoire en vertu des 1° (hors i) et 2° de l'article 2521
+    FormaliteObligatoire,
+    // inscription d'hypothèque
+    InscriptionDHypotheque,
+    // publicité d'un commandement valant saisie
+    CommandementValantSaisie,
+    // inscription d'une hypothèque légale des articles 2393 (1°, 2°, 3°) et 2402 (5°)
+    HypothequeLegalePrivilegiee
+}
+
+// --- Nationalité : entrées du cas ---------------------------------------------------------------
+
+pub relation ne_a_mayotte(e: Enfant) kind empirical {
+    label fr official "l'enfant est né à Mayotte (article 2493)";
+    label en unofficial "the child was born in Mayotte (Article 2493)";
+}
+pub relation naissance_le(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour de la naissance de l'enfant";
+    label en unofficial "day of the child's birth";
+}
+pub relation filiation_etablie_a_l_egard_de(e: Enfant, parent: Personne) kind empirical {
+    label fr official "la filiation de l'enfant est établie à l'égard de ce parent (article 2493, alinéa 2)";
+    label en unofficial "the child's filiation is established with respect to this parent (Article 2493, paragraph 2)";
+}
+pub relation sejour_regulier_sous_titre_depuis(e: Enfant, parent: Personne, jour: Date) kind empirical {
+    key(e, parent);
+    label fr official "jour depuis lequel ce parent réside en France de manière régulière, sous couvert d'un titre de séjour, et de manière ininterrompue (article 2493)";
+    label en unofficial "day from which this parent has resided in France regularly, under a residence permit, and without interruption (Article 2493)";
+}
+pub relation parents_etrangers(e: Enfant) kind empirical {
+    label fr official "l'enfant est né de parents étrangers (article 2494)";
+    label en unofficial "the child was born to foreign parents (Article 2494)";
+}
+pub relation date_d_examen_de_la_demande(e: Enfant, jour: Date) kind empirical {
+    key(e);
+    label fr official "jour auquel la demande est examinée : la période de cinq ans de l'article 2494 s'apprécie à une date, jamais à une horloge";
+    label en unofficial "day on which the application is examined: the five-year period of Article 2494 is assessed at a date, never from a clock";
+}
+pub relation mention_portee_sur_l_acte_de_naissance(e: Enfant, parent: Personne) kind empirical {
+    label fr official "la mention de l'article 2495 a été portée sur l'acte de naissance pour ce parent, sur présentation du titre de séjour et du passeport biométrique";
+    label en unofficial "the mention of Article 2495 has been entered on the birth certificate for this parent, upon production of the residence permit and biometric passport";
+}
+
+// --- Reconnaissance : entrées du cas ------------------------------------------------------------
+
+pub relation reconnaissance_de_l_enfant(r: Reconnaissance, e: Enfant) kind empirical {
+    key(r);
+    label fr official "enfant que vise la reconnaissance";
+    label en unofficial "child covered by the acknowledgment";
+}
+pub relation reconnaissance_faite_a_mayotte(r: Reconnaissance) kind empirical {
+    label fr official "la reconnaissance est faite à Mayotte par acte reçu par l'officier de l'état civil (article 2496)";
+    label en unofficial "the acknowledgment is made in Mayotte by instrument received by the registrar (Article 2496)";
+}
+pub relation simultanee_a_la_declaration_de_naissance(r: Reconnaissance) kind empirical {
+    label fr official "la reconnaissance est simultanée à la déclaration de naissance de l'article 55 (article 2496)";
+    label en unofficial "the acknowledgment is simultaneous with the declaration of birth of Article 55 (Article 2496)";
+}
+pub relation sursis_decide_le(r: Reconnaissance, jour: Date) kind empirical {
+    key(r);
+    label fr official "jour de la décision de sursis à l'enregistrement de la reconnaissance (article 2497)";
+    label en unofficial "day of the decision to stay registration of the acknowledgment (Article 2497)";
+}
+pub relation motif_du_sursis(r: Reconnaissance, motif: MotifDuSursis) kind empirical {
+    key(r);
+    label fr official "motif du sursis, qui en fixe la durée (article 2497)";
+    label en unofficial "ground for the stay, which fixes its duration (Article 2497)";
+}
+pub relation renouvellement_specialement_motive(r: Reconnaissance) kind empirical {
+    label fr official "le sursis a été renouvelé une fois par décision spécialement motivée (article 2497)";
+    label en unofficial "the stay was renewed once by specially reasoned decision (Article 2497)";
+}
+
+// --- Immeubles et livre foncier : entrées du cas ------------------------------------------------
+
+pub relation situe_a_mayotte(i: Immeuble) kind empirical {
+    label fr official "l'immeuble est situé à Mayotte (article 2509)";
+    label en unofficial "the immovable is situated in Mayotte (Article 2509)";
+}
+pub relation depend_du_domaine_public(i: Immeuble) kind empirical {
+    label fr official "l'immeuble dépend du domaine public (article 2511, alinéa 1)";
+    label en unofficial "the immovable forms part of public property (Article 2511, paragraph 1)";
+}
+pub relation parcelle_de_sepulture_privee(i: Immeuble) kind empirical {
+    label fr official "la parcelle porte des sépultures privées (article 2511, alinéa 3)";
+    label en unofficial "the parcel carries private burial places (Article 2511, paragraph 3)";
+}
+pub relation droit_collectif_coutumier(i: Immeuble) kind empirical {
+    label fr official "l'immeuble porte des droits collectifs immobiliers consacrés par la coutume (article 2511, alinéa 4)";
+    label en unofficial "the immovable carries collective immovable rights recognised by custom (Article 2511, paragraph 4)";
+}
+pub relation conversion_en_droits_individuels(i: Immeuble) kind empirical {
+    label fr official "les droits collectifs ont été convertis en droits individuels de propriété (article 2511, alinéa 4)";
+    label en unofficial "the collective rights have been converted into individual ownership rights (Article 2511, paragraph 4)";
+}
+pub relation immeuble_immatricule(i: Immeuble) kind empirical {
+    label fr official "l'immeuble est immatriculé au livre foncier de Mayotte";
+    label en unofficial "the immovable is registered in the Mayotte land register";
+}
+pub relation droit_sur(d: Droit, i: Immeuble) kind empirical {
+    key(d);
+    label fr official "immeuble sur lequel porte le droit";
+    label en unofficial "immovable over which the right bears";
+}
+pub relation nature_du_droit(d: Droit, nature: NatureDuDroit) kind empirical {
+    key(d);
+    label fr official "nature du droit, lue dans l'énumération de l'article 2521";
+    label en unofficial "nature of the right, read in the list of Article 2521";
+}
+pub relation duree_du_bail_en_mois(d: Droit, mois: Integer) kind empirical {
+    key(d);
+    label fr official "durée du bail comptée en mois (article 2521, 2° : plus de douze ans)";
+    label en unofficial "duration of the lease counted in months (Article 2521, 2°: more than twelve years)";
+}
+pub relation annees_de_loyer_non_echues(d: Droit, annees: Integer) kind empirical {
+    key(d);
+    label fr official "nombre d'années de loyer ou fermage non échus que porte la quittance ou la cession (article 2521, 2°)";
+    label en unofficial "number of years of rent not yet due carried by the receipt or assignment (Article 2521, 2°)";
+}
+pub relation servitude_naturelle_ou_legale(d: Droit) kind empirical {
+    label fr official "la servitude dérive de la situation naturelle des lieux ou est établie par la loi (article 2521, dernier alinéa)";
+    label en unofficial "the servitude derives from the natural situation of the premises or is established by law (Article 2521, last paragraph)";
+}
+pub relation droit_inscrit_le(d: Droit, jour: Date) kind empirical {
+    key(d);
+    label fr official "jour de l'inscription du droit sur le livre foncier";
+    label en unofficial "day the right was entered in the land register";
+}
+pub relation auteur_immediat(d: Droit, auteur: Personne) kind empirical {
+    key(d);
+    label fr official "auteur immédiat du titulaire du droit (article 2523, alinéa 1)";
+    label en unofficial "immediate predecessor in title of the right holder (Article 2523, paragraph 1)";
+}
+pub relation droit_de_l_auteur_inscrit(d: Droit) kind empirical {
+    label fr official "le droit de l'auteur immédiat est lui-même inscrit (article 2523, alinéa 1)";
+    label en unofficial "the immediate predecessor's right is itself entered (Article 2523, paragraph 1)";
+}
+pub relation proprietaire_inscrit(i: Immeuble) kind empirical {
+    label fr official "le propriétaire de l'immeuble est inscrit (article 2523, alinéa 2)";
+    label en unofficial "the owner of the immovable is entered (Article 2523, paragraph 2)";
+}
+pub relation acquis_par_prescription_ou_accession(d: Droit) kind empirical {
+    label fr official "le droit a été acquis par prescription ou accession (article 2523, alinéa 2)";
+    label en unofficial "the right was acquired by prescription or accession (Article 2523, paragraph 2)";
+}
+pub relation droit_concurrent_du_meme_auteur(premier: Droit, second: Droit) kind empirical {
+    label fr official "les deux droits portent sur le même immeuble et sont acquis du même auteur (article 2528, alinéa 1)";
+    label en unofficial "the two rights bear on the same immovable and are acquired from the same predecessor (Article 2528, paragraph 1)";
+}
+pub relation tiers_charge_de_publier(d: Droit) kind empirical {
+    label fr official "le titulaire de ce droit était lui-même chargé de faire publier les droits concurrents, ou en est l'ayant cause à titre universel (article 2528, alinéa 3)";
+    label en unofficial "the holder of this right was himself charged with publishing the competing rights, or is his universal successor (Article 2528, paragraph 3)";
+}
+pub relation droit_non_revele_lors_de_l_immatriculation(d: Droit) kind empirical {
+    label fr official "le droit n'a pas été révélé au cours de la procédure d'immatriculation (article 2515)";
+    label en unofficial "the right was not disclosed during the registration procedure (Article 2515)";
+}
+pub relation acte_sous_une_autre_forme_le(a: Acte, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour de la passation de l'acte entre vifs souscrit sous une autre forme que l'acte authentique (article 2524, alinéa 2)";
+    label en unofficial "day the inter vivos instrument was executed in a form other than authentic (Article 2524, paragraph 2)";
+}
+pub relation acte_translatif_ou_declaratif(a: Acte) kind empirical {
+    label fr official "l'acte est translatif ou déclaratif de propriété immobilière, ou constitue ou transmet une servitude foncière (article 2524, alinéa 2)";
+    label en unofficial "the instrument transfers or declares immovable ownership, or creates or transfers a land servitude (Article 2524, paragraph 2)";
+}
+pub relation regularise_le(a: Acte, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour de l'acte authentique ou, en cas de refus d'une partie, de la demande en justice (article 2524, alinéa 2)";
+    label en unofficial "day of the authentic instrument or, where a party refuses, of the court application (Article 2524, paragraph 2)";
+}
+pub relation aucune_regularisation_constatee(a: Acte) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté qu'aucun acte authentique ni demande en justice n'est intervenu : l'absence d'une pièce au dossier ne vaut pas, à elle seule, absence de l'acte";
+    label en unofficial "it is established that no authentic instrument or court application intervened: the mere absence of a document from the file is not, by itself, the absence of the act";
+}
+pub relation date_d_appreciation(a: Acte, jour: Date) kind empirical {
+    key(a);
+    label fr official "jour auquel la situation de l'acte est appréciée : les délais se comptent d'une date à une date";
+    label en unofficial "day on which the instrument's situation is assessed: periods run from date to date";
+}
+pub relation hypotheque_conventionnelle(a: Acte) kind empirical {
+    label fr official "l'acte consent une hypothèque conventionnelle (article 2532, alinéa 1)";
+    label en unofficial "the instrument grants a contractual mortgage (Article 2532, paragraph 1)";
+}
+pub relation passe_en_forme_authentique(a: Acte) kind empirical {
+    label fr official "l'acte est passé en la forme authentique devant un notaire, une juridiction de droit commun ou une autorité publique (articles 2524, 2532)";
+    label en unofficial "the instrument is executed in authentic form before a notary, an ordinary court or a public authority (Articles 2524, 2532)";
+}
+pub relation passe_hors_de_mayotte(a: Acte) kind empirical {
+    label fr official "le contrat est passé hors de Mayotte (article 2532, alinéa 2)";
+    label en unofficial "the contract is made outside Mayotte (Article 2532, paragraph 2)";
+}
+pub relation conforme_au_titre_iv(a: Acte) kind empirical {
+    label fr official "le contrat est conforme aux dispositions du titre IV du livre V (article 2532, alinéa 2)";
+    label en unofficial "the contract complies with Title IV of Book V (Article 2532, paragraph 2)";
+}
+
+// --- Rang des formalités : entrées du cas -------------------------------------------------------
+
+pub relation formalite_sur(f: Formalite, i: Immeuble) kind empirical {
+    key(f);
+    label fr official "immeuble auquel se rapporte la formalité";
+    label en unofficial "immovable to which the formality relates";
+}
+pub relation formalite_requise_le(f: Formalite, jour: Date) kind empirical {
+    key(f);
+    label fr official "jour où la formalité est requise du conservateur (article 2529)";
+    label en unofficial "day the formality is requested from the registrar (Article 2529)";
+}
+pub relation date_du_titre(f: Formalite, jour: Date) kind empirical {
+    key(f);
+    label fr official "date du titre en vertu duquel la formalité est requise ; pour le commandement, date du titre exécutoire qu'il mentionne (article 2529)";
+    label en unofficial "date of the title under which the formality is requested; for the notice, date of the enforceable title it mentions (Article 2529)";
+}
+pub relation nature_de_la_formalite(f: Formalite, nature: NatureDeLaFormalite) kind empirical {
+    key(f);
+    label fr official "nature de la formalité, qui commande la règle de rang applicable (article 2529)";
+    label en unofficial "nature of the formality, which governs the applicable ranking rule (Article 2529)";
+}
+
+// --- Privilèges et hypothèques : entrées du cas -------------------------------------------------
+
+pub relation privilege_invoque(c: fr.code_civil.core::Creance, privilege: PrivilegeGeneral) kind empirical {
+    key(c);
+    label fr official "privilège général sur les immeubles invoqué pour cette créance (article 2530)";
+    label en unofficial "general preference over immovables claimed for this debt (Article 2530)";
+}
+pub relation bien_offert_en_hypotheque(b: fr.code_civil.core::Bien, nature: NatureDuBien) kind empirical {
+    key(b);
+    label fr official "nature du bien offert en hypothèque (article 2531)";
+    label en unofficial "nature of the asset offered as mortgage security (Article 2531)";
+}
+pub relation duree_du_droit_jusqu_au(b: fr.code_civil.core::Bien, jour: Date) kind empirical {
+    key(b);
+    label fr official "terme de l'usufruit ou de l'emphytéose : l'hypothèque ne les grève que « pendant le temps de leur durée » (article 2531, 2° et 3°)";
+    label en unofficial "end of the usufruct or emphyteusis: the mortgage burdens them only \"during their term\" (Article 2531, 2° and 3°)";
+}
+pub relation jour_de_l_hypotheque(b: fr.code_civil.core::Bien, jour: Date) kind empirical {
+    key(b);
+    label fr official "jour auquel l'hypothèque est consentie et la condition de durée appréciée";
+    label en unofficial "day on which the mortgage is granted and the duration condition assessed";
+}

@@ -1,0 +1,69 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DELAIDEGRACEEXCLUPOURLESALIMENTS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": dette_d_aliment(entity_ref("urn:kz:catalog:delaidegraceexclupourlesaliments:v0")) { origin case_input; }
+    }
+    evaluate truth(delai_de_grace_exclu(entity_ref("urn:kz:catalog:delaidegraceexclupourlesaliments:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-DELAIDEGRACESUBORDONNE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": mesure_subordonnee_a_des_actes_du_debiteur(entity_ref("urn:kz:catalog:delaidegracesubordonne:v0")) { origin case_input; }
+        assert "cat-1": report_dans_la_limite_de_deux_annees(entity_ref("urn:kz:catalog:delaidegracesubordonne:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(delai_de_grace_subordonne(entity_ref("urn:kz:catalog:delaidegracesubordonne:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-EFFETSDUDELAIDEGRACE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": report_dans_la_limite_de_deux_annees(entity_ref("urn:kz:catalog:effetsdudelaidegrace:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(procedures_d_execution_suspendues(entity_ref("urn:kz:catalog:effetsdudelaidegrace:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-IMPUTATIONSURLECAPITALORDONNEE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": imputation_sur_le_capital_ordonnee(entity_ref("urn:kz:catalog:imputationsurlecapitalordonnee:v0")) { origin case_input; }
+        assert "cat-1": report_dans_la_limite_de_deux_annees(entity_ref("urn:kz:catalog:imputationsurlecapitalordonnee:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(amenagement_special_du_delai_de_grace(entity_ref("urn:kz:catalog:imputationsurlecapitalordonnee:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-PENALITESNONENCOURUESPENDANTLEDELAI" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": report_dans_la_limite_de_deux_annees(entity_ref("urn:kz:catalog:penalitesnonencouruespendantledelai:v0"), @2026-01-15) { origin case_input; }
+    }
+    evaluate truth(majorations_et_penalites_non_encourues(entity_ref("urn:kz:catalog:penalitesnonencouruespendantledelai:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-STIPULATIONCONTRAIREREPUTEENONECRITE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": stipulation_contraire_au_delai_de_grace(entity_ref("urn:kz:catalog:stipulationcontrairereputeenonecrite:v0")) { origin case_input; }
+    }
+    evaluate truth(stipulation_contraire_reputee_non_ecrite(entity_ref("urn:kz:catalog:stipulationcontrairereputeenonecrite:v0")));
+    expect truth_status == TRUE_ONLY;
+}

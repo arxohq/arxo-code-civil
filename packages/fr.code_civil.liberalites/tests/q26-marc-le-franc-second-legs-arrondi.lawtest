@@ -1,0 +1,27 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+// Art. 926, politique D-Q1 : L2 conserve 12 857,14 : réduction 7 142,86.
+test "urn:query:fr-code-civil-liberalites-q26-marc-le-franc-second-legs-arrondi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+        assert "f1": fr.code_civil.successions::defunt(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:D")) { origin case_input; }
+        assert "f2": fr.code_civil.successions::ouverte_le(entity_ref("urn:fr:cc:liberalites:q10:S"), @2026-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.successions::famille(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:F")) { origin case_input; }
+        assert "f4": fr.code_civil.successions::filiation(entity_ref("urn:fr:cc:liberalites:q10:F"), entity_ref("urn:fr:cc:liberalites:q10:D"), entity_ref("urn:fr:cc:liberalites:q10:C1")) { origin case_input; }
+        assert "f5": fr.code_civil.successions::existe_a_l_ouverture(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:C1")) { origin case_input; }
+        assert "f6": biens_existants_au_deces(entity_ref("urn:fr:cc:liberalites:q10:S"), 90000 EUR) { origin case_input; }
+        assert "f7": liberalite_du_defunt(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:L1")) { origin case_input; }
+        assert "f8": nature(entity_ref("urn:fr:cc:liberalites:q10:L1"), Legs) { origin case_input; }
+        assert "f9": gratifie(entity_ref("urn:fr:cc:liberalites:q10:L1"), entity_ref("urn:fr:cc:liberalites:q10:X")) { origin case_input; }
+        assert "f10": valeur_reunie(entity_ref("urn:fr:cc:liberalites:q10:L1"), 50000 EUR) { origin case_input; }
+        assert "f11": liberalite_du_defunt(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:L2")) { origin case_input; }
+        assert "f12": nature(entity_ref("urn:fr:cc:liberalites:q10:L2"), Legs) { origin case_input; }
+        assert "f13": gratifie(entity_ref("urn:fr:cc:liberalites:q10:L2"), entity_ref("urn:fr:cc:liberalites:q10:Y")) { origin case_input; }
+        assert "f14": valeur_reunie(entity_ref("urn:fr:cc:liberalites:q10:L2"), 20000 EUR) { origin case_input; }
+    }
+    evaluate truth(reduction_de_legs(entity_ref("urn:fr:cc:liberalites:q10:S"), entity_ref("urn:fr:cc:liberalites:q10:L2"), 7142.86 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

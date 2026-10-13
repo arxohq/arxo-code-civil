@@ -1,0 +1,37 @@
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+// Тот же мир, что в тесте 08: до третьей очереди сумма не доходит, доля r5
+// — нуль, недоплата — всё его требование, 100.00.
+test "очередь за исчерпанной суммой получает нуль, недоплата равна требованию" {
+    given {
+
+        assert "09-sequential-last-class-gets-nothing-1": allocation_mode(entity_ref("urn:calc:allocation:test:alloc"), Sequential) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-2": allocation_total(entity_ref("urn:calc:allocation:test:alloc"), 1000.00 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-3": allocation_precision(entity_ref("urn:calc:allocation:test:alloc"), 2) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-4": allocation_unit(entity_ref("urn:calc:allocation:test:alloc"), 0.01 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-5": allocation_remainder_policy(entity_ref("urn:calc:allocation:test:alloc"), LargestRemainder) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-6": recipient_of(entity_ref("urn:calc:allocation:test:r1"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-7": recipient_rank(entity_ref("urn:calc:allocation:test:r1"), 1) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-8": recipient_claim(entity_ref("urn:calc:allocation:test:r1"), 300.00 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-9": recipient_of(entity_ref("urn:calc:allocation:test:r2"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-10": recipient_rank(entity_ref("urn:calc:allocation:test:r2"), 1) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-11": recipient_claim(entity_ref("urn:calc:allocation:test:r2"), 200.00 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-12": recipient_of(entity_ref("urn:calc:allocation:test:r3"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-13": recipient_rank(entity_ref("urn:calc:allocation:test:r3"), 2) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-14": recipient_claim(entity_ref("urn:calc:allocation:test:r3"), 600.00 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-15": recipient_of(entity_ref("urn:calc:allocation:test:r4"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-16": recipient_rank(entity_ref("urn:calc:allocation:test:r4"), 2) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-17": recipient_claim(entity_ref("urn:calc:allocation:test:r4"), 400.00 KZT) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-18": recipient_of(entity_ref("urn:calc:allocation:test:r5"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-19": recipient_rank(entity_ref("urn:calc:allocation:test:r5"), 3) { origin case_input; }
+        assert "09-sequential-last-class-gets-nothing-20": recipient_claim(entity_ref("urn:calc:allocation:test:r5"), 100.00 KZT) { origin case_input; }
+    }
+
+    evaluate truth(recipient_shortfall(entity_ref("urn:calc:allocation:test:alloc"), entity_ref("urn:calc:allocation:test:r5"), 100.00 KZT));
+
+    expect result_kind == PROPOSITION;
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

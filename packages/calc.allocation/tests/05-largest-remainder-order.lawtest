@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+// 100 на веса 5 : 3 : 1 при точности 0. Точные доли 55.55…, 33.33…, 11.11…;
+// усечённые 55, 33, 11 — сумма 99, остаток одна единица. Дробные части
+// различны (.555 > .333 > .111), приоритеты не нужны: единицу берёт r1 и
+// получает 56. Остальные — усечённые доли.
+test "единица остатка достаётся наибольшей отброшенной дробной части" {
+    given {
+
+        assert "05-largest-remainder-order-1": allocation_mode(entity_ref("urn:calc:allocation:test:alloc"), Proportional) { origin case_input; }
+        assert "05-largest-remainder-order-2": allocation_total(entity_ref("urn:calc:allocation:test:alloc"), 100 EUR) { origin case_input; }
+        assert "05-largest-remainder-order-3": allocation_precision(entity_ref("urn:calc:allocation:test:alloc"), 0) { origin case_input; }
+        assert "05-largest-remainder-order-4": allocation_unit(entity_ref("urn:calc:allocation:test:alloc"), 1 EUR) { origin case_input; }
+        assert "05-largest-remainder-order-5": allocation_remainder_policy(entity_ref("urn:calc:allocation:test:alloc"), LargestRemainder) { origin case_input; }
+        assert "05-largest-remainder-order-6": recipient_of(entity_ref("urn:calc:allocation:test:r1"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "05-largest-remainder-order-7": recipient_weight(entity_ref("urn:calc:allocation:test:r1"), 5.0) { origin case_input; }
+        assert "05-largest-remainder-order-8": recipient_of(entity_ref("urn:calc:allocation:test:r2"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "05-largest-remainder-order-9": recipient_weight(entity_ref("urn:calc:allocation:test:r2"), 3.0) { origin case_input; }
+        assert "05-largest-remainder-order-10": recipient_of(entity_ref("urn:calc:allocation:test:r3"), entity_ref("urn:calc:allocation:test:alloc")) { origin case_input; }
+        assert "05-largest-remainder-order-11": recipient_weight(entity_ref("urn:calc:allocation:test:r3"), 1.0) { origin case_input; }
+    }
+
+    evaluate truth(share_amount(entity_ref("urn:calc:allocation:test:alloc"), entity_ref("urn:calc:allocation:test:r1"), 56 EUR));
+
+    expect result_kind == PROPOSITION;
+    expect truth_status == TRUE_ONLY;
+    expect evaluation_status == COMPUTED;
+}

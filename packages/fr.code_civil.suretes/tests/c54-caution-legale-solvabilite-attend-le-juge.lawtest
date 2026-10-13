@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2301, canal §47.3 : la solvabilité suffisante de la caution légale est appréciée par le juge.
+test "urn:query:fr-code-civil-suretes-c54-caution-legale-solvabilite-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c54:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c54:K"), entity_ref("urn:fr:cc:suretes:c54:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c54:K"), entity_ref("urn:fr:cc:suretes:c54:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c54:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c54:B")) { origin case_input; }
+        assert "f6": nature_du_cautionnement(entity_ref("urn:fr:cc:suretes:c54:K"), CautionnementLegal) { origin case_input; }
+    }
+    evaluate truth(caution_legale_agreee(entity_ref("urn:fr:cc:suretes:c54:K")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(solvabilite_suffisante, Court);
+}

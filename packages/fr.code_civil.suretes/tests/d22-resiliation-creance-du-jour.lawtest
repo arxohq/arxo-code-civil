@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2417, al. 2 : créance née le 15 juin 2024, jour d'effet de la résiliation — plus garantie.
+test "urn:query:fr-code-civil-suretes-d22-resiliation-creance-du-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": hypotheque_de_creances_futures_a_duree_indeterminee(entity_ref("urn:fr:cc:suretes:d22:S")) { origin case_input; }
+        assert "f2": resiliation_de_l_hypotheque_notifiee_le(entity_ref("urn:fr:cc:suretes:d22:S"), @2024-03-15) { origin case_input; }
+        assert "f3": creance_garantie_par_l_hypotheque(entity_ref("urn:fr:cc:suretes:d22:S"), entity_ref("urn:fr:cc:suretes:d22:C")) { origin case_input; }
+        assert "f4": nee_le(entity_ref("urn:fr:cc:suretes:d22:C"), @2024-06-15) { origin case_input; }
+    }
+    evaluate truth(creance_hors_garantie_apres_resiliation(entity_ref("urn:fr:cc:suretes:d22:S"), entity_ref("urn:fr:cc:suretes:d22:C")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(ResiliationAvecPreavis);
+}

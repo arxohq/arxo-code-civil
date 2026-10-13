@@ -1,0 +1,56 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+test "urn:query:fr-code-civil-biens-p4-663-a" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": cloture_separant(entity_ref("urn:p4:663:a:M"), entity_ref("urn:p4:663:a:F"), entity_ref("urn:p4:663:a:V"), MurEntreBatimentsJusquALHeberge) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:663:a:F"), entity_ref("urn:p4:663:a:P")) { origin case_input; }
+ assert "c": situe_en_ville_ou_faubourg(entity_ref("urn:p4:663:a:M")) { origin case_input; } }
+ evaluate positions(); expect position(P4PouvoirExigerContributionCloture663Actif, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-663-b" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": cloture_separant(entity_ref("urn:p4:663:b:M"), entity_ref("urn:p4:663:b:F"), entity_ref("urn:p4:663:b:V"), MurEntreCoursEtJardins) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:663:b:F"), entity_ref("urn:p4:663:b:P")) { origin case_input; }
+ assert "c": situe_en_ville_ou_faubourg(entity_ref("urn:p4:663:b:M")) { origin case_input; } }
+ evaluate positions(); expect position(P4PouvoirExigerContributionCloture663Actif, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-667-a" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:667:a:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:667:a:F"), entity_ref("urn:p4:667:a:P")) { origin case_input; } }
+ evaluate positions(); expect position(P4DevoirEntretenirCloture667Actif, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-667-b" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:667:b:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:667:b:F"), entity_ref("urn:p4:667:b:P")) { origin case_input; } }
+ evaluate positions(); expect position(P4DevoirEntretenirCloture667Actif, ACTIVE); }
+test "urn:query:fr-code-civil-biens-p4-668-a" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:668:a:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:668:a:F"), entity_ref("urn:p4:668:a:P")) { origin case_input; }
+ assert "c": destruction_de_la_haie_jusqu_a_la_limite(entity_ref("urn:p4:668:a:M"), entity_ref("urn:p4:668:a:F")) { origin case_input; } }
+ evaluate positions(); expect position(P4DevoirConstruireMurApresDestruction668Actif, ACTIVE); }
+
+test "urn:query:fr-code-civil-biens-p4-668-cession-active" {
+ given { context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": cloture_separant(entity_ref("urn:p4:668:c:M"), entity_ref("urn:p4:668:c:F"), entity_ref("urn:p4:668:c:V"), Fosse) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:668:c:V"), entity_ref("urn:p4:668:c:P")) { origin case_input; }
+ assert "c": cession_de_mitoyennete_exigee(entity_ref("urn:p4:668:c:M"), entity_ref("urn:p4:668:c:V")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionContraindreCessionMitoyennete668Actif, ACTIVE);
+ expect position(MaintenanceInterdictionContraindreCessionMitoyennete668Duty, ACTIVE); }
+
+test "urn:query:fr-code-civil-biens-p4-668-cession-violated" {
+ given { context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": cloture_separant(entity_ref("urn:p4:668:d:M"), entity_ref("urn:p4:668:d:F"), entity_ref("urn:p4:668:d:V"), Fosse) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:668:d:V"), entity_ref("urn:p4:668:d:P")) { origin case_input; }
+ assert "c": cession_de_mitoyennete_exigee(entity_ref("urn:p4:668:d:M"), entity_ref("urn:p4:668:d:V")) { origin case_input; }
+ assert "d": cession_mitoyennete_contrainte_exercee(entity_ref("urn:p4:668:d:M"), entity_ref("urn:p4:668:d:V"), entity_ref("urn:p4:668:d:P")) { origin case_input; } }
+ evaluate positions();
+ expect position(P4InterdictionContraindreCessionMitoyennete668Actif, VIOLATED);
+ expect position(MaintenanceInterdictionContraindreCessionMitoyennete668Duty, VIOLATED); }
+test "urn:query:fr-code-civil-biens-p4-668-b" {
+ given { context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+ assert "a": mur_mitoyen(entity_ref("urn:p4:668:b:M")) { origin case_input; }
+ assert "b": proprietaire_du_bien(entity_ref("urn:p4:668:b:F"), entity_ref("urn:p4:668:b:P")) { origin case_input; }
+ assert "c": destruction_de_la_haie_jusqu_a_la_limite(entity_ref("urn:p4:668:b:M"), entity_ref("urn:p4:668:b:F")) { origin case_input; } }
+ evaluate positions(); expect position(P4DevoirConstruireMurApresDestruction668Actif, ACTIVE); }

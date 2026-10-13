@@ -1,0 +1,209 @@
+// CODE CIVIL — LIVRE IV : DES SÛRETÉS (CC-14).
+//
+// Paquet de la formalisation complète du Code civil
+// (docs/foundations/fr-code-civil/). Il porte les 223 articles du livre IV en
+// vigueur au 16 septembre 2026, dont la très grande majorité dans leur
+// rédaction issue de l'ordonnance n° 2021-1192 du 15 septembre 2021.
+//
+// NOYAU EXÉCUTABLE.
+//   - cautionnement : formation, mention manuscrite (2297), bénéfices de
+//     discussion et de division (2305, 2306), recours (2308–2312), décharge
+//     (2314), fin des cautionnements de dettes futures (2315–2319) ;
+//   - devoirs d'information du créancier professionnel (2302, 2303) et de la
+//     caution envers la sous-caution (2304) : positions déontiques, avec la
+//     déchéance des intérêts et pénalités qui les sanctionne ;
+//   - corridor transitoire de l'ordonnance n° 2021-1192 (article 37) lu dans
+//     `fr.code_civil.transitions` : un cautionnement conclu avant le
+//     1er janvier 2022 relève de la loi ancienne, que ce paquet n'exécute pas ;
+//   - ordre des créanciers : privilèges généraux et spéciaux, gages,
+//     hypothèques et gages immobiliers classés en forme close (nombre de
+//     collocations qui précèdent), puis distribution du prix par
+//     `calc.allocation` en mode Sequential (rangs, créances, reliquat) ;
+//   - durées : effet de l'inscription hypothécaire (2429), intérêts conservés
+//     au rang du principal (2427), délais d'un an, trois mois, cinq ans,
+//     huit et quarante jours.
+//
+// POLITIQUES DE DÉLAI (§86). Un cas ne porte qu'une politique. Les pas en mois
+// et en années exigent `month_end` ; depuis E-0187 le pas en jours ne lit pas
+// ce champ : `CC_SURETES_MOIS_AN` sert donc aussi aux jours (scénario d36).
+// `CC_SURETES_JOUR` reste déclarée pour les cas qui ne comptent qu'en jours.
+//
+// Fichiers :
+//   package.law                                   — types, entrées, politiques
+//   livre-04-dispositions-generales.law           — 2284–2287-1, distribution du prix
+//   titre-01-cautionnement-formation.law          — 2288–2301
+//   titre-01-cautionnement-information.law        — 2302–2304
+//   titre-01-cautionnement-effets.law             — 2305–2312
+//   titre-01-cautionnement-extinction.law         — 2313–2320
+//   titre-01-chapitres-02-03.law                  — 2321–2322
+//   titre-02-sous-titre-01-general.law            — 2323–2326
+//   titre-02-meubles-privileges.law               — 2329–2332-4
+//   titre-02-meubles-gage.law                     — 2333–2350
+//   titre-02-meubles-nantissement.law             — 2355–2366
+//   titre-02-meubles-propriete-garantie.law       — 2367–2374-6
+//   titre-02-immeubles-privileges-gage.law        — 2375–2384
+//   titre-02-immeubles-hypotheques-constitution.law — 2385–2417
+//   titre-02-immeubles-hypotheques-rang.law       — 2418–2420, 2427
+//   titre-02-immeubles-hypotheques-inscription.law — 2421–2449
+//   titre-02-immeubles-hypotheques-effets.law     — 2450–2474
+//   titre-02-immeubles-fiducie.law                — 2488-1–2488-5
+//   titre-03-agent-des-suretes.law                — 2488-6–2488-12
+//   sources.law                                   — GÉNÉRÉ
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+import fr.code_civil.core version "0.1.0";
+import fr.code_civil.transitions version "0.1.0";
+import calc.allocation version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+type Creance = fr.code_civil.core::Creance;
+type Bien = fr.code_civil.core::Bien;
+type SituationJuridique = fr.code_civil.transitions::SituationJuridique;
+type Repartition = calc.allocation::Allocation;
+type Beneficiaire = calc.allocation::Recipient;
+
+// --- Types ---------------------------------------------------------------------------------
+
+pub entity Cautionnement : SituationJuridique {
+    label fr official "Cautionnement : contrat par lequel une caution s'oblige envers le créancier à payer la dette du débiteur en cas de défaillance (article 2288)";
+    label en unofficial "Suretyship: contract by which a surety undertakes to the creditor to pay the debtor's debt on default (Article 2288)";
+}
+pub entity GarantieAutonome {
+    label fr official "Garantie autonome (article 2321)";
+    label en unofficial "Independent guarantee (Article 2321)";
+}
+pub entity LettreDIntention {
+    label fr official "Lettre d'intention (article 2322)";
+    label en unofficial "Letter of intent (Article 2322)";
+}
+pub entity SureteReelle {
+    label fr official "Sûreté réelle : affectation d'un bien au paiement préférentiel ou exclusif du créancier (article 2323)";
+    label en unofficial "Real security: assignment of an asset to the preferential or exclusive payment of the creditor (Article 2323)";
+}
+pub entity Echeance {
+    label fr official "Échéance d'intérêts, de pénalités ou de principal";
+    label en unofficial "Instalment of interest, penalties or principal";
+}
+pub entity Paiement {
+    label fr official "Paiement effectué par le débiteur principal";
+    label en unofficial "Payment made by the principal debtor";
+}
+pub entity Distribution : Repartition {
+    label fr official "Distribution du prix d'un bien entre ses créanciers (articles 2285, 2332-2, 2450)";
+    label en unofficial "Distribution of the price of an asset among its creditors (Articles 2285, 2332-2, 2450)";
+}
+pub entity Collocation : Beneficiaire {
+    label fr official "Collocation : créance admise à la distribution du prix avec sa cause de préférence";
+    label en unofficial "Ranking entry: claim admitted to the distribution of the price with its ground of preference";
+}
+
+pub enum NatureDuCautionnement {
+    label fr official "Nature du cautionnement (article 2289)";
+    label en unofficial "Nature of the suretyship (Article 2289)";
+    CautionnementConventionnel,
+    CautionnementLegal,
+    CautionnementJudiciaire
+}
+
+pub enum Solidarite {
+    label fr official "Solidarité stipulée (article 2290, seconde phrase)";
+    label en unofficial "Stipulated joint and several liability (Article 2290, second sentence)";
+    EntreCautionEtDebiteur,
+    EntreCautions,
+    EntreTous
+}
+
+pub enum CauseDePreference {
+    label fr official "Cause légitime de préférence d'une collocation (articles 2285, 2324)";
+    label en unofficial "Legitimate ground of preference of a ranking entry (Articles 2285, 2324)";
+    Chirographaire,
+    PrivilegeMobilierGeneral,
+    PrivilegeMobilierSpecial,
+    GageSansDepossession,
+    PrivilegeImmobilierGeneral,
+    PrivilegeDuSyndicatDesCoproprietaires,
+    HypothequeLegale,
+    HypothequeJudiciaire,
+    HypothequeConventionnelle,
+    GageImmobilier,
+    GageSurImmeubleParDestination
+}
+
+pub enum PrivilegeGeneral {
+    label fr official "Créance privilégiée sur la généralité des meubles, dans l'ordre de l'article 2331";
+    label en unofficial "Claim with a general preference over movables, in the order of Article 2331";
+    FraisDeJustice,
+    FraisFuneraires,
+    RemunerationsEtIndemnites,
+    ProduitsAgricoles,
+    CaissesDeSecuriteSociale
+}
+
+pub enum PrivilegeSpecial {
+    label fr official "Créance privilégiée sur certains meubles (article 2332)";
+    label en unofficial "Claim with a special preference over certain movables (Article 2332)";
+    BailleurDImmeuble,
+    ConservateurDuMeuble,
+    VendeurDeMeuble,
+    AuxiliaireSalarieDuTravailleurADomicile
+}
+
+pub enum PrivilegeImmobilier {
+    label fr official "Créance privilégiée sur la généralité des immeubles, dans l'ordre de l'article 2377";
+    label en unofficial "Claim with a general preference over immovables, in the order of Article 2377";
+    FraisDeJusticeImmobiliers,
+    RemunerationsEtIndemnitesImmobilieres
+}
+
+pub enum HypothequeLegaleSpeciale {
+    label fr official "Hypothèque légale spéciale nommée par l'article 2402";
+    label en unofficial "Special statutory mortgage named by Article 2402";
+    VendeurDImmeuble,
+    PreteurDeDeniers,
+    SyndicatDesCoproprietaires,
+    Copartageant,
+    SeparationDesPatrimoines,
+    AccedantALaPropriete,
+    CollectivitePubliqueHabitat
+}
+
+// --- Politiques de délai (§86) ---------------------------------------------------------------
+//
+// Le Code ne donne pas le mode de computation ; la politique reprend le compte
+// par quantième (CPC art. 640–642, texte externe, SOURCES.json → external).
+// Les délais en jours se comptent sans le jour de l'événement et expirent à la
+// fin du dernier jour (CPC 641–642) : c'est le pas `same_day` (D-CC14-08).
+
+pub deadline policy CC_SURETES_MOIS_AN {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}
+
+pub deadline policy CC_SURETES_JOUR {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+}
+
+// --- Qualités des personnes --------------------------------------------------------------------
+
+pub relation est_personne_physique(p: Personne) kind empirical {
+    label fr official "la personne est une personne physique";
+    label en unofficial "the person is a natural person";
+}
+pub relation est_personne_morale(p: Personne) kind empirical {
+    label fr official "la personne est une personne morale";
+    label en unofficial "the person is a legal person";
+}
+pub relation creancier_professionnel(p: Personne) kind empirical {
+    label fr official "créancier professionnel : créancier dont la créance est née dans l'exercice de sa profession (articles 2299, 2300, 2302, 2303)";
+    label en unofficial "professional creditor: creditor whose claim arose in the course of its profession (Articles 2299, 2300, 2302, 2303)";
+}
+pub relation etablissement_de_credit_ou_societe_de_financement(p: Personne) kind empirical {
+    label fr official "établissement de crédit ou société de financement (article 2302, alinéa 4 ; code monétaire et financier)";
+    label en unofficial "credit institution or financing company (Article 2302, paragraph 4; Monetary and Financial Code)";
+}

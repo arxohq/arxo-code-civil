@@ -1,0 +1,81 @@
+// CORRIDORS TRANSITOIRES DES RÉFORMES DU CODE CIVIL (CC-16).
+//
+// Ce paquet ne porte AUCUN article du Code civil : ses unités sont les
+// articles transitoires des réformes elles-mêmes — loi n° 2006-728 art. 47,
+// ordonnance n° 2016-131 art. 9 (dans sa rédaction issue de la loi
+// n° 2018-287), loi n° 2018-287 art. 16, ordonnance n° 2021-1192 art. 37.
+// Ils répondent à une seule question : SUR QUELLE VERSION du Code se juge
+// une situation donnée.
+//
+// FACTEUR DE RATTACHEMENT, PAS DATE DU PROCÈS. Chaque corridor nomme le fait
+// qui fixe la loi applicable : la date de conclusion du contrat (2016), la
+// date de l'acte juridique (2018), la date du cautionnement (2021), la date
+// d'ouverture de la succession (2006). L'introduction de l'instance est un
+// second facteur, subsidiaire, que deux corridors nomment expressément.
+//
+// CE QUE LE PAQUET NE FAIT PAS. Il ne contient pas les versions anciennes des
+// articles du Code : dire « la loi ancienne s'applique » et exécuter la loi
+// ancienne sont deux choses. La seconde demande l'épinglage des versions
+// antérieures, article par article, dans le paquet de matière concerné
+// (frontière déclarée, README).
+//
+// LE CORRIDOR DE 2008 (prescription) vit dans `fr.code_civil` avec la matière
+// qu'il gouverne : il y est déjà exécutable (article 26 de la loi
+// n° 2008-561, deux bornes calculées). Il n'est pas dupliqué ici.
+//
+// Fichiers :
+//   package.law            — types et facteurs de rattachement
+//   corridors.law          — règles des quatre corridors
+//   sources.law            — GÉNÉRÉ : sources, éditions, publications, fragments
+
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+pub entity SituationJuridique {
+    label fr official "Situation dont on cherche la loi applicable dans le temps";
+    label en unofficial "Situation whose applicable law in time is sought";
+}
+
+pub enum LoiApplicable {
+    label fr official "Version du Code civil applicable à la situation";
+    label en unofficial "Version of the Civil Code applicable to the situation";
+    LoiAncienne,
+    LoiNouvelle
+}
+
+// --- Facteurs de rattachement : entrées du cas -------------------------------------------
+
+pub relation contrat_conclu_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de conclusion du contrat (ordonnance n° 2016-131, article 9)";
+    label en unofficial "date the contract was concluded (Ordinance No. 2016-131, Article 9)";
+}
+pub relation acte_juridique_conclu_ou_etabli_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date à laquelle l'acte juridique a été conclu ou établi (loi n° 2018-287, article 16, I)";
+    label en unofficial "date the legal act was concluded or drawn up (Act No. 2018-287, Article 16, I)";
+}
+pub relation cautionnement_conclu_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date de conclusion du cautionnement (ordonnance n° 2021-1192, article 37, II)";
+    label en unofficial "date the suretyship was concluded (Ordinance No. 2021-1192, Article 37, II)";
+}
+pub relation succession_ouverte_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date d'ouverture de la succession (loi n° 2006-728, article 47, II)";
+    label en unofficial "date the succession opened (Act No. 2006-728, Article 47, II)";
+}
+pub relation instance_introduite_le(s: SituationJuridique, jour: Date) kind empirical {
+    key(s);
+    label fr official "date d'introduction de l'instance : facteur subsidiaire nommé par les corridors de 2006 et de 2016";
+    label en unofficial "date the proceedings were brought: subsidiary factor named by the 2006 and 2016 corridors";
+}
+pub relation article_invoque(s: SituationJuridique, numero: Text) kind empirical {
+    label fr official "numéro de l'article du Code civil dont on cherche la version applicable";
+    label en unofficial "number of the Civil Code article whose applicable version is sought";
+}
+pub relation succession_non_encore_partagee(s: SituationJuridique) kind empirical {
+    label fr official "la succession ouverte n'était pas encore partagée à l'entrée en vigueur de la loi n° 2006-728 (article 47, II, alinéa 1)";
+    label en unofficial "the opened succession had not yet been divided when Act No. 2006-728 came into force (Article 47, II, paragraph 1)";
+}

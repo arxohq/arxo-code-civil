@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1171 al. 1, canal §47.3 : le déséquilibre significatif entre les droits et obligations est une appréciation du juge.
+test "urn:query:fr-code-civil-contrat-v13-desequilibre-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v13"), @2019-04-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:v13"), @2019-04-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:v13"), "1110") { origin case_input; }
+        assert "f4": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:v13"), "1171") { origin case_input; }
+        assert "f5": ensemble_de_clauses_non_negociables_predeterminees(entity_ref("urn:fr:cc:contrat:v13")) { origin case_input; }
+        assert "f6": clause_du_contrat(entity_ref("urn:fr:cc:contrat:v13:clause"), entity_ref("urn:fr:cc:contrat:v13")) { origin case_input; }
+        assert "f7": clause_non_negociable_predeterminee(entity_ref("urn:fr:cc:contrat:v13:clause")) { origin case_input; }
+    }
+    evaluate truth(clause_reputee_non_ecrite(entity_ref("urn:fr:cc:contrat:v13:clause")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(desequilibre_significatif, Court);
+}

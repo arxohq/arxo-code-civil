@@ -1,0 +1,2543 @@
+// CHAPITRE V — DE L'ADMINISTRATION DE LA SUCCESSION : SUCCESSION VACANTE,
+// DÉSHÉRENCE, MANDAT À EFFET POSTHUME, MANDATAIRE SUCCESSORAL
+// (articles 809 à 814-1).
+//
+// Trois régimes, un même sujet : QUI agit pour une succession que les
+// héritiers n'administrent pas, et JUSQU'OÙ vont ses pouvoirs.
+//
+//   — la VACANCE (809) a trois causes : personne ne réclame et nul héritier
+//     n'est connu ; tous les héritiers connus ont renoncé ; six mois se sont
+//     écoulés depuis l'ouverture sans que les héritiers connus aient opté.
+//     Le juge confie alors la curatelle à l'autorité chargée du domaine, sur
+//     requête d'une personne qualifiée (809-1) ;
+//   — les POUVOIRS DU CURATEUR se déplient dans le temps : pendant les six
+//     mois qui suivent l'ouverture, actes purement conservatoires, de
+//     surveillance, d'administration provisoire et vente des biens
+//     périssables (810-1) ; ensuite, l'ensemble des actes conservatoires et
+//     d'administration, et la vente jusqu'à l'apurement du passif — la vente
+//     d'un bien dont la conservation est difficile ou onéreuse restant
+//     possible même le passif apuré (810-2) ;
+//   — le PAIEMENT : le curateur paie seul, jusqu'à concurrence de l'actif,
+//     et n'anticipe le projet de règlement que pour les frais de conservation,
+//     les frais funéraires et de dernière maladie, les impôts, les loyers et
+//     les dettes urgentes (810-4) ; le projet suit l'ordre de l'article 796
+//     (810-5) ; un mois pour le contester, trois mois pour s'opposer à la
+//     réalisation (810-8), deux ans pour le recours contre les légataires
+//     remplis (810-9) ;
+//   — la DÉSHÉRENCE : l'État demande l'envoi en possession (811), et la
+//     déshérence prend fin par l'acceptation d'un héritier (811-2) ;
+//   — le MANDAT À EFFET POSTHUME (812 à 812-7) : intérêt sérieux et légitime
+//     précisément motivé, forme authentique, acceptation avant le décès du
+//     mandant, deux ans — cinq en raison de l'inaptitude, de l'âge ou de
+//     biens professionnels —, sept causes d'extinction, et une renonciation
+//     qui ne produit effet que trois mois après sa notification ;
+//   — le MANDATAIRE SUCCESSORAL (813 à 814-1) : conventionnel entre héritiers,
+//     mais judiciaire dès qu'un héritier a accepté à concurrence de l'actif
+//     net ; tant que nul n'a accepté, ses pouvoirs sont ceux de l'article 784.
+//
+// L'ORDRE DE PAIEMENT DE L'ARTICLE 796 est une comparaison, non un montant :
+// `paye_avant` se déduit d'abord de la classe (inscrit, déclaré, legs de
+// somme d'argent), puis, à classe égale, du rang de la sûreté ou du numéro
+// d'ordre de la déclaration. Deux couches, comme le texte.
+//
+// Le silence n'est jamais fabriqué : l'absence d'option des héritiers connus,
+// l'omission des formalités de l'État et le défaut de compte rendu annuel
+// sont des faits CONSTATÉS (origine `adjudicated`), non déduits d'un dossier
+// vide. L'« intérêt sérieux et légitime » du mandat et le caractère excessif
+// d'une rémunération sont des appréciations (jugement §47.3).
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    ActeSurBienIndivis,
+    CC_ART787,
+    CC_ART796,
+    CC_ART809,
+    CC_ART809_1,
+    CC_ART809_2,
+    CC_ART810_1,
+    CC_ART810_12,
+    CC_ART810_2,
+    CC_ART810_3,
+    CC_ART810_4,
+    CC_ART810_5,
+    CC_ART810_8,
+    CC_ART810_9,
+    CC_ART811,
+    CC_ART811_1,
+    CC_ART811_2,
+    CC_ART811_3,
+    CC_ART812,
+    CC_ART812_1_1,
+    CC_ART812_1_3,
+    CC_ART812_2,
+    CC_ART812_3,
+    CC_ART812_4,
+    CC_ART812_5,
+    CC_ART812_6,
+    CC_ART812_7,
+    CC_ART813,
+    CC_ART813_1,
+    CC_ART813_2,
+    CC_ART813_4,
+    CC_ART813_7,
+    CC_ART813_9,
+    CC_ART814,
+    CC_ART814_1,
+    ModaliteDeLOption,
+    Personne,
+    Succession,
+    creance_declaree_le,
+    option_exercee_le,
+    ouverte_le,
+    partage_realise_le,
+};
+
+pub entity Mandat {
+    label fr official "Mandat à effet posthume donné par le défunt (articles 812 à 812-7)";
+    label en unofficial "Posthumous mandate given by the deceased (Articles 812 to 812-7)";
+}
+
+pub enum QualiteDuRequerant {
+    label fr official "Qualité de celui qui saisit le juge d'une demande de curatelle (article 809-1)";
+    label en unofficial "Capacity of the person applying to the judge for a curatorship (Article 809-1)";
+    Creancier,
+    AdministrateurDuPatrimoineDuDefunt,
+    Notaire,
+    AutrePersonneInteressee,
+    MinisterePublic,
+    TiersSansQualite
+}
+
+pub enum ActeDuCurateur {
+    label fr official "Acte accompli par le curateur, dont il faut dire s'il est permis à sa date (articles 810-1, 810-2)";
+    label en unofficial "Act done by the curator, to be classified as permitted on its date (Articles 810-1, 810-2)";
+    ActePurementConservatoire,
+    ActeDeSurveillance,
+    AdministrationProvisoire,
+    VenteDeBiensPerissables,
+    ActeDAdministration,
+    VenteDeBiensMeubles,
+    VenteDeBiensImmeubles,
+    VenteDUnBienDeConservationOnereuse
+}
+
+pub enum EtatDuPassif {
+    label fr official "État du passif de la succession sous curatelle (article 810-2)";
+    label en unofficial "State of the estate's liabilities under curatorship (Article 810-2)";
+    PassifNonApure,
+    PassifApure
+}
+
+pub enum DetteDeLaSuccession {
+    label fr official "Dette de la succession, dont il faut dire si elle se paie sans attendre le projet de règlement (article 810-4)";
+    label en unofficial "Debt of the estate, to be classified as payable before the settlement plan (Article 810-4)";
+    FraisDeConservationDuPatrimoine,
+    FraisFuneraires,
+    FraisDeDerniereMaladie,
+    ImpotsDusParLeDefunt,
+    LoyersDeLaSuccession,
+    DetteSuccessoraleUrgente,
+    AutreDetteSuccessorale
+}
+
+pub enum QualiteDuCreancier {
+    label fr official "Qualité du créancier ou du légataire dans le projet de règlement du passif (articles 796, 810-5)";
+    label en unofficial "Capacity of the creditor or legatee in the liability settlement plan (Articles 796, 810-5)";
+    CreancierInscrit,
+    CreancierDeclare,
+    LegataireDeSommeDArgent
+}
+
+pub enum CauseDeFinDeCuratelle {
+    label fr official "Cause de cessation de la curatelle (article 810-12)";
+    label en unofficial "Ground on which the curatorship ends (Article 810-12)";
+    AffectationIntegraleDeLActif,
+    RealisationTotaleEtConsignation,
+    RestitutionAuxHeritiersReconnus,
+    EnvoiEnPossessionDeLEtat,
+    AutreCirconstanceDeLaCuratelle
+}
+
+pub enum CauseDeFinDuMandat {
+    label fr official "Cause d'extinction du mandat à effet posthume (article 812-4)";
+    label en unofficial "Ground on which the posthumous mandate ends (Article 812-4)";
+    ArriveeDuTermePrevu,
+    RenonciationDuMandataire,
+    RevocationJudiciaire,
+    MandatConventionnelEntreLesHeritiersEtLeMandataire,
+    AlienationDesBiensParLesHeritiers,
+    DisparitionDuMandataire,
+    DecesDeLHeritierInteresse,
+    AutreCirconstanceDuMandat
+}
+
+pub enum MotifDeDesignation {
+    label fr official "Motif justifiant la désignation judiciaire d'un mandataire successoral (article 813-1)";
+    label en unofficial "Ground justifying the judicial appointment of an estate administrator (Article 813-1)";
+    InertieDesHeritiers,
+    CarenceDesHeritiers,
+    FauteDesHeritiers,
+    MesententeEntreLesHeritiers,
+    OppositionDInteretsEntreLesHeritiers,
+    ComplexiteDeLaSituationSuccessorale,
+    AucunMotifParticulier
+}
+
+// --- Entrées du cas : la vacance et la curatelle -----------------------------------------------
+
+pub relation aucun_reclamant_ni_heritier_connu_constate(s: Succession) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté que personne ne se présente pour réclamer la succession et qu'il n'y a pas d'héritier connu (article 809, 1°)";
+    label en unofficial "it is established that nobody claims the estate and that no heir is known (Article 809, 1°)";
+}
+pub relation nombre_d_heritiers_connus(s: Succession, n: Integer) kind empirical {
+    key(s);
+    label fr official "nombre d'héritiers connus de la succession (article 809, 2°)";
+    label en unofficial "number of known heirs of the estate (Article 809, 2°)";
+}
+pub relation nombre_d_heritiers_connus_renoncants(s: Succession, n: Integer) kind empirical {
+    key(s);
+    label fr official "nombre d'héritiers connus ayant renoncé à la succession (article 809, 2°)";
+    label en unofficial "number of known heirs who renounced the estate (Article 809, 2°)";
+}
+pub relation aucune_option_des_heritiers_connus_constatee(s: Succession) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté qu'aucun héritier connu n'a opté, de manière tacite ou expresse (article 809, 3°)";
+    label en unofficial "it is established that no known heir has opted, tacitly or expressly (Article 809, 3°)";
+}
+pub relation date_d_appreciation_de_la_curatelle(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour auquel la situation de la succession vacante est appréciée";
+    label en unofficial "day on which the vacant estate's situation is assessed";
+}
+pub relation requete_presentee_par(s: Succession, demandeur: Personne, qualite: QualiteDuRequerant) kind empirical {
+    key(s, demandeur);
+    label fr official "requête en curatelle présentée au juge par cette personne en cette qualité (article 809-1)";
+    label en unofficial "application for curatorship brought before the judge by this person in this capacity (Article 809-1)";
+}
+pub relation saisie_curatelle_exercee(s: Succession, demandeur: Personne) kind empirical {
+    label fr official "saisine du juge aux fins de curatelle exercée";
+    label en unofficial "curatorship application exercised";
+}
+pub relation juge_saisi_d_une_demande_de_curatelle(s: Succession, demandeur: Personne) kind institutional {
+    label fr official "le juge est saisi d'une demande de curatelle de la succession (article 809-1)";
+    label en unofficial "the judge is seised of an application for curatorship of the estate (Article 809-1)";
+}
+pub relation autorite_administrative_succession(s: Succession, p: Personne) kind empirical {
+    label fr official "autorité administrative chargée du domaine";
+    label en unofficial "administrative authority in charge of State property";
+}
+pub relation acte_apres_fin_mission_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte accompli après la fin de la mission du mandataire successoral";
+    label en unofficial "act performed after the estate administrator's mission ended";
+}
+pub relation acte_apres_fin_mission_interdit(s: Succession, p: Personne) kind empirical {
+    label fr official "acte interdit après la fin de la mission du mandataire successoral";
+    label en unofficial "act prohibited after the estate administrator's mission ended";
+}
+pub relation compte_rendu_gestion_exerce(m: Mandat, p: Personne) kind empirical {
+    label fr official "compte rendu de gestion du mandataire exercé";
+    label en unofficial "agent's management account rendered";
+}
+pub relation renonciation_notifiee_exercee(m: Mandat, p: Personne) kind empirical {
+    label fr official "notification de la renonciation du mandataire exercée";
+    label en unofficial "agent's renunciation notification exercised";
+}
+pub relation administration_confiee_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "administration de la succession confiée par accord exercée";
+    label en unofficial "agreed entrustment of estate administration exercised";
+}
+pub relation administration_de_la_succession_confiee(s: Succession, p: Personne) kind institutional {
+    label fr official "l'administration de la succession est confiée d'un commun accord à la personne désignée (article 813)";
+    label en unofficial "administration of the estate is entrusted by common agreement to the person designated (Article 813)";
+}
+pub relation inventaire_estimatif_dresse(s: Succession) kind empirical {
+    label fr official "l'inventaire estimatif article par article de l'actif et du passif a été dressé (article 809-2)";
+    label en unofficial "the itemised valuation inventory of assets and liabilities has been drawn up (Article 809-2)";
+}
+pub relation curateur_succession(s: Succession, p: Personne) kind empirical {
+    label fr official "curateur de la succession";
+    label en unofficial "estate curator";
+}
+pub relation inventaire_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "établissement de l'inventaire exercé";
+    label en unofficial "inventory preparation exercised";
+}
+pub relation titre_justifie(s: Succession, p: Personne) kind empirical {
+    label fr official "le créancier ou le légataire de somme d'argent justifie de son titre (article 809-2, alinéa 3)";
+    label en unofficial "the creditor or money legatee produces evidence of their title (Article 809-2, paragraph 3)";
+}
+pub relation acte_du_curateur_le(s: Succession, acte: ActeDuCurateur, jour: Date) kind empirical {
+    label fr official "acte accompli par le curateur ce jour (articles 810-1, 810-2)";
+    label en unofficial "act done by the curator on this day (Articles 810-1, 810-2)";
+}
+pub relation acte_conservatoire_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte conservatoire du curateur exercé";
+    label en unofficial "curator conservatory act exercised";
+}
+pub relation mandataire_motif(s: Succession, p: Personne) kind empirical {
+    label fr official "motif de désignation du mandataire successoral";
+    label en unofficial "ground for estate administrator appointment";
+}
+pub relation designation_mandataire_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "désignation du mandataire successoral exercée";
+    label en unofficial "estate administrator appointment exercised";
+}
+pub relation mandataire_successoral_admis(s: Succession, p: Personne) kind derived {
+    label fr official "mandataire successoral désigné par le juge";
+    label en unofficial "estate administrator appointed by the judge";
+}
+pub relation etat_du_passif(s: Succession, etat: EtatDuPassif) kind empirical {
+    key(s);
+    label fr official "le passif de la succession est apuré ou ne l'est pas (article 810-2)";
+    label en unofficial "the estate's liabilities are discharged or are not (Article 810-2)";
+}
+pub relation adjudication_exigee_par(s: Succession, creancier: Personne) kind empirical {
+    label fr official "un créancier exige que la vente amiable envisagée soit faite par adjudication (article 810-3, alinéa 3)";
+    label en unofficial "a creditor requires that the intended private sale be made by auction (Article 810-3, paragraph 3)";
+}
+pub relation prix_convenu_dans_le_projet(s: Succession, montant: Money) kind empirical {
+    key(s);
+    label fr official "prix convenu dans le projet de vente amiable (article 810-3, alinéa 3)";
+    label en unofficial "price agreed in the intended private sale (Article 810-3, paragraph 3)";
+}
+pub relation prix_de_l_adjudication(s: Succession, montant: Money) kind empirical {
+    key(s);
+    label fr official "prix obtenu par l'adjudication (article 810-3, alinéa 3)";
+    label en unofficial "price obtained at auction (Article 810-3, paragraph 3)";
+}
+pub relation dette_a_payer(s: Succession, dette: DetteDeLaSuccession) kind empirical {
+    label fr official "dette dont le paiement est envisagé par le curateur (article 810-4)";
+    label en unofficial "debt whose payment the curator contemplates (Article 810-4)";
+}
+pub relation actif_de_la_succession(s: Succession, montant: Money) kind empirical {
+    key(s);
+    label fr official "montant de l'actif de la succession sous curatelle (article 810-4, alinéa 1)";
+    label en unofficial "amount of the assets of the estate under curatorship (Article 810-4, paragraph 1)";
+}
+pub relation passif_declare(s: Succession, montant: Money) kind empirical {
+    key(s);
+    label fr official "montant des dettes déclarées au curateur (articles 809-3, 810-4)";
+    label en unofficial "amount of the debts declared to the curator (Articles 809-3, 810-4)";
+}
+pub relation qualite_du_creancier(s: Succession, creancier: Personne, qualite: QualiteDuCreancier) kind empirical {
+    key(s, creancier);
+    label fr official "qualité en laquelle le créancier ou le légataire figure au projet de règlement (articles 796, 810-5)";
+    label en unofficial "capacity in which the creditor or legatee appears in the settlement plan (Articles 796, 810-5)";
+}
+pub relation rang_de_la_surete(s: Succession, creancier: Personne, rang: Integer) kind empirical {
+    key(s, creancier);
+    label fr official "rang de la sûreté assortissant la créance inscrite (article 796, alinéa 2)";
+    label en unofficial "rank of the security attached to the registered claim (Article 796, paragraph 2)";
+}
+pub relation ordre_de_la_declaration(s: Succession, creancier: Personne, numero: Integer) kind empirical {
+    key(s, creancier);
+    label fr official "numéro d'ordre de la déclaration de créance (article 796, alinéa 3)";
+    label en unofficial "sequence number of the claim declaration (Article 796, paragraph 3)";
+}
+pub relation projet_de_reglement_publie_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la publicité du projet de règlement du passif (article 810-5, alinéa 3)";
+    label en unofficial "day the liability settlement plan was published (Article 810-5, paragraph 3)";
+}
+pub relation creancier_non_integralement_desinteresse(s: Succession, creancier: Personne) kind empirical {
+    label fr official "le créancier n'est pas intégralement désintéressé par le projet de règlement (article 810-5, alinéa 3)";
+    label en unofficial "the creditor is not fully paid under the settlement plan (Article 810-5, paragraph 3)";
+}
+pub relation saisine_contre_le_projet_le(s: Succession, creancier: Personne, jour: Date) kind empirical {
+    key(s, creancier);
+    label fr official "jour où le créancier saisit le juge pour contester le projet de règlement (article 810-5, alinéa 3)";
+    label en unofficial "day the creditor applies to the judge against the settlement plan (Article 810-5, paragraph 3)";
+}
+pub relation compte_remis_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la remise du compte des opérations du curateur (articles 810-7, 810-9)";
+    label en unofficial "day the curator's account of operations was delivered (Articles 810-7, 810-9)";
+}
+pub relation notification_du_projet_de_realisation_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de la notification du projet de réalisation à l'héritier connu (article 810-8)";
+    label en unofficial "day the plan for realising the remaining assets was notified to the known heir (Article 810-8)";
+}
+pub relation reclamation_de_la_succession_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour où l'héritier s'oppose à la réalisation en réclamant la succession (article 810-8)";
+    label en unofficial "day the heir objects to the realisation by claiming the estate (Article 810-8)";
+}
+pub relation realisation_de_l_actif_subsistant_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la réalisation de la totalité de l'actif subsistant (articles 810-8, 810-9)";
+    label en unofficial "day the whole remaining asset was realised (Articles 810-8, 810-9)";
+}
+pub relation legataire_rempli_de_ses_droits(s: Succession, p: Personne) kind empirical {
+    label fr official "le légataire a été rempli de ses droits (article 810-9, alinéa 1)";
+    label en unofficial "the legatee has received their entitlement in full (Article 810-9, paragraph 1)";
+}
+pub relation recours_contre_les_legataires_le(s: Succession, creancier: Personne, jour: Date) kind empirical {
+    key(s, creancier);
+    label fr official "jour où le créancier exerce son recours contre les légataires remplis (article 810-9, alinéa 2)";
+    label en unofficial "day the creditor brings their claim against the legatees paid in full (Article 810-9, paragraph 2)";
+}
+pub relation cause_de_fin_de_la_curatelle(s: Succession, cause: CauseDeFinDeCuratelle) kind empirical {
+    label fr official "cause invoquée pour mettre fin à la curatelle (article 810-12)";
+    label en unofficial "ground relied on to end the curatorship (Article 810-12)";
+}
+
+// --- Entrées du cas : la déshérence ------------------------------------------------------------
+
+pub relation etat_pretend_a_la_succession(s: Succession) kind empirical {
+    label fr official "l'État prétend à la succession d'une personne décédée sans héritier ou à une succession abandonnée (article 811)";
+    label en unofficial "the State claims the estate of a person who died without heirs, or an abandoned estate (Article 811)";
+}
+pub relation envoi_en_possession_demande_au_tribunal(s: Succession) kind empirical {
+    label fr official "l'État a demandé l'envoi en possession au tribunal (article 811)";
+    label en unofficial "the State has applied to the court for possession (Article 811)";
+}
+pub relation etat_demandeur_envoi(s: Succession, p: Personne) kind empirical {
+    label fr official "État demandant l'envoi en possession";
+    label en unofficial "State applying for possession";
+}
+pub relation formalites_de_l_etat_omises_constatees(s: Succession) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté que l'État n'a pas accompli les formalités qui lui incombent (article 811-3)";
+    label en unofficial "it is established that the State failed to complete the formalities incumbent on it (Article 811-3)";
+}
+pub relation heritier_se_presente(s: Succession, h: Personne) kind empirical {
+    label fr official "un héritier se présente après l'envoi en possession de l'État (articles 811-2, 811-3)";
+    label en unofficial "an heir comes forward after the State was put in possession (Articles 811-2, 811-3)";
+}
+
+// --- Entrées du cas : le mandat à effet posthume ------------------------------------------------
+
+pub relation mandat_de_la_succession(m: Mandat, s: Succession) kind empirical {
+    key(m);
+    label fr official "succession sur laquelle porte le mandat à effet posthume (article 812)";
+    label en unofficial "estate to which the posthumous mandate relates (Article 812)";
+}
+pub relation mandataire_designe(m: Mandat, p: Personne) kind empirical {
+    label fr official "personne à laquelle le mandat à effet posthume est donné (article 812)";
+    label en unofficial "person to whom the posthumous mandate is given (Article 812)";
+}
+pub relation heritier_vise_par_le_mandat(m: Mandat, h: Personne) kind empirical {
+    label fr official "héritier identifié pour le compte et dans l'intérêt duquel le mandat est donné (article 812)";
+    label en unofficial "identified heir for whose account and in whose interest the mandate is given (Article 812)";
+}
+pub relation nombre_d_heritiers_vises(m: Mandat, n: Integer) kind empirical {
+    key(m);
+    label fr official "nombre d'héritiers visés par le mandat (article 812-4, dernier alinéa)";
+    label en unofficial "number of heirs covered by the mandate (Article 812-4, last paragraph)";
+}
+pub relation mandataire_jouit_de_la_pleine_capacite_civile(m: Mandat) kind empirical {
+    label fr official "le mandataire jouit de la pleine capacité civile (article 812, alinéa 3)";
+    label en unofficial "the agent has full civil capacity (Article 812, paragraph 3)";
+}
+pub relation biens_professionnels_compris(m: Mandat) kind empirical {
+    label fr official "des biens professionnels sont compris dans le patrimoine successoral (article 812, alinéa 3)";
+    label en unofficial "professional assets are included in the estate (Article 812, paragraph 3)";
+}
+pub relation mandataire_frappe_d_une_interdiction_de_gerer(m: Mandat) kind empirical {
+    label fr official "le mandataire est frappé d'une interdiction de gérer (article 812, alinéa 3)";
+    label en unofficial "the agent is barred from managing (Article 812, paragraph 3)";
+}
+pub relation mandataire_est_le_notaire_charge_du_reglement(m: Mandat) kind empirical {
+    label fr official "le mandataire est le notaire chargé du règlement de la succession (article 812, alinéa 4)";
+    label en unofficial "the agent is the notary in charge of settling the estate (Article 812, paragraph 4)";
+}
+pub relation motivation_precise_du_mandat(m: Mandat) kind empirical {
+    label fr official "le mandat est précisément motivé (article 812-1-1, alinéa 1)";
+    label en unofficial "the mandate states its grounds precisely (Article 812-1-1, paragraph 1)";
+}
+pub relation forme_authentique(m: Mandat) kind empirical {
+    label fr official "le mandat est donné et accepté en la forme authentique (article 812-1-1, alinéa 3)";
+    label en unofficial "the mandate is given and accepted in authentic form (Article 812-1-1, paragraph 3)";
+}
+pub relation accepte_avant_le_deces_du_mandant(m: Mandat) kind empirical {
+    label fr official "le mandat a été accepté par le mandataire avant le décès du mandant (article 812-1-1, alinéa 4)";
+    label en unofficial "the mandate was accepted by the agent before the principal's death (Article 812-1-1, paragraph 4)";
+}
+pub relation mandat_donne_le(m: Mandat, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour où le mandat prend effet (article 812-1-1, alinéa 2)";
+    label en unofficial "day on which the mandate takes effect (Article 812-1-1, paragraph 2)";
+}
+pub relation terme_prevu_le(m: Mandat, jour: Date) kind empirical {
+    key(m);
+    label fr official "terme prévu par le mandat (articles 812-1-1, 812-4, 1°)";
+    label en unofficial "term set by the mandate (Articles 812-1-1, 812-4, 1°)";
+}
+pub relation inaptitude_age_ou_biens_professionnels(m: Mandat) kind empirical {
+    label fr official "l'inaptitude ou l'âge du ou des héritiers, ou la nécessité de gérer des biens professionnels, est invoquée (article 812-1-1, alinéa 2)";
+    label en unofficial "the heirs' incapacity or age, or the need to manage professional assets, is relied on (Article 812-1-1, paragraph 2)";
+}
+pub relation remuneration_prevue_au_mandat(m: Mandat) kind empirical {
+    label fr official "le mandat prévoit une rémunération (article 812-2)";
+    label en unofficial "the mandate provides for remuneration (Article 812-2)";
+}
+pub relation remuneration_expressement_determinee(m: Mandat) kind empirical {
+    label fr official "la rémunération est expressément déterminée dans le mandat (article 812-2, alinéa 2)";
+    label en unofficial "the remuneration is expressly fixed in the mandate (Article 812-2, paragraph 2)";
+}
+pub relation remuneration_privant_de_la_reserve(m: Mandat) kind empirical {
+    label fr official "la rémunération a pour effet de priver les héritiers de tout ou partie de leur réserve (article 812-3)";
+    label en unofficial "the remuneration deprives the heirs of all or part of their reserved share (Article 812-3)";
+}
+pub relation cause_de_fin_du_mandat(m: Mandat, cause: CauseDeFinDuMandat) kind empirical {
+    label fr official "cause d'extinction invoquée contre le mandat (article 812-4)";
+    label en unofficial "ground of extinction relied on against the mandate (Article 812-4)";
+}
+pub relation cause_propre_a_un_seul_heritier(m: Mandat, h: Personne) kind empirical {
+    label fr official "la cause d'extinction ne concerne que cet héritier (article 812-4, dernier alinéa)";
+    label en unofficial "the ground of extinction concerns only this heir (Article 812-4, last paragraph)";
+}
+pub relation revocation_pour_disparition_de_l_interet(m: Mandat) kind empirical {
+    label fr official "la révocation est intervenue pour disparition de l'intérêt sérieux et légitime (article 812-5, alinéa 1)";
+    label en unofficial "the revocation was ordered because the serious and legitimate interest disappeared (Article 812-5, paragraph 1)";
+}
+pub relation revocation_pour_mauvaise_execution(m: Mandat) kind empirical {
+    label fr official "la révocation est intervenue en raison d'une mauvaise exécution de la mission (article 812-5, alinéa 2)";
+    label en unofficial "the revocation was ordered because the agent performed the mission badly (Article 812-5, paragraph 2)";
+}
+pub relation renonciation_notifiee_le(m: Mandat, jour: Date) kind empirical {
+    key(m);
+    label fr official "jour de la notification aux héritiers intéressés de la renonciation du mandataire (article 812-6)";
+    label en unofficial "day the agent's renunciation was notified to the interested heirs (Article 812-6)";
+}
+pub relation convention_contraire_sur_la_renonciation(m: Mandat) kind empirical {
+    label fr official "une convention contraire règle la prise d'effet de la renonciation (article 812-6, alinéa 2)";
+    label en unofficial "an agreement to the contrary governs when the renunciation takes effect (Article 812-6, paragraph 2)";
+}
+pub relation compte_rendu_annuel_omis_constate(m: Mandat) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté que le mandataire n'a pas rendu compte de sa gestion (article 812-7)";
+    label en unofficial "it is established that the agent did not account for their management (Article 812-7)";
+}
+
+// --- Entrées du cas : le mandataire successoral --------------------------------------------------
+
+pub relation administration_confiee_d_un_commun_accord(s: Succession, p: Personne) kind empirical {
+    label fr official "les héritiers ont confié d'un commun accord l'administration de la succession à cette personne (article 813, alinéa 1)";
+    label en unofficial "the heirs jointly entrusted the administration of the estate to this person (Article 813, paragraph 1)";
+}
+pub relation motif_de_designation(s: Succession, motif: MotifDeDesignation) kind empirical {
+    label fr official "motif invoqué à l'appui de la désignation judiciaire d'un mandataire successoral (article 813-1)";
+    label en unofficial "ground relied on for the judicial appointment of an estate administrator (Article 813-1)";
+}
+pub relation convention_d_indivision_conclue(s: Succession) kind empirical {
+    label fr official "une convention d'indivision a été conclue entre les héritiers (article 813-9, alinéa 2)";
+    label en unofficial "the heirs concluded a joint-ownership agreement (Article 813-9, paragraph 2)";
+}
+pub relation execution_complete_constatee(s: Succession) kind empirical {
+    origin adjudicated;
+    label fr official "le juge constate l'exécution complète de la mission confiée au mandataire successoral (article 813-9, alinéa 2)";
+    label en unofficial "the judge finds that the estate administrator's mission has been fully performed (Article 813-9, paragraph 2)";
+}
+pub relation manquement_caracterise_constate(s: Succession, p: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté un manquement caractérisé du mandataire successoral dans l'exercice de sa mission (article 813-7)";
+    label en unofficial "a characterised breach by the estate administrator in performing the mission is established (Article 813-7)";
+}
+
+// --- Appréciations déléguées au juge (§47.3, DECISION-0194) --------------------------------------
+
+@source(CC_ART812_1_1)
+pub external judgment relation interet_serieux_et_legitime(m: Mandat) {
+    authority Court;
+    label fr official "le mandat est justifié par un intérêt sérieux et légitime au regard de la personne de l'héritier ou du patrimoine successoral (article 812-1-1)";
+    label en unofficial "the mandate is justified by a serious and legitimate interest in the heir or in the estate (Article 812-1-1)";
+}
+
+@source(CC_ART812_3, CC_ART812_5)
+pub external judgment relation remuneration_excessive(m: Mandat) {
+    authority Court;
+    label fr official "la rémunération est excessive au regard de la durée ou de la charge résultant du mandat (articles 812-3, 812-5)";
+    label en unofficial "the remuneration is excessive in view of the duration or burden of the mandate (Articles 812-3, 812-5)";
+}
+
+// --- Résultats : la vacance et la curatelle --------------------------------------------------
+
+pub relation succession_vacante(s: Succession) kind derived {
+    label fr official "la succession est vacante (article 809)";
+    label en unofficial "the estate is vacant (Article 809)";
+}
+pub relation fin_du_delai_de_six_mois(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des six mois qui suivent l'ouverture de la succession (articles 809, 3°, 810-1)";
+    label en unofficial "last day of the six months following the opening of the succession (Articles 809, 3°, 810-1)";
+}
+pub relation requete_recevable(s: Succession, demandeur: Personne) kind derived {
+    label fr official "la requête en curatelle émane d'une personne qualifiée (article 809-1)";
+    label en unofficial "the application for curatorship comes from a qualified person (Article 809-1)";
+}
+pub relation curatelle_confiee_a_l_autorite_du_domaine(s: Succession) kind derived {
+    label fr official "la curatelle de la succession vacante est confiée à l'autorité administrative chargée du domaine (article 809-1)";
+    label en unofficial "the curatorship of the vacant estate is entrusted to the administrative authority in charge of State property (Article 809-1)";
+}
+pub relation inventaire_estimatif_requis(s: Succession) kind derived {
+    label fr official "le curateur doit faire dresser l'inventaire estimatif (article 809-2)";
+    label en unofficial "the curator must have the valuation inventory drawn up (Article 809-2)";
+}
+pub relation consultation_de_l_inventaire_ouverte(s: Succession, p: Personne) kind derived {
+    label fr official "le créancier ou le légataire de somme d'argent peut consulter l'inventaire et en obtenir copie (article 809-2, alinéa 3)";
+    label en unofficial "the creditor or money legatee may consult the inventory and obtain a copy (Article 809-2, paragraph 3)";
+}
+pub relation inventaire_consulte(s: Succession, p: Personne) kind institutional {
+    label fr official "le créancier ou le légataire de somme d'argent a consulté l'inventaire ou en a obtenu copie (article 809-2, alinéa 3)";
+    label en unofficial "the creditor or legatee of a sum of money has consulted the inventory or obtained a copy (Article 809-2, paragraph 3)";
+}
+pub relation acte_du_curateur_permis(s: Succession, acte: ActeDuCurateur) kind derived {
+    label fr official "l'acte est au nombre de ceux que le curateur peut accomplir à cette date (articles 810-1, 810-2)";
+    label en unofficial "the act is one the curator may perform on that date (Articles 810-1, 810-2)";
+}
+pub relation acte_du_curateur_accompli(s: Succession, acte: ActeDuCurateur) kind institutional {
+    label fr official "le curateur a accompli l'acte au nombre de ceux qu'il peut accomplir à cette date (articles 810-1, 810-2)";
+    label en unofficial "the curator has performed an act among those he may perform on that date (Articles 810-1, 810-2)";
+}
+pub relation acte_du_curateur_interdit(s: Succession, acte: ActeDuCurateur) kind derived {
+    label fr official "l'acte excède les pouvoirs du curateur à cette date (articles 810-1, 810-2)";
+    label en unofficial "the act exceeds the curator's powers on that date (Articles 810-1, 810-2)";
+}
+@source(CC_ART810_3)
+pub relation adjudication_obligatoire(s: Succession) kind derived {
+    label fr official "la vente doit être faite par adjudication (article 810-3, alinéa 3)";
+    label en unofficial "the sale must be made by auction (Article 810-3, paragraph 3)";
+}
+pub relation perte_supportee_par_le_creancier(s: Succession, creancier: Personne, montant: Money) kind derived {
+    label fr official "perte dont le créancier qui a demandé l'adjudication est tenu envers les autres créanciers (article 810-3, alinéa 3)";
+    label en unofficial "loss borne, towards the other creditors, by the creditor who required the auction (Article 810-3, paragraph 3)";
+}
+pub relation curateur_seul_habilite_a_payer(s: Succession) kind derived {
+    label fr official "le curateur est seul habilité à payer les créanciers de la succession (article 810-4, alinéa 1)";
+    label en unofficial "only the curator may pay the estate's creditors (Article 810-4, paragraph 1)";
+}
+pub relation dettes_acquittees_jusqu_a_concurrence(s: Succession, montant: Money) kind derived {
+    key(s);
+    label fr official "montant jusqu'à concurrence duquel le curateur est tenu d'acquitter les dettes (article 810-4, alinéa 1)";
+    label en unofficial "amount up to which the curator must discharge the debts (Article 810-4, paragraph 1)";
+}
+pub relation paiement_immediat_permis(s: Succession, dette: DetteDeLaSuccession) kind derived {
+    label fr official "la dette peut être payée sans attendre le projet de règlement du passif (article 810-4, alinéa 2)";
+    label en unofficial "the debt may be paid without awaiting the settlement plan (Article 810-4, paragraph 2)";
+}
+pub relation dette_payee_sans_attendre_le_projet(s: Succession, dette: DetteDeLaSuccession) kind institutional {
+    label fr official "la dette est payée sans attendre le projet de règlement du passif (article 810-4, alinéa 2)";
+    label en unofficial "the debt is paid without waiting for the draft settlement of liabilities (Article 810-4, paragraph 2)";
+}
+@source(CC_ART810_4)
+pub relation paiement_subordonne_au_projet(s: Succession, dette: DetteDeLaSuccession) kind derived {
+    label fr official "la dette ne peut être payée qu'au vu du projet de règlement du passif (article 810-4, alinéa 2)";
+    label en unofficial "the debt may be paid only under the settlement plan (Article 810-4, paragraph 2)";
+}
+pub relation classe_de_paiement(s: Succession, creancier: Personne, classe: Integer) kind derived {
+    key(s, creancier);
+    label fr official "rang de la classe dans laquelle le créancier ou le légataire est payé (article 796)";
+    label en unofficial "rank of the class in which the creditor or legatee is paid (Article 796)";
+}
+pub relation paye_avant(s: Succession, premier: Personne, second: Personne) kind derived {
+    label fr official "le projet de règlement paie le premier avant le second (articles 796, 810-5)";
+    label en unofficial "the settlement plan pays the first before the second (Articles 796, 810-5)";
+}
+pub relation fin_du_delai_de_contestation_du_projet(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour du mois suivant la publicité du projet de règlement (article 810-5, alinéa 3)";
+    label en unofficial "last day of the month following publication of the settlement plan (Article 810-5, paragraph 3)";
+}
+pub relation contestation_du_projet_recevable(s: Succession, creancier: Personne) kind derived {
+    label fr official "la contestation du projet de règlement est recevable (article 810-5, alinéa 3)";
+    label en unofficial "the challenge to the settlement plan is admissible (Article 810-5, paragraph 3)";
+}
+pub relation projet_de_reglement_conteste(s: Succession, creancier: Personne) kind institutional {
+    label fr official "le créancier non désintéressé a contesté le projet de règlement du passif (article 810-5, alinéa 3)";
+    label en unofficial "the unpaid creditor has contested the draft settlement of liabilities (Article 810-5, paragraph 3)";
+}
+pub relation contestation_du_projet_tardive(s: Succession, creancier: Personne) kind derived {
+    label fr official "la contestation du projet de règlement est tardive (article 810-5, alinéa 3)";
+    label en unofficial "the challenge to the settlement plan is out of time (Article 810-5, paragraph 3)";
+}
+pub relation fin_du_delai_d_opposition_a_la_realisation(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des trois mois pour s'opposer à la réalisation en réclamant la succession (article 810-8)";
+    label en unofficial "last day of the three months to object to the realisation by claiming the estate (Article 810-8)";
+}
+pub relation opposition_a_la_realisation_recevable(s: Succession, h: Personne) kind derived {
+    label fr official "l'opposition de l'héritier à la réalisation est recevable (article 810-8)";
+    label en unofficial "the heir's objection to the realisation is admissible (Article 810-8)";
+}
+pub relation opposition_a_la_realisation_formee(s: Succession, h: Personne) kind institutional {
+    label fr official "l'héritier s'est opposé à la réalisation en réclamant la succession (article 810-8)";
+    label en unofficial "the heir has opposed the sale by claiming the estate (Article 810-8)";
+}
+pub relation realisation_prematuree(s: Succession) kind derived {
+    label fr official "la réalisation a eu lieu avant l'expiration du délai d'opposition (article 810-8)";
+    label en unofficial "the realisation took place before the objection period expired (Article 810-8)";
+}
+@source(CC_ART810_9)
+pub relation creancier_limite_a_l_actif_subsistant(s: Succession, creancier: Personne) kind derived {
+    label fr official "le créancier qui déclare après la remise du compte ne peut prétendre qu'à l'actif subsistant (article 810-9, alinéa 1)";
+    label en unofficial "a creditor declaring after the account is delivered may claim only the remaining assets (Article 810-9, paragraph 1)";
+}
+pub relation recours_contre_les_legataires_ouvert(s: Succession, creancier: Personne, legataire: Personne) kind derived {
+    label fr official "le créancier tardif a un recours contre le légataire rempli de ses droits (article 810-9, alinéa 1)";
+    label en unofficial "the late creditor has a claim against the legatee paid in full (Article 810-9, paragraph 1)";
+}
+pub relation fin_du_recours_contre_les_legataires(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des deux ans de prescription du recours contre les légataires (article 810-9, alinéa 2)";
+    label en unofficial "last day of the two-year limitation of the claim against the legatees (Article 810-9, paragraph 2)";
+}
+pub relation recours_contre_les_legataires_prescrit(s: Succession, creancier: Personne) kind derived {
+    label fr official "le recours du créancier contre les légataires est prescrit (article 810-9, alinéa 2)";
+    label en unofficial "the creditor's claim against the legatees is time-barred (Article 810-9, paragraph 2)";
+}
+pub relation curatelle_terminee(s: Succession) kind derived {
+    label fr official "la curatelle prend fin (article 810-12)";
+    label en unofficial "the curatorship ends (Article 810-12)";
+}
+
+// --- Résultats : la déshérence -------------------------------------------------------------
+
+pub relation envoi_en_possession_a_demander(s: Succession) kind derived {
+    label fr official "l'État doit demander l'envoi en possession au tribunal (article 811)";
+    label en unofficial "the State must apply to the court to be put in possession (Article 811)";
+}
+pub relation inventaire_a_la_charge_de_l_autorite(s: Succession) kind derived {
+    label fr official "l'autorité administrative fait procéder à l'inventaire qui n'a pas été établi (article 811-1)";
+    label en unofficial "the administrative authority has the missing inventory drawn up (Article 811-1)";
+}
+pub relation desherence_terminee(s: Succession) kind derived {
+    label fr official "la déshérence de la succession prend fin (article 811-2)";
+    label en unofficial "the escheat of the estate ends (Article 811-2)";
+}
+pub relation etat_expose_a_des_dommages_et_interets(s: Succession) kind derived {
+    label fr official "l'État peut être condamné à des dommages et intérêts envers les héritiers (article 811-3)";
+    label en unofficial "the State may be ordered to pay damages to the heirs (Article 811-3)";
+}
+pub relation dommages_et_interets_demandes_a_l_etat(s: Succession) kind institutional {
+    label fr official "les héritiers ont demandé la condamnation de l'État à des dommages et intérêts (article 811-3)";
+    label en unofficial "the heirs have sought an award of damages against the State (Article 811-3)";
+}
+
+// --- Résultats : le mandat à effet posthume --------------------------------------------------
+
+pub relation mandataire_apte(m: Mandat) kind derived {
+    label fr official "le mandataire remplit les conditions de l'article 812";
+    label en unofficial "the agent meets the conditions of Article 812";
+}
+pub relation mandataire_inapte(m: Mandat) kind derived {
+    label fr official "le mandataire ne peut recevoir le mandat (article 812, alinéas 3 et 4)";
+    label en unofficial "the agent cannot receive the mandate (Article 812, paragraphs 3 and 4)";
+}
+pub relation duree_maximale_du_mandat(m: Mandat, jour: Date) kind derived {
+    key(m);
+    label fr official "dernier jour de la durée maximale du mandat (article 812-1-1, alinéa 2)";
+    label en unofficial "last day of the mandate's maximum duration (Article 812-1-1, paragraph 2)";
+}
+@source(CC_ART812_1_1)
+pub relation duree_du_mandat_excessive(m: Mandat) kind derived {
+    label fr official "le terme prévu excède la durée maximale du mandat (article 812-1-1, alinéa 2)";
+    label en unofficial "the term set exceeds the mandate's maximum duration (Article 812-1-1, paragraph 2)";
+}
+pub relation mandat_valable(m: Mandat) kind derived {
+    label fr official "le mandat à effet posthume est valable (articles 812, 812-1-1)";
+    label en unofficial "the posthumous mandate is valid (Articles 812, 812-1-1)";
+}
+pub relation mandat_non_valable(m: Mandat) kind derived {
+    label fr official "le mandat à effet posthume n'est pas valable (articles 812, 812-1-1)";
+    label en unofficial "the posthumous mandate is not valid (Articles 812, 812-1-1)";
+}
+pub relation acceptation_d_un_heritier_vise(m: Mandat) kind derived {
+    label fr official "un héritier visé par le mandat a accepté la succession (article 812-1-3)";
+    label en unofficial "an heir covered by the mandate accepted the estate (Article 812-1-3)";
+}
+pub relation cause_limitee_a_un_heritier(m: Mandat) kind derived {
+    label fr official "la cause d'extinction ne concerne qu'un héritier parmi plusieurs (article 812-4, dernier alinéa)";
+    label en unofficial "the ground of extinction concerns only one of several heirs (Article 812-4, last paragraph)";
+}
+@source(CC_ART812_1_3)
+pub relation pouvoirs_du_mandataire_limites_a_784(m: Mandat) kind derived {
+    label fr official "tant qu'aucun héritier visé n'a accepté, le mandataire ne dispose que des pouvoirs de l'article 784 (article 812-1-3)";
+    label en unofficial "until a covered heir accepts, the agent has only the powers of Article 784 (Article 812-1-3)";
+}
+pub relation mandat_gratuit(m: Mandat) kind derived {
+    label fr official "le mandat est gratuit (article 812-2, alinéa 1)";
+    label en unofficial "the mandate is gratuitous (Article 812-2, paragraph 1)";
+}
+pub relation remuneration_due(m: Mandat) kind derived {
+    label fr official "la rémunération prévue est due au mandataire (article 812-2, alinéa 2)";
+    label en unofficial "the remuneration provided for is owed to the agent (Article 812-2, paragraph 2)";
+}
+pub relation remuneration_reclamee_par_le_mandataire(m: Mandat) kind institutional {
+    label fr official "le mandataire a réclamé la rémunération prévue (article 812-2, alinéa 2)";
+    label en unofficial "the agent has claimed the agreed remuneration (Article 812-2, paragraph 2)";
+}
+pub relation reduction_de_la_remuneration_ouverte(m: Mandat) kind derived {
+    label fr official "la rémunération ouvre droit à réduction (article 812-3)";
+    label en unofficial "the remuneration gives rise to a right of abatement (Article 812-3)";
+}
+pub relation reduction_de_la_remuneration_demandee(m: Mandat) kind institutional {
+    label fr official "les héritiers ont demandé en justice la réduction de la rémunération (article 812-3)";
+    label en unofficial "the heirs have sought a court reduction of the remuneration (Article 812-3)";
+}
+pub relation revision_de_la_remuneration_ouverte(m: Mandat) kind derived {
+    label fr official "les héritiers peuvent demander en justice la révision de la rémunération (article 812-3)";
+    label en unofficial "the heirs may apply to the court to have the remuneration revised (Article 812-3)";
+}
+pub relation revision_de_la_remuneration_demandee(m: Mandat) kind institutional {
+    label fr official "les héritiers ont demandé en justice la révision de la rémunération (article 812-3)";
+    label en unofficial "the heirs have sought a court revision of the remuneration (Article 812-3)";
+}
+@source(CC_ART812_4)
+pub relation mandat_termine(m: Mandat) kind derived {
+    label fr official "le mandat à effet posthume prend fin (article 812-4)";
+    label en unofficial "the posthumous mandate ends (Article 812-4)";
+}
+pub relation mandat_maintenu_pour_les_autres_heritiers(m: Mandat) kind derived {
+    label fr official "le mandat ne cesse pas entièrement, la cause ne concernant qu'un héritier (article 812-4, dernier alinéa)";
+    label en unofficial "the mandate does not end entirely, the ground concerning only one heir (Article 812-4, last paragraph)";
+}
+pub relation restitution_de_la_remuneration_possible(m: Mandat) kind derived {
+    label fr official "le mandataire peut être tenu de restituer tout ou partie des sommes perçues (article 812-5)";
+    label en unofficial "the agent may be required to return all or part of the sums received (Article 812-5)";
+}
+@source(CC_ART812_5)
+pub relation restitution_exclue(m: Mandat) kind derived {
+    label fr official "la révocation ne donne pas lieu à restitution de la rémunération (article 812-5, alinéa 1)";
+    label en unofficial "the revocation does not give rise to a return of the remuneration (Article 812-5, paragraph 1)";
+}
+pub relation renonciation_effective_le(m: Mandat, jour: Date) kind derived {
+    key(m);
+    label fr official "jour où la renonciation du mandataire prend effet (article 812-6, alinéa 2)";
+    label en unofficial "day the agent's renunciation takes effect (Article 812-6, paragraph 2)";
+}
+pub relation revocation_judiciaire_possible(m: Mandat) kind derived {
+    label fr official "une révocation judiciaire peut être demandée par tout intéressé (article 812-7)";
+    label en unofficial "any interested person may apply for judicial revocation (Article 812-7)";
+}
+pub relation revocation_judiciaire_demandee(m: Mandat) kind institutional {
+    label fr official "la révocation judiciaire du mandat est demandée (article 812-7)";
+    label en unofficial "judicial revocation of the mandate is sought (Article 812-7)";
+}
+
+// --- Résultats : le mandataire successoral -----------------------------------------------------
+
+pub relation heritier_acceptant(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier a accepté la succession, purement et simplement ou à concurrence de l'actif net (articles 813-4, 814)";
+    label en unofficial "the heir accepted the estate, either outright or up to the net assets (Articles 813-4, 814)";
+}
+pub relation acceptation_d_un_heritier(s: Succession) kind derived {
+    label fr official "au moins un héritier a accepté la succession (articles 813-4, 814)";
+    label en unofficial "at least one heir accepted the estate (Articles 813-4, 814)";
+}
+pub relation accepte_a_concurrence_de_l_actif_net(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier a accepté la succession à concurrence de l'actif net (articles 787, 813)";
+    label en unofficial "the heir accepted the estate up to the value of the net assets (Articles 787, 813)";
+}
+pub relation designation_judiciaire_obligatoire(s: Succession) kind derived {
+    label fr official "le mandataire ne peut être désigné que par le juge (article 813, alinéa 2)";
+    label en unofficial "the administrator may be appointed only by the judge (Article 813, paragraph 2)";
+}
+pub relation mandat_conventionnel_valable(s: Succession, p: Personne) kind derived {
+    label fr official "l'administration confiée d'un commun accord est régie par les articles 1984 à 2010 (article 813, alinéa 1)";
+    label en unofficial "the administration entrusted by common agreement is governed by Articles 1984 to 2010 (Article 813, paragraph 1)";
+}
+pub relation designation_judiciaire_possible(s: Succession) kind derived {
+    label fr official "le juge peut désigner un mandataire successoral (article 813-1)";
+    label en unofficial "the judge may appoint an estate administrator (Article 813-1)";
+}
+@source(CC_ART813_4)
+pub relation pouvoirs_du_mandataire_successoral_limites_a_784(s: Succession) kind derived {
+    label fr official "tant qu'aucun héritier n'a accepté, le mandataire successoral ne peut accomplir que les actes de l'article 784 (article 813-4)";
+    label en unofficial "until an heir accepts, the estate administrator may perform only the acts of Article 784 (Article 813-4)";
+}
+pub relation mandataire_successoral(s: Succession, p: Personne) kind empirical {
+    label fr official "mandataire successoral";
+    label en unofficial "estate administrator";
+}
+pub relation autorisation_administration_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "autorisation d'accomplir les actes d'administration exercée";
+    label en unofficial "authorisation to perform administration exercised";
+}
+pub relation substitution_mandataire_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "demande de substitution par un mandataire successoral exercée";
+    label en unofficial "request for replacement by an estate administrator exercised";
+}
+pub relation dessaisissement_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "demande de dessaisissement du mandataire exercée";
+    label en unofficial "request to remove the estate administrator exercised";
+}
+pub relation demande_revision_remuneration_exercee(m: Mandat, h: Personne) kind empirical {
+    label fr official "demande de révision de la rémunération exercée";
+    label en unofficial "request to revise remuneration exercised";
+}
+pub relation demande_reduction_remuneration_exercee(m: Mandat, h: Personne) kind empirical {
+    label fr official "demande de réduction de la rémunération exercée";
+    label en unofficial "request to reduce remuneration exercised";
+}
+pub relation renonciation_mandataire_exercee(m: Mandat, p: Personne) kind empirical {
+    label fr official "renonciation du mandataire exercée";
+    label en unofficial "agent renunciation exercised";
+}
+pub relation demande_restitution_remuneration_exercee(m: Mandat, p: Personne) kind empirical {
+    label fr official "demande de restitution de la rémunération exercée";
+    label en unofficial "request for remuneration restitution exercised";
+}
+pub relation mandat_excessif_exerce(m: Mandat, p: Personne) kind empirical {
+    label fr official "mandat au-delà de la durée maximale exercé";
+    label en unofficial "mandate beyond the maximum duration exercised";
+}
+pub relation acte_apres_fin_mandat_exerce(m: Mandat, p: Personne) kind empirical {
+    label fr official "acte accompli après la fin du mandat exercé";
+    label en unofficial "act performed after mandate termination exercised";
+}
+pub relation condamnation_dommages_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "demande de condamnation de l'État à dommages et intérêts exercée";
+    label en unofficial "request for State damages exercised";
+}
+pub relation demande_revocation_exercee(m: Mandat, p: Personne) kind empirical {
+    label fr official "demande de révocation judiciaire exercée";
+    label en unofficial "request for judicial revocation exercised";
+}
+pub relation restitution_remuneration_exercee(m: Mandat) kind empirical {
+    label fr official "restitution de la rémunération exercée";
+    label en unofficial "remuneration restitution exercised";
+}
+pub relation paiement_dette_exerce(s: Succession, p: Personne, dette: DetteDeLaSuccession) kind empirical {
+    label fr official "paiement de la dette exercé";
+    label en unofficial "debt payment exercised";
+}
+pub relation paiement_dette_conditionnel_exerce(s: Succession, p: Personne, dette: DetteDeLaSuccession) kind empirical {
+    label fr official "paiement conditionnel de la dette exercé";
+    label en unofficial "conditional debt payment exercised";
+}
+pub relation exigence_adjudication_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "exigence d'une adjudication exercée";
+    label en unofficial "auction requirement exercised";
+}
+pub relation pretention_actif_integral_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "prétention à l'actif intégral exercée";
+    label en unofficial "claim to the whole remaining estate exercised";
+}
+pub relation acte_hors_pouvoirs_mandataire_exerce(m: Mandat, p: Personne) kind empirical {
+    label fr official "acte excédant les pouvoirs du mandataire exercé";
+    label en unofficial "act exceeding the agent's powers exercised";
+}
+pub relation designation_conventionnelle_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "désignation conventionnelle du mandataire exercée";
+    label en unofficial "contractual appointment of the administrator exercised";
+}
+pub relation remuneration_mandataire_exercee(m: Mandat, p: Personne) kind empirical {
+    label fr official "demande de rémunération du mandataire exercée";
+    label en unofficial "agent remuneration claim exercised";
+}
+pub relation consultation_inventaire_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "consultation de l'inventaire exercée";
+    label en unofficial "inventory consultation exercised";
+}
+pub relation acte_surveillance_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte de surveillance exercé";
+    label en unofficial "supervision act exercised";
+}
+pub relation acte_administration_provisoire_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte d'administration provisoire exercé";
+    label en unofficial "provisional administration act exercised";
+}
+pub relation vente_biens_perissables_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "vente des biens périssables exercée";
+    label en unofficial "sale of perishable assets exercised";
+}
+pub relation acte_administration_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte d'administration exercé";
+    label en unofficial "administration act exercised";
+}
+pub relation acte_conservatoire_apres_delai_exerce(s: Succession, p: Personne) kind empirical {
+    label fr official "acte conservatoire après délai exercé";
+    label en unofficial "post-period conservatory act exercised";
+}
+pub relation vente_meubles_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "vente des meubles exercée";
+    label en unofficial "sale of movables exercised";
+}
+pub relation vente_immeubles_exercee(s: Succession, p: Personne) kind empirical {
+    label fr official "vente des immeubles exercée";
+    label en unofficial "sale of immovables exercised";
+}
+pub relation interesse_mandat(m: Mandat, p: Personne) kind empirical {
+    label fr official "personne intéressée au mandat";
+    label en unofficial "person interested in the mandate";
+}
+pub relation actes_d_administration_autorisables(s: Succession) kind derived {
+    label fr official "le juge peut autoriser le mandataire successoral à accomplir l'ensemble des actes d'administration (article 814)";
+    label en unofficial "the judge may authorise the estate administrator to perform all acts of administration (Article 814)";
+}
+pub relation substitution_du_mandataire_demandable(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier acceptant à concurrence de l'actif net peut demander à être substitué par un mandataire successoral (article 814-1)";
+    label en unofficial "the heir accepting up to the net assets may ask to be replaced by an estate administrator (Article 814-1)";
+}
+pub relation mission_du_mandataire_successoral_terminee(s: Succession) kind derived {
+    label fr official "la mission du mandataire successoral cesse (article 813-9, alinéa 2)";
+    label en unofficial "the estate administrator's mission ends (Article 813-9, paragraph 2)";
+}
+pub relation dessaisissement_du_mandataire_possible(s: Succession, p: Personne) kind derived {
+    label fr official "le juge peut dessaisir le mandataire successoral de sa mission (article 813-7)";
+    label en unofficial "the judge may remove the estate administrator from the mission (Article 813-7)";
+}
+pub relation dessaisissement_du_mandataire_demande(s: Succession, p: Personne) kind institutional {
+    label fr official "le dessaisissement du mandataire successoral est demandé au juge (article 813-7)";
+    label en unofficial "the judge is asked to remove the estate agent from the mission (Article 813-7)";
+}
+
+// === LA VACANCE (809) =========================================================================
+
+@source(CC_ART809) {
+    rule VacanceFauteDeReclamantEtDHeritierConnu(s: Succession) strict {
+        label fr official "Article 809, 1°. La succession est vacante lorsqu'il ne se présente personne pour la réclamer et qu'il n'y a pas d'héritier connu";
+        label en unofficial "Article 809, 1°. The estate is vacant where nobody claims it and no heir is known";
+        when aucun_reclamant_ni_heritier_connu_constate(s);
+        then succession_vacante(s);
+    }
+
+    // 2° : tous les héritiers CONNUS ont renoncé. Le dénombrement est fourni
+    // par le dossier ; « tous » se vérifie par l'égalité des deux nombres, et
+    // la présence d'au moins un héritier connu empêche qu'une succession sans
+    // héritier connu tombe ici plutôt qu'au 1°.
+    rule VacanceParRenonciationDeTousLesHeritiersConnus(s: Succession, n: Integer) strict {
+        label fr official "Article 809, 2°. La succession est vacante lorsque tous les héritiers connus ont renoncé";
+        label en unofficial "Article 809, 2°. The estate is vacant where all known heirs have renounced";
+        when nombre_d_heritiers_connus(s, n)
+            and nombre_d_heritiers_connus_renoncants(s, n)
+            and n >= 1;
+        then succession_vacante(s);
+    }
+
+    rule SixMoisDepuisLOuverture(s: Succession, ouverture: Date) strict {
+        label fr official "Article 809, 3°. Le délai de six mois court depuis l'ouverture de la succession";
+        label en unofficial "Article 809, 3°. The six-month period runs from the opening of the succession";
+        when ouverte_le(s, ouverture);
+        then fin_du_delai_de_six_mois(s, add_calendar_period(ouverture, 6 calendar_month));
+    }
+
+    rule VacanceFauteDOptionApresSixMois(s: Succession, fin: Date, examen: Date) strict {
+        label fr official "Article 809, 3°. La succession est vacante lorsque, le délai de six mois expiré, les héritiers connus n'ont pas opté";
+        label en unofficial "Article 809, 3°. The estate is vacant where, the six months having run, the known heirs have not opted";
+        when fin_du_delai_de_six_mois(s, fin)
+            and date_d_appreciation_de_la_curatelle(s, examen)
+            and examen > fin
+            and aucune_option_des_heritiers_connus_constatee(s);
+        then succession_vacante(s);
+    }
+}
+
+@source(CC_ART809_1) {
+    rule RequeteDuCreancier(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Le créancier peut saisir le juge d'une demande de curatelle";
+        label en unofficial "Article 809-1. A creditor may apply to the judge for a curatorship";
+        when requete_presentee_par(s, demandeur, Creancier);
+        then requete_recevable(s, demandeur);
+    }
+    rule RequeteDeLAdministrateurDuPatrimoine(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Celui qui assurait l'administration du patrimoine du défunt peut saisir le juge";
+        label en unofficial "Article 809-1. A person who administered the deceased's estate may apply to the judge";
+        when requete_presentee_par(s, demandeur, AdministrateurDuPatrimoineDuDefunt);
+        then requete_recevable(s, demandeur);
+    }
+    rule RequeteDuNotaire(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Le notaire peut saisir le juge d'une demande de curatelle";
+        label en unofficial "Article 809-1. A notary may apply to the judge for a curatorship";
+        when requete_presentee_par(s, demandeur, Notaire);
+        then requete_recevable(s, demandeur);
+    }
+    rule RequeteDeToutePersonneInteressee(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Toute autre personne intéressée peut saisir le juge";
+        label en unofficial "Article 809-1. Any other interested person may apply to the judge";
+        when requete_presentee_par(s, demandeur, AutrePersonneInteressee);
+        then requete_recevable(s, demandeur);
+    }
+    rule RequeteDuMinisterePublic(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Le ministère public peut saisir le juge d'une demande de curatelle";
+        label en unofficial "Article 809-1. The public prosecutor may apply to the judge for a curatorship";
+        when requete_presentee_par(s, demandeur, MinisterePublic);
+        then requete_recevable(s, demandeur);
+    }
+    rule CuratelleConfiee(s: Succession, demandeur: Personne) strict {
+        label fr official "Article 809-1. Le juge confie la curatelle de la succession vacante à l'autorité administrative chargée du domaine";
+        label en unofficial "Article 809-1. The judge entrusts the curatorship of the vacant estate to the authority in charge of State property";
+        when succession_vacante(s)
+            and requete_recevable(s, demandeur);
+        then curatelle_confiee_a_l_autorite_du_domaine(s);
+    }
+}
+
+@source(CC_ART809_2) {
+    rule InventaireEstimatifRequis(s: Succession) strict {
+        label fr official "Article 809-2, alinéa 1. Dès sa désignation, le curateur fait dresser un inventaire estimatif article par article de l'actif et du passif";
+        label en unofficial "Article 809-2, paragraph 1. On appointment, the curator has an itemised valuation inventory of assets and liabilities drawn up";
+        when curatelle_confiee_a_l_autorite_du_domaine(s);
+        then inventaire_estimatif_requis(s);
+    }
+    rule ConsultationParLeCreancier(s: Succession, p: Personne) strict {
+        label fr official "Article 809-2, alinéa 3. Le créancier qui justifie de son titre peut consulter l'inventaire et en obtenir copie";
+        label en unofficial "Article 809-2, paragraph 3. A creditor who proves their title may consult the inventory and obtain a copy";
+        when inventaire_estimatif_dresse(s)
+            and titre_justifie(s, p)
+            and qualite_du_creancier(s, p, CreancierDeclare);
+        then consultation_de_l_inventaire_ouverte(s, p);
+    }
+    rule ConsultationParLeCreancierInscrit(s: Succession, p: Personne) strict {
+        label fr official "Article 809-2, alinéa 3. Le créancier inscrit qui justifie de son titre peut consulter l'inventaire et en obtenir copie";
+        label en unofficial "Article 809-2, paragraph 3. A registered creditor who proves their title may consult the inventory and obtain a copy";
+        when inventaire_estimatif_dresse(s)
+            and titre_justifie(s, p)
+            and qualite_du_creancier(s, p, CreancierInscrit);
+        then consultation_de_l_inventaire_ouverte(s, p);
+    }
+    rule ConsultationParLeLegataireDeSommeDArgent(s: Succession, p: Personne) strict {
+        label fr official "Article 809-2, alinéa 3. Le légataire de sommes d'argent qui justifie de son titre peut consulter l'inventaire et en obtenir copie";
+        label en unofficial "Article 809-2, paragraph 3. A legatee of money who proves their title may consult the inventory and obtain a copy";
+        when inventaire_estimatif_dresse(s)
+            and titre_justifie(s, p)
+            and qualite_du_creancier(s, p, LegataireDeSommeDArgent);
+        then consultation_de_l_inventaire_ouverte(s, p);
+    }
+}
+
+// === LES POUVOIRS DU CURATEUR (810 à 810-3) ====================================================
+
+// 810-1 : pendant les six mois qui suivent l'ouverture, quatre catégories
+// seulement. Le dernier jour du délai appartient encore à la période limitée.
+@source(CC_ART810_1) {
+    rule ActeConservatoireAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, le curateur peut accomplir les actes purement conservatoires";
+        label en unofficial "Article 810-1. During the six months after the opening, the curator may perform purely conservatory acts";
+        when acte_du_curateur_le(s, ActePurementConservatoire, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_permis(s, ActePurementConservatoire);
+    }
+    rule ActeDeSurveillanceAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, le curateur peut accomplir les actes de surveillance";
+        label en unofficial "Article 810-1. During the six months after the opening, the curator may perform acts of supervision";
+        when acte_du_curateur_le(s, ActeDeSurveillance, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_permis(s, ActeDeSurveillance);
+    }
+    rule AdministrationProvisoireAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, le curateur peut accomplir les actes d'administration provisoire";
+        label en unofficial "Article 810-1. During the six months after the opening, the curator may perform acts of provisional administration";
+        when acte_du_curateur_le(s, AdministrationProvisoire, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_permis(s, AdministrationProvisoire);
+    }
+    rule VenteDesBiensPerissablesAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, le curateur peut procéder à la vente des biens périssables";
+        label en unofficial "Article 810-1. During the six months after the opening, the curator may sell perishable assets";
+        when acte_du_curateur_le(s, VenteDeBiensPerissables, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_permis(s, VenteDeBiensPerissables);
+    }
+    rule ActeDAdministrationInterditAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, l'administration ne peut être que provisoire";
+        label en unofficial "Article 810-1. During the six months after the opening, administration may only be provisional";
+        when acte_du_curateur_le(s, ActeDAdministration, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_interdit(s, ActeDAdministration);
+    }
+    rule VenteDeMeublesInterditeAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, la vente des meubles non périssables excède les pouvoirs du curateur";
+        label en unofficial "Article 810-1. During the six months after the opening, selling non-perishable movables exceeds the curator's powers";
+        when acte_du_curateur_le(s, VenteDeBiensMeubles, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_interdit(s, VenteDeBiensMeubles);
+    }
+    rule VenteDImmeublesInterditeAvantLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, la vente des immeubles excède les pouvoirs du curateur";
+        label en unofficial "Article 810-1. During the six months after the opening, selling immovables exceeds the curator's powers";
+        when acte_du_curateur_le(s, VenteDeBiensImmeubles, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour <= fin;
+        then acte_du_curateur_interdit(s, VenteDeBiensImmeubles);
+    }
+}
+
+@source(CC_ART809_1)
+rule P3PouvoirSaisirCuratelle(s: Succession, p: Personne, qualite: QualiteDuRequerant) strict {
+    label fr official "Article 809-1. Les personnes qualifiées peuvent saisir le juge d'une demande de curatelle";
+    label en unofficial "Article 809-1. Qualified persons may apply to the judge for a curatorship";
+    when requete_presentee_par(s, p, qualite);
+    then power P3PositionPouvoirSaisirCuratelle {
+        holder p;
+        over s;
+        exercise saisie_curatelle_exercee(s, p);
+        effect juge_saisi_d_une_demande_de_curatelle(s, p);
+        valid_when requete_presentee_par(s, p, qualite);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART809_2)
+rule P3DevoirDresserInventaire(s: Succession, p: Personne) strict {
+    label fr official "Article 809-2. Dès sa désignation, le curateur fait dresser un inventaire estimatif";
+    label en unofficial "Article 809-2. On appointment, the curator has an inventory drawn up";
+    when curatelle_confiee_a_l_autorite_du_domaine(s) and curateur_succession(s, p);
+    then duty P3PositionDevoirDresserInventaire {
+        bearer p;
+        goal achievement {
+            condition inventaire_exerce(s, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART810_1)
+rule P3PouvoirActeConservatoireCurateur(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-1. Pendant les six mois qui suivent l'ouverture, le curateur peut accomplir les actes conservatoires";
+    label en unofficial "Article 810-1. During six months after opening, the curator may perform conservatory acts";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, ActePurementConservatoire, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour <= fin;
+    then power P3PositionPouvoirActeConservatoireCurateur {
+        holder p;
+        over s;
+        exercise acte_conservatoire_exerce(s, p);
+        effect acte_du_curateur_accompli(s, ActePurementConservatoire);
+        valid_when acte_du_curateur_permis(s, ActePurementConservatoire);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_1)
+rule P3PouvoirDesignerMandataireSuccessoral(s: Succession, p: Personne) strict {
+    label fr official "Article 813-1. Le juge peut désigner un mandataire successoral";
+    label en unofficial "Article 813-1. The judge may appoint an estate administrator";
+    when mandataire_motif(s, p);
+    then power P3PositionPouvoirDesignerMandataireSuccessoral {
+        holder p;
+        over s;
+        exercise designation_mandataire_exercee(s, p);
+        effect mandataire_successoral_admis(s, p);
+        valid_when mandataire_motif(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART811)
+rule P3DevoirEtatDemanderEnvoiPossession(s: Succession, p: Personne) strict {
+    label fr official "Article 811. L'État doit demander l'envoi en possession au tribunal";
+    label en unofficial "Article 811. The State must apply to the court for possession";
+    when etat_pretend_a_la_succession(s) and etat_demandeur_envoi(s, p);
+    then duty P3PositionDevoirEtatDemanderEnvoiPossession {
+        bearer p;
+        goal achievement {
+            condition envoi_en_possession_demande_au_tribunal(s);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART813_4)
+rule P3InterdictionMandataireAuDelaArticle784(s: Succession, p: Personne) strict {
+    label fr official "Article 813-4. Tant qu'aucun héritier n'a accepté, le mandataire successoral ne peut accomplir que les actes de l'article 784";
+    label en unofficial "Article 813-4. Until an heir accepts, the estate administrator may perform only Article 784 acts";
+    when mandataire_successoral(s, p) and pouvoirs_du_mandataire_successoral_limites_a_784(s);
+    then prohibition P3PositionInterdictionMandataireAuDelaArticle784 {
+        bearer p;
+        action autorisation_administration_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART814)
+rule P3PouvoirAutoriserAdministrationMandataire(s: Succession, p: Personne) strict {
+    label fr official "Article 814. Le juge peut autoriser le mandataire successoral à accomplir l'ensemble des actes d'administration";
+    label en unofficial "Article 814. The judge may authorise the estate administrator to perform all acts of administration";
+    when mandataire_successoral(s, p);
+    then power P3PositionPouvoirAutoriserAdministrationMandataire {
+        holder p;
+        over s;
+        exercise autorisation_administration_exercee(s, p);
+        effect actes_d_administration_autorisables(s);
+        valid_when mandataire_successoral(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_7)
+rule P3PouvoirDemanderDessaisissementMandataire(s: Succession, p: Personne) strict {
+    label fr official "Article 813-7. Le juge peut dessaisir le mandataire successoral de sa mission";
+    label en unofficial "Article 813-7. The judge may remove the estate administrator from the mission";
+    when dessaisissement_du_mandataire_possible(s, p);
+    then power P3PositionPouvoirDemanderDessaisissementMandataire {
+        holder p;
+        over s;
+        exercise dessaisissement_exerce(s, p);
+        effect dessaisissement_du_mandataire_demande(s, p);
+        valid_when dessaisissement_du_mandataire_possible(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART814_1)
+rule P3PouvoirDemanderSubstitutionMandataire(s: Succession, h: Personne) strict {
+    label fr official "Article 814-1. L'héritier acceptant à concurrence de l'actif net peut demander à être substitué par un mandataire successoral";
+    label en unofficial "Article 814-1. An heir accepting up to net assets may request replacement by an estate administrator";
+    when accepte_a_concurrence_de_l_actif_net(s, h);
+    then power P3PositionPouvoirDemanderSubstitutionMandataire {
+        holder h;
+        over s;
+        exercise substitution_mandataire_exercee(s, h);
+        effect substitution_du_mandataire_demandable(s, h);
+        valid_when accepte_a_concurrence_de_l_actif_net(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_3)
+rule P3PouvoirDemanderRevisionRemuneration(m: Mandat, h: Personne) strict {
+    label fr official "Article 812-3. Les héritiers peuvent demander en justice la révision de la rémunération";
+    label en unofficial "Article 812-3. Heirs may apply to court to revise the remuneration";
+    when heritier_vise_par_le_mandat(m, h) and revision_de_la_remuneration_ouverte(m);
+    then power P3PositionPouvoirDemanderRevisionRemuneration {
+        holder h;
+        over m;
+        exercise demande_revision_remuneration_exercee(m, h);
+        effect revision_de_la_remuneration_demandee(m);
+        valid_when revision_de_la_remuneration_ouverte(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_3)
+rule P3PouvoirDemanderReductionRemuneration(m: Mandat, h: Personne) strict {
+    label fr official "Article 812-3. Les héritiers peuvent demander en justice la réduction de la rémunération";
+    label en unofficial "Article 812-3. Heirs may apply to court to reduce the remuneration";
+    when heritier_vise_par_le_mandat(m, h) and reduction_de_la_remuneration_ouverte(m);
+    then power P3PositionPouvoirDemanderReductionRemuneration {
+        holder h;
+        over m;
+        exercise demande_reduction_remuneration_exercee(m, h);
+        effect reduction_de_la_remuneration_demandee(m);
+        valid_when reduction_de_la_remuneration_ouverte(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_6)
+rule P3PouvoirRenoncerMandataire(m: Mandat, p: Personne, jour: Date) strict {
+    label fr official "Article 812-6. Le mandataire peut renoncer au mandat";
+    label en unofficial "Article 812-6. The agent may renounce the mandate";
+    when mandataire_designe(m, p) and renonciation_notifiee_le(m, jour);
+    then power P3PositionPouvoirRenoncerMandataire {
+        holder p;
+        over m;
+        exercise renonciation_mandataire_exercee(m, p);
+        effect renonciation_effective_le(m, jour);
+        valid_when renonciation_notifiee_le(m, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_5)
+rule P3InterdictionDemanderRestitutionApresRevocation(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-5. La révocation ne donne pas lieu à restitution de la rémunération";
+    label en unofficial "Article 812-5. Revocation does not give rise to remuneration restitution";
+    when restitution_exclue(m) and mandataire_designe(m, p);
+    then prohibition P3PositionInterdictionDemanderRestitutionApresRevocation {
+        bearer p;
+        action demande_restitution_remuneration_exercee(m, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_1_1)
+rule P3InterdictionMandatDureeExcessive(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-1-1. La durée du mandat ne peut excéder la durée maximale";
+    label en unofficial "Article 812-1-1. The mandate duration may not exceed the maximum";
+    when mandataire_designe(m, p) and duree_du_mandat_excessive(m);
+    then prohibition P3PositionInterdictionMandatDureeExcessive {
+        bearer p;
+        action mandat_excessif_exerce(m, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_4)
+rule P3InterdictionActeApresFinMandat(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-4. Le mandat à effet posthume prend fin";
+    label en unofficial "Article 812-4. The posthumous mandate ends";
+    when mandataire_designe(m, p) and mandat_termine(m);
+    then prohibition P3PositionInterdictionActeApresFinMandat {
+        bearer p;
+        action acte_apres_fin_mandat_exerce(m, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART811_3)
+rule P3PouvoirDemanderDommagesEtat(s: Succession, h: Personne) strict {
+    label fr official "Article 811-3. L'État peut être condamné à des dommages et intérêts envers les héritiers";
+    label en unofficial "Article 811-3. The State may be ordered to pay damages to heirs";
+    when etat_expose_a_des_dommages_et_interets(s) and heritier_se_presente(s, h);
+    then power P3PositionPouvoirDemanderDommagesEtat {
+        holder h;
+        over s;
+        exercise condamnation_dommages_exercee(s, h);
+        effect dommages_et_interets_demandes_a_l_etat(s);
+        valid_when etat_expose_a_des_dommages_et_interets(s);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_5)
+rule P3DevoirRestituerRemunerationMandat(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-5. Le mandataire peut être tenu de restituer tout ou partie des sommes perçues";
+    label en unofficial "Article 812-5. The agent may be required to return all or part of sums received";
+    when mandataire_designe(m, p) and restitution_de_la_remuneration_possible(m);
+    then duty P3PositionDevoirRestituerRemunerationMandat {
+        bearer p;
+        goal achievement {
+            condition restitution_remuneration_exercee(m);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART812_7)
+rule P3PouvoirDemanderRevocationMandat(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-7. Une révocation judiciaire peut être demandée par tout intéressé";
+    label en unofficial "Article 812-7. Any interested person may request judicial revocation";
+    when interesse_mandat(m, p) and revocation_judiciaire_possible(m);
+    then power P3PositionPouvoirDemanderRevocationMandat {
+        holder p;
+        over m;
+        exercise demande_revocation_exercee(m, p);
+        effect revocation_judiciaire_demandee(m);
+        valid_when revocation_judiciaire_possible(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_4)
+rule P3PouvoirPayerDetteImmediatement(s: Succession, p: Personne, dette: DetteDeLaSuccession) strict {
+    label fr official "Article 810-4. La dette peut être payée sans attendre le projet de règlement du passif";
+    label en unofficial "Article 810-4. The debt may be paid without awaiting the settlement plan";
+    when curateur_succession(s, p) and dette_a_payer(s, dette)
+        and paiement_immediat_permis(s, dette);
+    then power P3PositionPouvoirPayerDetteImmediatement {
+        holder p;
+        over s;
+        exercise paiement_dette_exerce(s, p, dette);
+        effect dette_payee_sans_attendre_le_projet(s, dette);
+        valid_when paiement_immediat_permis(s, dette);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_4)
+rule P3InterdictionPayerDetteAvantProjet(s: Succession, p: Personne, dette: DetteDeLaSuccession) strict {
+    label fr official "Article 810-4. La dette ne peut être payée qu'au vu du projet de règlement du passif";
+    label en unofficial "Article 810-4. The debt may be paid only on the settlement plan";
+    when curateur_succession(s, p) and dette_a_payer(s, dette)
+        and paiement_subordonne_au_projet(s, dette);
+    then prohibition P3PositionInterdictionPayerDetteAvantProjet {
+        bearer p;
+        action paiement_dette_conditionnel_exerce(s, p, dette);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_3)
+rule P3PouvoirExigerAdjudication(s: Succession, p: Personne) strict {
+    label fr official "Article 810-3. Un créancier peut exiger que la vente soit faite par adjudication";
+    label en unofficial "Article 810-3. A creditor may require the sale to be made by auction";
+    when adjudication_exigee_par(s, p);
+    then power P3PositionPouvoirExigerAdjudication {
+        holder p;
+        over s;
+        exercise exigence_adjudication_exercee(s, p);
+        effect adjudication_obligatoire(s);
+        valid_when adjudication_exigee_par(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_3)
+rule P3InterdictionVenteSansAdjudication(s: Succession, p: Personne) strict {
+    label fr official "Article 810-3. La vente doit être faite par adjudication lorsque le créancier l'exige";
+    label en unofficial "Article 810-3. The sale must be made by auction when required by the creditor";
+    when adjudication_obligatoire(s) and adjudication_exigee_par(s, p);
+    then prohibition P3PositionInterdictionVenteSansAdjudication {
+        bearer p;
+        action exigence_adjudication_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_9)
+rule P3InterdictionPretendreActifIntegral(s: Succession, p: Personne) strict {
+    label fr official "Article 810-9. Le créancier qui déclare après la remise du compte ne peut prétendre qu'à l'actif subsistant";
+    label en unofficial "Article 810-9. A creditor declaring after the account may claim only the remaining assets";
+    when creancier_limite_a_l_actif_subsistant(s, p);
+    then prohibition P3PositionInterdictionPretendreActifIntegral {
+        bearer p;
+        action pretention_actif_integral_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_1_3)
+rule P3InterdictionMandataireHorsPouvoirs(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-1-3. Tant qu'aucun héritier visé n'a accepté, le mandataire ne dispose que des pouvoirs de l'article 784";
+    label en unofficial "Article 812-1-3. Until a covered heir accepts, the agent has only Article 784 powers";
+    when mandataire_designe(m, p) and pouvoirs_du_mandataire_limites_a_784(m);
+    then prohibition P3PositionInterdictionMandataireHorsPouvoirs {
+        bearer p;
+        action acte_hors_pouvoirs_mandataire_exerce(m, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_2)
+rule P3DevoirDeterminerRemunerationMandataire(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-2. La rémunération prévue doit être expressément déterminée dans le mandat";
+    label en unofficial "Article 812-2. The agreed remuneration must be expressly determined in the mandate";
+    when mandataire_designe(m, p);
+    then duty P3PositionDevoirDeterminerRemunerationMandataire {
+        bearer p;
+        goal achievement {
+            condition remuneration_expressement_determinee(m);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART812_1_1)
+rule P3DevoirAccepterMandatAvantDeces(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-1-1. Le mandat doit être accepté par le mandataire avant le décès du mandant";
+    label en unofficial "Article 812-1-1. The agent must accept the mandate before the principal's death";
+    when mandataire_designe(m, p);
+    then duty P3PositionDevoirAccepterMandatAvantDeces {
+        bearer p;
+        goal achievement {
+            condition accepte_avant_le_deces_du_mandant(m);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART813_2)
+rule P3InterdictionDesignationConventionnelleMandataire(s: Succession, p: Personne) strict {
+    label fr official "Article 813, alinéa 2. Le mandataire successoral ne peut être désigné que par le juge";
+    label en unofficial "Article 813, paragraph 2. The estate administrator may be appointed only by the judge";
+    when designation_judiciaire_obligatoire(s)
+        and administration_confiee_d_un_commun_accord(s, p);
+    then prohibition P3PositionInterdictionDesignationConventionnelleMandataire {
+        bearer p;
+        action designation_conventionnelle_exercee(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART812_2)
+rule P3PouvoirDemanderRemunerationMandataire(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-2. La rémunération prévue est due au mandataire";
+    label en unofficial "Article 812-2. The remuneration provided for is owed to the agent";
+    when mandataire_designe(m, p) and remuneration_due(m);
+    then power P3PositionPouvoirDemanderRemunerationMandataire {
+        holder p;
+        over m;
+        exercise remuneration_mandataire_exercee(m, p);
+        effect remuneration_reclamee_par_le_mandataire(m);
+        valid_when remuneration_due(m);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART809_2)
+rule P3PouvoirConsulterInventaire(s: Succession, p: Personne) strict {
+    label fr official "Article 809-2. Le créancier ou le légataire de somme d'argent peut consulter l'inventaire et en obtenir copie";
+    label en unofficial "Article 809-2. A creditor or money legatee may consult and copy the inventory";
+    when inventaire_estimatif_dresse(s) and titre_justifie(s, p);
+    then power P3PositionPouvoirConsulterInventaire {
+        holder p;
+        over s;
+        exercise consultation_inventaire_exercee(s, p);
+        effect inventaire_consulte(s, p);
+        valid_when consultation_de_l_inventaire_ouverte(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_1)
+rule P3PouvoirActeSurveillanceCurateur(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-1. Le curateur peut accomplir les actes de surveillance pendant les six mois";
+    label en unofficial "Article 810-1. The curator may perform supervision acts during six months";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, ActeDeSurveillance, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour <= fin;
+    then power P3PositionPouvoirActeSurveillanceCurateur {
+        holder p;
+        over s;
+        exercise acte_surveillance_exerce(s, p);
+        effect acte_du_curateur_accompli(s, ActeDeSurveillance);
+        valid_when acte_du_curateur_permis(s, ActeDeSurveillance);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_1)
+rule P3PouvoirAdministrationProvisoireCurateur(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-1. Le curateur peut accomplir les actes d'administration provisoire pendant les six mois";
+    label en unofficial "Article 810-1. The curator may perform provisional administration acts during six months";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, AdministrationProvisoire, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour <= fin;
+    then power P3PositionPouvoirAdministrationProvisoireCurateur {
+        holder p;
+        over s;
+        exercise acte_administration_provisoire_exerce(s, p);
+        effect acte_du_curateur_accompli(s, AdministrationProvisoire);
+        valid_when acte_du_curateur_permis(s, AdministrationProvisoire);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_1)
+rule P3PouvoirVendreBiensPerissablesCurateur(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-1. Le curateur peut procéder à la vente des biens périssables pendant les six mois";
+    label en unofficial "Article 810-1. The curator may sell perishable assets during six months";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, VenteDeBiensPerissables, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour <= fin;
+    then power P3PositionPouvoirVendreBiensPerissablesCurateur {
+        holder p;
+        over s;
+        exercise vente_biens_perissables_exercee(s, p);
+        effect acte_du_curateur_accompli(s, VenteDeBiensPerissables);
+        valid_when acte_du_curateur_permis(s, VenteDeBiensPerissables);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_2)
+rule P3PouvoirAdministrationApresDelai(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-2. Après le délai de six mois, le curateur accomplit tous les actes d'administration";
+    label en unofficial "Article 810-2. After six months, the curator performs all acts of administration";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, ActeDAdministration, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour > fin;
+    then power P3PositionPouvoirAdministrationApresDelai {
+        holder p;
+        over s;
+        exercise acte_administration_exerce(s, p);
+        effect acte_du_curateur_accompli(s, ActeDAdministration);
+        valid_when acte_du_curateur_permis(s, ActeDAdministration);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_2)
+rule P3PouvoirActeConservatoireApresDelai(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-2. Après le délai de six mois, le curateur accomplit les actes conservatoires";
+    label en unofficial "Article 810-2. After six months, the curator performs conservatory acts";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, ActePurementConservatoire, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour > fin;
+    then power P3PositionPouvoirActeConservatoireApresDelai {
+        holder p;
+        over s;
+        exercise acte_conservatoire_apres_delai_exerce(s, p);
+        effect acte_du_curateur_accompli(s, ActePurementConservatoire);
+        valid_when acte_du_curateur_permis(s, ActePurementConservatoire);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_2)
+rule P3PouvoirVendreBiensMeublesApresDelai(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-2. Après le délai de six mois, le curateur peut vendre les meubles";
+    label en unofficial "Article 810-2. After six months, the curator may sell movables";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, VenteDeBiensMeubles, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour > fin;
+    then power P3PositionPouvoirVendreBiensMeublesApresDelai {
+        holder p;
+        over s;
+        exercise vente_meubles_exercee(s, p);
+        effect acte_du_curateur_accompli(s, VenteDeBiensMeubles);
+        valid_when acte_du_curateur_permis(s, VenteDeBiensMeubles);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART810_2)
+rule P3PouvoirVendreBiensImmeublesApresDelai(s: Succession, p: Personne, jour: Date, fin: Date) strict {
+    label fr official "Article 810-2. Après le délai de six mois, le curateur peut vendre les immeubles";
+    label en unofficial "Article 810-2. After six months, the curator may sell immovables";
+    when curateur_succession(s, p) and acte_du_curateur_le(s, VenteDeBiensImmeubles, jour)
+        and fin_du_delai_de_six_mois(s, fin) and jour > fin;
+    then power P3PositionPouvoirVendreBiensImmeublesApresDelai {
+        holder p;
+        over s;
+        exercise vente_immeubles_exercee(s, p);
+        effect acte_du_curateur_accompli(s, VenteDeBiensImmeubles);
+        valid_when acte_du_curateur_permis(s, VenteDeBiensImmeubles);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// 810-2 : passé le délai, l'ensemble des actes conservatoires et
+// d'administration ; la vente des meubles et immeubles JUSQU'À l'apurement du
+// passif ; la vente d'un bien de conservation difficile ou onéreuse même si
+// elle n'est pas nécessaire à l'acquittement du passif.
+@source(CC_ART810_2) {
+    rule ActeDAdministrationApresLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 1. À l'issue du délai de l'article 810-1, le curateur exerce l'ensemble des actes d'administration";
+        label en unofficial "Article 810-2, paragraph 1. After the period of Article 810-1, the curator performs all acts of administration";
+        when acte_du_curateur_le(s, ActeDAdministration, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin;
+        then acte_du_curateur_permis(s, ActeDAdministration);
+    }
+    rule ActeConservatoireApresLeDelai(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 1. À l'issue du délai de l'article 810-1, le curateur exerce l'ensemble des actes conservatoires";
+        label en unofficial "Article 810-2, paragraph 1. After the period of Article 810-1, the curator performs all conservatory acts";
+        when acte_du_curateur_le(s, ActePurementConservatoire, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin;
+        then acte_du_curateur_permis(s, ActePurementConservatoire);
+    }
+    rule VenteDeMeublesJusquALApurement(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 2. Le curateur procède à la vente des biens meubles jusqu'à l'apurement du passif";
+        label en unofficial "Article 810-2, paragraph 2. The curator sells movables until the liabilities are discharged";
+        when acte_du_curateur_le(s, VenteDeBiensMeubles, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin
+            and etat_du_passif(s, PassifNonApure);
+        then acte_du_curateur_permis(s, VenteDeBiensMeubles);
+    }
+    rule VenteDImmeublesJusquALApurement(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 2. Le curateur procède à la vente des biens immeubles jusqu'à l'apurement du passif";
+        label en unofficial "Article 810-2, paragraph 2. The curator sells immovables until the liabilities are discharged";
+        when acte_du_curateur_le(s, VenteDeBiensImmeubles, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin
+            and etat_du_passif(s, PassifNonApure);
+        then acte_du_curateur_permis(s, VenteDeBiensImmeubles);
+    }
+    rule VenteDImmeublesRefuseeLePassifApure(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 2. Le passif apuré, la vente des immeubles n'est plus nécessaire à son acquittement";
+        label en unofficial "Article 810-2, paragraph 2. Once the liabilities are discharged, selling immovables is no longer needed to pay them";
+        when acte_du_curateur_le(s, VenteDeBiensImmeubles, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin
+            and etat_du_passif(s, PassifApure);
+        then acte_du_curateur_interdit(s, VenteDeBiensImmeubles);
+    }
+    rule VenteDUnBienOnereuxMemeLePassifApure(s: Succession, jour: Date, fin: Date) strict {
+        label fr official "Article 810-2, alinéa 3. Le bien dont la conservation est difficile ou onéreuse se vend alors même que sa réalisation n'est pas nécessaire à l'acquittement du passif";
+        label en unofficial "Article 810-2, paragraph 3. An asset that is difficult or costly to keep may be sold even where its realisation is not needed to pay the liabilities";
+        when acte_du_curateur_le(s, VenteDUnBienDeConservationOnereuse, jour)
+            and fin_du_delai_de_six_mois(s, fin)
+            and jour > fin;
+        then acte_du_curateur_permis(s, VenteDUnBienDeConservationOnereuse);
+    }
+}
+
+@source(CC_ART810_3) {
+    rule AdjudicationExigeeParUnCreancier(s: Succession, creancier: Personne) strict {
+        label fr official "Article 810-3, alinéa 3. Lorsqu'une vente amiable est envisagée, tout créancier peut exiger que la vente soit faite par adjudication";
+        label en unofficial "Article 810-3, paragraph 3. Where a private sale is contemplated, any creditor may require the sale to be made by auction";
+        when adjudication_exigee_par(s, creancier);
+        then adjudication_obligatoire(s);
+    }
+    // La perte est la différence entre le prix convenu et le prix obtenu ;
+    // elle pèse sur le créancier qui a demandé l'adjudication.
+    rule PerteALaChargeDuDemandeurDeLAdjudication(s: Succession, creancier: Personne, convenu: Money, obtenu: Money) strict {
+        label fr official "Article 810-3, alinéa 3. Si l'adjudication a lieu pour un prix inférieur au prix convenu, le créancier qui l'a demandée est tenu, envers les autres créanciers, de la perte subie";
+        label en unofficial "Article 810-3, paragraph 3. If the auction price is below the agreed price, the creditor who required it bears the resulting loss towards the other creditors";
+        when adjudication_exigee_par(s, creancier)
+            and prix_convenu_dans_le_projet(s, convenu)
+            and prix_de_l_adjudication(s, obtenu)
+            and obtenu < convenu;
+        then perte_supportee_par_le_creancier(s, creancier, convenu - obtenu);
+    }
+}
+
+// === LE PAIEMENT DES CRÉANCIERS (810-4, 810-5, 796) ===========================================
+
+@source(CC_ART810_4) {
+    rule CurateurSeulHabiliteAPayer(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 1. Le curateur est seul habilité à payer les créanciers de la succession";
+        label en unofficial "Article 810-4, paragraph 1. Only the curator may pay the estate's creditors";
+        when curatelle_confiee_a_l_autorite_du_domaine(s);
+        then curateur_seul_habilite_a_payer(s);
+    }
+    // « Jusqu'à concurrence de l'actif » : le plafond est l'actif quand le
+    // passif l'excède, et le passif lui-même dans le cas contraire.
+    rule PlafondALActif(s: Succession, actif: Money, passif: Money) strict {
+        label fr official "Article 810-4, alinéa 1. Le curateur n'est tenu d'acquitter les dettes que jusqu'à concurrence de l'actif";
+        label en unofficial "Article 810-4, paragraph 1. The curator must discharge the debts only up to the value of the assets";
+        when actif_de_la_succession(s, actif)
+            and passif_declare(s, passif)
+            and passif > actif;
+        then dettes_acquittees_jusqu_a_concurrence(s, actif);
+    }
+    rule PlafondAuPassif(s: Succession, actif: Money, passif: Money) strict {
+        label fr official "Article 810-4, alinéa 1. L'actif excédant le passif, les dettes sont acquittées pour leur montant";
+        label en unofficial "Article 810-4, paragraph 1. Where the assets exceed the liabilities, the debts are discharged in full";
+        when actif_de_la_succession(s, actif)
+            and passif_declare(s, passif)
+            and passif <= actif;
+        then dettes_acquittees_jusqu_a_concurrence(s, passif);
+    }
+    rule FraisDeConservationPayablesAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les frais nécessaires à la conservation du patrimoine se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Costs necessary to preserve the estate are paid without awaiting the settlement plan";
+        when dette_a_payer(s, FraisDeConservationDuPatrimoine);
+        then paiement_immediat_permis(s, FraisDeConservationDuPatrimoine);
+    }
+    rule FraisFunerairesPayablesAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les frais funéraires se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Funeral expenses are paid without awaiting the settlement plan";
+        when dette_a_payer(s, FraisFuneraires);
+        then paiement_immediat_permis(s, FraisFuneraires);
+    }
+    rule FraisDeDerniereMaladiePayablesAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les frais de dernière maladie se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Last-illness expenses are paid without awaiting the settlement plan";
+        when dette_a_payer(s, FraisDeDerniereMaladie);
+        then paiement_immediat_permis(s, FraisDeDerniereMaladie);
+    }
+    rule ImpotsPayablesAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les impôts dus par le défunt se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Taxes owed by the deceased are paid without awaiting the settlement plan";
+        when dette_a_payer(s, ImpotsDusParLeDefunt);
+        then paiement_immediat_permis(s, ImpotsDusParLeDefunt);
+    }
+    rule LoyersPayablesAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les loyers se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Rents are paid without awaiting the settlement plan";
+        when dette_a_payer(s, LoyersDeLaSuccession);
+        then paiement_immediat_permis(s, LoyersDeLaSuccession);
+    }
+    rule DetteUrgentePayableAussitot(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Les dettes successorales dont le règlement est urgent se paient sans attendre le projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Estate debts whose settlement is urgent are paid without awaiting the settlement plan";
+        when dette_a_payer(s, DetteSuccessoraleUrgente);
+        then paiement_immediat_permis(s, DetteSuccessoraleUrgente);
+    }
+    rule AutreDetteSubordonneeAuProjet(s: Succession) strict {
+        label fr official "Article 810-4, alinéa 2. Toute autre dette ne se paie qu'au vu du projet de règlement du passif";
+        label en unofficial "Article 810-4, paragraph 2. Any other debt is paid only under the settlement plan";
+        when dette_a_payer(s, AutreDetteSuccessorale);
+        then paiement_subordonne_au_projet(s, AutreDetteSuccessorale);
+    }
+}
+
+// 796 par renvoi de 810-5 : trois classes, puis, à classe égale, le rang de la
+// sûreté ou le numéro d'ordre de la déclaration.
+@source(CC_ART796, CC_ART810_5) {
+    rule ClasseDuCreancierInscrit(s: Succession, creancier: Personne) strict {
+        label fr official "Article 796, alinéa 2. Les créanciers inscrits sont payés les premiers, selon le rang de leur sûreté";
+        label en unofficial "Article 796, paragraph 2. Registered creditors are paid first, by the rank of their security";
+        when qualite_du_creancier(s, creancier, CreancierInscrit);
+        then classe_de_paiement(s, creancier, 1);
+    }
+    rule ClasseDuCreancierDeclare(s: Succession, creancier: Personne) strict {
+        label fr official "Article 796, alinéa 3. Les autres créanciers qui ont déclaré leur créance sont désintéressés après les créanciers inscrits";
+        label en unofficial "Article 796, paragraph 3. The other creditors who declared their claims are paid after the registered creditors";
+        when qualite_du_creancier(s, creancier, CreancierDeclare);
+        then classe_de_paiement(s, creancier, 2);
+    }
+    rule ClasseDuLegataireDeSommeDArgent(s: Succession, creancier: Personne) strict {
+        label fr official "Article 796, alinéa 4. Les legs de sommes d'argent sont délivrés après paiement des créanciers";
+        label en unofficial "Article 796, paragraph 4. Legacies of money are delivered after the creditors are paid";
+        when qualite_du_creancier(s, creancier, LegataireDeSommeDArgent);
+        then classe_de_paiement(s, creancier, 3);
+    }
+    rule PaiementParClasse(s: Succession, premier: Personne, second: Personne, k1: Integer, k2: Integer) strict {
+        label fr official "Articles 796 et 810-5, alinéa 2. Le projet de règlement paie les classes dans l'ordre : créanciers inscrits, créanciers déclarés, legs de sommes d'argent";
+        label en unofficial "Articles 796 and 810-5, paragraph 2. The settlement plan pays the classes in order: registered creditors, declared creditors, money legacies";
+        when classe_de_paiement(s, premier, k1)
+            and classe_de_paiement(s, second, k2)
+            and k1 < k2;
+        then paye_avant(s, premier, second);
+    }
+    rule PaiementParRangDeLaSurete(s: Succession, premier: Personne, second: Personne, r1: Integer, r2: Integer) strict {
+        label fr official "Article 796, alinéa 2. Entre créanciers inscrits, le rang de la sûreté assortissant la créance décide de l'ordre";
+        label en unofficial "Article 796, paragraph 2. Among registered creditors, the rank of the security determines the order";
+        when classe_de_paiement(s, premier, 1)
+            and classe_de_paiement(s, second, 1)
+            and rang_de_la_surete(s, premier, r1)
+            and rang_de_la_surete(s, second, r2)
+            and r1 < r2;
+        then paye_avant(s, premier, second);
+    }
+    rule PaiementParOrdreDesDeclarations(s: Succession, premier: Personne, second: Personne, n1: Integer, n2: Integer) strict {
+        label fr official "Article 796, alinéa 3. Entre créanciers déclarés, l'ordre des déclarations décide de l'ordre des paiements";
+        label en unofficial "Article 796, paragraph 3. Among declared creditors, the order of declarations determines the order of payment";
+        when classe_de_paiement(s, premier, 2)
+            and classe_de_paiement(s, second, 2)
+            and ordre_de_la_declaration(s, premier, n1)
+            and ordre_de_la_declaration(s, second, n2)
+            and n1 < n2;
+        then paye_avant(s, premier, second);
+    }
+    rule UnMoisPourContesterLeProjet(s: Succession, publicite: Date) strict {
+        label fr official "Article 810-5, alinéa 3. Le délai d'un mois pour contester le projet de règlement court de sa publicité";
+        label en unofficial "Article 810-5, paragraph 3. The one-month period to challenge the settlement plan runs from its publication";
+        when projet_de_reglement_publie_le(s, publicite);
+        then fin_du_delai_de_contestation_du_projet(s, add_calendar_period(publicite, 1 calendar_month));
+    }
+    rule ContestationDansLeMois(s: Succession, creancier: Personne, fin: Date, saisine: Date) strict {
+        label fr official "Article 810-5, alinéa 3. Les créanciers qui ne sont pas intégralement désintéressés peuvent, dans le mois de la publicité, saisir le juge";
+        label en unofficial "Article 810-5, paragraph 3. Creditors who are not fully paid may apply to the judge within one month of publication";
+        when creancier_non_integralement_desinteresse(s, creancier)
+            and fin_du_delai_de_contestation_du_projet(s, fin)
+            and saisine_contre_le_projet_le(s, creancier, saisine)
+            and saisine <= fin;
+        then contestation_du_projet_recevable(s, creancier);
+    }
+    rule ContestationHorsDelai(s: Succession, creancier: Personne, fin: Date, saisine: Date) strict {
+        label fr official "Article 810-5, alinéa 3. La saisine postérieure au délai d'un mois est tardive";
+        label en unofficial "Article 810-5, paragraph 3. An application made after the one-month period is out of time";
+        when fin_du_delai_de_contestation_du_projet(s, fin)
+            and saisine_contre_le_projet_le(s, creancier, saisine)
+            and saisine > fin;
+        then contestation_du_projet_tardive(s, creancier);
+    }
+}
+
+// === LA RÉALISATION DE L'ACTIF SUBSISTANT (810-8 à 810-12) ====================================
+
+@source(CC_ART810_8) {
+    rule TroisMoisPourSOpposer(s: Succession, h: Personne, notification: Date) strict {
+        label fr official "Article 810-8, alinéa 2. Le délai de trois mois pour s'opposer à la réalisation court de la notification du projet";
+        label en unofficial "Article 810-8, paragraph 2. The three-month period to object to the realisation runs from notification of the plan";
+        when notification_du_projet_de_realisation_le(s, h, notification);
+        then fin_du_delai_d_opposition_a_la_realisation(s, h, add_calendar_period(notification, 3 calendar_month));
+    }
+    rule OppositionDansLeDelai(s: Succession, h: Personne, fin: Date, reclamation: Date) strict {
+        label fr official "Article 810-8, alinéa 2. Les héritiers encore dans le délai pour accepter peuvent s'opposer dans les trois mois en réclamant la succession";
+        label en unofficial "Article 810-8, paragraph 2. Heirs still within the time to accept may object within three months by claiming the estate";
+        when fin_du_delai_d_opposition_a_la_realisation(s, h, fin)
+            and reclamation_de_la_succession_le(s, h, reclamation)
+            and reclamation <= fin;
+        then opposition_a_la_realisation_recevable(s, h);
+    }
+    rule RealisationAvantLExpirationDuDelai(s: Succession, h: Personne, fin: Date, realisation: Date) strict {
+        label fr official "Article 810-8, alinéa 2. La réalisation ne peut avoir lieu qu'à l'expiration du délai d'opposition";
+        label en unofficial "Article 810-8, paragraph 2. The realisation may take place only once the objection period has expired";
+        when fin_du_delai_d_opposition_a_la_realisation(s, h, fin)
+            and realisation_de_l_actif_subsistant_le(s, realisation)
+            and realisation <= fin;
+        then realisation_prematuree(s);
+    }
+}
+
+@source(CC_ART810_9) {
+    rule DeclarationApresLaRemiseDuCompte(s: Succession, creancier: Personne, compte: Date, declaration: Date) strict {
+        label fr official "Article 810-9, alinéa 1. Les créanciers qui déclarent leur créance postérieurement à la remise du compte ne peuvent prétendre qu'à l'actif subsistant";
+        label en unofficial "Article 810-9, paragraph 1. Creditors declaring after the account is delivered may claim only the remaining assets";
+        when compte_remis_le(s, compte)
+            and creance_declaree_le(s, creancier, declaration)
+            and declaration > compte;
+        then creancier_limite_a_l_actif_subsistant(s, creancier);
+    }
+    rule RecoursContreLeLegataireRempli(s: Succession, creancier: Personne, legataire: Personne) strict {
+        label fr official "Article 810-9, alinéa 1. En cas d'insuffisance de l'actif subsistant, le créancier tardif n'a de recours que contre les légataires remplis de leurs droits";
+        label en unofficial "Article 810-9, paragraph 1. Where the remaining assets are insufficient, the late creditor may proceed only against legatees paid in full";
+        when creancier_limite_a_l_actif_subsistant(s, creancier)
+            and legataire_rempli_de_ses_droits(s, legataire);
+        then recours_contre_les_legataires_ouvert(s, creancier, legataire);
+    }
+    rule DeuxAnsDepuisLaRealisation(s: Succession, realisation: Date) strict {
+        label fr official "Article 810-9, alinéa 2. Le recours se prescrit par deux ans à compter de la réalisation de la totalité de l'actif subsistant";
+        label en unofficial "Article 810-9, paragraph 2. The claim is time-barred two years after the whole remaining asset is realised";
+        when realisation_de_l_actif_subsistant_le(s, realisation);
+        then fin_du_recours_contre_les_legataires(s, add_calendar_period(realisation, 2 calendar_year));
+    }
+    rule RecoursTardifPrescrit(s: Succession, creancier: Personne, fin: Date, demande: Date) strict {
+        label fr official "Article 810-9, alinéa 2. Le recours exercé après ce délai est prescrit";
+        label en unofficial "Article 810-9, paragraph 2. A claim brought after that period is time-barred";
+        when fin_du_recours_contre_les_legataires(s, fin)
+            and recours_contre_les_legataires_le(s, creancier, demande)
+            and demande > fin;
+        then recours_contre_les_legataires_prescrit(s, creancier);
+    }
+}
+
+@source(CC_ART810_12) {
+    rule FinParAffectationIntegrale(s: Succession) strict {
+        label fr official "Article 810-12, 1°. La curatelle prend fin par l'affectation intégrale de l'actif au paiement des dettes et des legs";
+        label en unofficial "Article 810-12, 1°. The curatorship ends when the whole asset is applied to the debts and legacies";
+        when cause_de_fin_de_la_curatelle(s, AffectationIntegraleDeLActif);
+        then curatelle_terminee(s);
+    }
+    rule FinParRealisationEtConsignation(s: Succession) strict {
+        label fr official "Article 810-12, 2°. La curatelle prend fin par la réalisation de la totalité de l'actif et la consignation du produit net";
+        label en unofficial "Article 810-12, 2°. The curatorship ends on realisation of the whole asset and deposit of the net proceeds";
+        when cause_de_fin_de_la_curatelle(s, RealisationTotaleEtConsignation);
+        then curatelle_terminee(s);
+    }
+    rule FinParRestitutionAuxHeritiers(s: Succession) strict {
+        label fr official "Article 810-12, 3°. La curatelle prend fin par la restitution de la succession aux héritiers dont les droits sont reconnus";
+        label en unofficial "Article 810-12, 3°. The curatorship ends on restitution of the estate to heirs whose rights are recognised";
+        when cause_de_fin_de_la_curatelle(s, RestitutionAuxHeritiersReconnus);
+        then curatelle_terminee(s);
+    }
+    rule FinParEnvoiEnPossession(s: Succession) strict {
+        label fr official "Article 810-12, 4°. La curatelle prend fin par l'envoi en possession de l'État";
+        label en unofficial "Article 810-12, 4°. The curatorship ends when the State is put in possession";
+        when cause_de_fin_de_la_curatelle(s, EnvoiEnPossessionDeLEtat);
+        then curatelle_terminee(s);
+    }
+}
+
+// === LA DÉSHÉRENCE (811 à 811-3) ==============================================================
+
+@source(CC_ART811_1)
+rule P3DevoirFaireDresserInventaireAutorite(s: Succession, p: Personne) strict {
+    label fr official "Article 811-1. L'autorité administrative fait procéder à l'inventaire";
+    label en unofficial "Article 811-1. The administrative authority has the inventory drawn up";
+    when autorite_administrative_succession(s, p)
+        and not_known(inventaire_estimatif_dresse(s));
+    then duty P3PositionDevoirFaireDresserInventaireAutorite {
+        bearer p;
+        goal achievement {
+            condition inventaire_exerce(s, p);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART811)
+rule EnvoiEnPossessionADemander(s: Succession) strict {
+    label fr official "Article 811. Lorsque l'État prétend à la succession d'une personne décédée sans héritier ou à une succession abandonnée, il doit en demander l'envoi en possession au tribunal";
+    label en unofficial "Article 811. Where the State claims the estate of a person who died without heirs, or an abandoned estate, it must apply to the court for possession";
+    when etat_pretend_a_la_succession(s);
+    then envoi_en_possession_a_demander(s);
+}
+
+@source(CC_ART811_1)
+rule InventaireALaChargeDeLAutorite(s: Succession) strict {
+    label fr official "Article 811-1. Si l'inventaire prévu à l'article 809-2 n'a pas été établi, l'autorité administrative y fait procéder";
+    label en unofficial "Article 811-1. If the inventory of Article 809-2 was not drawn up, the administrative authority has it made";
+    when curatelle_confiee_a_l_autorite_du_domaine(s)
+        and not_known(inventaire_estimatif_dresse(s));
+    then inventaire_a_la_charge_de_l_autorite(s);
+}
+
+@source(CC_ART811_2) {
+    rule DesherenceTermineeParLAcceptationPure(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 811-2. La déshérence prend fin en cas d'acceptation pure et simple de la succession par un héritier";
+        label en unofficial "Article 811-2. Escheat ends where an heir accepts the estate outright";
+        when envoi_en_possession_demande_au_tribunal(s)
+            and option_exercee_le(s, h, AcceptationPureEtSimple, jour);
+        then desherence_terminee(s);
+    }
+    rule DesherenceTermineeParLAcceptationALActifNet(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 811-2. La déshérence prend fin en cas d'acceptation à concurrence de l'actif net par un héritier";
+        label en unofficial "Article 811-2. Escheat ends where an heir accepts up to the value of the net assets";
+        when envoi_en_possession_demande_au_tribunal(s)
+            and option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+        then desherence_terminee(s);
+    }
+}
+
+@source(CC_ART811_3)
+rule EtatExposeADesDommagesEtInterets(s: Succession, h: Personne) strict {
+    label fr official "Article 811-3. Lorsqu'il n'a pas accompli les formalités qui lui incombent, l'État peut être condamné à des dommages et intérêts envers les héritiers qui se présentent";
+    label en unofficial "Article 811-3. Where it failed to complete the formalities incumbent on it, the State may be ordered to pay damages to heirs who come forward";
+    when formalites_de_l_etat_omises_constatees(s)
+        and heritier_se_presente(s, h);
+    then etat_expose_a_des_dommages_et_interets(s);
+}
+
+// === LE MANDAT À EFFET POSTHUME (812 à 812-7) =================================================
+
+@source(CC_ART812) {
+    rule MandataireInapteFauteDeCapacite(m: Mandat) strict {
+        label fr official "Article 812, alinéa 3. Le mandataire doit jouir de la pleine capacité civile";
+        label en unofficial "Article 812, paragraph 3. The agent must have full civil capacity";
+        when mandat_de_la_succession(m, _)
+            and not_known(mandataire_jouit_de_la_pleine_capacite_civile(m));
+        then mandataire_inapte(m);
+    }
+    rule MandataireInapteParInterdictionDeGerer(m: Mandat) strict {
+        label fr official "Article 812, alinéa 3. Le mandataire ne doit pas être frappé d'une interdiction de gérer lorsque des biens professionnels sont compris dans le patrimoine successoral";
+        label en unofficial "Article 812, paragraph 3. The agent must not be barred from managing where professional assets are part of the estate";
+        when biens_professionnels_compris(m)
+            and mandataire_frappe_d_une_interdiction_de_gerer(m);
+        then mandataire_inapte(m);
+    }
+    rule MandataireInapteCommeNotaireDuReglement(m: Mandat) strict {
+        label fr official "Article 812, alinéa 4. Le mandataire ne peut être le notaire chargé du règlement de la succession";
+        label en unofficial "Article 812, paragraph 4. The agent may not be the notary in charge of settling the estate";
+        when mandataire_est_le_notaire_charge_du_reglement(m);
+        then mandataire_inapte(m);
+    }
+    rule MandataireApte(m: Mandat) strict {
+        label fr official "Article 812, alinéas 3 et 4. Le mandataire qui jouit de la pleine capacité civile et n'est frappé d'aucune des exclusions peut recevoir le mandat";
+        label en unofficial "Article 812, paragraphs 3 and 4. An agent with full civil capacity and under none of the exclusions may receive the mandate";
+        when mandataire_jouit_de_la_pleine_capacite_civile(m)
+            and not_known(mandataire_inapte(m));
+        then mandataire_apte(m);
+    }
+}
+
+@source(CC_ART812_1_1) {
+    // Deux ans, cinq en raison de l'inaptitude, de l'âge ou de biens
+    // professionnels : deux règles, `add_calendar_period` n'acceptant qu'une
+    // période littérale.
+    rule DeuxAnsAuPlus(m: Mandat, debut: Date) strict {
+        label fr official "Article 812-1-1, alinéa 2. Le mandat est donné pour une durée qui ne peut excéder deux ans";
+        label en unofficial "Article 812-1-1, paragraph 2. The mandate is given for a period that may not exceed two years";
+        when mandat_donne_le(m, debut)
+            and not_known(inaptitude_age_ou_biens_professionnels(m));
+        then duree_maximale_du_mandat(m, add_calendar_period(debut, 2 calendar_year));
+    }
+    rule CinqAnsParLInaptitudeOuLAge(m: Mandat, debut: Date) strict {
+        label fr official "Article 812-1-1, alinéa 2. Le mandat peut être donné pour cinq ans en raison de l'inaptitude, de l'âge des héritiers ou de la nécessité de gérer des biens professionnels";
+        label en unofficial "Article 812-1-1, paragraph 2. The mandate may be given for five years because of the heirs' incapacity or age, or the need to manage professional assets";
+        when mandat_donne_le(m, debut)
+            and inaptitude_age_ou_biens_professionnels(m);
+        then duree_maximale_du_mandat(m, add_calendar_period(debut, 5 calendar_year));
+    }
+    rule TermeExcedantLaDureeMaximale(m: Mandat, maximum: Date, terme: Date) strict {
+        label fr official "Article 812-1-1, alinéa 2. Le terme prévu au-delà de la durée maximale excède ce que le mandat peut stipuler";
+        label en unofficial "Article 812-1-1, paragraph 2. A term set beyond the maximum duration exceeds what the mandate may stipulate";
+        when duree_maximale_du_mandat(m, maximum)
+            and terme_prevu_le(m, terme)
+            and terme > maximum;
+        then duree_du_mandat_excessive(m);
+    }
+    rule MandatValable(m: Mandat) strict {
+        label fr official "Articles 812 et 812-1-1. Le mandat est valable lorsque le mandataire est apte, que le mandat est justifié par un intérêt sérieux et légitime précisément motivé, donné en la forme authentique, accepté avant le décès du mandant et contenu dans sa durée";
+        label en unofficial "Articles 812 and 812-1-1. The mandate is valid where the agent is eligible, the mandate is justified by a precisely stated serious and legitimate interest, given in authentic form, accepted before the principal's death and within its maximum duration";
+        when mandataire_apte(m)
+            and interet_serieux_et_legitime(m)
+            and motivation_precise_du_mandat(m)
+            and forme_authentique(m)
+            and accepte_avant_le_deces_du_mandant(m)
+            and not_known(duree_du_mandat_excessive(m));
+        then mandat_valable(m);
+    }
+    rule MandatNonValableFauteDInteret(m: Mandat) strict {
+        label fr official "Article 812-1-1, alinéa 1. Le mandat n'est valable que s'il est justifié par un intérêt sérieux et légitime";
+        label en unofficial "Article 812-1-1, paragraph 1. The mandate is valid only if justified by a serious and legitimate interest";
+        when mandat_de_la_succession(m, _)
+            and not_known(interet_serieux_et_legitime(m));
+        then mandat_non_valable(m);
+    }
+    rule MandatNonValableFauteDeFormeAuthentique(m: Mandat) strict {
+        label fr official "Article 812-1-1, alinéa 3. Le mandat est donné et accepté en la forme authentique";
+        label en unofficial "Article 812-1-1, paragraph 3. The mandate is given and accepted in authentic form";
+        when mandat_de_la_succession(m, _)
+            and not_known(forme_authentique(m));
+        then mandat_non_valable(m);
+    }
+    rule MandatNonValableFauteDAcceptationAvantLeDeces(m: Mandat) strict {
+        label fr official "Article 812-1-1, alinéa 4. Le mandat doit être accepté par le mandataire avant le décès du mandant";
+        label en unofficial "Article 812-1-1, paragraph 4. The mandate must be accepted by the agent before the principal's death";
+        when mandat_de_la_succession(m, _)
+            and not_known(accepte_avant_le_deces_du_mandant(m));
+        then mandat_non_valable(m);
+    }
+    rule MandatNonValableParLaDuree(m: Mandat) strict {
+        label fr official "Article 812-1-1, alinéa 2. Le mandat stipulé au-delà de sa durée maximale n'est pas valable";
+        label en unofficial "Article 812-1-1, paragraph 2. A mandate stipulated beyond its maximum duration is not valid";
+        when duree_du_mandat_excessive(m);
+        then mandat_non_valable(m);
+    }
+    rule MandatNonValableParLInaptitudeDuMandataire(m: Mandat) strict {
+        label fr official "Article 812, alinéas 3 et 4. Le mandat donné à un mandataire inapte n'est pas valable";
+        label en unofficial "Article 812, paragraphs 3 and 4. A mandate given to an ineligible agent is not valid";
+        when mandataire_inapte(m);
+        then mandat_non_valable(m);
+    }
+}
+
+@source(CC_ART812_1_3) {
+    rule HeritierViseAcceptantPurement(m: Mandat, s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 812-1-3. L'héritier visé par le mandat a accepté la succession purement et simplement";
+        label en unofficial "Article 812-1-3. An heir covered by the mandate accepted the estate outright";
+        when mandat_de_la_succession(m, s)
+            and heritier_vise_par_le_mandat(m, h)
+            and option_exercee_le(s, h, AcceptationPureEtSimple, jour);
+        then acceptation_d_un_heritier_vise(m);
+    }
+    rule HeritierViseAcceptantALActifNet(m: Mandat, s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 812-1-3. L'héritier visé par le mandat a accepté la succession à concurrence de l'actif net";
+        label en unofficial "Article 812-1-3. An heir covered by the mandate accepted the estate up to the net assets";
+        when mandat_de_la_succession(m, s)
+            and heritier_vise_par_le_mandat(m, h)
+            and option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+        then acceptation_d_un_heritier_vise(m);
+    }
+}
+
+@source(CC_ART812_1_3)
+rule PouvoirsLimitesTantQueNulHeritierNAccepte(m: Mandat, s: Succession) strict {
+    label fr official "Article 812-1-3. Tant qu'aucun héritier visé par le mandat n'a accepté la succession, le mandataire ne dispose que des pouvoirs reconnus au successible à l'article 784";
+    label en unofficial "Article 812-1-3. Until an heir covered by the mandate accepts, the agent has only the powers granted to a successor by Article 784";
+    when mandat_de_la_succession(m, s)
+        and not_known(acceptation_d_un_heritier_vise(m));
+    then pouvoirs_du_mandataire_limites_a_784(m);
+}
+
+@source(CC_ART812_2) {
+    rule MandatGratuit(m: Mandat) strict {
+        label fr official "Article 812-2, alinéa 1. Le mandat est gratuit s'il n'y a convention contraire";
+        label en unofficial "Article 812-2, paragraph 1. The mandate is gratuitous unless otherwise agreed";
+        when mandat_de_la_succession(m, _)
+            and not_known(remuneration_prevue_au_mandat(m));
+        then mandat_gratuit(m);
+    }
+    rule RemunerationDue(m: Mandat) strict {
+        label fr official "Article 812-2, alinéa 2. La rémunération prévue doit être expressément déterminée dans le mandat";
+        label en unofficial "Article 812-2, paragraph 2. The remuneration provided for must be expressly fixed in the mandate";
+        when remuneration_prevue_au_mandat(m)
+            and remuneration_expressement_determinee(m);
+        then remuneration_due(m);
+    }
+    rule RemunerationNonDeterminee(m: Mandat) strict {
+        label fr official "Article 812-2, alinéa 2. Faute de détermination expresse, le mandat demeure gratuit";
+        label en unofficial "Article 812-2, paragraph 2. Absent an express determination, the mandate remains gratuitous";
+        when remuneration_prevue_au_mandat(m)
+            and not_known(remuneration_expressement_determinee(m));
+        then mandat_gratuit(m);
+    }
+}
+
+@source(CC_ART812_3) {
+    rule ReductionDeLaRemuneration(m: Mandat) strict {
+        label fr official "Article 812-3. La rémunération est une charge de la succession qui ouvre droit à réduction lorsqu'elle prive les héritiers de tout ou partie de leur réserve";
+        label en unofficial "Article 812-3. The remuneration is a charge on the estate that may be abated where it deprives the heirs of all or part of their reserved share";
+        when remuneration_due(m)
+            and remuneration_privant_de_la_reserve(m);
+        then reduction_de_la_remuneration_ouverte(m);
+    }
+    rule RevisionDeLaRemuneration(m: Mandat) strict {
+        label fr official "Article 812-3. Les héritiers peuvent demander en justice la révision de la rémunération excessive au regard de la durée ou de la charge du mandat";
+        label en unofficial "Article 812-3. The heirs may apply to the court to revise remuneration that is excessive in view of the mandate's duration or burden";
+        when remuneration_due(m)
+            and remuneration_excessive(m);
+        then revision_de_la_remuneration_ouverte(m);
+    }
+}
+
+@source(CC_ART812_4) {
+    rule FinParLArriveeDuTerme(m: Mandat) strict {
+        label fr official "Article 812-4, 1°. Le mandat prend fin par l'arrivée du terme prévu";
+        label en unofficial "Article 812-4, 1°. The mandate ends when the agreed term arrives";
+        when cause_de_fin_du_mandat(m, ArriveeDuTermePrevu)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    rule FinParLaRenonciationDuMandataire(m: Mandat) strict {
+        label fr official "Article 812-4, 2°. Le mandat prend fin par la renonciation du mandataire";
+        label en unofficial "Article 812-4, 2°. The mandate ends by the agent's renunciation";
+        when cause_de_fin_du_mandat(m, RenonciationDuMandataire)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    rule FinParLaRevocationJudiciaire(m: Mandat) strict {
+        label fr official "Article 812-4, 3°. Le mandat prend fin par la révocation judiciaire";
+        label en unofficial "Article 812-4, 3°. The mandate ends by judicial revocation";
+        when cause_de_fin_du_mandat(m, RevocationJudiciaire)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    rule FinParLeMandatConventionnel(m: Mandat) strict {
+        label fr official "Article 812-4, 4°. Le mandat prend fin par la conclusion d'un mandat conventionnel entre les héritiers et le mandataire";
+        label en unofficial "Article 812-4, 4°. The mandate ends when the heirs and the agent conclude a contractual mandate";
+        when cause_de_fin_du_mandat(m, MandatConventionnelEntreLesHeritiersEtLeMandataire)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    rule FinParLAlienationDesBiens(m: Mandat) strict {
+        label fr official "Article 812-4, 5°. Le mandat prend fin par l'aliénation, par les héritiers, des biens mentionnés au mandat";
+        label en unofficial "Article 812-4, 5°. The mandate ends when the heirs dispose of the assets it covers";
+        when cause_de_fin_du_mandat(m, AlienationDesBiensParLesHeritiers)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    rule FinParLaDisparitionDuMandataire(m: Mandat) strict {
+        label fr official "Article 812-4, 6°. Le mandat prend fin par le décès ou la mise sous protection du mandataire personne physique, ou la dissolution du mandataire personne morale";
+        label en unofficial "Article 812-4, 6°. The mandate ends on the death or protection of an individual agent, or the dissolution of a legal-person agent";
+        when cause_de_fin_du_mandat(m, DisparitionDuMandataire);
+        then mandat_termine(m);
+    }
+    rule FinParLeDecesDeLHeritier(m: Mandat) strict {
+        label fr official "Article 812-4, 7°. Le mandat prend fin par le décès de l'héritier intéressé";
+        label en unofficial "Article 812-4, 7°. The mandate ends on the death of the heir concerned";
+        when cause_de_fin_du_mandat(m, DecesDeLHeritierInteresse)
+            and not_known(cause_limitee_a_un_heritier(m));
+        then mandat_termine(m);
+    }
+    // Un même mandat donné pour plusieurs héritiers ne cesse pas entièrement
+    // pour une cause qui ne concerne que l'un d'eux.
+    rule CauseLimiteeAUnHeritier(m: Mandat, h: Personne, n: Integer) strict {
+        label fr official "Article 812-4, dernier alinéa. La cause d'extinction ne concerne que l'un des héritiers pour le compte desquels le mandat a été donné";
+        label en unofficial "Article 812-4, last paragraph. The ground of extinction concerns only one of the heirs for whose account the mandate was given";
+        when cause_propre_a_un_seul_heritier(m, h)
+            and nombre_d_heritiers_vises(m, n)
+            and n >= 2;
+        then cause_limitee_a_un_heritier(m);
+    }
+    rule MandatMaintenuPourLesAutres(m: Mandat) strict {
+        label fr official "Article 812-4, dernier alinéa. Un même mandat donné pour le compte de plusieurs héritiers ne cesse pas entièrement pour une cause qui ne concerne que l'un d'eux";
+        label en unofficial "Article 812-4, last paragraph. A single mandate given for several heirs does not end entirely for a ground concerning only one of them";
+        when cause_limitee_a_un_heritier(m);
+        then mandat_maintenu_pour_les_autres_heritiers(m);
+    }
+}
+
+@source(CC_ART812_5) {
+    rule RestitutionExclueParPrincipe(m: Mandat) strict {
+        label fr official "Article 812-5, alinéa 1. La révocation pour disparition de l'intérêt sérieux et légitime ne donne pas lieu à restitution des sommes perçues";
+        label en unofficial "Article 812-5, paragraph 1. Revocation for the disappearance of the serious and legitimate interest does not give rise to a return of the sums received";
+        when revocation_pour_disparition_de_l_interet(m)
+            and not_known(remuneration_excessive(m));
+        then restitution_exclue(m);
+    }
+    rule RestitutionDeLaRemunerationExcessive(m: Mandat) strict {
+        label fr official "Article 812-5, alinéa 1. La restitution est due si les sommes perçues ont été excessives eu égard à la durée ou à la charge effectivement assumée";
+        label en unofficial "Article 812-5, paragraph 1. Restitution is owed if the sums received were excessive in view of the duration or the burden actually borne";
+        when revocation_pour_disparition_de_l_interet(m)
+            and remuneration_excessive(m);
+        then restitution_de_la_remuneration_possible(m);
+    }
+    rule RestitutionApresMauvaiseExecution(m: Mandat) strict {
+        label fr official "Article 812-5, alinéa 2. Lorsque la révocation est intervenue en raison d'une mauvaise exécution de sa mission, le mandataire peut être tenu de restituer tout ou partie des sommes perçues";
+        label en unofficial "Article 812-5, paragraph 2. Where revocation follows bad performance of the mission, the agent may be required to return all or part of the sums received";
+        when revocation_pour_mauvaise_execution(m);
+        then restitution_de_la_remuneration_possible(m);
+    }
+}
+
+@source(CC_ART812_6)
+rule P3DevoirNotifierRenonciationMandataire(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-6. Le mandataire doit notifier sa renonciation aux héritiers intéressés";
+    label en unofficial "Article 812-6. The agent must notify interested heirs of the renunciation";
+    when mandataire_designe(m, p)
+        and renonciation_mandataire_exercee(m, p);
+    then duty P3PositionDevoirNotifierRenonciationMandataire {
+        bearer p;
+        goal achievement {
+            condition renonciation_notifiee_exercee(m, p);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART812_7)
+rule P3DevoirRendreCompteGestionMandataire(m: Mandat, p: Personne) strict {
+    label fr official "Article 812-7. Le mandataire rend compte de sa gestion aux héritiers intéressés";
+    label en unofficial "Article 812-7. The agent renders an account of management to interested heirs";
+    when mandataire_designe(m, p);
+    then duty P3PositionDevoirRendreCompteGestionMandataire {
+        bearer p;
+        goal achievement {
+            condition compte_rendu_gestion_exerce(m, p);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART812_6)
+rule TroisMoisApresLaNotificationDeLaRenonciation(m: Mandat, notification: Date) strict {
+    label fr official "Article 812-6, alinéa 2. Sauf convention contraire, la renonciation prend effet à l'issue d'un délai de trois mois à compter de la notification";
+    label en unofficial "Article 812-6, paragraph 2. Unless otherwise agreed, the renunciation takes effect three months after notification";
+    when renonciation_notifiee_le(m, notification)
+        and not_known(convention_contraire_sur_la_renonciation(m));
+    then renonciation_effective_le(m, add_calendar_period(notification, 3 calendar_month));
+}
+
+@source(CC_ART812_7)
+rule RevocationJudiciairePourDefautDeCompte(m: Mandat) strict {
+    label fr official "Article 812-7. À défaut de compte rendu de gestion, une révocation judiciaire peut être demandée par tout intéressé";
+    label en unofficial "Article 812-7. Absent an account of the management, any interested person may apply for judicial revocation";
+    when compte_rendu_annuel_omis_constate(m);
+    then revocation_judiciaire_possible(m);
+}
+
+// === LE MANDATAIRE SUCCESSORAL (813 à 814-1) ==================================================
+
+@source(CC_ART787, CC_ART813) {
+    rule HeritierAcceptantPurement(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Articles 787 et 813. L'héritier a accepté la succession purement et simplement";
+        label en unofficial "Articles 787 and 813. The heir accepted the estate outright";
+        when option_exercee_le(s, h, AcceptationPureEtSimple, jour);
+        then heritier_acceptant(s, h);
+    }
+    rule HeritierAcceptantALActifNet(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Articles 787 et 813. L'héritier a accepté la succession à concurrence de l'actif net";
+        label en unofficial "Articles 787 and 813. The heir accepted the estate up to the net assets";
+        when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+        then heritier_acceptant(s, h);
+    }
+    rule AuMoinsUnHeritierAccepte(s: Succession, h: Personne) strict {
+        label fr official "Articles 813-4 et 814. Un héritier au moins a accepté la succession";
+        label en unofficial "Articles 813-4 and 814. At least one heir accepted the estate";
+        when heritier_acceptant(s, h);
+        then acceptation_d_un_heritier(s);
+    }
+    rule AcceptationALActifNet(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 813, alinéa 2. L'héritier a accepté la succession à concurrence de l'actif net";
+        label en unofficial "Article 813, paragraph 2. The heir accepted the estate up to the value of the net assets";
+        when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+        then accepte_a_concurrence_de_l_actif_net(s, h);
+    }
+    rule DesignationJudiciaireObligatoire(s: Succession, h: Personne) strict {
+        label fr official "Article 813, alinéa 2. Lorsqu'un héritier au moins a accepté à concurrence de l'actif net, le mandataire ne peut être désigné que par le juge, même avec l'accord de tous les héritiers";
+        label en unofficial "Article 813, paragraph 2. Where at least one heir accepted up to the net assets, the administrator may be appointed only by the judge, even with all the heirs' consent";
+        when accepte_a_concurrence_de_l_actif_net(s, h);
+        then designation_judiciaire_obligatoire(s);
+    }
+    rule MandatConventionnelValable(s: Succession, p: Personne) strict {
+        label fr official "Article 813, alinéa 1. Les héritiers peuvent, d'un commun accord, confier l'administration de la succession à l'un d'eux ou à un tiers";
+        label en unofficial "Article 813, paragraph 1. The heirs may jointly entrust the administration of the estate to one of them or to a third party";
+        when administration_confiee_d_un_commun_accord(s, p)
+            and not_known(designation_judiciaire_obligatoire(s));
+        then mandat_conventionnel_valable(s, p);
+    }
+}
+
+@source(CC_ART813_1) {
+    rule DesignationPourInertie(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison de l'inertie des héritiers dans l'administration";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of the heirs' inaction in the administration";
+        when motif_de_designation(s, InertieDesHeritiers);
+        then designation_judiciaire_possible(s);
+    }
+    rule DesignationPourCarence(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison de la carence des héritiers dans l'administration";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of the heirs' default in the administration";
+        when motif_de_designation(s, CarenceDesHeritiers);
+        then designation_judiciaire_possible(s);
+    }
+    rule DesignationPourFaute(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison de la faute des héritiers dans l'administration";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of the heirs' fault in the administration";
+        when motif_de_designation(s, FauteDesHeritiers);
+        then designation_judiciaire_possible(s);
+    }
+    rule DesignationPourMesentente(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison de la mésentente entre les héritiers";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of disagreement among the heirs";
+        when motif_de_designation(s, MesententeEntreLesHeritiers);
+        then designation_judiciaire_possible(s);
+    }
+    rule DesignationPourOppositionDInterets(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison d'une opposition d'intérêts entre les héritiers";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of a conflict of interests among the heirs";
+        when motif_de_designation(s, OppositionDInteretsEntreLesHeritiers);
+        then designation_judiciaire_possible(s);
+    }
+    rule DesignationPourComplexite(s: Succession) strict {
+        label fr official "Article 813-1, alinéa 1. Le juge peut désigner un mandataire successoral en raison de la complexité de la situation successorale";
+        label en unofficial "Article 813-1, paragraph 1. The judge may appoint an estate administrator because of the complexity of the estate situation";
+        when motif_de_designation(s, ComplexiteDeLaSituationSuccessorale);
+        then designation_judiciaire_possible(s);
+    }
+}
+
+@source(CC_ART813_4)
+rule PouvoirsDuMandataireSuccessoralLimites(s: Succession) strict {
+    label fr official "Article 813-4. Tant qu'aucun héritier n'a accepté la succession, le mandataire successoral ne peut accomplir que les actes mentionnés à l'article 784";
+    label en unofficial "Article 813-4. Until an heir accepts the estate, the estate administrator may perform only the acts listed in Article 784";
+    when designation_judiciaire_possible(s)
+        and not_known(acceptation_d_un_heritier(s));
+    then pouvoirs_du_mandataire_successoral_limites_a_784(s);
+}
+
+@source(CC_ART813)
+rule P3PouvoirConfierAdministrationParAccord(s: Succession, p: Personne) strict {
+    label fr official "Article 813. Les héritiers peuvent confier d'un commun accord l'administration de la succession";
+    label en unofficial "Article 813. The heirs may jointly entrust administration of the estate";
+    when administration_confiee_d_un_commun_accord(s, p);
+    then power P3PositionPouvoirConfierAdministrationParAccord {
+        holder p;
+        over s;
+        exercise administration_confiee_exercee(s, p);
+        effect administration_de_la_succession_confiee(s, p);
+        valid_when administration_confiee_d_un_commun_accord(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_7)
+rule DessaisissementPourManquement(s: Succession, p: Personne) strict {
+    label fr official "Article 813-7. Le juge peut dessaisir le mandataire successoral de sa mission en cas de manquement caractérisé dans son exercice";
+    label en unofficial "Article 813-7. The judge may remove the estate administrator from the mission for a characterised breach in performing it";
+    when manquement_caracterise_constate(s, p);
+    then dessaisissement_du_mandataire_possible(s, p);
+}
+
+@source(CC_ART813_9) {
+    rule MissionTermineeParLaConventionDIndivision(s: Succession) strict {
+        label fr official "Article 813-9, alinéa 2. La mission cesse de plein droit par l'effet d'une convention d'indivision entre les héritiers";
+        label en unofficial "Article 813-9, paragraph 2. The mission ends by operation of law upon a joint-ownership agreement between the heirs";
+        when convention_d_indivision_conclue(s);
+        then mission_du_mandataire_successoral_terminee(s);
+    }
+    rule MissionTermineeParLActeDePartage(s: Succession, jour: Date) strict {
+        label fr official "Article 813-9, alinéa 2. La mission cesse de plein droit par la signature de l'acte de partage";
+        label en unofficial "Article 813-9, paragraph 2. The mission ends by operation of law upon signature of the deed of partition";
+        when partage_realise_le(s, jour);
+        then mission_du_mandataire_successoral_terminee(s);
+    }
+    rule MissionTermineeParLExecutionComplete(s: Succession) strict {
+        label fr official "Article 813-9, alinéa 2. La mission cesse lorsque le juge constate son exécution complète";
+        label en unofficial "Article 813-9, paragraph 2. The mission ends when the judge finds it fully performed";
+        when execution_complete_constatee(s);
+        then mission_du_mandataire_successoral_terminee(s);
+    }
+}
+
+@source(CC_ART813_9)
+rule P3InterdictionActeApresFinMission(s: Succession, p: Personne) strict {
+    label fr official "Article 813-9. Le mandataire ne peut agir après la fin de sa mission";
+    label en unofficial "Article 813-9. The estate administrator may not act after the mission ends";
+    when mission_du_mandataire_successoral_terminee(s)
+        and mandataire_successoral(s, p);
+    then prohibition P3PositionInterdictionActeApresFinMission {
+        bearer p;
+        action acte_apres_fin_mission_exerce(s, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART813_9)
+rule P3DevoirCesserActesApresFinMission(s: Succession, p: Personne) strict {
+    label fr official "Article 813-9. La fin de la mission impose la cessation des actes du mandataire";
+    label en unofficial "Article 813-9. Mission termination requires the administrator to cease acting";
+    when mission_du_mandataire_successoral_terminee(s)
+        and mandataire_successoral(s, p);
+    then duty P3PositionDevoirCesserActesApresFinMission {
+        bearer p;
+        goal achievement {
+            condition acte_apres_fin_mission_interdit(s, p);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART814)
+rule ActesDAdministrationAutorisables(s: Succession, h: Personne) strict {
+    label fr official "Article 814, alinéa 1. Lorsque la succession a été acceptée par un héritier au moins, le juge peut autoriser le mandataire successoral à effectuer l'ensemble des actes d'administration";
+    label en unofficial "Article 814, paragraph 1. Where at least one heir accepted the estate, the judge may authorise the estate administrator to perform all acts of administration";
+    when acceptation_d_un_heritier(s)
+        and designation_judiciaire_possible(s)
+        and heritier_acceptant(s, h);
+    then actes_d_administration_autorisables(s);
+}
+
+@source(CC_ART814_1)
+rule SubstitutionDemandable(s: Succession, h: Personne) strict {
+    label fr official "Article 814-1. En toute circonstance, l'héritier acceptant à concurrence de l'actif net peut demander au juge de désigner un mandataire successoral pour le substituer dans la charge d'administrer et de liquider la succession";
+    label en unofficial "Article 814-1. In all circumstances, an heir accepting up to the net assets may ask the judge to appoint an estate administrator to replace them in administering and winding up the estate";
+    when accepte_a_concurrence_de_l_actif_net(s, h);
+    then substitution_du_mandataire_demandable(s, h);
+}

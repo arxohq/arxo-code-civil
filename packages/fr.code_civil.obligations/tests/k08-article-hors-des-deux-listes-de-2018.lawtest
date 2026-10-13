@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Loi n° 2018-287, article 16, I, frontière des deux listes fermées : l'article 1342-10
+// ne figure ni parmi les articles « nouveaux » ni parmi les articles interprétatifs.
+// Ni l'une ni l'autre qualification ne lui est attachée.
+test "urn:query:fr-code-civil-obligations-k08-article-hors-des-deux-listes-de-2018" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": situation_de_la_creance(entity_ref("urn:fr:cc:obligations:k8:s"), entity_ref("urn:fr:cc:obligations:k8:c")) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:obligations:k8:s"), @2018-09-30) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:obligations:k8:s"), "1342-10") { origin case_input; }
+    }
+    evaluate truth(article_nouveau_de_2018_inapplicable(entity_ref("urn:fr:cc:obligations:k8:c"), "1342-10"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

@@ -1,0 +1,425 @@
+// CHAPITRE IV, SECTION 2 — LES EFFETS DU CONTRAT À L'ÉGARD DES TIERS
+// (art. 1199 à 1209).
+//
+// L'effet relatif (1199) et l'opposabilité (1200), la simulation (1201 et
+// 1202), le porte-fort (1203 et 1204), la stipulation pour autrui (1205 à
+// 1209).
+//
+// UN DÉLAI DE TROIS MOIS À L'ARTICLE 1207 : les héritiers du stipulant ne
+// peuvent révoquer la stipulation qu'à l'expiration d'un délai de trois mois
+// à compter du jour où ils ont mis le bénéficiaire en demeure de l'accepter.
+// L'unité est lue dans le texte et comptée par la même politique que
+// l'article 1183 — `CC_CONTRAT_MOIS`, une seule politique par cas.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_ART1199,
+    CC_ART1200,
+    CC_ART1201,
+    CC_ART1202,
+    CC_ART1203,
+    CC_ART1204,
+    CC_ART1205,
+    CC_ART1206,
+    CC_ART1207,
+    CC_ART1208,
+    CC_ART1209,
+    Contrat,
+    Personne,
+    Stipulation,
+    force_obligatoire,
+    regi_par_le_droit_nouveau,
+};
+
+// --- Entrées du cas -------------------------------------------------------------------------------
+
+pub relation tiers_au_contrat(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "personne qui n'est pas partie au contrat (article 1199)";
+    label en unofficial "person who is not a party to the contract (Article 1199)";
+}
+pub relation tiers_invoque_le_contrat_comme_preuve_d_un_fait(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers se prévaut de la situation juridique créée par le contrat pour apporter la preuve d'un fait (article 1200, alinéa 2)";
+    label en unofficial "the third party relies on the legal situation created by the contract to prove a fact (Article 1200, paragraph 2)";
+}
+pub relation contrat_apparent(apparent: Contrat, occulte: Contrat) kind empirical {
+    label fr official "contrat apparent dissimulant un contrat occulte, appelé aussi contre-lettre (article 1201)";
+    label en unofficial "apparent contract concealing a secret contract, also called a counter-deed (Article 1201)";
+}
+pub relation tiers_se_prevaut_de_la_contre_lettre(occulte: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers se prévaut de la contre-lettre (article 1201)";
+    label en unofficial "the third party relies on the counter-deed (Article 1201)";
+}
+pub relation contre_lettre_augmentant_le_prix_d_un_office_ministeriel(occulte: Contrat) kind empirical {
+    label fr official "contre-lettre ayant pour objet une augmentation du prix stipulé dans le traité de cession d'un office ministériel (article 1202, alinéa 1)";
+    label en unofficial "counter-deed whose object is an increase of the price stipulated in the assignment of a ministerial office (Article 1202, paragraph 1)";
+}
+pub relation contrat_dissimulant_une_partie_du_prix(c: Contrat) kind empirical {
+    label fr official "contrat ayant pour but de dissimuler une partie du prix d'une vente d'immeubles, d'une cession de fonds de commerce ou de clientèle, d'une cession d'un droit à un bail, du bénéfice d'une promesse de bail ou d'une soulte d'échange ou de partage comprenant de tels biens (article 1202, alinéa 2)";
+    label en unofficial "contract whose purpose is to conceal part of the price of a sale of immovables, an assignment of business or goodwill, an assignment of a lease right, the benefit of a promise of lease, or the balancing payment of an exchange or division comprising such assets (Article 1202, paragraph 2)";
+}
+pub relation engagement_pris_pour_autrui_en_son_propre_nom(c: Contrat, p: Personne, autrui: Personne) kind empirical {
+    label fr official "engagement pris en son propre nom pour une autre personne (article 1203)";
+    label en unofficial "undertaking given in one's own name for another person (Article 1203)";
+}
+pub relation porte_fort(s: Stipulation, promettant: Personne, tiers: Personne) kind empirical {
+    label fr official "porte-fort : promesse du fait d'un tiers (article 1204, alinéa 1)";
+    label en unofficial "promise of another's act (Article 1204, paragraph 1)";
+}
+pub relation fait_promis_accompli_par_le_tiers(s: Stipulation) kind empirical {
+    label fr official "le tiers a accompli le fait promis (article 1204, alinéa 2)";
+    label en unofficial "the third party performed the promised act (Article 1204, paragraph 2)";
+}
+pub relation porte_fort_de_ratification(s: Stipulation, jour: Date) kind empirical {
+    label fr official "le porte-fort a pour objet la ratification d'un engagement, souscrit ce jour (article 1204, alinéa 3)";
+    label en unofficial "the promise of another's act has as its object the ratification of an undertaking, given on this day (Article 1204, paragraph 3)";
+}
+pub relation engagement_ratifie_par_le_tiers(s: Stipulation) kind empirical {
+    label fr official "le tiers a ratifié l'engagement (article 1204, alinéa 3)";
+    label en unofficial "the third party ratified the undertaking (Article 1204, paragraph 3)";
+}
+pub relation stipulation_pour_autrui(s: Stipulation, c: Contrat, stipulant: Personne, promettant: Personne, beneficiaire: Personne) kind empirical {
+    label fr official "stipulation pour autrui : le stipulant fait promettre au promettant une prestation au profit d'un tiers bénéficiaire (article 1205)";
+    label en unofficial "stipulation for a third party: the stipulator makes the promisor undertake a performance for a third-party beneficiary (Article 1205)";
+}
+pub relation beneficiaire_precisement_designe_ou_determinable(s: Stipulation) kind empirical {
+    label fr official "le bénéficiaire est précisément désigné ou peut être déterminé lors de l'exécution de la promesse (article 1205, alinéa 2)";
+    label en unofficial "the beneficiary is precisely designated or can be determined when the promise is performed (Article 1205, paragraph 2)";
+}
+pub relation acceptation_du_beneficiaire_parvenue_le(s: Stipulation, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où l'acceptation du bénéficiaire est parvenue au stipulant ou au promettant (articles 1206, alinéa 3, et 1208)";
+    label en unofficial "day the beneficiary's acceptance reached the stipulator or the promisor (Articles 1206, paragraph 3, and 1208)";
+}
+pub relation revocation_par_le_stipulant_le(s: Stipulation, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la révocation de la stipulation par le stipulant (articles 1206, alinéa 2, et 1207)";
+    label en unofficial "day the stipulator revoked the stipulation (Articles 1206, paragraph 2, and 1207)";
+}
+pub relation heritier_du_stipulant(s: Stipulation, heritier: Personne) kind empirical {
+    label fr official "héritier du stipulant décédé (article 1207, alinéa 1)";
+    label en unofficial "heir of the deceased stipulator (Article 1207, paragraph 1)";
+}
+pub relation mise_en_demeure_d_accepter_le(s: Stipulation, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour où les héritiers ont mis le bénéficiaire en demeure d'accepter la stipulation (article 1207, alinéa 1)";
+    label en unofficial "day the heirs put the beneficiary in default to accept the stipulation (Article 1207, paragraph 1)";
+}
+pub relation revocation_par_les_heritiers_le(s: Stipulation, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la révocation de la stipulation par les héritiers du stipulant (article 1207, alinéa 1)";
+    label en unofficial "day the stipulator's heirs revoked the stipulation (Article 1207, paragraph 1)";
+}
+pub relation nouveau_beneficiaire_designe(s: Stipulation, nouveau: Personne) kind empirical {
+    label fr official "la révocation est assortie de la désignation d'un nouveau bénéficiaire (article 1207, alinéa 2)";
+    label en unofficial "the revocation is accompanied by the designation of a new beneficiary (Article 1207, paragraph 2)";
+}
+pub relation revocation_connue_du_tiers_ou_du_promettant(s: Stipulation) kind empirical {
+    label fr official "le tiers bénéficiaire ou le promettant a eu connaissance de la révocation (article 1207, alinéa 3)";
+    label en unofficial "the third-party beneficiary or the promisor learned of the revocation (Article 1207, paragraph 3)";
+}
+pub relation revocation_par_testament(s: Stipulation, deces: Date) kind empirical {
+    label fr official "la révocation est faite par testament ; jour du décès du stipulant (article 1207, alinéa 4)";
+    label en unofficial "the revocation is made by will; day of the stipulator's death (Article 1207, paragraph 4)";
+}
+pub relation prestation_promise_au_beneficiaire(s: Stipulation) kind empirical {
+    label fr official "la prestation promise au bénéficiaire a été exécutée par le promettant";
+    label en unofficial "the performance promised to the beneficiary was rendered by the promisor";
+}
+pub relation exigence_du_stipulant(s: Stipulation) kind empirical {
+    label fr official "le stipulant exige du promettant l'exécution de son engagement envers le bénéficiaire (article 1209)";
+    label en unofficial "the stipulator requires the promisor to perform his undertaking towards the beneficiary (Article 1209)";
+}
+
+// --- Têtes produites ------------------------------------------------------------------------------------
+
+pub relation effet_relatif_du_contrat(c: Contrat, tiers: Personne) kind derived {
+    label fr official "le contrat ne crée d'obligations qu'entre les parties : le tiers ne peut ni en demander l'exécution ni s'y voir contraint (article 1199)";
+    label en unofficial "the contract creates obligations only between the parties: a third party may neither demand nor be compelled to perform it (Article 1199)";
+}
+pub relation situation_juridique_opposable_aux_tiers(c: Contrat, tiers: Personne) kind derived {
+    label fr official "les tiers doivent respecter la situation juridique créée par le contrat (article 1200, alinéa 1)";
+    label en unofficial "third parties must respect the legal situation created by the contract (Article 1200, paragraph 1)";
+}
+pub relation contrat_invocable_comme_preuve_par_le_tiers(c: Contrat, tiers: Personne) kind derived {
+    label fr official "les tiers peuvent se prévaloir du contrat, notamment pour apporter la preuve d'un fait (article 1200, alinéa 2)";
+    label en unofficial "third parties may rely on the contract, in particular to prove a fact (Article 1200, paragraph 2)";
+}
+pub relation contre_lettre_produit_effet_entre_les_parties(occulte: Contrat) kind derived {
+    label fr official "le contrat occulte, appelé aussi contre-lettre, produit effet entre les parties (article 1201)";
+    label en unofficial "the secret contract, also called a counter-deed, has effect between the parties (Article 1201)";
+}
+pub relation contre_lettre_inopposable_aux_tiers(occulte: Contrat, tiers: Personne) kind derived {
+    label fr official "la contre-lettre n'est pas opposable aux tiers, qui peuvent néanmoins s'en prévaloir (article 1201)";
+    label en unofficial "the counter-deed cannot be set up against third parties, who may nonetheless rely on it (Article 1201)";
+}
+pub relation contre_lettre_nulle(occulte: Contrat) kind derived {
+    label fr official "contre-lettre ou contrat nul en vertu de l'article 1202";
+    label en unofficial "counter-deed or contract void under Article 1202";
+}
+pub relation engagement_limite_a_soi_meme(c: Contrat, p: Personne) kind derived {
+    label fr official "on ne peut s'engager en son propre nom que pour soi-même (article 1203)";
+    label en unofficial "one may bind oneself in one's own name only for oneself (Article 1203)";
+}
+pub relation promettant_libere(s: Stipulation, promettant: Personne) kind derived {
+    label fr official "le promettant est libéré de toute obligation si le tiers accomplit le fait promis (article 1204, alinéa 2)";
+    label en unofficial "the promisor is released from any obligation if the third party performs the promised act (Article 1204, paragraph 2)";
+}
+pub relation promettant_tenu_de_dommages_et_interets(s: Stipulation, promettant: Personne) kind derived {
+    label fr official "dans le cas contraire, le promettant peut être condamné à des dommages et intérêts (article 1204, alinéa 2)";
+    label en unofficial "otherwise, the promisor may be ordered to pay damages (Article 1204, paragraph 2)";
+}
+pub relation engagement_valide_retroactivement(s: Stipulation, jour: Date) kind derived {
+    label fr official "lorsque le porte-fort a pour objet la ratification d'un engagement, celui-ci est rétroactivement validé à la date à laquelle le porte-fort a été souscrit (article 1204, alinéa 3)";
+    label en unofficial "where the promise concerns the ratification of an undertaking, the latter is retroactively validated as of the day the promise was given (Article 1204, paragraph 3)";
+}
+pub relation droit_direct_du_beneficiaire(s: Stipulation, beneficiaire: Personne) kind derived {
+    label fr official "le bénéficiaire est investi d'un droit direct à la prestation contre le promettant dès la stipulation (article 1206, alinéa 1)";
+    label en unofficial "the beneficiary is vested with a direct right to the performance against the promisor from the stipulation (Article 1206, paragraph 1)";
+}
+pub relation stipulation_revocable(s: Stipulation) kind derived {
+    label fr official "le stipulant peut librement révoquer la stipulation tant que le bénéficiaire ne l'a pas acceptée (article 1206, alinéa 2)";
+    label en unofficial "the stipulator may freely revoke the stipulation as long as the beneficiary has not accepted it (Article 1206, paragraph 2)";
+}
+pub relation stipulation_irrevocable(s: Stipulation) kind derived {
+    label fr official "la stipulation devient irrévocable au moment où l'acceptation parvient au stipulant ou au promettant (article 1206, alinéa 3)";
+    label en unofficial "the stipulation becomes irrevocable when the acceptance reaches the stipulator or the promisor (Article 1206, paragraph 3)";
+}
+pub relation echeance_de_la_mise_en_demeure_d_accepter(s: Stipulation, jour: Date) kind derived {
+    key(s);
+    label fr official "échéance du délai de trois mois ouvert aux héritiers du stipulant à compter de la mise en demeure (article 1207, alinéa 1)";
+    label en unofficial "expiry of the three-month period open to the stipulator's heirs from the notice to accept (Article 1207, paragraph 1)";
+}
+pub relation revocation_des_heritiers_valable(s: Stipulation) kind derived {
+    label fr official "la révocation par les héritiers est intervenue après l'expiration du délai de trois mois : elle est valable (article 1207, alinéa 1)";
+    label en unofficial "the heirs' revocation came after the three-month period expired: it is valid (Article 1207, paragraph 1)";
+}
+pub relation revocation_des_heritiers_prematuree(s: Stipulation) kind derived {
+    label fr official "la révocation par les héritiers est intervenue avant l'expiration du délai de trois mois : elle est prématurée (article 1207, alinéa 1)";
+    label en unofficial "the heirs' revocation came before the three-month period expired: it is premature (Article 1207, paragraph 1)";
+}
+pub relation nouveau_beneficiaire_a_ete_designe(s: Stipulation) kind derived {
+    label fr official "la révocation est assortie de la désignation d'un nouveau bénéficiaire, quel qu'il soit (article 1207, alinéa 2)";
+    label en unofficial "the revocation is accompanied by the designation of a new beneficiary, whoever it is (Article 1207, paragraph 2)";
+}
+pub relation revocation_profite_au_stipulant_ou_a_ses_heritiers(s: Stipulation) kind derived {
+    label fr official "si elle n'est pas assortie de la désignation d'un nouveau bénéficiaire, la révocation profite, selon le cas, au stipulant ou à ses héritiers (article 1207, alinéa 2)";
+    label en unofficial "if not accompanied by the designation of a new beneficiary, the revocation benefits, as the case may be, the stipulator or his heirs (Article 1207, paragraph 2)";
+}
+pub relation revocation_produit_effet(s: Stipulation) kind derived {
+    label fr official "la révocation produit effet (article 1207, alinéas 3 et 4)";
+    label en unofficial "the revocation takes effect (Article 1207, paragraphs 3 and 4)";
+}
+pub relation tiers_initial_repute_n_avoir_jamais_beneficie(s: Stipulation) kind derived {
+    label fr official "le tiers initialement désigné est censé n'avoir jamais bénéficié de la stipulation faite à son profit (article 1207, alinéa 5)";
+    label en unofficial "the initially designated third party is deemed never to have benefited from the stipulation (Article 1207, paragraph 5)";
+}
+pub relation execution_exigible_par_le_stipulant(s: Stipulation, stipulant: Personne) kind derived {
+    label fr official "le stipulant peut lui-même exiger du promettant l'exécution de son engagement envers le bénéficiaire (article 1209)";
+    label en unofficial "the stipulator may himself require the promisor to perform his undertaking towards the beneficiary (Article 1209)";
+}
+
+// --- Articles 1199 à 1202 : effet relatif, opposabilité, simulation ---------------------------------------
+
+@source(CC_ART1199)
+rule EffetRelatifDuContrat(c: Contrat, tiers: Personne) strict {
+    label fr official "Article 1199. Le contrat ne crée d'obligations qu'entre les parties ; les tiers ne peuvent ni demander l'exécution du contrat ni se voir contraints de l'exécuter";
+    label en unofficial "Article 1199. The contract creates obligations only between the parties; third parties may neither demand its performance nor be compelled to perform it";
+    when force_obligatoire(c) and tiers_au_contrat(c, tiers);
+    then effet_relatif_du_contrat(c, tiers);
+}
+
+@source(CC_ART1200) {
+    rule OpposabiliteAuxTiers(c: Contrat, tiers: Personne) strict {
+        label fr official "Article 1200, alinéa 1. Les tiers doivent respecter la situation juridique créée par le contrat";
+        label en unofficial "Article 1200, paragraph 1. Third parties must respect the legal situation created by the contract";
+        when force_obligatoire(c) and tiers_au_contrat(c, tiers);
+        then situation_juridique_opposable_aux_tiers(c, tiers);
+    }
+    rule TiersSePrevautDuContrat(c: Contrat, tiers: Personne) strict {
+        label fr official "Article 1200, alinéa 2. Les tiers peuvent se prévaloir de la situation juridique créée par le contrat, notamment pour apporter la preuve d'un fait";
+        label en unofficial "Article 1200, paragraph 2. Third parties may rely on the legal situation created by the contract, in particular to prove a fact";
+        when force_obligatoire(c) and tiers_au_contrat(c, tiers)
+            and tiers_invoque_le_contrat_comme_preuve_d_un_fait(c, tiers);
+        then contrat_invocable_comme_preuve_par_le_tiers(c, tiers);
+    }
+}
+
+@source(CC_ART1201) {
+    rule ContreLettreEntreLesParties(apparent: Contrat, occulte: Contrat) strict {
+        label fr official "Article 1201. Lorsque les parties ont conclu un contrat apparent qui dissimule un contrat occulte, ce dernier, appelé aussi contre-lettre, produit effet entre les parties";
+        label en unofficial "Article 1201. Where the parties concluded an apparent contract concealing a secret one, the latter, also called a counter-deed, has effect between the parties";
+        when regi_par_le_droit_nouveau(apparent) and contrat_apparent(apparent, occulte);
+        then contre_lettre_produit_effet_entre_les_parties(occulte);
+    }
+    rule ContreLettreInopposableAuxTiers(apparent: Contrat, occulte: Contrat, tiers: Personne) strict {
+        label fr official "Article 1201. La contre-lettre n'est pas opposable aux tiers, qui peuvent néanmoins s'en prévaloir";
+        label en unofficial "Article 1201. The counter-deed cannot be set up against third parties, who may nonetheless rely on it";
+        when regi_par_le_droit_nouveau(apparent) and contrat_apparent(apparent, occulte)
+            and tiers_au_contrat(apparent, tiers);
+        then contre_lettre_inopposable_aux_tiers(occulte, tiers);
+    }
+}
+
+@source(CC_ART1202) {
+    rule ContreLettreSurLePrixDUnOfficeNulle(occulte: Contrat) strict {
+        label fr official "Article 1202, alinéa 1. Est nulle toute contre-lettre ayant pour objet une augmentation du prix stipulé dans le traité de cession d'un office ministériel";
+        label en unofficial "Article 1202, paragraph 1. Any counter-deed increasing the price stipulated in the assignment of a ministerial office is void";
+        when regi_par_le_droit_nouveau(occulte)
+            and contre_lettre_augmentant_le_prix_d_un_office_ministeriel(occulte);
+        then contre_lettre_nulle(occulte);
+    }
+    rule ContratDissimulantUnePartieDuPrixNul(c: Contrat) strict {
+        label fr official "Article 1202, alinéa 2. Est également nul tout contrat ayant pour but de dissimuler une partie du prix dans les opérations que le texte énumère";
+        label en unofficial "Article 1202, paragraph 2. Any contract intended to conceal part of the price in the operations the text lists is also void";
+        when regi_par_le_droit_nouveau(c) and contrat_dissimulant_une_partie_du_prix(c);
+        then contre_lettre_nulle(c);
+    }
+}
+
+// --- Articles 1203 et 1204 : le porte-fort ------------------------------------------------------------------
+
+@source(CC_ART1203)
+rule EngagementPourSoiMeme(c: Contrat, p: Personne, autrui: Personne) strict {
+    label fr official "Article 1203. On ne peut s'engager en son propre nom que pour soi-même";
+    label en unofficial "Article 1203. One may bind oneself in one's own name only for oneself";
+    when regi_par_le_droit_nouveau(c) and engagement_pris_pour_autrui_en_son_propre_nom(c, p, autrui);
+    then engagement_limite_a_soi_meme(c, p);
+}
+
+@source(CC_ART1204) {
+    rule PortefortLibereParLAccomplissement(s: Stipulation, promettant: Personne, tiers: Personne) strict {
+        label fr official "Article 1204, alinéa 2. Le promettant est libéré de toute obligation si le tiers accomplit le fait promis";
+        label en unofficial "Article 1204, paragraph 2. The promisor is released from any obligation if the third party performs the promised act";
+        when porte_fort(s, promettant, tiers) and fait_promis_accompli_par_le_tiers(s);
+        then promettant_libere(s, promettant);
+    }
+    rule PortefortTenuDeDommagesEtInterets(s: Stipulation, promettant: Personne, tiers: Personne) strict {
+        label fr official "Article 1204, alinéa 2. Dans le cas contraire, le promettant peut être condamné à des dommages et intérêts";
+        label en unofficial "Article 1204, paragraph 2. Otherwise, the promisor may be ordered to pay damages";
+        when porte_fort(s, promettant, tiers) and not_known(fait_promis_accompli_par_le_tiers(s));
+        then promettant_tenu_de_dommages_et_interets(s, promettant);
+    }
+    rule RatificationRetroactive(s: Stipulation, promettant: Personne, tiers: Personne, jour: Date) strict {
+        label fr official "Article 1204, alinéa 3. Lorsque le porte-fort a pour objet la ratification d'un engagement, celui-ci est rétroactivement validé à la date à laquelle le porte-fort a été souscrit";
+        label en unofficial "Article 1204, paragraph 3. Where the promise concerns the ratification of an undertaking, the latter is retroactively validated as of the day the promise was given";
+        when porte_fort(s, promettant, tiers) and porte_fort_de_ratification(s, jour)
+            and engagement_ratifie_par_le_tiers(s);
+        then engagement_valide_retroactivement(s, jour);
+    }
+}
+
+// --- Articles 1205 à 1209 : la stipulation pour autrui --------------------------------------------------------
+
+@source(CC_ART1205, CC_ART1206) {
+    rule DroitDirectDuBeneficiaire(s: Stipulation, c: Contrat, stipulant: Personne, promettant: Personne, beneficiaire: Personne) strict {
+        label fr official "Articles 1205 et 1206, alinéa 1. Le bénéficiaire, précisément désigné ou déterminable lors de l'exécution, est investi d'un droit direct à la prestation contre le promettant dès la stipulation";
+        label en unofficial "Articles 1205 and 1206, paragraph 1. The beneficiary, precisely designated or determinable at performance, is vested with a direct right to the performance against the promisor from the stipulation";
+        when regi_par_le_droit_nouveau(c)
+            and stipulation_pour_autrui(s, c, stipulant, promettant, beneficiaire)
+            and beneficiaire_precisement_designe_ou_determinable(s);
+        then droit_direct_du_beneficiaire(s, beneficiaire);
+    }
+    rule ObligationDuPromettantEnversLeBeneficiaire(s: Stipulation, c: Contrat, stipulant: Personne, promettant: Personne, beneficiaire: Personne) strict {
+        label fr official "Article 1206, alinéa 1. Le droit direct du bénéficiaire a pour objet la prestation que le promettant s'est engagé à accomplir à son profit";
+        label en unofficial "Article 1206, paragraph 1. The beneficiary's direct right bears on the performance the promisor undertook to render in his favour";
+        when droit_direct_du_beneficiaire(s, beneficiaire)
+            and stipulation_pour_autrui(s, c, stipulant, promettant, beneficiaire);
+        then duty AccomplirLaPrestationAuProfitDuTiers {
+            bearer promettant;
+            beneficiary beneficiaire;
+            achieve prestation_promise_au_beneficiaire(s) during [@2016-10-01, infinity);
+        };
+    }
+    rule StipulationRevocableAvantAcceptation(s: Stipulation, c: Contrat, stipulant: Personne, promettant: Personne, beneficiaire: Personne) strict {
+        label fr official "Article 1206, alinéa 2. Le stipulant peut librement révoquer la stipulation tant que le bénéficiaire ne l'a pas acceptée";
+        label en unofficial "Article 1206, paragraph 2. The stipulator may freely revoke the stipulation as long as the beneficiary has not accepted it";
+        when regi_par_le_droit_nouveau(c)
+            and stipulation_pour_autrui(s, c, stipulant, promettant, beneficiaire)
+            and not_known(stipulation_irrevocable(s));
+        then stipulation_revocable(s);
+    }
+    rule StipulationIrrevocableApresAcceptation(s: Stipulation, jour: Date) strict {
+        label fr official "Article 1206, alinéa 3. La stipulation devient irrévocable au moment où l'acceptation parvient au stipulant ou au promettant";
+        label en unofficial "Article 1206, paragraph 3. The stipulation becomes irrevocable when the acceptance reaches the stipulator or the promisor";
+        when acceptation_du_beneficiaire_parvenue_le(s, jour);
+        then stipulation_irrevocable(s);
+    }
+}
+
+@source(CC_ART1207) {
+    rule EcheanceDeLaMiseEnDemeureDAccepter(s: Stipulation, jour: Date) strict {
+        label fr official "Article 1207, alinéa 1. Les héritiers du stipulant ne peuvent révoquer qu'à l'expiration d'un délai de trois mois à compter du jour où ils ont mis le bénéficiaire en demeure de l'accepter";
+        label en unofficial "Article 1207, paragraph 1. The stipulator's heirs may revoke only on the expiry of a three-month period from the day they put the beneficiary in default to accept";
+        when mise_en_demeure_d_accepter_le(s, jour);
+        then echeance_de_la_mise_en_demeure_d_accepter(s, add_calendar_period(jour, 3 calendar_month));
+    }
+    rule RevocationDesHeritiersValable(s: Stipulation, heritier: Personne, echeance: Date, revocation: Date) strict {
+        label fr official "Article 1207, alinéa 1. La révocation par les héritiers faite après l'expiration du délai de trois mois est valable";
+        label en unofficial "Article 1207, paragraph 1. Revocation by the heirs made after the three-month period has expired is valid";
+        when heritier_du_stipulant(s, heritier)
+            and echeance_de_la_mise_en_demeure_d_accepter(s, echeance)
+            and revocation_par_les_heritiers_le(s, revocation)
+            and revocation > echeance
+            and not_known(stipulation_irrevocable(s));
+        then revocation_des_heritiers_valable(s);
+    }
+    rule RevocationDesHeritiersPrematuree(s: Stipulation, heritier: Personne, echeance: Date, revocation: Date) strict {
+        label fr official "Article 1207, alinéa 1. La révocation par les héritiers faite avant l'expiration du délai de trois mois est prématurée";
+        label en unofficial "Article 1207, paragraph 1. Revocation by the heirs made before the three-month period has expired is premature";
+        when heritier_du_stipulant(s, heritier)
+            and echeance_de_la_mise_en_demeure_d_accepter(s, echeance)
+            and revocation_par_les_heritiers_le(s, revocation)
+            and revocation <= echeance;
+        then revocation_des_heritiers_prematuree(s);
+    }
+    rule NouveauBeneficiaireDesigne(s: Stipulation, nouveau: Personne) strict {
+        label fr official "Article 1207, alinéa 2. Constat de la désignation d'un nouveau bénéficiaire par la révocation";
+        label en unofficial "Article 1207, paragraph 2. Finding that the revocation designates a new beneficiary";
+        when nouveau_beneficiaire_designe(s, nouveau);
+        then nouveau_beneficiaire_a_ete_designe(s);
+    }
+    rule RevocationProfiteAuStipulant(s: Stipulation) strict {
+        label fr official "Article 1207, alinéa 2. Si elle n'est pas assortie de la désignation d'un nouveau bénéficiaire, la révocation profite, selon le cas, au stipulant ou à ses héritiers";
+        label en unofficial "Article 1207, paragraph 2. If not accompanied by the designation of a new beneficiary, the revocation benefits, as the case may be, the stipulator or his heirs";
+        when revocation_des_heritiers_valable(s) and not_known(nouveau_beneficiaire_a_ete_designe(s));
+        then revocation_profite_au_stipulant_ou_a_ses_heritiers(s);
+    }
+    rule RevocationProduitEffetParLaConnaissance(s: Stipulation) strict {
+        label fr official "Article 1207, alinéa 3. La révocation produit effet dès lors que le tiers bénéficiaire ou le promettant en a eu connaissance";
+        label en unofficial "Article 1207, paragraph 3. The revocation takes effect once the third-party beneficiary or the promisor has learned of it";
+        when revocation_connue_du_tiers_ou_du_promettant(s);
+        then revocation_produit_effet(s);
+    }
+    rule RevocationTestamentaireProduitEffetAuDeces(s: Stipulation, deces: Date) strict {
+        label fr official "Article 1207, alinéa 4. Lorsqu'elle est faite par testament, la révocation prend effet au moment du décès";
+        label en unofficial "Article 1207, paragraph 4. Where made by will, the revocation takes effect at the moment of death";
+        when revocation_par_testament(s, deces);
+        then revocation_produit_effet(s);
+    }
+    rule TiersInitialReputeNAvoirJamaisBeneficie(s: Stipulation) strict {
+        label fr official "Article 1207, alinéa 5. Le tiers initialement désigné est censé n'avoir jamais bénéficié de la stipulation faite à son profit";
+        label en unofficial "Article 1207, paragraph 5. The initially designated third party is deemed never to have benefited from the stipulation";
+        when revocation_produit_effet(s);
+        then tiers_initial_repute_n_avoir_jamais_beneficie(s);
+    }
+}
+
+@source(CC_ART1208)
+rule AcceptationDuBeneficiaireOuDeSesHeritiers(s: Stipulation, jour: Date) strict {
+    label fr official "Article 1208. L'acceptation peut émaner du bénéficiaire ou, après son décès, de ses héritiers ; elle peut être expresse ou tacite et intervenir même après le décès du stipulant ou du promettant";
+    label en unofficial "Article 1208. The acceptance may come from the beneficiary or, after his death, from his heirs; it may be express or tacit and may occur even after the death of the stipulator or the promisor";
+    when acceptation_du_beneficiaire_parvenue_le(s, jour);
+    then stipulation_irrevocable(s);
+}
+
+@source(CC_ART1209)
+rule StipulantExigeLExecution(s: Stipulation, c: Contrat, stipulant: Personne, promettant: Personne, beneficiaire: Personne) strict {
+    label fr official "Article 1209. Le stipulant peut lui-même exiger du promettant l'exécution de son engagement envers le bénéficiaire";
+    label en unofficial "Article 1209. The stipulator may himself require the promisor to perform his undertaking towards the beneficiary";
+    when stipulation_pour_autrui(s, c, stipulant, promettant, beneficiaire)
+        and exigence_du_stipulant(s);
+    then execution_exigible_par_le_stipulant(s, stipulant);
+}

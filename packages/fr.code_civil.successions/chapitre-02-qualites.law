@@ -1,0 +1,135 @@
+// CHAPITRE II — DES QUALITÉS REQUISES POUR SUCCÉDER (articles 725 à 729-1).
+//
+// Deux strates : (1) qui EXISTE et n'est pas exclu — la capacité de
+// succéder ; (2) qui VIENT DE SON CHEF — capable et non renonçant. La
+// représentation (chapitre III) lit la strate inverse : prédécédé,
+// renonçant ou indigne sont « représentables » (articles 754, 755).
+//
+// L'indignité de l'article 726 est de plein droit : la condamnation suffit.
+// Celle de l'article 727 est prononcée par le tribunal : le cas fournit la
+// déclaration (fait `adjudicated`), non les faits qui la motivent — le
+// paquet ne juge pas à la place du tribunal. Le pardon de l'article 728
+// lève l'exclusion dans les deux cas.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART725,
+    CC_ART726,
+    CC_ART727,
+    CC_ART727_1,
+    CC_ART728,
+    CC_ART754,
+    CC_ART755,
+    CC_ART805,
+    Personne,
+    Succession,
+    condamne_peine_criminelle_mort_volontaire,
+    condamne_peine_criminelle_violences_mortelles,
+    declare_indigne_par_le_tribunal,
+    existe_a_l_ouverture,
+    maintenu_par_declaration_testamentaire,
+    predecede,
+    renonce,
+};
+
+pub relation indigne_de_plein_droit(s: Succession, p: Personne) kind derived {
+    label fr official "indigne de succéder de plein droit (article 726)";
+    label en unofficial "unworthy to inherit by operation of law (Article 726)";
+}
+pub relation indigne(s: Succession, p: Personne) kind derived {
+    label fr official "frappé d'une cause d'indignité (articles 726, 727)";
+    label en unofficial "affected by a cause of unworthiness (Articles 726, 727)";
+}
+pub relation exclu_pour_indignite(s: Succession, p: Personne) kind derived {
+    label fr official "exclu de la succession pour cause d'indignité, sans pardon du défunt (articles 726 à 728)";
+    label en unofficial "excluded from the succession for unworthiness, without the deceased's pardon (Articles 726 to 728)";
+}
+pub relation capable_de_succeder(s: Succession, p: Personne) kind derived {
+    label fr official "existe à l'ouverture et n'est pas exclu pour indignité (articles 725 à 728)";
+    label en unofficial "exists at the opening and is not excluded for unworthiness (Articles 725 to 728)";
+}
+pub relation vient_de_son_chef(s: Succession, p: Personne) kind derived {
+    label fr official "successible capable qui ne renonce pas : vient à la succession de son chef";
+    label en unofficial "capable successor who does not renounce: takes the succession in his own right";
+}
+pub relation representable(s: Succession, p: Personne) kind derived {
+    label fr official "prédécédé, renonçant ou indigne : ses descendants peuvent le représenter (articles 754, 755)";
+    label en unofficial "predeceased, renouncing or unworthy: his descendants may represent him (Articles 754, 755)";
+}
+
+@source(CC_ART726) {
+    rule IndigniteMeurtre(s: Succession, p: Personne) strict {
+        label fr official "Article 726, 1°. Est indigne de plein droit celui qui est condamné à une peine criminelle pour avoir volontairement donné ou tenté de donner la mort au défunt";
+        label en unofficial "Article 726, 1°. Unworthy by operation of law: convicted to a criminal penalty for wilfully killing or attempting to kill the deceased";
+        when condamne_peine_criminelle_mort_volontaire(s, p);
+        then indigne_de_plein_droit(s, p);
+    }
+    rule IndigniteViolencesMortelles(s: Succession, p: Personne) strict {
+        label fr official "Article 726, 2°. Est indigne de plein droit celui qui est condamné à une peine criminelle pour violences ayant entraîné la mort du défunt sans intention de la donner";
+        label en unofficial "Article 726, 2°. Unworthy by operation of law: convicted to a criminal penalty for violence causing death without intent to kill";
+        when condamne_peine_criminelle_violences_mortelles(s, p);
+        then indigne_de_plein_droit(s, p);
+    }
+    rule IndignePleinDroit(s: Succession, p: Personne) strict {
+        label fr official "Article 726. L'indigne de plein droit est frappé d'une cause d'indignité";
+        label en unofficial "Article 726. Unworthiness by operation of law is a cause of unworthiness";
+        when indigne_de_plein_droit(s, p);
+        then indigne(s, p);
+    }
+}
+
+@source(CC_ART727, CC_ART727_1)
+rule IndigneDeclare(s: Succession, p: Personne) strict {
+    label fr official "Articles 727 et 727-1. Celui que le tribunal judiciaire a déclaré indigne est frappé d'une cause d'indignité";
+    label en unofficial "Articles 727 and 727-1. A person declared unworthy by the judicial court is affected by a cause of unworthiness";
+    when declare_indigne_par_le_tribunal(s, p);
+    then indigne(s, p);
+}
+
+@source(CC_ART728)
+rule ExcluSaufPardon(s: Succession, p: Personne) strict {
+    label fr official "Articles 726 à 728. L'indigne est exclu de la succession, sauf si le défunt l'a maintenu dans ses droits par une déclaration testamentaire ou une libéralité universelle";
+    label en unofficial "Articles 726 to 728. The unworthy person is excluded, unless the deceased kept him in his rights by a testamentary declaration or a universal gift";
+    when indigne(s, p) and not_known(maintenu_par_declaration_testamentaire(s, p));
+    then exclu_pour_indignite(s, p);
+}
+
+@source(CC_ART725)
+rule CapableDeSucceder(s: Succession, p: Personne) strict {
+    label fr official "Article 725. Pour succéder, il faut exister à l'instant de l'ouverture de la succession ; l'exclu pour indignité ne succède pas";
+    label en unofficial "Article 725. To inherit one must exist at the instant the succession opens; a person excluded for unworthiness does not inherit";
+    when existe_a_l_ouverture(s, p) and not_known(exclu_pour_indignite(s, p));
+    then capable_de_succeder(s, p);
+}
+
+@source(CC_ART805)
+rule VientDeSonChef(s: Succession, p: Personne) strict {
+    label fr official "Article 805. L'héritier qui renonce est censé n'avoir jamais été héritier : vient de son chef le successible capable qui ne renonce pas";
+    label en unofficial "Article 805. The renouncing heir is deemed never to have been an heir: a capable successor who does not renounce takes in his own right";
+    when capable_de_succeder(s, p) and not_known(renonce(s, p));
+    then vient_de_son_chef(s, p);
+}
+
+@source(CC_ART754, CC_ART755) {
+    rule RepresentablePredecede(s: Succession, p: Personne) strict {
+        label fr official "Article 754, alinéa 1. On représente les prédécédés";
+        label en unofficial "Article 754, paragraph 1. The predeceased are represented";
+        when predecede(s, p);
+        then representable(s, p);
+    }
+    rule RepresentableRenoncant(s: Succession, p: Personne) strict {
+        label fr official "Article 754, alinéa 1. On représente les renonçants dans les successions dévolues en ligne directe ou collatérale";
+        label en unofficial "Article 754, paragraph 1. Renouncing heirs are represented in successions devolved in the direct or collateral line";
+        when renonce(s, p);
+        then representable(s, p);
+    }
+    rule RepresentableIndigne(s: Succession, p: Personne) strict {
+        label fr official "Article 755. La représentation est admise en faveur des enfants et descendants de l'indigne, encore que celui-ci soit vivant";
+        label en unofficial "Article 755. Representation is allowed for the children and descendants of the unworthy person, even if he is alive";
+        when exclu_pour_indignite(s, p);
+        then representable(s, p);
+    }
+}

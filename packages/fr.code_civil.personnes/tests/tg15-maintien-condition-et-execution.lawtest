@@ -1,0 +1,52 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// LDC-E1371 (§124): цель `maintain` больше не читает посылку правила — она читает эмпирический
+// факт исполнения (например `gestion_prudente_du_patrimoine_protege`), а не условие возникновения
+// долга. Норма даёт долг при установленных условиях (ACTIVE). Окно поддержания открыто до
+// бесконечности, поэтому §136 не закрывает его положительным исполнением: SATISFIED здесь не
+// достижим (так же для tg06), различимо только VIOLATED при контрпримере. Ст. 408, 410, 411-1,
+// 482, 486, 491, 494, 495-7 уже имеют положительное ACTIVE в tests/catalog; ниже — положительное
+// свидетельство для ст. 496, 497, 498, 501, которое каталог фиксировал лишь отрицательно.
+
+// Art. 496: condition sans exécution → ACTIVE.
+test "urn:query:fr-code-civil-personnes-tg15-496-actif" {
+    given {
+        context { decision_time @2026-09-30T09:00:00Z; knowledge_time @2026-09-30T09:00:00Z; legal_time @2026-09-30; timezone "Europe/Paris"; }
+        assert "opening": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg07da:m"), entity_ref("urn:fr:cc:personnes:tg07da:p"), entity_ref("urn:fr:cc:personnes:tg07da:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(GererPrudemmentLePatrimoine, ACTIVE);
+}
+
+// Art. 497: condition sans exécution → ACTIVE.
+test "urn:query:fr-code-civil-personnes-tg15-497-actif" {
+    given {
+        context { decision_time @2026-09-30T09:00:00Z; knowledge_time @2026-09-30T09:00:00Z; legal_time @2026-09-30; timezone "Europe/Paris"; }
+        assert "opening": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg07ea:m"), entity_ref("urn:fr:cc:personnes:tg07ea:p"), entity_ref("urn:fr:cc:personnes:tg07ea:t"), @2026-01-10) { origin adjudicated; }
+        assert "deputy": subroge_tuteur_de(entity_ref("urn:fr:cc:personnes:tg07ea:s"), entity_ref("urn:fr:cc:personnes:tg07ea:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(AttesterLesOperationsDuTuteur, ACTIVE);
+}
+
+// Art. 498: condition sans exécution → ACTIVE.
+test "urn:query:fr-code-civil-personnes-tg15-498-actif" {
+    given {
+        context { decision_time @2026-09-30T09:00:00Z; knowledge_time @2026-09-30T09:00:00Z; legal_time @2026-09-30; timezone "Europe/Paris"; }
+        assert "opening": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg07fa:m"), entity_ref("urn:fr:cc:personnes:tg07fa:p"), entity_ref("urn:fr:cc:personnes:tg07fa:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(VerserCapitauxSurCompteProtege, ACTIVE);
+}
+
+// Art. 501: condition sans exécution → ACTIVE.
+test "urn:query:fr-code-civil-personnes-tg15-501-actif" {
+    given {
+        context { decision_time @2026-09-30T09:00:00Z; knowledge_time @2026-09-30T09:00:00Z; legal_time @2026-09-30; timezone "Europe/Paris"; }
+        assert "opening": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg07ga:m"), entity_ref("urn:fr:cc:personnes:tg07ga:p"), entity_ref("urn:fr:cc:personnes:tg07ga:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(EmployerLesCapitauxSelonLaDecision, ACTIVE);
+}

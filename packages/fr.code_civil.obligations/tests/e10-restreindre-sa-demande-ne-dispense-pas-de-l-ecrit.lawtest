@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1359, al. 3 : celui dont la créance excède le seuil NE PEUT PAS être dispensé de
+// la preuve par écrit EN RESTREIGNANT SA DEMANDE — ici ramenée à 1 000 EUR.
+test "urn:query:fr-code-civil-obligations-e10-restreindre-sa-demande-ne-dispense-pas-de-l-ecrit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": somme_ou_valeur_de_l_acte(entity_ref("urn:fr:cc:obligations:rst:a"), 2000 EUR) { origin case_input; }
+        assert "f2": seuil_de_la_preuve_par_ecrit(entity_ref("urn:fr:cc:obligations:rst:a"), 1500 EUR) { origin case_input; }
+        assert "f3": demande_restreinte(entity_ref("urn:fr:cc:obligations:rst:a"), 1000 EUR) { origin case_input; }
+    }
+    evaluate truth(dispense_par_restriction_de_la_demande_refusee(entity_ref("urn:fr:cc:obligations:rst:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DispenseParRestrictionRefusee);
+}

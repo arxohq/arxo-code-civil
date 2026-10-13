@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 238 : séparés depuis le 10 mars 2024, demande le 2025-03-10.
+test "urn:query:fr-code-civil-famille-d01-separation-un-an-jour-pour-jour" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": separes_depuis(entity_ref("urn:fr:cc:fam:k:m"), @2024-03-10) { origin case_input; }
+        assert "f2": demande_en_divorce_le(entity_ref("urn:fr:cc:fam:k:m"), @2025-03-10) { origin case_input; }
+    }
+    evaluate truth(alteration_definitive_du_lien(entity_ref("urn:fr:cc:fam:k:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

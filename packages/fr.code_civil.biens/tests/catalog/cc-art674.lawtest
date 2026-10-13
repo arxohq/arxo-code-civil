@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DISTANCEOUOUVRAGESPRESCRITSPARLESREGLEMENTS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": distance_ou_ouvrages_prescrits_par_les_reglements(entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v0"), entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v2")) { origin case_input; }
+        assert "cat-1": ouvrage_pres_du_mur(entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v0"), entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v1"), entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v2")) { origin case_input; }
+    }
+    evaluate truth(obligation_de_laisser_la_distance_ou_de_faire_les_ouvrages(entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v0"), entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v1"), entity_ref("urn:law:catalog:distanceououvragesprescritsparlesreglements:v2")));
+    expect truth_status == TRUE_ONLY;
+}

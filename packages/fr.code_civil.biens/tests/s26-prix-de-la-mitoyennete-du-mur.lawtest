@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 661. Le prix de la mitoyenneté est la moitié de la dépense du mur
+// plus la moitié de la valeur du sol : 8 000 € et 3 000 € donnent 5 500 €.
+test "urn:query:fr-code-civil-biens-s26-prix-de-la-mitoyennete-du-mur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": volonte_de_rendre_le_mur_mitoyen(entity_ref("urn:fr:cc:biens:s26:M"), entity_ref("urn:fr:cc:biens:s26:F")) { origin case_input; }
+        assert "f2": depense_du_mur(entity_ref("urn:fr:cc:biens:s26:M"), 8000 EUR) { origin case_input; }
+        assert "f3": valeur_du_sol_du_mur(entity_ref("urn:fr:cc:biens:s26:M"), 3000 EUR) { origin case_input; }
+    }
+    evaluate truth(prix_de_l_acquisition_de_la_mitoyennete_du_mur(entity_ref("urn:fr:cc:biens:s26:M"), entity_ref("urn:fr:cc:biens:s26:F"), 5500 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

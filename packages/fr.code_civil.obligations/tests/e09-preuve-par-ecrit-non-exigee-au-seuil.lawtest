@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1359, al. 1, frontière : l'acte qui N'EXCÈDE PAS le montant — ici exactement
+// 1 500 EUR — échappe à l'exigence d'un écrit.
+test "urn:query:fr-code-civil-obligations-e09-preuve-par-ecrit-non-exigee-au-seuil" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": somme_ou_valeur_de_l_acte(entity_ref("urn:fr:cc:obligations:seu:a"), 1500 EUR) { origin case_input; }
+        assert "f2": seuil_de_la_preuve_par_ecrit(entity_ref("urn:fr:cc:obligations:seu:a"), 1500 EUR) { origin case_input; }
+    }
+    evaluate truth(preuve_par_ecrit_non_exigee(entity_ref("urn:fr:cc:obligations:seu:a")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PreuveParEcritNonExigee);
+}

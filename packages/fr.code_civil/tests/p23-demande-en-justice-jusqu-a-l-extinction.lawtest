@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2241, 2242 et 2231 : instance éteinte le 30 juin 2019 — nouveau délai de cinq ans jusqu'au 30 juin 2024.
+test "urn:query:fr-code-civil-p23-demande-en-justice-jusqu-a-l-extinction" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": demande_en_justice_le(entity_ref("urn:fr:cc:presc:p23"), @2015-03-01) { origin case_input; }
+        assert "f2": instance_eteinte_le(entity_ref("urn:fr:cc:presc:p23"), @2019-06-30) { origin case_input; }
+    }
+    evaluate truth(echeance_prescription_le(entity_ref("urn:fr:cc:presc:p23"), @2024-06-30));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EcheanceApresInterruption);
+}

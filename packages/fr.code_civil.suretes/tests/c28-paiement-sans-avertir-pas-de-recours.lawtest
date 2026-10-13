@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2311 : paiement sans avertir le débiteur qui a ensuite payé — pas de recours.
+test "urn:query:fr-code-civil-suretes-c28-paiement-sans-avertir-pas-de-recours" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c28:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c28:K"), entity_ref("urn:fr:cc:suretes:c28:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c28:K"), entity_ref("urn:fr:cc:suretes:c28:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c28:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c28:B")) { origin case_input; }
+        assert "f6": paiement_par_la_caution(entity_ref("urn:fr:cc:suretes:c28:K"), @2023-05-10, 5000 EUR) { origin case_input; }
+        assert "f7": paye_sans_avertir_le_debiteur(entity_ref("urn:fr:cc:suretes:c28:K")) { origin case_input; }
+        assert "f8": debiteur_a_acquitte_ulterieurement(entity_ref("urn:fr:cc:suretes:c28:K")) { origin case_input; }
+    }
+    evaluate truth(recours_personnel(entity_ref("urn:fr:cc:suretes:c28:K"), 5000 EUR));
+    expect truth_status == NEITHER;
+}

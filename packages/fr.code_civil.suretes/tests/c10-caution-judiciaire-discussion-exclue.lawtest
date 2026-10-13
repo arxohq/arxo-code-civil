@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2305 : la caution judiciaire ne peut se prévaloir du bénéfice de discussion.
+test "urn:query:fr-code-civil-suretes-c10-caution-judiciaire-discussion-exclue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c10:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c10:K"), entity_ref("urn:fr:cc:suretes:c10:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c10:K"), entity_ref("urn:fr:cc:suretes:c10:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c10:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c10:B")) { origin case_input; }
+        assert "f6": nature_du_cautionnement(entity_ref("urn:fr:cc:suretes:c10:K"), CautionnementJudiciaire) { origin case_input; }
+    }
+    evaluate truth(benefice_de_discussion(entity_ref("urn:fr:cc:suretes:c10:K")));
+    expect truth_status == NEITHER;
+}

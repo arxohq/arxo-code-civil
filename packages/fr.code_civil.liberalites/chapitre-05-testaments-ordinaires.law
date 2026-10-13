@@ -1,0 +1,247 @@
+// CHAPITRE V — FORME DES TESTAMENTS ORDINAIRES (articles 967 à 980).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART967,
+    CC_ART968,
+    CC_ART969,
+    CC_ART970,
+    CC_ART971,
+    CC_ART972,
+    CC_ART973,
+    CC_ART974,
+    CC_ART975,
+    CC_ART976,
+    CC_ART977,
+    CC_ART978,
+    CC_ART979,
+    CC_ART980,
+    Liberalite,
+    forme_legale_de_liberalite,
+    liberalite_nulle,
+};
+
+pub enum FormeDeTestament { label fr official "forme du testament"; label en unofficial "form of will"; Olographe, ActePublic, Mystique }
+pub relation volonte_testamentaire_manifestee(l: Liberalite) kind empirical { label fr official "l'acte manifeste la volonté de disposer à cause de mort, quelle que soit sa dénomination"; label en unofficial "the instrument manifests testamentary intent whatever its name"; }
+pub relation disposition_testamentaire_valable(l: Liberalite) kind derived { label fr official "disposition testamentaire valable quant à la règle contrôlée"; label en unofficial "testamentary disposition valid under the checked rule"; }
+pub relation testament_commun_plusieurs_personnes(l: Liberalite) kind empirical { label fr official "le même acte contient le testament de plusieurs personnes"; label en unofficial "the same instrument contains the wills of several persons"; }
+pub relation forme_de_testament(l: Liberalite, forme: FormeDeTestament) kind empirical { key(l); label fr official "forme choisie pour le testament"; label en unofficial "form chosen for the will"; }
+pub relation olographe_entierement_ecrit_date_signe_main(l: Liberalite) kind empirical { label fr official "le testament olographe est entièrement écrit, daté et signé de la main du testateur"; label en unofficial "the holographic will is entirely handwritten, dated and signed by the testator"; }
+pub relation testament_public_recu_deux_notaires_ou_un_et_deux_temoins(l: Liberalite) kind empirical { label fr official "le testament public est reçu par deux notaires ou par un notaire et deux témoins"; label en unofficial "the public will is received by two notaries or one notary and two witnesses"; }
+pub relation dictee_ecriture_et_lecture_conformes(l: Liberalite) kind empirical { label fr official "la dictée, l'écriture et la lecture du testament public sont conformes à l'article 972"; label en unofficial "dictation, writing and reading of the public will comply with Article 972"; }
+pub relation adaptation_langue_ou_handicap_conforme(l: Liberalite) kind empirical { label fr official "l'interprétation ou l'adaptation au handicap respecte l'article 972"; label en unofficial "interpretation or disability accommodation complies with Article 972"; }
+pub relation testament_signe_ou_impossibilite_mentionnee(l: Liberalite) kind empirical { label fr official "le testateur signe ou l'acte mentionne expressément son impossibilité et sa cause"; label en unofficial "the testator signs or the instrument expressly records inability and its cause"; }
+pub relation signatures_notaire_et_temoins(l: Liberalite) kind empirical { label fr official "le testament est signé par le notaire et les témoins requis"; label en unofficial "the will is signed by the required notary and witnesses"; }
+pub relation temoin_legataire_parent_allie_ou_clerc(l: Liberalite) kind empirical { label fr official "un témoin est légataire, parent ou allié jusqu'au quatrième degré, ou clerc du notaire"; label en unofficial "a witness is a legatee, relative or in-law up to the fourth degree, or the notary's clerk"; }
+pub relation pli_mystique_clos_cachete_scelle(l: Liberalite) kind empirical { label fr official "le testament mystique est clos, cacheté et scellé"; label en unofficial "the mystic will is closed, sealed and stamped"; }
+pub relation presentation_declaration_et_suscription_conformes(l: Liberalite) kind empirical { label fr official "la présentation, la déclaration et l'acte de suscription respectent l'article 976"; label en unofficial "presentation, declaration and superscription comply with Article 976"; }
+pub relation mention_impossibilite_signature_mystique(l: Liberalite) kind empirical { label fr official "l'acte de suscription mentionne l'impossibilité de signer et sa cause"; label en unofficial "the superscription records inability to sign and its cause"; }
+pub relation testateur_ne_sait_ou_ne_peut_lire(l: Liberalite) kind empirical { label fr official "le testateur ne sait ou ne peut lire"; label en unofficial "the testator cannot read"; }
+pub relation testateur_ne_peut_parler_mais_peut_ecrire(l: Liberalite) kind empirical { label fr official "le testateur ne peut parler mais peut écrire"; label en unofficial "the testator cannot speak but can write"; }
+pub relation formalites_mystiques_non_observees(l: Liberalite) kind empirical { label fr official "les formalités du testament mystique ne sont pas observées"; label en unofficial "the formalities for a mystic will are not observed"; }
+pub relation conditions_olographe_remplies(l: Liberalite) kind empirical { label fr official "toutes les conditions du testament olographe sont remplies"; label en unofficial "all conditions for a holographic will are met"; }
+pub relation testament_mystique_converti_olographe(l: Liberalite) kind derived { label fr official "testament mystique nul valant comme testament olographe"; label en unofficial "invalid mystic will effective as a holographic will"; }
+pub relation temoins_majeurs_francophones_signataires_droits_civils(l: Liberalite) kind empirical { label fr official "les témoins comprennent le français, sont majeurs, savent signer et jouissent de leurs droits civils"; label en unofficial "the witnesses understand French, are adults, can sign and enjoy civil rights"; }
+pub relation epoux_temoins_meme_acte(l: Liberalite) kind empirical { label fr official "deux époux sont témoins dans le même acte"; label en unofficial "two spouses are witnesses to the same instrument"; }
+
+@source(CC_ART967) rule VolonteTestamentaireQuelleQueSoitDenomination(l: Liberalite) strict { label fr official "Article 967. Toute dénomination produisant une manifestation de volonté peut porter une disposition testamentaire"; label en unofficial "Article 967. Any denomination manifesting intent may carry a testamentary disposition"; when volonte_testamentaire_manifestee(l); then disposition_testamentaire_valable(l); }
+@source(CC_ART968) rule TestamentCommunNul(l: Liberalite) strict { label fr official "Article 968. Plusieurs personnes ne peuvent tester dans le même acte"; label en unofficial "Article 968. Several persons may not make wills in the same instrument"; when testament_commun_plusieurs_personnes(l); then liberalite_nulle(l); }
+pub relation tester_commun_968(l: Liberalite) kind empirical { label fr official "plusieurs personnes testent dans le même acte"; label en unofficial "several persons make wills in the same instrument"; }
+@source(CC_ART968)
+rule PositionInterdictionTesterCommun(l: Liberalite) strict {
+    label fr official "Article 968. Plusieurs personnes ne peuvent tester dans le même acte";
+    label en unofficial "Article 968. Several persons may not make wills in the same instrument";
+    when testament_commun_plusieurs_personnes(l);
+    then prohibition InterdictionTesterCommun {
+        bearer entity_ref("urn:fr:cc:liberalites:testateurs");
+        action tester_commun_968(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART968)
+rule PositionDevoirMaintenirInterdictionTesterCommun(l: Liberalite) strict {
+    label fr official "Article 968. Devoir de maintenir l'interdiction du testament commun";
+    label en unofficial "Article 968. Duty to maintain the prohibition on a joint will";
+    when testament_commun_plusieurs_personnes(l);
+    then duty MaintenirInterdictionTesterCommun {
+        bearer entity_ref("urn:fr:cc:liberalites:testateurs");
+        goal achievement { condition tester_commun_968(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART969) rule FormeTestamentAdmise(l: Liberalite, forme: FormeDeTestament) strict { label fr official "Article 969. Le testament peut être olographe, public ou mystique"; label en unofficial "Article 969. A will may be holographic, public or mystic"; when forme_de_testament(l, forme); then forme_legale_de_liberalite(l); }
+pub relation choisir_forme_testament_969(l: Liberalite) kind empirical { label fr official "le testateur choisit une forme légale de testament"; label en unofficial "the testator chooses a lawful form of will"; }
+@source(CC_ART969)
+rule PositionPouvoirChoisirFormeTestament(l: Liberalite) strict {
+    label fr official "Article 969. Le testateur peut choisir la forme du testament";
+    label en unofficial "Article 969. The testator may choose the form of the will";
+    when forme_de_testament(l, Olographe) and choisir_forme_testament_969(l);
+    then liberty PouvoirChoisirFormeTestament {
+        holder entity_ref("urn:fr:cc:liberalites:testateur");
+        action choisir_forme_testament_969(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART970) rule OlographeValable(l: Liberalite) strict { label fr official "Article 970. Le testament olographe est entièrement écrit, daté et signé de la main du testateur"; label en unofficial "Article 970. A holographic will is entirely handwritten, dated and signed by the testator"; when forme_de_testament(l, Olographe) and olographe_entierement_ecrit_date_signe_main(l); then disposition_testamentaire_valable(l); }
+pub relation rediger_testament_olographe_970(l: Liberalite) kind empirical { label fr official "le testateur rédige, date et signe le testament olographe de sa main"; label en unofficial "the testator writes, dates and signs the holographic will by hand"; }
+@source(CC_ART970)
+rule PositionDevoirRedigerTestamentOlographe(l: Liberalite) strict {
+    label fr official "Article 970. Le testateur doit écrire, dater et signer de sa main";
+    label en unofficial "Article 970. The testator must write, date and sign by hand";
+    when forme_de_testament(l, Olographe);
+    then duty DevoirRedigerTestamentOlographe {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        goal achievement { condition rediger_testament_olographe_970(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART971) rule ReceptionTestamentPublic(l: Liberalite) strict { label fr official "Article 971. Le testament public est reçu par deux notaires ou un notaire assisté de deux témoins"; label en unofficial "Article 971. A public will is received by two notaries or one notary assisted by two witnesses"; when forme_de_testament(l, ActePublic) and testament_public_recu_deux_notaires_ou_un_et_deux_temoins(l); then disposition_testamentaire_valable(l); }
+pub relation recevoir_testament_public_971(l: Liberalite) kind empirical { label fr official "les notaires reçoivent le testament public avec les témoins requis"; label en unofficial "the notaries receive the public will with required witnesses"; }
+@source(CC_ART971)
+rule PositionDevoirRecevoirTestamentPublic(l: Liberalite) strict {
+    label fr official "Article 971. Les notaires doivent recevoir le testament public";
+    label en unofficial "Article 971. The notaries must receive the public will";
+    when forme_de_testament(l, ActePublic);
+    then duty DevoirRecevoirTestamentPublic {
+        bearer entity_ref("urn:fr:cc:liberalites:notaires");
+        goal achievement { condition recevoir_testament_public_971(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART972) { rule DicteeLectureConformes(l: Liberalite) strict { label fr official "Article 972, alinéas 1 à 3. La dictée, l'écriture et la lecture sont requises"; label en unofficial "Article 972, paragraphs 1 to 3. Dictation, writing and reading are required"; when testament_public_recu_deux_notaires_ou_un_et_deux_temoins(l) and dictee_ecriture_et_lecture_conformes(l); then disposition_testamentaire_valable(l); } rule AdaptationLangueHandicap(l: Liberalite) strict { label fr official "Article 972, alinéas 4 à 7. L'interprète ou l'adaptation au handicap permet la réception conforme"; label en unofficial "Article 972, paragraphs 4 to 7. An interpreter or disability accommodation permits compliant reception"; when testament_public_recu_deux_notaires_ou_un_et_deux_temoins(l) and adaptation_langue_ou_handicap_conforme(l); then disposition_testamentaire_valable(l); } }
+pub relation dicter_ecrire_lire_testament_972(l: Liberalite) kind empirical { label fr official "le testament public est dicté, écrit et lu conformément à l'article 972"; label en unofficial "the public will is dictated, written and read under Article 972"; }
+@source(CC_ART972)
+rule PositionDevoirDicterEcrireLireTestament(l: Liberalite) strict {
+    label fr official "Article 972. Les formalités de dictée, écriture et lecture doivent être respectées";
+    label en unofficial "Article 972. Dictation, writing and reading formalities must be respected";
+    when testament_public_recu_deux_notaires_ou_un_et_deux_temoins(l);
+    then duty DevoirDicterEcrireLireTestament {
+        bearer entity_ref("urn:fr:cc:liberalites:officier-instrumentaire");
+        goal achievement { condition dicter_ecrire_lire_testament_972(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART973) rule SignatureTestateurOuMention(l: Liberalite) strict { label fr official "Article 973. Le testateur signe en présence du notaire et des témoins, ou son impossibilité et sa cause sont mentionnées"; label en unofficial "Article 973. The testator signs before the notary and witnesses, or inability and its cause are recorded"; when testament_signe_ou_impossibilite_mentionnee(l); then disposition_testamentaire_valable(l); }
+pub relation signer_ou_mentionner_impossibilite_973(l: Liberalite) kind empirical { label fr official "le testateur signe ou son impossibilité et sa cause sont mentionnées"; label en unofficial "the testator signs or inability and its cause are recorded"; }
+@source(CC_ART973)
+rule PositionDevoirSignerOuMentionner(l: Liberalite) strict {
+    label fr official "Article 973. Le testateur doit signer ou faire mentionner son impossibilité";
+    label en unofficial "Article 973. The testator must sign or have inability recorded";
+    when forme_de_testament(l, ActePublic);
+    then duty DevoirSignerOuMentionner {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        goal achievement { condition signer_ou_mentionner_impossibilite_973(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART974) rule SignaturesNotaireTemoins(l: Liberalite) strict { label fr official "Article 974. Le notaire et les témoins signent le testament"; label en unofficial "Article 974. The notary and witnesses sign the will"; when signatures_notaire_et_temoins(l); then disposition_testamentaire_valable(l); }
+pub relation signer_notaire_temoins_974(l: Liberalite) kind empirical { label fr official "le notaire et les témoins signent le testament"; label en unofficial "the notary and witnesses sign the will"; }
+@source(CC_ART974)
+rule PositionDevoirSignerNotaireTemoins(l: Liberalite) strict {
+    label fr official "Article 974. Le notaire et les témoins doivent signer";
+    label en unofficial "Article 974. The notary and witnesses must sign";
+    when forme_de_testament(l, ActePublic);
+    then duty DevoirSignerNotaireTemoins {
+        bearer entity_ref("urn:fr:cc:liberalites:notaire-et-temoins");
+        goal achievement { condition signer_notaire_temoins_974(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART975) rule TemoinInterditRendNul(l: Liberalite) strict { label fr official "Article 975. Le légataire, son proche jusqu'au quatrième degré et le clerc du notaire ne peuvent être témoins"; label en unofficial "Article 975. A legatee, close relative up to the fourth degree or the notary's clerk may not witness"; when temoin_legataire_parent_allie_ou_clerc(l); then liberalite_nulle(l); }
+pub relation servir_temoin_interdit_975(l: Liberalite) kind empirical { label fr official "le légataire, son proche ou le clerc sert de témoin"; label en unofficial "the legatee, relative or clerk serves as witness"; }
+@source(CC_ART975)
+rule PositionInterdictionServirTemoin(l: Liberalite) strict {
+    label fr official "Article 975. Le légataire ou son proche ne peut être témoin";
+    label en unofficial "Article 975. The legatee or relative may not witness";
+    when temoin_legataire_parent_allie_ou_clerc(l);
+    then prohibition InterdictionServirTemoin {
+        bearer entity_ref("urn:fr:cc:liberalites:temoin-interdit");
+        action servir_temoin_interdit_975(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART975)
+rule PositionDevoirMaintenirInterdictionTemoin(l: Liberalite) strict {
+    label fr official "Article 975. Devoir de maintenir l'interdiction du témoin";
+    label en unofficial "Article 975. Duty to maintain the witness prohibition";
+    when temoin_legataire_parent_allie_ou_clerc(l);
+    then duty MaintenirInterdictionTemoin {
+        bearer entity_ref("urn:fr:cc:liberalites:temoin-interdit");
+        goal achievement { condition servir_temoin_interdit_975(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART976) rule TestamentMystiqueForme(l: Liberalite) strict { label fr official "Article 976. Le pli clos, cacheté et scellé est présenté avec déclaration et acte de suscription conformes"; label en unofficial "Article 976. The closed and sealed paper is presented with a compliant declaration and superscription"; when forme_de_testament(l, Mystique) and pli_mystique_clos_cachete_scelle(l) and presentation_declaration_et_suscription_conformes(l); then disposition_testamentaire_valable(l); }
+pub relation presenter_testament_mystique_976(l: Liberalite) kind empirical { label fr official "le testateur présente le testament mystique clos, cacheté et scellé selon les formalités"; label en unofficial "the testator presents the closed and sealed mystic will according to formalities"; }
+@source(CC_ART976)
+rule PositionDevoirPresenterTestamentMystique(l: Liberalite) strict {
+    label fr official "Article 976. Le testateur doit présenter le testament mystique selon les formalités";
+    label en unofficial "Article 976. The testator must present the mystic will according to formalities";
+    when forme_de_testament(l, Mystique) and pli_mystique_clos_cachete_scelle(l);
+    then duty DevoirPresenterTestamentMystique {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        goal achievement { condition presenter_testament_mystique_976(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART977) rule MentionImpossibiliteSignatureMystique(l: Liberalite) strict { label fr official "Article 977. L'impossibilité initiale de signer est mentionnée dans l'acte de suscription"; label en unofficial "Article 977. Initial inability to sign is recorded in the superscription"; when mention_impossibilite_signature_mystique(l) and presentation_declaration_et_suscription_conformes(l); then disposition_testamentaire_valable(l); }
+pub relation mentionner_impossibilite_signature_mystique_977(l: Liberalite) kind empirical { label fr official "l'acte de suscription mentionne l'impossibilité initiale de signer"; label en unofficial "the superscription records initial inability to sign"; }
+pub relation testateur_mystique_ne_sait_ou_n_a_pu_signer(l: Liberalite) kind empirical { label fr official "le testateur a déclaré ne savoir signer ou n'avoir pu le faire lorsqu'il a fait écrire ses dispositions"; label en unofficial "the testator declared that he cannot sign or could not when he had his dispositions written"; }
+@source(CC_ART977)
+rule PositionDevoirMentionnerSignatureMystique(l: Liberalite) strict {
+    label fr official "Article 977. L'impossibilité de signer doit être mentionnée";
+    label en unofficial "Article 977. Inability to sign must be recorded";
+    when forme_de_testament(l, Mystique) and testateur_mystique_ne_sait_ou_n_a_pu_signer(l);
+    then duty DevoirMentionnerSignatureMystique {
+        bearer entity_ref("urn:fr:cc:liberalites:officier-instrumentaire");
+        goal achievement { condition mentionner_impossibilite_signature_mystique_977(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART978) rule IncapaciteLireExclutMystique(l: Liberalite) strict { label fr official "Article 978. Celui qui ne sait ou ne peut lire ne peut tester en la forme mystique"; label en unofficial "Article 978. A person unable to read may not make a mystic will"; when forme_de_testament(l, Mystique) and testateur_ne_sait_ou_ne_peut_lire(l); then liberalite_nulle(l); }
+pub relation tester_mystique_sans_lecture_978(l: Liberalite) kind empirical { label fr official "le testateur qui ne sait lire teste en la forme mystique"; label en unofficial "a testator unable to read makes a mystic will"; }
+@source(CC_ART978)
+rule PositionInterdictionTesterMystiqueSansLecture(l: Liberalite) strict {
+    label fr official "Article 978. Celui qui ne sait lire ne peut tester en forme mystique";
+    label en unofficial "Article 978. A person unable to read may not make a mystic will";
+    when forme_de_testament(l, Mystique)
+        and testateur_ne_sait_ou_ne_peut_lire(l);
+    then prohibition InterdictionTesterMystiqueSansLecture {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        action tester_mystique_sans_lecture_978(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART978)
+rule PositionDevoirMaintenirInterdictionTesterMystique(l: Liberalite) strict {
+    label fr official "Article 978. Devoir de maintenir l'interdiction du testament mystique sans lecture";
+    label en unofficial "Article 978. Duty to maintain the prohibition on an unread mystic will";
+    when forme_de_testament(l, Mystique)
+        and testateur_ne_sait_ou_ne_peut_lire(l);
+    then duty MaintenirInterdictionTesterMystique {
+        bearer entity_ref("urn:fr:cc:liberalites:testateur");
+        goal achievement { condition tester_mystique_sans_lecture_978(l); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART979) { rule MuetSachantEcrireMystique(l: Liberalite) strict { label fr official "Article 979, alinéa 1. Celui qui ne peut parler mais peut écrire peut faire un testament mystique avec les mentions prescrites"; label en unofficial "Article 979, paragraph 1. A person unable to speak but able to write may make a mystic will with the prescribed statements"; when testateur_ne_peut_parler_mais_peut_ecrire(l) and presentation_declaration_et_suscription_conformes(l); then disposition_testamentaire_valable(l); } rule ConversionMystiqueEnOlographe(l: Liberalite) strict { label fr official "Article 979, alinéa 2. Le testament mystique irrégulier vaut comme olographe si toutes les conditions olographes sont remplies"; label en unofficial "Article 979, paragraph 2. An irregular mystic will operates as holographic if all holographic conditions are met"; when formalites_mystiques_non_observees(l) and conditions_olographe_remplies(l); then testament_mystique_converti_olographe(l); } }
+pub relation faire_testament_mystique_979(l: Liberalite) kind empirical { label fr official "le testateur muet sachant écrire fait un testament mystique"; label en unofficial "the mute testator who can write makes a mystic will"; }
+@source(CC_ART979)
+rule PositionPouvoirFaireTestamentMystique(l: Liberalite) strict {
+    label fr official "Article 979. Le testateur muet sachant écrire peut faire un testament mystique";
+    label en unofficial "Article 979. A mute testator who can write may make a mystic will";
+    when testateur_ne_peut_parler_mais_peut_ecrire(l)
+        and presentation_declaration_et_suscription_conformes(l)
+        and faire_testament_mystique_979(l);
+    then liberty PouvoirFaireTestamentMystique {
+        holder entity_ref("urn:fr:cc:liberalites:testateur");
+        action faire_testament_mystique_979(l);
+        window [@1804-01-01, infinity);
+    };
+}
+@source(CC_ART980) rule CapaciteDesTemoins(l: Liberalite) strict { label fr official "Article 980. Les témoins sont majeurs, francophones, signataires, jouissent de leurs droits civils et ne sont pas deux époux"; label en unofficial "Article 980. Witnesses are adults, French-speaking, able to sign, enjoy civil rights and are not two spouses"; when temoins_majeurs_francophones_signataires_droits_civils(l) and not_known(epoux_temoins_meme_acte(l)); then disposition_testamentaire_valable(l); }
+pub relation verifier_capacite_temoins_980(l: Liberalite) kind empirical { label fr official "l'autorité vérifie la capacité des témoins et l'absence du double lien conjugal"; label en unofficial "the authority verifies witness capacity and absence of the double spousal link"; }
+pub relation temoins_appeles_a_un_testament(l: Liberalite) kind empirical { label fr official "des témoins sont appelés pour être présents à un testament"; label en unofficial "witnesses are called to be present at a will"; }
+@source(CC_ART980)
+rule PositionDevoirVerifierCapaciteTemoins(l: Liberalite) strict {
+    label fr official "Article 980. L'autorité doit vérifier la capacité des témoins";
+    label en unofficial "Article 980. The authority must verify witness capacity";
+    when temoins_appeles_a_un_testament(l);
+    then duty DevoirVerifierCapaciteTemoins {
+        bearer entity_ref("urn:fr:cc:liberalites:autorite-instrumentaire");
+        goal achievement { condition verifier_capacite_temoins_980(l); window [@1804-01-01, infinity); };
+    };
+}

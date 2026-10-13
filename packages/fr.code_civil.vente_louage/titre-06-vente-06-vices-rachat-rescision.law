@@ -1,0 +1,385 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1641,
+    CC_ART1642,
+    CC_ART1643,
+    CC_ART1644,
+    CC_ART1645,
+    CC_ART1646,
+    CC_ART1646_1,
+    CC_ART1647,
+    CC_ART1656,
+    CC_ART1661,
+    CC_ART1662,
+    CC_ART1673,
+    CC_ART1677,
+    CC_ART1678,
+    CC_ART1680,
+    CC_ART1681,
+    CC_ART1682,
+    CC_ART1684,
+    OptionVice,
+    Personne,
+    Vente,
+    Vice,
+    acheteur,
+    acquereur_choisit_de_garder_le_fonds,
+    acquereur_choisit_de_rendre_la_chose,
+    acquereur_peut_encore_payer,
+    acquereur_proprietaire_irrevocable,
+    action_en_rachat_exercee_dans_le_terme,
+    action_en_rachat_non_exercee_dans_le_terme,
+    action_en_rescision_recevable,
+    baux_faits_sans_fraude_par_l_acquereur,
+    choix_de_l_acheteur,
+    choix_du_remede_exerce,
+    chose_perie_par_cas_fortuit,
+    chose_perie_par_sa_mauvaise_qualite,
+    clause_de_non_garantie_des_vices,
+    clause_de_resolution_de_plein_droit_pour_prix_impaye,
+    dommages_interets_des_vices_payes,
+    experts_nommes_conjointement_par_les_parties,
+    experts_nommes_d_office,
+    faits_articules_vraisemblables_et_graves,
+    frais_et_loyaux_couts_rembourses,
+    fruits_rendus_du_jour_de_la_demande,
+    garantie_des_vices_fournie,
+    garantie_des_vices_ouverte,
+    garanties_beneficient_au_proprietaire_successif,
+    garanties_des_constructeurs_dues_par_le_vendeur,
+    heritage_repris_exempt_de_charges,
+    interet_du_supplement_du_du_jour_de_la_demande,
+    interet_du_supplement_paye,
+    juge_ne_peut_plus_accorder_de_delai,
+    pacte_de_rachat_stipule,
+    pacte_publie_au_fichier_immobilier_avant_les_charges,
+    paiement_tardif_par_acquereur,
+    perte_pour_l_acheteur,
+    perte_pour_le_vendeur,
+    preuve_de_la_lesion_admise,
+    preuve_de_la_lesion_recevable,
+    prix_paye,
+    prix_principal_rembourse,
+    proprietaire_successif_de_l_immeuble,
+    rapport_de_trois_experts_produit,
+    reception_des_travaux_le,
+    reparations_necessaires_remboursees,
+    rescision_exclue_vente_d_autorite_de_justice,
+    restitution_du_prix_et_dommages_interets_dus,
+    restitution_du_prix_et_frais_de_la_vente_dus,
+    restitution_du_prix_paye_a_l_acquereur_due,
+    sommation_de_payer_faite,
+    supplement_conforme_a_l_article_1681,
+    supplement_du_juste_prix_du,
+    supplement_offert_par_l_acquereur,
+    terme_de_rachat_applicable_en_annees,
+    terme_de_rachat_de_rigueur,
+    valeur_de_l_immeuble_a_la_vente,
+    vendeur,
+    vendeur_connaissait_les_vices,
+    vendeur_ignorait_les_vices,
+    vendeur_non_tenu_des_vices_apparents,
+    vendeur_peut_entrer_en_possession,
+    vendeur_tenu_d_executer_les_baux,
+    vendeur_tenu_des_vices_meme_ignores,
+    vente_d_immeuble_a_construire,
+    vente_faite_d_autorite_de_justice_par_la_loi,
+    vente_immobiliere,
+    vice_apparent,
+    vice_de_la_chose,
+};
+
+// Trois blocs que la première vague avait laissés au texte épinglé :
+//   — vices cachés, suite (1642 à 1647) ;
+//   — résolution de plein droit stipulée et faculté de rachat (1656, 1659 à 1673) ;
+//   — preuve et effets de la rescision pour lésion (1677 à 1685).
+//
+// Les articles 1664 à 1672 règlent QUI exerce l'action en rachat quand les
+// vendeurs ou les héritiers sont plusieurs. Ils supposent des parts et un
+// partage que ce paquet ne tient pas : leurs frontières sont déclarées.
+
+// --- Vices cachés, suite -----------------------------------------------------
+
+@source(CC_ART1642)
+rule VendeurNonTenuDesVicesApparents(v: Vente, x: Vice) strict {
+    label fr official "Article 1642. Le vendeur n'est pas tenu des vices apparents et dont l'acheteur a pu se convaincre lui-même";
+    label en unofficial "Article 1642. The seller is not liable for apparent defects which the buyer could see for himself";
+    when vice_de_la_chose(v, x) and vice_apparent(v, x);
+    then vendeur_non_tenu_des_vices_apparents(v, x);
+}
+
+// Article 1643 : l'ignorance du vendeur ne le libère pas ; seule la stipulation
+// de non-garantie le fait. L'exception est écrite en prédicat positif, et son
+// absence est constatée par le cas, non déduite du silence.
+@source(CC_ART1643)
+rule VendeurTenuDesVicesMemeIgnores(v: Vente, x: Vice) strict {
+    label fr official "Article 1643. Le vendeur est tenu des vices cachés quand même il ne les aurait pas connus, à moins qu'il n'ait stipulé n'être obligé à aucune garantie";
+    label en unofficial "Article 1643. The seller is liable for latent defects even if unaware of them, unless he stipulated that he owed no warranty";
+    when garantie_des_vices_ouverte(v, x) and not_known(clause_de_non_garantie_des_vices(v));
+    then vendeur_tenu_des_vices_meme_ignores(v, x);
+}
+
+@source(CC_ART1641)
+rule PositionDevoirGarantieViceCache(v: Vente, s: Personne, a: Personne, x: Vice) strict {
+    label fr official "Article 1641. Devoir du vendeur de garantir le vice caché";
+    label en unofficial "Article 1641. Seller's duty to warrant the latent defect";
+    when vendeur(v, s) and acheteur(v, a) and garantie_des_vices_ouverte(v, x)
+        and not_known(clause_de_non_garantie_des_vices(v));
+    then duty GarantirViceCache {
+        bearer s; beneficiary a;
+        achieve garantie_des_vices_fournie(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1644)
+rule PositionLiberteChoisirRemedeVice(v: Vente, a: Personne, o: OptionVice) strict {
+    label fr official "Article 1644. Liberté de l'acheteur de choisir le remède du vice";
+    label en unofficial "Article 1644. Buyer's liberty to choose the latent-defect remedy";
+    when acheteur(v, a) and choix_de_l_acheteur(v, o);
+    then liberty ChoisirRemedeDuVice {
+        holder a;
+        action choix_du_remede_exerce(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1645)
+rule VendeurDeMauvaiseFoiTenuDesDommagesInterets(v: Vente, x: Vice) strict {
+    label fr official "Article 1645. Si le vendeur connaissait les vices, il est tenu, outre la restitution du prix, de tous les dommages et intérêts";
+    label en unofficial "Article 1645. If the seller knew of the defects, he owes, besides restitution of the price, all damages";
+    when garantie_des_vices_ouverte(v, x) and vendeur_connaissait_les_vices(v, x);
+    then restitution_du_prix_et_dommages_interets_dus(v);
+}
+
+@source(CC_ART1645)
+rule PositionDevoirPayerDommagesVicesConnus(v: Vente, s: Personne, a: Personne, x: Vice) strict {
+    label fr official "Article 1645. Devoir du vendeur de payer les dommages-intérêts des vices connus";
+    label en unofficial "Article 1645. Seller's duty to pay damages for known defects";
+    when vendeur(v, s) and acheteur(v, a) and garantie_des_vices_ouverte(v, x)
+        and vendeur_connaissait_les_vices(v, x);
+    then duty PayerDommagesVicesConnus {
+        bearer s; beneficiary a;
+        achieve dommages_interets_des_vices_payes(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1646)
+rule VendeurDeBonneFoiTenuDuPrixEtDesFrais(v: Vente, x: Vice) strict {
+    label fr official "Article 1646. Si le vendeur ignorait les vices, il n'est tenu qu'à la restitution du prix et aux frais occasionnés par la vente";
+    label en unofficial "Article 1646. If the seller was unaware of the defects, he owes only restitution of the price and the costs occasioned by the sale";
+    when garantie_des_vices_ouverte(v, x) and vendeur_ignorait_les_vices(v, x);
+    then restitution_du_prix_et_frais_de_la_vente_dus(v);
+}
+
+@source(CC_ART1646_1)
+rule VendeurDImmeubleATenuDesGarantiesDesConstructeurs(v: Vente, r: Date) strict {
+    label fr official "Article 1646-1, alinéa 1. Le vendeur d'un immeuble à construire est tenu, à compter de la réception des travaux, des obligations des articles 1792 à 1792-3";
+    label en unofficial "Article 1646-1, first paragraph. The seller of a building to be constructed owes, from acceptance of the works, the obligations of Articles 1792 to 1792-3";
+    when vente_d_immeuble_a_construire(v) and reception_des_travaux_le(v, r);
+    then garanties_des_constructeurs_dues_par_le_vendeur(v);
+}
+
+@source(CC_ART1646_1)
+rule GarantiesBeneficientAuxProprietairesSuccessifs(v: Vente, p: Personne) strict {
+    label fr official "Article 1646-1, alinéa 2. Ces garanties bénéficient aux propriétaires successifs de l'immeuble";
+    label en unofficial "Article 1646-1, second paragraph. These warranties accrue to the successive owners of the building";
+    when garanties_des_constructeurs_dues_par_le_vendeur(v) and proprietaire_successif_de_l_immeuble(v, p);
+    then garanties_beneficient_au_proprietaire_successif(v, p);
+}
+
+// Article 1647 : le partage du risque tient à la CAUSE de la perte, et le texte
+// nomme les deux : mauvaise qualité de la chose, ou cas fortuit.
+@source(CC_ART1647)
+rule PertePourLeVendeurParMauvaiseQualite(v: Vente) strict {
+    label fr official "Article 1647, alinéa 1. Si la chose qui avait des vices a péri par suite de sa mauvaise qualité, la perte est pour le vendeur";
+    label en unofficial "Article 1647, first paragraph. If the defective thing perished from its poor quality, the loss falls on the seller";
+    when chose_perie_par_sa_mauvaise_qualite(v);
+    then perte_pour_le_vendeur(v);
+}
+
+@source(CC_ART1647)
+rule PertePourLAcheteurParCasFortuit(v: Vente) strict {
+    label fr official "Article 1647, alinéa 2. La perte arrivée par cas fortuit est pour le compte de l'acheteur";
+    label en unofficial "Article 1647, second paragraph. A loss occurring by fortuitous event is for the buyer's account";
+    when chose_perie_par_cas_fortuit(v);
+    then perte_pour_l_acheteur(v);
+}
+
+// --- Résolution stipulée et faculté de rachat --------------------------------
+
+// Article 1656 : la sommation est la charnière. Avant elle, le paiement tardif
+// vaut encore ; après elle, le juge n'a plus de pouvoir de délai.
+@source(CC_ART1656)
+rule PaiementTardifAdmisAvantSommation(v: Vente) strict {
+    label fr official "Article 1656. L'acquéreur peut payer après l'expiration du délai tant qu'il n'a pas été mis en demeure par une sommation";
+    label en unofficial "Article 1656. The buyer may pay after the term has expired so long as he has not been put in default by a summons";
+    when vente_immobiliere(v) and clause_de_resolution_de_plein_droit_pour_prix_impaye(v)
+        and not_known(sommation_de_payer_faite(v));
+    then acquereur_peut_encore_payer(v);
+}
+
+@source(CC_ART1656)
+rule PositionLibertePaiementTardifAvantSommation(v: Vente, a: Personne) strict {
+    label fr official "Article 1656. Liberté de l'acquéreur de payer avant sommation";
+    label en unofficial "Article 1656. Buyer's liberty to pay before summons";
+    when acheteur(v, a) and vente_immobiliere(v)
+        and clause_de_resolution_de_plein_droit_pour_prix_impaye(v)
+        and not_known(sommation_de_payer_faite(v));
+    then liberty PayerApresEcheanceAvantSommation {
+        holder a;
+        action paiement_tardif_par_acquereur(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1656)
+rule ApresSommationAucunDelaiJudiciaire(v: Vente) strict {
+    label fr official "Article 1656. Après la sommation, le juge ne peut pas accorder de délai à l'acquéreur";
+    label en unofficial "Article 1656. After the summons, the court may not grant the buyer any further time";
+    when vente_immobiliere(v) and clause_de_resolution_de_plein_droit_pour_prix_impaye(v)
+        and sommation_de_payer_faite(v);
+    then juge_ne_peut_plus_accorder_de_delai(v);
+}
+
+// Article 1661 lu avec 1660 : cinq ans est un plafond, et le terme, une fois
+// fixé, est de rigueur — le juge ne le prolonge pas.
+@source(CC_ART1661)
+rule TermeDeRachatDeRigueur(v: Vente, n: Integer) strict {
+    label fr official "Article 1661. Le terme fixé pour le rachat est de rigueur et ne peut être prolongé par le juge";
+    label en unofficial "Article 1661. The term fixed for redemption is strict and may not be extended by the court";
+    when terme_de_rachat_applicable_en_annees(v, n);
+    then terme_de_rachat_de_rigueur(v);
+}
+
+@source(CC_ART1662)
+rule AcquereurProprietaireIrrevocable(v: Vente) strict {
+    label fr official "Article 1662. Faute par le vendeur d'avoir exercé son action en rachat dans le terme prescrit, l'acquéreur demeure propriétaire irrévocable";
+    label en unofficial "Article 1662. In default of the seller exercising his redemption action within the prescribed term, the buyer remains irrevocable owner";
+    when pacte_de_rachat_stipule(v) and action_en_rachat_non_exercee_dans_le_terme(v);
+    then acquereur_proprietaire_irrevocable(v);
+}
+
+// Article 1673, alinéa 1 : la possession n'est reprise qu'après satisfaction de
+// TOUTES les obligations nommées — les trois sont cumulatives.
+@source(CC_ART1673)
+rule ReprisePossessionApresRemboursementIntegral(v: Vente) strict {
+    label fr official "Article 1673, alinéa 1. Le vendeur qui use du pacte de rachat n'entre en possession qu'après avoir remboursé le prix principal, les frais et loyaux coûts et les réparations nécessaires";
+    label en unofficial "Article 1673, first paragraph. The seller using the redemption pact enters into possession only after repaying the principal price, the costs and lawful expenses and the necessary repairs";
+    when action_en_rachat_exercee_dans_le_terme(v) and prix_principal_rembourse(v)
+        and frais_et_loyaux_couts_rembourses(v) and reparations_necessaires_remboursees(v);
+    then vendeur_peut_entrer_en_possession(v);
+}
+
+@source(CC_ART1673)
+rule RepriseExempteDeChargesSiPactePublieAvant(v: Vente) strict {
+    label fr official "Article 1673, alinéa 2. Le vendeur reprend l'héritage exempt des charges et hypothèques si le pacte a été publié au fichier immobilier antérieurement à celles-ci";
+    label en unofficial "Article 1673, second paragraph. The seller takes the estate back free of charges and mortgages if the pact was published in the land register before them";
+    when vendeur_peut_entrer_en_possession(v) and pacte_publie_au_fichier_immobilier_avant_les_charges(v);
+    then heritage_repris_exempt_de_charges(v);
+}
+
+@source(CC_ART1673)
+rule BauxSansFraudeOpposablesAuVendeur(v: Vente) strict {
+    label fr official "Article 1673, alinéa 2. Le vendeur est tenu d'exécuter les baux faits sans fraude par l'acquéreur";
+    label en unofficial "Article 1673, second paragraph. The seller must perform the leases made without fraud by the buyer";
+    when vendeur_peut_entrer_en_possession(v) and baux_faits_sans_fraude_par_l_acquereur(v);
+    then vendeur_tenu_d_executer_les_baux(v);
+}
+
+// --- Preuve et effets de la rescision pour lésion ----------------------------
+
+@source(CC_ART1677)
+rule PreuveDeLaLesionAdmiseParJugement(v: Vente) strict {
+    label fr official "Article 1677. La preuve de la lésion n'est admise que par jugement, et seulement si les faits articulés sont assez vraisemblables et assez graves";
+    label en unofficial "Article 1677. Proof of injury is admitted only by judgment, and only if the pleaded facts are sufficiently likely and serious";
+    when faits_articules_vraisemblables_et_graves(v);
+    then preuve_de_la_lesion_admise(v);
+}
+
+@source(CC_ART1677, CC_ART1678)
+rule PreuveRecevableParRapportDeTroisExperts(v: Vente) strict {
+    label fr official "Articles 1677 et 1678. La preuve de la lésion, admise par jugement, ne se fait que par un rapport de trois experts formant un seul avis";
+    label en unofficial "Articles 1677 and 1678. Proof of injury, once admitted by judgment, may be made only by a report of three experts forming a single opinion";
+    when preuve_de_la_lesion_admise(v) and rapport_de_trois_experts_produit(v);
+    then preuve_de_la_lesion_recevable(v);
+}
+
+@source(CC_ART1680)
+rule ExpertsNommesDOfficeADefautDAccord(v: Vente) strict {
+    label fr official "Article 1680. Les trois experts sont nommés d'office, à moins que les parties ne se soient accordées pour les nommer conjointement";
+    label en unofficial "Article 1680. The three experts are appointed by the court unless the parties agreed to appoint them jointly";
+    when preuve_de_la_lesion_admise(v) and not_known(experts_nommes_conjointement_par_les_parties(v));
+    then experts_nommes_d_office(v);
+}
+
+// Article 1681 : le choix appartient à l'ACQUÉREUR, pas au vendeur lésé.
+@source(CC_ART1681)
+rule AcquereurRendLaChoseEtRetireLePrix(v: Vente) strict {
+    label fr official "Article 1681, alinéa 1. L'acquéreur qui rend la chose retire le prix qu'il en a payé";
+    label en unofficial "Article 1681, first paragraph. The buyer who returns the thing withdraws the price he paid";
+    when action_en_rescision_recevable(v) and acquereur_choisit_de_rendre_la_chose(v);
+    then restitution_du_prix_paye_a_l_acquereur_due(v);
+}
+
+@source(CC_ART1681)
+rule AcquereurGardeLeFondsEnPayantLeSupplement(v: Vente) strict {
+    label fr official "Article 1681, alinéa 1. L'acquéreur qui garde le fonds paie le supplément du juste prix, sous la déduction du dixième du prix total";
+    label en unofficial "Article 1681, first paragraph. The buyer who keeps the land pays the supplement of the fair price, less one tenth of the total price";
+    when action_en_rescision_recevable(v) and acquereur_choisit_de_garder_le_fonds(v);
+    then supplement_du_juste_prix_du(v);
+}
+
+// Le dixième est retenu sur le JUSTE PRIX — la valeur estimée au jour de la
+// vente, article 1675 —, lecture retenue en D-CC12-01. Le paquet VÉRIFIE le
+// supplément offert au lieu de le calculer : §58 ne nomme pas Money parmi les
+// divisibles par un entier, et arrondir serait ajouter au texte un terme qu'il
+// ne nomme pas. L'égalité est donc écrite sans division, comme la lésion de
+// l'article 1674 : dix fois le supplément égale neuf fois la valeur moins dix
+// fois le prix payé.
+@source(CC_ART1681)
+rule SupplementConformeAuDixiemeDeduit(v: Vente, valeur: Money, prix: Money, offert: Money) strict {
+    label fr official "Article 1681, alinéa 1. Le supplément dû est le juste prix diminué du prix payé, sous la déduction du dixième du prix total";
+    label en unofficial "Article 1681, first paragraph. The supplement owed is the fair price less the price paid, minus one tenth of the total price";
+    when supplement_du_juste_prix_du(v) and valeur_de_l_immeuble_a_la_vente(v, valeur)
+        and prix_paye(v, prix) and supplement_offert_par_l_acquereur(v, offert)
+        and offert * 10 == valeur * 9 - prix * 10;
+    then supplement_conforme_a_l_article_1681(v, offert);
+}
+
+@source(CC_ART1682)
+rule InteretDuSupplementDuJourDeLaDemande(v: Vente) strict {
+    label fr official "Article 1682, alinéa 1. L'acquéreur qui garde la chose doit l'intérêt du supplément, du jour de la demande en rescision";
+    label en unofficial "Article 1682, first paragraph. The buyer who keeps the thing owes interest on the supplement from the day of the claim for rescission";
+    when supplement_du_juste_prix_du(v);
+    then interet_du_supplement_du_du_jour_de_la_demande(v);
+}
+
+@source(CC_ART1682)
+rule PositionAcheteurPayerInteretSupplement(v: Vente, a: Personne) strict {
+    label fr official "Article 1682. Obligation de l'acquéreur de payer l'intérêt du supplément";
+    label en unofficial "Article 1682. Buyer's duty to pay interest on the supplement";
+    when acheteur(v, a) and supplement_du_juste_prix_du(v);
+    then duty PayerInteretDuSupplement {
+        bearer a;
+        achieve interet_du_supplement_paye(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1682)
+rule FruitsRendusDuJourDeLaDemande(v: Vente) strict {
+    label fr official "Article 1682, alinéa 2. L'acquéreur qui rend la chose rend les fruits du jour de la demande";
+    label en unofficial "Article 1682, second paragraph. The buyer who returns the thing returns the fruits from the day of the claim";
+    when restitution_du_prix_paye_a_l_acquereur_due(v);
+    then fruits_rendus_du_jour_de_la_demande(v);
+}
+
+@source(CC_ART1684)
+rule RescisionExclueDansLesVentesDAutoriteDeJustice(v: Vente) strict {
+    label fr official "Article 1684. La rescision n'a pas lieu dans les ventes qui, d'après la loi, ne peuvent être faites que d'autorité de justice";
+    label en unofficial "Article 1684. Rescission does not lie in sales which, under the law, can only be made by judicial authority";
+    when vente_faite_d_autorite_de_justice_par_la_loi(v);
+    then rescision_exclue_vente_d_autorite_de_justice(v);
+}

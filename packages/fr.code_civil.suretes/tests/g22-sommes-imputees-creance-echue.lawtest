@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2364, al. 1 : créance garantie échue — les 5 000 payés s'imputent.
+test "urn:query:fr-code-civil-suretes-g22-sommes-imputees-creance-echue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": nantissement_de(entity_ref("urn:fr:cc:suretes:g22:S"), entity_ref("urn:fr:cc:suretes:g22:N")) { origin case_input; }
+        assert "f2": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:g22:S"), 5000 EUR) { origin case_input; }
+        assert "f3": creance_garantie_echue(entity_ref("urn:fr:cc:suretes:g22:S")) { origin case_input; }
+    }
+    evaluate truth(sommes_imputees_sur_la_creance_garantie(entity_ref("urn:fr:cc:suretes:g22:S"), 5000 EUR));
+    expect truth_status == TRUE_ONLY;
+}

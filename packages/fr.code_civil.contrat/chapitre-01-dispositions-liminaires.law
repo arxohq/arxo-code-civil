@@ -1,0 +1,476 @@
+// DISPOSITIONS LIMINAIRES DU TITRE III (art. 1100 à 1100-2) ET CHAPITRE Ier
+// DU SOUS-TITRE Ier : DISPOSITIONS PRÉLIMINAIRES (art. 1101 à 1111-1).
+//
+// Deux natures de textes ici, et elles ne se formalisent pas pareil.
+//
+// 1. Les QUALIFICATIONS (1106 à 1111-1) : le Code dit « le contrat est
+//    synallagmatique lorsque… ». Chacune est une règle qui produit
+//    `qualification_du_contrat(c, <membre>)` à partir du fait que le texte
+//    nomme lui-même — l'engagement réciproque, l'absence de contrepartie, le
+//    caractère négociable des stipulations. La qualification sert ensuite de
+//    prémisse ailleurs : 1190 (interprétation contre le rédacteur) et 1171
+//    (déséquilibre significatif) ne valent que pour le contrat d'adhésion,
+//    1168 et 1169 que pour le contrat à titre onéreux.
+//
+// L'ARTICLE 1107 est de nouveau entier : son alinéa 1, que le rendu du
+// générateur perdait (défaut corrigé le 17.09.2026, D-16), est dans les
+// octets épinglés — la qualification « à titre onéreux » est donc une règle,
+// non une entrée de cas.
+//
+// 2. Les NORMES (1102 à 1104) : la liberté contractuelle est une liberté au
+//    sens §122 — l'action est celle de son titulaire — et la bonne foi est
+//    un devoir dont le Code dit lui-même qu'il est d'ordre public.
+//
+// L'ARTICLE 1110 A DEUX RÉDACTIONS. Le contrat d'adhésion de 2016 se définit
+// par des « conditions générales soustraites à la négociation » ; celui de
+// 2018, par « un ensemble de clauses non négociables, déterminées à l'avance ».
+// La différence n'est pas verbale : un contrat dont quelques clauses seulement
+// sont imposées est d'adhésion depuis 2018 et ne l'était pas en 2016. Les deux
+// règles sont donc distinctes, ancrées chacune sur sa propre édition épinglée.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_2016_ART1110,
+    CC_ART1100,
+    CC_ART1100_1,
+    CC_ART1100_2,
+    CC_ART1101,
+    CC_ART1102,
+    CC_ART1103,
+    CC_ART1104,
+    CC_ART1105,
+    CC_ART1106,
+    CC_ART1107,
+    CC_ART1108,
+    CC_ART1109,
+    CC_ART1110,
+    CC_ART1111,
+    CC_ART1111_1,
+    Contrat,
+    Obligation,
+    Personne,
+    contrat_legalement_forme,
+    obligation_du_contrat,
+    partie_au_contrat,
+    redaction_2016_applicable,
+    redaction_2018_applicable,
+    regi_par_le_droit_nouveau,
+};
+
+pub enum SourceDObligation {
+    label fr official "Source de l'obligation (article 1100)";
+    label en unofficial "Source of the obligation (Article 1100)";
+    ActeJuridique,
+    FaitJuridique,
+    AutoriteDeLaLoi
+}
+
+pub enum Qualification {
+    label fr official "Qualification du contrat (articles 1106 à 1111-1)";
+    label en unofficial "Classification of the contract (Articles 1106 to 1111-1)";
+    Synallagmatique,
+    Unilateral,
+    ATitreOnereux,
+    ATitreGratuit,
+    Commutatif,
+    Aleatoire,
+    Consensuel,
+    Solennel,
+    Reel,
+    GreAGre,
+    Adhesion,
+    Cadre,
+    AExecutionInstantanee,
+    AExecutionSuccessive
+}
+
+// --- Entrées du cas : les faits que le texte nomme lui-même ---------------------------------
+
+pub relation obligation_nee_d_un_acte_juridique(o: Obligation) kind empirical {
+    label fr official "l'obligation naît d'un acte juridique (article 1100)";
+    label en unofficial "the obligation arises from a legal act (Article 1100)";
+}
+pub relation obligation_nee_d_un_fait_juridique(o: Obligation) kind empirical {
+    label fr official "l'obligation naît d'un fait juridique (article 1100)";
+    label en unofficial "the obligation arises from a juridical fact (Article 1100)";
+}
+pub relation obligation_nee_de_la_loi(o: Obligation) kind empirical {
+    label fr official "l'obligation naît de l'autorité seule de la loi (article 1100)";
+    label en unofficial "the obligation arises from the authority of statute alone (Article 1100)";
+}
+pub relation devoir_de_conscience_execute_volontairement(o: Obligation, debiteur: Personne) kind empirical {
+    label fr official "exécution volontaire, ou promesse d'exécution, d'un devoir de conscience envers autrui (article 1100, alinéa 2)";
+    label en unofficial "voluntary performance, or promise of performance, of a moral duty towards another (Article 1100, paragraph 2)";
+}
+pub relation accord_de_volontes(c: Contrat) kind empirical {
+    label fr official "accord de volontés entre deux ou plusieurs personnes (article 1101)";
+    label en unofficial "agreement of wills between two or more persons (Article 1101)";
+}
+pub relation engagements_reciproques(c: Contrat) kind empirical {
+    label fr official "les contractants s'obligent réciproquement les uns envers les autres (article 1106)";
+    label en unofficial "the contracting parties bind themselves reciprocally (Article 1106)";
+}
+pub relation avantage_sans_contrepartie(c: Contrat) kind empirical {
+    label fr official "l'une des parties procure à l'autre un avantage sans attendre ni recevoir de contrepartie (article 1107)";
+    label en unofficial "one party procures an advantage to the other without expecting or receiving any counterpart (Article 1107)";
+}
+pub relation avantage_recu_en_contrepartie(c: Contrat) kind empirical {
+    label fr official "chacune des parties reçoit de l'autre un avantage en contrepartie de celui qu'elle procure (article 1107, alinéa 1)";
+    label en unofficial "each party receives from the other an advantage in return for the one it procures (Article 1107, paragraph 1)";
+}
+pub relation avantages_regardes_comme_equivalents(c: Contrat) kind empirical {
+    label fr official "chacune des parties s'engage à procurer à l'autre un avantage regardé comme l'équivalent de celui qu'elle reçoit (article 1108)";
+    label en unofficial "each party undertakes to procure an advantage regarded as the equivalent of the one it receives (Article 1108)";
+}
+pub relation effets_dependant_d_un_evenement_incertain(c: Contrat) kind empirical {
+    label fr official "les parties acceptent de faire dépendre les effets du contrat d'un événement incertain (article 1108, alinéa 2)";
+    label en unofficial "the parties agree to make the contract's effects depend on an uncertain event (Article 1108, paragraph 2)";
+}
+pub relation forme_par_le_seul_echange_des_consentements(c: Contrat) kind empirical {
+    label fr official "le contrat se forme par le seul échange des consentements (article 1109, alinéa 1)";
+    label en unofficial "the contract is formed by the mere exchange of consents (Article 1109, paragraph 1)";
+}
+pub relation forme_exigee_par_la_loi(c: Contrat) kind empirical {
+    label fr official "la validité du contrat est subordonnée à des formes déterminées par la loi (article 1109, alinéa 2)";
+    label en unofficial "the contract's validity depends on forms laid down by statute (Article 1109, paragraph 2)";
+}
+pub relation formation_subordonnee_a_la_remise_d_une_chose(c: Contrat) kind empirical {
+    label fr official "la formation du contrat est subordonnée à la remise d'une chose (article 1109, alinéa 3)";
+    label en unofficial "the contract's formation depends on the delivery of a thing (Article 1109, paragraph 3)";
+}
+pub relation stipulations_negociables(c: Contrat) kind empirical {
+    label fr official "les stipulations du contrat sont négociables entre les parties (article 1110, alinéa 1)";
+    label en unofficial "the contract's terms are negotiable between the parties (Article 1110, paragraph 1)";
+}
+pub relation ensemble_de_clauses_non_negociables_predeterminees(c: Contrat) kind empirical {
+    label fr official "le contrat comporte un ensemble de clauses non négociables, déterminées à l'avance par l'une des parties (article 1110, alinéa 2, rédaction de 2018)";
+    label en unofficial "the contract contains a set of non-negotiable clauses determined in advance by one party (Article 1110, paragraph 2, 2018 wording)";
+}
+pub relation conditions_generales_soustraites_a_la_negociation(c: Contrat) kind empirical {
+    label fr official "les conditions générales du contrat, soustraites à la négociation, sont déterminées à l'avance par l'une des parties (article 1110, alinéa 2, rédaction de 2016)";
+    label en unofficial "the contract's general terms, withdrawn from negotiation, are determined in advance by one party (Article 1110, paragraph 2, 2016 wording)";
+}
+pub relation accord_sur_les_caracteristiques_generales_des_relations_futures(c: Contrat) kind empirical {
+    label fr official "les parties conviennent des caractéristiques générales de leurs relations contractuelles futures (article 1111)";
+    label en unofficial "the parties agree on the general features of their future contractual relations (Article 1111)";
+}
+pub relation contrat_d_application(application: Contrat, cadre: Contrat) kind empirical {
+    label fr official "contrat d'application précisant les modalités d'exécution d'un contrat cadre (article 1111)";
+    label en unofficial "implementing contract specifying the performance of a framework contract (Article 1111)";
+}
+pub relation prestation_unique(c: Contrat) kind empirical {
+    label fr official "les obligations du contrat peuvent s'exécuter en une prestation unique (article 1111-1, alinéa 1)";
+    label en unofficial "the contract's obligations can be performed by a single performance (Article 1111-1, paragraph 1)";
+}
+pub relation prestations_echelonnees_dans_le_temps(c: Contrat) kind empirical {
+    label fr official "les obligations d'au moins une partie s'exécutent en plusieurs prestations échelonnées dans le temps (article 1111-1, alinéa 2)";
+    label en unofficial "at least one party's obligations are performed by several performances staggered over time (Article 1111-1, paragraph 2)";
+}
+pub relation execute_de_bonne_foi(c: Contrat, p: Personne) kind empirical {
+    label fr official "cette partie a négocié, formé et exécuté le contrat de bonne foi (article 1104)";
+    label en unofficial "this party negotiated, formed and performed the contract in good faith (Article 1104)";
+}
+pub relation conclusion_du_contrat(c: Contrat, p: Personne) kind empirical {
+    label fr official "acte par lequel cette personne contracte ou s'abstient de contracter (article 1102)";
+    label en unofficial "act by which this person contracts or refrains from contracting (Article 1102)";
+}
+
+// --- Têtes produites ------------------------------------------------------------------------
+
+pub relation source_de_l_obligation(o: Obligation, s: SourceDObligation) kind derived {
+    label fr official "source dont naît l'obligation (article 1100)";
+    label en unofficial "source from which the obligation arises (Article 1100)";
+}
+pub relation obligation_issue_d_un_devoir_de_conscience(o: Obligation, debiteur: Personne) kind derived {
+    label fr official "obligation née de l'exécution volontaire ou de la promesse d'exécution d'un devoir de conscience (article 1100, alinéa 2)";
+    label en unofficial "obligation arising from voluntary performance or the promise to perform a moral duty (Article 1100, paragraph 2)";
+}
+pub relation obligations_regies_par_un_autre_sous_titre(o: Obligation) kind derived {
+    label fr official "renvoi de l'article 1100-2 : l'obligation née d'un fait juridique est régie par la responsabilité extracontractuelle ou les autres sources d'obligations — matière de fr.code_civil.responsabilite (frontière déclarée)";
+    label en unofficial "Article 1100-2 referral: an obligation arising from a juridical fact is governed by extra-contractual liability or the other sources of obligations — matter of fr.code_civil.responsabilite (declared boundary)";
+}
+pub relation contrat_qualifie(c: Contrat) kind derived {
+    label fr official "l'accord répond à la définition du contrat (article 1101)";
+    label en unofficial "the agreement meets the definition of a contract (Article 1101)";
+}
+pub relation contrat_a_titre_onereux(c: Contrat) kind derived {
+    label fr official "le contrat est à titre onéreux (article 1107, alinéa 1)";
+    label en unofficial "the contract is onerous (Article 1107, paragraph 1)";
+}
+pub relation qualification_du_contrat(c: Contrat, q: Qualification) kind derived {
+    label fr official "qualification du contrat (articles 1106 à 1111-1)";
+    label en unofficial "classification of the contract (Articles 1106 to 1111-1)";
+}
+pub relation regles_generales_sous_reserve_des_regles_particulieres(c: Contrat) kind derived {
+    label fr official "renvoi de l'article 1105 : les règles particulières à certains contrats priment celles du sous-titre — matière des paquets de contrats spéciaux (frontière déclarée)";
+    label en unofficial "Article 1105 referral: rules specific to certain contracts prevail over this sub-title — matter of the special-contract packages (declared boundary)";
+}
+pub relation force_obligatoire(c: Contrat) kind derived {
+    label fr official "le contrat légalement formé tient lieu de loi à ceux qui l'ont fait (article 1103)";
+    label en unofficial "the lawfully formed contract takes the place of statute for those who made it (Article 1103)";
+}
+pub relation disposition_d_ordre_public(c: Contrat, article: Text) kind derived {
+    label fr official "le Code dit lui-même que cette disposition est d'ordre public (articles 1102 alinéa 2 et 1104 alinéa 2)";
+    label en unofficial "the Code itself states that this provision is a matter of public policy (Articles 1102 paragraph 2 and 1104 paragraph 2)";
+}
+pub relation acte_juridique_soumis_aux_regles_du_contrat(c: Contrat) kind derived {
+    label fr official "l'acte juridique obéit, en tant que de raison, aux règles qui gouvernent les contrats (article 1100-1, alinéa 2)";
+    label en unofficial "the legal act is governed, so far as appropriate, by the rules of contracts (Article 1100-1, paragraph 2)";
+}
+
+// --- Canal §47.3 : « en tant que de raison » -------------------------------------------------
+//
+// L'article 1100-1 ne dit pas QUELLES règles du contrat valent pour l'acte
+// unilatéral : il dit « en tant que de raison ». Un fait plat « les règles du
+// contrat s'appliquent » serait la conclusion juridique elle-même ; la mesure
+// appartient au juge.
+
+@source(CC_ART1100_1)
+pub external judgment relation regle_du_contrat_appropriee_a_l_acte(c: Contrat) {
+    authority Court;
+    label fr official "les règles gouvernant les contrats sont, en tant que de raison, appropriées à cet acte juridique (article 1100-1, alinéa 2)";
+    label en unofficial "the rules governing contracts are, so far as appropriate, suited to this legal act (Article 1100-1, paragraph 2)";
+}
+
+// --- Articles 1100 à 1100-2 : les sources d'obligations --------------------------------------
+
+@source(CC_ART1100) {
+    rule ObligationNeeDUnActeJuridique(o: Obligation) strict {
+        label fr official "Article 1100, alinéa 1. Les obligations naissent d'actes juridiques";
+        label en unofficial "Article 1100, paragraph 1. Obligations arise from legal acts";
+        when obligation_nee_d_un_acte_juridique(o);
+        then source_de_l_obligation(o, ActeJuridique);
+    }
+    rule ObligationNeeDUnFaitJuridique(o: Obligation) strict {
+        label fr official "Article 1100, alinéa 1. Les obligations naissent de faits juridiques";
+        label en unofficial "Article 1100, paragraph 1. Obligations arise from juridical facts";
+        when obligation_nee_d_un_fait_juridique(o);
+        then source_de_l_obligation(o, FaitJuridique);
+    }
+    rule ObligationNeeDeLaLoi(o: Obligation) strict {
+        label fr official "Article 1100, alinéa 1. Les obligations naissent de l'autorité seule de la loi";
+        label en unofficial "Article 1100, paragraph 1. Obligations arise from the authority of statute alone";
+        when obligation_nee_de_la_loi(o);
+        then source_de_l_obligation(o, AutoriteDeLaLoi);
+    }
+    rule ObligationNeeDUnDevoirDeConscience(o: Obligation, debiteur: Personne) strict {
+        label fr official "Article 1100, alinéa 2. Les obligations peuvent naître de l'exécution volontaire ou de la promesse d'exécution d'un devoir de conscience envers autrui";
+        label en unofficial "Article 1100, paragraph 2. Obligations may arise from the voluntary performance, or the promise to perform, a moral duty towards another";
+        when devoir_de_conscience_execute_volontairement(o, debiteur);
+        then obligation_issue_d_un_devoir_de_conscience(o, debiteur);
+    }
+}
+
+@source(CC_ART1100_1) {
+    rule ActeJuridiqueEstUneSourceDObligation(o: Obligation, c: Contrat) strict {
+        label fr official "Article 1100-1, alinéa 1. Les actes juridiques sont des manifestations de volonté destinées à produire des effets de droit : l'obligation qu'ils font naître a pour source un acte juridique";
+        label en unofficial "Article 1100-1, paragraph 1. Legal acts are expressions of will intended to produce legal effects: the obligation they create has a legal act as its source";
+        when obligation_du_contrat(o, c) and contrat_qualifie(c);
+        then source_de_l_obligation(o, ActeJuridique);
+    }
+    rule ReglesDuContratAppliqueesALActe(c: Contrat) strict {
+        label fr official "Article 1100-1, alinéa 2. Les actes juridiques obéissent, en tant que de raison, pour leur validité et leurs effets, aux règles qui gouvernent les contrats";
+        label en unofficial "Article 1100-1, paragraph 2. Legal acts are governed, so far as appropriate, as to their validity and effects, by the rules of contracts";
+        when accord_de_volontes(c) and regle_du_contrat_appropriee_a_l_acte(c);
+        then acte_juridique_soumis_aux_regles_du_contrat(c);
+    }
+}
+
+@source(CC_ART1100_2)
+rule ObligationDeFaitJuridiqueRenvoyee(o: Obligation) strict {
+    label fr official "Article 1100-2, alinéa 2. Les obligations qui naissent d'un fait juridique sont régies par le sous-titre relatif à la responsabilité extracontractuelle ou par celui relatif aux autres sources d'obligations : hors de ce paquet (frontière déclarée)";
+    label en unofficial "Article 1100-2, paragraph 2. Obligations arising from a juridical fact are governed by the sub-title on extra-contractual liability or by the one on other sources of obligations: outside this package (declared boundary)";
+    when source_de_l_obligation(o, FaitJuridique);
+    then obligations_regies_par_un_autre_sous_titre(o);
+}
+
+// --- Articles 1101 à 1105 : définition, liberté, force obligatoire, bonne foi ----------------
+
+@source(CC_ART1101)
+rule DefinitionDuContrat(c: Contrat) strict {
+    label fr official "Article 1101. Le contrat est un accord de volontés entre deux ou plusieurs personnes destiné à créer, modifier, transmettre ou éteindre des obligations";
+    label en unofficial "Article 1101. A contract is an agreement of wills between two or more persons intended to create, modify, transfer or extinguish obligations";
+    when accord_de_volontes(c) and regi_par_le_droit_nouveau(c);
+    then contrat_qualifie(c);
+}
+
+@source(CC_ART1102) {
+    rule LiberteContractuelle(c: Contrat, p: Personne) strict {
+        label fr official "Article 1102, alinéa 1. Chacun est libre de contracter ou de ne pas contracter, de choisir son cocontractant et de déterminer le contenu et la forme du contrat dans les limites fixées par la loi";
+        label en unofficial "Article 1102, paragraph 1. Everyone is free to contract or not to contract, to choose the other party and to determine the content and form of the contract within the limits set by statute";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p);
+        then liberty LiberteDeContracter {
+            holder p;
+            action conclusion_du_contrat(c, p);
+            window [@2016-10-01, infinity);
+        };
+    }
+    rule LiberteContractuelleEtOrdrePublic(c: Contrat) strict {
+        label fr official "Article 1102, alinéa 2. La liberté contractuelle ne permet pas de déroger aux règles qui intéressent l'ordre public";
+        label en unofficial "Article 1102, paragraph 2. Contractual freedom does not allow derogation from rules of public policy";
+        when regi_par_le_droit_nouveau(c);
+        then disposition_d_ordre_public(c, "1102");
+    }
+}
+
+@source(CC_ART1103)
+rule ForceObligatoireDuContrat(c: Contrat) strict {
+    label fr official "Article 1103. Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits";
+    label en unofficial "Article 1103. Lawfully formed contracts take the place of statute for those who made them";
+    when contrat_legalement_forme(c);
+    then force_obligatoire(c);
+}
+
+@source(CC_ART1104) {
+    rule DevoirDeBonneFoi(c: Contrat, p: Personne) strict {
+        label fr official "Article 1104, alinéa 1. Les contrats doivent être négociés, formés et exécutés de bonne foi";
+        label en unofficial "Article 1104, paragraph 1. Contracts must be negotiated, formed and performed in good faith";
+        when regi_par_le_droit_nouveau(c) and partie_au_contrat(c, p);
+        then duty NegocierFormerEtExecuterDeBonneFoi {
+            bearer p;
+            maintain execute_de_bonne_foi(c, p) during [@2016-10-01, infinity);
+        };
+    }
+    rule BonneFoiEstDOrdrePublic(c: Contrat) strict {
+        label fr official "Article 1104, alinéa 2. Cette disposition est d'ordre public";
+        label en unofficial "Article 1104, paragraph 2. This provision is a matter of public policy";
+        when regi_par_le_droit_nouveau(c);
+        then disposition_d_ordre_public(c, "1104");
+    }
+}
+
+@source(CC_ART1105)
+rule ReglesParticulieresPriment(c: Contrat) strict {
+    label fr official "Article 1105, alinéas 2 et 3. Les règles particulières à certains contrats sont établies dans les dispositions propres à chacun d'eux et les règles générales s'appliquent sous réserve de ces règles particulières : les contrats spéciaux sont hors de ce paquet (frontière déclarée)";
+    label en unofficial "Article 1105, paragraphs 2 and 3. Rules specific to certain contracts are laid down in their own provisions and the general rules apply subject to them: special contracts lie outside this package (declared boundary)";
+    when contrat_qualifie(c);
+    then regles_generales_sous_reserve_des_regles_particulieres(c);
+}
+
+// --- Articles 1106 à 1111-1 : les qualifications ---------------------------------------------
+
+@source(CC_ART1106) {
+    rule ContratSynallagmatique(c: Contrat) strict {
+        label fr official "Article 1106, alinéa 1. Le contrat est synallagmatique lorsque les contractants s'obligent réciproquement les uns envers les autres";
+        label en unofficial "Article 1106, paragraph 1. A contract is synallagmatic where the parties bind themselves reciprocally";
+        when contrat_qualifie(c) and engagements_reciproques(c);
+        then qualification_du_contrat(c, Synallagmatique);
+    }
+    rule ContratUnilateral(c: Contrat) strict {
+        label fr official "Article 1106, alinéa 2. Il est unilatéral lorsqu'une ou plusieurs personnes s'obligent envers une ou plusieurs autres sans qu'il y ait d'engagement réciproque de celles-ci";
+        label en unofficial "Article 1106, paragraph 2. It is unilateral where one or more persons bind themselves towards one or more others without reciprocal undertaking";
+        when contrat_qualifie(c) and not_known(engagements_reciproques(c));
+        then qualification_du_contrat(c, Unilateral);
+    }
+}
+
+@source(CC_ART1107) {
+    rule ContratATitreOnereux(c: Contrat) strict {
+        label fr official "Article 1107, alinéa 1. Le contrat est à titre onéreux lorsque chacune des parties reçoit de l'autre un avantage en contrepartie de celui qu'elle procure";
+        label en unofficial "Article 1107, paragraph 1. A contract is onerous where each party receives from the other an advantage in return for the one it procures";
+        when contrat_qualifie(c) and avantage_recu_en_contrepartie(c);
+        then contrat_a_titre_onereux(c);
+    }
+    rule ContratATitreGratuit(c: Contrat) strict {
+        label fr official "Article 1107, alinéa 2. Il est à titre gratuit lorsque l'une des parties procure à l'autre un avantage sans attendre ni recevoir de contrepartie";
+        label en unofficial "Article 1107, paragraph 2. It is gratuitous where one party procures an advantage to the other without expecting or receiving a counterpart";
+        when contrat_qualifie(c) and avantage_sans_contrepartie(c);
+        then qualification_du_contrat(c, ATitreGratuit);
+    }
+}
+
+@source(CC_ART1108) {
+    rule ContratCommutatif(c: Contrat) strict {
+        label fr official "Article 1108, alinéa 1. Le contrat est commutatif lorsque chacune des parties s'engage à procurer à l'autre un avantage qui est regardé comme l'équivalent de celui qu'elle reçoit";
+        label en unofficial "Article 1108, paragraph 1. A contract is commutative where each party undertakes to procure to the other an advantage regarded as equivalent to the one it receives";
+        when contrat_qualifie(c) and avantages_regardes_comme_equivalents(c);
+        then qualification_du_contrat(c, Commutatif);
+    }
+    rule ContratAleatoire(c: Contrat) strict {
+        label fr official "Article 1108, alinéa 2. Il est aléatoire lorsque les parties acceptent de faire dépendre les effets du contrat, quant aux avantages et aux pertes qui en résulteront, d'un événement incertain";
+        label en unofficial "Article 1108, paragraph 2. It is aleatory where the parties agree to make the contract's effects, as to gains and losses, depend on an uncertain event";
+        when contrat_qualifie(c) and effets_dependant_d_un_evenement_incertain(c);
+        then qualification_du_contrat(c, Aleatoire);
+    }
+}
+
+@source(CC_ART1109) {
+    rule ContratConsensuel(c: Contrat) strict {
+        label fr official "Article 1109, alinéa 1. Le contrat est consensuel lorsqu'il se forme par le seul échange des consentements quel qu'en soit le mode d'expression";
+        label en unofficial "Article 1109, paragraph 1. A contract is consensual where it is formed by the mere exchange of consents, however expressed";
+        when contrat_qualifie(c) and forme_par_le_seul_echange_des_consentements(c);
+        then qualification_du_contrat(c, Consensuel);
+    }
+    rule ContratSolennel(c: Contrat) strict {
+        label fr official "Article 1109, alinéa 2. Le contrat est solennel lorsque sa validité est subordonnée à des formes déterminées par la loi";
+        label en unofficial "Article 1109, paragraph 2. A contract is solemn where its validity depends on forms laid down by statute";
+        when contrat_qualifie(c) and forme_exigee_par_la_loi(c);
+        then qualification_du_contrat(c, Solennel);
+    }
+    rule ContratReel(c: Contrat) strict {
+        label fr official "Article 1109, alinéa 3. Le contrat est réel lorsque sa formation est subordonnée à la remise d'une chose";
+        label en unofficial "Article 1109, paragraph 3. A contract is real where its formation depends on the delivery of a thing";
+        when contrat_qualifie(c) and formation_subordonnee_a_la_remise_d_une_chose(c);
+        then qualification_du_contrat(c, Reel);
+    }
+}
+
+// L'article 1110 dans ses deux rédactions : la prémisse de temps distingue les
+// règles, le fait d'entrée distingue les définitions.
+
+@source(CC_ART1110) {
+    rule ContratDeGreAGre2018(c: Contrat) strict {
+        label fr official "Article 1110, alinéa 1 (rédaction de 2018). Le contrat de gré à gré est celui dont les stipulations sont négociables entre les parties";
+        label en unofficial "Article 1110, paragraph 1 (2018 wording). A contract by mutual agreement is one whose terms are negotiable between the parties";
+        when redaction_2018_applicable(c, "1110") and stipulations_negociables(c);
+        then qualification_du_contrat(c, GreAGre);
+    }
+    rule ContratDAdhesion2018(c: Contrat) strict {
+        label fr official "Article 1110, alinéa 2 (rédaction de 2018). Le contrat d'adhésion est celui qui comporte un ensemble de clauses non négociables, déterminées à l'avance par l'une des parties";
+        label en unofficial "Article 1110, paragraph 2 (2018 wording). A contract of adhesion is one containing a set of non-negotiable clauses determined in advance by one party";
+        when redaction_2018_applicable(c, "1110") and ensemble_de_clauses_non_negociables_predeterminees(c);
+        then qualification_du_contrat(c, Adhesion);
+    }
+}
+
+@source(CC_2016_ART1110, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule ContratDeGreAGre2016(c: Contrat) strict {
+        label fr official "Article 1110, alinéa 1 (rédaction de l'ordonnance de 2016). Le contrat de gré à gré est celui dont les stipulations sont librement négociées entre les parties";
+        label en unofficial "Article 1110, paragraph 1 (2016 ordinance wording). A contract by mutual agreement is one whose terms are freely negotiated between the parties";
+        when redaction_2016_applicable(c, "1110") and stipulations_negociables(c);
+        then qualification_du_contrat(c, GreAGre);
+    }
+    rule ContratDAdhesion2016(c: Contrat) strict {
+        label fr official "Article 1110, alinéa 2 (rédaction de l'ordonnance de 2016). Le contrat d'adhésion est celui dont les conditions générales, soustraites à la négociation, sont déterminées à l'avance par l'une des parties";
+        label en unofficial "Article 1110, paragraph 2 (2016 ordinance wording). A contract of adhesion is one whose general terms, withdrawn from negotiation, are determined in advance by one party";
+        when redaction_2016_applicable(c, "1110") and conditions_generales_soustraites_a_la_negociation(c);
+        then qualification_du_contrat(c, Adhesion);
+    }
+}
+
+@source(CC_ART1111) {
+    rule ContratCadre(c: Contrat) strict {
+        label fr official "Article 1111. Le contrat cadre est un accord par lequel les parties conviennent des caractéristiques générales de leurs relations contractuelles futures";
+        label en unofficial "Article 1111. A framework contract is an agreement by which the parties settle the general features of their future contractual relations";
+        when contrat_qualifie(c) and accord_sur_les_caracteristiques_generales_des_relations_futures(c);
+        then qualification_du_contrat(c, Cadre);
+    }
+}
+
+@source(CC_ART1111_1) {
+    rule ContratAExecutionInstantanee(c: Contrat) strict {
+        label fr official "Article 1111-1, alinéa 1. Le contrat à exécution instantanée est celui dont les obligations peuvent s'exécuter en une prestation unique";
+        label en unofficial "Article 1111-1, paragraph 1. A contract of instantaneous performance is one whose obligations can be performed by a single performance";
+        when contrat_qualifie(c) and prestation_unique(c);
+        then qualification_du_contrat(c, AExecutionInstantanee);
+    }
+    rule ContratAExecutionSuccessive(c: Contrat) strict {
+        label fr official "Article 1111-1, alinéa 2. Le contrat à exécution successive est celui dont les obligations d'au moins une partie s'exécutent en plusieurs prestations échelonnées dans le temps";
+        label en unofficial "Article 1111-1, paragraph 2. A contract of successive performance is one whose obligations of at least one party are performed by several performances staggered over time";
+        when contrat_qualifie(c) and prestations_echelonnees_dans_le_temps(c);
+        then qualification_du_contrat(c, AExecutionSuccessive);
+    }
+}

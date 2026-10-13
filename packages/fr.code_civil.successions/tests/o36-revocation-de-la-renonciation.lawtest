@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 807 : renonciation en 2015, prescription au 10 janvier 2024, appréciée en 2020 — révocable.
+test "urn:query:fr-code-civil-successions-o36-revocation-de-la-renonciation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o36:S"), @2014-01-10) { origin case_input; }
+        assert "f2": option_exercee_le(entity_ref("urn:fr:cc:successions:opt:o36:S"), entity_ref("urn:fr:cc:successions:opt:o36:H"), Renonciation, @2015-06-01) { origin case_input; }
+        assert "f3": date_d_appreciation_de_l_option(entity_ref("urn:fr:cc:successions:opt:o36:S"), entity_ref("urn:fr:cc:successions:opt:o36:H"), @2020-01-01) { origin case_input; }
+    }
+    evaluate truth(revocation_de_la_renonciation_possible(entity_ref("urn:fr:cc:successions:opt:o36:S"), entity_ref("urn:fr:cc:successions:opt:o36:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RevocationDeLaRenonciation);
+}

@@ -1,0 +1,14 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Ordonnance 2016-131 art. 9 : instance introduite avant l entrée en vigueur → loi ancienne en appel et en cassation.
+test "urn:query:fr-code-civil-transitions-t05-instance-anterieure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": instance_introduite_le(entity_ref("urn:fr:cc:transitions:c16"), @2016-06-01) { origin case_input; }
+    }
+    evaluate truth(instance_anterieure_a_la_reforme_2016(entity_ref("urn:fr:cc:transitions:c16")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

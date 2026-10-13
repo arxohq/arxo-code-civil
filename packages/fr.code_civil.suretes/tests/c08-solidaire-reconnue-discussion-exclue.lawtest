@@ -1,0 +1,23 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2305 et 2297 : solidarité avec le débiteur reconnue dans la mention — bénéfice de discussion exclu.
+test "urn:query:fr-code-civil-suretes-c08-solidaire-reconnue-discussion-exclue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c08:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c08:K"), entity_ref("urn:fr:cc:suretes:c08:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c08:K"), entity_ref("urn:fr:cc:suretes:c08:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:c08:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c08:B")) { origin case_input; }
+        assert "f6": mention_manuscrite_apposee(entity_ref("urn:fr:cc:suretes:c08:K")) { origin case_input; }
+        assert "f7": montant_en_toutes_lettres(entity_ref("urn:fr:cc:suretes:c08:K"), 10000 EUR) { origin case_input; }
+        assert "f8": montant_en_chiffres(entity_ref("urn:fr:cc:suretes:c08:K"), 10000 EUR) { origin case_input; }
+        assert "f9": solidarite_stipulee(entity_ref("urn:fr:cc:suretes:c08:K"), EntreCautionEtDebiteur) { origin case_input; }
+        assert "f10": mention_reconnait_la_privation_des_benefices(entity_ref("urn:fr:cc:suretes:c08:K")) { origin case_input; }
+    }
+    evaluate truth(benefice_de_discussion_exclu(entity_ref("urn:fr:cc:suretes:c08:K")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(DiscussionExclueParLaPrivation);
+}

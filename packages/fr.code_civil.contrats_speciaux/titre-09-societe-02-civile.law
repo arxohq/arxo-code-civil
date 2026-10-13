@@ -1,0 +1,204 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    CC_ART1846,
+    CC_ART1846_1,
+    CC_ART1851,
+    CC_ART1855,
+    CC_ART1857,
+    CC_ART1858,
+    CC_ART1859,
+    CC_ART1863,
+    CC_ART1864,
+    CC_ART1867,
+    CC_ART1868,
+    CC_ART1869,
+    Creance,
+    Personne,
+    Societe,
+    absence_de_gerant_depuis,
+    action_contre_associe_introduite_le,
+    action_contre_associe_recevable,
+    agrement_cession_acquis,
+    associe,
+    associe_peut_se_retirer,
+    aucune_offre_achat,
+    candidat_gerant,
+    delai_statutaire_agrement_mois,
+    delai_statutaire_agrement_valide,
+    demande_dissolution_exercee,
+    demande_dissolution_introduite_le,
+    demande_dommages_revocation_exercee,
+    derniere_notification_cession_le,
+    dette_sociale,
+    dissolution_demandable_absence_gerant,
+    dissolution_publiee_le,
+    dommages_interets_pour_revocation,
+    examen_agrement_le,
+    gerant,
+    interesse_societe,
+    juste_motif_de_revocation,
+    justes_motifs_de_retrait,
+    montant_du_par_associe,
+    nomination_majoritaire,
+    notification_realisation_forcee_en_temps,
+    notification_realisation_forcee_le,
+    poursuites_prealables_vaines,
+    question_ecrite_associe_le,
+    reponse_ecrite_du_gerant,
+    retrait_autorise,
+    revocation_majoritaire,
+    societe_civile,
+    termes_quote_part,
+    total_des_parts,
+    vente_forcee_prevue_le,
+    voix_favorables,
+};
+
+@source(CC_ART1846)
+rule NominationGerantPlusDeLaMoitie(s: Societe, p: Personne, voix: Integer, total: Integer) strict {
+    label fr official "Article 1846. Le gérant est nommé par des associés représentant plus de la moitié des parts sociales";
+    label en unofficial "Article 1846. The manager is appointed by members representing more than half the shares";
+    when societe_civile(s) and candidat_gerant(s, p) and voix_favorables(s, p, voix)
+        and total_des_parts(s, total) and voix > 0 and total > 0 and 2 * voix > total;
+    then nomination_majoritaire(s, p);
+}
+
+@source(CC_ART1846_1)
+rule DissolutionApresPlusDUnAnSansGerant(s: Societe, depart: Date, jour: Date) strict {
+    label fr official "Article 1846-1. Tout intéressé peut demander la dissolution lorsque la société est dépourvue de gérant depuis plus d'un an";
+    label en unofficial "Article 1846-1. Any interested person may seek dissolution when the company has lacked a manager for more than one year";
+    when societe_civile(s) and absence_de_gerant_depuis(s, depart)
+        and demande_dissolution_introduite_le(s, jour) and jour > add_calendar_period(depart, 1 calendar_year);
+    then dissolution_demandable_absence_gerant(s);
+}
+
+@source(CC_ART1846_1)
+rule P3PouvoirDemanderDissolutionSansGerant(s: Societe, interesse_: Personne, depart: Date, jour: Date) strict {
+    label fr official "Article 1846-1. Toute personne intéressée peut demander la dissolution";
+    label en unofficial "Article 1846-1. Any interested person may seek dissolution";
+    when societe_civile(s) and absence_de_gerant_depuis(s, depart)
+        and demande_dissolution_introduite_le(s, jour) and jour > add_calendar_period(depart, 1 calendar_year)
+        and interesse_societe(s, interesse_);
+    then power P3PositionPouvoirDemanderDissolutionSansGerant {
+        holder interesse_;
+        over s;
+        exercise demande_dissolution_exercee(s, interesse_);
+        effect dissolution_demandable_absence_gerant(s);
+        valid_when demande_dissolution_introduite_le(s, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART1851) {
+    rule RevocationGerantPlusDeLaMoitie(s: Societe, p: Personne, voix: Integer, total: Integer) strict {
+        label fr official "Article 1851. Le gérant est révoqué par une décision des associés représentant plus de la moitié des parts sociales";
+        label en unofficial "Article 1851. The manager is removed by members representing more than half the shares";
+        when societe_civile(s) and gerant(s, p) and voix_favorables(s, p, voix)
+            and total_des_parts(s, total) and voix > 0 and total > 0 and 2 * voix > total;
+        then revocation_majoritaire(s, p);
+    }
+    rule RevocationSansJusteMotif(s: Societe, p: Personne) defeasible {
+        label fr official "Article 1851. La révocation sans juste motif peut donner lieu à dommages-intérêts";
+        label en unofficial "Article 1851. Removal without proper ground may give rise to damages";
+        when societe_civile(s) and gerant(s, p) and revocation_majoritaire(s, p);
+        then dommages_interets_pour_revocation(s, p);
+        unless juste_motif_de_revocation(s, p);
+    }
+    rule P3PouvoirDemanderDommagesRevocation(s: Societe, p: Personne) defeasible {
+        label fr official "Article 1851. La révocation sans juste motif peut donner lieu à dommages-intérêts";
+        label en unofficial "Article 1851. Removal without proper ground may give rise to damages";
+        when societe_civile(s) and gerant(s, p) and revocation_majoritaire(s, p);
+        then power P3PositionPouvoirDemanderDommagesRevocation {
+            holder p;
+            over s;
+            exercise demande_dommages_revocation_exercee(s, p);
+            effect dommages_interets_pour_revocation(s, p);
+            valid_when revocation_majoritaire(s, p);
+            window [@2016-10-01, infinity];
+        };
+        unless juste_motif_de_revocation(s, p);
+    }
+}
+
+@source(CC_ART1855)
+rule ReponseDuGerantDansUnMois(s: Societe, a: Personne, g: Personne, question: Date) strict {
+    label fr official "Article 1855. Le gérant répond par écrit dans le délai d'un mois aux questions écrites d'un associé";
+    label en unofficial "Article 1855. The manager answers a member's written questions in writing within one month";
+    when associe(s, a) and gerant(s, g) and question_ecrite_associe_le(s, a, question);
+    then duty RepondreQuestionAssocie {
+        bearer g; beneficiary a;
+        achieve reponse_ecrite_du_gerant(s, a) during [question, add_calendar_period(question, 1 calendar_month)];
+    };
+}
+
+@source(CC_ART1857)
+@source(CC_ART1858)
+rule DetteProportionnelleALaPart(s: Societe, c: Creance, p: Personne, dette: Money, n: Integer, d: Decimal) strict {
+    label fr official "Article 1857. Les associés répondent indéfiniment des dettes sociales à proportion de leur part dans le capital";
+    label en unofficial "Article 1857. Members have unlimited liability for company debts in proportion to their capital share";
+    when societe_civile(s) and associe(s, p) and dette_sociale(s, c, dette)
+        and poursuites_prealables_vaines(s, c) and termes_quote_part(s, p, n, d);
+    then montant_du_par_associe(s, c, p, div_round(dette * n, d, 2, "HALF_UP"));
+}
+
+@source(CC_ART1859)
+rule ActionAssocieDansCinqAns(s: Societe, p: Personne, publication_d: Date, saisine: Date) strict {
+    label fr official "Article 1859. Les actions contre les associés se prescrivent par cinq ans à compter de la publication de la dissolution";
+    label en unofficial "Article 1859. Actions against members are time-barred five years after publication of dissolution";
+    when dissolution_publiee_le(s, publication_d) and action_contre_associe_introduite_le(s, p, saisine)
+        and saisine <= add_calendar_period(publication_d, 5 calendar_year);
+    then action_contre_associe_recevable(s, p);
+}
+
+@source(CC_ART1863)
+rule AgrementAcquisApresSixMoisSansOffre(s: Societe, p: Personne, notification: Date, jour: Date) strict {
+    label fr official "Article 1863, alinéa 1. L'agrément est réputé acquis si aucune offre d'achat n'est faite dans les six mois de la dernière notification";
+    label en unofficial "Article 1863, paragraph 1. Approval is deemed granted if no purchase offer is made within six months after the last notice";
+    when derniere_notification_cession_le(s, p, notification) and aucune_offre_achat(s, p)
+        and examen_agrement_le(s, p, jour) and jour > add_calendar_period(notification, 6 calendar_month);
+    then agrement_cession_acquis(s, p);
+}
+
+@source(CC_ART1864)
+rule DelaiStatutaireEntreUnEtDouzeMois(s: Societe, n: Integer) strict {
+    label fr official "Article 1864. Le délai statutaire ne peut être inférieur à un mois ni excéder un an";
+    label en unofficial "Article 1864. The articles' period may not be shorter than one month or longer than one year";
+    when delai_statutaire_agrement_mois(s, n) and n >= 1 and n <= 12;
+    then delai_statutaire_agrement_valide(s);
+}
+
+@source(CC_ART1867)
+rule NotificationUnMoisAvantVenteNantissement(s: Societe, notification: Date, vente: Date) strict {
+    label fr official "Article 1867, alinéa 2. La réalisation forcée est notifiée un mois avant la vente";
+    label en unofficial "Article 1867, paragraph 2. Forced realization is notified one month before the sale";
+    when notification_realisation_forcee_le(s, notification) and vente_forcee_prevue_le(s, vente)
+        and vente >= add_calendar_period(notification, 1 calendar_month);
+    then notification_realisation_forcee_en_temps(s);
+}
+
+@source(CC_ART1868)
+rule NotificationUnMoisAvantAutreVenteForcee(s: Societe, notification: Date, vente: Date) strict {
+    label fr official "Article 1868, alinéa 1. La réalisation forcée est pareillement notifiée un mois avant la vente";
+    label en unofficial "Article 1868, paragraph 1. Other forced realization is likewise notified one month before the sale";
+    when notification_realisation_forcee_le(s, notification) and vente_forcee_prevue_le(s, vente)
+        and vente >= add_calendar_period(notification, 1 calendar_month);
+    then notification_realisation_forcee_en_temps(s);
+}
+
+@source(CC_ART1869) {
+    rule RetraitAutoriseParLesAssocies(s: Societe, p: Personne) strict {
+        label fr official "Article 1869. Un associé peut se retirer dans les conditions prévues ou après autorisation unanime";
+        label en unofficial "Article 1869. A member may withdraw under the articles or after unanimous authorization";
+        when associe(s, p) and retrait_autorise(s, p);
+        then associe_peut_se_retirer(s, p);
+    }
+    rule RetraitAutorisePourJustesMotifs(s: Societe, p: Personne) strict {
+        label fr official "Article 1869. Le retrait peut être autorisé pour justes motifs par une décision de justice";
+        label en unofficial "Article 1869. Withdrawal may be judicially authorized on proper grounds";
+        when associe(s, p) and justes_motifs_de_retrait(s, p);
+        then associe_peut_se_retirer(s, p);
+    }
+}

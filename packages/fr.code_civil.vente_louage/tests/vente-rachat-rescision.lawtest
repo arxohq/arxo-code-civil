@@ -1,0 +1,526 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Vices cachés (1642 à 1647), résolution stipulée (1656), faculté de rachat
+// (1659 à 1673) et rescision pour lésion (1677 à 1685). Les montants sont
+// 10-lisses : 120 000 EUR de valeur, 45 000 EUR de prix — la lésion est de
+// plus de sept douzièmes (45 000 × 12 = 540 000 < 120 000 × 5 = 600 000), et
+// le supplément de l'article 1681 vaut 120 000 × 9/10 − 45 000 = 63 000 EUR.
+
+test "urn:query:fr-code-civil-vente-louage-vice-apparent-non-garanti" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x1:v"), entity_ref("urn:fr:cc12:x1:x")) { origin case_input; }
+        assert "app": vice_apparent(entity_ref("urn:fr:cc12:x1:v"), entity_ref("urn:fr:cc12:x1:x")) { origin case_input; }
+    }
+    evaluate truth(vendeur_non_tenu_des_vices_apparents(entity_ref("urn:fr:cc12:x1:v"), entity_ref("urn:fr:cc12:x1:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-vice-non-apparent-reste-garanti" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x2:v"), entity_ref("urn:fr:cc12:x2:x")) { origin case_input; }
+    }
+    evaluate truth(vendeur_non_tenu_des_vices_apparents(entity_ref("urn:fr:cc12:x2:v"), entity_ref("urn:fr:cc12:x2:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-vice-cache-tenu-meme-ignore" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x3:v"), entity_ref("urn:fr:cc12:x3:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:x3:v"), entity_ref("urn:fr:cc12:x3:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:x3:v"), entity_ref("urn:fr:cc12:x3:x")) { origin case_input; }
+        assert "dec": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:x3:v"), entity_ref("urn:fr:cc12:x3:x")) { origin case_input; }
+    }
+    evaluate truth(vendeur_tenu_des_vices_meme_ignores(entity_ref("urn:fr:cc12:x3:v"), entity_ref("urn:fr:cc12:x3:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-vice-cache-clause-de-non-garantie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x4:v"), entity_ref("urn:fr:cc12:x4:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:x4:v"), entity_ref("urn:fr:cc12:x4:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:x4:v"), entity_ref("urn:fr:cc12:x4:x")) { origin case_input; }
+        assert "dec": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:x4:v"), entity_ref("urn:fr:cc12:x4:x")) { origin case_input; }
+        assert "clause": clause_de_non_garantie_des_vices(entity_ref("urn:fr:cc12:x4:v")) { origin case_input; }
+    }
+    evaluate truth(vendeur_tenu_des_vices_meme_ignores(entity_ref("urn:fr:cc12:x4:v"), entity_ref("urn:fr:cc12:x4:x")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-vendeur-de-mauvaise-foi-dommages-interets" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x5:v"), entity_ref("urn:fr:cc12:x5:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:x5:v"), entity_ref("urn:fr:cc12:x5:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:x5:v"), entity_ref("urn:fr:cc12:x5:x")) { origin case_input; }
+        assert "dec": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:x5:v"), entity_ref("urn:fr:cc12:x5:x")) { origin case_input; }
+        assert "knew": vendeur_connaissait_les_vices(entity_ref("urn:fr:cc12:x5:v"), entity_ref("urn:fr:cc12:x5:x")) { origin adjudicated; }
+    }
+    evaluate truth(restitution_du_prix_et_dommages_interets_dus(entity_ref("urn:fr:cc12:x5:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(restitution_du_prix_et_frais_de_la_vente_dus(entity_ref("urn:fr:cc12:x5:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-vendeur-de-bonne-foi-prix-et-frais" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "v": vice_de_la_chose(entity_ref("urn:fr:cc12:x6:v"), entity_ref("urn:fr:cc12:x6:x")) { origin case_input; }
+        assert "u": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:x6:v"), entity_ref("urn:fr:cc12:x6:x")) { origin case_input; }
+        assert "hidden": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:x6:v"), entity_ref("urn:fr:cc12:x6:x")) { origin case_input; }
+        assert "dec": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:x6:v"), entity_ref("urn:fr:cc12:x6:x")) { origin case_input; }
+        assert "nk": vendeur_ignorait_les_vices(entity_ref("urn:fr:cc12:x6:v"), entity_ref("urn:fr:cc12:x6:x")) { origin adjudicated; }
+    }
+    evaluate truth(restitution_du_prix_et_frais_de_la_vente_dus(entity_ref("urn:fr:cc12:x6:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(restitution_du_prix_et_dommages_interets_dus(entity_ref("urn:fr:cc12:x6:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-perte-par-mauvaise-qualite-pour-le-vendeur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lost": chose_perie_par_sa_mauvaise_qualite(entity_ref("urn:fr:cc12:x7:v")) { origin adjudicated; }
+    }
+    evaluate truth(perte_pour_le_vendeur(entity_ref("urn:fr:cc12:x7:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(perte_pour_l_acheteur(entity_ref("urn:fr:cc12:x7:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-perte-par-cas-fortuit-pour-l-acheteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "lost": chose_perie_par_cas_fortuit(entity_ref("urn:fr:cc12:x8:v")) { origin adjudicated; }
+    }
+    evaluate truth(perte_pour_l_acheteur(entity_ref("urn:fr:cc12:x8:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(perte_pour_le_vendeur(entity_ref("urn:fr:cc12:x8:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-immeuble-a-construire-garanties-des-constructeurs" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:x9:v")) { origin case_input; }
+        assert "rec": reception_des_travaux_le(entity_ref("urn:fr:cc12:x9:v"), @2025-03-01) { origin case_input; }
+        assert "next": proprietaire_successif_de_l_immeuble(entity_ref("urn:fr:cc12:x9:v"), entity_ref("urn:fr:cc12:x9:p")) { origin case_input; }
+    }
+    evaluate truth(garanties_des_constructeurs_dues_par_le_vendeur(entity_ref("urn:fr:cc12:x9:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(garanties_beneficient_au_proprietaire_successif(entity_ref("urn:fr:cc12:x9:v"), entity_ref("urn:fr:cc12:x9:p")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-immeuble-a-construire-sans-reception" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:x10:v")) { origin case_input; }
+    }
+    evaluate truth(garanties_des_constructeurs_dues_par_le_vendeur(entity_ref("urn:fr:cc12:x10:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1656-paiement-tardif-avant-sommation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x11:v")) { origin case_input; }
+        assert "cl": clause_de_resolution_de_plein_droit_pour_prix_impaye(entity_ref("urn:fr:cc12:x11:v")) { origin case_input; }
+    }
+    evaluate truth(acquereur_peut_encore_payer(entity_ref("urn:fr:cc12:x11:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(juge_ne_peut_plus_accorder_de_delai(entity_ref("urn:fr:cc12:x11:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1656-apres-sommation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x12:v")) { origin case_input; }
+        assert "cl": clause_de_resolution_de_plein_droit_pour_prix_impaye(entity_ref("urn:fr:cc12:x12:v")) { origin case_input; }
+        assert "som": sommation_de_payer_faite(entity_ref("urn:fr:cc12:x12:v")) { origin case_input; }
+    }
+    evaluate truth(juge_ne_peut_plus_accorder_de_delai(entity_ref("urn:fr:cc12:x12:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(acquereur_peut_encore_payer(entity_ref("urn:fr:cc12:x12:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-cinq-ans-terme-de-rigueur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "st": terme_de_rachat_stipule_en_annees(entity_ref("urn:fr:cc12:x13:v"), 8) { origin case_input; }
+    }
+    evaluate truth(terme_de_rachat_applicable_en_annees(entity_ref("urn:fr:cc12:x13:v"), 5));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(terme_de_rachat_applicable_en_annees(entity_ref("urn:fr:cc12:x13:v"), 8));
+    expect truth_status == NEITHER;
+    evaluate truth(terme_de_rachat_de_rigueur(entity_ref("urn:fr:cc12:x13:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-quatre-ans-non-reduit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "st": terme_de_rachat_stipule_en_annees(entity_ref("urn:fr:cc12:x14:v"), 4) { origin case_input; }
+    }
+    evaluate truth(terme_de_rachat_applicable_en_annees(entity_ref("urn:fr:cc12:x14:v"), 4));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(terme_de_rachat_applicable_en_annees(entity_ref("urn:fr:cc12:x14:v"), 5));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-non-exerce-proprietaire-irrevocable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:x15:v")) { origin case_input; }
+        assert "late": action_en_rachat_non_exercee_dans_le_terme(entity_ref("urn:fr:cc12:x15:v")) { origin case_input; }
+    }
+    evaluate truth(acquereur_proprietaire_irrevocable(entity_ref("urn:fr:cc12:x15:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-exerce-dans-le-terme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "pact": pacte_de_rachat_stipule(entity_ref("urn:fr:cc12:x16:v")) { origin case_input; }
+        assert "ok": action_en_rachat_exercee_dans_le_terme(entity_ref("urn:fr:cc12:x16:v")) { origin case_input; }
+    }
+    evaluate truth(acquereur_proprietaire_irrevocable(entity_ref("urn:fr:cc12:x16:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-possession-apres-remboursement-integral" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "ok": action_en_rachat_exercee_dans_le_terme(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+        assert "p1": prix_principal_rembourse(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+        assert "p2": frais_et_loyaux_couts_rembourses(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+        assert "p3": reparations_necessaires_remboursees(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+        assert "pub": pacte_publie_au_fichier_immobilier_avant_les_charges(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+        assert "bail": baux_faits_sans_fraude_par_l_acquereur(entity_ref("urn:fr:cc12:x17:v")) { origin case_input; }
+    }
+    evaluate truth(vendeur_peut_entrer_en_possession(entity_ref("urn:fr:cc12:x17:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(heritage_repris_exempt_de_charges(entity_ref("urn:fr:cc12:x17:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(vendeur_tenu_d_executer_les_baux(entity_ref("urn:fr:cc12:x17:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-reparations-non-remboursees" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "ok": action_en_rachat_exercee_dans_le_terme(entity_ref("urn:fr:cc12:x18:v")) { origin case_input; }
+        assert "p1": prix_principal_rembourse(entity_ref("urn:fr:cc12:x18:v")) { origin case_input; }
+        assert "p2": frais_et_loyaux_couts_rembourses(entity_ref("urn:fr:cc12:x18:v")) { origin case_input; }
+    }
+    evaluate truth(vendeur_peut_entrer_en_possession(entity_ref("urn:fr:cc12:x18:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-rachat-pacte-publie-apres-les-charges" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "ok": action_en_rachat_exercee_dans_le_terme(entity_ref("urn:fr:cc12:x19:v")) { origin case_input; }
+        assert "p1": prix_principal_rembourse(entity_ref("urn:fr:cc12:x19:v")) { origin case_input; }
+        assert "p2": frais_et_loyaux_couts_rembourses(entity_ref("urn:fr:cc12:x19:v")) { origin case_input; }
+        assert "p3": reparations_necessaires_remboursees(entity_ref("urn:fr:cc12:x19:v")) { origin case_input; }
+    }
+    evaluate truth(vendeur_peut_entrer_en_possession(entity_ref("urn:fr:cc12:x19:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(heritage_repris_exempt_de_charges(entity_ref("urn:fr:cc12:x19:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-lesion-preuve-admise-et-recevable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "facts": faits_articules_vraisemblables_et_graves(entity_ref("urn:fr:cc12:x20:v")) { origin adjudicated; }
+        assert "exp": rapport_de_trois_experts_produit(entity_ref("urn:fr:cc12:x20:v")) { origin case_input; }
+    }
+    evaluate truth(preuve_de_la_lesion_admise(entity_ref("urn:fr:cc12:x20:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(preuve_de_la_lesion_recevable(entity_ref("urn:fr:cc12:x20:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(experts_nommes_d_office(entity_ref("urn:fr:cc12:x20:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-lesion-preuve-sans-rapport-de-trois-experts" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "facts": faits_articules_vraisemblables_et_graves(entity_ref("urn:fr:cc12:x21:v")) { origin adjudicated; }
+        assert "joint": experts_nommes_conjointement_par_les_parties(entity_ref("urn:fr:cc12:x21:v")) { origin case_input; }
+    }
+    evaluate truth(preuve_de_la_lesion_recevable(entity_ref("urn:fr:cc12:x21:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(experts_nommes_d_office(entity_ref("urn:fr:cc12:x21:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-lesion-faits-non-graves" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "exp": rapport_de_trois_experts_produit(entity_ref("urn:fr:cc12:x22:v")) { origin case_input; }
+    }
+    evaluate truth(preuve_de_la_lesion_admise(entity_ref("urn:fr:cc12:x22:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1681-supplement-exact-du-dixieme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x23:v")) { origin case_input; }
+        assert "val": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:x23:v"), 120000 EUR) { origin case_input; }
+        assert "prix": prix_paye(entity_ref("urn:fr:cc12:x23:v"), 45000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:x23:v"), @2025-03-10) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:x23:v"), @2026-03-10) { origin case_input; }
+        assert "keep": acquereur_choisit_de_garder_le_fonds(entity_ref("urn:fr:cc12:x23:v")) { origin case_input; }
+        assert "offer": supplement_offert_par_l_acquereur(entity_ref("urn:fr:cc12:x23:v"), 63000 EUR) { origin case_input; }
+    }
+    evaluate truth(action_en_rescision_recevable(entity_ref("urn:fr:cc12:x23:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(supplement_du_juste_prix_du(entity_ref("urn:fr:cc12:x23:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(supplement_conforme_a_l_article_1681(entity_ref("urn:fr:cc12:x23:v"), 63000 EUR));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(interet_du_supplement_du_du_jour_de_la_demande(entity_ref("urn:fr:cc12:x23:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1681-supplement-sans-la-deduction-du-dixieme" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x24:v")) { origin case_input; }
+        assert "val": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:x24:v"), 120000 EUR) { origin case_input; }
+        assert "prix": prix_paye(entity_ref("urn:fr:cc12:x24:v"), 45000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:x24:v"), @2025-03-10) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:x24:v"), @2026-03-10) { origin case_input; }
+        assert "keep": acquereur_choisit_de_garder_le_fonds(entity_ref("urn:fr:cc12:x24:v")) { origin case_input; }
+        assert "offer": supplement_offert_par_l_acquereur(entity_ref("urn:fr:cc12:x24:v"), 75000 EUR) { origin case_input; }
+    }
+    evaluate truth(supplement_conforme_a_l_article_1681(entity_ref("urn:fr:cc12:x24:v"), 75000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1681-acquereur-rend-la-chose" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x25:v")) { origin case_input; }
+        assert "val": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:x25:v"), 120000 EUR) { origin case_input; }
+        assert "prix": prix_paye(entity_ref("urn:fr:cc12:x25:v"), 45000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:x25:v"), @2025-03-10) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:x25:v"), @2026-03-10) { origin case_input; }
+        assert "give": acquereur_choisit_de_rendre_la_chose(entity_ref("urn:fr:cc12:x25:v")) { origin case_input; }
+    }
+    evaluate truth(restitution_du_prix_paye_a_l_acquereur_due(entity_ref("urn:fr:cc12:x25:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(fruits_rendus_du_jour_de_la_demande(entity_ref("urn:fr:cc12:x25:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(supplement_du_juste_prix_du(entity_ref("urn:fr:cc12:x25:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1684-rescision-exclue-vente-d-autorite-de-justice" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "jud": vente_faite_d_autorite_de_justice_par_la_loi(entity_ref("urn:fr:cc12:x26:v")) { origin case_input; }
+    }
+    evaluate truth(rescision_exclue_vente_d_autorite_de_justice(entity_ref("urn:fr:cc12:x26:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1684-vente-volontaire-non-exclue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:x27:v")) { origin case_input; }
+    }
+    evaluate truth(rescision_exclue_vente_d_autorite_de_justice(entity_ref("urn:fr:cc12:x27:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1682-interest-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1682:v"), entity_ref("urn:fr:cc12:pos1682:a")) { origin case_input; }
+        assert "supplement": supplement_du_juste_prix_du(entity_ref("urn:fr:cc12:pos1682:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerInteretDuSupplement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1682-interest-duty-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1682b:v"), entity_ref("urn:fr:cc12:pos1682b:a")) { origin case_input; }
+        assert "supplement": supplement_du_juste_prix_du(entity_ref("urn:fr:cc12:pos1682b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerInteretDuSupplement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1641-warranty-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:a")) { origin case_input; }
+        assert "vice": vice_de_la_chose(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:x")) { origin case_input; }
+        assert "latent": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:x")) { origin case_input; }
+        assert "unfit": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:x")) { origin case_input; }
+        assert "choice": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:pos1641:v"), entity_ref("urn:fr:cc12:pos1641:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(GarantirViceCache, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1641-warranty-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:a")) { origin case_input; }
+        assert "vice": vice_de_la_chose(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:x")) { origin case_input; }
+        assert "latent": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:x")) { origin case_input; }
+        assert "unfit": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:x")) { origin case_input; }
+        assert "choice": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:pos1641b:v"), entity_ref("urn:fr:cc12:pos1641b:x")) { origin case_input; }
+        assert "provided": garantie_des_vices_fournie(entity_ref("urn:fr:cc12:pos1641b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(GarantirViceCache, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1644-remedy-liberty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1644:v"), entity_ref("urn:fr:cc12:pos1644:a")) { origin case_input; }
+        assert "choice": choix_de_l_acheteur(entity_ref("urn:fr:cc12:pos1644:v"), RendreLaChose) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ChoisirRemedeDuVice, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1644-remedy-exercised" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1644b:v"), entity_ref("urn:fr:cc12:pos1644b:a")) { origin case_input; }
+        assert "choice": choix_de_l_acheteur(entity_ref("urn:fr:cc12:pos1644b:v"), GarderLaChose) { origin case_input; }
+        assert "exercise": choix_du_remede_exerce(entity_ref("urn:fr:cc12:pos1644b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ChoisirRemedeDuVice, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1645-damages-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:a")) { origin case_input; }
+        assert "vice": vice_de_la_chose(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:x")) { origin case_input; }
+        assert "known": vendeur_connaissait_les_vices(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:x")) { origin case_input; }
+        assert "latent": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:x")) { origin case_input; }
+        assert "unfit": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:x")) { origin case_input; }
+        assert "choice": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:pos1645:v"), entity_ref("urn:fr:cc12:pos1645:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerDommagesVicesConnus, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1645-damages-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:s")) { origin case_input; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:a")) { origin case_input; }
+        assert "vice": vice_de_la_chose(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:x")) { origin case_input; }
+        assert "known": vendeur_connaissait_les_vices(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:x")) { origin case_input; }
+        assert "latent": vice_non_connu_de_l_acheteur(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:x")) { origin case_input; }
+        assert "unfit": vice_rend_impropre_a_l_usage(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:x")) { origin case_input; }
+        assert "choice": acheteur_n_aurait_pas_acquis_ou_aurait_paye_moins(entity_ref("urn:fr:cc12:pos1645b:v"), entity_ref("urn:fr:cc12:pos1645b:x")) { origin case_input; }
+        assert "paid": dommages_interets_des_vices_payes(entity_ref("urn:fr:cc12:pos1645b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerDommagesVicesConnus, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1674-rescision-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1674:v"), entity_ref("urn:fr:cc12:pos1674:s")) { origin case_input; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:pos1674:v")) { origin case_input; }
+        assert "value": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:pos1674:v"), 120000 EUR) { origin case_input; }
+        assert "price": prix_paye(entity_ref("urn:fr:cc12:pos1674:v"), 40000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:pos1674:v"), @2025-03-10) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:pos1674:v"), @2026-03-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRescisionPourLesion, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1674-rescision-exercised" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:pos1674b:v"), entity_ref("urn:fr:cc12:pos1674b:s")) { origin case_input; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:pos1674b:v")) { origin case_input; }
+        assert "value": valeur_de_l_immeuble_a_la_vente(entity_ref("urn:fr:cc12:pos1674b:v"), 120000 EUR) { origin case_input; }
+        assert "price": prix_paye(entity_ref("urn:fr:cc12:pos1674b:v"), 40000 EUR) { origin case_input; }
+        assert "sale": vente_conclue_le(entity_ref("urn:fr:cc12:pos1674b:v"), @2025-03-10) { origin case_input; }
+        assert "claim": action_en_rescision_introduite_le(entity_ref("urn:fr:cc12:pos1674b:v"), @2026-03-10) { origin case_input; }
+        assert "exercise": demande_rescision_pour_lesion(entity_ref("urn:fr:cc12:pos1674b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirRescisionPourLesion, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1656-payment-liberty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1656:v"), entity_ref("urn:fr:cc12:pos1656:a")) { origin case_input; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:pos1656:v")) { origin case_input; }
+        assert "clause": clause_de_resolution_de_plein_droit_pour_prix_impaye(entity_ref("urn:fr:cc12:pos1656:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerApresEcheanceAvantSommation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1656-payment-exercised" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "buyer": acheteur(entity_ref("urn:fr:cc12:pos1656b:v"), entity_ref("urn:fr:cc12:pos1656b:a")) { origin case_input; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:pos1656b:v")) { origin case_input; }
+        assert "clause": clause_de_resolution_de_plein_droit_pour_prix_impaye(entity_ref("urn:fr:cc12:pos1656b:v")) { origin case_input; }
+        assert "payment": paiement_tardif_par_acquereur(entity_ref("urn:fr:cc12:pos1656b:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PayerApresEcheanceAvantSommation, ACTIVE);
+}

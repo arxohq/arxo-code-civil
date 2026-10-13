@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2409 à 2417 : acte notarié, constituant capable, immeubles désignés, cause et somme — valable.
+test "urn:query:fr-code-civil-suretes-r25-hypotheque-conventionnelle-valable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": hypotheque(entity_ref("urn:fr:cc:suretes:r25:S"), entity_ref("urn:fr:cc:suretes:r25:B"), entity_ref("urn:fr:cc:suretes:r25:P")) { origin case_input; }
+        assert "f2": espece_d_hypotheque(entity_ref("urn:fr:cc:suretes:r25:S"), Conventionnelle) { origin case_input; }
+        assert "f3": acte_notarie(entity_ref("urn:fr:cc:suretes:r25:S")) { origin case_input; }
+        assert "f4": constituant_capable_de_disposer(entity_ref("urn:fr:cc:suretes:r25:S")) { origin case_input; }
+        assert "f5": acte_designe_nature_et_situation(entity_ref("urn:fr:cc:suretes:r25:S")) { origin case_input; }
+        assert "f6": cause_determinee_dans_l_acte(entity_ref("urn:fr:cc:suretes:r25:S")) { origin case_input; }
+        assert "f7": somme_determinee_dans_l_acte(entity_ref("urn:fr:cc:suretes:r25:S"), 200000 EUR) { origin case_input; }
+    }
+    evaluate truth(hypotheque_conventionnelle_valable(entity_ref("urn:fr:cc:suretes:r25:S")));
+    expect truth_status == TRUE_ONLY;
+}

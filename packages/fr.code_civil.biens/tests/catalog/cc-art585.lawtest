@@ -1,0 +1,32 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-FRUITSPENDANTSALACESSATION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": usufruit_sur(entity_ref("urn:law:catalog:fruitspendantsalacessation:v3"), entity_ref("urn:law:catalog:fruitspendantsalacessation:v1")) { origin case_input; }
+        assert "cat-1": pendant_a_la_cessation(entity_ref("urn:law:catalog:fruitspendantsalacessation:v0"), entity_ref("urn:law:catalog:fruitspendantsalacessation:v3")) { origin case_input; }
+        assert "cat-2": fruit_de(entity_ref("urn:law:catalog:fruitspendantsalacessation:v0"), entity_ref("urn:law:catalog:fruitspendantsalacessation:v1"), entity_ref("urn:law:catalog:fruitspendantsalacessation:v2")) { origin case_input; }
+    }
+    evaluate truth(fruit_pendant_a_la_fin_appartient_au_proprietaire(entity_ref("urn:law:catalog:fruitspendantsalacessation:v0"), entity_ref("urn:law:catalog:fruitspendantsalacessation:v3")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-FRUITSPENDANTSALOUVERTURE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": usufruit_sur(entity_ref("urn:law:catalog:fruitspendantsalouverture:v3"), entity_ref("urn:law:catalog:fruitspendantsalouverture:v1")) { origin case_input; }
+        assert "cat-1": pendant_a_l_ouverture(entity_ref("urn:law:catalog:fruitspendantsalouverture:v0"), entity_ref("urn:law:catalog:fruitspendantsalouverture:v3")) { origin case_input; }
+        assert "cat-2": fruit_de(entity_ref("urn:law:catalog:fruitspendantsalouverture:v0"), entity_ref("urn:law:catalog:fruitspendantsalouverture:v1"), entity_ref("urn:law:catalog:fruitspendantsalouverture:v2")) { origin case_input; }
+    }
+    evaluate truth(fruit_pendant_a_l_ouverture_appartient_a_l_usufruitier(entity_ref("urn:law:catalog:fruitspendantsalouverture:v0"), entity_ref("urn:law:catalog:fruitspendantsalouverture:v3")));
+    expect truth_status == TRUE_ONLY;
+}

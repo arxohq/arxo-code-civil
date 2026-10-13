@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1254 al. 2 1° : sans faute délibérée retenue par le juge, la sanction civile n est pas encourue — question au juge.
+test "urn:query:fr-code-civil-responsabilite-r28-sanction-sans-faute-deliberee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": manquement_professionnel(entity_ref("urn:fr:cc:resp:t:f"), entity_ref("urn:fr:cc:resp:t:auteur")) { origin adjudicated; }
+        assert "f2": dommages_a_plusieurs_personnes_similaires(entity_ref("urn:fr:cc:resp:t:f")) { origin adjudicated; }
+        assert "f3": profit_retire(entity_ref("urn:fr:cc:resp:t:f"), 40000 EUR) { origin adjudicated; }
+    }
+    evaluate truth(sanction_civile_encourue(entity_ref("urn:fr:cc:resp:t:f"), entity_ref("urn:fr:cc:resp:t:auteur")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(faute_deliberee_en_vue_d_un_gain, Court);
+}

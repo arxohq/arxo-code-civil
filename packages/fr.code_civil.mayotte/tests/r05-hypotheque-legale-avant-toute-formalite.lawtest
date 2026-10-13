@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2529, alinéa 5 : en toute hypothèse, l'hypothèque légale prime, quand bien même le titre concurrent serait plus ancien (15 janvier contre 1er mars).
+test "urn:query:fr-code-civil-mayotte-r05-hypotheque-legale-avant-toute-formalite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": formalite_sur(entity_ref("urn:fr:cc:may:am:f1"), entity_ref("urn:fr:cc:may:am:imm")) { origin case_input; }
+        assert "f2": formalite_requise_le(entity_ref("urn:fr:cc:may:am:f1"), @2026-03-02) { origin case_input; }
+        assert "f3": numero_de_depot(entity_ref("urn:fr:cc:may:am:f1"), 1) { origin case_input; }
+        assert "f4": nature_de_la_formalite(entity_ref("urn:fr:cc:may:am:f1"), FormaliteObligatoire) { origin case_input; }
+        assert "f5": date_du_titre(entity_ref("urn:fr:cc:may:am:f1"), @2026-01-15) { origin case_input; }
+        assert "f6": formalite_sur(entity_ref("urn:fr:cc:may:am:f2"), entity_ref("urn:fr:cc:may:am:imm")) { origin case_input; }
+        assert "f7": formalite_requise_le(entity_ref("urn:fr:cc:may:am:f2"), @2026-03-02) { origin case_input; }
+        assert "f8": numero_de_depot(entity_ref("urn:fr:cc:may:am:f2"), 2) { origin case_input; }
+        assert "f9": nature_de_la_formalite(entity_ref("urn:fr:cc:may:am:f2"), HypothequeLegalePrivilegiee) { origin case_input; }
+        assert "f10": date_du_titre(entity_ref("urn:fr:cc:may:am:f2"), @2026-03-01) { origin case_input; }
+    }
+    evaluate truth(rang_anterieur(entity_ref("urn:fr:cc:may:am:f2"), entity_ref("urn:fr:cc:may:am:f1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(HypothequeLegaleAvantTouteEnSensInverse);
+}

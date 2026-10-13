@@ -1,0 +1,35 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1231-2, 1231-3 et 1231-4 : dommage prévisible et suite immédiate et directe ; 1 200 EUR de perte et 800 EUR de gain manqué font 2 000 EUR.
+test "urn:query:fr-code-civil-contrat-i27-montant-perte-et-gain-manque" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:i27"), @2019-03-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:i27"), @2019-03-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:i27"), "1145") { origin case_input; }
+        assert "f4": accord_de_volontes(entity_ref("urn:fr:cc:contrat:i27")) { origin case_input; }
+        assert "f5": prestation_possible(entity_ref("urn:fr:cc:contrat:i27")) { origin case_input; }
+        assert "f6": prestation_determinee(entity_ref("urn:fr:cc:contrat:i27")) { origin case_input; }
+        assert "f7": partie_au_contrat(entity_ref("urn:fr:cc:contrat:i27"), entity_ref("urn:fr:cc:contrat:i27:creancier")) { origin case_input; }
+        assert "f8": personne_physique(entity_ref("urn:fr:cc:contrat:i27:creancier")) { origin case_input; }
+        assert "f9": consentement_donne_par(entity_ref("urn:fr:cc:contrat:i27"), entity_ref("urn:fr:cc:contrat:i27:creancier")) { origin case_input; }
+        assert "f10": sain_d_esprit(entity_ref("urn:fr:cc:contrat:i27"), entity_ref("urn:fr:cc:contrat:i27:creancier")) { origin case_input; }
+        assert "f11": obligation_du_contrat(entity_ref("urn:fr:cc:contrat:i27:o"), entity_ref("urn:fr:cc:contrat:i27")) { origin case_input; }
+        assert "f12": creancier_de_l_obligation(entity_ref("urn:fr:cc:contrat:i27:o"), entity_ref("urn:fr:cc:contrat:i27:creancier")) { origin case_input; }
+        assert "f13": debiteur_de_l_obligation(entity_ref("urn:fr:cc:contrat:i27:o"), entity_ref("urn:fr:cc:contrat:i27:debiteur")) { origin case_input; }
+        assert "f14": engagement_non_execute(entity_ref("urn:fr:cc:contrat:i27:o")) { origin case_input; }
+        assert "f15": mise_en_demeure_de_satisfaire_le(entity_ref("urn:fr:cc:contrat:i27:o"), @2020-02-01) { origin case_input; }
+        assert "f16": delai_imparti_par_la_mise_en_demeure(entity_ref("urn:fr:cc:contrat:i27:o"), @2020-03-01) { origin case_input; }
+        assert "f17": delai_raisonnable_de_la_mise_en_demeure_1231(entity_ref("urn:fr:cc:contrat:i27:o")) { origin adjudicated; }
+        assert "f18": dommage_prevu_ou_previsible_a_la_conclusion(entity_ref("urn:fr:cc:contrat:i27:o")) { origin case_input; }
+        assert "f19": suite_immediate_et_directe_de_l_inexecution(entity_ref("urn:fr:cc:contrat:i27:o")) { origin case_input; }
+        assert "f20": perte_subie(entity_ref("urn:fr:cc:contrat:i27:o"), 1200 EUR) { origin case_input; }
+        assert "f21": gain_manque(entity_ref("urn:fr:cc:contrat:i27:o"), 800 EUR) { origin case_input; }
+    }
+    evaluate truth(montant_des_dommages_et_interets(entity_ref("urn:fr:cc:contrat:i27:o"), 2000 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(MontantDesDommagesEtInterets);
+}

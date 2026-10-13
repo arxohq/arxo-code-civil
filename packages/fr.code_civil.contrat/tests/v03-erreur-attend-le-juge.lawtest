@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1130 al. 2, canal §47.3 : le caractère déterminant du vice s'apprécie eu égard aux personnes et aux circonstances — question au juge.
+test "urn:query:fr-code-civil-contrat-v03-erreur-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v03"), @2019-03-01) { origin case_input; }
+        assert "f2": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v03"), entity_ref("urn:fr:cc:contrat:v03:p1")) { origin case_input; }
+        assert "f3": erreur_de_droit_ou_de_fait(entity_ref("urn:fr:cc:contrat:v03"), entity_ref("urn:fr:cc:contrat:v03:p1")) { origin case_input; }
+        assert "f4": erreur_sur_les_qualites_essentielles_de_la_prestation(entity_ref("urn:fr:cc:contrat:v03"), entity_ref("urn:fr:cc:contrat:v03:p1")) { origin case_input; }
+        assert "f5": qualites_convenues_expressement_ou_tacitement(entity_ref("urn:fr:cc:contrat:v03")) { origin case_input; }
+    }
+    evaluate truth(vice_du_consentement(entity_ref("urn:fr:cc:contrat:v03"), entity_ref("urn:fr:cc:contrat:v03:p1"), Erreur));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(caractere_determinant_du_vice, Court);
+}

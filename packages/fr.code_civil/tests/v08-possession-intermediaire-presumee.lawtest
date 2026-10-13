@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2264 : possession prouvée en 2005 et en 2025 — présumée entre les deux.
+test "urn:query:fr-code-civil-v08-possession-intermediaire-presumee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": possession_ancienne_prouvee_le(entity_ref("urn:fr:cc:presc:v08"), @2005-01-01) { origin case_input; }
+        assert "f2": possession_actuelle_prouvee_le(entity_ref("urn:fr:cc:presc:v08"), @2025-01-01) { origin case_input; }
+    }
+    evaluate truth(possession_intermediaire_presumee(entity_ref("urn:fr:cc:presc:v08")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PresomptionDePossessionIntermediaire);
+}

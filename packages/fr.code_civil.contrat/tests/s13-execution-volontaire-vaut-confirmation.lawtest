@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1182 al. 3 : l'exécution volontaire en connaissance de la cause de nullité, celle-ci ayant cessé, vaut confirmation.
+test "urn:query:fr-code-civil-contrat-s13-execution-volontaire-vaut-confirmation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:s13"), @2019-03-01) { origin case_input; }
+        assert "f2": regle_violee_protege_un_interet_prive(entity_ref("urn:fr:cc:contrat:s13")) { origin case_input; }
+        assert "f3": execution_volontaire_en_connaissance_du_vice(entity_ref("urn:fr:cc:contrat:s13"), entity_ref("urn:fr:cc:contrat:s13:p1")) { origin case_input; }
+        assert "f4": cause_de_la_nullite_cessee(entity_ref("urn:fr:cc:contrat:s13")) { origin case_input; }
+    }
+    evaluate truth(contrat_confirme(entity_ref("urn:fr:cc:contrat:s13")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ExecutionVolontaireVautConfirmation);
+}

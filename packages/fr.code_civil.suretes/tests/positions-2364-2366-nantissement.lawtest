@@ -1,0 +1,83 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2365-attribution-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2365:S"), entity_ref("urn:fr:cc:suretes:n2365:C"), entity_ref("urn:fr:cc:suretes:n2365:P"), entity_ref("urn:fr:cc:suretes:n2365:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2365:S"), entity_ref("urn:fr:cc:suretes:n2365:N")) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:n2365:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteAttribuerCreanceNantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2365-attribution-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2365b:S"), entity_ref("urn:fr:cc:suretes:n2365b:C"), entity_ref("urn:fr:cc:suretes:n2365b:P"), entity_ref("urn:fr:cc:suretes:n2365b:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2365b:S"), entity_ref("urn:fr:cc:suretes:n2365b:N")) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:n2365b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteAttribuerCreanceNantie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2366-excedent-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2366:S"), entity_ref("urn:fr:cc:suretes:n2366:C"), entity_ref("urn:fr:cc:suretes:n2366:P"), entity_ref("urn:fr:cc:suretes:n2366:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2366:S"), entity_ref("urn:fr:cc:suretes:n2366:N")) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2366:S"), 12000 EUR) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:n2366:S"), 10000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerExcedentNanti, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2366-excedent-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2366b:S"), entity_ref("urn:fr:cc:suretes:n2366b:C"), entity_ref("urn:fr:cc:suretes:n2366b:P"), entity_ref("urn:fr:cc:suretes:n2366b:B")) { origin case_input; }
+        assert "charge": nantissement_de(entity_ref("urn:fr:cc:suretes:n2366b:S"), entity_ref("urn:fr:cc:suretes:n2366b:N")) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2366b:S"), 15000 EUR) { origin case_input; }
+        assert "debt": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:n2366b:S"), 10000 EUR) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirRestituerExcedentNanti, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2364-affectation-first" {
+    // Начало срока affectation_possible_a_partir_du — вывод правила ст. 2364
+    // (уведомление + 8 дней), а не факт дела: прежде мир утверждал его под
+    // несуществующим именем …_a_partir_de (LDC-E2102).
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2364c:S"), entity_ref("urn:fr:cc:suretes:n2364c:C"), entity_ref("urn:fr:cc:suretes:n2364c:P"), entity_ref("urn:fr:cc:suretes:n2364c:B")) { origin case_input; }
+        assert "sums": sommes_conservees_en_garantie(entity_ref("urn:fr:cc:suretes:n2364c:S"), 5000 EUR) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2364c:S"), 5000 EUR) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:n2364c:S")) { origin case_input; }
+        assert "notice": mise_en_demeure_sans_effet_le(entity_ref("urn:fr:cc:suretes:n2364c:S"), @2026-01-01) { origin case_input; }
+        assert "date": affectation_des_fonds_le(entity_ref("urn:fr:cc:suretes:n2364c:S"), @2026-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteAffecterFondsApresDelai, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2364-affectation-second" {
+    // Начало срока affectation_possible_a_partir_du — вывод правила ст. 2364
+    // (уведомление + 8 дней), а не факт дела: прежде мир утверждал его под
+    // несуществующим именем …_a_partir_de (LDC-E2102).
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "security": surete_reelle_constituee(entity_ref("urn:fr:cc:suretes:n2364d:S"), entity_ref("urn:fr:cc:suretes:n2364d:C"), entity_ref("urn:fr:cc:suretes:n2364d:P"), entity_ref("urn:fr:cc:suretes:n2364d:B")) { origin case_input; }
+        assert "sums": sommes_conservees_en_garantie(entity_ref("urn:fr:cc:suretes:n2364d:S"), 7000 EUR) { origin case_input; }
+        assert "payment": paiement_de_la_creance_nantie(entity_ref("urn:fr:cc:suretes:n2364d:S"), 7000 EUR) { origin case_input; }
+        assert "default": defaillance_du_debiteur_garanti(entity_ref("urn:fr:cc:suretes:n2364d:S")) { origin case_input; }
+        assert "notice": mise_en_demeure_sans_effet_le(entity_ref("urn:fr:cc:suretes:n2364d:S"), @2026-02-01) { origin case_input; }
+        assert "date": affectation_des_fonds_le(entity_ref("urn:fr:cc:suretes:n2364d:S"), @2026-02-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteAffecterFondsApresDelai, ACTIVE);
+}

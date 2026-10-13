@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1344 : la liste des modes est fermée — sommation, acte portant interpellation
+// suffisante, ou seule exigibilité SI LE CONTRAT LE PRÉVOIT. Ici le contrat ne l'a pas
+// prévu et aucun acte n'a été délivré : la seule exigibilité ne met pas en demeure.
+test "urn:query:fr-code-civil-obligations-p08-mode-de-mise-en-demeure-hors-liste" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": obligation_de_somme_d_argent(entity_ref("urn:fr:cc:obl:n:c")) { origin case_input; }
+        assert "f2": date_d_exigibilite(entity_ref("urn:fr:cc:obl:n:c"), @2025-03-12) { origin case_input; }
+        assert "f3": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obl:n:c"), entity_ref("urn:fr:cc:obl:n:D")) { origin case_input; }
+    }
+    evaluate truth(interet_moratoire_court_depuis(entity_ref("urn:fr:cc:obl:n:c"), @2025-03-12));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

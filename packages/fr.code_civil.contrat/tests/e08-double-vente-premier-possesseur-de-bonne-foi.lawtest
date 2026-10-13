@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1198 al. 1 : de deux acquéreurs du même meuble tenant leur droit de la même personne, celui qui a pris possession en premier, de bonne foi, est préféré.
+test "urn:query:fr-code-civil-contrat-e08-double-vente-premier-possesseur-de-bonne-foi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:e08"), @2019-03-01) { origin case_input; }
+        assert "f2": acquereur_successif_du_meuble(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p1"), entity_ref("urn:fr:cc:contrat:e08:auteur")) { origin case_input; }
+        assert "f3": acquereur_successif_du_meuble(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p2"), entity_ref("urn:fr:cc:contrat:e08:auteur")) { origin case_input; }
+        assert "f4": possession_prise_le(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p1"), @2019-05-02) { origin case_input; }
+        assert "f5": possession_prise_le(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p2"), @2019-05-10) { origin case_input; }
+        assert "f6": acquereur_de_bonne_foi(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p1")) { origin case_input; }
+    }
+    evaluate truth(acquereur_prefere(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p1")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PreferenceDuPremierPossesseurDeBonneFoi);
+
+    evaluate truth(acquereur_prefere(entity_ref("urn:fr:cc:contrat:e08"), entity_ref("urn:fr:cc:contrat:e08:p2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

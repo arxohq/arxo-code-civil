@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 811-1 : l'inventaire de l'article 809-2 n'a pas été établi.
+test "urn:query:fr-code-civil-successions-m12-inventaire-a-la-charge-de-l-autorite" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": aucun_reclamant_ni_heritier_connu_constate(entity_ref("urn:fr:cc:successions:adm:m12:S")) { origin adjudicated; }
+        assert "f2": requete_presentee_par(entity_ref("urn:fr:cc:successions:adm:m12:S"), entity_ref("urn:fr:cc:successions:adm:m12:P"), Notaire) { origin case_input; }
+    }
+    evaluate truth(inventaire_a_la_charge_de_l_autorite(entity_ref("urn:fr:cc:successions:adm:m12:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(InventaireALaChargeDeLAutorite);
+}

@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1385-1, al. 2 : le serment peut être référé par celui à qui il est déféré, À
+// MOINS que le fait qui en est l'objet ne lui soit PUREMENT PERSONNEL.
+test "urn:query:fr-code-civil-obligations-e23-serment-sur-fait-purement-personnel-non-referable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": serment_defere_par_une_partie(entity_ref("urn:fr:cc:obligations:spp:sm"), entity_ref("urn:fr:cc:obligations:spp:A"), entity_ref("urn:fr:cc:obligations:spp:B")) { origin case_input; }
+        assert "f2": fait_personnel_a_la_partie(entity_ref("urn:fr:cc:obligations:spp:sm"), entity_ref("urn:fr:cc:obligations:spp:B")) { origin case_input; }
+        assert "f3": fait_purement_personnel(entity_ref("urn:fr:cc:obligations:spp:sm")) { origin case_input; }
+    }
+    evaluate truth(serment_non_referable(entity_ref("urn:fr:cc:obligations:spp:sm")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SermentNonReferablePourFaitPurementPersonnel);
+}

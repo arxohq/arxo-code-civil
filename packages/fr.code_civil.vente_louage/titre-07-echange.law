@@ -1,0 +1,35 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1702,
+    CC_ART1703,
+    Chose,
+    Echange,
+    Personne,
+    chose_remise_par_premier,
+    chose_remise_par_second,
+    consentement_reciproque_a_l_echange,
+    echange_parfait,
+    echangiste_premier,
+    echangiste_second,
+};
+
+@source(CC_ART1702)
+rule EchangeDefiniParConsentementReciproque(e: Echange, a: Personne, b: Personne, x: Chose, y: Chose) strict {
+    label fr official "Article 1702. L'échange porte sur l'engagement réciproque de donner une chose pour une autre";
+    label en unofficial "Article 1702. Exchange rests on reciprocal undertakings to give one thing for another";
+    when echangiste_premier(e, a) and echangiste_second(e, b)
+        and chose_remise_par_premier(e, x) and chose_remise_par_second(e, y)
+        and consentement_reciproque_a_l_echange(e);
+    then echange_parfait(e);
+}
+
+@source(CC_ART1703)
+rule EchangeParfaitParSeulConsentement(e: Echange) strict {
+    label fr official "Article 1703. L'échange s'opère par le seul consentement, de la même manière que la vente";
+    label en unofficial "Article 1703. Exchange is effected by consent alone, in the same manner as sale";
+    when consentement_reciproque_a_l_echange(e);
+    then echange_parfait(e);
+}

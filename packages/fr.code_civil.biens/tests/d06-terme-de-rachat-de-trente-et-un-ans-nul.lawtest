@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 530, al. 3. « lequel ne peut jamais excéder trente ans ; toute
+// stipulation contraire est nulle » : trente et un ans excèdent.
+test "urn:query:fr-code-civil-biens-d06-terme-trente-et-un-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": rente_etablie_pour_le_prix_de_la_vente_d_un_immeuble(entity_ref("urn:fr:cc:biens:d06:B")) { origin case_input; }
+        assert "f2": terme_de_rachat_stipule(entity_ref("urn:fr:cc:biens:d06:B"), 31) { origin case_input; }
+    }
+    evaluate truth(stipulation_de_terme_nulle(entity_ref("urn:fr:cc:biens:d06:B")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

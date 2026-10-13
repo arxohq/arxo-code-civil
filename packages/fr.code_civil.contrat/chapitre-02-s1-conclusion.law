@@ -1,0 +1,1008 @@
+// CHAPITRE II, SECTION 1 — LA CONCLUSION DU CONTRAT (art. 1112 à 1127-4).
+//
+// Les négociations, l'offre et l'acceptation, le pacte de préférence, la
+// promesse unilatérale, le contrat sous forme électronique.
+//
+// LE « DÉLAI RAISONNABLE » N'EST PAS UN DÉLAI §86. Les articles 1116, 1117,
+// 1123 et 1158 parlent du « délai fixé par son auteur ou, à défaut, d'un
+// délai raisonnable ». Le premier terme est une date que le cas donne ; le
+// second est une appréciation que le Code confie au juge. Inventer « trente
+// jours » remplacerait la norme par une convention de l'analyste : le second
+// terme passe donc par le canal §47.3, article par article.
+//
+// L'ARTICLE 1117 A DEUX RÉDACTIONS : la ratification de 2018 y a ajouté la
+// caducité par le décès du DESTINATAIRE de l'offre. Un acte de 2017 ne la
+// connaît pas — deux règles, deux éditions épinglées.
+//
+// LES ARTICLES 1123 (alinéas 3 et 4) ET 1158 s'appliquent dès l'entrée en
+// vigueur de l'ordonnance, même au contrat antérieur : leur prémisse de temps
+// est `article_applicable_des_2016`, non `regi_par_le_droit_nouveau`.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    CC_2016_ART1117,
+    CC_ART1112,
+    CC_ART1112_1,
+    CC_ART1112_2,
+    CC_ART1113,
+    CC_ART1114,
+    CC_ART1115,
+    CC_ART1116,
+    CC_ART1117,
+    CC_ART1118,
+    CC_ART1119,
+    CC_ART1120,
+    CC_ART1121,
+    CC_ART1122,
+    CC_ART1123,
+    CC_ART1124,
+    CC_ART1125,
+    CC_ART1126,
+    CC_ART1127,
+    CC_ART1127_1,
+    CC_ART1127_2,
+    CC_ART1127_3,
+    CC_ART1127_4,
+    Clause,
+    Contrat,
+    Information,
+    Negociation,
+    Offre,
+    Personne,
+    article_applicable_des_2016,
+    clause_du_contrat,
+    partie_au_contrat,
+    redaction_2016_applicable,
+    redaction_2018_applicable,
+    regi_par_le_droit_nouveau,
+};
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation negociation_du_contrat(n: Negociation, c: Contrat) kind empirical {
+    key(n);
+    label fr official "négociation précontractuelle portant sur ce contrat";
+    label en unofficial "pre-contractual negotiation concerning this contract";
+}
+pub relation negociateur(n: Negociation, p: Personne) kind empirical {
+    label fr official "partie à la négociation";
+    label en unofficial "party to the negotiation";
+}
+pub relation faute_dans_les_negociations(n: Negociation, p: Personne) kind empirical {
+    label fr official "faute commise dans les négociations, établie par le juge (article 1112, alinéa 2)";
+    label en unofficial "fault committed in the negotiations, established by the court (Article 1112, paragraph 2)";
+}
+pub relation negociation_de_bonne_foi(n: Negociation, p: Personne) kind empirical {
+    label fr official "cette partie a satisfait aux exigences de la bonne foi dans la négociation (article 1112, alinéa 1)";
+    label en unofficial "this party met the requirements of good faith in the negotiation (Article 1112, paragraph 1)";
+}
+pub relation information_divulguee_sans_autorisation(i: Information, p: Personne) kind empirical {
+    label fr official "utilisation ou divulgation sans autorisation d'une information confidentielle obtenue à l'occasion des négociations (article 1112-2)";
+    label en unofficial "unauthorized use or disclosure of confidential information obtained during negotiations (Article 1112-2)";
+}
+pub relation information_confidentielle(i: Information, n: Negociation) kind empirical {
+    label fr official "information confidentielle obtenue à l'occasion de la négociation";
+    label en unofficial "confidential information obtained during the negotiation";
+}
+pub relation information_connue_de(i: Information, p: Personne) kind empirical {
+    label fr official "cette partie connaît cette information (article 1112-1)";
+    label en unofficial "this party knows this information (Article 1112-1)";
+}
+pub relation information_legitimement_ignoree_par(i: Information, p: Personne) kind empirical {
+    label fr official "cette partie ignore légitimement l'information ou fait confiance à son cocontractant (article 1112-1, alinéa 1)";
+    label en unofficial "this party legitimately does not know the information or relies on the other party (Article 1112-1, paragraph 1)";
+}
+pub relation information_porte_sur_l_estimation_de_la_valeur(i: Information) kind empirical {
+    label fr official "l'information porte sur l'estimation de la valeur de la prestation (article 1112-1, alinéa 2)";
+    label en unofficial "the information concerns the estimate of the value of the performance (Article 1112-1, paragraph 2)";
+}
+pub relation information_fournie(i: Information, p: Personne) kind empirical {
+    label fr official "cette partie a fourni l'information à son cocontractant";
+    label en unofficial "this party supplied the information to the other party";
+}
+pub relation clause_limitant_le_devoir_d_information(cl: Clause) kind empirical {
+    label fr official "clause limitant ou excluant le devoir d'information (article 1112-1, alinéa 5)";
+    label en unofficial "clause limiting or excluding the duty to inform (Article 1112-1, paragraph 5)";
+}
+pub relation information_du_contrat(i: Information, c: Contrat) kind empirical {
+    key(i);
+    label fr official "information en cause dans la formation de ce contrat";
+    label en unofficial "information at stake in the formation of this contract";
+}
+
+pub relation offre_du_contrat(off: Offre, c: Contrat) kind empirical {
+    key(off);
+    label fr official "offre portant sur ce contrat";
+    label en unofficial "offer relating to this contract";
+}
+pub relation auteur_de_l_offre(off: Offre, p: Personne) kind empirical {
+    key(off);
+    label fr official "auteur de l'offre (offrant)";
+    label en unofficial "author of the offer (offeror)";
+}
+pub relation destinataire_de_l_offre(off: Offre, p: Personne) kind empirical {
+    label fr official "destinataire de l'offre";
+    label en unofficial "addressee of the offer";
+}
+pub relation offre_comprend_les_elements_essentiels(off: Offre) kind empirical {
+    label fr official "l'offre comprend les éléments essentiels du contrat envisagé (article 1114)";
+    label en unofficial "the offer contains the essential elements of the envisaged contract (Article 1114)";
+}
+pub relation volonte_d_etre_lie(off: Offre) kind empirical {
+    label fr official "l'offre exprime la volonté de son auteur d'être lié en cas d'acceptation (article 1114)";
+    label en unofficial "the offer expresses its author's will to be bound in case of acceptance (Article 1114)";
+}
+pub relation offre_parvenue_au_destinataire_le(off: Offre, jour: Date) kind empirical {
+    key(off);
+    label fr official "jour où l'offre est parvenue à son destinataire (article 1115)";
+    label en unofficial "day the offer reached its addressee (Article 1115)";
+}
+pub relation retractation_de_l_offre_le(off: Offre, jour: Date) kind empirical {
+    key(off);
+    label fr official "jour de la rétractation de l'offre";
+    label en unofficial "day the offer was withdrawn";
+}
+pub relation delai_fixe_par_l_auteur_de_l_offre(off: Offre, jour: Date) kind empirical {
+    key(off);
+    label fr official "expiration du délai fixé par l'auteur de l'offre (articles 1116 et 1117)";
+    label en unofficial "expiry of the period set by the author of the offer (Articles 1116 and 1117)";
+}
+pub relation incapacite_de_l_auteur_de_l_offre(off: Offre) kind empirical {
+    label fr official "incapacité de l'auteur de l'offre (article 1117, alinéa 2)";
+    label en unofficial "incapacity of the author of the offer (Article 1117, paragraph 2)";
+}
+pub relation deces_de_l_auteur_de_l_offre(off: Offre) kind empirical {
+    label fr official "décès de l'auteur de l'offre (article 1117, alinéa 2)";
+    label en unofficial "death of the author of the offer (Article 1117, paragraph 2)";
+}
+pub relation deces_du_destinataire_de_l_offre(off: Offre) kind empirical {
+    label fr official "décès du destinataire de l'offre (article 1117, alinéa 2, rédaction de 2018)";
+    label en unofficial "death of the addressee of the offer (Article 1117, paragraph 2, 2018 wording)";
+}
+pub relation acceptation_parvenue_a_l_offrant_le(off: Offre, jour: Date) kind empirical {
+    key(off);
+    label fr official "jour où l'acceptation est parvenue à l'offrant (articles 1118 et 1121)";
+    label en unofficial "day the acceptance reached the offeror (Articles 1118 and 1121)";
+}
+pub relation acceptation_conforme_a_l_offre(off: Offre) kind empirical {
+    label fr official "l'acceptation est conforme aux termes de l'offre (article 1118, alinéa 3)";
+    label en unofficial "the acceptance conforms to the terms of the offer (Article 1118, paragraph 3)";
+}
+pub relation retractation_de_l_acceptation_parvenue_le(off: Offre, jour: Date) kind empirical {
+    key(off);
+    label fr official "jour où la rétractation de l'acceptation est parvenue à l'offrant (article 1118, alinéa 2)";
+    label en unofficial "day the withdrawal of the acceptance reached the offeror (Article 1118, paragraph 2)";
+}
+pub relation acceptation_par_le_silence(off: Offre) kind empirical {
+    label fr official "l'acceptation ne résulte que du silence du destinataire (article 1120)";
+    label en unofficial "the acceptance results only from the addressee's silence (Article 1120)";
+}
+pub relation silence_significatif_par_la_loi_l_usage_ou_les_circonstances(off: Offre) kind empirical {
+    label fr official "il résulte autrement de la loi, des usages, des relations d'affaires ou de circonstances particulières (article 1120)";
+    label en unofficial "it follows otherwise from statute, usage, business dealings or particular circumstances (Article 1120)";
+}
+pub relation conditions_generales_invoquees_par(c: Contrat, p: Personne, cl: Clause) kind empirical {
+    label fr official "conditions générales invoquées par cette partie (article 1119)";
+    label en unofficial "general terms relied on by this party (Article 1119)";
+}
+pub relation conditions_generales_portees_a_la_connaissance_de(cl: Clause, p: Personne) kind empirical {
+    label fr official "conditions générales portées à la connaissance de l'autre partie (article 1119, alinéa 1)";
+    label en unofficial "general terms brought to the other party's knowledge (Article 1119, paragraph 1)";
+}
+pub relation conditions_generales_acceptees_par(cl: Clause, p: Personne) kind empirical {
+    label fr official "conditions générales acceptées par l'autre partie (article 1119, alinéa 1)";
+    label en unofficial "general terms accepted by the other party (Article 1119, paragraph 1)";
+}
+pub relation clauses_incompatibles(cl: Clause, autre: Clause) kind empirical {
+    label fr official "clauses incompatibles entre des conditions générales invoquées de part et d'autre (article 1119, alinéa 2)";
+    label en unofficial "incompatible clauses between general terms relied on by both sides (Article 1119, paragraph 2)";
+}
+pub relation condition_particuliere(cl: Clause) kind empirical {
+    label fr official "condition particulière du contrat (article 1119, alinéa 3)";
+    label en unofficial "particular term of the contract (Article 1119, paragraph 3)";
+}
+pub relation condition_generale(cl: Clause) kind empirical {
+    label fr official "condition générale du contrat (article 1119)";
+    label en unofficial "general term of the contract (Article 1119)";
+}
+pub relation delai_de_reflexion_prevu(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "expiration du délai de réflexion prévu par la loi ou le contrat (article 1122)";
+    label en unofficial "expiry of the cooling-off period provided by statute or the contract (Article 1122)";
+}
+pub relation delai_de_retractation_prevu(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "expiration du délai de rétractation prévu par la loi ou le contrat (article 1122)";
+    label en unofficial "expiry of the withdrawal period provided by statute or the contract (Article 1122)";
+}
+pub relation acceptation_manifestee_le(c: Contrat, jour: Date) kind empirical {
+    key(c);
+    label fr official "jour où le destinataire de l'offre a manifesté son acceptation";
+    label en unofficial "day the addressee of the offer expressed acceptance";
+}
+
+pub relation pacte_de_preference(pacte: Contrat, beneficiaire: Personne, promettant: Personne) kind empirical {
+    label fr official "pacte de préférence : engagement de proposer prioritairement au bénéficiaire (article 1123, alinéa 1)";
+    label en unofficial "preference agreement: undertaking to offer first to the beneficiary (Article 1123, paragraph 1)";
+}
+pub relation contrat_conclu_avec_un_tiers_en_violation_du_pacte(c: Contrat, pacte: Contrat, tiers: Personne) kind empirical {
+    label fr official "contrat conclu avec un tiers en violation d'un pacte de préférence (article 1123, alinéa 2)";
+    label en unofficial "contract concluded with a third party in breach of a preference agreement (Article 1123, paragraph 2)";
+}
+pub relation tiers_connaissait_le_pacte_et_l_intention(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers connaissait l'existence du pacte et l'intention du bénéficiaire de s'en prévaloir (article 1123, alinéa 2)";
+    label en unofficial "the third party knew of the agreement and of the beneficiary's intention to rely on it (Article 1123, paragraph 2)";
+}
+pub relation demande_ecrite_de_confirmation_du_pacte(pacte: Contrat, tiers: Personne, echeance: Date) kind empirical {
+    label fr official "demande écrite du tiers au bénéficiaire de confirmer l'existence du pacte, avec le délai qu'il fixe (article 1123, alinéa 3)";
+    label en unofficial "third party's written request that the beneficiary confirm the agreement, with the period it sets (Article 1123, paragraph 3)";
+}
+pub relation mention_de_l_effet_du_silence(pacte: Contrat) kind empirical {
+    label fr official "l'écrit mentionne qu'à défaut de réponse dans le délai le bénéficiaire ne pourra plus solliciter sa substitution ni la nullité (article 1123, alinéa 4)";
+    label en unofficial "the writing states that failing a reply within the period the beneficiary may no longer seek substitution or nullity (Article 1123, paragraph 4)";
+}
+pub relation reponse_du_beneficiaire_le(pacte: Contrat, jour: Date) kind empirical {
+    key(pacte);
+    label fr official "jour de la réponse du bénéficiaire à la demande de confirmation";
+    label en unofficial "day of the beneficiary's reply to the request for confirmation";
+}
+
+pub relation promesse_unilaterale(promesse: Contrat, promettant: Personne, beneficiaire: Personne) kind empirical {
+    label fr official "promesse unilatérale : droit d'opter pour la conclusion d'un contrat dont les éléments essentiels sont déterminés (article 1124, alinéa 1)";
+    label en unofficial "unilateral promise: right to opt for the conclusion of a contract whose essential elements are settled (Article 1124, paragraph 1)";
+}
+pub relation revocation_de_la_promesse_pendant_le_temps_de_l_option(promesse: Contrat) kind empirical {
+    label fr official "révocation de la promesse pendant le temps laissé au bénéficiaire pour opter (article 1124, alinéa 2)";
+    label en unofficial "revocation of the promise during the option period (Article 1124, paragraph 2)";
+}
+pub relation option_levee_par_le_beneficiaire(promesse: Contrat) kind empirical {
+    label fr official "le bénéficiaire a levé l'option";
+    label en unofficial "the beneficiary exercised the option";
+}
+pub relation contrat_conclu_avec_un_tiers_en_violation_de_la_promesse(c: Contrat, promesse: Contrat, tiers: Personne) kind empirical {
+    label fr official "contrat conclu avec un tiers en violation de la promesse unilatérale (article 1124, alinéa 3)";
+    label en unofficial "contract concluded with a third party in breach of the unilateral promise (Article 1124, paragraph 3)";
+}
+pub relation tiers_connaissait_la_promesse(c: Contrat, tiers: Personne) kind empirical {
+    label fr official "le tiers connaissait l'existence de la promesse (article 1124, alinéa 3)";
+    label en unofficial "the third party knew of the promise's existence (Article 1124, paragraph 3)";
+}
+
+pub relation offre_par_voie_electronique(off: Offre) kind empirical {
+    label fr official "fourniture de biens ou prestation de services proposée à titre professionnel par voie électronique (article 1127-1)";
+    label en unofficial "supply of goods or services offered in a professional capacity by electronic means (Article 1127-1)";
+}
+pub relation stipulations_mises_a_disposition_conservables(off: Offre) kind empirical {
+    label fr official "stipulations contractuelles mises à disposition d'une manière permettant leur conservation et leur reproduction (article 1127-1, alinéa 1)";
+    label en unofficial "contract terms made available in a way allowing their retention and reproduction (Article 1127-1, paragraph 1)";
+}
+pub relation offre_electronique_accessible(off: Offre) kind empirical {
+    label fr official "l'offre reste accessible par voie électronique du fait de son auteur (article 1127-1, alinéa 2)";
+    label en unofficial "the offer remains accessible by electronic means through its author (Article 1127-1, paragraph 2)";
+}
+pub relation mentions_de_l_offre_electronique_completes(off: Offre) kind empirical {
+    label fr official "l'offre énonce les cinq mentions des 1° à 5° de l'article 1127-1";
+    label en unofficial "the offer states the five particulars of items 1 to 5 of Article 1127-1";
+}
+pub relation possibilite_de_verifier_la_commande(off: Offre) kind empirical {
+    label fr official "le destinataire a eu la possibilité de vérifier le détail de sa commande et son prix total et de corriger d'éventuelles erreurs avant de la confirmer (article 1127-2, alinéa 1)";
+    label en unofficial "the addressee was able to check the details and total price of the order and correct errors before confirming it (Article 1127-2, paragraph 1)";
+}
+pub relation accuse_de_reception_de_la_commande(off: Offre) kind empirical {
+    label fr official "l'auteur de l'offre a accusé réception de la commande sans délai injustifié, par voie électronique (article 1127-2, alinéa 2)";
+    label en unofficial "the author of the offer acknowledged receipt of the order without unjustified delay, electronically (Article 1127-2, paragraph 2)";
+}
+pub relation contrat_conclu_exclusivement_par_courriers_electroniques(c: Contrat) kind empirical {
+    label fr official "contrat de fourniture de biens ou de prestation de services conclu exclusivement par échange de courriers électroniques (article 1127-3, alinéa 1)";
+    label en unofficial "contract for the supply of goods or services concluded exclusively by exchange of e-mails (Article 1127-3, paragraph 1)";
+}
+pub relation contrat_entre_professionnels(c: Contrat) kind empirical {
+    label fr official "contrat conclu entre professionnels (article 1127-3, alinéa 2)";
+    label en unofficial "contract concluded between professionals (Article 1127-3, paragraph 2)";
+}
+pub relation derogation_convenue_aux_mentions_electroniques(c: Contrat) kind empirical {
+    label fr official "les parties professionnelles ont dérogé aux dispositions des 1° à 5° de l'article 1127-1 et de l'article 1127-2 (article 1127-3, alinéa 2)";
+    label en unofficial "the professional parties derogated from items 1 to 5 of Article 1127-1 and from Article 1127-2 (Article 1127-3, paragraph 2)";
+}
+pub relation ecrit_electronique_remis(c: Contrat, destinataire: Personne) kind empirical {
+    label fr official "remise d'un écrit électronique au destinataire (article 1127-4)";
+    label en unofficial "delivery of an electronic writing to the addressee (Article 1127-4)";
+}
+pub relation destinataire_a_pu_prendre_connaissance(c: Contrat, destinataire: Personne) kind empirical {
+    label fr official "le destinataire a pu prendre connaissance de l'écrit électronique (article 1127-4, alinéa 1)";
+    label en unofficial "the addressee was able to acquaint himself with the electronic writing (Article 1127-4, paragraph 1)";
+}
+pub relation accuse_de_reception_de_l_ecrit(c: Contrat, destinataire: Personne) kind empirical {
+    label fr official "le destinataire a accusé réception de l'écrit électronique (article 1127-4, alinéa 1)";
+    label en unofficial "the addressee acknowledged receipt of the electronic writing (Article 1127-4, paragraph 1)";
+}
+pub relation disposition_exigeant_la_lecture_au_destinataire(c: Contrat) kind empirical {
+    label fr official "une disposition prévoit que l'écrit doit être lu au destinataire (article 1127-4, alinéa 2)";
+    label en unofficial "a provision requires the writing to be read to the addressee (Article 1127-4, paragraph 2)";
+}
+pub relation destinataire_a_accepte_le_courrier_electronique(c: Contrat, destinataire: Personne) kind empirical {
+    label fr official "le destinataire a accepté l'usage du courrier électronique (article 1126)";
+    label en unofficial "the addressee accepted the use of e-mail (Article 1126)";
+}
+pub relation adresse_electronique_communiquee_par_le_professionnel(c: Contrat, professionnel: Personne) kind empirical {
+    label fr official "le professionnel a communiqué son adresse électronique (article 1127)";
+    label en unofficial "the professional communicated his electronic address (Article 1127)";
+}
+pub relation information_a_porter_sur_un_formulaire(c: Contrat) kind empirical {
+    label fr official "les informations doivent être portées sur un formulaire (article 1127, alinéa 2)";
+    label en unofficial "the information must be entered on a form (Article 1127, paragraph 2)";
+}
+pub relation formulaire_mis_a_disposition_par_voie_electronique(c: Contrat) kind empirical {
+    label fr official "le formulaire est mis par voie électronique à la disposition de la personne qui doit le remplir (article 1127, alinéa 2)";
+    label en unofficial "the form is made available electronically to the person who must fill it in (Article 1127, paragraph 2)";
+}
+
+// --- Canaux §47.3 de la section ---------------------------------------------------------------
+
+@source(CC_ART1112_1)
+pub external judgment relation information_d_importance_determinante(i: Information, p: Personne) {
+    authority Court;
+    label fr official "l'information a une importance déterminante pour le consentement de cette partie : elle a un lien direct et nécessaire avec le contenu du contrat ou la qualité des parties (article 1112-1, alinéas 1 et 3)";
+    label en unofficial "the information is of decisive importance for this party's consent: it bears a direct and necessary link to the content of the contract or the parties' qualities (Article 1112-1, paragraphs 1 and 3)";
+}
+
+@source(CC_ART1116)
+pub external judgment relation delai_raisonnable_de_l_offre_expire_le_1116(off: Offre, jour: Date) {
+    authority Court;
+    label fr official "à défaut de délai fixé par son auteur, le délai raisonnable pendant lequel l'offre ne peut être rétractée expirait ce jour (article 1116, alinéa 1)";
+    label en unofficial "absent a period set by its author, the reasonable period during which the offer cannot be withdrawn expired on this day (Article 1116, paragraph 1)";
+}
+
+@source(CC_ART1117)
+pub external judgment relation delai_raisonnable_de_caducite_expire_le_1117(off: Offre, jour: Date) {
+    authority Court;
+    label fr official "à défaut de délai fixé par son auteur, le délai raisonnable à l'issue duquel l'offre est caduque expirait ce jour (article 1117, alinéa 1)";
+    label en unofficial "absent a period set by its author, the reasonable period at whose end the offer lapses expired on this day (Article 1117, paragraph 1)";
+}
+
+@source(CC_ART1123)
+pub external judgment relation delai_de_la_demande_raisonnable_1123(pacte: Contrat) {
+    authority Court;
+    label fr official "le délai que le tiers a fixé dans sa demande écrite était raisonnable (article 1123, alinéa 3)";
+    label en unofficial "the period the third party set in its written request was reasonable (Article 1123, paragraph 3)";
+}
+
+// --- Têtes produites ---------------------------------------------------------------------------
+
+pub relation reparation_exclut_les_avantages_attendus(n: Negociation, p: Personne) kind derived {
+    label fr official "la réparation du préjudice né de la faute dans les négociations ne peut compenser ni la perte des avantages attendus du contrat non conclu, ni la perte de chance de les obtenir (article 1112, alinéa 2)";
+    label en unofficial "reparation for fault in negotiations cannot compensate the loss of the advantages expected from the unconcluded contract, nor the loss of the chance of obtaining them (Article 1112, paragraph 2)";
+}
+pub relation responsabilite_pour_information_confidentielle(i: Information, p: Personne) kind derived {
+    label fr official "l'utilisation ou la divulgation sans autorisation engage la responsabilité dans les conditions du droit commun — régime extracontractuel de fr.code_civil.responsabilite (renvoi, article 1112-2)";
+    label en unofficial "unauthorized use or disclosure engages liability under the general law — extra-contractual regime of fr.code_civil.responsabilite (referral, Article 1112-2)";
+}
+pub relation devoir_d_information_du(i: Information, debiteur: Personne, creancier: Personne) kind derived {
+    label fr official "cette partie doit informer l'autre de cette information (article 1112-1, alinéa 1)";
+    label en unofficial "this party must inform the other of this information (Article 1112-1, paragraph 1)";
+}
+pub relation devoir_d_information_ecarte(i: Information) kind derived {
+    label fr official "le devoir d'information ne porte pas sur l'estimation de la valeur de la prestation (article 1112-1, alinéa 2)";
+    label en unofficial "the duty to inform does not extend to the estimate of the value of the performance (Article 1112-1, paragraph 2)";
+}
+pub relation clause_sur_le_devoir_d_information_sans_effet(cl: Clause) kind derived {
+    label fr official "les parties ne peuvent ni limiter, ni exclure le devoir d'information : la clause est sans effet (article 1112-1, alinéa 5)";
+    label en unofficial "the parties may neither limit nor exclude the duty to inform: the clause is of no effect (Article 1112-1, paragraph 5)";
+}
+pub relation manquement_au_devoir_d_information(i: Information, debiteur: Personne) kind derived {
+    label fr official "manquement au devoir d'information, qui peut entraîner l'annulation du contrat dans les conditions des articles 1130 et suivants (article 1112-1, alinéa 6)";
+    label en unofficial "breach of the duty to inform, which may lead to annulment under Articles 1130 et seq. (Article 1112-1, paragraph 6)";
+}
+pub relation volonte_de_s_engager_manifestee(off: Offre) kind empirical {
+    label fr official "l'acceptation manifeste la volonté de son auteur de s'engager, par une déclaration ou un comportement non équivoque (article 1113)";
+    label en unofficial "the acceptance expresses its author's will to be bound, by a statement or unequivocal conduct (Article 1113)";
+}
+pub relation rencontre_de_l_offre_et_de_l_acceptation(c: Contrat) kind derived {
+    label fr official "le contrat est formé par la rencontre d'une offre et d'une acceptation par lesquelles les parties manifestent leur volonté de s'engager (article 1113)";
+    label en unofficial "the contract is formed by the meeting of an offer and an acceptance by which the parties express their will to be bound (Article 1113)";
+}
+pub relation delai_fixe_par_l_auteur(off: Offre) kind derived {
+    label fr official "l'auteur de l'offre a fixé un délai, quelle qu'en soit l'échéance (articles 1116 et 1117)";
+    label en unofficial "the author of the offer set a period, whatever its expiry (Articles 1116 and 1117)";
+}
+pub relation offre_valable(off: Offre) kind derived {
+    label fr official "l'offre comprend les éléments essentiels et exprime la volonté d'être lié (article 1114)";
+    label en unofficial "the offer contains the essential elements and expresses the will to be bound (Article 1114)";
+}
+pub relation simple_invitation_a_entrer_en_negociation(off: Offre) kind derived {
+    label fr official "à défaut des éléments de l'article 1114, il y a seulement invitation à entrer en négociation";
+    label en unofficial "failing the elements of Article 1114, there is only an invitation to enter into negotiations";
+}
+pub relation retractation_libre_de_l_offre(off: Offre) kind derived {
+    label fr official "l'offre peut être librement rétractée tant qu'elle n'est pas parvenue à son destinataire (article 1115)";
+    label en unofficial "the offer may be freely withdrawn as long as it has not reached its addressee (Article 1115)";
+}
+pub relation retractation_interdite_de_l_offre(off: Offre) kind derived {
+    label fr official "l'offre ne peut être rétractée avant l'expiration du délai fixé ou, à défaut, l'issue d'un délai raisonnable (article 1116, alinéa 1)";
+    label en unofficial "the offer cannot be withdrawn before the set period expires or, failing that, a reasonable period ends (Article 1116, paragraph 1)";
+}
+pub relation contrat_empeche_par_la_retractation(off: Offre) kind derived {
+    label fr official "la rétractation de l'offre en violation de l'interdiction empêche la conclusion du contrat (article 1116, alinéa 2)";
+    label en unofficial "withdrawal of the offer in breach of the prohibition prevents the contract's conclusion (Article 1116, paragraph 2)";
+}
+pub relation responsabilite_extracontractuelle_de_l_offrant(off: Offre, p: Personne) kind derived {
+    label fr official "la rétractation fautive engage la responsabilité extracontractuelle de son auteur, sans l'obliger à compenser la perte des avantages attendus du contrat (article 1116, alinéa 3)";
+    label en unofficial "wrongful withdrawal engages its author's extra-contractual liability, without obliging him to compensate the loss of the expected advantages (Article 1116, paragraph 3)";
+}
+pub relation offre_caduque(off: Offre) kind derived {
+    label fr official "l'offre est caduque (article 1117)";
+    label en unofficial "the offer has lapsed (Article 1117)";
+}
+pub relation retractation_de_l_acceptation_efficace(off: Offre) kind derived {
+    label fr official "l'acceptation peut être librement rétractée pourvu que la rétractation parvienne à l'offrant avant l'acceptation (article 1118, alinéa 2)";
+    label en unofficial "the acceptance may be freely withdrawn provided the withdrawal reaches the offeror before the acceptance (Article 1118, paragraph 2)";
+}
+pub relation acceptation_sans_effet(off: Offre) kind derived {
+    label fr official "l'acceptation non conforme à l'offre est dépourvue d'effet, sauf à constituer une offre nouvelle (article 1118, alinéa 3)";
+    label en unofficial "an acceptance not conforming to the offer is of no effect, save as a new offer (Article 1118, paragraph 3)";
+}
+pub relation offre_nouvelle(off: Offre) kind derived {
+    label fr official "l'acceptation non conforme vaut offre nouvelle (article 1118, alinéa 3)";
+    label en unofficial "a non-conforming acceptance counts as a new offer (Article 1118, paragraph 3)";
+}
+pub relation conditions_generales_opposables(cl: Clause, p: Personne) kind derived {
+    label fr official "les conditions générales ont effet à l'égard de cette partie (article 1119, alinéa 1)";
+    label en unofficial "the general terms have effect against this party (Article 1119, paragraph 1)";
+}
+pub relation clause_sans_effet(cl: Clause) kind derived {
+    label fr official "clause sans effet (article 1119, alinéas 2 et 3)";
+    label en unofficial "clause of no effect (Article 1119, paragraphs 2 and 3)";
+}
+pub relation silence_ne_vaut_pas_acceptation(off: Offre) kind derived {
+    label fr official "le silence ne vaut pas acceptation (article 1120)";
+    label en unofficial "silence does not amount to acceptance (Article 1120)";
+}
+pub relation contrat_conclu(c: Contrat, jour: Date) kind derived {
+    key(c);
+    label fr official "le contrat est conclu dès que l'acceptation parvient à l'offrant (article 1121)";
+    label en unofficial "the contract is concluded as soon as the acceptance reaches the offeror (Article 1121)";
+}
+pub relation acceptation_prematuree(c: Contrat) kind derived {
+    label fr official "le destinataire de l'offre ne peut manifester son acceptation avant l'expiration du délai de réflexion (article 1122)";
+    label en unofficial "the addressee of the offer cannot express acceptance before the cooling-off period expires (Article 1122)";
+}
+pub relation faculte_de_retractation_ouverte(c: Contrat, jour: Date) kind derived {
+    label fr official "le bénéficiaire peut rétracter son consentement avant l'expiration du délai de rétractation (article 1122)";
+    label en unofficial "the beneficiary may withdraw consent before the withdrawal period expires (Article 1122)";
+}
+pub relation reparation_du_beneficiaire_du_pacte(pacte: Contrat, beneficiaire: Personne) kind derived {
+    label fr official "le bénéficiaire du pacte peut obtenir la réparation du préjudice subi (article 1123, alinéa 2)";
+    label en unofficial "the beneficiary of the agreement may obtain reparation for the harm suffered (Article 1123, paragraph 2)";
+}
+pub relation substitution_ou_nullite_ouverte_au_beneficiaire(pacte: Contrat, beneficiaire: Personne) kind derived {
+    label fr official "le tiers connaissant le pacte et l'intention du bénéficiaire, celui-ci peut agir en nullité ou demander sa substitution (article 1123, alinéa 2)";
+    label en unofficial "the third party knowing of the agreement and the beneficiary's intention, the latter may seek nullity or substitution (Article 1123, paragraph 2)";
+}
+pub relation beneficiaire_a_repondu(pacte: Contrat) kind derived {
+    label fr official "le bénéficiaire du pacte a répondu à la demande de confirmation, quelle qu'en soit la date (article 1123, alinéa 4)";
+    label en unofficial "the beneficiary replied to the request for confirmation, whatever its date (Article 1123, paragraph 4)";
+}
+pub relation beneficiaire_forclos(pacte: Contrat, beneficiaire: Personne) kind derived {
+    label fr official "faute de réponse dans le délai fixé, le bénéficiaire ne peut plus solliciter sa substitution ni la nullité du contrat (article 1123, alinéa 4)";
+    label en unofficial "failing a reply within the period set, the beneficiary may no longer seek substitution or nullity (Article 1123, paragraph 4)";
+}
+pub relation contrat_promis_forme(promesse: Contrat) kind derived {
+    label fr official "la révocation de la promesse pendant le temps de l'option n'empêche pas la formation du contrat promis (article 1124, alinéa 2)";
+    label en unofficial "revocation of the promise during the option period does not prevent the formation of the promised contract (Article 1124, paragraph 2)";
+}
+pub relation contrat_avec_le_tiers_nul(c: Contrat) kind derived {
+    label fr official "le contrat conclu en violation de la promesse unilatérale avec un tiers qui en connaissait l'existence est nul (article 1124, alinéa 3)";
+    label en unofficial "a contract concluded in breach of the unilateral promise with a third party aware of it is void (Article 1124, paragraph 3)";
+}
+pub relation voie_electronique_admise(c: Contrat) kind derived {
+    label fr official "la voie électronique peut être utilisée pour mettre à disposition des stipulations ou des informations (articles 1125 à 1127)";
+    label en unofficial "electronic means may be used to make terms or information available (Articles 1125 to 1127)";
+}
+pub relation obligations_de_l_offre_electronique_respectees(off: Offre) kind derived {
+    label fr official "l'offre électronique satisfait aux obligations de l'article 1127-1";
+    label en unofficial "the electronic offer complies with the requirements of Article 1127-1";
+}
+pub relation contrat_electronique_valablement_conclu(c: Contrat) kind derived {
+    label fr official "le contrat électronique n'est valablement conclu que si le destinataire a pu vérifier et corriger sa commande avant de la confirmer (article 1127-2, alinéa 1)";
+    label en unofficial "the electronic contract is validly concluded only if the addressee could check and correct the order before confirming it (Article 1127-2, paragraph 1)";
+}
+pub relation exception_aux_mentions_electroniques(c: Contrat) kind derived {
+    label fr official "il est fait exception aux mentions des 1° à 5° de l'article 1127-1 et aux deux premiers alinéas de l'article 1127-2 (article 1127-3)";
+    label en unofficial "the particulars of items 1 to 5 of Article 1127-1 and the first two paragraphs of Article 1127-2 do not apply (Article 1127-3)";
+}
+pub relation remise_de_l_ecrit_electronique_effective(c: Contrat, destinataire: Personne) kind derived {
+    label fr official "la remise d'un écrit électronique est effective (article 1127-4, alinéa 1)";
+    label en unofficial "delivery of an electronic writing is effective (Article 1127-4, paragraph 1)";
+}
+pub relation remise_vaut_lecture(c: Contrat, destinataire: Personne) kind derived {
+    label fr official "la remise d'un écrit électronique dans les conditions du premier alinéa vaut lecture (article 1127-4, alinéa 2)";
+    label en unofficial "delivery of an electronic writing under the first paragraph counts as reading (Article 1127-4, paragraph 2)";
+}
+
+// --- Article 1112 : la liberté et la bonne foi des négociations --------------------------------
+
+@source(CC_ART1112) {
+    rule LiberteDesNegociations(n: Negociation, c: Contrat, p: Personne) strict {
+        label fr official "Article 1112, alinéa 1. L'initiative, le déroulement et la rupture des négociations précontractuelles sont libres";
+        label en unofficial "Article 1112, paragraph 1. The initiative, conduct and breaking-off of pre-contractual negotiations are free";
+        when regi_par_le_droit_nouveau(c) and negociation_du_contrat(n, c) and negociateur(n, p);
+        then liberty MenerEtRompreLesNegociations {
+            holder p;
+            action negociation_de_bonne_foi(n, p);
+            window [@2016-10-01, infinity);
+        };
+    }
+    rule BonneFoiImperativeDansLesNegociations(n: Negociation, c: Contrat, p: Personne) strict {
+        label fr official "Article 1112, alinéa 1. Les négociations doivent impérativement satisfaire aux exigences de la bonne foi";
+        label en unofficial "Article 1112, paragraph 1. Negotiations must imperatively meet the requirements of good faith";
+        when regi_par_le_droit_nouveau(c) and negociation_du_contrat(n, c) and negociateur(n, p);
+        then duty NegocierDeBonneFoi {
+            bearer p;
+            maintain negociation_de_bonne_foi(n, p) during [@2016-10-01, infinity);
+        };
+    }
+    rule PrejudiceReparableDesNegociations(n: Negociation, c: Contrat, p: Personne) strict {
+        label fr official "Article 1112, alinéa 2. En cas de faute commise dans les négociations, la réparation ne peut avoir pour objet de compenser ni la perte des avantages attendus du contrat non conclu, ni la perte de chance d'obtenir ces avantages";
+        label en unofficial "Article 1112, paragraph 2. Where fault is committed in negotiations, reparation cannot compensate the loss of the advantages expected from the unconcluded contract, nor the loss of the chance of obtaining them";
+        when regi_par_le_droit_nouveau(c) and negociation_du_contrat(n, c) and faute_dans_les_negociations(n, p);
+        then reparation_exclut_les_avantages_attendus(n, p);
+    }
+}
+
+@source(CC_ART1112_1) {
+    rule DevoirDInformation(i: Information, c: Contrat, debiteur: Personne, creancier: Personne) strict {
+        label fr official "Article 1112-1, alinéa 1. Celle des parties qui connaît une information dont l'importance est déterminante pour le consentement de l'autre doit l'en informer dès lors que, légitimement, cette dernière ignore cette information ou fait confiance à son cocontractant";
+        label en unofficial "Article 1112-1, paragraph 1. The party who knows information of decisive importance for the other's consent must inform the other where the latter legitimately does not know it or relies on that party";
+        when regi_par_le_droit_nouveau(c) and information_du_contrat(i, c)
+            and information_connue_de(i, debiteur)
+            and information_d_importance_determinante(i, creancier)
+            and information_legitimement_ignoree_par(i, creancier)
+            and not_known(information_porte_sur_l_estimation_de_la_valeur(i));
+        then devoir_d_information_du(i, debiteur, creancier);
+    }
+    rule ObligationDInformerLaPartie(i: Information, debiteur: Personne, creancier: Personne) strict {
+        label fr official "Article 1112-1, alinéa 1. Le devoir d'information a un débiteur nommé, un créancier nommé et un objet : fournir l'information avant la conclusion";
+        label en unofficial "Article 1112-1, paragraph 1. The duty to inform has a named debtor, a named creditor and an object: to supply the information before conclusion";
+        when devoir_d_information_du(i, debiteur, creancier);
+        then duty InformerLeCocontractant {
+            bearer debiteur;
+            beneficiary creancier;
+            achieve information_fournie(i, debiteur) during [@2016-10-01, infinity);
+        };
+    }
+    rule EstimationDeLaValeurHorsDuDevoir(i: Information, c: Contrat) strict {
+        label fr official "Article 1112-1, alinéa 2. Ce devoir d'information ne porte pas sur l'estimation de la valeur de la prestation";
+        label en unofficial "Article 1112-1, paragraph 2. This duty to inform does not extend to the estimate of the value of the performance";
+        when regi_par_le_droit_nouveau(c) and information_du_contrat(i, c)
+            and information_porte_sur_l_estimation_de_la_valeur(i);
+        then devoir_d_information_ecarte(i);
+    }
+    rule ClauseSurLeDevoirDInformationSansEffet(cl: Clause, c: Contrat) strict {
+        label fr official "Article 1112-1, alinéa 5. Les parties ne peuvent ni limiter, ni exclure ce devoir";
+        label en unofficial "Article 1112-1, paragraph 5. The parties may neither limit nor exclude this duty";
+        when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c) and clause_limitant_le_devoir_d_information(cl);
+        then clause_sur_le_devoir_d_information_sans_effet(cl);
+    }
+    rule ManquementAuDevoirDInformation(i: Information, debiteur: Personne, creancier: Personne) strict {
+        label fr official "Article 1112-1, alinéa 6. Outre la responsabilité de celui qui en était tenu, le manquement à ce devoir d'information peut entraîner l'annulation du contrat dans les conditions prévues aux articles 1130 et suivants";
+        label en unofficial "Article 1112-1, paragraph 6. Besides the liability of the party bound by it, breach of this duty to inform may lead to annulment under Articles 1130 et seq.";
+        when devoir_d_information_du(i, debiteur, creancier) and not_known(information_fournie(i, debiteur));
+        then manquement_au_devoir_d_information(i, debiteur);
+    }
+}
+
+@source(CC_ART1112_2)
+rule DivulgationDInformationConfidentielle(i: Information, n: Negociation, c: Contrat, p: Personne) strict {
+    label fr official "Article 1112-2. Celui qui utilise ou divulgue sans autorisation une information confidentielle obtenue à l'occasion des négociations engage sa responsabilité dans les conditions du droit commun : le régime de la réparation est celui de fr.code_civil.responsabilite (renvoi)";
+    label en unofficial "Article 1112-2. A person who uses or discloses without authority confidential information obtained during negotiations incurs liability under the general law: the reparation regime is that of fr.code_civil.responsabilite (referral)";
+    when regi_par_le_droit_nouveau(c) and negociation_du_contrat(n, c)
+        and information_confidentielle(i, n) and information_divulguee_sans_autorisation(i, p);
+    then responsabilite_pour_information_confidentielle(i, p);
+}
+
+// --- Articles 1113 à 1122 : l'offre et l'acceptation --------------------------------------------
+
+@source(CC_ART1113, CC_ART1118)
+rule RencontreDeLOffreEtDeLAcceptation(off: Offre, c: Contrat, jour: Date) strict {
+    label fr official "Articles 1113 et 1118, alinéa 1. Le contrat est formé par la rencontre d'une offre et d'une acceptation par lesquelles les parties manifestent leur volonté de s'engager ; cette volonté peut résulter d'une déclaration ou d'un comportement non équivoque, et l'acceptation est la manifestation de volonté d'être lié dans les termes de l'offre";
+    label en unofficial "Articles 1113 and 1118, paragraph 1. The contract is formed by the meeting of an offer and an acceptance by which the parties express their will to be bound; that will may result from a statement or unequivocal conduct, and acceptance is the expression of the will to be bound on the offer's terms";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and offre_valable(off)
+        and volonte_de_s_engager_manifestee(off)
+        and acceptation_conforme_a_l_offre(off)
+        and acceptation_parvenue_a_l_offrant_le(off, jour);
+    then rencontre_de_l_offre_et_de_l_acceptation(c);
+}
+
+@source(CC_ART1114) {
+    rule OffreValable(off: Offre, c: Contrat) strict {
+        label fr official "Article 1114. L'offre, faite à personne déterminée ou indéterminée, comprend les éléments essentiels du contrat envisagé et exprime la volonté de son auteur d'être lié en cas d'acceptation";
+        label en unofficial "Article 1114. The offer, made to a determinate or indeterminate person, contains the essential elements of the envisaged contract and expresses its author's will to be bound on acceptance";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and offre_comprend_les_elements_essentiels(off) and volonte_d_etre_lie(off);
+        then offre_valable(off);
+    }
+    rule InvitationAEntrerEnNegociation(off: Offre, c: Contrat) strict {
+        label fr official "Article 1114. A défaut des éléments essentiels ou de la volonté d'être lié, il y a seulement invitation à entrer en négociation";
+        label en unofficial "Article 1114. Failing the essential elements or the will to be bound, there is only an invitation to enter into negotiations";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and not_known(offre_comprend_les_elements_essentiels(off));
+        then simple_invitation_a_entrer_en_negociation(off);
+    }
+    rule InvitationFauteDeVolonteDEtreLie(off: Offre, c: Contrat) strict {
+        label fr official "Article 1114. L'offre qui n'exprime pas la volonté d'être lié n'est qu'une invitation à entrer en négociation";
+        label en unofficial "Article 1114. An offer that does not express the will to be bound is only an invitation to negotiate";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and not_known(volonte_d_etre_lie(off));
+        then simple_invitation_a_entrer_en_negociation(off);
+    }
+}
+
+@source(CC_ART1115)
+rule RetractationAvantReception(off: Offre, c: Contrat, retrait: Date, arrivee: Date) strict {
+    label fr official "Article 1115. L'offre peut être librement rétractée tant qu'elle n'est pas parvenue à son destinataire";
+    label en unofficial "Article 1115. The offer may be freely withdrawn as long as it has not reached its addressee";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+        and retractation_de_l_offre_le(off, retrait)
+        and offre_parvenue_au_destinataire_le(off, arrivee)
+        and retrait < arrivee;
+    then retractation_libre_de_l_offre(off);
+}
+
+@source(CC_ART1116, CC_ART1117)
+rule DelaiFixeParLAuteur(off: Offre, echeance: Date) strict {
+    label fr official "Articles 1116 et 1117. Constat que l'auteur de l'offre a fixé un délai : le délai raisonnable n'intervient qu'à défaut";
+    label en unofficial "Articles 1116 and 1117. Finding that the author of the offer set a period: the reasonable period applies only failing one";
+    when delai_fixe_par_l_auteur_de_l_offre(off, echeance);
+    then delai_fixe_par_l_auteur(off);
+}
+
+@source(CC_ART1116) {
+    rule RetractationInterditeAvantLeDelaiFixe(off: Offre, c: Contrat, retrait: Date, echeance: Date) strict {
+        label fr official "Article 1116, alinéa 1. L'offre ne peut être rétractée avant l'expiration du délai fixé par son auteur";
+        label en unofficial "Article 1116, paragraph 1. The offer cannot be withdrawn before the period set by its author expires";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and delai_fixe_par_l_auteur_de_l_offre(off, echeance)
+            and retractation_de_l_offre_le(off, retrait)
+            and retrait <= echeance;
+        then retractation_interdite_de_l_offre(off);
+    }
+    rule RetractationInterditeAvantLeDelaiRaisonnable(off: Offre, c: Contrat, retrait: Date, echeance: Date) strict {
+        label fr official "Article 1116, alinéa 1. A défaut de délai fixé, l'offre ne peut être rétractée avant l'issue d'un délai raisonnable, apprécié par le juge";
+        label en unofficial "Article 1116, paragraph 1. Failing a set period, the offer cannot be withdrawn before a reasonable period, assessed by the court, has elapsed";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and not_known(delai_fixe_par_l_auteur(off))
+            and delai_raisonnable_de_l_offre_expire_le_1116(off, echeance)
+            and retractation_de_l_offre_le(off, retrait)
+            and retrait <= echeance;
+        then retractation_interdite_de_l_offre(off);
+    }
+    rule RetractationEmpecheLaConclusion(off: Offre) strict {
+        label fr official "Article 1116, alinéa 2. La rétractation de l'offre en violation de cette interdiction empêche la conclusion du contrat";
+        label en unofficial "Article 1116, paragraph 2. Withdrawal of the offer in breach of this prohibition prevents the contract's conclusion";
+        when retractation_interdite_de_l_offre(off);
+        then contrat_empeche_par_la_retractation(off);
+    }
+    rule RetractationEngageLaResponsabilite(off: Offre, auteur: Personne) strict {
+        label fr official "Article 1116, alinéa 3. Elle engage la responsabilité extracontractuelle de son auteur dans les conditions du droit commun sans l'obliger à compenser la perte des avantages attendus du contrat";
+        label en unofficial "Article 1116, paragraph 3. It engages its author's extra-contractual liability under the general law without obliging him to compensate the loss of the expected advantages";
+        when retractation_interdite_de_l_offre(off) and auteur_de_l_offre(off, auteur);
+        then responsabilite_extracontractuelle_de_l_offrant(off, auteur);
+    }
+}
+
+// L'article 1117 dans ses deux rédactions : la ratification de 2018 y a ajouté
+// la caducité par le décès du destinataire de l'offre.
+
+@source(CC_ART1117) {
+    rule CaduciteParExpirationDuDelaiFixe(off: Offre, c: Contrat, echeance: Date, jour: Date) strict {
+        label fr official "Article 1117, alinéa 1. L'offre est caduque à l'expiration du délai fixé par son auteur";
+        label en unofficial "Article 1117, paragraph 1. The offer lapses on the expiry of the period set by its author";
+        when offre_du_contrat(off, c) and redaction_2018_applicable(c, "1117")
+            and delai_fixe_par_l_auteur_de_l_offre(off, echeance)
+            and acceptation_parvenue_a_l_offrant_le(off, jour)
+            and jour > echeance;
+        then offre_caduque(off);
+    }
+    rule CaduciteParExpirationDuDelaiRaisonnable(off: Offre, c: Contrat, echeance: Date, jour: Date) strict {
+        label fr official "Article 1117, alinéa 1. A défaut de délai fixé, l'offre est caduque à l'issue d'un délai raisonnable, apprécié par le juge";
+        label en unofficial "Article 1117, paragraph 1. Failing a set period, the offer lapses at the end of a reasonable period, assessed by the court";
+        when offre_du_contrat(off, c) and redaction_2018_applicable(c, "1117")
+            and not_known(delai_fixe_par_l_auteur(off))
+            and delai_raisonnable_de_caducite_expire_le_1117(off, echeance)
+            and acceptation_parvenue_a_l_offrant_le(off, jour)
+            and jour > echeance;
+        then offre_caduque(off);
+    }
+    rule CaduciteParIncapaciteDeLAuteur2018(off: Offre, c: Contrat) strict {
+        label fr official "Article 1117, alinéa 2 (rédaction de 2018). L'offre est caduque en cas d'incapacité de son auteur";
+        label en unofficial "Article 1117, paragraph 2 (2018 wording). The offer lapses upon its author's incapacity";
+        when offre_du_contrat(off, c) and redaction_2018_applicable(c, "1117") and incapacite_de_l_auteur_de_l_offre(off);
+        then offre_caduque(off);
+    }
+    rule CaduciteParDecesDeLAuteur2018(off: Offre, c: Contrat) strict {
+        label fr official "Article 1117, alinéa 2 (rédaction de 2018). L'offre est caduque en cas de décès de son auteur";
+        label en unofficial "Article 1117, paragraph 2 (2018 wording). The offer lapses upon its author's death";
+        when offre_du_contrat(off, c) and redaction_2018_applicable(c, "1117") and deces_de_l_auteur_de_l_offre(off);
+        then offre_caduque(off);
+    }
+    rule CaduciteParDecesDuDestinataire2018(off: Offre, c: Contrat) strict {
+        label fr official "Article 1117, alinéa 2 (rédaction de 2018). L'offre est caduque en cas de décès de son destinataire — cas ajouté par la loi de ratification";
+        label en unofficial "Article 1117, paragraph 2 (2018 wording). The offer lapses upon the addressee's death — a case added by the ratifying Act";
+        when offre_du_contrat(off, c) and redaction_2018_applicable(c, "1117") and deces_du_destinataire_de_l_offre(off);
+        then offre_caduque(off);
+    }
+}
+
+@source(CC_2016_ART1117, fr.code_civil.transitions::REFORME_2018_ART16) {
+    rule CaduciteParIncapaciteDeLAuteur2016(off: Offre, c: Contrat) strict {
+        label fr official "Article 1117, alinéa 2 (rédaction de l'ordonnance de 2016). L'offre est caduque en cas d'incapacité de son auteur";
+        label en unofficial "Article 1117, paragraph 2 (2016 ordinance wording). The offer lapses upon its author's incapacity";
+        when offre_du_contrat(off, c) and redaction_2016_applicable(c, "1117") and incapacite_de_l_auteur_de_l_offre(off);
+        then offre_caduque(off);
+    }
+    rule CaduciteParDecesDeLAuteur2016(off: Offre, c: Contrat) strict {
+        label fr official "Article 1117, alinéa 2 (rédaction de l'ordonnance de 2016). L'offre est caduque en cas de décès de son auteur ; le décès du destinataire n'y figure pas";
+        label en unofficial "Article 1117, paragraph 2 (2016 ordinance wording). The offer lapses upon its author's death; the addressee's death is not listed";
+        when offre_du_contrat(off, c) and redaction_2016_applicable(c, "1117") and deces_de_l_auteur_de_l_offre(off);
+        then offre_caduque(off);
+    }
+    rule CaduciteParExpirationDuDelaiFixe2016(off: Offre, c: Contrat, echeance: Date, jour: Date) strict {
+        label fr official "Article 1117, alinéa 1 (rédaction de l'ordonnance de 2016). L'offre est caduque à l'expiration du délai fixé par son auteur";
+        label en unofficial "Article 1117, paragraph 1 (2016 ordinance wording). The offer lapses on the expiry of the period set by its author";
+        when offre_du_contrat(off, c) and redaction_2016_applicable(c, "1117")
+            and delai_fixe_par_l_auteur_de_l_offre(off, echeance)
+            and acceptation_parvenue_a_l_offrant_le(off, jour)
+            and jour > echeance;
+        then offre_caduque(off);
+    }
+}
+
+@source(CC_ART1118) {
+    rule RetractationDeLAcceptation(off: Offre, c: Contrat, retrait: Date, arrivee: Date) strict {
+        label fr official "Article 1118, alinéa 2. Tant que l'acceptation n'est pas parvenue à l'offrant, elle peut être librement rétractée, pourvu que la rétractation parvienne à l'offrant avant l'acceptation";
+        label en unofficial "Article 1118, paragraph 2. As long as the acceptance has not reached the offeror it may be freely withdrawn, provided the withdrawal reaches the offeror before the acceptance";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and retractation_de_l_acceptation_parvenue_le(off, retrait)
+            and acceptation_parvenue_a_l_offrant_le(off, arrivee)
+            and retrait < arrivee;
+        then retractation_de_l_acceptation_efficace(off);
+    }
+    rule AcceptationNonConforme(off: Offre, c: Contrat) strict {
+        label fr official "Article 1118, alinéa 3. L'acceptation non conforme à l'offre est dépourvue d'effet";
+        label en unofficial "Article 1118, paragraph 3. An acceptance not conforming to the offer is of no effect";
+        when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c)
+            and not_known(acceptation_conforme_a_l_offre(off));
+        then acceptation_sans_effet(off);
+    }
+    rule AcceptationNonConformeVautOffreNouvelle(off: Offre) strict {
+        label fr official "Article 1118, alinéa 3. L'acceptation non conforme vaut offre nouvelle";
+        label en unofficial "Article 1118, paragraph 3. A non-conforming acceptance counts as a new offer";
+        when acceptation_sans_effet(off);
+        then offre_nouvelle(off);
+    }
+}
+
+@source(CC_ART1119) {
+    rule ConditionsGeneralesOpposables(c: Contrat, cl: Clause, invoquant: Personne, autre: Personne) strict {
+        label fr official "Article 1119, alinéa 1. Les conditions générales invoquées par une partie n'ont effet à l'égard de l'autre que si elles ont été portées à la connaissance de celle-ci et si elle les a acceptées";
+        label en unofficial "Article 1119, paragraph 1. General terms relied on by one party have effect against the other only if brought to its knowledge and accepted by it";
+        when regi_par_le_droit_nouveau(c) and conditions_generales_invoquees_par(c, invoquant, cl)
+            and partie_au_contrat(c, autre)
+            and conditions_generales_portees_a_la_connaissance_de(cl, autre)
+            and conditions_generales_acceptees_par(cl, autre);
+        then conditions_generales_opposables(cl, autre);
+    }
+    rule ClausesIncompatiblesSansEffet(c: Contrat, cl: Clause, autre: Clause) strict {
+        label fr official "Article 1119, alinéa 2. En cas de discordance entre des conditions générales invoquées par l'une et l'autre des parties, les clauses incompatibles sont sans effet";
+        label en unofficial "Article 1119, paragraph 2. Where general terms relied on by each party conflict, the incompatible clauses are of no effect";
+        when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c) and clauses_incompatibles(cl, autre);
+        then clause_sans_effet(cl);
+    }
+    rule ConditionParticulierePrime(c: Contrat, cl: Clause, particuliere: Clause) strict {
+        label fr official "Article 1119, alinéa 3. En cas de discordance entre des conditions générales et des conditions particulières, les secondes l'emportent sur les premières";
+        label en unofficial "Article 1119, paragraph 3. Where general and particular terms conflict, the latter prevail over the former";
+        when regi_par_le_droit_nouveau(c) and clause_du_contrat(cl, c) and condition_generale(cl)
+            and clause_du_contrat(particuliere, c) and condition_particuliere(particuliere)
+            and clauses_incompatibles(cl, particuliere);
+        then clause_sans_effet(cl);
+    }
+}
+
+@source(CC_ART1120)
+rule SilenceNeVautPasAcceptation(off: Offre, c: Contrat) strict {
+    label fr official "Article 1120. Le silence ne vaut pas acceptation, à moins qu'il n'en résulte autrement de la loi, des usages, des relations d'affaires ou de circonstances particulières";
+    label en unofficial "Article 1120. Silence does not amount to acceptance unless it follows otherwise from statute, usage, business dealings or particular circumstances";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and acceptation_par_le_silence(off)
+        and not_known(silence_significatif_par_la_loi_l_usage_ou_les_circonstances(off));
+    then silence_ne_vaut_pas_acceptation(off);
+}
+
+@source(CC_ART1121)
+rule ContratConcluParLArriveeDeLAcceptation(off: Offre, c: Contrat, jour: Date) strict {
+    label fr official "Article 1121. Le contrat est conclu dès que l'acceptation parvient à l'offrant";
+    label en unofficial "Article 1121. The contract is concluded as soon as the acceptance reaches the offeror";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and offre_valable(off)
+        and acceptation_parvenue_a_l_offrant_le(off, jour)
+        and not_known(offre_caduque(off));
+    then contrat_conclu(c, jour);
+}
+
+@source(CC_ART1122) {
+    rule AcceptationAvantLeDelaiDeReflexion(c: Contrat, echeance: Date, jour: Date) strict {
+        label fr official "Article 1122. Le délai de réflexion est le délai avant l'expiration duquel le destinataire de l'offre ne peut manifester son acceptation";
+        label en unofficial "Article 1122. The cooling-off period is the period before whose expiry the addressee of the offer cannot express acceptance";
+        when regi_par_le_droit_nouveau(c) and delai_de_reflexion_prevu(c, echeance)
+            and acceptation_manifestee_le(c, jour) and jour < echeance;
+        then acceptation_prematuree(c);
+    }
+    rule FaculteDeRetractationOuverte(c: Contrat, echeance: Date) strict {
+        label fr official "Article 1122. Le délai de rétractation est le délai avant l'expiration duquel son bénéficiaire peut rétracter son consentement";
+        label en unofficial "Article 1122. The withdrawal period is the period before whose expiry its beneficiary may withdraw consent";
+        when regi_par_le_droit_nouveau(c) and delai_de_retractation_prevu(c, echeance);
+        then faculte_de_retractation_ouverte(c, echeance);
+    }
+}
+
+// --- Article 1123 : le pacte de préférence ------------------------------------------------------
+//
+// Les alinéas 3 et 4 s'appliquent dès l'entrée en vigueur de l'ordonnance,
+// même à un pacte conclu auparavant : leur prémisse est
+// `article_applicable_des_2016`, que le corridor de CC-16 produit sur le fait
+// `article_invoque(c, "1123")`.
+
+@source(CC_ART1123) {
+    rule ReparationDuBeneficiaireDuPacte(c: Contrat, pacte: Contrat, beneficiaire: Personne, promettant: Personne, tiers: Personne) strict {
+        label fr official "Article 1123, alinéa 2. Lorsqu'un contrat est conclu avec un tiers en violation d'un pacte de préférence, le bénéficiaire peut obtenir la réparation du préjudice subi";
+        label en unofficial "Article 1123, paragraph 2. Where a contract is concluded with a third party in breach of a preference agreement, the beneficiary may obtain reparation for the harm suffered";
+        when regi_par_le_droit_nouveau(c) and pacte_de_preference(pacte, beneficiaire, promettant)
+            and contrat_conclu_avec_un_tiers_en_violation_du_pacte(c, pacte, tiers);
+        then reparation_du_beneficiaire_du_pacte(pacte, beneficiaire);
+    }
+    rule SubstitutionOuNulliteOuverte(c: Contrat, pacte: Contrat, beneficiaire: Personne, promettant: Personne, tiers: Personne) strict {
+        label fr official "Article 1123, alinéa 2. Lorsque le tiers connaissait l'existence du pacte et l'intention du bénéficiaire de s'en prévaloir, ce dernier peut également agir en nullité ou demander au juge de le substituer au tiers dans le contrat conclu";
+        label en unofficial "Article 1123, paragraph 2. Where the third party knew of the agreement and of the beneficiary's intention to rely on it, the beneficiary may also seek nullity or ask the court to substitute him for the third party";
+        when regi_par_le_droit_nouveau(c) and pacte_de_preference(pacte, beneficiaire, promettant)
+            and contrat_conclu_avec_un_tiers_en_violation_du_pacte(c, pacte, tiers)
+            and tiers_connaissait_le_pacte_et_l_intention(c, tiers);
+        then substitution_ou_nullite_ouverte_au_beneficiaire(pacte, beneficiaire);
+    }
+    rule BeneficiaireARepondu(pacte: Contrat, jour: Date) strict {
+        label fr official "Article 1123, alinéa 4. Constat d'une réponse du bénéficiaire, quelle qu'en soit la date";
+        label en unofficial "Article 1123, paragraph 4. Finding that the beneficiary replied, whatever the date";
+        when reponse_du_beneficiaire_le(pacte, jour);
+        then beneficiaire_a_repondu(pacte);
+    }
+    rule ForclusionDuBeneficiaireSansReponse(pacte: Contrat, beneficiaire: Personne, promettant: Personne, tiers: Personne, echeance: Date, reponse: Date) strict {
+        label fr official "Article 1123, alinéa 4. L'écrit mentionne qu'à défaut de réponse dans ce délai, le bénéficiaire du pacte ne pourra plus solliciter sa substitution au contrat conclu avec le tiers ou la nullité du contrat : la réponse tardive vaut absence de réponse";
+        label en unofficial "Article 1123, paragraph 4. The writing states that failing a reply within that period the beneficiary may no longer seek substitution or nullity: a late reply counts as no reply";
+        when article_applicable_des_2016(pacte, "1123")
+            and pacte_de_preference(pacte, beneficiaire, promettant)
+            and demande_ecrite_de_confirmation_du_pacte(pacte, tiers, echeance)
+            and mention_de_l_effet_du_silence(pacte)
+            and delai_de_la_demande_raisonnable_1123(pacte)
+            and reponse_du_beneficiaire_le(pacte, reponse)
+            and reponse > echeance;
+        then beneficiaire_forclos(pacte, beneficiaire);
+    }
+    rule ForclusionDuBeneficiaireSilencieux(pacte: Contrat, beneficiaire: Personne, promettant: Personne, tiers: Personne, echeance: Date) strict {
+        label fr official "Article 1123, alinéas 3 et 4. Le tiers peut demander par écrit au bénéficiaire de confirmer dans un délai qu'il fixe et qui doit être raisonnable ; à défaut de toute réponse, le bénéficiaire est forclos";
+        label en unofficial "Article 1123, paragraphs 3 and 4. The third party may request in writing that the beneficiary confirm within a period it sets, which must be reasonable; absent any reply the beneficiary is barred";
+        when article_applicable_des_2016(pacte, "1123")
+            and pacte_de_preference(pacte, beneficiaire, promettant)
+            and demande_ecrite_de_confirmation_du_pacte(pacte, tiers, echeance)
+            and mention_de_l_effet_du_silence(pacte)
+            and delai_de_la_demande_raisonnable_1123(pacte)
+            and not_known(beneficiaire_a_repondu(pacte));
+        then beneficiaire_forclos(pacte, beneficiaire);
+    }
+}
+
+@source(CC_ART1124) {
+    rule RevocationDeLaPromesseSansEffet(promesse: Contrat, promettant: Personne, beneficiaire: Personne) strict {
+        label fr official "Article 1124, alinéa 2. La révocation de la promesse pendant le temps laissé au bénéficiaire pour opter n'empêche pas la formation du contrat promis";
+        label en unofficial "Article 1124, paragraph 2. Revocation of the promise during the option period does not prevent the formation of the promised contract";
+        when regi_par_le_droit_nouveau(promesse) and promesse_unilaterale(promesse, promettant, beneficiaire)
+            and revocation_de_la_promesse_pendant_le_temps_de_l_option(promesse)
+            and option_levee_par_le_beneficiaire(promesse);
+        then contrat_promis_forme(promesse);
+    }
+    rule ContratAvecLeTiersNul(c: Contrat, promesse: Contrat, promettant: Personne, beneficiaire: Personne, tiers: Personne) strict {
+        label fr official "Article 1124, alinéa 3. Le contrat conclu en violation de la promesse unilatérale avec un tiers qui en connaissait l'existence est nul";
+        label en unofficial "Article 1124, paragraph 3. A contract concluded in breach of the unilateral promise with a third party aware of it is void";
+        when regi_par_le_droit_nouveau(c) and promesse_unilaterale(promesse, promettant, beneficiaire)
+            and contrat_conclu_avec_un_tiers_en_violation_de_la_promesse(c, promesse, tiers)
+            and tiers_connaissait_la_promesse(c, tiers);
+        then contrat_avec_le_tiers_nul(c);
+    }
+}
+
+// --- Articles 1125 à 1127-4 : le contrat sous forme électronique ---------------------------------
+
+@source(CC_ART1125)
+rule VoieElectroniquePourLesStipulations(c: Contrat) strict {
+    label fr official "Article 1125. La voie électronique peut être utilisée pour mettre à disposition des stipulations contractuelles ou des informations sur des biens ou services";
+    label en unofficial "Article 1125. Electronic means may be used to make contract terms or information on goods or services available";
+    when regi_par_le_droit_nouveau(c);
+    then voie_electronique_admise(c);
+}
+
+@source(CC_ART1126)
+rule CourrierElectroniqueAccepteParLeDestinataire(c: Contrat, destinataire: Personne) strict {
+    label fr official "Article 1126. Les informations demandées en vue de la conclusion d'un contrat ou adressées au cours de son exécution peuvent être transmises par courrier électronique si leur destinataire a accepté l'usage de ce moyen";
+    label en unofficial "Article 1126. Information requested with a view to concluding a contract or sent during its performance may be transmitted by e-mail if its addressee accepted that means";
+    when regi_par_le_droit_nouveau(c) and destinataire_a_accepte_le_courrier_electronique(c, destinataire);
+    then voie_electronique_admise(c);
+}
+
+@source(CC_ART1127) {
+    rule CourrierElectroniqueAuProfessionnel(c: Contrat, professionnel: Personne) strict {
+        label fr official "Article 1127, alinéa 1. Les informations destinées à un professionnel peuvent lui être adressées par courrier électronique, dès lors qu'il a communiqué son adresse électronique";
+        label en unofficial "Article 1127, paragraph 1. Information intended for a professional may be sent to him by e-mail once he has communicated his electronic address";
+        when regi_par_le_droit_nouveau(c) and adresse_electronique_communiquee_par_le_professionnel(c, professionnel);
+        then voie_electronique_admise(c);
+    }
+    rule FormulaireMisADispositionElectroniquement(c: Contrat) strict {
+        label fr official "Article 1127, alinéa 2. Si ces informations doivent être portées sur un formulaire, celui-ci est mis, par voie électronique, à la disposition de la personne qui doit le remplir";
+        label en unofficial "Article 1127, paragraph 2. If that information must be entered on a form, the form is made available electronically to the person who must complete it";
+        when regi_par_le_droit_nouveau(c) and information_a_porter_sur_un_formulaire(c)
+            and formulaire_mis_a_disposition_par_voie_electronique(c);
+        then voie_electronique_admise(c);
+    }
+}
+
+@source(CC_ART1127_1)
+rule ObligationsDeLOffreElectronique(off: Offre, c: Contrat) strict {
+    label fr official "Article 1127-1. Quiconque propose à titre professionnel, par voie électronique, la fourniture de biens ou la prestation de services, met à disposition les stipulations applicables d'une manière qui permette leur conservation et leur reproduction, reste engagé tant que l'offre est accessible de son fait, et énonce les mentions des 1° à 5°";
+    label en unofficial "Article 1127-1. Whoever offers, professionally and electronically, the supply of goods or services makes the applicable terms available in a way allowing their retention and reproduction, stays bound while the offer remains accessible through him, and states the particulars of items 1 to 5";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and offre_par_voie_electronique(off)
+        and stipulations_mises_a_disposition_conservables(off)
+        and offre_electronique_accessible(off)
+        and mentions_de_l_offre_electronique_completes(off);
+    then obligations_de_l_offre_electronique_respectees(off);
+}
+
+@source(CC_ART1127_2)
+rule ContratElectroniqueValablementConclu(c: Contrat, off: Offre) strict {
+    label fr official "Article 1127-2, alinéas 1 et 2. Le contrat n'est valablement conclu que si le destinataire de l'offre a eu la possibilité de vérifier le détail de sa commande et son prix total et de corriger d'éventuelles erreurs avant de confirmer celle-ci ; l'auteur de l'offre doit accuser réception sans délai injustifié";
+    label en unofficial "Article 1127-2, paragraphs 1 and 2. The contract is validly concluded only if the addressee could check the details and total price of the order and correct errors before confirming it; the author of the offer must acknowledge receipt without unjustified delay";
+    when regi_par_le_droit_nouveau(c) and offre_du_contrat(off, c) and offre_par_voie_electronique(off)
+        and possibilite_de_verifier_la_commande(off)
+        and accuse_de_reception_de_la_commande(off);
+    then contrat_electronique_valablement_conclu(c);
+}
+
+@source(CC_ART1127_3) {
+    rule ExceptionPourLesCourriersElectroniques(c: Contrat) strict {
+        label fr official "Article 1127-3, alinéa 1. Il est fait exception aux obligations visées aux 1° à 5° de l'article 1127-1 et aux deux premiers alinéas de l'article 1127-2 pour les contrats conclus exclusivement par échange de courriers électroniques";
+        label en unofficial "Article 1127-3, paragraph 1. The requirements of items 1 to 5 of Article 1127-1 and the first two paragraphs of Article 1127-2 do not apply to contracts concluded exclusively by exchange of e-mails";
+        when regi_par_le_droit_nouveau(c) and contrat_conclu_exclusivement_par_courriers_electroniques(c);
+        then exception_aux_mentions_electroniques(c);
+    }
+    rule DerogationEntreProfessionnels(c: Contrat) strict {
+        label fr official "Article 1127-3, alinéa 2. Il peut être dérogé aux dispositions des 1° à 5° de l'article 1127-1 et de l'article 1127-2 dans les contrats conclus entre professionnels";
+        label en unofficial "Article 1127-3, paragraph 2. The provisions of items 1 to 5 of Article 1127-1 and of Article 1127-2 may be derogated from in contracts between professionals";
+        when regi_par_le_droit_nouveau(c) and contrat_entre_professionnels(c)
+            and derogation_convenue_aux_mentions_electroniques(c);
+        then exception_aux_mentions_electroniques(c);
+    }
+}
+
+@source(CC_ART1127_4) {
+    rule RemiseDeLEcritElectroniqueEffective(c: Contrat, destinataire: Personne) strict {
+        label fr official "Article 1127-4, alinéa 1. Hors les cas prévus aux articles 1125 et 1126, la remise d'un écrit électronique est effective lorsque le destinataire, après avoir pu en prendre connaissance, en a accusé réception";
+        label en unofficial "Article 1127-4, paragraph 1. Apart from the cases of Articles 1125 and 1126, delivery of an electronic writing is effective when the addressee, having been able to acquaint himself with it, acknowledged receipt";
+        when regi_par_le_droit_nouveau(c) and ecrit_electronique_remis(c, destinataire)
+            and destinataire_a_pu_prendre_connaissance(c, destinataire)
+            and accuse_de_reception_de_l_ecrit(c, destinataire);
+        then remise_de_l_ecrit_electronique_effective(c, destinataire);
+    }
+    rule RemiseVautLecture(c: Contrat, destinataire: Personne) strict {
+        label fr official "Article 1127-4, alinéa 2. Si une disposition prévoit que l'écrit doit être lu au destinataire, la remise d'un écrit électronique dans les conditions du premier alinéa vaut lecture";
+        label en unofficial "Article 1127-4, paragraph 2. If a provision requires the writing to be read to the addressee, delivery under the first paragraph counts as reading";
+        when remise_de_l_ecrit_electronique_effective(c, destinataire)
+            and disposition_exigeant_la_lecture_au_destinataire(c);
+        then remise_vaut_lecture(c, destinataire);
+    }
+}

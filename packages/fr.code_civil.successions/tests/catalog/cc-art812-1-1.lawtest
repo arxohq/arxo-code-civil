@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DERIVEP3WAVE2MAINTENANCEMANDATDUREEEXCESSIVE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": duree_du_mandat_excessive(entity_ref("urn:law:catalog:derivep3wave2maintenancemandatdureeexcessive:v0")) { origin case_input; }
+        assert "cat-1": mandataire_designe(entity_ref("urn:law:catalog:derivep3wave2maintenancemandatdureeexcessive:v0"), entity_ref("urn:law:catalog:derivep3wave2maintenancemandatdureeexcessive:v1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect evaluation_status == COMPUTED;
+    expect position(P3Wave2MaintenanceMandatDureeExcessive, ACTIVE);
+}

@@ -1,0 +1,68 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2305-1 : biens indiqués dès les premières poursuites — 30 000 utile, 50 000 litigieux ; le créancier qui n'a pas poursuivi répond à concurrence de 30 000 EUR.
+test "urn:query:fr-code-civil-suretes-c19-creancier-repond-des-biens-indiques" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c19:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c19:K"), entity_ref("urn:fr:cc:suretes:c19:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c19:K"), entity_ref("urn:fr:cc:suretes:c19:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c19:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c19:B")) { origin case_input; }
+        assert "f6": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:c19:K"), @2023-05-02) { origin case_input; }
+        assert "f7": benefice_de_discussion_invoque_le(entity_ref("urn:fr:cc:suretes:c19:K"), @2023-05-02) { origin case_input; }
+        assert "f8": bien_du_debiteur_indique(entity_ref("urn:fr:cc:suretes:c19:K"), entity_ref("urn:fr:cc:suretes:c19:B1")) { origin case_input; }
+        assert "f9": valeur_du_bien(entity_ref("urn:fr:cc:suretes:c19:B1"), 30000 EUR) { origin case_input; }
+        assert "f10": bien_du_debiteur_indique(entity_ref("urn:fr:cc:suretes:c19:K"), entity_ref("urn:fr:cc:suretes:c19:B2")) { origin case_input; }
+        assert "f11": valeur_du_bien(entity_ref("urn:fr:cc:suretes:c19:B2"), 50000 EUR) { origin case_input; }
+        assert "f12": bien_litigieux_ou_greve(entity_ref("urn:fr:cc:suretes:c19:B2")) { origin case_input; }
+        assert "f13": creancier_a_omis_de_poursuivre_le_debiteur(entity_ref("urn:fr:cc:suretes:c19:K")) { origin case_input; }
+    }
+    evaluate truth(creancier_repond_de_l_insolvabilite(entity_ref("urn:fr:cc:suretes:c19:K"), 30000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(CreancierRepondDeLInsolvabilite);
+}
+
+test "urn:positions:fr-code-civil-suretes-2305-discussion-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "date": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:pos2305:K"), @2022-03-01) { origin case_input; }
+        assert "surety": caution(entity_ref("urn:fr:cc:suretes:pos2305:K"), entity_ref("urn:fr:cc:suretes:pos2305:C")) { origin case_input; }
+        assert "first": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:pos2305:K"), @2023-05-02) { origin case_input; }
+        assert "raise": benefice_de_discussion_invoque_le(entity_ref("urn:fr:cc:suretes:pos2305:K"), @2023-05-02) { origin case_input; }
+        assert "asset": bien_du_debiteur_indique(entity_ref("urn:fr:cc:suretes:pos2305:K"), entity_ref("urn:fr:cc:suretes:pos2305:B")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirInvoquerDiscussion, ACTIVE);
+    expect position(DevoirIndiquerBienDuDebiteur, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-suretes-2305-discussion-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "date": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:pos2305b:K"), @2022-03-01) { origin case_input; }
+        assert "surety": caution(entity_ref("urn:fr:cc:suretes:pos2305b:K"), entity_ref("urn:fr:cc:suretes:pos2305b:C")) { origin case_input; }
+        assert "first": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:pos2305b:K"), @2023-05-02) { origin case_input; }
+        assert "raise": benefice_de_discussion_invoque_le(entity_ref("urn:fr:cc:suretes:pos2305b:K"), @2023-05-02) { origin case_input; }
+        assert "asset": bien_du_debiteur_indique(entity_ref("urn:fr:cc:suretes:pos2305b:K"), entity_ref("urn:fr:cc:suretes:pos2305b:B")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirInvoquerDiscussion, ACTIVE);
+    expect position(DevoirIndiquerBienDuDebiteur, SATISFIED);
+}
+
+// Art. 2305-1 : bénéfice invoqué à temps, mais aucun bien du débiteur encore indiqué — le devoir d'indiquer reste actif (le but est la présence d'un bien utilement indiqué, absent du corps de la règle).
+test "urn:positions:fr-code-civil-suretes-2305-discussion-third" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "date": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:pos2305c:K"), @2022-03-01) { origin case_input; }
+        assert "surety": caution(entity_ref("urn:fr:cc:suretes:pos2305c:K"), entity_ref("urn:fr:cc:suretes:pos2305c:C")) { origin case_input; }
+        assert "first": premieres_poursuites_contre_la_caution_le(entity_ref("urn:fr:cc:suretes:pos2305c:K"), @2023-05-02) { origin case_input; }
+        assert "raise": benefice_de_discussion_invoque_le(entity_ref("urn:fr:cc:suretes:pos2305c:K"), @2023-05-02) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirInvoquerDiscussion, ACTIVE);
+    expect position(DevoirIndiquerBienDuDebiteur, ACTIVE);
+}

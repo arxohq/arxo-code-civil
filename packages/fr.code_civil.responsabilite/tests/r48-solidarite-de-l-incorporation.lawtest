@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-7 : défaut d'une pièce incorporée — le fabricant de la pièce et l'assembleur sont solidaires.
+test "urn:query:fr-code-civil-responsabilite-r48-solidarite-de-l-incorporation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": defaut_du_composant(entity_ref("urn:fr:cc:resp:v2j:f"), entity_ref("urn:fr:cc:resp:v2j:piece")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:v2j:f"), entity_ref("urn:fr:cc:resp:v2j:d")) { origin adjudicated; }
+        assert "f3": incorpore_dans(entity_ref("urn:fr:cc:resp:v2j:piece"), entity_ref("urn:fr:cc:resp:v2j:machine")) { origin case_input; }
+        assert "f4": producteur(entity_ref("urn:fr:cc:resp:v2j:piece"), entity_ref("urn:fr:cc:resp:v2j:fab")) { origin case_input; }
+        assert "f5": producteur(entity_ref("urn:fr:cc:resp:v2j:machine"), entity_ref("urn:fr:cc:resp:v2j:assembleur")) { origin case_input; }
+    }
+    evaluate truth(solidairement_responsables(entity_ref("urn:fr:cc:resp:v2j:d"), entity_ref("urn:fr:cc:resp:v2j:fab"), entity_ref("urn:fr:cc:resp:v2j:assembleur")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SolidariteDeLIncorporation);
+}

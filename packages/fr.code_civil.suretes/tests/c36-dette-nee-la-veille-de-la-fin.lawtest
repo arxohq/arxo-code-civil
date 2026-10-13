@@ -1,0 +1,22 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2316 : cautionnement de dettes futures terminé le 30 juin 2024 ; dette née le 29 juin — la caution en reste tenue.
+test "urn:query:fr-code-civil-suretes-c36-dette-nee-la-veille-de-la-fin" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c36:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c36:K"), entity_ref("urn:fr:cc:suretes:c36:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c36:K"), entity_ref("urn:fr:cc:suretes:c36:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c36:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c36:B")) { origin case_input; }
+        assert "f6": cautionnement_de_dettes_futures(entity_ref("urn:fr:cc:suretes:c36:K")) { origin case_input; }
+        assert "f7": terme_du_cautionnement(entity_ref("urn:fr:cc:suretes:c36:K"), @2024-06-30) { origin case_input; }
+        assert "f8": dette_garantie(entity_ref("urn:fr:cc:suretes:c36:K"), entity_ref("urn:fr:cc:suretes:c36:D")) { origin case_input; }
+        assert "f9": nee_le(entity_ref("urn:fr:cc:suretes:c36:D"), @2024-06-29) { origin case_input; }
+    }
+    evaluate truth(dette_couverte(entity_ref("urn:fr:cc:suretes:c36:K"), entity_ref("urn:fr:cc:suretes:c36:D")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(DettesNeesAvantLaFin);
+}

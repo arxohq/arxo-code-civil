@@ -1,0 +1,765 @@
+// TITRE II — DE LA PROPRIÉTÉ (articles 544 à 577).
+//
+// Trois blocs. (1) La propriété elle-même (544 à 546) : le droit de jouir et
+// disposer, la garantie de l'article 545, et le droit d'accession. (2)
+// L'accession sur ce qui est PRODUIT par la chose (547 à 550) : les fruits
+// suivent le propriétaire, sauf au possesseur de bonne foi. (3) L'accession
+// sur ce qui S'UNIT à la chose : immobilière (551 à 564 — constructions,
+// alluvion, îles) et mobilière (565 à 577 — union, spécification, mélange).
+//
+// LA BONNE FOI EST DÉDUITE, NON DEMANDÉE. L'article 550 la définit par trois
+// faits : posséder comme propriétaire, en vertu d'un titre translatif de
+// propriété, dont on ignore les vices. Ce n'est donc ni un jugement §47.3 ni
+// un fait de cas : c'est une conclusion de trois entrées, et l'alinéa 2 la
+// fait cesser du moment où les vices sont connus.
+//
+// L'ARTICLE 555 EST UN CHOIX, PAS UN CALCUL. Le propriétaire du fonds choisit
+// entre conserver et faire enlever (alinéa 1) ; s'il conserve, il choisit
+// entre deux sommes (alinéa 3) : la plus-value du fonds, ou le coût des
+// matériaux et le prix de la main-d'œuvre. Les deux sommes sont des entrées
+// du cas — leur estimation « à la date du remboursement » est une question de
+// fait, non de calcul — et le CHOIX aussi. L'alinéa 4 retire le droit
+// d'exiger la suppression quand le tiers évincé n'a pas été condamné à la
+// restitution des fruits EN RAISON DE SA BONNE FOI : c'est une décision de
+// justice, donc un fait `adjudicated` du cas, non un jugement à demander.
+//
+// L'ACCESSION MOBILIÈRE EST DÉLÉGUÉE AU JUGE PAR SON PROPRE TEXTE. L'article
+// 565 dit que la matière est « entièrement subordonnée aux principes de
+// l'équité naturelle » et que les règles suivantes « serviront d'exemple au
+// juge » dans les cas non prévus. Les cas PRÉVUS (566 à 577) sont exécutés ;
+// le cas NON PRÉVU passe par le canal de jugement de l'article 565. Les
+// comparaisons de valeur que le texte laisse en termes d'appréciation —
+// « beaucoup plus précieuse » (568), « à peu près égales » (569),
+// « surpassât de beaucoup » (571), « de beaucoup supérieure » (574) — sont
+// autant de jugements §47.3 : le Code ne donne aucun rapport chiffré.
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+use self::{
+    Bien,
+    CC_ART544,
+    CC_ART545,
+    CC_ART546,
+    CC_ART547,
+    CC_ART548,
+    CC_ART549,
+    CC_ART550,
+    CC_ART551,
+    CC_ART552,
+    CC_ART553,
+    CC_ART554,
+    CC_ART555,
+    Fonds,
+    Ouvrage,
+    Personne,
+    proprietaire_du_bien,
+};
+
+// --- La propriété (544 à 546) -----------------------------------------------------------------
+
+pub relation droit_de_jouir_et_disposer(b: Bien, p: Personne) kind derived {
+    label fr official "droit de jouir et disposer de la chose de la manière la plus absolue, pourvu qu'on n'en fasse pas un usage prohibé (article 544)";
+    label en unofficial "right to enjoy and dispose of the thing in the most absolute manner, provided no prohibited use is made of it (Article 544)";
+}
+pub relation jouissance_ou_disposition_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "jouissance ou disposition de la propriété exercée";
+    label en unofficial "ownership enjoyment or disposition exercised";
+}
+pub relation cession_forcee_admise(b: Bien, p: Personne) kind derived {
+    label fr official "la cession forcée de la propriété est admise : cause d'utilité publique et juste et préalable indemnité (article 545)";
+    label en unofficial "forced transfer of ownership is admissible: public-interest purpose and a fair prior indemnity (Article 545)";
+}
+pub relation cession_forcee_interdite(b: Bien, p: Personne) kind derived {
+    label fr official "nul ne peut être contraint de céder sa propriété : la cause d'utilité publique ou la juste et préalable indemnité manque (article 545)";
+    label en unofficial "no one may be compelled to transfer ownership: the public-interest purpose or the fair prior indemnity is missing (Article 545)";
+}
+pub relation cession_forcee_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "cession forcée de la propriété exercée";
+    label en unofficial "forced transfer of ownership exercised";
+}
+pub relation cession_forcee_sans_condition(b: Bien) kind derived {
+    label fr official "cession forcée sans condition légale";
+    label en unofficial "forced transfer without a legal condition";
+}
+pub relation droit_d_accession(b: Bien, p: Personne) kind derived {
+    label fr official "droit d'accession : la propriété d'une chose donne droit sur tout ce qu'elle produit et sur ce qui s'y unit accessoirement (article 546)";
+    label en unofficial "right of accession: ownership of a thing gives a right over all it produces and over what is accessorily joined to it (Article 546)";
+}
+pub relation accession_exercee(b: Bien, p: Personne) kind empirical {
+    label fr official "droit d'accession exercé";
+    label en unofficial "accession right exercised";
+}
+
+pub relation usage_prohibe_par_les_lois_ou_reglements(b: Bien) kind empirical {
+    label fr official "l'usage fait de la chose est prohibé par les lois ou par les règlements (article 544)";
+    label en unofficial "the use made of the thing is prohibited by statute or regulation (Article 544)";
+}
+pub relation cause_d_utilite_publique_declaree(b: Bien) kind empirical {
+    label fr official "une cause d'utilité publique est déclarée pour la cession de la propriété (article 545)";
+    label en unofficial "a public-interest purpose is declared for the transfer of ownership (Article 545)";
+}
+pub relation juste_et_prealable_indemnite_versee(b: Bien) kind empirical {
+    label fr official "une juste et préalable indemnité est versée au propriétaire (article 545)";
+    label en unofficial "a fair and prior indemnity is paid to the owner (Article 545)";
+}
+
+@source(CC_ART544)
+rule DroitDePropriete(b: Bien, p: Personne) strict {
+    label fr official "Article 544. La propriété est le droit de jouir et disposer des choses de la manière la plus absolue, pourvu qu'on n'en fasse pas un usage prohibé par les lois ou par les règlements";
+    label en unofficial "Article 544. Ownership is the right to enjoy and dispose of things in the most absolute manner, provided no use prohibited by statute or regulation is made of them";
+    when proprietaire_du_bien(b, p)
+        and not_known(usage_prohibe_par_les_lois_ou_reglements(b));
+    then droit_de_jouir_et_disposer(b, p);
+}
+
+@source(CC_ART544)
+rule P4LiberteJouirDisposer544(b: Bien, p: Personne) strict {
+    label fr official "Article 544. Le propriétaire peut jouir et disposer de la chose";
+    label en unofficial "Article 544. The owner may enjoy and dispose of the thing";
+    when proprietaire_du_bien(b, p)
+        and not_known(usage_prohibe_par_les_lois_ou_reglements(b));
+    then liberty P4LiberteJouirDisposer544Actif {
+        holder p;
+        action jouissance_ou_disposition_exercee(b, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART545) {
+    rule CessionForceeAdmise(b: Bien, p: Personne) strict {
+        label fr official "Article 545. La propriété peut être cédée pour cause d'utilité publique, et moyennant une juste et préalable indemnité";
+        label en unofficial "Article 545. Ownership may be transferred for a public-interest purpose, and against a fair prior indemnity";
+        when proprietaire_du_bien(b, p)
+            and cause_d_utilite_publique_declaree(b)
+            and juste_et_prealable_indemnite_versee(b);
+        then cession_forcee_admise(b, p);
+    }
+    rule CessionForceeInterditeFauteDUtilitePublique(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Nul ne peut être contraint de céder sa propriété si ce n'est pour cause d'utilité publique";
+        label en unofficial "Article 545. No one may be compelled to transfer ownership except for a public-interest purpose";
+        when proprietaire_du_bien(b, p)
+            and not_known(cause_d_utilite_publique_declaree(b));
+        then cession_forcee_interdite(b, p);
+    }
+    rule CessionForceeInterditeFauteDIndemnite(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Nul ne peut être contraint de céder sa propriété qu'à la condition d'une juste et préalable indemnité";
+        label en unofficial "Article 545. No one may be compelled to transfer ownership except against a fair prior indemnity";
+        when proprietaire_du_bien(b, p)
+            and not_known(juste_et_prealable_indemnite_versee(b));
+        then cession_forcee_interdite(b, p);
+    }
+    rule CessionForceeSansUtilitePublique(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Cession forcée sans utilité publique";
+        label en unofficial "Article 545. Forced transfer without public interest";
+        when proprietaire_du_bien(b, p)
+            and not_known(cause_d_utilite_publique_declaree(b));
+        then cession_forcee_sans_condition(b);
+    }
+    rule CessionForceeSansIndemnite(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Cession forcée sans indemnité préalable";
+        label en unofficial "Article 545. Forced transfer without prior indemnity";
+        when proprietaire_du_bien(b, p)
+            and not_known(juste_et_prealable_indemnite_versee(b));
+        then cession_forcee_sans_condition(b);
+    }
+    rule P4InterdictionCessionForcee545(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Nul ne peut être contraint de céder sa propriété sans les conditions légales";
+        label en unofficial "Article 545. No one may be compelled to transfer ownership without the legal conditions";
+        when proprietaire_du_bien(b, p)
+            and cession_forcee_sans_condition(b);
+        then prohibition P4InterdictionCessionForcee545Actif {
+            bearer p;
+            action cession_forcee_exercee(b, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionCessionForcee545(b: Bien, p: Personne) strict {
+        label fr official "Article 545. Le propriétaire doit maintenir l'absence de cession forcée sans les conditions légales";
+        label en unofficial "Article 545. The owner must maintain the absence of forced transfer without the legal conditions";
+        when proprietaire_du_bien(b, p)
+            and cession_forcee_sans_condition(b);
+        then duty MaintenanceInterdictionCessionForcee545Duty {
+            bearer p;
+            goal maintenance {
+                condition not cession_forcee_exercee(b, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+@source(CC_ART546)
+rule DroitDAccession(b: Bien, p: Personne) strict {
+    label fr official "Article 546. La propriété d'une chose, mobilière ou immobilière, donne droit sur tout ce qu'elle produit et sur ce qui s'y unit accessoirement, soit naturellement, soit artificiellement : ce droit s'appelle droit d'accession";
+    label en unofficial "Article 546. Ownership of a thing, movable or immovable, gives a right over all it produces and over what is accessorily joined to it, naturally or artificially: this right is called the right of accession";
+    when proprietaire_du_bien(b, p);
+    then droit_d_accession(b, p);
+}
+@source(CC_ART546)
+rule P4PouvoirExercerAccession546(b: Bien, p: Personne) strict {
+    label fr official "Article 546. Le propriétaire peut exercer le droit d'accession";
+    label en unofficial "Article 546. The owner may exercise the accession right";
+    when proprietaire_du_bien(b, p);
+    then power P4PouvoirExercerAccession546Actif {
+        holder p;
+        over b;
+        exercise accession_exercee(b, p);
+        effect droit_d_accession(b, p);
+        valid_when proprietaire_du_bien(b, p);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Accession sur les fruits (547 à 550) -------------------------------------------------------
+
+pub enum EspeceDeFruit {
+    label fr official "Espèce de fruit ou de produit (articles 547, 583, 584)";
+    label en unofficial "Kind of fruit or produce (Articles 547, 583, 584)";
+    FruitNaturel,
+    FruitIndustriel,
+    FruitCivil,
+    CroitDesAnimaux
+}
+
+pub relation fruit_de(fruit: Bien, chose: Bien, espece: EspeceDeFruit) kind empirical {
+    key(fruit);
+    label fr official "le bien est un fruit de la chose, de l'espèce nommée (articles 547, 583, 584)";
+    label en unofficial "the asset is a fruit of the thing, of the kind named (Articles 547, 583, 584)";
+}
+pub relation possede_comme_proprietaire(chose: Bien, p: Personne) kind empirical {
+    label fr official "la personne possède la chose comme propriétaire (article 550, alinéa 1)";
+    label en unofficial "the person possesses the thing as owner (Article 550, paragraph 1)";
+}
+pub relation titre_translatif_de_propriete(chose: Bien, p: Personne) kind empirical {
+    label fr official "la possession s'exerce en vertu d'un titre translatif de propriété (article 550, alinéa 1)";
+    label en unofficial "the possession is held under an instrument transferring ownership (Article 550, paragraph 1)";
+}
+pub relation vices_du_titre_connus(chose: Bien, p: Personne) kind empirical {
+    label fr official "les vices du titre sont connus du possesseur (article 550, alinéas 1 et 2)";
+    label en unofficial "the defects of the instrument are known to the possessor (Article 550, paragraphs 1 and 2)";
+}
+pub relation frais_de_labours_travaux_et_semences(chose: Bien, montant: Money) kind empirical {
+    key(chose);
+    label fr official "frais des labours, travaux et semences faits par des tiers, estimés à la date du remboursement (article 548)";
+    label en unofficial "costs of ploughing, works and seed made by third parties, valued at the date of reimbursement (Article 548)";
+}
+
+pub relation possesseur_de_bonne_foi(chose: Bien, p: Personne) kind derived {
+    label fr official "le possesseur est de bonne foi : il possède comme propriétaire, en vertu d'un titre translatif dont il ignore les vices (article 550)";
+    label en unofficial "the possessor is in good faith: he possesses as owner, under a transferring instrument whose defects he does not know (Article 550)";
+}
+pub relation fruit_appartient_a(fruit: Bien, p: Personne) kind derived {
+    label fr official "le fruit appartient à cette personne par droit d'accession (articles 547 à 549)";
+    label en unofficial "the fruit belongs to that person by right of accession (Articles 547 to 549)";
+}
+pub relation tenu_de_restituer_les_produits(chose: Bien, p: Personne) kind derived {
+    label fr official "le possesseur de mauvaise foi est tenu de restituer les produits avec la chose au propriétaire qui la revendique (article 549)";
+    label en unofficial "a possessor in bad faith must return the produce together with the thing to the owner who claims it (Article 549)";
+}
+pub relation produits_restitues_au_proprietaire(chose: Bien, p: Personne) kind empirical {
+    label fr official "produits restitués au propriétaire";
+    label en unofficial "produce returned to the owner";
+}
+pub relation charge_de_rembourser_les_frais(chose: Bien, p: Personne, montant: Money) kind derived {
+    label fr official "les fruits n'appartiennent au propriétaire qu'à la charge de rembourser les frais des labours, travaux et semences faits par des tiers (article 548)";
+    label en unofficial "the fruits belong to the owner only subject to reimbursing the costs of ploughing, works and seed made by third parties (Article 548)";
+}
+pub relation frais_de_production_rembourses(chose: Bien, p: Personne) kind empirical {
+    label fr official "frais de production remboursés";
+    label en unofficial "production costs reimbursed";
+}
+
+@source(CC_ART550) {
+    rule BonneFoiDuPossesseur(chose: Bien, p: Personne) strict {
+        label fr official "Article 550, alinéa 1. Le possesseur est de bonne foi quand il possède comme propriétaire, en vertu d'un titre translatif de propriété dont il ignore les vices";
+        label en unofficial "Article 550, paragraph 1. A possessor is in good faith when he possesses as owner, under an instrument transferring ownership whose defects he does not know";
+        when possede_comme_proprietaire(chose, p)
+            and titre_translatif_de_propriete(chose, p)
+            and not_known(vices_du_titre_connus(chose, p));
+        then possesseur_de_bonne_foi(chose, p);
+    }
+    rule CessationDeLaBonneFoi(chose: Bien, p: Personne) strict {
+        label fr official "Article 550, alinéa 2. Le possesseur cesse d'être de bonne foi du moment où les vices du titre lui sont connus";
+        label en unofficial "Article 550, paragraph 2. The possessor ceases to be in good faith from the moment the defects of the instrument become known to him";
+        when possede_comme_proprietaire(chose, p)
+            and vices_du_titre_connus(chose, p);
+        then not possesseur_de_bonne_foi(chose, p);
+    }
+}
+
+@source(CC_ART547)
+rule FruitsAuProprietaireParAccession(fruit: Bien, chose: Bien, espece: EspeceDeFruit, p: Personne) strict {
+    label fr official "Article 547. Les fruits naturels ou industriels de la terre, les fruits civils et le croît des animaux appartiennent au propriétaire par droit d'accession";
+    label en unofficial "Article 547. The natural or industrial fruits of the land, the civil fruits and the increase of animals belong to the owner by right of accession";
+    when fruit_de(fruit, chose, espece)
+        and proprietaire_du_bien(chose, p);
+    then fruit_appartient_a(fruit, p);
+}
+
+@source(CC_ART549) {
+    rule FruitsAuPossesseurDeBonneFoi(fruit: Bien, chose: Bien, espece: EspeceDeFruit, p: Personne) strict {
+        label fr official "Article 549. Le simple possesseur ne fait les fruits siens que dans le cas où il possède de bonne foi";
+        label en unofficial "Article 549. A mere possessor makes the fruits his own only where he possesses in good faith";
+        when fruit_de(fruit, chose, espece)
+            and possesseur_de_bonne_foi(chose, p);
+        then fruit_appartient_a(fruit, p);
+    }
+    rule RestitutionParLePossesseurDeMauvaiseFoi(chose: Bien, p: Personne) strict {
+        label fr official "Article 549. Dans le cas contraire, le possesseur est tenu de restituer les produits avec la chose au propriétaire qui la revendique ; si les produits ne se retrouvent pas en nature, leur valeur est estimée à la date du remboursement";
+        label en unofficial "Article 549. Otherwise, the possessor must return the produce with the thing to the owner who claims it; if the produce is not found in kind, its value is assessed at the date of reimbursement";
+        when possede_comme_proprietaire(chose, p)
+            and not_known(possesseur_de_bonne_foi(chose, p));
+        then tenu_de_restituer_les_produits(chose, p);
+    }
+    rule P4DevoirRestituerProduitsMauvaiseFoi549(chose: Bien, p: Personne) strict {
+        label fr official "Article 549. Le possesseur de mauvaise foi doit restituer les produits";
+        label en unofficial "Article 549. A possessor in bad faith must return the produce";
+        when possede_comme_proprietaire(chose, p)
+            and not_known(possesseur_de_bonne_foi(chose, p));
+        then duty P4DevoirRestituerProduitsMauvaiseFoi549Actif {
+            bearer p;
+            goal achievement {
+                condition produits_restitues_au_proprietaire(chose, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+@source(CC_ART548)
+rule ChargeDeRemboursementDesFrais(chose: Bien, p: Personne, montant: Money) strict {
+    label fr official "Article 548. Les fruits produits par la chose n'appartiennent au propriétaire qu'à la charge de rembourser les frais des labours, travaux et semences faits par des tiers, dont la valeur est estimée à la date du remboursement";
+    label en unofficial "Article 548. The fruits produced by the thing belong to the owner only subject to reimbursing the costs of ploughing, works and seed made by third parties, valued at the date of reimbursement";
+    when proprietaire_du_bien(chose, p)
+        and frais_de_labours_travaux_et_semences(chose, montant);
+    then charge_de_rembourser_les_frais(chose, p, montant);
+}
+@source(CC_ART548)
+rule P4DevoirRembourserFrais548(chose: Bien, p: Personne) strict {
+    label fr official "Article 548. Le propriétaire doit rembourser les frais de production";
+    label en unofficial "Article 548. The owner must reimburse production costs";
+    when proprietaire_du_bien(chose, p);
+    then duty P4DevoirRembourserFrais548Actif {
+        bearer p;
+        goal achievement {
+            condition frais_de_production_rembourses(chose, p);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Accession immobilière : le sol, les constructions (551 à 555) -------------------------------
+
+pub relation propriete_du_dessus(f: Fonds, p: Personne) kind derived {
+    label fr official "la propriété du sol emporte la propriété du dessus (article 552, alinéa 1)";
+    label en unofficial "ownership of the soil carries ownership of what is above (Article 552, paragraph 1)";
+}
+pub relation propriete_du_dessous(f: Fonds, p: Personne) kind derived {
+    label fr official "la propriété du sol emporte la propriété du dessous (article 552, alinéa 1)";
+    label en unofficial "ownership of the soil carries ownership of what is below (Article 552, paragraph 1)";
+}
+pub relation peut_planter_et_construire_au_dessus(f: Fonds, p: Personne) kind derived {
+    label fr official "le propriétaire peut faire au-dessus toutes les plantations et constructions qu'il juge à propos, sauf les exceptions du titre des servitudes (article 552, alinéa 2)";
+    label en unofficial "the owner may make above any plantings and constructions he thinks fit, save the exceptions of the title on servitudes (Article 552, paragraph 2)";
+}
+pub relation plantations_constructions_au_dessus_exercees(f: Fonds, p: Personne) kind empirical {
+    label fr official "plantations et constructions au-dessus exercées";
+    label en unofficial "plantings and constructions above exercised";
+}
+pub relation peut_construire_et_fouiller_au_dessous(f: Fonds, p: Personne) kind derived {
+    label fr official "le propriétaire peut faire au-dessous toutes les constructions et fouilles qu'il jugera à propos et en tirer les produits, sauf les lois et règlements relatifs aux mines et de police (article 552, alinéa 3)";
+    label en unofficial "the owner may make below any constructions and excavations he thinks fit and take their products, save the statutes and regulations on mines and police (Article 552, paragraph 3)";
+}
+pub relation constructions_fouilles_au_dessous_exercees(f: Fonds, p: Personne) kind empirical {
+    label fr official "constructions et fouilles au-dessous exercées";
+    label en unofficial "constructions and excavations below exercised";
+}
+pub relation presume_fait_par_le_proprietaire(o: Ouvrage, p: Personne) kind derived {
+    label fr official "l'ouvrage est présumé fait par le propriétaire à ses frais et lui appartenir, le contraire n'étant pas prouvé (article 553)";
+    label en unofficial "the work is presumed made by the owner at his own cost and to belong to him, the contrary not being proved (Article 553)";
+}
+
+pub relation ouvrage_sur(o: Ouvrage, f: Fonds) kind empirical {
+    key(o);
+    label fr official "construction, plantation ou ouvrage sur un terrain ou dans son intérieur (article 553)";
+    label en unofficial "construction, planting or work on land or inside it (Article 553)";
+}
+pub relation preuve_contraire_de_l_ouvrage(o: Ouvrage) kind empirical {
+    label fr official "il est prouvé que l'ouvrage n'a pas été fait par le propriétaire du sol à ses frais, ou qu'un tiers en a acquis la propriété par prescription (article 553)";
+    label en unofficial "it is proved that the work was not made by the owner of the soil at his own cost, or that a third party acquired ownership of it by prescription (Article 553)";
+}
+pub relation materiaux_n_appartenant_pas_au_proprietaire_du_sol(o: Ouvrage) kind empirical {
+    label fr official "le propriétaire du sol a fait l'ouvrage avec des matériaux qui ne lui appartenaient pas (article 554)";
+    label en unofficial "the owner of the soil made the work with materials that did not belong to him (Article 554)";
+}
+pub relation valeur_des_materiaux(o: Ouvrage, montant: Money) kind empirical {
+    key(o);
+    label fr official "valeur des matériaux, estimée à la date du paiement (article 554)";
+    label en unofficial "value of the materials, assessed at the date of payment (Article 554)";
+}
+pub relation proprietaire_des_materiaux(o: Ouvrage, p: Personne) kind empirical {
+    label fr official "propriétaire des matériaux employés dans l'ouvrage (articles 554, 555)";
+    label en unofficial "owner of the materials used in the work (Articles 554, 555)";
+}
+
+pub relation doit_payer_la_valeur_des_materiaux(o: Ouvrage, p: Personne, montant: Money) kind derived {
+    label fr official "le propriétaire du sol doit payer la valeur des matériaux estimée à la date du paiement (article 554)";
+    label en unofficial "the owner of the soil must pay the value of the materials assessed at the date of payment (Article 554)";
+}
+pub relation valeur_des_materiaux_payee(o: Ouvrage, p: Personne) kind empirical {
+    label fr official "valeur des matériaux payée";
+    label en unofficial "value of materials paid";
+}
+pub relation enlevement_des_materiaux_interdit(o: Ouvrage, p: Personne) kind derived {
+    label fr official "le propriétaire des matériaux n'a pas le droit de les enlever (article 554)";
+    label en unofficial "the owner of the materials has no right to remove them (Article 554)";
+}
+pub relation materiaux_enleves(o: Ouvrage, p: Personne) kind empirical {
+    label fr official "matériaux de l'ouvrage enlevés";
+    label en unofficial "work materials removed";
+}
+
+@source(CC_ART551)
+rule AccessionDeCeQuiSUnit(o: Ouvrage, f: Fonds, p: Personne) strict {
+    label fr official "Article 551. Tout ce qui s'unit et s'incorpore à la chose appartient au propriétaire, suivant les règles ci-après établies";
+    label en unofficial "Article 551. Everything that is joined and incorporated into the thing belongs to the owner, according to the rules laid down below";
+    when ouvrage_sur(o, f)
+        and proprietaire_du_bien(f, p);
+    then droit_d_accession(f, p);
+}
+
+@source(CC_ART552) {
+    rule ProprieteDuDessus(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 1. La propriété du sol emporte la propriété du dessus";
+        label en unofficial "Article 552, paragraph 1. Ownership of the soil carries ownership of what is above";
+        when proprietaire_du_bien(f, p);
+        then propriete_du_dessus(f, p);
+    }
+    rule ProprieteDuDessous(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 1. La propriété du sol emporte la propriété du dessous";
+        label en unofficial "Article 552, paragraph 1. Ownership of the soil carries ownership of what is below";
+        when proprietaire_du_bien(f, p);
+        then propriete_du_dessous(f, p);
+    }
+    rule FaculteDePlanterEtConstruire(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 2. Le propriétaire peut faire au-dessus toutes les plantations et constructions qu'il juge à propos, sauf les exceptions établies au titre des servitudes ou services fonciers";
+        label en unofficial "Article 552, paragraph 2. The owner may make above any plantings and constructions he thinks fit, save the exceptions established in the title on servitudes";
+        when propriete_du_dessus(f, p);
+        then peut_planter_et_construire_au_dessus(f, p);
+    }
+    rule P4LibertePlanterConstruireDessus552(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 2. Le propriétaire peut planter et construire au-dessus";
+        label en unofficial "Article 552, paragraph 2. The owner may plant and build above";
+        when propriete_du_dessus(f, p);
+        then liberty P4LibertePlanterConstruireDessus552Actif {
+            holder p;
+            action plantations_constructions_au_dessus_exercees(f, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule FaculteDeFouiller(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 3. Le propriétaire peut faire au-dessous toutes les constructions et fouilles qu'il jugera à propos, et tirer de ces fouilles tous les produits qu'elles peuvent fournir, sauf les modifications résultant des lois et règlements relatifs aux mines et de police";
+        label en unofficial "Article 552, paragraph 3. The owner may make below any constructions and excavations he thinks fit, and take from them all the products they may yield, save the modifications resulting from the statutes and regulations on mines and on police";
+        when propriete_du_dessous(f, p);
+        then peut_construire_et_fouiller_au_dessous(f, p);
+    }
+    rule P4LiberteConstruireFouillerDessous552(f: Fonds, p: Personne) strict {
+        label fr official "Article 552, alinéa 3. Le propriétaire peut construire et fouiller au-dessous";
+        label en unofficial "Article 552, paragraph 3. The owner may build and excavate below";
+        when propriete_du_dessous(f, p);
+        then liberty P4LiberteConstruireFouillerDessous552Actif {
+            holder p;
+            action constructions_fouilles_au_dessous_exercees(f, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+@source(CC_ART553)
+rule PresomptionDeLOuvrageDuProprietaire(o: Ouvrage, f: Fonds, p: Personne) strict {
+    label fr official "Article 553. Toutes constructions, plantations et ouvrages sur un terrain ou dans l'intérieur sont présumés faits par le propriétaire à ses frais et lui appartenir, si le contraire n'est prouvé, sans préjudice de la propriété qu'un tiers pourrait avoir acquise par prescription";
+    label en unofficial "Article 553. All constructions, plantings and works on land or inside it are presumed made by the owner at his own cost and to belong to him, unless the contrary is proved, without prejudice to ownership a third party may have acquired by prescription";
+    when ouvrage_sur(o, f)
+        and proprietaire_du_bien(f, p)
+        and not_known(preuve_contraire_de_l_ouvrage(o));
+    then presume_fait_par_le_proprietaire(o, p);
+}
+
+@source(CC_ART554) {
+    rule PaiementDesMateriauxParLeProprietaireDuSol(o: Ouvrage, f: Fonds, p: Personne, montant: Money) strict {
+        label fr official "Article 554. Le propriétaire du sol qui a fait des constructions, plantations et ouvrages avec des matériaux qui ne lui appartenaient pas doit en payer la valeur estimée à la date du paiement ; il peut aussi être condamné à des dommages-intérêts s'il y a lieu";
+        label en unofficial "Article 554. The owner of the soil who made constructions, plantings and works with materials that were not his must pay their value assessed at the date of payment; he may also be ordered to pay damages if appropriate";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and materiaux_n_appartenant_pas_au_proprietaire_du_sol(o)
+            and valeur_des_materiaux(o, montant);
+        then doit_payer_la_valeur_des_materiaux(o, p, montant);
+    }
+    rule P4DevoirPayerMateriaux554(o: Ouvrage, f: Fonds, p: Personne) strict {
+        label fr official "Article 554. Le propriétaire du sol doit payer la valeur des matériaux";
+        label en unofficial "Article 554. The owner of the soil must pay the value of materials";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and materiaux_n_appartenant_pas_au_proprietaire_du_sol(o);
+        then duty P4DevoirPayerMateriaux554Actif {
+            bearer p;
+            goal achievement {
+                condition valeur_des_materiaux_payee(o, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule PasDEnlevementDesMateriaux(o: Ouvrage, p: Personne) strict {
+        label fr official "Article 554. Le propriétaire des matériaux n'a pas le droit de les enlever";
+        label en unofficial "Article 554. The owner of the materials has no right to remove them";
+        when materiaux_n_appartenant_pas_au_proprietaire_du_sol(o)
+            and proprietaire_des_materiaux(o, p);
+        then enlevement_des_materiaux_interdit(o, p);
+    }
+    rule P4InterdictionEnleverMateriaux554(o: Ouvrage, p: Personne) strict {
+        label fr official "Article 554. Le propriétaire des matériaux ne peut les enlever";
+        label en unofficial "Article 554. The owner of the materials may not remove them";
+        when materiaux_n_appartenant_pas_au_proprietaire_du_sol(o)
+            and proprietaire_des_materiaux(o, p);
+        then prohibition P4InterdictionEnleverMateriaux554Actif {
+            bearer p;
+            action materiaux_enleves(o, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionEnleverMateriaux554(o: Ouvrage, p: Personne) strict {
+        label fr official "Article 554. Le propriétaire des matériaux doit maintenir l'absence d'enlèvement";
+        label en unofficial "Article 554. The owner of the materials must maintain the absence of removal";
+        when materiaux_n_appartenant_pas_au_proprietaire_du_sol(o)
+            and proprietaire_des_materiaux(o, p);
+        then duty MaintenanceInterdictionEnleverMateriaux554Duty {
+            bearer p;
+            goal maintenance {
+                condition not materiaux_enleves(o, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+}
+
+// --- Article 555 : l'ouvrage du tiers ------------------------------------------------------------
+
+pub enum ChoixDuProprietaireDuFonds {
+    label fr official "Choix du propriétaire du fonds entre conserver l'ouvrage et en obliger l'enlèvement (article 555, alinéa 1)";
+    label en unofficial "Choice of the owner of the land between keeping the work and compelling its removal (Article 555, paragraph 1)";
+    ConserverLaPropriete,
+    ObligerLeTiersAEnlever
+}
+pub enum OptionDeRemboursement {
+    label fr official "Option du propriétaire du fonds entre les deux sommes de l'alinéa 3 (article 555, alinéa 3)";
+    label en unofficial "Option of the owner of the land between the two sums of paragraph 3 (Article 555, paragraph 3)";
+    PlusValueDuFonds,
+    CoutDesMateriauxEtMainDOeuvre
+}
+
+pub relation ouvrage_fait_par_un_tiers(o: Ouvrage, t: Personne) kind empirical {
+    label fr official "les plantations, constructions et ouvrages ont été faits par un tiers, avec des matériaux appartenant à ce dernier (article 555, alinéa 1)";
+    label en unofficial "the plantings, constructions and works were made by a third party, with materials belonging to him (Article 555, paragraph 1)";
+}
+pub relation choix_du_proprietaire_du_fonds(o: Ouvrage, choix: ChoixDuProprietaireDuFonds) kind empirical {
+    key(o);
+    label fr official "choix exercé par le propriétaire du fonds (article 555, alinéa 1)";
+    label en unofficial "choice exercised by the owner of the land (Article 555, paragraph 1)";
+}
+pub relation option_de_remboursement(o: Ouvrage, option: OptionDeRemboursement) kind empirical {
+    key(o);
+    label fr official "option exercée par le propriétaire du fonds entre la plus-value et le coût (article 555, alinéa 3)";
+    label en unofficial "option exercised by the owner of the land between the added value and the cost (Article 555, paragraph 3)";
+}
+pub relation plus_value_du_fonds(o: Ouvrage, montant: Money) kind empirical {
+    key(o);
+    label fr official "somme égale à celle dont le fonds a augmenté de valeur (article 555, alinéa 3)";
+    label en unofficial "sum equal to the increase in the value of the land (Article 555, paragraph 3)";
+}
+pub relation cout_des_materiaux_et_main_d_oeuvre(o: Ouvrage, montant: Money) kind empirical {
+    key(o);
+    label fr official "coût des matériaux et prix de la main-d'œuvre estimés à la date du remboursement, compte tenu de l'état de l'ouvrage (article 555, alinéa 3)";
+    label en unofficial "cost of materials and price of labour assessed at the date of reimbursement, having regard to the state of the work (Article 555, paragraph 3)";
+}
+pub relation tiers_evince(o: Ouvrage, t: Personne) kind empirical {
+    label fr official "le tiers qui a fait l'ouvrage a été évincé (article 555, alinéa 4)";
+    label en unofficial "the third party who made the work has been evicted (Article 555, paragraph 4)";
+}
+pub relation non_condamne_a_restituer_les_fruits_pour_bonne_foi(o: Ouvrage, t: Personne) kind empirical {
+    label fr official "le tiers évincé n'a pas été condamné, en raison de sa bonne foi, à la restitution des fruits — fait établi par la décision de justice (article 555, alinéa 4)";
+    label en unofficial "the evicted third party was not ordered, on account of his good faith, to return the fruits — a fact established by the court's decision (Article 555, paragraph 4)";
+}
+
+pub relation droit_de_conserver_ou_de_faire_enlever(o: Ouvrage, p: Personne) kind derived {
+    label fr official "le propriétaire du fonds a le droit, soit de conserver la propriété de l'ouvrage, soit d'obliger le tiers à l'enlever (article 555, alinéa 1)";
+    label en unofficial "the owner of the land has the right either to keep the work or to compel the third party to remove it (Article 555, paragraph 1)";
+}
+pub relation choix_conserver_ou_enlever_exerce(o: Ouvrage, p: Personne) kind empirical {
+    label fr official "choix de conserver ou faire enlever exercé";
+    label en unofficial "choice to keep or remove exercised";
+}
+pub relation suppression_aux_frais_du_tiers(o: Ouvrage, t: Personne) kind derived {
+    label fr official "la suppression est exécutée aux frais du tiers, sans aucune indemnité pour lui (article 555, alinéa 2)";
+    label en unofficial "the removal is carried out at the third party's cost, without any indemnity for him (Article 555, paragraph 2)";
+}
+pub relation suppression_ouvrage_exercee(o: Ouvrage, t: Personne) kind empirical {
+    label fr official "suppression de l'ouvrage exercée";
+    label en unofficial "work removal exercised";
+}
+pub relation suppression_ne_peut_etre_exigee(o: Ouvrage) kind derived {
+    label fr official "le propriétaire ne peut exiger la suppression : le tiers évincé n'a pas été condamné à la restitution des fruits en raison de sa bonne foi (article 555, alinéa 4)";
+    label en unofficial "the owner may not require removal: the evicted third party was not ordered to return the fruits on account of his good faith (Article 555, paragraph 4)";
+}
+pub relation suppression_ouvrage_exigee(o: Ouvrage, p: Personne) kind empirical {
+    label fr official "suppression de l'ouvrage exigée";
+    label en unofficial "work removal demanded";
+}
+pub relation remboursement_du_au_tiers(o: Ouvrage, t: Personne, montant: Money) kind derived {
+    label fr official "somme que le propriétaire du fonds doit rembourser au tiers (article 555, alinéas 3 et 4)";
+    label en unofficial "sum the owner of the land must reimburse to the third party (Article 555, paragraphs 3 and 4)";
+}
+pub relation remboursement_ouvrage_exerce(o: Ouvrage, t: Personne, p: Personne) kind empirical {
+    label fr official "remboursement de l'ouvrage au tiers exercé";
+    label en unofficial "work reimbursement to the third party exercised";
+}
+
+@source(CC_ART555) {
+    rule DroitDeChoisirDuProprietaireDuFonds(o: Ouvrage, f: Fonds, p: Personne, t: Personne) strict {
+        label fr official "Article 555, alinéa 1. Lorsque les plantations, constructions et ouvrages ont été faits par un tiers avec ses propres matériaux, le propriétaire du fonds a le droit, sous réserve de l'alinéa 4, soit d'en conserver la propriété, soit d'obliger le tiers à les enlever";
+        label en unofficial "Article 555, paragraph 1. Where plantings, constructions and works were made by a third party with his own materials, the owner of the land has the right, subject to paragraph 4, either to keep them or to compel the third party to remove them";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and not_known(suppression_ne_peut_etre_exigee(o));
+        then droit_de_conserver_ou_de_faire_enlever(o, p);
+    }
+    rule P4PouvoirChoisirOuvrage555(o: Ouvrage, f: Fonds, p: Personne, t: Personne) strict {
+        label fr official "Article 555. Le propriétaire du fonds peut conserver ou faire enlever l'ouvrage";
+        label en unofficial "Article 555. The owner of the land may keep or remove the work";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and not_known(suppression_ne_peut_etre_exigee(o));
+        then power P4PouvoirChoisirOuvrage555Actif {
+            holder p;
+            over o;
+            exercise choix_conserver_ou_enlever_exerce(o, p);
+            effect droit_de_conserver_ou_de_faire_enlever(o, p);
+            valid_when ouvrage_fait_par_un_tiers(o, t);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule SuppressionInterditeAuTiersEvinceDeBonneFoi(o: Ouvrage, t: Personne) strict {
+        label fr official "Article 555, alinéa 4. Si les ouvrages ont été faits par un tiers évincé qui n'aurait pas été condamné, en raison de sa bonne foi, à la restitution des fruits, le propriétaire ne pourra exiger la suppression";
+        label en unofficial "Article 555, paragraph 4. If the works were made by an evicted third party who was not ordered, on account of his good faith, to return the fruits, the owner may not require their removal";
+        when ouvrage_fait_par_un_tiers(o, t)
+            and tiers_evince(o, t)
+            and non_condamne_a_restituer_les_fruits_pour_bonne_foi(o, t);
+        then suppression_ne_peut_etre_exigee(o);
+    }
+    rule P4InterdictionExigerSuppression555(o: Ouvrage, f: Fonds, p: Personne, t: Personne) strict {
+        label fr official "Article 555, alinéa 4. Le propriétaire ne peut exiger la suppression";
+        label en unofficial "Article 555, paragraph 4. The owner may not demand removal";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and tiers_evince(o, t)
+            and non_condamne_a_restituer_les_fruits_pour_bonne_foi(o, t);
+        then prohibition P4InterdictionExigerSuppression555Actif {
+            bearer p;
+            action suppression_ouvrage_exigee(o, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+    rule MaintenanceInterdictionExigerSuppression555(o: Ouvrage, f: Fonds, p: Personne, t: Personne) strict {
+        label fr official "Article 555. Le propriétaire doit maintenir l'absence de demande de suppression";
+        label en unofficial "Article 555. The owner must maintain the absence of a removal demand";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and tiers_evince(o, t)
+            and non_condamne_a_restituer_les_fruits_pour_bonne_foi(o, t);
+        then duty MaintenanceInterdictionExigerSuppression555Duty {
+            bearer p;
+            goal maintenance {
+                condition not suppression_ouvrage_exigee(o, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule SuppressionAuxFraisDuTiers(o: Ouvrage, t: Personne) strict {
+        label fr official "Article 555, alinéa 2. Si le propriétaire du fonds exige la suppression, elle est exécutée aux frais du tiers, sans aucune indemnité pour lui ; le tiers peut en outre être condamné à des dommages-intérêts";
+        label en unofficial "Article 555, paragraph 2. If the owner of the land requires the removal, it is carried out at the third party's cost, without any indemnity for him; the third party may also be ordered to pay damages";
+        when ouvrage_fait_par_un_tiers(o, t)
+            and choix_du_proprietaire_du_fonds(o, ObligerLeTiersAEnlever)
+            and not_known(suppression_ne_peut_etre_exigee(o));
+        then suppression_aux_frais_du_tiers(o, t);
+    }
+    rule P4DevoirSuppressionAuxFraisTiers555(o: Ouvrage, t: Personne) strict {
+        label fr official "Article 555, alinéa 2. Le tiers doit supporter les frais de suppression";
+        label en unofficial "Article 555, paragraph 2. The third party must bear removal costs";
+        when ouvrage_fait_par_un_tiers(o, t)
+            and choix_du_proprietaire_du_fonds(o, ObligerLeTiersAEnlever)
+            and not_known(suppression_ne_peut_etre_exigee(o));
+        then duty P4DevoirSuppressionAuxFraisTiers555Actif {
+            bearer t;
+            goal achievement {
+                condition suppression_ouvrage_exercee(o, t);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule P4DevoirRembourserOuvrage555(o: Ouvrage, f: Fonds, p: Personne, t: Personne) strict {
+        label fr official "Article 555, alinéa 3. Le propriétaire doit rembourser le tiers";
+        label en unofficial "Article 555, paragraph 3. The owner must reimburse the third party";
+        when ouvrage_sur(o, f)
+            and proprietaire_du_bien(f, p)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and choix_du_proprietaire_du_fonds(o, ConserverLaPropriete);
+        then duty P4DevoirRembourserOuvrage555Actif {
+            bearer p;
+            goal achievement {
+                condition remboursement_ouvrage_exerce(o, t, p);
+                window [@2016-10-01, infinity];
+            };
+        };
+    }
+    rule RemboursementDeLaPlusValue(o: Ouvrage, t: Personne, montant: Money) strict {
+        label fr official "Article 555, alinéa 3. Si le propriétaire du fonds préfère conserver la propriété des ouvrages, il doit, à son choix, rembourser au tiers une somme égale à celle dont le fonds a augmenté de valeur";
+        label en unofficial "Article 555, paragraph 3. If the owner of the land prefers to keep the works, he must, at his choice, reimburse to the third party a sum equal to the increase in the value of the land";
+        when ouvrage_fait_par_un_tiers(o, t)
+            and choix_du_proprietaire_du_fonds(o, ConserverLaPropriete)
+            and option_de_remboursement(o, PlusValueDuFonds)
+            and plus_value_du_fonds(o, montant);
+        then remboursement_du_au_tiers(o, t, montant);
+    }
+    rule RemboursementDuCout(o: Ouvrage, t: Personne, montant: Money) strict {
+        label fr official "Article 555, alinéa 3. Ou bien le coût des matériaux et le prix de la main-d'œuvre estimés à la date du remboursement, compte tenu de l'état dans lequel se trouvent les ouvrages";
+        label en unofficial "Article 555, paragraph 3. Or else the cost of the materials and the price of the labour assessed at the date of reimbursement, having regard to the state of the works";
+        when ouvrage_fait_par_un_tiers(o, t)
+            and choix_du_proprietaire_du_fonds(o, ConserverLaPropriete)
+            and option_de_remboursement(o, CoutDesMateriauxEtMainDOeuvre)
+            and cout_des_materiaux_et_main_d_oeuvre(o, montant);
+        then remboursement_du_au_tiers(o, t, montant);
+    }
+    rule RemboursementAuTiersEvinceDeBonneFoiPlusValue(o: Ouvrage, t: Personne, montant: Money) strict {
+        label fr official "Article 555, alinéa 4. Le propriétaire aura le choix de rembourser au tiers évincé de bonne foi l'une ou l'autre des sommes visées à l'alinéa précédent : la plus-value du fonds";
+        label en unofficial "Article 555, paragraph 4. The owner has the choice of reimbursing the good-faith evicted third party either of the sums referred to in the preceding paragraph: the increase in the value of the land";
+        when suppression_ne_peut_etre_exigee(o)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and option_de_remboursement(o, PlusValueDuFonds)
+            and plus_value_du_fonds(o, montant);
+        then remboursement_du_au_tiers(o, t, montant);
+    }
+    rule RemboursementAuTiersEvinceDeBonneFoiCout(o: Ouvrage, t: Personne, montant: Money) strict {
+        label fr official "Article 555, alinéa 4. Ou bien le coût des matériaux et le prix de la main-d'œuvre";
+        label en unofficial "Article 555, paragraph 4. Or else the cost of the materials and the price of the labour";
+        when suppression_ne_peut_etre_exigee(o)
+            and ouvrage_fait_par_un_tiers(o, t)
+            and option_de_remboursement(o, CoutDesMateriauxEtMainDOeuvre)
+            and cout_des_materiaux_et_main_d_oeuvre(o, montant);
+        then remboursement_du_au_tiers(o, t, montant);
+    }
+}

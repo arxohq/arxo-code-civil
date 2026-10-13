@@ -1,0 +1,63 @@
+// Своды: завершённость, распределённое, остаток, недоплата.
+//
+// ЗАВЕРШЁННОСТЬ — СЧЁТ, А НЕ ОБЕЩАНИЕ. Распределение завершено, когда доля
+// выведена у КАЖДОГО получателя: число получателей равно числу выведенных
+// долей. Неразрешённое равенство оставляет получателя без доли, и счёт это
+// видит — своды ниже тогда не выводятся, а не считаются по части
+// получателей.
+//
+// СВОЙСТВА, НАБЛЮДАЕМЫЕ ЗАПРОСОМ. При Proportional и LargestRemainder
+// остаток распределения равен нулю: сумма долей в точности равна сумме.
+// При Withheld остаток равен сумме остатков округления очередей. При
+// Sequential остаток равен тому, что не покрыли требования, — он
+// возвращается тому, кому решит потребитель, а не пропадает. Каждое из
+// свойств проверяется исполнением пакета, а не пересказом.
+
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+use self::{
+    Allocation,
+    AllocationMode,
+    Recipient,
+    allocation_allocated,
+    allocation_mode,
+    allocation_remainder,
+    allocation_settled,
+    allocation_total,
+    allocation_wellformed,
+    recipient_claim,
+    recipient_of,
+    recipient_shortfall,
+    share_amount,
+};
+
+rule AllocationSettled(a: Allocation) strict {
+    label ru official "распределение завершено: доля выведена у каждого получателя";
+    when allocation_wellformed(a)
+        and (count distinct r: Recipient where recipient_of(r, a))
+        == (count distinct r: Recipient for m: Money where share_amount(a, r, m));
+    then allocation_settled(a);
+}
+
+// Свод берётся СПИСКОМ (`collect all`, errata E-0012): два получателя с
+// одинаковой долей — две позиции свода.
+rule AllocationAllocated(a: Allocation) strict {
+    label ru official "сумма долей всех получателей";
+    when allocation_settled(a);
+    then allocation_allocated(a, (sum all m: Money for r: Recipient where share_amount(a, r, m)));
+}
+
+rule AllocationRemainder(a: Allocation, t: Money, allocated: Money) strict {
+    label ru official "остаток распределения есть сумма минус распределённое";
+    when allocation_total(a, t) and allocation_allocated(a, allocated);
+    then allocation_remainder(a, t - allocated);
+}
+
+rule RecipientShortfall(a: Allocation, r: Recipient, c: Money, m: Money) strict {
+    label ru official "недоплата по требованию есть требование минус доля";
+    when allocation_mode(a, Sequential) and recipient_of(r, a)
+        and recipient_claim(r, c) and share_amount(a, r, m);
+    then recipient_shortfall(a, r, c - m);
+}

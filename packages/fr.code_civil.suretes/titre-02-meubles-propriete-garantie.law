@@ -1,0 +1,819 @@
+// LIVRE IV, TITRE II, SOUS-TITRE II, CHAPITRE IV : DE LA PROPRIÉTÉ RETENUE OU
+// CÉDÉE À TITRE DE GARANTIE (articles 2367 à 2374-6).
+//
+// Réserve de propriété (2367–2372), fiducie-sûreté mobilière (2372-1 à
+// 2372-5), cession de créance (2373 à 2373-3) et de somme d'argent (2374 à
+// 2374-6) à titre de garantie. Les renvois au régime de la fiducie (2011 à
+// 2030) et de la cession de créance (1321 à 1326) visent d'autres paquets du
+// Code : ils sont lus comme entrées du cas (contrat conclu en application de
+// ces articles), non réécrits.
+//
+// RANG DES RECHARGEMENTS (2372-5) : la date d'enregistrement de la convention
+// de rechargement détermine le rang entre créanciers ; forme close comme
+// ailleurs (nombre de rechargements enregistrés avant).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2367,
+    CC_ART2368,
+    CC_ART2369,
+    CC_ART2370,
+    CC_ART2371,
+    CC_ART2372,
+    CC_ART2372_1,
+    CC_ART2372_2,
+    CC_ART2372_3,
+    CC_ART2372_4,
+    CC_ART2372_5,
+    CC_ART2373,
+    CC_ART2373_1,
+    CC_ART2373_2,
+    CC_ART2373_3,
+    CC_ART2374,
+    CC_ART2374_1,
+    CC_ART2374_2,
+    CC_ART2374_3,
+    CC_ART2374_4,
+    CC_ART2374_5,
+    CC_ART2374_6,
+    Creance,
+    Personne,
+    SureteReelle,
+    creance_garantie_echue,
+    creance_garantie_future_indeterminable,
+    creances_futures_non_individualisables,
+    defaillance_du_debiteur_garanti,
+    dette_garantie_impayee,
+    ecrit_designe_la_dette_garantie,
+    ecrit_designe_les_creances_nanties,
+    ecrit_etabli,
+    montant_de_la_dette_reelle,
+    paiement_de_la_creance_nantie,
+    sommes_conservees_en_garantie,
+    sommes_imputees_sur_la_creance_garantie,
+    surete_reelle_constituee,
+    valeur_au_jour_du_transfert,
+};
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation clause_de_reserve_de_propriete(s: SureteReelle, b: Bien) kind empirical {
+    key(s);
+    label fr official "clause de réserve de propriété suspendant l'effet translatif du contrat sur ce bien (article 2367)";
+    label en unofficial "retention-of-title clause suspending the transfer of this asset (Article 2367)";
+}
+pub relation prix_integralement_paye(s: SureteReelle) kind empirical {
+    label fr official "l'obligation qui constitue la contrepartie est complètement payée (articles 2367, 2371)";
+    label en unofficial "the counter-performance has been paid in full (Articles 2367, 2371)";
+}
+pub relation bien_fongible(b: Bien) kind empirical {
+    label fr official "bien fongible (article 2369)";
+    label en unofficial "fungible asset (Article 2369)";
+}
+pub relation biens_de_meme_nature_detenus(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "valeur des biens de même nature et qualité détenus par le débiteur ou pour son compte (article 2369)";
+    label en unofficial "value of goods of the same kind and quality held by or for the debtor (Article 2369)";
+}
+pub relation creance_restant_due(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "créance restant due au titre de la vente sous réserve de propriété (articles 2369, 2371)";
+    label en unofficial "claim still owed under the retention-of-title sale (Articles 2369, 2371)";
+}
+pub relation incorpore_a_un_autre_bien(s: SureteReelle) kind empirical {
+    label fr official "le meuble réservé est incorporé à un autre bien (article 2370)";
+    label en unofficial "the retained movable is incorporated into another asset (Article 2370)";
+}
+pub relation separable_sans_dommage(s: SureteReelle) kind empirical {
+    label fr official "les biens peuvent être séparés sans subir de dommage (article 2370)";
+    label en unofficial "the assets can be separated without damage (Article 2370)";
+}
+pub relation bien_aliene_ou_perdu(s: SureteReelle) kind empirical {
+    label fr official "le bien réservé est aliéné ou perdu (article 2372)";
+    label en unofficial "the retained asset is sold on or lost (Article 2372)";
+}
+pub relation creance_contre_le_sous_acquereur_ou_l_assureur(s: SureteReelle, c: Creance) kind empirical {
+    key(s);
+    label fr official "créance du débiteur contre le sous-acquéreur, ou indemnité d'assurance subrogée au bien (article 2372)";
+    label en unofficial "the debtor's claim against the sub-buyer, or insurance proceeds substituted for the asset (Article 2372)";
+}
+pub relation fiducie_surete(s: SureteReelle, fiduciaire: Personne, creancier_p: Personne) kind empirical {
+    key(s);
+    label fr official "contrat de fiducie conclu à titre de garantie en application des articles 2011 à 2030 : fiduciaire et créancier bénéficiaire (articles 2372-1, 2488-1)";
+    label en unofficial "trust agreement by way of security under Articles 2011 to 2030: trustee and beneficiary creditor (Articles 2372-1, 2488-1)";
+}
+pub relation fiducie_immobiliere(s: SureteReelle) kind empirical {
+    label fr official "la fiducie-sûreté porte sur un bien immobilier (article 2488-1)";
+    label en unofficial "the security trust bears on immovable property (Article 2488-1)";
+}
+pub relation deces_du_constituant_personne_physique(s: SureteReelle) kind empirical {
+    label fr official "le constituant personne physique est décédé (articles 2372-1, 2488-1)";
+    label en unofficial "the natural-person settlor has died (Articles 2372-1, 2488-1)";
+}
+pub relation stipulation_contraire_libre_disposition(s: SureteReelle) kind empirical {
+    label fr official "stipulation contraire du contrat de fiducie sur la libre disposition (articles 2372-3, 2488-3)";
+    label en unofficial "contrary stipulation of the trust agreement on free disposal (Articles 2372-3, 2488-3)";
+}
+pub relation vente_prevue_par_la_fiducie(s: SureteReelle) kind empirical {
+    label fr official "le contrat de fiducie prévoit la vente du bien et la remise du prix (articles 2372-3, 2372-4, 2488-3, 2488-4)";
+    label en unofficial "the trust agreement provides for sale of the asset and handover of the price (Articles 2372-3, 2372-4, 2488-3, 2488-4)";
+}
+pub relation cotation_officielle_ou_somme_d_argent(s: SureteReelle) kind empirical {
+    label fr official "le bien a une cotation officielle sur une plate-forme de négociation ou est une somme d'argent (articles 2348, 2372-3)";
+    label en unofficial "the asset has an official quotation on a trading venue or is a sum of money (Articles 2348, 2372-3)";
+}
+pub relation dettes_de_conservation_ou_gestion_payees(s: SureteReelle) kind empirical {
+    label fr official "les dettes nées de la conservation ou de la gestion du patrimoine fiduciaire sont payées (articles 2372-4, 2488-4)";
+    label en unofficial "debts arising from preserving or managing the trust assets have been paid (Articles 2372-4, 2488-4)";
+}
+pub relation produit_de_la_vente(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "produit de la vente du bien ou du droit cédé (articles 2372-4, 2488-4)";
+    label en unofficial "proceeds of sale of the assigned asset or right (Articles 2372-4, 2488-4)";
+}
+pub relation acte_prevoit_le_rechargement(s: SureteReelle) kind empirical {
+    label fr official "l'acte constitutif prévoit expressément l'affectation ultérieure à d'autres dettes (articles 2372-5, 2416, 2488-5)";
+    label en unofficial "the constituting deed expressly provides for later allocation to other debts (Articles 2372-5, 2416, 2488-5)";
+}
+pub relation convention_de_rechargement(x: SureteReelle, s: SureteReelle, creancier_p: Personne, montant: Money) kind empirical {
+    key(x);
+    label fr official "convention de rechargement x affectant la sûreté s à une nouvelle dette envers ce créancier (articles 2372-5, 2416, 2488-5)";
+    label en unofficial "reloading agreement x allocating security s to a new debt owed to this creditor (Articles 2372-5, 2416, 2488-5)";
+}
+pub relation convention_enregistree_ou_publiee_le(x: SureteReelle, jour: Date) kind empirical {
+    key(x);
+    label fr official "date d'enregistrement ou de publication de la convention de rechargement (articles 2372-5, 2420, 2488-5)";
+    label en unofficial "registration or publication date of the reloading agreement (Articles 2372-5, 2420, 2488-5)";
+}
+pub relation valeur_estimee_au_jour_de_la_recharge(x: SureteReelle, m: Money) kind empirical {
+    key(x);
+    label fr official "valeur estimée du patrimoine fiduciaire au jour de la recharge (articles 2372-5, 2488-5)";
+    label en unofficial "estimated value of the trust assets on the reloading date (Articles 2372-5, 2488-5)";
+}
+pub relation cession_de_creance_en_garantie(s: SureteReelle) kind empirical {
+    label fr official "cession de créance à titre de garantie conclue en application des articles 1321 à 1326 (article 2373)";
+    label en unofficial "assignment of a claim by way of security under Articles 1321 to 1326 (Article 2373)";
+}
+pub relation creance_garantie_integralement_payee(s: SureteReelle) kind empirical {
+    label fr official "la créance garantie est intégralement payée (articles 2373-3, 2374-6)";
+    label en unofficial "the secured claim is paid in full (Articles 2373-3, 2374-6)";
+}
+pub relation creance_cedee_non_encore_payee(s: SureteReelle) kind empirical {
+    label fr official "la créance cédée n'est pas encore payée (article 2373-3)";
+    label en unofficial "the assigned claim is not yet paid (Article 2373-3)";
+}
+pub relation cession_de_somme_d_argent(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "somme d'argent cédée à titre de garantie (article 2374)";
+    label en unofficial "sum of money assigned by way of security (Article 2374)";
+}
+pub relation somme_remise_au_cessionnaire(s: SureteReelle) kind empirical {
+    label fr official "la somme cédée a été remise au cessionnaire (article 2374-2)";
+    label en unofficial "the assigned sum was handed over to the assignee (Article 2374-2)";
+}
+pub relation affectation_convenue_de_la_somme(s: SureteReelle) kind empirical {
+    label fr official "une convention précise l'affectation de la somme cédée (article 2374-3)";
+    label en unofficial "an agreement specifies the use of the assigned sum (Article 2374-3)";
+}
+pub relation fruits_et_interets_de_la_somme(s: SureteReelle, m: Money) kind empirical {
+    key(s);
+    label fr official "fruits et intérêts produits par la somme cédée (articles 2374-4 à 2374-6)";
+    label en unofficial "fruits and interest earned by the assigned sum (Articles 2374-4 to 2374-6)";
+}
+pub relation clause_contraire_sur_les_fruits_de_la_somme(s: SureteReelle) kind empirical {
+    label fr official "clause contraire : les fruits et intérêts n'accroissent pas l'assiette (article 2374-4)";
+    label en unofficial "contrary clause: fruits and interest do not add to the collateral (Article 2374-4)";
+}
+pub relation interet_convenu_au_profit_du_cedant(s: SureteReelle) kind empirical {
+    label fr official "un intérêt au profit du cédant est convenu (article 2374-4)";
+    label en unofficial "interest in favour of the assignor is agreed (Article 2374-4)";
+}
+
+// --- Conclusions ---------------------------------------------------------------------------
+
+pub relation transfert_suspendu(s: SureteReelle, b: Bien) kind derived {
+    label fr official "l'effet translatif du contrat est suspendu jusqu'au complet paiement (article 2367)";
+    label en unofficial "the transfer of ownership is suspended until full payment (Article 2367)";
+}
+pub relation propriete_reservee_accessoire(s: SureteReelle) kind derived {
+    label fr official "la propriété réservée est l'accessoire de la créance dont elle garantit le paiement (article 2367, al. 2)";
+    label en unofficial "the retained title is accessory to the claim whose payment it secures (Article 2367, para. 2)";
+}
+pub relation reserve_valablement_convenue(s: SureteReelle) kind derived {
+    label fr official "la réserve de propriété est convenue par écrit (article 2368)";
+    label en unofficial "the retention of title is agreed in writing (Article 2368)";
+}
+pub relation reserve_sur_biens_de_meme_nature(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "la propriété réservée d'un bien fongible s'exerce sur des biens de même nature et qualité à concurrence de la créance restant due (article 2369)";
+    label en unofficial "retained title over a fungible is exercised over goods of the same kind and quality up to the claim still owed (Article 2369)";
+}
+pub relation droits_maintenus_malgre_l_incorporation(s: SureteReelle) kind derived {
+    label fr official "l'incorporation ne fait pas obstacle aux droits du créancier : séparation sans dommage (article 2370)";
+    label en unofficial "incorporation does not defeat the creditor's rights: separation without damage (Article 2370)";
+}
+pub relation restitution_du_bien_reserve(s: SureteReelle) kind derived {
+    label fr official "à défaut de complet paiement, le créancier peut demander la restitution du bien (article 2371)";
+    label en unofficial "failing full payment, the creditor may demand return of the asset (Article 2371)";
+}
+pub relation valeur_imputee_sur_le_solde(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "valeur du bien repris imputée, à titre de paiement, sur le solde de la créance garantie (article 2371, al. 2)";
+    label en unofficial "value of the repossessed asset credited, as payment, against the balance of the secured claim (Article 2371, para. 2)";
+}
+pub relation difference_due_au_debiteur(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "valeur du bien repris excédant la dette encore exigible : le créancier doit la différence au débiteur (articles 2371, 2453)";
+    label en unofficial "repossessed asset's value exceeding the debt still due: the creditor owes the difference to the debtor (Articles 2371, 2453)";
+}
+pub relation report_de_la_propriete(s: SureteReelle, c: Creance) kind derived {
+    label fr official "la propriété se reporte sur la créance contre le sous-acquéreur ou sur l'indemnité d'assurance (article 2372)";
+    label en unofficial "the title shifts to the claim against the sub-buyer or to the insurance proceeds (Article 2372)";
+}
+pub relation fiducie_maintenue_apres_deces(s: SureteReelle) kind derived {
+    label fr official "par dérogation à l'article 2029, le décès du constituant personne physique ne met pas fin à la fiducie-sûreté (articles 2372-1, 2488-1)";
+    label en unofficial "by way of exception to Article 2029, the natural-person settlor's death does not end the security trust (Articles 2372-1, 2488-1)";
+}
+pub relation fiducie_surete_nulle(s: SureteReelle) kind derived {
+    label fr official "nullité du contrat de fiducie-sûreté qui ne mentionne pas la dette garantie (articles 2372-2, 2488-2)";
+    label en unofficial "nullity of a security trust agreement that does not mention the secured debt (Articles 2372-2, 2488-2)";
+}
+pub relation libre_disposition_du_fiduciaire_creancier(s: SureteReelle) kind derived {
+    label fr official "le fiduciaire créancier acquiert la libre disposition du bien à défaut de paiement (articles 2372-3, 2488-3)";
+    label en unofficial "the trustee-creditor obtains free disposal of the asset on non-payment (Articles 2372-3, 2488-3)";
+}
+pub relation creancier_peut_exiger_la_remise(s: SureteReelle) kind derived {
+    label fr official "le créancier non fiduciaire peut exiger la remise du bien, ou sa vente si le contrat le prévoit (articles 2372-3, 2488-3)";
+    label en unofficial "a creditor that is not the trustee may demand handover of the asset, or its sale if the agreement so provides (Articles 2372-3, 2488-3)";
+}
+pub relation estimation_par_expert_requise(s: SureteReelle) kind derived {
+    label fr official "la valeur du bien est déterminée par un expert ; toute clause contraire est réputée non écrite (articles 2348, 2372-3, 2453, 2488-3)";
+    label en unofficial "the asset's value is set by an expert; any contrary clause is deemed unwritten (Articles 2348, 2372-3, 2453, 2488-3)";
+}
+pub relation somme_versee_au_constituant(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "le bénéficiaire verse au constituant la différence entre la valeur et la dette, ou restitue la part du prix excédant la dette (articles 2372-4, 2488-4)";
+    label en unofficial "the beneficiary pays the settlor the excess of value over the debt, or returns the part of the price above the debt (Articles 2372-4, 2488-4)";
+}
+pub relation rechargement_permis(x: SureteReelle) kind derived {
+    label fr official "la sûreté peut être affectée à la nouvelle dette par la convention de rechargement (articles 2372-5, 2416, 2488-5)";
+    label en unofficial "the security may be allocated to the new debt by the reloading agreement (Articles 2372-5, 2416, 2488-5)";
+}
+pub relation rechargement_au_dela_de_la_valeur(x: SureteReelle) kind derived {
+    label fr official "le constituant personne physique ne peut affecter le patrimoine fiduciaire à une nouvelle dette au-delà de sa valeur estimée au jour de la recharge (articles 2372-5, 2488-5)";
+    label en unofficial "a natural-person settlor cannot allocate the trust assets to a new debt beyond their estimated value on the reloading date (Articles 2372-5, 2488-5)";
+}
+pub relation rechargement_anterieur(x: SureteReelle, y: SureteReelle) kind derived {
+    label fr official "la convention y de rechargement de la même sûreté est enregistrée ou publiée avant x";
+    label en unofficial "reloading agreement y over the same security was registered or published before x";
+}
+pub relation rang_du_rechargement(x: SureteReelle, n: Integer) kind derived {
+    key(x);
+    label fr official "rang du créancier de la convention de rechargement, par la date d'enregistrement ou de publication (articles 2372-5, 2420, 2488-5)";
+    label en unofficial "rank of the reloading agreement's creditor, by registration or publication date (Articles 2372-5, 2420, 2488-5)";
+}
+pub relation cession_de_creance_constituee(s: SureteReelle) kind derived {
+    label fr official "la propriété de la créance est cédée à titre de garantie (article 2373)";
+    label en unofficial "ownership of the claim is assigned by way of security (Article 2373)";
+}
+pub relation cession_de_creance_nulle(s: SureteReelle) kind derived {
+    label fr official "l'acte ne désigne pas les créances garanties et cédées, ou ne permet pas d'individualiser les créances futures (article 2373-1)";
+    label en unofficial "the deed does not identify the secured and assigned claims, or does not allow future claims to be identified (Article 2373-1)";
+}
+pub relation cedant_recouvre_la_creance(s: SureteReelle) kind derived {
+    label fr official "la créance garantie intégralement payée avant la créance cédée, le cédant recouvre de plein droit la propriété de celle-ci (article 2373-3)";
+    label en unofficial "the secured claim being fully paid before the assigned claim, the assignor automatically recovers ownership of it (Article 2373-3)";
+}
+pub relation cession_de_somme_valable(s: SureteReelle) kind derived {
+    label fr official "la cession de somme d'argent est conclue par écrit et désigne les créances garanties (article 2374-1)";
+    label en unofficial "the assignment of a sum of money is in writing and identifies the secured claims (Article 2374-1)";
+}
+pub relation cession_de_somme_nulle(s: SureteReelle) kind derived {
+    label fr official "nullité de la cession de somme d'argent faute d'écrit (article 2374-1)";
+    label en unofficial "nullity of the assignment of a sum of money for want of writing (Article 2374-1)";
+}
+pub relation cession_opposable_aux_tiers(s: SureteReelle) kind derived {
+    label fr official "la cession est opposable aux tiers par la remise de la somme cédée (article 2374-2)";
+    label en unofficial "the assignment is effective against third parties by handing over the assigned sum (Article 2374-2)";
+}
+pub relation libre_disposition_de_la_somme(s: SureteReelle) kind derived {
+    label fr official "le cessionnaire dispose librement de la somme cédée (article 2374-3)";
+    label en unofficial "the assignee may freely dispose of the assigned sum (Article 2374-3)";
+}
+pub relation assiette_de_la_somme(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "assiette de la garantie : somme cédée augmentée, s'il y a lieu, des fruits et intérêts (articles 2374-4 à 2374-6)";
+    label en unofficial "collateral: the assigned sum plus, where applicable, fruits and interest (Articles 2374-4 to 2374-6)";
+}
+pub relation interet_possible_au_profit_du_cedant(s: SureteReelle) kind derived {
+    label fr official "le cessionnaire ayant la libre disposition, un intérêt peut être convenu au profit du cédant (article 2374-4)";
+    label en unofficial "the assignee having free disposal, interest may be agreed for the assignor (Article 2374-4)";
+}
+pub relation excedent_restitue_au_cedant(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "en cas de défaillance, le cessionnaire impute la somme sur la créance garantie et restitue l'excédent (article 2374-5)";
+    label en unofficial "on default, the assignee applies the sum to the secured claim and returns any excess (Article 2374-5)";
+}
+pub relation somme_restituee_au_cedant(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "la créance garantie payée, le cessionnaire restitue la somme cédée avec ses fruits et intérêts (article 2374-6)";
+    label en unofficial "the secured claim paid, the assignee returns the assigned sum with its fruits and interest (Article 2374-6)";
+}
+
+// --- 2367 à 2372 : réserve de propriété --------------------------------------------------------
+
+@source(CC_ART2367) {
+    rule TransfertSuspendu(s: SureteReelle, b: Bien) strict {
+        label fr official "Article 2367. La clause de réserve de propriété suspend l'effet translatif du contrat jusqu'au complet paiement";
+        label en unofficial "Article 2367. A retention-of-title clause suspends the transfer until full payment";
+        when clause_de_reserve_de_propriete(s, b) and not_known(prix_integralement_paye(s));
+        then transfert_suspendu(s, b);
+    }
+    rule ProprieteReserveeAccessoire(s: SureteReelle, b: Bien) strict {
+        label fr official "Article 2367, alinéa 2. La propriété ainsi réservée est l'accessoire de la créance dont elle garantit le paiement";
+        label en unofficial "Article 2367, paragraph 2. Title so retained is accessory to the claim whose payment it secures";
+        when clause_de_reserve_de_propriete(s, b);
+        then propriete_reservee_accessoire(s);
+    }
+
+}
+
+@source(CC_ART2368)
+rule ReserveConvenueParEcrit(s: SureteReelle, b: Bien) strict {
+    label fr official "Article 2368. La réserve de propriété est convenue par écrit";
+    label en unofficial "Article 2368. Retention of title is agreed in writing";
+    when clause_de_reserve_de_propriete(s, b) and ecrit_etabli(s);
+    then reserve_valablement_convenue(s);
+}
+
+@source(CC_ART2369)
+rule ReserveSurBiensFongibles(s: SureteReelle, b: Bien, v: Money, d: Money) strict {
+    label fr official "Article 2369. La propriété réservée d'un bien fongible peut s'exercer, à concurrence de la créance restant due, sur des biens de même nature et de même qualité";
+    label en unofficial "Article 2369. Retained title over a fungible may be exercised, up to the claim still owed, over goods of the same kind and quality";
+    when clause_de_reserve_de_propriete(s, b) and bien_fongible(b) and biens_de_meme_nature_detenus(s, v) and creance_restant_due(s, d);
+    then reserve_sur_biens_de_meme_nature(s, min(v, d));
+}
+
+@source(CC_ART2369)
+
+@source(CC_ART2370)
+rule IncorporationSeparable(s: SureteReelle, b: Bien) strict {
+    label fr official "Article 2370. L'incorporation du meuble à un autre bien ne fait pas obstacle aux droits du créancier lorsque ces biens peuvent être séparés sans dommage";
+    label en unofficial "Article 2370. Incorporating the movable into another asset does not defeat the creditor's rights where they can be separated without damage";
+    when clause_de_reserve_de_propriete(s, b) and incorpore_a_un_autre_bien(s) and separable_sans_dommage(s);
+    then droits_maintenus_malgre_l_incorporation(s);
+}
+
+@source(CC_ART2371) {
+    rule RestitutionFauteDePaiement(s: SureteReelle, b: Bien) strict {
+        label fr official "Article 2371, alinéa 1. A défaut de complet paiement à l'échéance, le créancier peut demander la restitution du bien afin de recouvrer le droit d'en disposer";
+        label en unofficial "Article 2371, paragraph 1. Failing full payment when due, the creditor may demand return of the asset to regain the right to dispose of it";
+        when clause_de_reserve_de_propriete(s, b) and dette_garantie_impayee(s) and not_known(prix_integralement_paye(s));
+        then restitution_du_bien_reserve(s);
+    }
+
+    rule ValeurImputee(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2371, alinéa 2. La valeur du bien repris est imputée, à titre de paiement, sur le solde de la créance garantie";
+        label en unofficial "Article 2371, paragraph 2. The repossessed asset's value is credited, as payment, against the balance of the secured claim";
+        when restitution_du_bien_reserve(s) and valeur_au_jour_du_transfert(s, v) and creance_restant_due(s, d);
+        then valeur_imputee_sur_le_solde(s, min(v, d));
+    }
+    rule DifferenceAuDebiteur(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2371, alinéa 3. Lorsque la valeur du bien repris excède le montant de la dette garantie encore exigible, le créancier doit au débiteur une somme égale à la différence";
+        label en unofficial "Article 2371, paragraph 3. Where the repossessed asset's value exceeds the secured debt still due, the creditor owes the debtor the difference";
+        when restitution_du_bien_reserve(s) and valeur_au_jour_du_transfert(s, v) and creance_restant_due(s, d) and v > d;
+        then difference_due_au_debiteur(s, v - d);
+    }
+}
+
+@source(CC_ART2372)
+rule ReportDeLaPropriete(s: SureteReelle, b: Bien, c: Creance) strict {
+    label fr official "Article 2372. En cas d'aliénation ou de perte du bien, la propriété se reporte sur la créance du débiteur à l'égard du sous-acquéreur ou sur l'indemnité d'assurance ; les exceptions inhérentes à la dette restent opposables";
+    label en unofficial "Article 2372. If the asset is sold on or lost, the title shifts to the debtor's claim against the sub-buyer or to the insurance proceeds; defences inherent in the debt remain available";
+    when clause_de_reserve_de_propriete(s, b) and bien_aliene_ou_perdu(s) and creance_contre_le_sous_acquereur_ou_l_assureur(s, c);
+    then report_de_la_propriete(s, c);
+}
+
+@source(CC_ART2372)
+rule PositionLiberteReporterPropriete(s: SureteReelle, creancier: Personne, constituant: Personne, b: Bien, c: Creance) strict {
+    label fr official "Article 2372. Liberté du créancier de reporter la propriété réservée sur la créance ou l'indemnité";
+    label en unofficial "Article 2372. Creditor's liberty to shift retained title to the claim or insurance indemnity";
+    when surete_reelle_constituee(s, creancier, constituant, b)
+        and clause_de_reserve_de_propriete(s, b)
+        and bien_aliene_ou_perdu(s)
+        and creance_contre_le_sous_acquereur_ou_l_assureur(s, c);
+    then liberty LiberteReporterPropriete {
+        holder creancier;
+        action report_de_la_propriete(s, c);
+        window [@2022-01-01, infinity);
+    };
+}
+
+// --- 2372-1 à 2372-5 : fiducie-sûreté mobilière --------------------------------------------------
+
+@source(CC_ART2372_1)
+rule FiducieMobiliereApresDeces(s: SureteReelle, f: Personne, c: Personne) strict {
+    label fr official "Article 2372-1. Par dérogation à l'article 2029, le décès du constituant personne physique ne met pas fin au contrat de fiducie constitué à titre de garantie";
+    label en unofficial "Article 2372-1. By way of exception to Article 2029, the natural-person settlor's death does not end a trust constituted by way of security";
+    when fiducie_surete(s, f, c) and not_known(fiducie_immobiliere(s)) and deces_du_constituant_personne_physique(s)
+        and not_known(creance_garantie_future_indeterminable(s));
+    then fiducie_maintenue_apres_deces(s);
+}
+
+@source(CC_ART2372_2)
+rule FiducieMobiliereSansDette(s: SureteReelle, f: Personne, c: Personne) strict {
+    label fr official "Article 2372-2. En cas de fiducie conclue à titre de garantie, le contrat mentionne à peine de nullité la dette garantie";
+    label en unofficial "Article 2372-2. A trust made by way of security must, on pain of nullity, mention the secured debt";
+    when fiducie_surete(s, f, c) and not_known(fiducie_immobiliere(s)) and not_known(ecrit_designe_la_dette_garantie(s));
+    then fiducie_surete_nulle(s);
+}
+
+@source(CC_ART2372_3) {
+    rule LibreDispositionMobiliere(s: SureteReelle, c: Personne) strict {
+        label fr official "Article 2372-3, alinéa 1. A défaut de paiement et sauf stipulation contraire, le fiduciaire, lorsqu'il est le créancier, acquiert la libre disposition du bien ou du droit cédé";
+        label en unofficial "Article 2372-3, paragraph 1. On non-payment and save contrary stipulation, the trustee, where it is the creditor, obtains free disposal of the assigned asset or right";
+        when fiducie_surete(s, c, c) and not_known(fiducie_immobiliere(s)) and dette_garantie_impayee(s)
+            and not_known(stipulation_contraire_libre_disposition(s));
+        then libre_disposition_du_fiduciaire_creancier(s);
+    }
+
+    rule PositionLiberteDispositionFiduciaire(s: SureteReelle, c: Personne) strict {
+        label fr official "Article 2372-3. Liberté du fiduciaire créancier de disposer du bien cédé";
+        label en unofficial "Article 2372-3. Trustee-creditor's liberty to dispose of the assigned asset";
+        when fiducie_surete(s, c, c)
+            and not_known(fiducie_immobiliere(s))
+            and dette_garantie_impayee(s)
+            and not_known(stipulation_contraire_libre_disposition(s));
+        then liberty LiberteDispositionFiduciaire {
+            holder c;
+            action libre_disposition_du_fiduciaire_creancier(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule RemiseExigibleMobiliere(s: SureteReelle, f: Personne, c: Personne) strict {
+        label fr official "Article 2372-3, alinéa 2. Lorsque le fiduciaire n'est pas le créancier, ce dernier peut exiger de lui la remise du bien ou, si le contrat le prévoit, sa vente";
+        label en unofficial "Article 2372-3, paragraph 2. Where the trustee is not the creditor, the creditor may require it to hand over the asset or, if agreed, to sell it";
+        when fiducie_surete(s, f, c) and not_known(fiducie_immobiliere(s)) and dette_garantie_impayee(s)
+            and not_known(fiduciaire_est_le_creancier(s));
+        then creancier_peut_exiger_la_remise(s);
+    }
+    rule ExpertMobilier(s: SureteReelle, f: Personne, c: Personne) strict {
+        label fr official "Article 2372-3, alinéa 3. La valeur est déterminée par un expert, sauf cotation officielle ou somme d'argent ; toute clause contraire est réputée non écrite";
+        label en unofficial "Article 2372-3, paragraph 3. The value is set by an expert, save an official quotation or a sum of money; any contrary clause is deemed unwritten";
+        when fiducie_surete(s, f, c) and not_known(fiducie_immobiliere(s)) and dette_garantie_impayee(s)
+            and not_known(cotation_officielle_ou_somme_d_argent(s));
+        then estimation_par_expert_requise(s);
+    }
+    rule FiduciaireEstLeCreancier(s: SureteReelle, c: Personne) strict {
+        label fr official "Articles 2372-3 et 2488-3. Le fiduciaire est le créancier";
+        label en unofficial "Articles 2372-3 and 2488-3. The trustee is the creditor";
+        when fiducie_surete(s, c, c);
+        then fiduciaire_est_le_creancier(s);
+    }
+}
+
+pub relation fiduciaire_est_le_creancier(s: SureteReelle) kind derived {
+    label fr official "le fiduciaire est lui-même le créancier";
+    label en unofficial "the trustee is itself the creditor";
+}
+
+@source(CC_ART2372_4) {
+    rule SommeVerseeMobiliere(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2372-4, alinéa 1. Le bénéficiaire qui a acquis la libre disposition verse au constituant la différence entre la valeur et la dette, sous réserve du paiement préalable des dettes de conservation ou de gestion";
+        label en unofficial "Article 2372-4, paragraph 1. A beneficiary that obtained free disposal pays the settlor the excess of value over debt, subject to prior payment of preservation or management debts";
+        when libre_disposition_du_fiduciaire_creancier(s) and not_known(fiducie_immobiliere(s)) and valeur_au_jour_du_transfert(s, v)
+            and montant_de_la_dette_reelle(s, d) and v > d and dettes_de_conservation_ou_gestion_payees(s);
+        then somme_versee_au_constituant(s, v - d);
+    }
+
+    rule PositionDevoirVerserExcedentFiducie(s: SureteReelle, f: Personne, c: Personne, v: Money, d: Money) strict {
+        label fr official "Article 2372-4. Devoir de verser au constituant l'excédent de valeur";
+        label en unofficial "Article 2372-4. Duty to pay the settlor the surplus value";
+        when fiducie_surete(s, f, c)
+            and libre_disposition_du_fiduciaire_creancier(s)
+            and not_known(fiducie_immobiliere(s))
+            and valeur_au_jour_du_transfert(s, v)
+            and montant_de_la_dette_reelle(s, d) and v > d
+            and dettes_de_conservation_ou_gestion_payees(s);
+        then liberty DevoirVerserExcedentFiducie {
+            holder f;
+            action somme_versee_au_constituant(s, v - d);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule PrixExcedentaireMobilier(s: SureteReelle, f: Personne, c: Personne, p: Money, d: Money) strict {
+        label fr official "Article 2372-4, alinéa 2. Si le fiduciaire vend le bien en application du contrat, il restitue au constituant la part du produit excédant la dette";
+        label en unofficial "Article 2372-4, paragraph 2. If the trustee sells the asset under the agreement, it returns to the settlor the part of the proceeds above the debt";
+        when fiducie_surete(s, f, c) and not_known(fiducie_immobiliere(s)) and vente_prevue_par_la_fiducie(s) and produit_de_la_vente(s, p)
+            and montant_de_la_dette_reelle(s, d) and p > d and dettes_de_conservation_ou_gestion_payees(s);
+        then somme_versee_au_constituant(s, p - d);
+    }
+}
+
+@source(CC_ART2372_5) {
+    rule RechargementMobilier(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, f: Personne, k: Personne, a: Date) strict {
+        label fr official "Article 2372-5. La propriété cédée peut être affectée à d'autres dettes si l'acte constitutif le prévoit expressément ; la convention est enregistrée à peine de nullité";
+        label en unofficial "Article 2372-5. The assigned title may be allocated to other debts if the constituting deed expressly so provides; the agreement must be registered on pain of nullity";
+        when convention_de_rechargement(x, s, c, m) and fiducie_surete(s, f, k) and not_known(fiducie_immobiliere(s))
+            and acte_prevoit_le_rechargement(s) and convention_enregistree_ou_publiee_le(x, a);
+        then rechargement_permis(x);
+    }
+
+    rule PositionLiberteRechargerFiducie(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, f: Personne, k: Personne, a: Date) strict {
+        label fr official "Article 2372-5. Liberté d'affecter la propriété fiduciaire à une autre dette";
+        label en unofficial "Article 2372-5. Liberty to allocate fiduciary title to another debt";
+        when convention_de_rechargement(x, s, c, m)
+            and fiducie_surete(s, f, k)
+            and not_known(fiducie_immobiliere(s))
+            and acte_prevoit_le_rechargement(s)
+            and convention_enregistree_ou_publiee_le(x, a);
+        then liberty LiberteRechargerFiducie {
+            holder c;
+            action rechargement_permis(x);
+            window [@2022-01-01, infinity);
+        };
+    }
+    rule RechargementAuDelaDeLaValeur(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, v: Money, f: Personne, k: Personne) strict {
+        label fr official "Article 2372-5, alinéa 2. Le constituant personne physique ne peut affecter le patrimoine fiduciaire à une nouvelle dette que dans la limite de sa valeur estimée au jour de la recharge";
+        label en unofficial "Article 2372-5, paragraph 2. A natural-person settlor may allocate the trust assets to a new debt only up to their estimated value on the reloading date";
+        when convention_de_rechargement(x, s, c, m) and fiducie_surete(s, f, k) and constituant_personne_physique(s)
+            and valeur_estimee_au_jour_de_la_recharge(x, v) and m > v;
+        then rechargement_au_dela_de_la_valeur(x);
+    }
+    rule RechargementAnterieur(x: SureteReelle, y: SureteReelle, s: SureteReelle, c: Personne, e: Personne, m: Money, n: Money, a: Date, b: Date) strict {
+        label fr official "Articles 2372-5, 2420 et 2488-5. La date d'enregistrement ou de publication détermine, entre eux, le rang des créanciers";
+        label en unofficial "Articles 2372-5, 2420 and 2488-5. The registration or publication date determines the creditors' ranking among themselves";
+        when convention_de_rechargement(x, s, c, m) and convention_de_rechargement(y, s, e, n)
+            and convention_enregistree_ou_publiee_le(x, a) and convention_enregistree_ou_publiee_le(y, b) and b < a;
+        then rechargement_anterieur(x, y);
+    }
+    rule RangDuRechargement(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, a: Date) strict {
+        label fr official "Articles 2372-5, 2420 et 2488-5. Rang : un de plus que le nombre de conventions de rechargement antérieures";
+        label en unofficial "Articles 2372-5, 2420 and 2488-5. Rank: one more than the number of earlier reloading agreements";
+        when convention_de_rechargement(x, s, c, m) and convention_enregistree_ou_publiee_le(x, a);
+        then rang_du_rechargement(x, 1 + (count distinct y: SureteReelle where rechargement_anterieur(x, y)));
+    }
+}
+
+pub relation constituant_personne_physique(s: SureteReelle) kind empirical {
+    label fr official "le constituant de la sûreté est une personne physique (articles 2372-5, 2488-5)";
+    label en unofficial "the grantor of the security is a natural person (Articles 2372-5, 2488-5)";
+}
+
+// --- 2373 à 2374-6 : cession de créance et de somme d'argent --------------------------------------
+
+@source(CC_ART2373)
+rule CessionDeCreanceEnGarantie(s: SureteReelle) strict {
+    label fr official "Article 2373. La propriété d'une créance peut être cédée à titre de garantie par un contrat conclu en application des articles 1321 à 1326";
+    label en unofficial "Article 2373. Ownership of a claim may be assigned by way of security under a contract made pursuant to Articles 1321 to 1326";
+    when cession_de_creance_en_garantie(s);
+    then cession_de_creance_constituee(s);
+}
+
+@source(CC_ART2373)
+rule PositionLiberteCederCreanceEnGarantie(s: SureteReelle, cedant: Personne, cessionnaire: Personne, b: Bien) strict {
+    label fr official "Article 2373. Liberté de céder une créance à titre de garantie";
+    label en unofficial "Article 2373. Liberty to assign a claim as security";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b) and cession_de_creance_en_garantie(s);
+    then liberty LiberteCederCreanceEnGarantie {
+        holder cessionnaire;
+        action cession_de_creance_constituee(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2373_1) {
+    rule CessionSansDesignation(s: SureteReelle) strict {
+        label fr official "Article 2373-1. Les créances garanties et les créances cédées sont désignées dans l'acte";
+        label en unofficial "Article 2373-1. The secured and assigned claims are identified in the deed";
+        when cession_de_creance_constituee(s) and not_known(ecrit_designe_les_creances_nanties(s));
+        then cession_de_creance_nulle(s);
+    }
+    rule CessionCreancesFuturesIndeterminees(s: SureteReelle) strict {
+        label fr official "Article 2373-1. Si elles sont futures, l'acte doit permettre leur individualisation";
+        label en unofficial "Article 2373-1. If they are future, the deed must allow them to be identified";
+        when cession_de_creance_constituee(s) and creances_futures_non_individualisables(s);
+        then cession_de_creance_nulle(s);
+    }
+}
+
+@source(CC_ART2373_2) {
+    rule SommesImputeesCession(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2373-2. Les sommes payées au cessionnaire au titre de la créance cédée s'imputent sur la créance garantie lorsqu'elle est échue";
+        label en unofficial "Article 2373-2. Sums paid to the assignee on the assigned claim are charged to the secured claim when it is due";
+        when cession_de_creance_constituee(s) and paiement_de_la_creance_nantie(s, m) and creance_garantie_echue(s);
+        then sommes_imputees_sur_la_creance_garantie(s, m);
+    }
+    rule SommesConserveesCession(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2373-2. Dans le cas contraire, le cessionnaire les conserve dans les conditions des articles 2374-3 à 2374-6";
+        label en unofficial "Article 2373-2. Otherwise the assignee keeps them on the terms of Articles 2374-3 to 2374-6";
+        when cession_de_creance_constituee(s) and paiement_de_la_creance_nantie(s, m) and not_known(creance_garantie_echue(s));
+        then sommes_conservees_en_garantie(s, m);
+    }
+}
+
+@source(CC_ART2373_3)
+rule RetourDeLaCreanceCedee(s: SureteReelle) strict {
+    label fr official "Article 2373-3. Lorsque la créance garantie est intégralement payée avant que la créance cédée ne le soit, le cédant recouvre de plein droit la propriété de celle-ci";
+    label en unofficial "Article 2373-3. Where the secured claim is paid in full before the assigned claim, the assignor automatically recovers ownership of it";
+    when cession_de_creance_constituee(s) and creance_garantie_integralement_payee(s) and creance_cedee_non_encore_payee(s);
+    then cedant_recouvre_la_creance(s);
+}
+
+@source(CC_ART2373_3)
+rule PositionDevoirRestituerCreanceCedee(s: SureteReelle, cedant: Personne, cessionnaire: Personne, b: Bien) strict {
+    label fr official "Article 2373-3. Devoir du cessionnaire de restituer la créance au cédant";
+    label en unofficial "Article 2373-3. Assignee's duty to return the claim to the assignor";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and cession_de_creance_en_garantie(s)
+        and creance_garantie_integralement_payee(s)
+        and creance_cedee_non_encore_payee(s);
+    then liberty DevoirRestituerCreanceCedee {
+        holder cedant;
+        action cedant_recouvre_la_creance(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2374)
+rule CessionDeSomme(s: SureteReelle, m: Money) strict {
+    label fr official "Article 2374. La propriété d'une somme d'argent, en euro ou en une autre monnaie, peut être cédée à titre de garantie d'une ou plusieurs créances, présentes ou futures";
+    label en unofficial "Article 2374. Ownership of a sum of money, in euro or another currency, may be assigned to secure one or more present or future claims";
+    when cession_de_somme_d_argent(s, m) and not_known(creance_garantie_future_indeterminable(s));
+    then assiette_de_base_de_la_somme(s, m);
+}
+
+@source(CC_ART2374)
+rule PositionLiberteCederSommeGarantie(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien, m: Money) strict {
+    label fr official "Article 2374. Liberté de céder une somme d'argent à titre de garantie";
+    label en unofficial "Article 2374. Liberty to assign a sum as security";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and cession_de_somme_d_argent(s, m)
+        and not_known(creance_garantie_future_indeterminable(s));
+    then liberty LiberteCederSommeGarantie {
+        holder cessionnaire;
+        action assiette_de_base_de_la_somme(s, m);
+        window [@2022-01-01, infinity);
+    };
+}
+
+pub relation assiette_de_base_de_la_somme(s: SureteReelle, m: Money) kind derived {
+    key(s);
+    label fr official "somme cédée à titre de garantie (article 2374)";
+    label en unofficial "sum assigned by way of security (Article 2374)";
+}
+
+@source(CC_ART2374_1) {
+    rule CessionDeSommeValable(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2374-1. A peine de nullité, la cession est conclue par écrit ; l'écrit désigne les créances garanties, individualisables si elles sont futures";
+        label en unofficial "Article 2374-1. On pain of nullity, the assignment is in writing; the instrument identifies the secured claims, identifiable if future";
+        when assiette_de_base_de_la_somme(s, m) and ecrit_etabli(s) and ecrit_designe_la_dette_garantie(s)
+            and not_known(creances_futures_non_individualisables(s));
+        then cession_de_somme_valable(s);
+    }
+    rule CessionDeSommeSansEcrit(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2374-1. A peine de nullité, la cession doit être conclue par écrit";
+        label en unofficial "Article 2374-1. On pain of nullity, the assignment must be in writing";
+        when assiette_de_base_de_la_somme(s, m) and not_known(ecrit_etabli(s));
+        then cession_de_somme_nulle(s);
+    }
+}
+
+@source(CC_ART2374_2)
+rule CessionOpposableParRemise(s: SureteReelle) strict {
+    label fr official "Article 2374-2. La cession est opposable aux tiers par la remise de la somme cédée";
+    label en unofficial "Article 2374-2. The assignment is effective against third parties by handing over the assigned sum";
+    when cession_de_somme_valable(s) and somme_remise_au_cessionnaire(s);
+    then cession_opposable_aux_tiers(s);
+}
+
+@source(CC_ART2374_2)
+rule PositionLiberteRendreCessionOpposable(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien) strict {
+    label fr official "Article 2374-2. Liberté du cessionnaire de rendre la cession opposable par remise";
+    label en unofficial "Article 2374-2. Assignee's liberty to make the assignment effective by delivery";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and cession_de_somme_valable(s)
+        and somme_remise_au_cessionnaire(s);
+    then liberty LiberteRendreCessionOpposable {
+        holder cessionnaire;
+        action cession_opposable_aux_tiers(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2374_3)
+rule LibreDispositionDeLaSomme(s: SureteReelle) strict {
+    label fr official "Article 2374-3. Le cessionnaire dispose librement de la somme cédée, sauf convention contraire qui en précise l'affectation";
+    label en unofficial "Article 2374-3. The assignee may freely dispose of the assigned sum, save a contrary agreement specifying its use";
+    when cession_de_somme_valable(s) and not_known(affectation_convenue_de_la_somme(s));
+    then libre_disposition_de_la_somme(s);
+}
+
+@source(CC_ART2374_3)
+rule PositionLiberteDisposerSommeCedee(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien) strict {
+    label fr official "Article 2374-3. Liberté du cessionnaire de disposer de la somme cédée";
+    label en unofficial "Article 2374-3. Assignee's liberty to dispose of the assigned sum";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and cession_de_somme_valable(s)
+        and not_known(affectation_convenue_de_la_somme(s));
+    then liberty LiberteDisposerSommeCedee {
+        holder cessionnaire;
+        action libre_disposition_de_la_somme(s);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2374_4) {
+    rule FruitsAccroissentLAssiette(s: SureteReelle, m: Money, f: Money) strict {
+        label fr official "Article 2374-4. Lorsque le cessionnaire n'a pas la libre disposition de la somme, les fruits et intérêts accroissent l'assiette de la garantie, sauf clause contraire";
+        label en unofficial "Article 2374-4. Where the assignee lacks free disposal of the sum, fruits and interest increase the collateral, save contrary clause";
+        when cession_de_somme_valable(s) and assiette_de_base_de_la_somme(s, m) and affectation_convenue_de_la_somme(s)
+            and fruits_et_interets_de_la_somme(s, f) and not_known(clause_contraire_sur_les_fruits_de_la_somme(s));
+        then assiette_de_la_somme(s, m + f);
+    }
+    rule AssietteSansFruits(s: SureteReelle, m: Money) strict {
+        label fr official "Article 2374-4. Sans fruits ajoutés, l'assiette est la somme cédée";
+        label en unofficial "Article 2374-4. Without added fruits, the collateral is the assigned sum";
+        when cession_de_somme_valable(s) and assiette_de_base_de_la_somme(s, m) and not_known(fruits_ajoutes(s));
+        then assiette_de_la_somme(s, m);
+    }
+    rule FruitsAjoutes(s: SureteReelle, f: Money) strict {
+        label fr official "Article 2374-4. Fruits et intérêts ajoutés à l'assiette";
+        label en unofficial "Article 2374-4. Fruits and interest added to the collateral";
+        when affectation_convenue_de_la_somme(s) and fruits_et_interets_de_la_somme(s, f) and not_known(clause_contraire_sur_les_fruits_de_la_somme(s));
+        then fruits_ajoutes(s);
+    }
+    rule InteretAuProfitDuCedant(s: SureteReelle) strict {
+        label fr official "Article 2374-4. Lorsque le cessionnaire a la libre disposition de la somme cédée, il peut être convenu d'un intérêt au profit du cédant";
+        label en unofficial "Article 2374-4. Where the assignee has free disposal of the sum, interest may be agreed for the assignor";
+        when libre_disposition_de_la_somme(s) and interet_convenu_au_profit_du_cedant(s);
+        then interet_possible_au_profit_du_cedant(s);
+    }
+
+    rule PositionLiberteConvenirInteretCedant(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien) strict {
+        label fr official "Article 2374-4. Liberté de convenir un intérêt au profit du cédant";
+        label en unofficial "Article 2374-4. Liberty to agree interest for the assignor";
+        when surete_reelle_constituee(s, cessionnaire, cedant, b)
+            and libre_disposition_de_la_somme(s)
+            and interet_convenu_au_profit_du_cedant(s);
+        then liberty LiberteConvenirInteretCedant {
+            holder cedant;
+            action interet_possible_au_profit_du_cedant(s);
+            window [@2022-01-01, infinity);
+        };
+    }
+}
+
+pub relation fruits_ajoutes(s: SureteReelle) kind derived {
+    label fr official "les fruits et intérêts accroissent l'assiette";
+    label en unofficial "fruits and interest increase the collateral";
+}
+
+@source(CC_ART2374_5)
+rule ImputationEtExcedent(s: SureteReelle, a: Money, d: Money) strict {
+    label fr official "Article 2374-5. En cas de défaillance du débiteur, le cessionnaire impute la somme cédée, augmentée des fruits et intérêts, sur la créance garantie et restitue l'excédent au cédant";
+    label en unofficial "Article 2374-5. On the debtor's default, the assignee applies the assigned sum, plus fruits and interest, to the secured claim and returns any excess";
+    when assiette_de_la_somme(s, a) and defaillance_du_debiteur_garanti(s) and montant_de_la_dette_reelle(s, d) and a > d;
+    then excedent_restitue_au_cedant(s, a - d);
+}
+
+@source(CC_ART2374_5)
+rule PositionDevoirRestituerExcedentSomme(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien, a: Money, d: Money) strict {
+    label fr official "Article 2374-5. Devoir de restituer l'excédent au cédant";
+    label en unofficial "Article 2374-5. Duty to return the excess to the assignor";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and assiette_de_la_somme(s, a)
+        and defaillance_du_debiteur_garanti(s)
+        and montant_de_la_dette_reelle(s, d) and a > d;
+    then liberty DevoirRestituerExcedentSomme {
+        holder cedant;
+        action excedent_restitue_au_cedant(s, a - d);
+        window [@2022-01-01, infinity);
+    };
+}
+
+@source(CC_ART2374_6)
+rule RestitutionApresPaiement(s: SureteReelle, a: Money) strict {
+    label fr official "Article 2374-6. Lorsque la créance garantie est intégralement payée, le cessionnaire restitue au cédant la somme cédée, augmentée des fruits et intérêts";
+    label en unofficial "Article 2374-6. Where the secured claim is paid in full, the assignee returns the assigned sum, plus fruits and interest, to the assignor";
+    when assiette_de_la_somme(s, a) and creance_garantie_integralement_payee(s);
+    then somme_restituee_au_cedant(s, a);
+}
+
+@source(CC_ART2374_6)
+rule PositionDevoirRestituerSommeApresPaiement(s: SureteReelle, cessionnaire: Personne, cedant: Personne, b: Bien, a: Money) strict {
+    label fr official "Article 2374-6. Devoir de restituer la somme au cédant après paiement";
+    label en unofficial "Article 2374-6. Duty to return the sum to the assignor after payment";
+    when surete_reelle_constituee(s, cessionnaire, cedant, b)
+        and assiette_de_la_somme(s, a)
+        and creance_garantie_integralement_payee(s);
+    then liberty DevoirRestituerSommeApresPaiement {
+        holder cedant;
+        action somme_restituee_au_cedant(s, a);
+        window [@2022-01-01, infinity);
+    };
+}

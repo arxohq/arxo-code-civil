@@ -1,0 +1,167 @@
+// CODE CIVIL — LIVRE II ET DISPOSITIONS GÉNÉRALES DU LIVRE III (CC-05).
+//
+// Deux cent une articles en vigueur au 2026-09-16, trois cent vingt-neuf
+// alinéas : la distinction des biens (516 à 543), la propriété et
+// l'accession (544 à 577), l'usufruit, l'usage et l'habitation (578 à 636),
+// les servitudes ou services fonciers (637 à 710), la publicité foncière
+// (710-1) et les manières dont on acquiert la propriété (711 à 717).
+//
+// CE QUE LE PAQUET EXÉCUTE. Le livre II est le livre des NOMBRES du Code :
+// deux mètres et un demi-mètre pour les plantations (671), trente-deux et
+// vingt-six décimètres pour la clôture (663), dix-neuf et six décimètres
+// pour les vues (678, 679), un décimètre de maille et vingt-six ou
+// dix-neuf décimètres de hauteur pour les jours (676, 677), cinquante-quatre
+// millimètres pour les poutres (657), neuf ans pour le bail de
+// l'usufruitier (595), trente ans pour l'usufruit d'une personne morale
+// (619), pour le non-usage de l'usufruit (617) et pour celui de la servitude
+// (706), un an pour la revendication de la partie emportée (559), trois mois
+// pour la déclaration d'acquisition de l'ancien lit (563). Ces seuils sont
+// exécutés, avec un témoin de chaque côté.
+//
+// CE QUE LE CAS FOURNIT. Les faits physiques et les titres : qui possède
+// quel fonds, quel fonds est voisin de quel autre, la distance et la hauteur
+// mesurées, la population de la ville, l'existence d'un titre, d'une marque
+// de non-mitoyenneté, d'un règlement particulier ou d'un usage constant et
+// reconnu — et, quand il n'y en a AUCUN, le fait exprès qu'il n'y en a
+// aucun. L'absence d'un fait n'est pas sa négation : les distances et
+// hauteurs supplétives des articles 663 et 671 ne s'appliquent que sur un
+// fait d'entrée « ni règlement ni usage » établi, jamais sur le silence du
+// dossier.
+//
+// STRICTEMENT PLUS GRAND, PAS MOINS GRAND. « dont la hauteur dépasse deux
+// mètres » (671) est une inégalité stricte ; « à la distance de deux
+// mètres » (671), « au moins trente-deux décimètres » (663), « s'il n'y a
+// dix-neuf décimètres de distance » (678) et « cinquante mille âmes et
+// au-dessus » (663) sont des inégalités larges. Chaque seuil a deux témoins
+// séparés par le pas de mesure du texte.
+//
+// TROIS CANAUX D'APPRÉCIATION (DECISION-0194, README du concentrateur) :
+//   — le texte délègue une appréciation au juge → `external judgment
+//     relation … { authority Court; }` : « issue insuffisante » (682),
+//     « endroit le moins dommageable » (683), « partie considérable et
+//     reconnaissable » (559), « beaucoup plus précieuse » (568),
+//     « valeurs à peu près égales » (569), « surpassât de beaucoup »
+//     (571), « de beaucoup supérieure » (574), abus de jouissance (618),
+//     équité naturelle de l'accession mobilière non prévue (565) ;
+//   — le texte exige un fait établi par décision → `kind empirical` fourni
+//     par le cas avec `origin adjudicated` : le tiers évincé que le juge
+//     n'a pas condamné à la restitution des fruits en raison de sa bonne
+//     foi (555, alinéa 4), la constatation judiciaire de la cessation de
+//     l'enclave (685-1, alinéa 2) ;
+//   — la bonne foi du possesseur n'est NI l'un NI l'autre : l'article 550
+//     la définit (posséder comme propriétaire, en vertu d'un titre
+//     translatif dont on ignore les vices), donc elle est DÉDUITE de trois
+//     faits d'entrée, et non demandée au juge.
+//
+// PRESCRIPTION TRENTENAIRE. Les articles 690, 706, 707 et 672 comptent
+// trente ans de possession ou de non-usage. La prescription acquisitive et
+// extinctive du livre III appartient au paquet `fr.code_civil` (titres XX
+// et XXI, CC-02) : ici la durée est exécutée LOCALEMENT, avec l'unité du
+// texte, et le pont vers CC-02 est différé (DECISIONS.md, D-05-07).
+//
+// Fichiers :
+//   package.law                  — types, entrées communes, politique de délai
+//   titre-01-distinction.law     — art. 515-14, 516 à 543
+//   titre-02-propriete.law       — art. 544 à 577
+//   titre-03-usufruit.law        — art. 578 à 636
+//   titre-04-servitudes.law      — art. 637 à 710
+//   titre-05-publicite.law       — art. 710-1
+//   acquisition.law              — art. 711 à 717
+//   sources.law                  — GÉNÉRÉ : source, édition, publication, fragments
+
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+import fr.code_civil.core version "0.1.0";
+import units.si version "0.1.0";
+
+type Personne = fr.code_civil.core::Personne;
+type Bien = fr.code_civil.core::Bien;
+
+// --- Entités propres au livre II ----------------------------------------------------------
+//
+// `Bien` vient du concentrateur (API gelée) ; les espèces de biens que le
+// livre II distingue sont déclarées ici, chez leur propriétaire.
+
+pub entity Fonds : Bien {
+    label fr official "Fonds ou héritage : immeuble par nature sur lequel portent les servitudes (articles 518, 637)";
+    label en unofficial "Land or tenement: immovable by nature burdened by servitudes (Articles 518, 637)";
+}
+pub entity Plantation : Bien {
+    label fr official "Arbre, arbrisseau ou arbuste planté près de la limite séparative (article 671)";
+    label en unofficial "Tree, shrub or bush planted near the boundary line (Article 671)";
+}
+pub entity Mur : Bien {
+    label fr official "Mur ou clôture de séparation entre deux héritages (articles 653, 663, 666)";
+    label en unofficial "Separating wall or fence between two tenements (Articles 653, 663, 666)";
+}
+pub entity Ouverture {
+    label fr official "Fenêtre, jour, vue, balcon ou autre saillie pratiqué dans un mur (articles 675 à 680)";
+    label en unofficial "Window, light, view, balcony or other projection made in a wall (Articles 675 to 680)";
+}
+pub entity Servitude {
+    label fr official "Servitude ou service foncier : charge imposée sur un héritage pour l'usage d'un héritage d'autrui (article 637)";
+    label en unofficial "Servitude: charge imposed on a tenement for the use of another owner's tenement (Article 637)";
+}
+pub entity Usufruit {
+    label fr official "Usufruit : droit de jouir des choses dont un autre a la propriété (article 578)";
+    label en unofficial "Usufruct: right to enjoy things owned by another (Article 578)";
+}
+pub entity Bail {
+    label fr official "Bail consenti sur la chose soumise à l'usufruit (article 595)";
+    label en unofficial "Lease granted over the thing subject to the usufruct (Article 595)";
+}
+pub entity Reparation {
+    label fr official "Réparation à faire sur la chose soumise à l'usufruit (articles 605, 606)";
+    label en unofficial "Repair to be made on the thing subject to the usufruct (Articles 605, 606)";
+}
+pub entity Ouvrage {
+    label fr official "Construction, plantation ou ouvrage fait sur le sol d'autrui (articles 553 à 555)";
+    label en unofficial "Building, planting or work made on another's land (Articles 553 to 555)";
+}
+pub entity Alluvion {
+    label fr official "Atterrissement, accroissement, relais ou île formé par les eaux (articles 556 à 563)";
+    label en unofficial "Accretion, alluvion, exposed bed or island formed by water (Articles 556 to 563)";
+}
+pub entity Tresor {
+    label fr official "Trésor : chose cachée ou enfouie découverte par le pur effet du hasard (article 716)";
+    label en unofficial "Treasure: hidden or buried thing discovered by pure chance (Article 716)";
+}
+pub entity Acte {
+    label fr official "Acte ou droit présenté aux formalités de publicité foncière (article 710-1)";
+    label en unofficial "Instrument or right submitted to land-registration formalities (Article 710-1)";
+}
+
+// --- Entrée commune : la propriété et le voisinage -----------------------------------------
+
+pub relation proprietaire_du_bien(b: Bien, p: Personne) kind empirical {
+    label fr official "propriétaire du bien (article 544)";
+    label en unofficial "owner of the asset (Article 544)";
+}
+pub relation voisin(f: Fonds, v: Fonds) kind empirical {
+    label fr official "les deux héritages sont contigus et séparés par une ligne séparative (articles 646, 671)";
+    label en unofficial "the two tenements are contiguous and separated by a boundary line (Articles 646, 671)";
+}
+
+// --- Délais du livre II (§86) ---------------------------------------------------------------
+//
+// Le Code ne dit pas COMMENT on compte : le compte général est celui du code
+// de procédure civile (art. 640 à 642) — le jour de l'acte ne compte pas, le
+// terme s'achève le dernier jour, le mois et l'année se comptent par
+// quantième. C'est un texte EXTERNE (SOURCES.json → external) : la politique
+// le suit sans l'ancrer comme source du paquet. Le report du samedi, du
+// dimanche et du jour férié au premier jour ouvrable suivant (CPC 642,
+// alinéa 2) demande un calendrier des jours fériés français qui n'est pas
+// épinglé ici : `roll no_roll`, et c'est une frontière déclarée (README).
+//
+// UNE SEULE POLITIQUE POUR LE PAQUET. L'an (559, 595, 617, 619, 690, 706) et
+// le mois (563) se comptent par quantième de la même manière ; aucune norme du
+// livre II ne compte en jours ouvrés, donc la question du pas journalier ne se
+// pose pas et une politique unique suffit à tout cas du paquet.
+
+pub deadline policy CC_BIENS_CALENDRIER {
+    start_count same_day;
+    include_end true;
+    roll no_roll;
+    month_end last_day_of_month;
+}

@@ -1,0 +1,104 @@
+// BRIDGE INTO THE COMPARATIVE-CHAIN DICTIONARY (DECISION-0091): Code
+// conclusions → `doctrine.ius_privatum` heads. Owner (544, 1583) → dominium;
+// obligation (1101, 1902, 1944) and liability (1382–1385) → obligatio and
+// remedium_datur; revendication (544–545) → remedium_in_rem; «possession
+// vaut titre» (2279) and prescription (2262) → remedium_exclusum; authority
+// of judgment (1351) → remedium_consumptum; the heir is seised of actions
+// (724) → heres_est, remedium_transit_ad_heredem; a natural obligation
+// (1235) is obligatio with the action excluded.
+
+language "law.core" version "0.2";
+package fr.code_civil_1804 version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-1804";
+
+use self::{
+    CC_ART1101,
+    CC_ART1134,
+    CC_ART1351,
+    CC_ART1382,
+    CC_ART2228,
+    CC_ART2262,
+    CC_ART2279,
+    CC_ART544,
+    CC_ART545,
+    CC_ART724,
+    CC_ART767,
+    Causa,
+    Persona,
+    Res,
+    action_du_defunt,
+    action_eteinte,
+    action_prescrite_le,
+    chose_jugee,
+    conjoint_survivant,
+    engagement_sans_convention,
+    heritier_legitime,
+    obligation,
+    presence_d_enfant_naturel,
+    presence_d_heritier_legitime,
+    proprietaire,
+    responsable,
+    revendication,
+    revendication_exclue,
+    revendication_meuble_perdu,
+    succession_ouverte,
+};
+
+@source(CC_ART544)
+rule ProprietaireDominium(x: Persona, r: Res) strict { label fr official "propriétaire"; label en unofficial "Owner under the Code is owner under this law (544)"; when proprietaire(x, r); then doctrine.ius_privatum::dominium(x, r); }
+@source(CC_ART2228)
+rule PossesseurPossessio(y: Persona, r: Res) strict { label fr official "possession"; label en unofficial "The de facto possessor possesses under this law (2228)"; when doctrine.ius_privatum::possessor(y, r); then doctrine.ius_privatum::possessio(y, r); }
+@source(CC_ART1101)
+rule ObligationObligatio(y: Persona, x: Persona, c: Causa) strict { label fr official "obligation"; label en unofficial "One bound under the Code is a debtor under this law (1101)"; when obligation(y, x, c); then doctrine.ius_privatum::obligatio(y, x, c); }
+@source(CC_ART1382)
+rule ResponsableObligatio(a: Persona, l: Persona, c: Causa) strict { label fr official "obligé à réparer"; label en unofficial "One liable for harm is the victim’s debtor (1382)"; when responsable(a, l, c); then doctrine.ius_privatum::obligatio(a, l, c); }
+@source(CC_ART1101)
+rule CausaExContractu(x: Persona, y: Persona, c: Causa) strict { label fr official "obligation conventionnelle"; label en unofficial "Claim arising from contract (1101)"; when doctrine.ius_privatum::contractus(x, y, c); then doctrine.ius_privatum::causa_ex_contractu(c); }
+@source(CC_ART1382)
+rule CausaExDelicto(c: Causa) strict { label fr official "délit"; label en unofficial "Claim arising from a delict (1382)"; when engagement_sans_convention(c); then doctrine.ius_privatum::causa_ex_delicto(c); }
+@source(CC_ART544)
+rule CausaDeRe(c: Causa, r: Res) strict { label fr official "revendication"; label en unofficial "Claim concerning a thing (544)"; when doctrine.ius_privatum::petitio_de_re(c, r); then doctrine.ius_privatum::causa_de_re(c, r); }
+@source(CC_ART724)
+rule HeritierHeresEst(h: Persona, d: Persona) strict { label fr official "héritier légitime"; label en unofficial "A legitimate heir is an heir under this law (724, 731)"; when heritier_legitime(h, d); then doctrine.ius_privatum::heres_est(h, d); }
+@source(CC_ART767)
+rule ConjointSeulHeresEst(e: Persona, d: Persona) strict {
+    label fr official "les biens de sa succession appartiennent au conjoint";
+    label en unofficial "The spouse who takes the whole succession under 767 is an heir under this law";
+    when conjoint_survivant(e, d) and not_known(presence_d_heritier_legitime(d)) and not_known(presence_d_enfant_naturel(d));
+    then doctrine.ius_privatum::heres_est(e, d);
+}
+// Share fractions stay Code-side (`part_successorale`): a Rational argument on
+// the dictionary would rebuild every frozen importer of ius_privatum. Heir-ness
+// remains `heres_est`. Natural-child rights (757) are parts without heres_est.
+@source(CC_ART724)
+rule ActionsTransitAdHeredem(d: Persona, c: Causa) strict { label fr official "saisis de plein droit des … actions du défunt"; label en unofficial "The deceased’s action passes to his heir by operation of law (724)"; when action_du_defunt(d, c); then doctrine.ius_privatum::remedium_transit_ad_heredem(c); }
+@source(CC_ART724)
+rule ChargesTransitContraHeredem(x: Persona, d: Persona, c: Causa) strict { label fr official "sous l’obligation d’acquitter toutes les charges de la succession"; label en unofficial "The action against the deceased debtor passes against his heir, bound to bear the burdens of the succession (724)"; when doctrine.ius_privatum::contractus(x, d, c) and succession_ouverte(d); then doctrine.ius_privatum::remedium_transit_contra_heredem(c); }
+@source(CC_ART1101, CC_ART1134)
+rule ObligationRemediumDatur(y: Persona, x: Persona, c: Causa) defeasible { label fr official "les conventions … tiennent lieu de loi"; label en unofficial "The creditor of an obligation is given a remedy against the debtor (1101, 1134)"; when obligation(y, x, c); then doctrine.ius_privatum::remedium_datur(x, y, c); }
+@source(CC_ART1101)
+rule ObligationRemediumInPersonam(y: Persona, x: Persona, c: Causa) defeasible { label fr official "action personnelle"; label en unofficial "A claim to performance of an obligation is a personal remedy (1101)"; when obligation(y, x, c); then doctrine.ius_privatum::remedium_in_personam(x, y, c); }
+@source(CC_ART1382)
+rule ResponsableRemediumDatur(a: Persona, l: Persona, c: Causa) defeasible { label fr official "oblige … à le réparer"; label en unofficial "The victim is given a remedy against the person liable for the harm (1382)"; when responsable(a, l, c) and doctrine.ius_privatum::petitio(c, l, a); then doctrine.ius_privatum::remedium_datur(l, a, c); }
+@source(CC_ART1382)
+rule ResponsableRemediumInPersonam(a: Persona, l: Persona, c: Causa) defeasible { label fr official "action en réparation"; label en unofficial "A claim to reparation is a personal remedy (1382)"; when responsable(a, l, c) and doctrine.ius_privatum::petitio(c, l, a); then doctrine.ius_privatum::remedium_in_personam(l, a, c); }
+@source(CC_ART545)
+rule RevendicationRemediumDatur(x: Persona, y: Persona, c: Causa) defeasible { label fr official "revendication"; label en unofficial "The owner is given revendication of his thing (544–545)"; when revendication(x, y, c); then doctrine.ius_privatum::remedium_datur(x, y, c); }
+@source(CC_ART545)
+rule RevendicationInRem(x: Persona, y: Persona, c: Causa) defeasible { label fr official "action réelle"; label en unofficial "Revendication of a thing is a real remedy (544–545)"; when revendication(x, y, c); then doctrine.ius_privatum::remedium_in_rem(x, y, c); }
+@source(CC_ART2279)
+rule RevendicationMeubleRemediumDatur(x: Persona, y: Persona, r: Res, c: Causa) defeasible { label fr official "peut la revendiquer pendant trois ans"; label en unofficial "The owner of a lost or stolen movable is given revendication for three years (2279)"; when revendication_meuble_perdu(x, y, r) and doctrine.ius_privatum::petitio(c, x, y) and doctrine.ius_privatum::petitio_de_re(c, r); then doctrine.ius_privatum::remedium_datur(x, y, c); }
+@source(CC_ART2279)
+rule PossessionVautTitreExcludit(x: Persona, y: Persona, c: Causa) strict { label fr official "la possession vaut titre"; label en unofficial "Revendication excluded by the title of possession is an excluded remedy (2279)"; when revendication_exclue(x, y, c); then doctrine.ius_privatum::remedium_exclusum(x, y, c); }
+@source(CC_ART2262)
+rule PrescriptionExcludit(x: Persona, y: Persona, c: Causa) strict { label fr official "prescrites par trente ans"; label en unofficial "An action prescribed by limitation is an excluded remedy (2262)"; when action_eteinte(x, y, c); then doctrine.ius_privatum::remedium_exclusum(x, y, c); }
+
+@source(CC_ART2262)
+rule PrescriptionDateExcludit(x: Persona, y: Persona, c: Causa, jour: Date) strict {
+    label fr official "action prescrite par trente ans";
+    label en unofficial "an action prescribed by thirty years by the date of the claim is an excluded remedy (2262)";
+    when action_prescrite_le(c, jour) and doctrine.ius_privatum::petitio(c, x, y);
+    then doctrine.ius_privatum::remedium_exclusum(x, y, c);
+}
+@source(CC_ART1351)
+rule ChoseJugeeConsumit(x: Persona, y: Persona, c: Causa) strict { label fr official "autorité de la chose jugée"; label en unofficial "Res judicata is a remedy consumed by the former contest (1351)"; when chose_jugee(c) and doctrine.ius_privatum::petitio(c, x, y); then doctrine.ius_privatum::remedium_consumptum(x, y, c); }

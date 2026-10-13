@@ -1,0 +1,25 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 757, 753 : les enfants recueillent la nue-propriété par moitié.
+test "urn:query:fr-code-civil-successions-j02-nue-propriete-moitie" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:j:S"), @2026-03-01) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:j:F"), entity_ref("urn:fr:cc:successions:j:D"), entity_ref("urn:fr:cc:successions:j:C1")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:j:F"), entity_ref("urn:fr:cc:successions:j:E"), entity_ref("urn:fr:cc:successions:j:C1")) { origin case_input; }
+        assert "f6": filiation(entity_ref("urn:fr:cc:successions:j:F"), entity_ref("urn:fr:cc:successions:j:D"), entity_ref("urn:fr:cc:successions:j:C2")) { origin case_input; }
+        assert "f7": filiation(entity_ref("urn:fr:cc:successions:j:F"), entity_ref("urn:fr:cc:successions:j:E"), entity_ref("urn:fr:cc:successions:j:C2")) { origin case_input; }
+        assert "f8": mariage(entity_ref("urn:fr:cc:successions:j:F"), entity_ref("urn:fr:cc:successions:j:D"), entity_ref("urn:fr:cc:successions:j:E")) { origin case_input; }
+        assert "f9": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:E")) { origin case_input; }
+        assert "f10": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:C1")) { origin case_input; }
+        assert "f11": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:C2")) { origin case_input; }
+        assert "f12": option_du_conjoint(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:E"), Usufruit) { origin case_input; }
+    }
+    evaluate truth(part_hereditaire(entity_ref("urn:fr:cc:successions:j:S"), entity_ref("urn:fr:cc:successions:j:C1"), 1 / 2));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

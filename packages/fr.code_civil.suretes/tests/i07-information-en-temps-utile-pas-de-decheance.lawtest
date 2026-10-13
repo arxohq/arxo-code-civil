@@ -1,0 +1,25 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2302 : information en temps utile avec rappel — aucune période de déchéance.
+test "urn:query:fr-code-civil-suretes-i07-information-en-temps-utile-pas-de-decheance" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-05-01; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i07:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i07:K"), entity_ref("urn:fr:cc:suretes:i07:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i07:K"), entity_ref("urn:fr:cc:suretes:i07:B")) { origin case_input; }
+        assert "f4": est_personne_physique(entity_ref("urn:fr:cc:suretes:i07:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:i07:B")) { origin case_input; }
+        assert "f6": arrete_annuel(entity_ref("urn:fr:cc:suretes:i07:K"), @2022-12-31) { origin case_input; }
+        assert "f7": information_annuelle_communiquee_le(entity_ref("urn:fr:cc:suretes:i07:K"), @2022-12-31, @2023-03-15) { origin case_input; }
+        assert "f8": rappel_du_terme_ou_de_la_faculte_de_resiliation(entity_ref("urn:fr:cc:suretes:i07:K"), @2022-12-31) { origin case_input; }
+        assert "f9": precedente_information_le(entity_ref("urn:fr:cc:suretes:i07:K"), @2022-12-31, @2022-03-01) { origin case_input; }
+        assert "f10": echeance_accessoire(entity_ref("urn:fr:cc:suretes:i07:K"), entity_ref("urn:fr:cc:suretes:i07:E1")) { origin case_input; }
+        assert "f11": echue_le(entity_ref("urn:fr:cc:suretes:i07:E1"), @2022-06-30) { origin case_input; }
+        assert "f12": montant_de_l_echeance(entity_ref("urn:fr:cc:suretes:i07:E1"), 100 EUR) { origin case_input; }
+    }
+    evaluate truth(echeance_dechue(entity_ref("urn:fr:cc:suretes:i07:K"), entity_ref("urn:fr:cc:suretes:i07:E1")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == COMPUTED;
+}

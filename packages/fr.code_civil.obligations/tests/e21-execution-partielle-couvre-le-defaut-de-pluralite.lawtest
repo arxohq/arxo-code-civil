@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1375, al. 3 : celui qui a exécuté le contrat, MÊME PARTIELLEMENT, ne peut opposer
+// le défaut de pluralité d'originaux ni de mention de leur nombre.
+test "urn:query:fr-code-civil-obligations-e21-execution-partielle-couvre-le-defaut-de-pluralite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": contrat_synallagmatique(entity_ref("urn:fr:cc:obligations:exp:a")) { origin case_input; }
+        assert "f2": ecrit_de_l_acte(entity_ref("urn:fr:cc:obligations:exp:a"), entity_ref("urn:fr:cc:obligations:exp:e")) { origin case_input; }
+        assert "f3": nombre_d_originaux(entity_ref("urn:fr:cc:obligations:exp:e"), 1) { origin case_input; }
+        assert "f4": nombre_de_parties_d_interet_distinct(entity_ref("urn:fr:cc:obligations:exp:a"), 2) { origin case_input; }
+        assert "f5": contrat_execute_meme_partiellement(entity_ref("urn:fr:cc:obligations:exp:a"), entity_ref("urn:fr:cc:obligations:exp:P")) { origin case_input; }
+    }
+    evaluate truth(defaut_de_pluralite_non_opposable(entity_ref("urn:fr:cc:obligations:exp:a"), entity_ref("urn:fr:cc:obligations:exp:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DefautDePluraliteNonOpposable);
+}

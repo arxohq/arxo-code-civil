@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-REPARTITIONDUPRIXENVENTESIMULTANEE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": vente_simultanee_de_l_usufruit_et_de_la_nue_propriete(entity_ref("urn:law:catalog:repartitionduprixenventesimultanee:v0")) { origin case_input; }
+    }
+    evaluate truth(prix_reparti_entre_usufruit_et_nue_propriete(entity_ref("urn:law:catalog:repartitionduprixenventesimultanee:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-USUFRUITSURVITALAVENTEDUBIENGREVE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": vente_du_bien_greve_sans_accord_de_l_usufruitier(entity_ref("urn:law:catalog:usufruitsurvitalaventedubiengreve:v0")) { origin case_input; }
+    }
+    evaluate truth(usufruit_maintenu_malgre_la_vente(entity_ref("urn:law:catalog:usufruitsurvitalaventedubiengreve:v0")));
+    expect truth_status == TRUE_ONLY;
+}

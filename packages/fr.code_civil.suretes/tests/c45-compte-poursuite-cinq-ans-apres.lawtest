@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2319 : poursuite le 30 juin 2028, cinq ans après la fin — la caution ne peut plus être poursuivie.
+test "urn:query:fr-code-civil-suretes-c45-compte-poursuite-cinq-ans-apres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c45:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c45:K"), entity_ref("urn:fr:cc:suretes:c45:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c45:K"), entity_ref("urn:fr:cc:suretes:c45:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c45:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c45:B")) { origin case_input; }
+        assert "f6": cautionnement_du_solde_d_un_compte(entity_ref("urn:fr:cc:suretes:c45:K")) { origin case_input; }
+        assert "f7": terme_du_cautionnement(entity_ref("urn:fr:cc:suretes:c45:K"), @2023-06-30) { origin case_input; }
+        assert "f8": poursuite_engagee_le(entity_ref("urn:fr:cc:suretes:c45:K"), @2028-06-30) { origin case_input; }
+    }
+    evaluate truth(poursuite_fermee_2319(entity_ref("urn:fr:cc:suretes:c45:K")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(PoursuiteFermee);
+}

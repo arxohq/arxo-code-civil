@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 653. Sans titre ni marque contraire, le mur de séparation entre cours
+// et jardins est présumé mitoyen.
+test "urn:query:fr-code-civil-biens-s15-presomption-de-mitoyennete" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": cloture_separant(entity_ref("urn:fr:cc:biens:s15:M"), entity_ref("urn:fr:cc:biens:s15:F"), entity_ref("urn:fr:cc:biens:s15:V"), MurEntreCoursEtJardins) { origin case_input; }
+    }
+    evaluate truth(mur_mitoyen(entity_ref("urn:fr:cc:biens:s15:M")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

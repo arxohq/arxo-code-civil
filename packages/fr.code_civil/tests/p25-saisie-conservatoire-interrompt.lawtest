@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2244 : saisie conservatoire le 1er février 2021.
+test "urn:query:fr-code-civil-p25-saisie-conservatoire-interrompt" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": mesure_conservatoire_ou_acte_d_execution_le(entity_ref("urn:fr:cc:presc:p25"), @2021-02-01) { origin case_input; }
+    }
+    evaluate truth(prescription_interrompue_le(entity_ref("urn:fr:cc:presc:p25"), @2021-02-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(LActeInterruptifInterrompt);
+}

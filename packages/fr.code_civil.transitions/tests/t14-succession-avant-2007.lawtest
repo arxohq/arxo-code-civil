@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+// Loi 2006-728 art. 47 : succession ouverte le 31 décembre 2006 → loi ancienne.
+test "urn:query:fr-code-civil-transitions-t14-succession-avant-2007" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": succession_ouverte_le(entity_ref("urn:fr:cc:transitions:c06"), @2006-12-31) { origin case_input; }
+    }
+    evaluate truth(loi_applicable_a_la_succession(entity_ref("urn:fr:cc:transitions:c06"), LoiAncienne));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SuccessionOuverteAvantLaReforme);
+}

@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1352 : la restitution en nature étant impossible, elle a lieu EN VALEUR,
+// estimée AU JOUR DE LA RESTITUTION — 8 500 EUR.
+test "urn:query:fr-code-civil-obligations-r03-restitution-en-valeur-au-jour-de-la-restitution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": restitution_due(entity_ref("urn:fr:cc:obligations:rvl:r"), entity_ref("urn:fr:cc:obligations:rvl:D"), entity_ref("urn:fr:cc:obligations:rvl:CR")) { origin case_input; }
+        assert "f2": restitution_d_une_chose(entity_ref("urn:fr:cc:obligations:rvl:r"), entity_ref("urn:fr:cc:obligations:rvl:b")) { origin case_input; }
+        assert "f3": restitution_en_nature_impossible(entity_ref("urn:fr:cc:obligations:rvl:r")) { origin case_input; }
+        assert "f4": valeur_au_jour_de_la_restitution(entity_ref("urn:fr:cc:obligations:rvl:r"), 8500 EUR) { origin case_input; }
+    }
+    evaluate truth(restitution_en_valeur(entity_ref("urn:fr:cc:obligations:rvl:r"), 8500 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RestitutionEnValeurAuJourDeLaRestitution);
+}

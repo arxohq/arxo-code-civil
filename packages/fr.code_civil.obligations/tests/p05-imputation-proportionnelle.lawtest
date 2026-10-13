@@ -1,0 +1,31 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1342-10, al. 2, in fine : toutes choses égales, l'imputation se fait
+// proportionnellement. Deux dettes échues, de MÊME date de naissance et d'intérêt égal :
+// rien ne les départage, elles sont toutes deux de premier rang.
+// Calcul à la main : total de premier rang = 3 000 + 1 000 = 4 000 ;
+//   d1 : 2 000 × 3 000 / 4 000 = 1 500,00 EUR ; d2 : 2 000 × 1 000 / 4 000 = 500,00 EUR.
+test "urn:query:fr-code-civil-obligations-p05-imputation-proportionnelle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": paiement_du_debiteur(entity_ref("urn:fr:cc:obl:pay"), entity_ref("urn:fr:cc:obl:D")) { origin case_input; }
+        assert "f2": date_du_paiement(entity_ref("urn:fr:cc:obl:pay"), @2025-03-01) { origin case_input; }
+        assert "f3": montant_paye(entity_ref("urn:fr:cc:obl:pay"), 2000 EUR) { origin case_input; }
+        assert "f4": dette_du_debiteur(entity_ref("urn:fr:cc:obl:D"), entity_ref("urn:fr:cc:obl:d1")) { origin case_input; }
+        assert "f5": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obl:d1"), 3000 EUR) { origin case_input; }
+        assert "f6": date_de_naissance_de_la_dette(entity_ref("urn:fr:cc:obl:d1"), @2022-01-01) { origin case_input; }
+        assert "f7": date_d_exigibilite(entity_ref("urn:fr:cc:obl:d1"), @2024-01-01) { origin case_input; }
+        assert "f8": dette_du_debiteur(entity_ref("urn:fr:cc:obl:D"), entity_ref("urn:fr:cc:obl:d2")) { origin case_input; }
+        assert "f9": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obl:d2"), 1000 EUR) { origin case_input; }
+        assert "f10": date_de_naissance_de_la_dette(entity_ref("urn:fr:cc:obl:d2"), @2022-01-01) { origin case_input; }
+        assert "f11": date_d_exigibilite(entity_ref("urn:fr:cc:obl:d2"), @2024-01-01) { origin case_input; }
+        assert "f12": egalite_d_interet_d_acquitter(entity_ref("urn:fr:cc:obl:D"), entity_ref("urn:fr:cc:obl:d1"), entity_ref("urn:fr:cc:obl:d2")) { origin adjudicated; }
+        assert "f13": egalite_d_interet_d_acquitter(entity_ref("urn:fr:cc:obl:D"), entity_ref("urn:fr:cc:obl:d2"), entity_ref("urn:fr:cc:obl:d1")) { origin adjudicated; }
+    }
+    evaluate truth(imputation_du_paiement(entity_ref("urn:fr:cc:obl:pay"), entity_ref("urn:fr:cc:obl:d1"), 1500.00 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ImputationProportionnelle);
+}

@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны из CLIR пакета; правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-CHOSEAUXRISQUESDUDEBITEURPENDANTLACONDITION" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": espece_de_la_condition(entity_ref("urn:kz:catalog:choseauxrisquesdudebiteurpendantlacondition:v1"), Suspensive) { origin case_input; }
+        assert "cat-1": condition_de_l_obligation(entity_ref("urn:kz:catalog:choseauxrisquesdudebiteurpendantlacondition:v0"), entity_ref("urn:kz:catalog:choseauxrisquesdudebiteurpendantlacondition:v1")) { origin case_input; }
+    }
+    evaluate truth(chose_aux_risques_du_debiteur(entity_ref("urn:kz:catalog:choseauxrisquesdudebiteurpendantlacondition:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-RETROACTIVITECONVENUE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": condition_accomplie(entity_ref("urn:kz:catalog:retroactiviteconvenue:v1")) { origin case_input; }
+        assert "cat-1": condition_de_l_obligation(entity_ref("urn:kz:catalog:retroactiviteconvenue:v0"), entity_ref("urn:kz:catalog:retroactiviteconvenue:v1")) { origin case_input; }
+        assert "cat-2": retroactivite_convenue(entity_ref("urn:kz:catalog:retroactiviteconvenue:v1")) { origin case_input; }
+    }
+    evaluate truth(retroactivite_au_jour_du_contrat(entity_ref("urn:kz:catalog:retroactiviteconvenue:v1")));
+    expect truth_status == TRUE_ONLY;
+}

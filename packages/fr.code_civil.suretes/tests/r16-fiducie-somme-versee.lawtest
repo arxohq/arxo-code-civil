@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2488-4 : fiduciaire créancier, valeur 300 000, dette 250 000, dettes de gestion payées — 50 000 EUR au constituant.
+test "urn:query:fr-code-civil-suretes-r16-fiducie-somme-versee" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fiducie_surete(entity_ref("urn:fr:cc:suretes:r16:S"), entity_ref("urn:fr:cc:suretes:r16:C"), entity_ref("urn:fr:cc:suretes:r16:C")) { origin case_input; }
+        assert "f2": fiducie_immobiliere(entity_ref("urn:fr:cc:suretes:r16:S")) { origin case_input; }
+        assert "f3": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:r16:S")) { origin case_input; }
+        assert "f4": valeur_au_jour_du_transfert(entity_ref("urn:fr:cc:suretes:r16:S"), 300000 EUR) { origin case_input; }
+        assert "f5": montant_de_la_dette_reelle(entity_ref("urn:fr:cc:suretes:r16:S"), 250000 EUR) { origin case_input; }
+        assert "f6": dettes_de_conservation_ou_gestion_payees(entity_ref("urn:fr:cc:suretes:r16:S")) { origin case_input; }
+    }
+    evaluate truth(somme_versee_au_constituant(entity_ref("urn:fr:cc:suretes:r16:S"), 50000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(SommeVerseeImmobiliere);
+}

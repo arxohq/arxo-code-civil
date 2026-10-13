@@ -1,0 +1,43 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+test "urn:positions:fr-code-civil-suretes-2346-vente-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "gage": gage_constitue(entity_ref("urn:fr:cc:suretes:g2346:S"), entity_ref("urn:fr:cc:suretes:g2346:C"), entity_ref("urn:fr:cc:suretes:g2346:P")) { origin case_input; }
+        assert "nature": nature_de_la_surete(entity_ref("urn:fr:cc:suretes:g2346:S"), GageDeMeublesCorporels) { origin case_input; }
+        assert "unpaid": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:g2346:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LibertePoursuivreVenteDuGage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2346-vente-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "gage": gage_constitue(entity_ref("urn:fr:cc:suretes:g2346b:S"), entity_ref("urn:fr:cc:suretes:g2346b:C"), entity_ref("urn:fr:cc:suretes:g2346b:P")) { origin case_input; }
+        assert "nature": nature_de_la_surete(entity_ref("urn:fr:cc:suretes:g2346b:S"), GageDeMeublesCorporels) { origin case_input; }
+        assert "unpaid": dette_garantie_impayee(entity_ref("urn:fr:cc:suretes:g2346b:S")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LibertePoursuivreVenteDuGage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2349-indivisibilite-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "paid": heritier_ayant_paye_sa_portion(entity_ref("urn:fr:cc:suretes:g2349:S"), entity_ref("urn:fr:cc:suretes:g2349:H")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerRestitutionPartielle, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-suretes-2349-indivisibilite-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "paid": heritier_ayant_paye_sa_portion(entity_ref("urn:fr:cc:suretes:g2349b:S"), entity_ref("urn:fr:cc:suretes:g2349b:H")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerRestitutionPartielle, ACTIVE);
+}

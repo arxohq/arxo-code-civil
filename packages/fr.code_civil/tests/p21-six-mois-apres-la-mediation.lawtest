@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil";
+
+// Art. 2238 : médiation terminée le 31 octobre 2025 — le délai ne peut expirer avant le 30 avril 2026.
+test "urn:query:fr-code-civil-p21-six-mois-apres-la-mediation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy OECD_CODE_CIVIL_PRESCRIPTION; }
+        assert "f1": mediation_terminee_le(entity_ref("urn:fr:cc:presc:p21"), @2025-10-31) { origin case_input; }
+    }
+    evaluate truth(echeance_minimale_le(entity_ref("urn:fr:cc:presc:p21"), @2026-04-30));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SixMoisApresLaMediation);
+}

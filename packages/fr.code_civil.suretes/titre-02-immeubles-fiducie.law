@@ -1,0 +1,123 @@
+// LIVRE IV, TITRE II, SOUS-TITRE III, CHAPITRE VI : DE LA PROPRIÉTÉ
+// IMMOBILIÈRE CÉDÉE À TITRE DE GARANTIE (articles 2488-1 à 2488-5).
+//
+// Même économie que la fiducie-sûreté mobilière (2372-1 à 2372-5) : les
+// entrées sont partagées (`fiducie_surete`, `fiducie_immobiliere`) et les
+// conclusions aussi ; seules les règles et leurs ancrages sont propres au
+// chapitre immobilier. Différence du texte : pas d'exception de cotation
+// officielle ni de somme d'argent pour l'expertise (2488-3), publication et
+// non enregistrement du rechargement (2488-5).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    CC_ART2488_1,
+    CC_ART2488_2,
+    CC_ART2488_3,
+    CC_ART2488_4,
+    CC_ART2488_5,
+    Personne,
+    SureteReelle,
+    acte_prevoit_le_rechargement,
+    constituant_personne_physique,
+    convention_de_rechargement,
+    convention_enregistree_ou_publiee_le,
+    creance_garantie_future_indeterminable,
+    creancier_peut_exiger_la_remise,
+    deces_du_constituant_personne_physique,
+    dette_garantie_impayee,
+    dettes_de_conservation_ou_gestion_payees,
+    ecrit_designe_la_dette_garantie,
+    estimation_par_expert_requise,
+    fiduciaire_est_le_creancier,
+    fiducie_immobiliere,
+    fiducie_maintenue_apres_deces,
+    fiducie_surete,
+    fiducie_surete_nulle,
+    libre_disposition_du_fiduciaire_creancier,
+    montant_de_la_dette_reelle,
+    produit_de_la_vente,
+    rechargement_au_dela_de_la_valeur,
+    rechargement_permis,
+    somme_versee_au_constituant,
+    stipulation_contraire_libre_disposition,
+    valeur_au_jour_du_transfert,
+    valeur_estimee_au_jour_de_la_recharge,
+    vente_prevue_par_la_fiducie,
+};
+
+@source(CC_ART2488_1)
+rule FiducieImmobiliereApresDeces(s: SureteReelle, f: Personne, c: Personne) strict {
+    label fr official "Article 2488-1. La propriété d'un bien immobilier peut être cédée à titre de garantie par un contrat de fiducie ; par dérogation à l'article 2029, le décès du constituant personne physique n'y met pas fin";
+    label en unofficial "Article 2488-1. Ownership of immovable property may be assigned as security under a trust agreement; by way of exception to Article 2029, the natural-person settlor's death does not end it";
+    when fiducie_surete(s, f, c) and fiducie_immobiliere(s) and deces_du_constituant_personne_physique(s)
+        and not_known(creance_garantie_future_indeterminable(s));
+    then fiducie_maintenue_apres_deces(s);
+}
+
+@source(CC_ART2488_2)
+rule FiducieImmobiliereSansDette(s: SureteReelle, f: Personne, c: Personne) strict {
+    label fr official "Article 2488-2. En cas de fiducie conclue à titre de garantie, le contrat mentionne à peine de nullité la dette garantie";
+    label en unofficial "Article 2488-2. A trust made by way of security must, on pain of nullity, mention the secured debt";
+    when fiducie_surete(s, f, c) and fiducie_immobiliere(s) and not_known(ecrit_designe_la_dette_garantie(s));
+    then fiducie_surete_nulle(s);
+}
+
+@source(CC_ART2488_3) {
+    rule LibreDispositionImmobiliere(s: SureteReelle, c: Personne) strict {
+        label fr official "Article 2488-3, alinéa 1. A défaut de paiement et sauf stipulation contraire, le fiduciaire, lorsqu'il est le créancier, acquiert la libre disposition du bien";
+        label en unofficial "Article 2488-3, paragraph 1. On non-payment and save contrary stipulation, the trustee, where it is the creditor, obtains free disposal of the asset";
+        when fiducie_surete(s, c, c) and fiducie_immobiliere(s) and dette_garantie_impayee(s)
+            and not_known(stipulation_contraire_libre_disposition(s));
+        then libre_disposition_du_fiduciaire_creancier(s);
+    }
+    rule RemiseExigibleImmobiliere(s: SureteReelle, f: Personne, c: Personne) strict {
+        label fr official "Article 2488-3, alinéa 2. Lorsque le fiduciaire n'est pas le créancier, ce dernier peut exiger la remise du bien ou, si la convention le prévoit, sa vente";
+        label en unofficial "Article 2488-3, paragraph 2. Where the trustee is not the creditor, the creditor may demand handover of the asset or, if agreed, its sale";
+        when fiducie_surete(s, f, c) and fiducie_immobiliere(s) and dette_garantie_impayee(s)
+            and not_known(fiduciaire_est_le_creancier(s));
+        then creancier_peut_exiger_la_remise(s);
+    }
+    rule ExpertImmobilier(s: SureteReelle, f: Personne, c: Personne) strict {
+        label fr official "Article 2488-3, alinéa 3. La valeur du bien est déterminée par un expert désigné à l'amiable ou judiciairement ; toute clause contraire est réputée non écrite";
+        label en unofficial "Article 2488-3, paragraph 3. The asset's value is set by an expert appointed amicably or judicially; any contrary clause is deemed unwritten";
+        when fiducie_surete(s, f, c) and fiducie_immobiliere(s) and dette_garantie_impayee(s);
+        then estimation_par_expert_requise(s);
+    }
+}
+
+@source(CC_ART2488_4) {
+    rule SommeVerseeImmobiliere(s: SureteReelle, v: Money, d: Money) strict {
+        label fr official "Article 2488-4, alinéa 1. Le bénéficiaire qui a acquis la libre disposition verse au constituant la différence entre la valeur et la dette, sous réserve du paiement préalable des dettes de conservation ou de gestion";
+        label en unofficial "Article 2488-4, paragraph 1. A beneficiary that obtained free disposal pays the settlor the excess of value over debt, subject to prior payment of preservation or management debts";
+        when libre_disposition_du_fiduciaire_creancier(s) and fiducie_immobiliere(s) and valeur_au_jour_du_transfert(s, v)
+            and montant_de_la_dette_reelle(s, d) and v > d and dettes_de_conservation_ou_gestion_payees(s);
+        then somme_versee_au_constituant(s, v - d);
+    }
+    rule PrixExcedentaireImmobilier(s: SureteReelle, f: Personne, c: Personne, p: Money, d: Money) strict {
+        label fr official "Article 2488-4, alinéa 2. Si le fiduciaire vend le bien, il restitue au constituant la part du produit excédant la dette garantie";
+        label en unofficial "Article 2488-4, paragraph 2. If the trustee sells the asset, it returns to the settlor the part of the proceeds above the secured debt";
+        when fiducie_surete(s, f, c) and fiducie_immobiliere(s) and vente_prevue_par_la_fiducie(s) and produit_de_la_vente(s, p)
+            and montant_de_la_dette_reelle(s, d) and p > d and dettes_de_conservation_ou_gestion_payees(s);
+        then somme_versee_au_constituant(s, p - d);
+    }
+}
+
+@source(CC_ART2488_5) {
+    rule RechargementImmobilier(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, f: Personne, k: Personne, a: Date) strict {
+        label fr official "Article 2488-5. La propriété cédée peut être affectée à d'autres dettes si l'acte constitutif le prévoit expressément ; la convention de rechargement est publiée à peine de nullité";
+        label en unofficial "Article 2488-5. The assigned title may be allocated to other debts if the constituting deed expressly so provides; the reloading agreement must be published on pain of nullity";
+        when convention_de_rechargement(x, s, c, m) and fiducie_surete(s, f, k) and fiducie_immobiliere(s)
+            and acte_prevoit_le_rechargement(s) and convention_enregistree_ou_publiee_le(x, a);
+        then rechargement_permis(x);
+    }
+    rule RechargementImmobilierAuDelaDeLaValeur(x: SureteReelle, s: SureteReelle, c: Personne, m: Money, v: Money, f: Personne, k: Personne) strict {
+        label fr official "Article 2488-5, alinéa 2. Le constituant personne physique ne peut affecter le patrimoine fiduciaire à une nouvelle dette que dans la limite de sa valeur estimée au jour de la recharge";
+        label en unofficial "Article 2488-5, paragraph 2. A natural-person settlor may allocate the trust assets to a new debt only up to their estimated value on the reloading date";
+        when convention_de_rechargement(x, s, c, m) and fiducie_surete(s, f, k) and fiducie_immobiliere(s)
+            and constituant_personne_physique(s) and valeur_estimee_au_jour_de_la_recharge(x, v) and m > v;
+        then rechargement_au_dela_de_la_valeur(x);
+    }
+}

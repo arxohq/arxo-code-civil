@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Art. 1156 al. 1 : l'acte accompli sans pouvoir est inopposable au représenté lorsque le tiers n'a pas légitimement cru aux pouvoirs et que le représenté n'a pas ratifié.
+test "urn:query:fr-code-civil-contrat-v31-acte-sans-pouvoir-inopposable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:v31"), @2019-03-01) { origin case_input; }
+        assert "f2": representation_pour_le_contrat(entity_ref("urn:fr:cc:contrat:v31:r"), entity_ref("urn:fr:cc:contrat:v31")) { origin case_input; }
+        assert "f3": representant(entity_ref("urn:fr:cc:contrat:v31:r"), entity_ref("urn:fr:cc:contrat:v31:p1")) { origin case_input; }
+        assert "f4": represente(entity_ref("urn:fr:cc:contrat:v31:r"), entity_ref("urn:fr:cc:contrat:v31:p2")) { origin case_input; }
+        assert "f5": partie_au_contrat(entity_ref("urn:fr:cc:contrat:v31"), entity_ref("urn:fr:cc:contrat:v31:tiers")) { origin case_input; }
+    }
+    evaluate truth(acte_inopposable_au_represente(entity_ref("urn:fr:cc:contrat:v31"), entity_ref("urn:fr:cc:contrat:v31:p2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ActeSansPouvoirInopposable);
+}

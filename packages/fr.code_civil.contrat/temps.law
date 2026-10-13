@@ -1,0 +1,113 @@
+// L'AXE DU TEMPS : PONT VERS LES CORRIDORS TRANSITOIRES (CC-16).
+//
+// Ce fichier ne porte aucun article du Code : ses règles sont des PONTS. Leur
+// texte est l'article 9 de l'ordonnance n° 2016-131 et l'article 16, I, de la
+// loi n° 2018-287, épinglés dans `fr.code_civil.transitions` — pas dans ce
+// paquet. Chaque pont est donc ancré sur CE fragment-là, chez le voisin :
+// ancrer un pont sur un article du Code lui attribuerait un texte qu'il ne
+// porte pas, et le laisser sans ancre en ferait une norme sans source.
+//
+// Ce que ces relations donnent aux chapitres :
+//
+//   `regi_par_le_droit_nouveau(c)`      prémisse ordinaire de toute norme du paquet ;
+//   `article_applicable_des_2016(c, n)` pour 1123, 1158 et 1183, que l'ordonnance
+//                                       rend applicables même au contrat antérieur ;
+//   `redaction_2018_applicable(c, n)` / `redaction_2016_applicable(c, n)`
+//                                       pour les sept articles « nouveaux » de la
+//                                       ratification qui ont ici deux rédactions ;
+//   `regime_anterieur_non_formalise(c)` frontière : le contrat d'avant le
+//                                       1er octobre 2016 relève d'un régime que ce
+//                                       paquet n'exécute pas.
+//
+// DEUX CORRIDORS EMPILÉS. Le corridor de 2018 ne connaît que le seuil du
+// 1er octobre 2018 : « avant » y comprend aussi l'acte de 2015. Or la
+// rédaction de 2016 n'a jamais régi un acte antérieur au 1er octobre 2016 —
+// celui-ci relève de la loi ancienne par l'ordonnance elle-même. Les deux
+// ponts de rédaction exigent donc AUSSI `regi_par_le_droit_nouveau(c)` : un
+// contrat de 2015 n'obtient ni la rédaction de 2016 ni celle de 2018, et
+// tombe dans la frontière déclarée.
+//
+// L'ANCRAGE DES RÉDACTIONS DE 2016 EST DOUBLE. L'édition CC_REDACTION_2016
+// est close au 1er octobre 2018 ; une règle ancrée sur elle SEULE serait
+// retirée de l'évaluation à toute date juridique postérieure (§92, E-0095),
+// alors que le juge de 2026 applique encore cette rédaction à un acte de
+// 2017. Ce qui la fait survivre est l'article 16, I, de la loi n° 2018-287 :
+// chaque règle de 2016 est donc ancrée sur son fragment de 2016 ET sur
+// `fr.code_civil.transitions::REFORME_2018_ART16` — comme `fr.code_civil`
+// ancre la prescription antérieure sur l'article 26 de la loi de 2008.
+//
+// LE CAS NOMME L'ARTICLE. Le corridor de 2018 raisonne PAR ARTICLE : le fait
+// `article_invoque(c, "1137")` est une entrée de cas, comme dans le scénario
+// t09 de CC-16. Un même contrat de 2017 relève ainsi de la rédaction de 2018
+// pour l'article interprétatif 1112 et de celle de 2016 pour l'article 1137.
+
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+use self::{
+    Contrat,
+};
+
+pub relation regi_par_le_droit_nouveau(c: Contrat) kind derived {
+    label fr official "le contrat se juge sur la rédaction issue de l'ordonnance n° 2016-131 (contrat conclu à compter du 1er octobre 2016)";
+    label en unofficial "the contract is judged under the wording of Ordinance No. 2016-131 (contract concluded from 1 October 2016)";
+}
+pub relation regime_anterieur_non_formalise(c: Contrat) kind derived {
+    label fr official "frontière déclarée : le contrat est antérieur au 1er octobre 2016 et relève de la loi ancienne, que ce paquet n'exécute pas";
+    label en unofficial "declared boundary: the contract predates 1 October 2016 and falls under the former law, which this package does not execute";
+}
+pub relation article_applicable_des_2016(c: Contrat, numero: Text) kind derived {
+    label fr official "article applicable dès l'entrée en vigueur de l'ordonnance, même au contrat antérieur (1123 alinéas 3 et 4, 1158, 1183)";
+    label en unofficial "article applicable from the ordinance's entry into force, even to an earlier contract (1123 paragraphs 3 and 4, 1158, 1183)";
+}
+pub relation redaction_2018_applicable(c: Contrat, numero: Text) kind derived {
+    label fr official "l'article se lit dans sa rédaction issue de la loi de ratification du 20 avril 2018";
+    label en unofficial "the article is read as worded by the ratifying Act of 20 April 2018";
+}
+pub relation redaction_2016_applicable(c: Contrat, numero: Text) kind derived {
+    label fr official "l'article se lit dans sa rédaction issue de l'ordonnance de 2016, antérieure à la ratification";
+    label en unofficial "the article is read as worded by the 2016 ordinance, before ratification";
+}
+
+@source(fr.code_civil.transitions::REFORME_2016_ART9)
+rule ContratRegiParLeDroitNouveau(c: Contrat) strict {
+    label fr official "Pont vers l'ordonnance n° 2016-131, article 9 : le corridor rend la loi nouvelle applicable au contrat";
+    label en unofficial "Bridge to Ordinance No. 2016-131, Article 9: the corridor makes the new law applicable to the contract";
+    when fr.code_civil.transitions::loi_applicable_au_contrat(c, fr.code_civil.transitions::LoiNouvelle);
+    then regi_par_le_droit_nouveau(c);
+}
+
+@source(fr.code_civil.transitions::REFORME_2016_ART9)
+rule ContratAnterieurHorsDuPaquet(c: Contrat) strict {
+    label fr official "Pont vers l'ordonnance n° 2016-131, article 9 : le contrat conclu avant le 1er octobre 2016 demeure soumis à la loi ancienne — régime antérieur non formalisé ici (frontière déclarée)";
+    label en unofficial "Bridge to Ordinance No. 2016-131, Article 9: a contract concluded before 1 October 2016 remains under the former law — the earlier regime is not formalized here (declared boundary)";
+    when fr.code_civil.transitions::loi_applicable_au_contrat(c, fr.code_civil.transitions::LoiAncienne);
+    then regime_anterieur_non_formalise(c);
+}
+
+@source(fr.code_civil.transitions::REFORME_2016_ART9)
+rule ArticleApplicableDesLEntreeEnVigueur(c: Contrat, n: Text) strict {
+    label fr official "Pont vers l'ordonnance n° 2016-131, article 9, troisième phrase : 1123 alinéas 3 et 4, 1158 et 1183 s'appliquent dès l'entrée en vigueur";
+    label en unofficial "Bridge to Ordinance No. 2016-131, Article 9, third sentence: 1123 paragraphs 3 and 4, 1158 and 1183 apply from entry into force";
+    when fr.code_civil.transitions::applicable_des_l_entree_en_vigueur_2016(c, n);
+    then article_applicable_des_2016(c, n);
+}
+
+@source(fr.code_civil.transitions::REFORME_2018_ART16)
+rule RedactionDeLaRatification(c: Contrat, n: Text) strict {
+    label fr official "Pont vers la loi n° 2018-287, article 16, I : pour cet article, l'acte relève de la rédaction ratifiée";
+    label en unofficial "Bridge to Act No. 2018-287, Article 16, I: for this article the act falls under the ratified wording";
+    when regi_par_le_droit_nouveau(c)
+        and fr.code_civil.transitions::loi_applicable_a_l_article_2018(c, n, fr.code_civil.transitions::LoiNouvelle);
+    then redaction_2018_applicable(c, n);
+}
+
+@source(fr.code_civil.transitions::REFORME_2018_ART16)
+rule RedactionDeLOrdonnance(c: Contrat, n: Text) strict {
+    label fr official "Pont vers la loi n° 2018-287, article 16, I : pour cet article, l'acte antérieur au 1er octobre 2018 relève de la rédaction de 2016";
+    label en unofficial "Bridge to Act No. 2018-287, Article 16, I: for this article an act earlier than 1 October 2018 falls under the 2016 wording";
+    when regi_par_le_droit_nouveau(c)
+        and fr.code_civil.transitions::loi_applicable_a_l_article_2018(c, n, fr.code_civil.transitions::LoiAncienne);
+    then redaction_2016_applicable(c, n);
+}

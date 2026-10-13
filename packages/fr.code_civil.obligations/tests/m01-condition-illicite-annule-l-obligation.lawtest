@@ -1,0 +1,17 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1304-1 : la condition doit être licite. A défaut, l'obligation est nulle.
+test "urn:query:fr-code-civil-obligations-m01-condition-illicite-annule-l-obligation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": condition_de_l_obligation(entity_ref("urn:fr:cc:obligations:cond:c"), entity_ref("urn:fr:cc:obligations:cond:k")) { origin case_input; }
+        assert "f2": espece_de_la_condition(entity_ref("urn:fr:cc:obligations:cond:k"), Suspensive) { origin case_input; }
+        assert "f3": condition_illicite(entity_ref("urn:fr:cc:obligations:cond:k")) { origin case_input; }
+    }
+    evaluate truth(obligation_nulle_pour_condition_illicite(entity_ref("urn:fr:cc:obligations:cond:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NulliteDeLaConditionIllicite);
+}

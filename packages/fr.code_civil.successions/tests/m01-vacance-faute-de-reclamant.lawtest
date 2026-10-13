@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 809, 1° : personne ne réclame et il n'y a pas d'héritier connu.
+test "urn:query:fr-code-civil-successions-m01-vacance-faute-de-reclamant" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": aucun_reclamant_ni_heritier_connu_constate(entity_ref("urn:fr:cc:successions:adm:m01:S")) { origin adjudicated; }
+    }
+    evaluate truth(succession_vacante(entity_ref("urn:fr:cc:successions:adm:m01:S")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(VacanceFauteDeReclamantEtDHeritierConnu);
+}

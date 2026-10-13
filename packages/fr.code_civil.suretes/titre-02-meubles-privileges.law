@@ -1,0 +1,444 @@
+// LIVRE IV, TITRE II, SOUS-TITRE II, CHAPITRE Ier : DES PRIVILÈGES MOBILIERS
+// (articles 2329 à 2332-4).
+//
+// CLASSES (distribution du prix d'un meuble, module général) :
+//   11  conservateur, frais postérieurs à la naissance des autres privilèges (2332-3, 1°)
+//   12  bailleur d'immeuble qui ignorait les autres privilèges (2°) ; gage (2332-4)
+//   13  conservateur, frais antérieurs (3°)
+//   14  vendeur de meuble ; auxiliaire salarié assimilé (4°, dernier alinéa)
+//   15  bailleur d'immeuble qui connaissait les autres privilèges (5°) ; gage (2332-4)
+//   21  frais de justice (2331, 1°)
+//   22  frais funéraires (2°)
+//   23  rémunérations et indemnités (3°) ; caisses de sécurité sociale (2332-2)
+//   24  produits livrés par un producteur agricole (4°)
+// Les privilèges spéciaux priment les généraux (2332-1) : classes 1x avant 2x.
+// Entre conservateurs du même meuble, le plus récent passe avant (2332-3).
+//
+// LECTURE DU GAGE (2332-4). Le gage s'exerce « au rang du privilège du
+// bailleur » ; ce rang dépend de la connaissance des autres privilèges
+// (2332-3, 2° et 5°). Le paquet applique au gagiste le même critère :
+// classe 12 s'il ignorait les autres privilèges, 15 sinon (D-CC14-04). Les
+// gages sans dépossession d'une même classe se rangent par inscription (2340).
+//
+// FRAIS DE JUSTICE (2331, 1°). La préférence n'existe qu'envers le créancier
+// auquel les frais ont profité : relative, elle ne s'écrit pas en file
+// d'attente. Si un créancier suivant n'en a pas profité, la distribution est
+// une frontière déclarée.
+//
+// QUART AU-DELÀ DU PLAFOND (2331, 3°). Le plafond de l'article L. 3253-2 du
+// code du travail est une entrée du cas (texte externe). La portion au-delà
+// est comptée pour le quart, arrondi au centime : politique du paquet, non
+// norme (D-13).
+
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+use self::{
+    Bien,
+    CC_ART2285,
+    CC_ART2329,
+    CC_ART2330,
+    CC_ART2331,
+    CC_ART2331_1,
+    CC_ART2332,
+    CC_ART2332_1,
+    CC_ART2332_2,
+    CC_ART2332_3,
+    CC_ART2332_4,
+    CauseDePreference,
+    Collocation,
+    Distribution,
+    Personne,
+    PrivilegeGeneral,
+    PrivilegeSpecial,
+    SureteReelle,
+    cause_de_preference,
+    classe_de_preference,
+    classe_ordonnee_par_date,
+    collocation_dans,
+    creance_en_principal,
+    date_utile,
+    distribution_non_calculee,
+    montant_admis,
+    precede,
+};
+
+pub enum NatureDeSurete {
+    label fr official "Nature de la sûreté réelle (articles 2329, 2375)";
+    label en unofficial "Kind of real security (Articles 2329, 2375)";
+    PrivilegeMobilier,
+    GageDeMeublesCorporels,
+    NantissementDeMeublesIncorporels,
+    ProprieteRetenueOuCedeeMobiliere,
+    PrivilegeImmobilierNature,
+    GageImmobilierNature,
+    Hypotheque,
+    ProprieteImmobiliereRetenueOuCedee
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------
+
+pub relation nature_de_la_surete(s: SureteReelle, n: NatureDeSurete) kind empirical {
+    key(s);
+    label fr official "nature de la sûreté réelle";
+    label en unofficial "kind of the real security";
+}
+pub relation privilege_general_invoque(r: Collocation, x: PrivilegeGeneral) kind empirical {
+    key(r);
+    label fr official "créance privilégiée sur la généralité des meubles invoquée (article 2331)";
+    label en unofficial "general movable preference relied on (Article 2331)";
+}
+pub relation privilege_special_invoque(r: Collocation, x: PrivilegeSpecial) kind empirical {
+    key(r);
+    label fr official "créance privilégiée sur certains meubles invoquée (article 2332)";
+    label en unofficial "special movable preference relied on (Article 2332)";
+}
+pub relation privilege_du_tresor_public(r: Collocation) kind empirical {
+    label fr official "la collocation invoque le privilège du Trésor public (articles 2331-1, 2332-2)";
+    label en unofficial "the entry relies on the Treasury's preference (Articles 2331-1, 2332-2)";
+}
+pub relation frais_posterieurs_aux_autres_privileges(r: Collocation) kind empirical {
+    label fr official "les frais de conservation sont postérieurs à la naissance des autres privilèges (article 2332-3, 1°)";
+    label en unofficial "the preservation costs arose after the other preferences (Article 2332-3, 1°)";
+}
+pub relation creancier_connaissait_les_autres_privileges(r: Collocation) kind empirical {
+    label fr official "le créancier connaissait l'existence des autres privilèges (article 2332-3, 2° et 5°)";
+    label en unofficial "the creditor knew of the other preferences (Article 2332-3, 2° and 5°)";
+}
+pub relation frais_de_justice_profitables_a(x: Collocation, r: Collocation) kind empirical {
+    label fr official "les frais de justice de x ont profité au créancier r (article 2331, 1°)";
+    label en unofficial "the legal costs of x benefited creditor r (Article 2331, 1°)";
+}
+pub relation indemnite_de_licenciement(r: Collocation, m: Money) kind empirical {
+    key(r);
+    label fr official "indemnité de licenciement comprise dans la créance de rémunérations (article 2331, 3°)";
+    label en unofficial "severance pay included in the wage claim (Article 2331, 3°)";
+}
+pub relation plafond_l3253_2(r: Collocation, m: Money) kind empirical {
+    key(r);
+    label fr official "plafond visé à l'article L. 3253-2 du code du travail (entrée externe)";
+    label en unofficial "ceiling referred to in Article L. 3253-2 of the Labour Code (external input)";
+}
+pub relation produits_livres_pendant_la_derniere_annee(r: Collocation) kind empirical {
+    label fr official "les produits ont été livrés pendant la dernière année, dans le cadre d'un accord interprofessionnel homologué ou d'un contrat-type homologué (article 2331, 4°)";
+    label en unofficial "the produce was delivered during the last year under an approved inter-branch agreement or model contract (Article 2331, 4°)";
+}
+pub relation bien_vendu_prix_du(b: Bien, acquereur: Personne) kind empirical {
+    label fr official "le bien grevé a été vendu et l'acquéreur en doit le prix (article 2330)";
+    label en unofficial "the encumbered asset was sold and the buyer owes the price (Article 2330)";
+}
+pub relation privilege_mobilier_sur(r: Collocation, b: Bien) kind empirical {
+    label fr official "le privilège mobilier porte sur ce bien";
+    label en unofficial "the movable preference bears on this asset";
+}
+pub relation disposition_speciale_contraire_2332_1(r: Collocation) kind empirical {
+    label fr official "une disposition spéciale fait primer ce privilège général sur les privilèges spéciaux (article 2332-1, sauf dispositions contraires)";
+    label en unofficial "a special provision gives this general preference priority over special ones (Article 2332-1, save contrary provisions)";
+}
+pub relation droit_de_suite_legal(r: Collocation) kind empirical {
+    label fr official "une disposition légale confère au privilège un droit de suite (article 2330, sauf disposition contraire)";
+    label en unofficial "a statutory provision gives the preference a right to follow the asset (Article 2330, save contrary provision)";
+}
+
+// --- 2329, 2330, 2331-1 -----------------------------------------------------------------------
+
+pub relation surete_sur_les_meubles(s: SureteReelle) kind derived {
+    label fr official "sûreté sur les meubles (article 2329)";
+    label en unofficial "security over movables (Article 2329)";
+}
+pub relation report_sur_la_creance_de_prix(r: Collocation, acquereur: Personne) kind derived {
+    label fr official "le privilège se reporte sur la créance de prix du débiteur à l'égard de l'acquéreur (article 2330)";
+    label en unofficial "the preference shifts to the debtor's claim for the price against the buyer (Article 2330)";
+}
+pub relation privilege_sans_droit_de_suite(r: Collocation) kind derived {
+    label fr official "sauf disposition contraire, le privilège mobilier ne confère pas de droit de suite (article 2330)";
+    label en unofficial "save contrary provision, a movable preference gives no right to follow the asset (Article 2330)";
+}
+pub relation rang_fixe_par_les_lois_du_tresor(r: Collocation) kind derived {
+    label fr official "frontière : le rang du privilège du Trésor est déterminé par les lois qui le concernent (articles 2331-1, 2332-2)";
+    label en unofficial "boundary: the Treasury preference's rank is set by its own statutes (Articles 2331-1, 2332-2)";
+}
+
+@source(CC_ART2329) {
+    rule SuretePrivilegeMobilier(s: SureteReelle) strict {
+        label fr official "Article 2329, 1°. Les privilèges mobiliers";
+        label en unofficial "Article 2329, 1°. Movable preferences";
+        when nature_de_la_surete(s, PrivilegeMobilier);
+        then surete_sur_les_meubles(s);
+    }
+    rule SureteGageDeMeubles(s: SureteReelle) strict {
+        label fr official "Article 2329, 2°. Le gage de meubles corporels";
+        label en unofficial "Article 2329, 2°. Pledge of tangible movables";
+        when nature_de_la_surete(s, GageDeMeublesCorporels);
+        then surete_sur_les_meubles(s);
+    }
+    rule SureteNantissement(s: SureteReelle) strict {
+        label fr official "Article 2329, 3°. Le nantissement de meubles incorporels";
+        label en unofficial "Article 2329, 3°. Charge over intangible movables";
+        when nature_de_la_surete(s, NantissementDeMeublesIncorporels);
+        then surete_sur_les_meubles(s);
+    }
+    rule SureteProprieteMobiliere(s: SureteReelle) strict {
+        label fr official "Article 2329, 4°. La propriété retenue ou cédée à titre de garantie";
+        label en unofficial "Article 2329, 4°. Ownership retained or assigned by way of security";
+        when nature_de_la_surete(s, ProprieteRetenueOuCedeeMobiliere);
+        then surete_sur_les_meubles(s);
+    }
+}
+
+@source(CC_ART2330) {
+    rule ReportSurLaCreanceDePrix(r: Collocation, b: Bien, a: Personne) strict {
+        label fr official "Article 2330. Les privilèges mobiliers se reportent sur la créance de prix du débiteur à l'égard de l'acquéreur";
+        label en unofficial "Article 2330. Movable preferences shift to the debtor's claim for the price against the buyer";
+        when privilege_mobilier_sur(r, b) and bien_vendu_prix_du(b, a);
+        then report_sur_la_creance_de_prix(r, a);
+    }
+    rule PasDeDroitDeSuite(r: Collocation, b: Bien) strict {
+        label fr official "Article 2330. Sauf disposition contraire, ils ne confèrent pas de droit de suite ; les dispositions qui les régissent sont d'interprétation stricte";
+        label en unofficial "Article 2330. Save contrary provision, they give no right to follow the asset; the provisions governing them are strictly construed";
+        when privilege_mobilier_sur(r, b) and not_known(droit_de_suite_legal(r));
+        then privilege_sans_droit_de_suite(r);
+    }
+}
+
+@source(CC_ART2331_1)
+rule PrivilegeDuTresor(r: Collocation, d: Distribution) strict {
+    label fr official "Articles 2331-1 et 2332-2. Le privilège du Trésor public est déterminé par les lois qui le concernent, y compris son rang";
+    label en unofficial "Articles 2331-1 and 2332-2. The Treasury preference, including its rank, is set by its own statutes";
+    when privilege_du_tresor_public(r) and collocation_dans(r, d);
+    then rang_fixe_par_les_lois_du_tresor(r);
+}
+
+// --- 2331 : privilèges généraux ----------------------------------------------------------------
+
+pub relation portion_privilegiee_de_l_indemnite(r: Collocation, m: Money) kind derived {
+    key(r);
+    label fr official "portion privilégiée de l'indemnité de licenciement : totalité jusqu'au plafond, quart au-delà (article 2331, 3°)";
+    label en unofficial "preferred portion of severance pay: in full up to the ceiling, one quarter above it (Article 2331, 3°)";
+}
+pub relation portion_chirographaire_de_l_indemnite(r: Collocation, m: Money) kind derived {
+    key(r);
+    label fr official "portion non privilégiée de l'indemnité : les trois quarts au-delà du plafond (article 2331, 3°)";
+    label en unofficial "unpreferred portion of the severance pay: three quarters above the ceiling (Article 2331, 3°)";
+}
+pub relation montant_admis_calcule(r: Collocation) kind derived {
+    label fr official "le montant de la collocation est calculé par une disposition particulière";
+    label en unofficial "the entry's amount is computed by a specific provision";
+}
+
+@source(CC_ART2331) {
+    rule ClasseFraisDeJustice(r: Collocation) strict {
+        label fr official "Article 2331, 1°. Les frais de justice, sous la condition qu'ils aient profité au créancier auquel le privilège est opposé";
+        label en unofficial "Article 2331, 1°. Legal costs, provided they benefited the creditor against whom the preference is raised";
+        when cause_de_preference(r, PrivilegeMobilierGeneral) and privilege_general_invoque(r, FraisDeJustice);
+        then classe_de_preference(r, 21);
+    }
+    rule ClasseFraisFuneraires(r: Collocation) strict {
+        label fr official "Article 2331, 2°. Les frais funéraires";
+        label en unofficial "Article 2331, 2°. Funeral expenses";
+        when cause_de_preference(r, PrivilegeMobilierGeneral) and privilege_general_invoque(r, FraisFuneraires);
+        then classe_de_preference(r, 22);
+    }
+    rule ClasseRemunerations(r: Collocation) strict {
+        label fr official "Article 2331, 3°. Les rémunérations et indemnités : six derniers mois de rémunération, salaire différé, créances du conjoint survivant, indemnités de fin de contrat, de préavis, de congés payés et de licenciement";
+        label en unofficial "Article 2331, 3°. Wages and indemnities: last six months' pay, deferred wages, surviving spouse's claims, end-of-contract, notice, paid-leave and severance payments";
+        when cause_de_preference(r, PrivilegeMobilierGeneral) and privilege_general_invoque(r, RemunerationsEtIndemnites);
+        then classe_de_preference(r, 23);
+    }
+    rule ClasseProduitsAgricoles(r: Collocation) strict {
+        label fr official "Article 2331, 4°. Pendant la dernière année, les produits livrés par un producteur agricole dans le cadre d'un accord interprofessionnel à long terme homologué";
+        label en unofficial "Article 2331, 4°. For the last year, produce delivered by a farmer under an approved long-term inter-branch agreement";
+        when cause_de_preference(r, PrivilegeMobilierGeneral) and privilege_general_invoque(r, ProduitsAgricoles)
+            and produits_livres_pendant_la_derniere_annee(r);
+        then classe_de_preference(r, 24);
+    }
+    rule FraisDeJusticeNonProfitables(x: Collocation, r: Collocation, d: Distribution, a: Integer, b: Integer) strict {
+        label fr official "Article 2331, 1°. Frais de justice qui n'ont pas profité à un créancier de rang inférieur : la préférence relative n'est pas une file d'attente — frontière";
+        label en unofficial "Article 2331, 1°. Legal costs that did not benefit a lower-ranked creditor: a relative preference is not a queue — boundary";
+        when privilege_general_invoque(x, FraisDeJustice) and collocation_dans(x, d) and collocation_dans(r, d)
+            and classe_de_preference(x, a) and classe_de_preference(r, b) and a < b
+            and not_known(frais_de_justice_profitables_a(x, r));
+        then distribution_non_calculee(d);
+    }
+    rule PortionPrivilegieeSousLePlafond(r: Collocation, m: Money, p: Money) strict {
+        label fr official "Article 2331, 3°. Indemnités de licenciement privilégiées pour la totalité de la portion inférieure ou égale au plafond";
+        label en unofficial "Article 2331, 3°. Severance pay preferred in full for the portion up to the ceiling";
+        when privilege_general_invoque(r, RemunerationsEtIndemnites) and indemnite_de_licenciement(r, m) and plafond_l3253_2(r, p) and m <= p;
+        then portion_privilegiee_de_l_indemnite(r, m);
+    }
+    rule PortionPrivilegieeAuDelaDuPlafond(r: Collocation, m: Money, p: Money) strict {
+        label fr official "Article 2331, 3°. Et pour le quart de la portion supérieure audit plafond";
+        label en unofficial "Article 2331, 3°. And for one quarter of the portion above that ceiling";
+        when privilege_general_invoque(r, RemunerationsEtIndemnites) and indemnite_de_licenciement(r, m) and plafond_l3253_2(r, p) and m > p;
+        // Politique du paquet, non norme (D-13) : quart arrondi au centime.
+        then portion_privilegiee_de_l_indemnite(r, p + div_round(m - p, 4.0, 2, "HALF_UP"));
+    }
+    rule PortionChirographaire(r: Collocation, m: Money, v: Money) strict {
+        label fr official "Article 2331, 3°. Le surplus de l'indemnité n'est pas privilégié";
+        label en unofficial "Article 2331, 3°. The rest of the severance pay is not preferred";
+        when indemnite_de_licenciement(r, m) and portion_privilegiee_de_l_indemnite(r, v);
+        then portion_chirographaire_de_l_indemnite(r, m - v);
+    }
+    rule MontantAdmisRemunerations(r: Collocation, c: Money, v: Money) strict {
+        label fr official "Article 2331, 3°. La collocation vient pour les rémunérations et la portion privilégiée de l'indemnité";
+        label en unofficial "Article 2331, 3°. The entry comes for the wages and the preferred portion of the severance pay";
+        when portion_privilegiee_de_l_indemnite(r, v) and creance_en_principal(r, c);
+        then montant_admis(r, c + v);
+    }
+    rule MontantAdmisRemunerationsCalcule(r: Collocation, v: Money) strict {
+        label fr official "Article 2331, 3°. Montant calculé";
+        label en unofficial "Article 2331, 3°. Computed amount";
+        when portion_privilegiee_de_l_indemnite(r, v);
+        then montant_admis_calcule(r);
+    }
+}
+
+// --- 2332 à 2332-4 : privilèges spéciaux et ordre ------------------------------------------------
+
+@source(CC_ART2332) {
+    rule PrivilegeSpecialDuBailleur(r: Collocation) strict {
+        label fr official "Article 2332, 1°. Les sommes dues en exécution d'un bail, sur le mobilier garnissant les lieux";
+        label en unofficial "Article 2332, 1°. Sums owed under a lease, over the furniture in the premises";
+        when cause_de_preference(r, PrivilegeMobilierSpecial) and privilege_special_invoque(r, BailleurDImmeuble);
+        then privilege_special_du_bailleur(r);
+    }
+    rule PrivilegeSpecialDuConservateur(r: Collocation) strict {
+        label fr official "Article 2332, 2°. Les frais de conservation d'un meuble, sur celui-ci";
+        label en unofficial "Article 2332, 2°. Costs of preserving a movable, over that movable";
+        when cause_de_preference(r, PrivilegeMobilierSpecial) and privilege_special_invoque(r, ConservateurDuMeuble);
+        then privilege_special_du_conservateur(r);
+    }
+    rule PrivilegeSpecialDuVendeur(r: Collocation) strict {
+        label fr official "Article 2332, 3°. Le prix de vente d'un meuble, sur celui-ci";
+        label en unofficial "Article 2332, 3°. The sale price of a movable, over that movable";
+        when cause_de_preference(r, PrivilegeMobilierSpecial) and privilege_special_invoque(r, VendeurDeMeuble);
+        then privilege_special_du_vendeur(r);
+    }
+    rule PrivilegeSpecialDeLAuxiliaire(r: Collocation) strict {
+        label fr official "Article 2332, 4°. Les créances nées du contrat de travail de l'auxiliaire salarié d'un travailleur à domicile, sur les sommes dues à ce travailleur";
+        label en unofficial "Article 2332, 4°. Claims under the employment contract of a home worker's employed assistant, over the sums owed to that worker";
+        when cause_de_preference(r, PrivilegeMobilierSpecial) and privilege_special_invoque(r, AuxiliaireSalarieDuTravailleurADomicile);
+        then privilege_special_du_vendeur(r);
+    }
+}
+
+pub relation privilege_special_du_bailleur(r: Collocation) kind derived {
+    label fr official "privilège spécial du bailleur d'immeuble (article 2332, 1°)";
+    label en unofficial "special preference of the lessor of immovable property (Article 2332, 1°)";
+}
+pub relation privilege_special_du_conservateur(r: Collocation) kind derived {
+    label fr official "privilège spécial du conservateur (article 2332, 2°)";
+    label en unofficial "special preference of the preserver (Article 2332, 2°)";
+}
+pub relation privilege_special_du_vendeur(r: Collocation) kind derived {
+    label fr official "privilège spécial du vendeur de meuble, ou privilège assimilé de l'auxiliaire salarié (articles 2332, 3° et 4°, 2332-3)";
+    label en unofficial "special preference of the seller of a movable, or the assimilated preference of the employed assistant (Articles 2332, 3° and 4°, 2332-3)";
+}
+pub relation generaux_avant_speciaux_par_disposition_speciale(d: Distribution) kind derived {
+    label fr official "frontière : une disposition spéciale déroge à la primauté des privilèges spéciaux (article 2332-1)";
+    label en unofficial "boundary: a special provision derogates from the priority of special preferences (Article 2332-1)";
+}
+
+@source(CC_ART2332_1)
+rule DerogationALaPrimauteDesSpeciaux(r: Collocation, d: Distribution) strict {
+    label fr official "Article 2332-1. Sauf dispositions contraires, les privilèges spéciaux priment les privilèges généraux : la disposition contraire est hors du paquet";
+    label en unofficial "Article 2332-1. Save contrary provisions, special preferences prevail over general ones: the contrary provision is outside the package";
+    when disposition_speciale_contraire_2332_1(r) and collocation_dans(r, d);
+    then distribution_non_calculee(d);
+}
+
+@source(CC_ART2332_2) {
+    rule ClasseSecuriteSociale(r: Collocation) strict {
+        label fr official "Article 2332-2, alinéa 1. Le privilège des caisses de sécurité sociale vient au même rang que le privilège des salariés";
+        label en unofficial "Article 2332-2, paragraph 1. The social-security funds' preference ranks with the employees' preference";
+        when cause_de_preference(r, PrivilegeMobilierGeneral) and privilege_general_invoque(r, CaissesDeSecuriteSociale);
+        then classe_de_preference(r, 23);
+    }
+    rule TresorHorsDistribution(r: Collocation, d: Distribution) strict {
+        label fr official "Article 2332-2, alinéa 1. Le rang du privilège du Trésor public est déterminé par les lois qui le concernent : distribution non calculée";
+        label en unofficial "Article 2332-2, paragraph 1. The Treasury preference's rank is set by its own statutes: distribution not computed";
+        when rang_fixe_par_les_lois_du_tresor(r) and collocation_dans(r, d);
+        then distribution_non_calculee(d);
+    }
+}
+
+@source(CC_ART2332_3) {
+    rule ClasseConservateurPosterieur(r: Collocation) strict {
+        label fr official "Article 2332-3, 1°. Le privilège du conservateur, lorsque les frais de conservation sont postérieurs à la naissance des autres privilèges";
+        label en unofficial "Article 2332-3, 1°. The preserver's preference, where the costs arose after the other preferences";
+        when privilege_special_du_conservateur(r) and frais_posterieurs_aux_autres_privileges(r);
+        then classe_de_preference(r, 11);
+    }
+    rule ClasseBailleurQuiIgnorait(r: Collocation) strict {
+        label fr official "Article 2332-3, 2°. Le privilège du bailleur d'immeuble, qui ignorait l'existence des autres privilèges";
+        label en unofficial "Article 2332-3, 2°. The lessor's preference, where it was unaware of the other preferences";
+        when privilege_special_du_bailleur(r) and not_known(creancier_connaissait_les_autres_privileges(r));
+        then classe_de_preference(r, 12);
+    }
+    rule ClasseConservateurAnterieur(r: Collocation) strict {
+        label fr official "Article 2332-3, 3°. Le privilège du conservateur, lorsque les frais de conservation sont antérieurs à la naissance des autres privilèges";
+        label en unofficial "Article 2332-3, 3°. The preserver's preference, where the costs arose before the other preferences";
+        when privilege_special_du_conservateur(r) and not_known(frais_posterieurs_aux_autres_privileges(r));
+        then classe_de_preference(r, 13);
+    }
+    rule ClasseVendeurDeMeuble(r: Collocation) strict {
+        label fr official "Article 2332-3, 4° et dernier alinéa. Le privilège du vendeur de meuble, et celui de l'auxiliaire salarié qui lui est assimilé";
+        label en unofficial "Article 2332-3, 4° and last paragraph. The seller's preference, and the employed assistant's assimilated to it";
+        when privilege_special_du_vendeur(r);
+        then classe_de_preference(r, 14);
+    }
+    rule ClasseBailleurQuiConnaissait(r: Collocation) strict {
+        label fr official "Article 2332-3, 5°. Le privilège du bailleur d'immeuble, qui connaissait l'existence des autres privilèges";
+        label en unofficial "Article 2332-3, 5°. The lessor's preference, where it knew of the other preferences";
+        when privilege_special_du_bailleur(r) and creancier_connaissait_les_autres_privileges(r);
+        then classe_de_preference(r, 15);
+    }
+    rule ConservateurLePlusRecent(x: Collocation, r: Collocation, d: Distribution, n: Integer, s: Date, t: Date) strict {
+        label fr official "Article 2332-3, alinéa 7. Entre les conservateurs du même meuble, la préférence est donnée au plus récent";
+        label en unofficial "Article 2332-3, paragraph 7. Between preservers of the same movable, preference goes to the most recent";
+        when collocation_dans(x, d) and collocation_dans(r, d) and privilege_special_du_conservateur(x) and privilege_special_du_conservateur(r)
+            and classe_de_preference(x, n) and classe_de_preference(r, n) and date_utile(x, s) and date_utile(r, t) and s > t;
+        then precede(x, r);
+    }
+}
+
+@source(CC_ART2332_4) {
+    rule GageAuRangDuBailleurQuiIgnorait(r: Collocation) strict {
+        label fr official "Article 2332-4. Sauf loi spéciale, le droit de préférence conféré par le gage s'exerce au rang du privilège du bailleur d'immeuble (bailleur qui ignorait les autres privilèges)";
+        label en unofficial "Article 2332-4. Save special law, the pledge's preference is exercised at the rank of the lessor's preference (lessor unaware of the other preferences)";
+        when cause_de_preference(r, GageSansDepossession) and not_known(creancier_connaissait_les_autres_privileges(r));
+        then classe_de_preference(r, 12);
+    }
+    rule GageAuRangDuBailleurQuiConnaissait(r: Collocation) strict {
+        label fr official "Article 2332-4. Le droit de préférence du gage s'exerce au rang du bailleur qui connaissait les autres privilèges";
+        label en unofficial "Article 2332-4. The pledge's preference is exercised at the rank of a lessor that knew of the other preferences";
+        when cause_de_preference(r, GageSansDepossession) and creancier_connaissait_les_autres_privileges(r);
+        then classe_de_preference(r, 15);
+    }
+    rule ClassesDuGageParInscription12() strict {
+        label fr official "Article 2340. Les gages sans dépossession d'une même classe se rangent par l'ordre de leur inscription";
+        label en unofficial "Article 2340. Non-possessory pledges in the same class rank by order of registration";
+        when classe_de_preference_existe(12);
+        then classe_ordonnee_par_date(12);
+    }
+    rule ClassesDuGageParInscription15() strict {
+        label fr official "Article 2340. Les gages sans dépossession d'une même classe se rangent par l'ordre de leur inscription";
+        label en unofficial "Article 2340. Non-possessory pledges in the same class rank by order of registration";
+        when classe_de_preference_existe(15);
+        then classe_ordonnee_par_date(15);
+    }
+}
+
+pub relation classe_de_preference_existe(n: Integer) kind derived {
+    label fr official "au moins une collocation relève de cette classe";
+    label en unofficial "at least one entry falls in this class";
+}
+
+@source(CC_ART2285)
+rule ClasseExistante(r: Collocation, n: Integer) strict {
+    label fr official "Article 2285. Classe représentée dans la distribution";
+    label en unofficial "Article 2285. Class present in the distribution";
+    when classe_de_preference(r, n);
+    then classe_de_preference_existe(n);
+}

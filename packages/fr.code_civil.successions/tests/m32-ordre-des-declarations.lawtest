@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 796, alinéa 3 : entre déclarés, l'ordre des déclarations décide.
+test "urn:query:fr-code-civil-successions-m32-ordre-des-declarations" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m32:S"), entity_ref("urn:fr:cc:successions:adm:m32:P1"), CreancierDeclare) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m32:S"), entity_ref("urn:fr:cc:successions:adm:m32:P2"), CreancierDeclare) { origin case_input; }
+        assert "f3": ordre_de_la_declaration(entity_ref("urn:fr:cc:successions:adm:m32:S"), entity_ref("urn:fr:cc:successions:adm:m32:P1"), 2) { origin case_input; }
+        assert "f4": ordre_de_la_declaration(entity_ref("urn:fr:cc:successions:adm:m32:S"), entity_ref("urn:fr:cc:successions:adm:m32:P2"), 5) { origin case_input; }
+    }
+    evaluate truth(paye_avant(entity_ref("urn:fr:cc:successions:adm:m32:S"), entity_ref("urn:fr:cc:successions:adm:m32:P1"), entity_ref("urn:fr:cc:successions:adm:m32:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PaiementParOrdreDesDeclarations);
+}

@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2331, 3° : indemnité égale au plafond (12 000) — privilégiée en totalité.
+test "urn:query:fr-code-civil-suretes-p13-indemnite-au-plafond" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": collocation_dans(entity_ref("urn:fr:cc:suretes:p13:S1"), entity_ref("urn:fr:cc:suretes:p13:D")) { origin case_input; }
+        assert "f2": cause_de_preference(entity_ref("urn:fr:cc:suretes:p13:S1"), PrivilegeMobilierGeneral) { origin case_input; }
+        assert "f3": creance_en_principal(entity_ref("urn:fr:cc:suretes:p13:S1"), 0.01 EUR) { origin case_input; }
+        assert "f4": privilege_general_invoque(entity_ref("urn:fr:cc:suretes:p13:S1"), RemunerationsEtIndemnites) { origin case_input; }
+        assert "f5": indemnite_de_licenciement(entity_ref("urn:fr:cc:suretes:p13:S1"), 12000 EUR) { origin case_input; }
+        assert "f6": plafond_l3253_2(entity_ref("urn:fr:cc:suretes:p13:S1"), 12000 EUR) { origin case_input; }
+    }
+    evaluate truth(portion_privilegiee_de_l_indemnite(entity_ref("urn:fr:cc:suretes:p13:S1"), 12000 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(PortionPrivilegieeSousLePlafond);
+}

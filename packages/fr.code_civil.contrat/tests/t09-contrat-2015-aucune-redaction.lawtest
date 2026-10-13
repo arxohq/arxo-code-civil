@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrat version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrat";
+
+// Ord. 2016-131 art. 9 et loi 2018-287 art. 16 empilés : l'acte de 2015 n'obtient pas la rédaction de 2016 de l'article 1137 — il relève de la loi ancienne.
+test "urn:query:fr-code-civil-contrat-t09-contrat-2015-aucune-redaction" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::contrat_conclu_le(entity_ref("urn:fr:cc:contrat:t09"), @2015-06-01) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:contrat:t09"), @2015-06-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:contrat:t09"), "1137") { origin case_input; }
+    }
+    evaluate truth(redaction_2016_applicable(entity_ref("urn:fr:cc:contrat:t09"), "1137"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

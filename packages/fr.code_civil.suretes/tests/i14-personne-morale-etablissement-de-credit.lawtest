@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2302, al. 4 : caution personne morale envers un établissement de crédit, concours à une entreprise — l'information est due.
+test "urn:query:fr-code-civil-suretes-i14-personne-morale-etablissement-de-credit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2023-02-15; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:i14:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:i14:K"), entity_ref("urn:fr:cc:suretes:i14:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:i14:K"), entity_ref("urn:fr:cc:suretes:i14:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:i14:C")) { origin case_input; }
+        assert "f5": etablissement_de_credit_ou_societe_de_financement(entity_ref("urn:fr:cc:suretes:i14:B")) { origin case_input; }
+        assert "f6": concours_financier_a_une_entreprise(entity_ref("urn:fr:cc:suretes:i14:K")) { origin case_input; }
+        assert "f7": arrete_annuel(entity_ref("urn:fr:cc:suretes:i14:K"), @2022-12-31) { origin case_input; }
+    }
+    evaluate truth(caution_protegee_par_l_information(entity_ref("urn:fr:cc:suretes:i14:K")));
+    expect truth_status == TRUE_ONLY;
+    expect applied(CautionPersonneMoraleInformee);
+}

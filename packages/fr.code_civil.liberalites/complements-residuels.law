@@ -1,0 +1,178 @@
+// COMPLÉMENTS — huit articles restant sans conséquence exécutable.
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART900_3,
+    CC_ART900_4,
+    CC_ART900_6,
+    CC_ART910,
+    CC_ART910_1,
+    CC_ART920,
+    CC_ART942,
+    CC_ART947,
+    Liberalite,
+    demander_revision_900_2,
+};
+
+pub relation demande_revision_formee_contre_parties_requises(l: Liberalite) kind empirical { label fr official "la demande en révision est formée contre les héritiers et, s'il y a lieu, le ministère public"; label en unofficial "the revision claim is brought against the heirs and, where required, the public prosecutor"; }
+pub relation demande_revision_proceduralement_recevable(l: Liberalite) kind derived { label fr official "demande en révision recevable quant aux parties requises"; label en unofficial "revision claim admissible as to required parties"; }
+pub relation juge_ordonne_adaptation_charge(l: Liberalite) kind empirical { label fr official "le juge ordonne une adaptation de la charge conforme à l'intention du disposant"; label en unofficial "the judge orders adaptation of the burden consistent with the donor's intent"; }
+pub relation charge_judiciairement_adaptee(l: Liberalite) kind derived { label fr official "charge judiciairement adaptée"; label en unofficial "burden judicially adapted"; }
+pub relation tierce_opposition_fondee_fraude_gratifie(l: Liberalite) kind empirical { label fr official "la tierce opposition est fondée sur une fraude imputable au gratifié"; label en unofficial "the third-party opposition is based on fraud attributable to the beneficiary"; }
+pub relation tierce_opposition_recevable(l: Liberalite) kind derived { label fr official "tierce opposition recevable"; label en unofficial "third-party opposition admissible"; }
+pub relation organisme_sante_social_utilite_publique_autorise_arrete(l: Liberalite) kind empirical { label fr official "la libéralité à l'organisme concerné est autorisée par arrêté préfectoral"; label en unofficial "the gift to the relevant organization is authorized by prefectural order"; }
+pub relation liberalite_organisme_autorisee(l: Liberalite) kind derived { label fr official "libéralité à l'organisme autorisée"; label en unofficial "gift to the organization authorized"; }
+pub relation liberalite_cultuelle_financement_etranger(l: Liberalite) kind empirical { label fr official "une libéralité étrangère est consentie à un organisme cultuel visé"; label en unofficial "a foreign gift is made to a covered religious organization"; }
+pub relation opposition_administrative_cultuelle_formee(l: Liberalite) kind empirical { label fr official "l'autorité administrative forme opposition après procédure contradictoire"; label en unofficial "the administrative authority objects after an adversarial procedure"; }
+pub relation liberalite_cultuelle_privee_effet(l: Liberalite) kind derived { label fr official "libéralité cultuelle privée d'effet par opposition"; label en unofficial "religious gift deprived of effect by objection"; }
+pub relation liberalite_directe_ou_indirecte_atteint_reserve(l: Liberalite) kind empirical { label fr official "une libéralité directe ou indirecte porte atteinte à la réserve"; label en unofficial "a direct or indirect gift impairs the forced share"; }
+pub relation liberalite_reductible_quotite_disponible(l: Liberalite) kind derived { label fr official "libéralité réductible à la quotité disponible"; label en unofficial "gift reducible to the disposable share"; }
+pub relation mineur_ou_majeur_tutelle_defaut_acceptation_publication(l: Liberalite) kind empirical { label fr official "un mineur ou majeur en tutelle invoque le défaut d'acceptation ou de publication"; label en unofficial "a minor or protected adult invokes lack of acceptance or publication"; }
+pub relation restitution_contre_defaut_refusee(l: Liberalite) kind derived { label fr official "restitution contre le défaut d'acceptation ou de publication refusée"; label en unofficial "relief against lack of acceptance or publication denied"; }
+pub relation donation_chapitre_huit_ou_neuf(l: Liberalite) kind empirical { label fr official "la donation relève du chapitre VIII ou IX du titre II"; label en unofficial "the gift falls under Chapter VIII or IX of Title II"; }
+pub relation articles_943_a_946_inapplicables(l: Liberalite) kind derived { label fr official "articles 943 à 946 inapplicables"; label en unofficial "Articles 943 to 946 inapplicable"; }
+
+@source(CC_ART900_3) rule PartiesDemandeRevision(l: Liberalite) strict { label fr official "Article 900-3. La demande en révision est dirigée contre les héritiers et communiquée au ministère public dans les cas prévus"; label en unofficial "Article 900-3. The revision claim is directed against the heirs and communicated to the public prosecutor in prescribed cases"; when demande_revision_formee_contre_parties_requises(l); then demande_revision_proceduralement_recevable(l); }
+pub relation former_demande_revision_900_3(l: Liberalite) kind empirical { label fr official "la partie forme la demande en révision contre les parties requises"; label en unofficial "the party files the revision claim against the required parties"; }
+@source(CC_ART900_3)
+rule PositionDevoirFormerDemandeRevision(l: Liberalite) strict {
+    label fr official "Article 900-3. La partie doit former la demande contre les parties requises";
+    label en unofficial "Article 900-3. The party must file the claim against required parties";
+    when demander_revision_900_2(l);
+    then duty DevoirFormerDemandeRevision {
+        bearer entity_ref("urn:fr:cc:liberalites:demandeur");
+        goal achievement { condition former_demande_revision_900_3(l); window [@2007-01-01, infinity); };
+    };
+}
+@source(CC_ART900_4) rule PouvoirsJugeRevision(l: Liberalite) strict { label fr official "Article 900-4. Le juge peut adapter les prestations ou autoriser l'aliénation en respectant l'intention du disposant"; label en unofficial "Article 900-4. The judge may adapt performance or authorize alienation consistently with the donor's intent"; when juge_ordonne_adaptation_charge(l); then charge_judiciairement_adaptee(l); }
+pub relation adapter_charge_900_4(l: Liberalite) kind empirical { label fr official "le juge adapte la charge ou autorise l'aliénation conformément à l'intention du disposant"; label en unofficial "the judge adapts the burden or authorizes alienation consistently with donor intent"; }
+@source(CC_ART900_4)
+rule PositionPouvoirAdapterChargeJuge(l: Liberalite) strict {
+    label fr official "Article 900-4. Le juge peut adapter la charge";
+    label en unofficial "Article 900-4. The judge may adapt the burden";
+    when juge_ordonne_adaptation_charge(l) and adapter_charge_900_4(l);
+    then liberty PouvoirAdapterChargeJuge {
+        holder entity_ref("urn:fr:cc:liberalites:juge");
+        action adapter_charge_900_4(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART900_6) rule TierceOppositionFraude(l: Liberalite) strict { label fr official "Article 900-6. La tierce opposition n'est recevable qu'en cas de fraude imputable au gratifié"; label en unofficial "Article 900-6. Third-party opposition is admissible only for fraud attributable to the beneficiary"; when tierce_opposition_fondee_fraude_gratifie(l); then tierce_opposition_recevable(l); }
+pub relation former_tierce_opposition_fraude_900_6(l: Liberalite) kind empirical { label fr official "le tiers forme une tierce opposition fondée sur la fraude du gratifié"; label en unofficial "the third party files an opposition based on the beneficiary's fraud"; }
+@source(CC_ART900_6)
+rule PositionPouvoirFormerTierceOpposition(l: Liberalite) strict {
+    label fr official "Article 900-6. Le tiers peut former tierce opposition en cas de fraude";
+    label en unofficial "Article 900-6. A third party may file opposition in case of fraud";
+    when tierce_opposition_fondee_fraude_gratifie(l) and former_tierce_opposition_fraude_900_6(l);
+    then liberty PouvoirFormerTierceOpposition {
+        holder entity_ref("urn:fr:cc:liberalites:tiers");
+        action former_tierce_opposition_fraude_900_6(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART910) rule AutorisationOrganisme(l: Liberalite) strict { label fr official "Article 910. La libéralité à certains organismes produit effet après l'autorisation administrative requise"; label en unofficial "Article 910. A gift to certain organizations takes effect after required administrative authorization"; when organisme_sante_social_utilite_publique_autorise_arrete(l); then liberalite_organisme_autorisee(l); }
+pub relation autoriser_liberalite_organisme_910(l: Liberalite) kind empirical { label fr official "l'autorité autorise la libéralité à l'organisme par arrêté"; label en unofficial "the authority authorizes the gift to the organization by order"; }
+pub relation liberalite_a_organisme_sante_social_ou_utilite_publique(l: Liberalite) kind empirical { label fr official "la libéralité est consentie au profit d'un établissement de santé, social, médico-social ou d'utilité publique"; label en unofficial "the gift is made to a health, social, medico-social or public-utility establishment"; }
+@source(CC_ART910)
+rule PositionDevoirAutoriserLiberaliteOrganisme(l: Liberalite) strict {
+    label fr official "Article 910. L'autorité doit autoriser la libéralité requise";
+    label en unofficial "Article 910. The authority must authorize the required gift";
+    when liberalite_a_organisme_sante_social_ou_utilite_publique(l);
+    then duty DevoirAutoriserLiberaliteOrganisme {
+        bearer entity_ref("urn:fr:cc:liberalites:autorite-administrative");
+        goal achievement { condition autoriser_liberalite_organisme_910(l); window [@2007-01-01, infinity); };
+    };
+}
+@source(CC_ART910_1) rule OppositionFinancementCultuel(l: Liberalite) strict { label fr official "Article 910-1. L'opposition administrative contradictoire prive d'effet la libéralité cultuelle étrangère"; label en unofficial "Article 910-1. An adversarial administrative objection deprives the foreign religious gift of effect"; when liberalite_cultuelle_financement_etranger(l) and opposition_administrative_cultuelle_formee(l); then liberalite_cultuelle_privee_effet(l); }
+pub relation former_opposition_cultuelle_910_1(l: Liberalite) kind empirical { label fr official "l'autorité administrative forme opposition à la libéralité cultuelle étrangère"; label en unofficial "the administrative authority forms an objection to the foreign religious gift"; }
+@source(CC_ART910_1)
+rule PositionPouvoirFormerOppositionCultuelle(l: Liberalite) strict {
+    label fr official "Article 910-1. L'autorité peut former opposition administrative";
+    label en unofficial "Article 910-1. The authority may form an administrative objection";
+    when liberalite_cultuelle_financement_etranger(l)
+        and opposition_administrative_cultuelle_formee(l)
+        and former_opposition_cultuelle_910_1(l);
+    then liberty PouvoirFormerOppositionCultuelle {
+        holder entity_ref("urn:fr:cc:liberalites:autorite-administrative");
+        action former_opposition_cultuelle_910_1(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART920) rule AtteinteReserveReductible(l: Liberalite) strict { label fr official "Article 920. Toute libéralité portant atteinte à la réserve est réductible à la quotité disponible"; label en unofficial "Article 920. Any gift impairing the forced share is reducible to the disposable share"; when liberalite_directe_ou_indirecte_atteint_reserve(l); then liberalite_reductible_quotite_disponible(l); }
+pub relation consentir_liberalite_atteignant_reserve_920(l: Liberalite) kind empirical { label fr official "le disposant consent une libéralité portant atteinte à la réserve"; label en unofficial "the donor makes a gift impairing the forced share"; }
+@source(CC_ART920)
+rule PositionInterdictionConsentirAtteinteReserve(l: Liberalite) strict {
+    label fr official "Article 920. Le disposant ne peut porter atteinte à la réserve";
+    label en unofficial "Article 920. The donor may not impair the forced share";
+    when liberalite_directe_ou_indirecte_atteint_reserve(l);
+    then prohibition InterdictionConsentirAtteinteReserve {
+        bearer entity_ref("urn:fr:cc:liberalites:disposant");
+        action consentir_liberalite_atteignant_reserve_920(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART920)
+rule PositionDevoirMaintenirInterdictionAtteinteReserve(l: Liberalite) strict {
+    label fr official "Article 920. Devoir de maintenir l'interdiction de porter atteinte à la réserve";
+    label en unofficial "Article 920. Duty to maintain the prohibition on impairing the forced share";
+    when liberalite_directe_ou_indirecte_atteint_reserve(l);
+    then duty MaintenirInterdictionAtteinteReserve {
+        bearer entity_ref("urn:fr:cc:liberalites:disposant");
+        goal achievement { condition consentir_liberalite_atteignant_reserve_920(l); window [@2007-01-01, infinity); };
+    };
+}
+@source(CC_ART942) rule PasRestitutionProteges(l: Liberalite) strict { label fr official "Article 942. Le mineur ou majeur en tutelle n'est pas restitué contre le défaut d'acceptation ou de publication"; label en unofficial "Article 942. A minor or protected adult receives no relief against lack of acceptance or publication"; when mineur_ou_majeur_tutelle_defaut_acceptation_publication(l); then restitution_contre_defaut_refusee(l); }
+pub relation demander_restitution_defaut_942(l: Liberalite) kind empirical { label fr official "le mineur ou majeur en tutelle demande restitution pour défaut d'acceptation ou de publication"; label en unofficial "a minor or protected adult seeks relief for lack of acceptance or publication"; }
+@source(CC_ART942)
+rule PositionInterdictionDemanderRestitution(l: Liberalite) strict {
+    label fr official "Article 942. Le mineur ou majeur en tutelle ne peut demander restitution";
+    label en unofficial "Article 942. A minor or protected adult may not seek relief";
+    when mineur_ou_majeur_tutelle_defaut_acceptation_publication(l);
+    then prohibition InterdictionDemanderRestitution {
+        bearer entity_ref("urn:fr:cc:liberalites:personne-protegee");
+        action demander_restitution_defaut_942(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART942)
+rule MaintenanceInterdictionDemanderRestitution(l: Liberalite) strict {
+    label fr official "Article 942. Maintenir l'interdiction de demander restitution";
+    label en unofficial "Article 942. Maintain the prohibition on seeking relief";
+    when mineur_ou_majeur_tutelle_defaut_acceptation_publication(l);
+    then duty MaintenanceInterdictionDemanderRestitutionDuty {
+        bearer entity_ref("urn:fr:cc:liberalites:personne-protegee");
+        goal maintenance {
+            condition not demander_restitution_defaut_942(l);
+            window [@2007-01-01, infinity);
+        };
+    };
+}
+@source(CC_ART947) rule ExceptionChapitresHuitNeuf(l: Liberalite) strict { label fr official "Article 947. Les articles 943 à 946 ne s'appliquent pas aux donations des chapitres VIII et IX"; label en unofficial "Article 947. Articles 943 to 946 do not apply to gifts under Chapters VIII and IX"; when donation_chapitre_huit_ou_neuf(l); then articles_943_a_946_inapplicables(l); }
+pub relation appliquer_articles_943_a_946_947(l: Liberalite) kind empirical { label fr official "une partie applique les articles 943 à 946 à une donation des chapitres VIII ou IX"; label en unofficial "a party applies Articles 943 to 946 to a Chapter VIII or IX gift"; }
+@source(CC_ART947)
+rule PositionInterdictionAppliquerArticles943a946(l: Liberalite) strict {
+    label fr official "Article 947. Les articles 943 à 946 ne peuvent être appliqués";
+    label en unofficial "Article 947. Articles 943 to 946 may not be applied";
+    when donation_chapitre_huit_ou_neuf(l);
+    then prohibition InterdictionAppliquerArticles943a946 {
+        bearer entity_ref("urn:fr:cc:liberalites:partie");
+        action appliquer_articles_943_a_946_947(l);
+        window [@2007-01-01, infinity);
+    };
+}
+@source(CC_ART947)
+rule MaintenanceInterdictionAppliquerArticles943a946(l: Liberalite) strict {
+    label fr official "Article 947. Maintenir l'interdiction d'appliquer les articles 943 à 946";
+    label en unofficial "Article 947. Maintain the prohibition on applying Articles 943 to 946";
+    when donation_chapitre_huit_ou_neuf(l);
+    then duty MaintenanceInterdictionAppliquerArticles943a946Duty {
+        bearer entity_ref("urn:fr:cc:liberalites:partie");
+        goal maintenance {
+            condition not appliquer_articles_943_a_946_947(l);
+            window [@2007-01-01, infinity);
+        };
+    };
+}

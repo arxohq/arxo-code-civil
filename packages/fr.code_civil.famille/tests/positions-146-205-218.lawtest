@@ -1,0 +1,1008 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+test "urn:positions:fr-code-civil-famille-146-1-presence-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "abroad": mariage_a_l_etranger(entity_ref("urn:fr:cc:fam:p146a:m")) { origin case_input; }
+        assert "french": futur_epoux_francais(entity_ref("urn:fr:cc:fam:p146a:m"), entity_ref("urn:fr:cc:fam:p146a:p")) { origin case_input; }
+        assert "present": present_a_la_celebration(entity_ref("urn:fr:cc:fam:p146a:m"), entity_ref("urn:fr:cc:fam:p146a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirPresenceFrancais, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-146-1-presence-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "abroad": mariage_a_l_etranger(entity_ref("urn:fr:cc:fam:p146b:m")) { origin case_input; }
+        assert "french": futur_epoux_francais(entity_ref("urn:fr:cc:fam:p146b:m"), entity_ref("urn:fr:cc:fam:p146b:p")) { origin case_input; }
+        assert "present": present_a_la_celebration(entity_ref("urn:fr:cc:fam:p146b:m"), entity_ref("urn:fr:cc:fam:p146b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirPresenceFrancais, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-205-aliments-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "child": enfant_de(entity_ref("urn:fr:cc:fam:p205a:p"), entity_ref("urn:fr:cc:fam:p205a:a")) { origin case_input; }
+        assert "need": ascendant_dans_le_besoin(entity_ref("urn:fr:cc:fam:p205a:a")) { origin case_input; }
+        assert "paid": aliments_verses(entity_ref("urn:fr:cc:fam:p205a:p"), entity_ref("urn:fr:cc:fam:p205a:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsAscendant, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-205-aliments-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "child": enfant_de(entity_ref("urn:fr:cc:fam:p205b:p"), entity_ref("urn:fr:cc:fam:p205b:a")) { origin case_input; }
+        assert "need": ascendant_dans_le_besoin(entity_ref("urn:fr:cc:fam:p205b:a")) { origin case_input; }
+        assert "paid": aliments_verses(entity_ref("urn:fr:cc:fam:p205b:p"), entity_ref("urn:fr:cc:fam:p205b:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsAscendant, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-218-mandat-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p218a:m"), entity_ref("urn:fr:cc:fam:p218a:a"), entity_ref("urn:fr:cc:fam:p218a:b")) { origin case_input; }
+        assert "mandate": mandat_conjugal_accorde(entity_ref("urn:fr:cc:fam:p218a:m"), entity_ref("urn:fr:cc:fam:p218a:a"), entity_ref("urn:fr:cc:fam:p218a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirMandaterConjoint, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-218-mandat-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p218b:m"), entity_ref("urn:fr:cc:fam:p218b:a"), entity_ref("urn:fr:cc:fam:p218b:b")) { origin case_input; }
+        assert "mandate": mandat_conjugal_accorde(entity_ref("urn:fr:cc:fam:p218b:m"), entity_ref("urn:fr:cc:fam:p218b:a"), entity_ref("urn:fr:cc:fam:p218b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirMandaterConjoint, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-206-beau-parent-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "affinity": affinite_beau_parent(entity_ref("urn:fr:cc:fam:p206a:p"), entity_ref("urn:fr:cc:fam:p206a:a")) { origin case_input; }
+        assert "need": ascendant_dans_le_besoin(entity_ref("urn:fr:cc:fam:p206a:a")) { origin case_input; }
+        assert "survive": epoux_et_enfants_creant_affinite_survivent(entity_ref("urn:fr:cc:fam:p206a:p"), entity_ref("urn:fr:cc:fam:p206a:a")) { origin case_input; }
+        assert "paid": aliments_verses_allie(entity_ref("urn:fr:cc:fam:p206a:p"), entity_ref("urn:fr:cc:fam:p206a:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsBeauParent, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-206-beau-parent-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "affinity": affinite_beau_parent(entity_ref("urn:fr:cc:fam:p206b:p"), entity_ref("urn:fr:cc:fam:p206b:a")) { origin case_input; }
+        assert "need": ascendant_dans_le_besoin(entity_ref("urn:fr:cc:fam:p206b:a")) { origin case_input; }
+        assert "survive": epoux_et_enfants_creant_affinite_survivent(entity_ref("urn:fr:cc:fam:p206b:p"), entity_ref("urn:fr:cc:fam:p206b:a")) { origin case_input; }
+        assert "paid": aliments_verses_allie(entity_ref("urn:fr:cc:fam:p206b:p"), entity_ref("urn:fr:cc:fam:p206b:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsBeauParent, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-371-1-autorite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p371a:e"), @2015-01-10) { origin case_input; }
+        assert "assessment": date_d_appreciation(entity_ref("urn:fr:cc:fam:p371a:e"), @2026-06-01) { origin case_input; }
+        assert "filiation": filiation_etablie_le(entity_ref("urn:fr:cc:fam:p371a:p"), entity_ref("urn:fr:cc:fam:p371a:e"), @2015-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirExercerAutorite, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-371-1-autorite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p371b:e"), @2016-03-20) { origin case_input; }
+        assert "assessment": date_d_appreciation(entity_ref("urn:fr:cc:fam:p371b:e"), @2026-06-01) { origin case_input; }
+        assert "filiation": filiation_etablie_le(entity_ref("urn:fr:cc:fam:p371b:p"), entity_ref("urn:fr:cc:fam:p371b:e"), @2016-03-20) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirExercerAutorite, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-212-devoirs-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p212a:m"), entity_ref("urn:fr:cc:fam:p212a:a"), entity_ref("urn:fr:cc:fam:p212a:b")) { origin case_input; }
+        assert "observed": devoirs_conjugaux_observes(entity_ref("urn:fr:cc:fam:p212a:a"), entity_ref("urn:fr:cc:fam:p212a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirsMutuelsEntreEpoux, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-212-devoirs-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p212b:m"), entity_ref("urn:fr:cc:fam:p212b:a"), entity_ref("urn:fr:cc:fam:p212b:b")) { origin case_input; }
+        assert "observed": devoirs_conjugaux_observes(entity_ref("urn:fr:cc:fam:p212b:a"), entity_ref("urn:fr:cc:fam:p212b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirsMutuelsEntreEpoux, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-215-communaute-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p215a:m"), entity_ref("urn:fr:cc:fam:p215a:a"), entity_ref("urn:fr:cc:fam:p215a:b")) { origin case_input; }
+        assert "common": communaute_de_vie_observee(entity_ref("urn:fr:cc:fam:p215a:a"), entity_ref("urn:fr:cc:fam:p215a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirCommunauteVie, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-215-communaute-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p215b:m"), entity_ref("urn:fr:cc:fam:p215b:a"), entity_ref("urn:fr:cc:fam:p215b:b")) { origin case_input; }
+        assert "common": communaute_de_vie_observee(entity_ref("urn:fr:cc:fam:p215b:a"), entity_ref("urn:fr:cc:fam:p215b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirCommunauteVie, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-216-capacite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p216a:m"), entity_ref("urn:fr:cc:fam:p216a:a"), entity_ref("urn:fr:cc:fam:p216a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirCapaciteEpoux, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-216-capacite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p216b:m"), entity_ref("urn:fr:cc:fam:p216b:a"), entity_ref("urn:fr:cc:fam:p216b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirCapaciteEpoux, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-213-direction-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p213a:m"), entity_ref("urn:fr:cc:fam:p213a:a"), entity_ref("urn:fr:cc:fam:p213a:b")) { origin case_input; }
+        assert "direction": direction_famille_exercee_ensemble(entity_ref("urn:fr:cc:fam:p213a:a"), entity_ref("urn:fr:cc:fam:p213a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDirectionFamille, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-213-direction-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p213b:m"), entity_ref("urn:fr:cc:fam:p213b:a"), entity_ref("urn:fr:cc:fam:p213b:b")) { origin case_input; }
+        assert "direction": direction_famille_exercee_ensemble(entity_ref("urn:fr:cc:fam:p213b:a"), entity_ref("urn:fr:cc:fam:p213b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDirectionFamille, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-214-contribution-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "convention": convention_ne_regle_pas_charges(entity_ref("urn:fr:cc:fam:p214a:m")) { origin case_input; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p214a:m"), entity_ref("urn:fr:cc:fam:p214a:a"), entity_ref("urn:fr:cc:fam:p214a:b")) { origin case_input; }
+        assert "contributed": charges_du_mariage_contribuees(entity_ref("urn:fr:cc:fam:p214a:a"), entity_ref("urn:fr:cc:fam:p214a:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirContributionCharges, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-214-contribution-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "convention": convention_ne_regle_pas_charges(entity_ref("urn:fr:cc:fam:p214b:m")) { origin case_input; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p214b:m"), entity_ref("urn:fr:cc:fam:p214b:a"), entity_ref("urn:fr:cc:fam:p214b:b")) { origin case_input; }
+        assert "contributed": charges_du_mariage_contribuees(entity_ref("urn:fr:cc:fam:p214b:a"), entity_ref("urn:fr:cc:fam:p214b:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirContributionCharges, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-220-dette-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "engagement": engagement_entretien_menage_ou_education(entity_ref("urn:fr:cc:fam:p220a:x"), entity_ref("urn:fr:cc:fam:p220a:p")) { origin case_input; }
+        assert "amount": depense_non_manifestement_excessive(entity_ref("urn:fr:cc:fam:p220a:x")) { origin case_input; }
+        assert "admitted": achat_ou_emprunt_admis(entity_ref("urn:fr:cc:fam:p220a:x")) { origin case_input; }
+        assert "paid": dette_menagere_acquittee(entity_ref("urn:fr:cc:fam:p220a:x"), entity_ref("urn:fr:cc:fam:p220a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDetteMenagere, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-220-dette-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "engagement": engagement_entretien_menage_ou_education(entity_ref("urn:fr:cc:fam:p220b:x"), entity_ref("urn:fr:cc:fam:p220b:p")) { origin case_input; }
+        assert "amount": depense_non_manifestement_excessive(entity_ref("urn:fr:cc:fam:p220b:x")) { origin case_input; }
+        assert "admitted": achat_ou_emprunt_admis(entity_ref("urn:fr:cc:fam:p220b:x")) { origin case_input; }
+        assert "paid": dette_menagere_acquittee(entity_ref("urn:fr:cc:fam:p220b:x"), entity_ref("urn:fr:cc:fam:p220b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDetteMenagere, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-221-compte-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "account": ouverture_compte_personnel(entity_ref("urn:fr:cc:fam:p221a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirComptePersonnel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-221-compte-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "account": ouverture_compte_personnel(entity_ref("urn:fr:cc:fam:p221b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirComptePersonnel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-222-meuble-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "held": acte_sur_meuble_detenu_individuellement(entity_ref("urn:fr:cc:fam:p222a:x"), entity_ref("urn:fr:cc:fam:p222a:p")) { origin case_input; }
+        assert "goodfaith": tiers_de_bonne_foi(entity_ref("urn:fr:cc:fam:p222a:x")) { origin case_input; }
+        assert "ordinary": meuble_hors_exceptions_article_222(entity_ref("urn:fr:cc:fam:p222a:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirPresumeMeuble, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-222-meuble-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "held": acte_sur_meuble_detenu_individuellement(entity_ref("urn:fr:cc:fam:p222b:x"), entity_ref("urn:fr:cc:fam:p222b:p")) { origin case_input; }
+        assert "goodfaith": tiers_de_bonne_foi(entity_ref("urn:fr:cc:fam:p222b:x")) { origin case_input; }
+        assert "ordinary": meuble_hors_exceptions_article_222(entity_ref("urn:fr:cc:fam:p222b:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirPresumeMeuble, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-223-profession-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "profession": profession_exercee_et_charges_acquittees(entity_ref("urn:fr:cc:fam:p223a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteProfessionGains, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-223-profession-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "profession": profession_exercee_et_charges_acquittees(entity_ref("urn:fr:cc:fam:p223b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteProfessionGains, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-225-bien-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "property": bien_personnel_de(entity_ref("urn:fr:cc:fam:p225a:p"), entity_ref("urn:fr:cc:fam:p225a:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirBienPersonnel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-225-bien-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "property": bien_personnel_de(entity_ref("urn:fr:cc:fam:p225b:p"), entity_ref("urn:fr:cc:fam:p225b:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirBienPersonnel, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-225-1-nom-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "name": usage_nom_du_conjoint(entity_ref("urn:fr:cc:fam:p2251a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteUsageNom, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-225-1-nom-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "name": usage_nom_du_conjoint(entity_ref("urn:fr:cc:fam:p2251b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(LiberteUsageNom, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-237-238-divorce-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "petitioner": demandeur_divorce_pour_alteration(entity_ref("urn:fr:cc:fam:p237a:m"), entity_ref("urn:fr:cc:fam:p237a:p")) { origin case_input; }
+        assert "separation": separes_depuis(entity_ref("urn:fr:cc:fam:p237a:m"), @2024-01-01) { origin case_input; }
+        assert "petition": demande_en_divorce_le(entity_ref("urn:fr:cc:fam:p237a:m"), @2025-01-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderDivorceAlteration, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-237-238-divorce-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "petitioner": demandeur_divorce_pour_alteration(entity_ref("urn:fr:cc:fam:p237b:m"), entity_ref("urn:fr:cc:fam:p237b:p")) { origin case_input; }
+        assert "separation": separes_depuis(entity_ref("urn:fr:cc:fam:p237b:m"), @2024-06-01) { origin case_input; }
+        assert "petition": demande_en_divorce_le(entity_ref("urn:fr:cc:fam:p237b:m"), @2025-06-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderDivorceAlteration, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-2-interdit-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "partners": partenaires(entity_ref("urn:fr:cc:fam:p5152a:pacs"), entity_ref("urn:fr:cc:fam:p5152a:a"), entity_ref("urn:fr:cc:fam:p5152a:b")) { origin case_input; }
+        assert "married": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p5152a:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionPacsEmpechement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-2-interdit-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "partners": partenaires(entity_ref("urn:fr:cc:fam:p5152b:pacs"), entity_ref("urn:fr:cc:fam:p5152b:a"), entity_ref("urn:fr:cc:fam:p5152b:b")) { origin case_input; }
+        assert "married": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p5152b:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionPacsEmpechement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-2-second-partner-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "partners": partenaires(entity_ref("urn:fr:cc:fam:p5152c:pacs"), entity_ref("urn:fr:cc:fam:p5152c:a"), entity_ref("urn:fr:cc:fam:p5152c:b")) { origin case_input; }
+        assert "married": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p5152c:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionPacsSecondPartenaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-2-second-partner-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "partners": partenaires(entity_ref("urn:fr:cc:fam:p5152d:pacs"), entity_ref("urn:fr:cc:fam:p5152d:a"), entity_ref("urn:fr:cc:fam:p5152d:b")) { origin case_input; }
+        assert "married": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p5152d:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionPacsSecondPartenaire, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-12-prolongation-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "notice": ordonnance_notifiee_le(entity_ref("urn:fr:cc:fam:p51512a:o"), @2026-01-01) { origin case_input; }
+        assert "petition": demande_en_divorce_pendant_l_ordonnance(entity_ref("urn:fr:cc:fam:p51512a:o")) { origin case_input; }
+        assert "applicant": partenaire_demande_prolongation(entity_ref("urn:fr:cc:fam:p51512a:o"), entity_ref("urn:fr:cc:fam:p51512a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirProlongerProtection, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-515-12-prolongation-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "notice": ordonnance_notifiee_le(entity_ref("urn:fr:cc:fam:p51512b:o"), @2026-02-01) { origin case_input; }
+        assert "petition": demande_en_divorce_pendant_l_ordonnance(entity_ref("urn:fr:cc:fam:p51512b:o")) { origin case_input; }
+        assert "applicant": partenaire_demande_prolongation(entity_ref("urn:fr:cc:fam:p51512b:o"), entity_ref("urn:fr:cc:fam:p51512b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirProlongerProtection, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-343-age-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p343a:a"), entity_ref("urn:fr:cc:fam:p343a:p")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p343a:p"), @1990-04-10) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p343a:a"), @2026-04-11) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderAdoptionAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-343-age-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p343b:a"), entity_ref("urn:fr:cc:fam:p343b:p")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p343b:p"), @1988-07-20) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p343b:a"), @2026-07-21) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderAdoptionAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-343-1-seul-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p3431a:a"), entity_ref("urn:fr:cc:fam:p3431a:p")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p3431a:p"), @1990-04-10) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p3431a:a"), @2026-04-11) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAdoptionSeul, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-343-1-seul-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p3431b:a"), entity_ref("urn:fr:cc:fam:p3431b:p")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p3431b:p"), @1988-07-20) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p3431b:a"), @2026-07-21) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAdoptionSeul, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-345-pleniere-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p345a:a"), entity_ref("urn:fr:cc:fam:p345a:p")) { origin case_input; }
+        assert "request": adoption_pleniere_demandee(entity_ref("urn:fr:cc:fam:p345a:a")) { origin case_input; }
+        assert "child": adopte(entity_ref("urn:fr:cc:fam:p345a:a"), entity_ref("urn:fr:cc:fam:p345a:e")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p345a:e"), @2012-01-01) { origin case_input; }
+        assert "received": accueilli_au_foyer_depuis(entity_ref("urn:fr:cc:fam:p345a:a"), @2025-12-01) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p345a:a"), @2026-06-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderAdoptionPleniere, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-345-pleniere-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "adopter": adoptant(entity_ref("urn:fr:cc:fam:p345b:a"), entity_ref("urn:fr:cc:fam:p345b:p")) { origin case_input; }
+        assert "request": adoption_pleniere_demandee(entity_ref("urn:fr:cc:fam:p345b:a")) { origin case_input; }
+        assert "child": adopte(entity_ref("urn:fr:cc:fam:p345b:a"), entity_ref("urn:fr:cc:fam:p345b:e")) { origin case_input; }
+        assert "birth": ne_le(entity_ref("urn:fr:cc:fam:p345b:e"), @2012-05-01) { origin case_input; }
+        assert "received": accueilli_au_foyer_depuis(entity_ref("urn:fr:cc:fam:p345b:a"), @2025-11-01) { origin case_input; }
+        assert "application": demande_d_adoption_le(entity_ref("urn:fr:cc:fam:p345b:a"), @2026-06-01) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderAdoptionPleniere, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-148-consent-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148a:m"), entity_ref("urn:fr:cc:fam:p148a:child")) { origin case_input; }
+        assert "parenthood": parent_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148a:parent"), entity_ref("urn:fr:cc:fam:p148a:m"), entity_ref("urn:fr:cc:fam:p148a:child")) { origin case_input; }
+        assert "parent": parent_consentant_au_mariage(entity_ref("urn:fr:cc:fam:p148a:parent"), entity_ref("urn:fr:cc:fam:p148a:m"), entity_ref("urn:fr:cc:fam:p148a:child")) { origin case_input; }
+        assert "consent": consentement_parental_au_mariage(entity_ref("urn:fr:cc:fam:p148a:m"), entity_ref("urn:fr:cc:fam:p148a:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementParental, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-148-consent-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148b:m"), entity_ref("urn:fr:cc:fam:p148b:child")) { origin case_input; }
+        assert "parenthood": parent_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148b:parent"), entity_ref("urn:fr:cc:fam:p148b:m"), entity_ref("urn:fr:cc:fam:p148b:child")) { origin case_input; }
+        assert "parent": parent_consentant_au_mariage(entity_ref("urn:fr:cc:fam:p148b:parent"), entity_ref("urn:fr:cc:fam:p148b:m"), entity_ref("urn:fr:cc:fam:p148b:child")) { origin case_input; }
+        assert "consent": consentement_parental_au_mariage(entity_ref("urn:fr:cc:fam:p148b:m"), entity_ref("urn:fr:cc:fam:p148b:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementParental, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-203-entretien-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "child": enfant_du_couple(entity_ref("urn:fr:cc:fam:p203a:m"), entity_ref("urn:fr:cc:fam:p203a:e")) { origin case_input; }
+        assert "parent": parent_de_l_enfant(entity_ref("urn:fr:cc:fam:p203a:m"), entity_ref("urn:fr:cc:fam:p203a:p"), entity_ref("urn:fr:cc:fam:p203a:e")) { origin case_input; }
+        assert "care": entretien_education_assures(entity_ref("urn:fr:cc:fam:p203a:p"), entity_ref("urn:fr:cc:fam:p203a:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirEntretienEnfant, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-203-entretien-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "child": enfant_du_couple(entity_ref("urn:fr:cc:fam:p203b:m"), entity_ref("urn:fr:cc:fam:p203b:e")) { origin case_input; }
+        assert "parent": parent_de_l_enfant(entity_ref("urn:fr:cc:fam:p203b:m"), entity_ref("urn:fr:cc:fam:p203b:p"), entity_ref("urn:fr:cc:fam:p203b:e")) { origin case_input; }
+        assert "care": entretien_education_assures(entity_ref("urn:fr:cc:fam:p203b:p"), entity_ref("urn:fr:cc:fam:p203b:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirEntretienEnfant, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-207-reciproque-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "duty": obligation_alimentaire_constatee(entity_ref("urn:fr:cc:fam:p207a:a"), entity_ref("urn:fr:cc:fam:p207a:b")) { origin case_input; }
+        assert "paid": aliments_reciproques_verses(entity_ref("urn:fr:cc:fam:p207a:a"), entity_ref("urn:fr:cc:fam:p207a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsReciproques, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-207-reciproque-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "duty": obligation_alimentaire_constatee(entity_ref("urn:fr:cc:fam:p207b:a"), entity_ref("urn:fr:cc:fam:p207b:b")) { origin case_input; }
+        assert "paid": aliments_reciproques_verses(entity_ref("urn:fr:cc:fam:p207b:a"), entity_ref("urn:fr:cc:fam:p207b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirAlimentsReciproques, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-143-mariage-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "spouses": epoux(entity_ref("urn:fr:cc:fam:p143a:m"), entity_ref("urn:fr:cc:fam:p143a:a"), entity_ref("urn:fr:cc:fam:p143a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirContracterMariage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-143-mariage-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "spouses": epoux(entity_ref("urn:fr:cc:fam:p143b:m"), entity_ref("urn:fr:cc:fam:p143b:a"), entity_ref("urn:fr:cc:fam:p143b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirContracterMariage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-372-exercice-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "authority": autorite_parentale(entity_ref("urn:fr:cc:fam:p372a:p"), entity_ref("urn:fr:cc:fam:p372a:e")) { origin case_input; }
+        assert "exercise": exercice_de_l_autorite(entity_ref("urn:fr:cc:fam:p372a:p"), entity_ref("urn:fr:cc:fam:p372a:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirExerciceCommun, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-372-exercice-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "authority": autorite_parentale(entity_ref("urn:fr:cc:fam:p372b:p"), entity_ref("urn:fr:cc:fam:p372b:e")) { origin case_input; }
+        assert "exercise": exercice_de_l_autorite(entity_ref("urn:fr:cc:fam:p372b:p"), entity_ref("urn:fr:cc:fam:p372b:e")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirExerciceCommun, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-373-interdit-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "authority": autorite_parentale(entity_ref("urn:fr:cc:fam:p373a:p"), entity_ref("urn:fr:cc:fam:p373a:e")) { origin case_input; }
+        assert "unable": hors_d_etat_de_manifester_sa_volonte(entity_ref("urn:fr:cc:fam:p373a:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionExerciceHorsEtat, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-373-interdit-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "authority": autorite_parentale(entity_ref("urn:fr:cc:fam:p373b:p"), entity_ref("urn:fr:cc:fam:p373b:e")) { origin case_input; }
+        assert "unable": hors_d_etat_de_manifester_sa_volonte(entity_ref("urn:fr:cc:fam:p373b:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionExerciceHorsEtat, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-144-age-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "age": age_requis_pour_le_mariage(entity_ref("urn:fr:cc:fam:p144a:a")) { origin case_input; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p144a:m"), entity_ref("urn:fr:cc:fam:p144a:a"), entity_ref("urn:fr:cc:fam:p144a:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirContracterApresAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-144-age-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "age": age_requis_pour_le_mariage(entity_ref("urn:fr:cc:fam:p144b:a")) { origin case_input; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p144b:m"), entity_ref("urn:fr:cc:fam:p144b:a"), entity_ref("urn:fr:cc:fam:p144b:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirContracterApresAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-147-bigamy-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p147a:m"), entity_ref("urn:fr:cc:fam:p147a:a"), entity_ref("urn:fr:cc:fam:p147a:b")) { origin case_input; }
+        assert "prior": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p147a:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionSecondMariage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-147-bigamy-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p147b:m"), entity_ref("urn:fr:cc:fam:p147b:a"), entity_ref("urn:fr:cc:fam:p147b:b")) { origin case_input; }
+        assert "prior": mariage_anterieur_non_dissous(entity_ref("urn:fr:cc:fam:p147b:a")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionSecondMariage, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-161-parente-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p161a:m"), entity_ref("urn:fr:cc:fam:p161a:a"), entity_ref("urn:fr:cc:fam:p161a:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p161a:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageParente, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-161-parente-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p161b:m"), entity_ref("urn:fr:cc:fam:p161b:a"), entity_ref("urn:fr:cc:fam:p161b:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p161b:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageParente, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-145-dispense-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "dispensation": dispense_d_age_du_procureur(entity_ref("urn:fr:cc:fam:p145a:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirDispenseAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-145-dispense-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "dispensation": dispense_d_age_du_procureur(entity_ref("urn:fr:cc:fam:p145b:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirDispenseAge, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-162-fratrie-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p162a:m"), entity_ref("urn:fr:cc:fam:p162a:a"), entity_ref("urn:fr:cc:fam:p162a:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p162a:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageFratrie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-162-fratrie-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p162b:m"), entity_ref("urn:fr:cc:fam:p162b:a"), entity_ref("urn:fr:cc:fam:p162b:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p162b:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageFratrie, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-163-oncle-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p163a:m"), entity_ref("urn:fr:cc:fam:p163a:a"), entity_ref("urn:fr:cc:fam:p163a:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p163a:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageOncleNiece, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-163-oncle-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "marriage": epoux(entity_ref("urn:fr:cc:fam:p163b:m"), entity_ref("urn:fr:cc:fam:p163b:a"), entity_ref("urn:fr:cc:fam:p163b:b")) { origin case_input; }
+        assert "impediment": empechement_de_parente(entity_ref("urn:fr:cc:fam:p163b:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(InterdictionMariageOncleNiece, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-146-consentement-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "consent": consentement_libre(entity_ref("urn:fr:cc:fam:p146a:m"), entity_ref("urn:fr:cc:fam:p146a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirConsentementLibre, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-146-consentement-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "consent": consentement_libre(entity_ref("urn:fr:cc:fam:p146b:m"), entity_ref("urn:fr:cc:fam:p146b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirConsentementLibre, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-180-nullite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "vice": consentement_vicie(entity_ref("urn:fr:cc:fam:p180a:m"), entity_ref("urn:fr:cc:fam:p180a:e")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p180a:m"), entity_ref("urn:fr:cc:fam:p180a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteConsentement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-180-nullite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "vice": consentement_vicie(entity_ref("urn:fr:cc:fam:p180b:m"), entity_ref("urn:fr:cc:fam:p180b:e")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p180b:m"), entity_ref("urn:fr:cc:fam:p180b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteConsentement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-184-nullite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "nullity": nullite_encourue(entity_ref("urn:fr:cc:fam:p184a:m")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p184a:m"), entity_ref("urn:fr:cc:fam:p184a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteEmpechement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-184-nullite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "nullity": nullite_encourue(entity_ref("urn:fr:cc:fam:p184b:m")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p184b:m"), entity_ref("urn:fr:cc:fam:p184b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteEmpechement, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-159-conseil-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159a:m"), entity_ref("urn:fr:cc:fam:p159a:child")) { origin case_input; }
+        assert "none": aucun_parent_ni_aieul_capable_de_consentir(entity_ref("urn:fr:cc:fam:p159a:m"), entity_ref("urn:fr:cc:fam:p159a:child")) { origin case_input; }
+        assert "body": conseil_de_famille_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159a:c"), entity_ref("urn:fr:cc:fam:p159a:m"), entity_ref("urn:fr:cc:fam:p159a:child")) { origin case_input; }
+        assert "council": conseil_famille_consentant(entity_ref("urn:fr:cc:fam:p159a:c"), entity_ref("urn:fr:cc:fam:p159a:m"), entity_ref("urn:fr:cc:fam:p159a:child")) { origin case_input; }
+        assert "consent": consentement_conseil_de_famille(entity_ref("urn:fr:cc:fam:p159a:m"), entity_ref("urn:fr:cc:fam:p159a:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementConseil, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-159-conseil-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159b:m"), entity_ref("urn:fr:cc:fam:p159b:child")) { origin case_input; }
+        assert "none": aucun_parent_ni_aieul_capable_de_consentir(entity_ref("urn:fr:cc:fam:p159b:m"), entity_ref("urn:fr:cc:fam:p159b:child")) { origin case_input; }
+        assert "body": conseil_de_famille_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159b:c"), entity_ref("urn:fr:cc:fam:p159b:m"), entity_ref("urn:fr:cc:fam:p159b:child")) { origin case_input; }
+        assert "council": conseil_famille_consentant(entity_ref("urn:fr:cc:fam:p159b:c"), entity_ref("urn:fr:cc:fam:p159b:m"), entity_ref("urn:fr:cc:fam:p159b:child")) { origin case_input; }
+        assert "consent": consentement_conseil_de_famille(entity_ref("urn:fr:cc:fam:p159b:m"), entity_ref("urn:fr:cc:fam:p159b:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementConseil, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-famille-164-president-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "dispense": dispense_presidentielle(entity_ref("urn:fr:cc:fam:p164a:m")) { origin adjudicated; }
+        assert "president": president_accorde_dispense(entity_ref("urn:fr:cc:fam:p164a:p"), entity_ref("urn:fr:cc:fam:p164a:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDispensePresident, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-164-president-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "dispense": dispense_presidentielle(entity_ref("urn:fr:cc:fam:p164b:m")) { origin adjudicated; }
+        assert "president": president_accorde_dispense(entity_ref("urn:fr:cc:fam:p164b:p"), entity_ref("urn:fr:cc:fam:p164b:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDispensePresident, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-181-nullite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "vice": consentement_vicie(entity_ref("urn:fr:cc:fam:p181a:m"), entity_ref("urn:fr:cc:fam:p181a:e")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p181a:m"), entity_ref("urn:fr:cc:fam:p181a:p")) { origin case_input; }
+        assert "deadline": forclusion_cinq_ans_applicable(entity_ref("urn:fr:cc:fam:p181a:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteAvantForclusion, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-181-nullite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "vice": consentement_vicie(entity_ref("urn:fr:cc:fam:p181b:m"), entity_ref("urn:fr:cc:fam:p181b:e")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p181b:m"), entity_ref("urn:fr:cc:fam:p181b:p")) { origin case_input; }
+        assert "deadline": forclusion_cinq_ans_applicable(entity_ref("urn:fr:cc:fam:p181b:m")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNulliteAvantForclusion, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-191-publicite-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "defect": mariage_non_public_ou_officier_incompetent(entity_ref("urn:fr:cc:fam:p191a:m")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p191a:m"), entity_ref("urn:fr:cc:fam:p191a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNullitePublicite, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-191-publicite-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "defect": mariage_non_public_ou_officier_incompetent(entity_ref("urn:fr:cc:fam:p191b:m")) { origin adjudicated; }
+        assert "claimant": demandeur_nullite(entity_ref("urn:fr:cc:fam:p191b:m"), entity_ref("urn:fr:cc:fam:p191b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirAttaquerNullitePublicite, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-246-faute-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "fault": demande_pour_faute(entity_ref("urn:fr:cc:fam:p246a:m")) { origin case_input; }
+        assert "alteration": demande_pour_alteration(entity_ref("urn:fr:cc:fam:p246a:m")) { origin case_input; }
+        assert "claimant": demandeur_divorce_pour_faute(entity_ref("urn:fr:cc:fam:p246a:m"), entity_ref("urn:fr:cc:fam:p246a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderDivorceFaute, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-246-faute-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "fault": demande_pour_faute(entity_ref("urn:fr:cc:fam:p246b:m")) { origin case_input; }
+        assert "alteration": demande_pour_alteration(entity_ref("urn:fr:cc:fam:p246b:m")) { origin case_input; }
+        assert "claimant": demandeur_divorce_pour_faute(entity_ref("urn:fr:cc:fam:p246b:m"), entity_ref("urn:fr:cc:fam:p246b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirDemanderDivorceFaute, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-321-filiation-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "claimant": demandeur_action_filiation(entity_ref("urn:fr:cc:fam:p321a:e"), entity_ref("urn:fr:cc:fam:p321a:p")) { origin case_input; }
+        assert "deadline": action_en_filiation_prescrite_le(entity_ref("urn:fr:cc:fam:p321a:e"), @2030-01-01) { origin adjudicated; }
+        assert "action": action_filiation_exercee(entity_ref("urn:fr:cc:fam:p321a:e"), entity_ref("urn:fr:cc:fam:p321a:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirActionFiliation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-321-filiation-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "claimant": demandeur_action_filiation(entity_ref("urn:fr:cc:fam:p321b:e"), entity_ref("urn:fr:cc:fam:p321b:p")) { origin case_input; }
+        assert "deadline": action_en_filiation_prescrite_le(entity_ref("urn:fr:cc:fam:p321b:e"), @2031-01-01) { origin adjudicated; }
+        assert "action": action_filiation_exercee(entity_ref("urn:fr:cc:fam:p321b:e"), entity_ref("urn:fr:cc:fam:p321b:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirActionFiliation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-333-contestation-first" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "claimant": demandeur_contestation_filiation(entity_ref("urn:fr:cc:fam:p333a:e"), entity_ref("urn:fr:cc:fam:p333a:p")) { origin case_input; }
+        assert "action": contestation_filiation_exercee(entity_ref("urn:fr:cc:fam:p333a:e"), entity_ref("urn:fr:cc:fam:p333a:p")) { origin case_input; }
+        assert "deadline": contestation_dans_delai(entity_ref("urn:fr:cc:fam:p333a:e"), entity_ref("urn:fr:cc:fam:p333a:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirContesterFiliation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-famille-333-contestation-second" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "claimant": demandeur_contestation_filiation(entity_ref("urn:fr:cc:fam:p333b:e"), entity_ref("urn:fr:cc:fam:p333b:p")) { origin case_input; }
+        assert "action": contestation_filiation_exercee(entity_ref("urn:fr:cc:fam:p333b:e"), entity_ref("urn:fr:cc:fam:p333b:p")) { origin case_input; }
+        assert "deadline": contestation_dans_delai(entity_ref("urn:fr:cc:fam:p333b:e"), entity_ref("urn:fr:cc:fam:p333b:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirContesterFiliation, ACTIVE);
+}
+test "urn:positions:fr-code-civil-famille-333-contestation-third" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "claimant": demandeur_contestation_filiation(entity_ref("urn:fr:cc:fam:p333c:e"), entity_ref("urn:fr:cc:fam:p333c:p")) { origin case_input; }
+        assert "action": contestation_filiation_exercee(entity_ref("urn:fr:cc:fam:p333c:e"), entity_ref("urn:fr:cc:fam:p333c:p")) { origin case_input; }
+        assert "deadline": contestation_dans_delai(entity_ref("urn:fr:cc:fam:p333c:e"), entity_ref("urn:fr:cc:fam:p333c:p")) { origin adjudicated; }
+    }
+    evaluate positions();
+    expect position(PouvoirContesterFiliation, ACTIVE);
+}
+
+// Art. 146-1 : le mariage à l'étranger d'un Français ouvre le devoir d'être présent ; sans présence constatée, il reste actif (SATISFIED ci-dessus seulement avec la présence).
+test "urn:positions:fr-code-civil-famille-146-1-presence-active" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "abroad": mariage_a_l_etranger(entity_ref("urn:fr:cc:fam:p146c:m")) { origin case_input; }
+        assert "french": futur_epoux_francais(entity_ref("urn:fr:cc:fam:p146c:m"), entity_ref("urn:fr:cc:fam:p146c:p")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirPresenceFrancais, ACTIVE);
+}
+
+// Art. 148 : le père ou la mère du mineur doit consentir ; tant que le consentement n'est pas donné, le devoir est actif.
+test "urn:positions:fr-code-civil-famille-148-consent-active" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148c:m"), entity_ref("urn:fr:cc:fam:p148c:child")) { origin case_input; }
+        assert "parenthood": parent_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p148c:parent"), entity_ref("urn:fr:cc:fam:p148c:m"), entity_ref("urn:fr:cc:fam:p148c:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementParental, ACTIVE);
+}
+
+// Art. 159 : à défaut de parents ou d'aïeuls capables, le conseil de famille doit consentir ; sans consentement, le devoir est actif.
+test "urn:positions:fr-code-civil-famille-159-conseil-active" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "minor": futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159c:m"), entity_ref("urn:fr:cc:fam:p159c:child")) { origin case_input; }
+        assert "none": aucun_parent_ni_aieul_capable_de_consentir(entity_ref("urn:fr:cc:fam:p159c:m"), entity_ref("urn:fr:cc:fam:p159c:child")) { origin case_input; }
+        assert "body": conseil_de_famille_du_futur_epoux_mineur(entity_ref("urn:fr:cc:fam:p159c:c"), entity_ref("urn:fr:cc:fam:p159c:m"), entity_ref("urn:fr:cc:fam:p159c:child")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirConsentementConseil, ACTIVE);
+}
+
+// Art. 214 : sans convention, chaque époux doit contribuer aux charges ; sans contribution constatée, le devoir est actif.
+test "urn:positions:fr-code-civil-famille-214-contribution-active" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "convention": convention_ne_regle_pas_charges(entity_ref("urn:fr:cc:fam:p214c:m")) { origin case_input; }
+        assert "couple": epoux(entity_ref("urn:fr:cc:fam:p214c:m"), entity_ref("urn:fr:cc:fam:p214c:a"), entity_ref("urn:fr:cc:fam:p214c:b")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirContributionCharges, ACTIVE);
+}
+
+// Art. 220 : la dette ménagère admise oblige les époux ; tant qu'elle n'est pas acquittée, le devoir est actif.
+test "urn:positions:fr-code-civil-famille-220-dette-active" {
+    given {
+        context { decision_time @2026-09-18T09:00:00Z; knowledge_time @2026-09-18T09:00:00Z; legal_time @2026-09-18; timezone "Europe/Paris"; }
+        assert "engagement": engagement_entretien_menage_ou_education(entity_ref("urn:fr:cc:fam:p220c:x"), entity_ref("urn:fr:cc:fam:p220c:p")) { origin case_input; }
+        assert "amount": depense_non_manifestement_excessive(entity_ref("urn:fr:cc:fam:p220c:x")) { origin case_input; }
+        assert "admitted": achat_ou_emprunt_admis(entity_ref("urn:fr:cc:fam:p220c:x")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(DevoirDetteMenagere, ACTIVE);
+}

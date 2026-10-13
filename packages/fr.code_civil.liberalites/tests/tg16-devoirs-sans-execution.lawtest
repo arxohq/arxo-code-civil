@@ -1,0 +1,295 @@
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+// LDC-E1371 (§124): правило обязанности запускается условиями нормы, а не фактом исполнения;
+// цель achievement читает эмпирический факт исполнения. Здесь — положительное свидетельство
+// ACTIVE: условия нормы установлены, исполнения нет. Парные сценарии SATISFIED (с фактом
+// исполнения) лежат в positions-p1.lawtest.
+test "urn:positions:fr-code-civil-liberalites-1086-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "conditions": conditions_donation_mariage_depend_volonte(entity_ref("urn:fr:cc:liberalites:l1086a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirExecuterConditionsOuRenoncer, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1078-5-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": donation_partage_avec_renonciation_enfant(entity_ref("urn:fr:cc:liberalites:l10785a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecueillirConsentementsTransgenerationnels, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-981-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "military": testateur_militaire_marin_ou_suite_armee(entity_ref("urn:fr:cc:liberalites:l981a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentMilitaire, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-982-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "patient": malade_ou_blesse_hopital_militaire(entity_ref("urn:fr:cc:liberalites:l982a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentHopital, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-985-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "isolated": lieu_isole_par_maladie_contagieuse(entity_ref("urn:fr:cc:liberalites:l985a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentIsolement, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-988-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "voyage": voyage_maritime_sans_communication_ou_notariat_consulaire(entity_ref("urn:fr:cc:liberalites:l988a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentMaritime, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-989-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "voyage": voyage_maritime_sans_communication_ou_notariat_consulaire(entity_ref("urn:fr:cc:liberalites:l989a:l")) { origin case_input; }
+        assert "trg0": testateur_officier_ou_commandant_du_bord(entity_ref("urn:fr:cc:liberalites:l989a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentOfficier, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-990-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "received": testament_maritime_recu_autorite_et_deux_temoins(entity_ref("urn:fr:cc:liberalites:l990a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirEtablirDoubleOriginalMaritime, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-991-992-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_maritime_recu_autorite_et_deux_temoins(entity_ref("urn:fr:cc:liberalites:l991a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDeposerTestamentMaritime, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-993-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_maritime_recu_autorite_et_deux_temoins(entity_ref("urn:fr:cc:liberalites:l993a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirMentionnerRemiseLivre, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-996-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_special_a_recevoir(entity_ref("urn:fr:cc:liberalites:l996a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirLireRegleExpiration, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-997-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_special_a_recevoir(entity_ref("urn:fr:cc:liberalites:l997a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirSignerTestamentSpecial, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-998-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_special_a_recevoir(entity_ref("urn:fr:cc:liberalites:l998a:l")) { origin case_input; }
+        assert "trg1": testateur_declare_ne_pouvoir_ou_savoir_signer(entity_ref("urn:fr:cc:liberalites:l998a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirMentionnerImpossibiliteSignature, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1000-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_fait_en_pays_etranger(entity_ref("urn:fr:cc:liberalites:l1000a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirEnregistrerTestamentEtranger, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-900-3-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": demander_revision_900_2(entity_ref("urn:fr:cc:liberalites:l9003a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirFormerDemandeRevision, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-910-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": liberalite_a_organisme_sante_social_ou_utilite_publique(entity_ref("urn:fr:cc:liberalites:l910a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAutoriserLiberaliteOrganisme, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-983-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "military": testament_militaire_recu_par_autorite_et_temoins_requis(entity_ref("urn:fr:cc:liberalites:l983a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirEtablirDoubleOriginalMilitaire, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-970-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "form": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l970a:l"), Olographe) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRedigerTestamentOlographe, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-971-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "form": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l971a:l"), ActePublic) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirTestamentPublic, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-972-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "public": testament_public_recu_deux_notaires_ou_un_et_deux_temoins(entity_ref("urn:fr:cc:liberalites:l972a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDicterEcrireLireTestament, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-973-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l973a:l"), ActePublic) { origin case_input; } }
+    evaluate positions(); expect position(DevoirSignerOuMentionner, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-974-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l974a:l"), ActePublic) { origin case_input; } }
+    evaluate positions(); expect position(DevoirSignerNotaireTemoins, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-976-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "form": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l976a:l"), Mystique) { origin case_input; }
+        assert "sealed": pli_mystique_clos_cachete_scelle(entity_ref("urn:fr:cc:liberalites:l976a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirPresenterTestamentMystique, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-977-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": forme_de_testament(entity_ref("urn:fr:cc:liberalites:l977a:l"), Mystique) { origin case_input; }
+        assert "trg1": testateur_mystique_ne_sait_ou_n_a_pu_signer(entity_ref("urn:fr:cc:liberalites:l977a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirMentionnerSignatureMystique, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-980-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": temoins_appeles_a_un_testament(entity_ref("urn:fr:cc:liberalites:l980a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirVerifierCapaciteTemoins, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-940-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "donee": donataire_mineur_ou_en_tutelle(entity_ref("urn:fr:cc:liberalites:l940a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirPublierDonationRepresentant, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-935-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "protected": donataire_mineur_ou_en_tutelle(entity_ref("urn:fr:cc:liberalites:l935a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAccepterDonationProtege, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-931-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": donation_entre_vifs_a_passer(entity_ref("urn:fr:cc:liberalites:l931a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRecevoirDonationNotariee, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-937-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "institution": etablissement_utilite_publique_autorise(entity_ref("urn:fr:cc:liberalites:l937a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAccepterDonationEtablissement, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-956-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "inexecution": inexecution_conditions_donation(entity_ref("urn:fr:cc:liberalites:l956a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDemanderRevocation, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-957-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+        assert "fait": fait_ingratitude_connu_le(entity_ref("urn:fr:cc:liberalites:l957a:l"), @2025-09-20) { origin case_input; }
+        assert "demande": demande_revocation_donation_le(entity_ref("urn:fr:cc:liberalites:l957a:l"), @2026-09-20) { origin case_input; } }
+    evaluate positions(); expect position(DevoirFormerDemandeIngratitude, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-962-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "notification": naissance_ou_adoption_notifiee(entity_ref("urn:fr:cc:liberalites:l962a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRestituerFruits, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-966-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; deadline_policy CC_LIBERALITES_CALENDRIER; }
+        assert "birth": dernier_enfant_ne_ou_adopte_le(entity_ref("urn:fr:cc:liberalites:l966a:l"), @2021-09-20) { origin case_input; }
+        assert "request": demande_revocation_donation_le(entity_ref("urn:fr:cc:liberalites:l966a:l"), @2026-09-20) { origin case_input; } }
+    evaluate positions(); expect position(DevoirExercerActionSurvenance, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1004-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "universal": legs_universel(entity_ref("urn:fr:cc:liberalites:l1004a:l")) { origin case_input; }
+        assert "heir": heritier_reservataire_existe(entity_ref("urn:fr:cc:liberalites:l1004a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDemanderDelivrance, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1007-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": testament_olographe_ou_mystique_a_mettre_a_execution(entity_ref("urn:fr:cc:liberalites:l1007a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDeposerTestamentNotaire, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1009-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "concurrence": legataire_universel_en_concours_reservataire(entity_ref("urn:fr:cc:liberalites:l1009a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAcquitterChargesLegs, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1011-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "title": legs_a_titre_universel(entity_ref("urn:fr:cc:liberalites:l1011a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDemanderDelivranceTitreUniversel, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1012-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "title": legs_a_titre_universel(entity_ref("urn:fr:cc:liberalites:l1012a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAcquitterDettesTitreUniversel, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1013-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "share": quotite_disponible_partielle_leguee_titre_universel(entity_ref("urn:fr:cc:liberalites:l1013a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirContribuerLegsParticuliers, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1017-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "debtor": debiteur_du_legs_profite_succession(entity_ref("urn:fr:cc:liberalites:l1017a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAcquitterLegsProrata, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1016-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "request": demande_delivrance_formee(entity_ref("urn:fr:cc:liberalites:l1016a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirSupporterFraisDelivrance, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1018-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "legacy": legs_pur_et_simple(entity_ref("urn:fr:cc:liberalites:l1018a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDelivrerChoseAccessoires, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1025-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "executor": executeur_capable_nomme_et_accepte(entity_ref("urn:fr:cc:liberalites:l1025a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirAccomplirMissionExecuteur, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1028-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "dispute": contestation_validite_ou_execution(entity_ref("urn:fr:cc:liberalites:l1028a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirIntervenirContestation, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1029-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "measure": mesure_conservatoire_inventaire_ou_vente_urgente(entity_ref("urn:fr:cc:liberalites:l1029a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirPrendreMesureConservatoire, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1031-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": habilitation_executeur_donnee_1030(entity_ref("urn:fr:cc:liberalites:l1031a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirExercerHabilitationDeuxAns, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1032-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": executeur_capable_nomme_et_accepte(entity_ref("urn:fr:cc:liberalites:l1032a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirMaintenirMissionDeuxAns, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1033-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": mission_executeur_terminee(entity_ref("urn:fr:cc:liberalites:l1033a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRendreComptes, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1034-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "costs": frais_executeur_exercice_mission(entity_ref("urn:fr:cc:liberalites:l1034a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirSupporterFraisExecuteur, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1047-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "trg0": injure_grave_a_la_memoire_du_testateur(entity_ref("urn:fr:cc:liberalites:l1047a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirFormerActionInjureMemoire, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-1022-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "unspecified": chose_indeterminee_leguee(entity_ref("urn:fr:cc:liberalites:l1022a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDelivrerQualiteMoyenne, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-931-1-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "defect": vice_de_forme_de_la_donation(entity_ref("urn:fr:cc:liberalites:l9311a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirRefaireDonationFormeLegale, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-939-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "mortgageable": donation_portant_bien_hypothecable(entity_ref("urn:fr:cc:liberalites:l939a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirPublierDonationHypothecable, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-919-2-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "declaration": declaration_hors_part_expresse(entity_ref("urn:fr:cc:liberalites:l9192a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirDeclarerHorsPartFormeLegale, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-924-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "reduction": reduction_de_donation(entity_ref("urn:fr:cc:liberalites:s924a:s"), entity_ref("urn:fr:cc:liberalites:l924a:l"), 10 EUR) { origin case_input; } }
+    evaluate positions(); expect position(DevoirIndemniserExcedent, ACTIVE);
+}
+test "urn:positions:fr-code-civil-liberalites-900-5-active" {
+    given { context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "revision": demander_revision_900_2(entity_ref("urn:fr:cc:liberalites:l9005a:l")) { origin case_input; } }
+    evaluate positions(); expect position(DevoirFormerDemandeRevision9005, ACTIVE);
+}

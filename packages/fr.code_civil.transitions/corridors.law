@@ -1,0 +1,199 @@
+// LES QUATRE CORRIDORS.
+//
+// Chaque règle lit une date du texte transitoire épinglé — jamais une date
+// de mémoire : 1er janvier 2007 (loi n° 2006-728, art. 47, I), 1er octobre
+// 2016 (ordonnance n° 2016-131, art. 9), 1er octobre 2018 (loi n° 2018-287,
+// art. 16, I), 1er janvier 2022 (ordonnance n° 2021-1192, art. 37, I).
+
+language "law.core" version "0.2";
+package fr.code_civil.transitions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-transitions";
+
+use self::{
+    LoiApplicable,
+    REFORME_2006_ART47,
+    REFORME_2016_ART9,
+    REFORME_2018_ART16,
+    REFORME_2021_ART37,
+    SituationJuridique,
+    acte_juridique_conclu_ou_etabli_le,
+    article_invoque,
+    cautionnement_conclu_le,
+    contrat_conclu_le,
+    instance_introduite_le,
+    succession_non_encore_partagee,
+    succession_ouverte_le,
+};
+
+// --- Corridor 2016 : le contrat ------------------------------------------------------------
+
+pub relation loi_applicable_au_contrat(s: SituationJuridique, loi: LoiApplicable) kind derived {
+    key(s);
+    label fr official "version du Code applicable au contrat (ordonnance n° 2016-131, article 9)";
+    label en unofficial "version of the Code applicable to the contract (Ordinance No. 2016-131, Article 9)";
+}
+pub relation applicable_des_l_entree_en_vigueur_2016(s: SituationJuridique, numero: Text) kind derived {
+    label fr official "article applicable dès l'entrée en vigueur de l'ordonnance, même au contrat antérieur (article 9, troisième phrase : 1123 alinéas 3 et 4, 1158, 1183)";
+    label en unofficial "article applicable from the ordinance's entry into force, even to an earlier contract (Article 9, third sentence: 1123 paragraphs 3 and 4, 1158, 1183)";
+}
+pub relation instance_anterieure_a_la_reforme_2016(s: SituationJuridique) kind derived {
+    label fr official "l'instance a été introduite avant l'entrée en vigueur de l'ordonnance : l'action est poursuivie et jugée conformément à la loi ancienne, en appel et en cassation comprises";
+    label en unofficial "the proceedings were brought before the ordinance came into force: the action is pursued and judged under the former law, including on appeal and in cassation";
+}
+
+@source(REFORME_2016_ART9) {
+    rule ContratAnterieurSoumisALaLoiAncienne(s: SituationJuridique, jour: Date) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne, y compris pour leurs effets légaux et pour les dispositions d'ordre public";
+        label en unofficial "Ordinance No. 2016-131, Article 9. Contracts concluded before 1 October 2016 remain governed by the former law, including as to their legal effects and public-policy provisions";
+        when contrat_conclu_le(s, jour) and jour < @2016-10-01;
+        then loi_applicable_au_contrat(s, LoiAncienne);
+    }
+    rule ContratPosterieurSoumisALaLoiNouvelle(s: SituationJuridique, jour: Date) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Les dispositions de l'ordonnance sont entrées en vigueur le 1er octobre 2016 : le contrat conclu à compter de cette date relève de la loi nouvelle";
+        label en unofficial "Ordinance No. 2016-131, Article 9. The ordinance came into force on 1 October 2016: a contract concluded from that date falls under the new law";
+        when contrat_conclu_le(s, jour) and jour >= @2016-10-01;
+        then loi_applicable_au_contrat(s, LoiNouvelle);
+    }
+    rule ArticlesApplicablesDesLEntreeEnVigueur(s: SituationJuridique, n: Text) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Les troisième et quatrième alinéas de l'article 1123 et les articles 1158 et 1183 sont applicables dès l'entrée en vigueur de l'ordonnance";
+        label en unofficial "Ordinance No. 2016-131, Article 9. The third and fourth paragraphs of Article 1123 and Articles 1158 and 1183 apply from the ordinance's entry into force";
+        when article_invoque(s, n) and (n == "1123" or n == "1158" or n == "1183");
+        then applicable_des_l_entree_en_vigueur_2016(s, n);
+    }
+    rule InstanceAnterieureALaReforme(s: SituationJuridique, jour: Date) strict {
+        label fr official "Ordonnance n° 2016-131, article 9. Lorsqu'une instance a été introduite avant l'entrée en vigueur de l'ordonnance, l'action est poursuivie et jugée conformément à la loi ancienne";
+        label en unofficial "Ordinance No. 2016-131, Article 9. Where proceedings were brought before the ordinance came into force, the action is pursued and judged under the former law";
+        when instance_introduite_le(s, jour) and jour < @2016-10-01;
+        then instance_anterieure_a_la_reforme_2016(s);
+    }
+}
+
+// --- Corridor 2018 : la ratification -------------------------------------------------------
+
+pub relation loi_applicable_a_l_article_2018(s: SituationJuridique, numero: Text, loi: LoiApplicable) kind derived {
+    key(s, numero);
+    label fr official "version applicable aux articles que la loi de ratification a modifiés sans caractère interprétatif (loi n° 2018-287, article 16, I)";
+    label en unofficial "version applicable to the articles the ratifying act amended without interpretative character (Act No. 2018-287, Article 16, I)";
+}
+pub relation article_nouveau_2018(s: SituationJuridique, numero: Text) kind derived {
+    label fr official "article dont la rédaction résultant de la loi de ratification ne s'applique qu'aux actes conclus ou établis à compter du 1er octobre 2018 (article 16, I, deuxième phrase)";
+    label en unofficial "article whose wording under the ratifying act applies only to acts concluded or drawn up from 1 October 2018 (Article 16, I, second sentence)";
+}
+pub relation article_interpretatif_2018(s: SituationJuridique, numero: Text) kind derived {
+    label fr official "article dont la modification a un caractère interprétatif : elle vaut depuis l'entrée en vigueur de l'ordonnance de 2016 (article 16, I, troisième phrase)";
+    label en unofficial "article whose amendment is interpretative: it applies from the 2016 ordinance's entry into force (Article 16, I, third sentence)";
+}
+
+@source(REFORME_2018_ART16) {
+    rule ArticleNouveauDeLaRatification(s: SituationJuridique, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. Les articles 1110, 1117, 1137, 1145, 1161, 1171, 1223, 1327 et 1343-3 du code civil, dans leur rédaction résultant de la présente loi, sont applicables aux actes juridiques conclus ou établis à compter de son entrée en vigueur";
+        label en unofficial "Act No. 2018-287, Article 16, I. Articles 1110, 1117, 1137, 1145, 1161, 1171, 1223, 1327 and 1343-3, as worded by this Act, apply to legal acts concluded or drawn up from its entry into force";
+        when article_invoque(s, n)
+            and (n == "1110" or n == "1117" or n == "1137" or n == "1145" or n == "1161"
+                 or n == "1171" or n == "1223" or n == "1327" or n == "1343-3");
+        then article_nouveau_2018(s, n);
+    }
+    rule ArticleInterpretatifDeLaRatification(s: SituationJuridique, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. Les modifications apportées aux articles 1112, 1143, 1165, 1216-3, 1217, 1221, 1304-4, 1305-5, 1327-1, 1328-1, 1347-6 et 1352-4 du code civil ont un caractère interprétatif";
+        label en unofficial "Act No. 2018-287, Article 16, I. The amendments to Articles 1112, 1143, 1165, 1216-3, 1217, 1221, 1304-4, 1305-5, 1327-1, 1328-1, 1347-6 and 1352-4 are interpretative";
+        when article_invoque(s, n)
+            and (n == "1112" or n == "1143" or n == "1165" or n == "1216-3" or n == "1217"
+                 or n == "1221" or n == "1304-4" or n == "1305-5" or n == "1327-1"
+                 or n == "1328-1" or n == "1347-6" or n == "1352-4");
+        then article_interpretatif_2018(s, n);
+    }
+    rule ActeAnterieurAuPremierOctobre2018(s: SituationJuridique, jour: Date, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. L'acte juridique conclu ou établi avant le 1er octobre 2018 échappe à la rédaction nouvelle des articles énumérés";
+        label en unofficial "Act No. 2018-287, Article 16, I. A legal act concluded or drawn up before 1 October 2018 escapes the new wording of the listed articles";
+        when acte_juridique_conclu_ou_etabli_le(s, jour) and jour < @2018-10-01 and article_nouveau_2018(s, n);
+        then loi_applicable_a_l_article_2018(s, n, LoiAncienne);
+    }
+    rule ActePosterieurAuPremierOctobre2018(s: SituationJuridique, jour: Date, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. La présente loi entre en vigueur le 1er octobre 2018 : l'acte conclu ou établi à compter de cette date relève de la rédaction nouvelle";
+        label en unofficial "Act No. 2018-287, Article 16, I. This Act comes into force on 1 October 2018: an act concluded or drawn up from that date falls under the new wording";
+        when acte_juridique_conclu_ou_etabli_le(s, jour) and jour >= @2018-10-01 and article_nouveau_2018(s, n);
+        then loi_applicable_a_l_article_2018(s, n, LoiNouvelle);
+    }
+    rule ArticleInterpretatifVautPourLActeAnterieur(s: SituationJuridique, jour: Date, n: Text) strict {
+        label fr official "Loi n° 2018-287, article 16, I. La modification interprétative vaut pour l'acte antérieur au 1er octobre 2018 : la rédaction issue de la ratification dit ce que l'ordonnance disait déjà";
+        label en unofficial "Act No. 2018-287, Article 16, I. An interpretative amendment covers an act earlier than 1 October 2018: the ratified wording states what the ordinance already said";
+        when acte_juridique_conclu_ou_etabli_le(s, jour) and jour < @2018-10-01 and article_interpretatif_2018(s, n);
+        then loi_applicable_a_l_article_2018(s, n, LoiNouvelle);
+    }
+}
+
+// --- Corridor 2021 : les sûretés -----------------------------------------------------------
+
+pub relation loi_applicable_au_cautionnement(s: SituationJuridique, loi: LoiApplicable) kind derived {
+    key(s);
+    label fr official "version du Code applicable au cautionnement (ordonnance n° 2021-1192, article 37, II)";
+    label en unofficial "version of the Code applicable to the suretyship (Ordinance No. 2021-1192, Article 37, II)";
+}
+pub relation applicable_des_l_entree_en_vigueur_2021(s: SituationJuridique, numero: Text) kind derived {
+    label fr official "articles 2302 à 2304 : applicables dès l'entrée en vigueur de l'ordonnance, y compris aux cautionnements constitués antérieurement (article 37, III)";
+    label en unofficial "Articles 2302 to 2304: applicable from the ordinance's entry into force, including to suretyships created earlier (Article 37, III)";
+}
+
+@source(REFORME_2021_ART37) {
+    rule CautionnementAnterieurSoumisALaLoiAncienne(s: SituationJuridique, jour: Date) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, II. Les cautionnements conclus avant le 1er janvier 2022 demeurent soumis à la loi ancienne, y compris pour leurs effets légaux et pour les dispositions d'ordre public";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, II. Suretyships concluded before 1 January 2022 remain governed by the former law, including as to their legal effects and public-policy provisions";
+        when cautionnement_conclu_le(s, jour) and jour < @2022-01-01;
+        then loi_applicable_au_cautionnement(s, LoiAncienne);
+    }
+    rule CautionnementPosterieurSoumisALaLoiNouvelle(s: SituationJuridique, jour: Date) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, I. Les dispositions de l'ordonnance sont entrées en vigueur le 1er janvier 2022";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, I. The ordinance's provisions came into force on 1 January 2022";
+        when cautionnement_conclu_le(s, jour) and jour >= @2022-01-01;
+        then loi_applicable_au_cautionnement(s, LoiNouvelle);
+    }
+    rule ArticlesDInformationApplicablesImmediatement(s: SituationJuridique, n: Text) strict {
+        label fr official "Ordonnance n° 2021-1192, article 37, III. Les articles 2302 à 2304 du code civil sont applicables dès l'entrée en vigueur de l'ordonnance, y compris aux cautionnements constitués antérieurement";
+        label en unofficial "Ordinance No. 2021-1192, Article 37, III. Articles 2302 to 2304 apply from the ordinance's entry into force, including to suretyships created earlier";
+        when article_invoque(s, n) and (n == "2302" or n == "2303" or n == "2304");
+        then applicable_des_l_entree_en_vigueur_2021(s, n);
+    }
+}
+
+// --- Corridor 2006 : successions et libéralités --------------------------------------------
+
+pub relation loi_applicable_a_la_succession(s: SituationJuridique, loi: LoiApplicable) kind derived {
+    key(s);
+    label fr official "version du Code applicable à la succession (loi n° 2006-728, article 47, II)";
+    label en unofficial "version of the Code applicable to the succession (Act No. 2006-728, Article 47, II)";
+}
+pub relation dispositions_2006_applicables_a_l_indivision_existante(s: SituationJuridique) kind derived {
+    label fr official "les articles 2, 3, 4, 7 et 8 de la loi n° 2006-728 s'appliquent dès son entrée en vigueur à cette succession ouverte non encore partagée (article 47, II, alinéa 1) — le reste de la loi ne s'y applique pas";
+    label en unofficial "Articles 2, 3, 4, 7 and 8 of Act No. 2006-728 apply from its entry into force to this opened but undivided succession (Article 47, II, paragraph 1) — the rest of the Act does not";
+}
+pub relation instance_anterieure_a_la_reforme_2006(s: SituationJuridique) kind derived {
+    label fr official "instance introduite avant l'entrée en vigueur de la loi n° 2006-728 : l'action est poursuivie et jugée conformément à la loi ancienne (article 47, II, alinéa 2)";
+    label en unofficial "proceedings brought before Act No. 2006-728 came into force: the action is pursued and judged under the former law (Article 47, II, paragraph 2)";
+}
+
+@source(REFORME_2006_ART47) {
+    rule SuccessionOuverteAvantLaReforme(s: SituationJuridique, jour: Date) strict {
+        label fr official "Loi n° 2006-728, article 47, II, alinéa 3. Les dispositions de la loi sont applicables aux successions ouvertes à compter de son entrée en vigueur : la succession ouverte avant le 1er janvier 2007 relève de la loi ancienne";
+        label en unofficial "Act No. 2006-728, Article 47, II, paragraph 3. The Act applies to successions opened from its entry into force: a succession opened before 1 January 2007 falls under the former law";
+        when succession_ouverte_le(s, jour) and jour < @2007-01-01;
+        then loi_applicable_a_la_succession(s, LoiAncienne);
+    }
+    rule SuccessionOuverteApresLaReforme(s: SituationJuridique, jour: Date) strict {
+        label fr official "Loi n° 2006-728, article 47, I et II, alinéa 3. La loi entre en vigueur le 1er janvier 2007 et s'applique aux successions ouvertes à compter de cette date, y compris si des libéralités ont été consenties antérieurement";
+        label en unofficial "Act No. 2006-728, Article 47, I and II, paragraph 3. The Act comes into force on 1 January 2007 and applies to successions opened from that date, even if gifts were made earlier";
+        when succession_ouverte_le(s, jour) and jour >= @2007-01-01;
+        then loi_applicable_a_la_succession(s, LoiNouvelle);
+    }
+    rule IndivisionNonPartageeSoumiseALaLoiNouvelle(s: SituationJuridique, jour: Date) strict {
+        label fr official "Loi n° 2006-728, article 47, II, alinéa 1. Les dispositions des articles 2, 3, 4, 7 et 8 de la loi sont applicables, dès son entrée en vigueur, aux successions ouvertes non encore partagées à cette date";
+        label en unofficial "Act No. 2006-728, Article 47, II, paragraph 1. Articles 2, 3, 4, 7 and 8 of the Act apply, from its entry into force, to successions already opened but not yet divided at that date";
+        when succession_ouverte_le(s, jour) and jour < @2007-01-01 and succession_non_encore_partagee(s);
+        then dispositions_2006_applicables_a_l_indivision_existante(s);
+    }
+    rule InstanceAnterieureALaReforme2006(s: SituationJuridique, jour: Date) strict {
+        label fr official "Loi n° 2006-728, article 47, II, alinéa 2. Par dérogation, lorsque l'instance a été introduite avant l'entrée en vigueur de la loi, l'action est poursuivie et jugée conformément à la loi ancienne";
+        label en unofficial "Act No. 2006-728, Article 47, II, paragraph 2. By way of exception, where proceedings were brought before the Act came into force, the action is pursued and judged under the former law";
+        when instance_introduite_le(s, jour) and jour < @2007-01-01;
+        then instance_anterieure_a_la_reforme_2006(s);
+    }
+}

@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 771 : ouverture le 31 janvier 2026 — sommation possible à compter du 31 mai 2026.
+test "urn:query:fr-code-civil-successions-o03-quatre-mois-depuis-l-ouverture" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": ouverte_le(entity_ref("urn:fr:cc:successions:opt:o03:S"), @2026-01-31) { origin case_input; }
+        assert "f2": sommation_d_opter_le(entity_ref("urn:fr:cc:successions:opt:o03:S"), entity_ref("urn:fr:cc:successions:opt:o03:H"), @2026-06-15) { origin case_input; }
+    }
+    evaluate truth(sommation_possible_a_compter_du(entity_ref("urn:fr:cc:successions:opt:o03:S"), entity_ref("urn:fr:cc:successions:opt:o03:H"), @2026-05-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(QuatreMoisDepuisLOuverture);
+}

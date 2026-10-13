@@ -1,0 +1,259 @@
+// TITRE XI — DE LA MAJORITÉ ET DES MAJEURS PROTÉGÉS (noyau : articles 414,
+// 425, 428 à 431, 440 à 444).
+//
+// CE QUI SE CALCULE : la condition d'ouverture (altération médicalement
+// constatée, 425), la recevabilité de la demande (certificat circonstancié,
+// 431), le plafond de la durée — cinq ans, sauf avis médical conforme (441) —
+// et la date d'expiration ; le renouvellement pour une même durée (442) ; la
+// fin de la mesure (443) ; l'opposabilité aux tiers deux mois après la mention
+// en marge, et l'opposabilité immédiate au tiers qui en a connaissance (444).
+//
+// CE QUI RESTE AU JUGE : la nécessité et la proportionnalité (428), le choix
+// du régime (440), la désignation du curateur ou tuteur (447), l'étendue des
+// actes (459, 467, 473). Le Code les confie au juge ; le paquet apporte la
+// décision par le cas, il ne la simule pas.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART425,
+    CC_ART429,
+    CC_ART431,
+    CC_ART441,
+    CC_ART442,
+    CC_ART443,
+    CC_ART444,
+    MesureDeProtection,
+    Personne,
+    RegimeDeProtection,
+    alteration_medicalement_constatee,
+    avis_conforme_du_medecin_sur_l_absence_d_amelioration,
+    certificat_circonstancie_joint,
+    date_d_appreciation,
+    decede_le,
+    duree_fixee_par_le_juge,
+    expiration_fixee_le,
+    mainlevee_le,
+    majeur,
+    mention_portee_en_marge_le,
+    mesure_demandee_pour,
+    mesure_ouverte_le,
+    ne_le,
+    regime_prononce,
+    tiers_ayant_personnellement_connaissance,
+};
+
+pub relation condition_de_protection_remplie(p: Personne) kind derived {
+    label fr official "la personne est dans l'impossibilité de pourvoir seule à ses intérêts en raison d'une altération médicalement constatée (article 425)";
+    label en unofficial "the person cannot attend to his interests alone because of a medically established impairment (Article 425)";
+}
+pub relation demande_recevable(m: MesureDeProtection) kind derived {
+    label fr official "la demande est recevable : elle est accompagnée du certificat circonstancié (article 431)";
+    label en unofficial "the application is admissible: it carries the detailed medical certificate (Article 431)";
+}
+pub relation mesure_ouverte(m: MesureDeProtection) kind derived {
+    label fr official "un jugement d'ouverture a été rendu pour cette mesure";
+    label en unofficial "an opening judgment has been delivered for this measure";
+}
+pub relation expiration_maximale_le(m: MesureDeProtection, jour: Date) kind derived {
+    key(m);
+    label fr official "terme le plus lointain que le juge puisse fixer : cinq ans depuis l'ouverture, dix sur avis médical conforme (article 441)";
+    label en unofficial "latest term the judge may set: five years from the opening, ten on a concurring medical opinion (Article 441)";
+}
+pub relation duree_maximale(m: MesureDeProtection, annees: Integer) kind derived {
+    key(m);
+    label fr official "durée maximale que le juge peut fixer : cinq ans, ou davantage sur avis médical conforme (article 441)";
+    label en unofficial "maximum duration the judge may set: five years, or more on a concurring medical opinion (Article 441)";
+}
+pub relation duree_excessive(m: MesureDeProtection) kind derived {
+    label fr official "la durée fixée excède le maximum de l'article 441";
+    label en unofficial "the duration set exceeds the Article 441 maximum";
+}
+pub relation mesure_terminee(m: MesureDeProtection) kind derived {
+    label fr official "la mesure a pris fin : expiration du délai, mainlevée passée en force de chose jugée, ou décès (article 443)";
+    label en unofficial "the measure has ended: expiry of the period, final discharge judgment, or death (Article 443)";
+}
+pub relation opposable_aux_tiers_le(m: MesureDeProtection, jour: Date) kind derived {
+    key(m);
+    label fr official "jour à partir duquel le jugement est opposable aux tiers : deux mois après la mention en marge de l'acte de naissance (article 444, alinéa 1)";
+    label en unofficial "day from which the judgment is enforceable against third parties: two months after the marginal note (Article 444, paragraph 1)";
+}
+pub relation opposable_a(m: MesureDeProtection, tiers: Personne) kind derived {
+    label fr official "le jugement est opposable à ce tiers, qui en a personnellement connaissance, même sans mention (article 444, alinéa 2)";
+    label en unofficial "the judgment is enforceable against this third party, personally aware of it, even without the marginal note (Article 444, paragraph 2)";
+}
+pub relation fixer_duree_mesure_dans_maximum(m: MesureDeProtection) kind empirical { label fr official "le juge fixe la durée de la mesure dans le maximum légal"; label en unofficial "the judge sets the measure duration within the statutory maximum"; }
+pub relation renouveler_mesure_dans_maximum(m: MesureDeProtection) kind empirical { label fr official "le juge renouvelle la mesure dans le maximum légal"; label en unofficial "the judge renews the measure within the statutory maximum"; }
+pub relation publier_mention_mesure(m: MesureDeProtection) kind empirical { label fr official "la mention du jugement est portée en marge de l'acte de naissance"; label en unofficial "the judgment is noted in the margin of the birth record"; }
+pub relation demander_mesure_protection_425(p: Personne) kind empirical { label fr official "la personne demande à bénéficier d'une mesure de protection"; label en unofficial "the person asks to benefit from a protection measure"; }
+@source(CC_ART425)
+rule PositionPouvoirDemanderMesureProtection425(p: Personne) strict {
+    label fr official "Article 425. La personne peut bénéficier d'une mesure de protection juridique";
+    label en unofficial "Article 425. A person may benefit from a legal protection measure";
+    when alteration_medicalement_constatee(p) and majeur(p) and demander_mesure_protection_425(p);
+    then liberty PouvoirDemanderMesureProtection425 {
+        holder p;
+        action demander_mesure_protection_425(p);
+        window [@2009-01-01, infinity);
+    };
+}
+
+@source(CC_ART425)
+rule ConditionDeProtection(p: Personne) defeasible {
+    label fr official "Article 425, alinéa 1. Toute personne dans l'impossibilité de pourvoir seule à ses intérêts en raison d'une altération, médicalement constatée, de ses facultés mentales ou corporelles de nature à empêcher l'expression de sa volonté peut bénéficier d'une mesure de protection juridique";
+    label en unofficial "Article 425, paragraph 1. Any person unable to attend to his interests alone because of a medically established impairment of mental or bodily faculties preventing the expression of his will may benefit from a legal protection measure";
+    when alteration_medicalement_constatee(p) and majeur(p);
+    then condition_de_protection_remplie(p);
+}
+
+@source(CC_ART429)
+rule MineurDansLaDerniereAnneeDeSaMinorite(p: Personne, naissance: Date, jour: Date) defeasible {
+    label fr official "Article 429, alinéa 2. Pour un mineur non émancipé, la demande peut être introduite et jugée dans la dernière année de sa minorité ; la mesure ne prend effet qu'au jour de sa majorité";
+    label en unofficial "Article 429, paragraph 2. For an unemancipated minor, the application may be brought and decided in the last year of his minority; the measure takes effect only on his majority";
+    when alteration_medicalement_constatee(p) and ne_le(p, naissance) and date_d_appreciation(p, jour)
+        and jour >= add_calendar_period(naissance, 17 calendar_year);
+    then condition_de_protection_remplie(p);
+}
+
+@source(CC_ART431)
+rule DemandeRecevable(m: MesureDeProtection) defeasible {
+    label fr official "Article 431, alinéa 1. La demande est accompagnée, à peine d'irrecevabilité, d'un certificat circonstancié rédigé par un médecin choisi sur une liste établie par le procureur de la République";
+    label en unofficial "Article 431, paragraph 1. The application must, on pain of inadmissibility, carry a detailed certificate by a doctor from the prosecutor's list";
+    when certificat_circonstancie_joint(m);
+    then demande_recevable(m);
+}
+
+@source(CC_ART441) {
+    rule MesureOuverte(m: MesureDeProtection, jour: Date) strict {
+        label fr official "Article 441. Un jugement d'ouverture a été rendu";
+        label en unofficial "Article 441. An opening judgment has been delivered";
+        when mesure_ouverte_le(m, jour);
+        then mesure_ouverte(m);
+    }
+    rule DureeMaximaleDeCinqAns(m: MesureDeProtection) defeasible {
+        label fr official "Article 441, alinéa 1. Le juge fixe la durée de la mesure sans que celle-ci puisse excéder cinq ans";
+        label en unofficial "Article 441, paragraph 1. The judge sets the duration of the measure, which may not exceed five years";
+        when mesure_ouverte(m) and not_known(avis_conforme_du_medecin_sur_l_absence_d_amelioration(m));
+        then duree_maximale(m, 5);
+    }
+    rule DureePlusLongueSurAvisConforme(m: MesureDeProtection) defeasible {
+        label fr official "Article 441, alinéa 2. Le juge qui prononce une tutelle peut, par décision spécialement motivée et sur avis conforme d'un médecin inscrit, fixer une durée plus longue, sans excéder dix ans";
+        label en unofficial "Article 441, paragraph 2. A judge ordering guardianship may, by a specially reasoned decision and on a listed doctor's concurring opinion, set a longer duration, not exceeding ten years";
+        when regime_prononce(m, Tutelle) and avis_conforme_du_medecin_sur_l_absence_d_amelioration(m);
+        then duree_maximale(m, 10);
+    }
+    rule DureeExcessive(m: MesureDeProtection, fixee: Integer, maximum: Integer) defeasible {
+        label fr official "Article 441. La durée fixée par le juge ne peut excéder le maximum légal";
+        label en unofficial "Article 441. The duration set by the judge may not exceed the statutory maximum";
+        when duree_fixee_par_le_juge(m, fixee) and duree_maximale(m, maximum) and fixee > maximum;
+        then duree_excessive(m);
+    }
+    rule ExpirationMaximaleCinqAns(m: MesureDeProtection, jour: Date) defeasible {
+        label fr official "Article 441, alinéa 1. Le terme le plus lointain que le juge puisse fixer : cinq ans depuis l'ouverture";
+        label en unofficial "Article 441, paragraph 1. The latest term the judge may set: five years from the opening";
+        when mesure_ouverte_le(m, jour) and duree_maximale(m, 5);
+        then expiration_maximale_le(m, add_calendar_period(jour, 5 calendar_year));
+    }
+    rule ExpirationMaximaleDixAns(m: MesureDeProtection, jour: Date) defeasible {
+        label fr official "Article 441, alinéa 2. Sur avis médical conforme, le terme le plus lointain est de dix ans depuis l'ouverture";
+        label en unofficial "Article 441, paragraph 2. On a concurring medical opinion, the latest term is ten years from the opening";
+        when mesure_ouverte_le(m, jour) and duree_maximale(m, 10);
+        then expiration_maximale_le(m, add_calendar_period(jour, 10 calendar_year));
+    }
+    rule TermeFixeAuDelaDuMaximum(m: MesureDeProtection, fixe: Date, maximum: Date) defeasible {
+        label fr official "Article 441. Le terme fixé par le juge ne peut aller au-delà du terme maximal légal";
+        label en unofficial "Article 441. The term set by the judge may not go beyond the statutory maximum term";
+        when expiration_fixee_le(m, fixe) and expiration_maximale_le(m, maximum) and fixe > maximum;
+        then duree_excessive(m);
+    }
+}
+
+@source(CC_ART443) {
+    rule FinParExpiration(m: MesureDeProtection, jour: Date, p: Personne, appreciation: Date) defeasible {
+        label fr official "Article 443, alinéa 1. La mesure prend fin, en l'absence de renouvellement, à l'expiration du délai fixé";
+        label en unofficial "Article 443, paragraph 1. The measure ends, absent renewal, on the expiry of the period set";
+        when expiration_fixee_le(m, jour) and mesure_demandee_pour(m, p)
+            and date_d_appreciation(p, appreciation) and appreciation >= jour;
+        then mesure_terminee(m);
+    }
+    rule FinParMainlevee(m: MesureDeProtection, jour: Date) defeasible {
+        label fr official "Article 443, alinéa 1. La mesure prend fin en cas de jugement de mainlevée passé en force de chose jugée";
+        label en unofficial "Article 443, paragraph 1. The measure ends upon a discharge judgment having become final";
+        when mainlevee_le(m, jour);
+        then mesure_terminee(m);
+    }
+    rule FinParDeces(m: MesureDeProtection, p: Personne, jour: Date) defeasible {
+        label fr official "Article 443, alinéa 1. La mesure prend fin en cas de décès de l'intéressé";
+        label en unofficial "Article 443, paragraph 1. The measure ends upon the death of the person concerned";
+        when mesure_demandee_pour(m, p) and decede_le(p, jour);
+        then mesure_terminee(m);
+    }
+}
+pub relation executer_fin_mesure_protection(m: MesureDeProtection) kind empirical { label fr official "la mesure de protection est arrêtée dans le cas légal de fin"; label en unofficial "the protection measure is ended in the statutory case"; }
+@source(CC_ART443)
+rule PositionDevoirExecuterFinMesureProtection(m: MesureDeProtection) strict {
+    label fr official "Article 443. La mesure de protection doit prendre fin dans les cas légaux";
+    label en unofficial "Article 443. The protection measure must end in the statutory cases";
+    when mesure_terminee(m);
+    then duty DevoirExecuterFinMesureProtection {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition executer_fin_mesure_protection(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART444) {
+    rule OpposabiliteDeuxMoisApresLaMention(m: MesureDeProtection, jour: Date) defeasible {
+        label fr official "Article 444, alinéa 1. Les jugements portant ouverture, modification ou mainlevée ne sont opposables aux tiers que deux mois après que la mention en a été portée en marge de l'acte de naissance";
+        label en unofficial "Article 444, paragraph 1. Judgments opening, modifying or discharging the measure are enforceable against third parties only two months after the marginal note on the birth certificate";
+        when mention_portee_en_marge_le(m, jour);
+        then opposable_aux_tiers_le(m, add_calendar_period(jour, 2 calendar_month));
+    }
+    rule OpposabiliteAuTiersInforme(m: MesureDeProtection, tiers: Personne) defeasible {
+        label fr official "Article 444, alinéa 2. Même en l'absence de cette mention, les jugements sont opposables aux tiers qui en ont personnellement connaissance";
+        label en unofficial "Article 444, paragraph 2. Even without that note, the judgments are enforceable against third parties personally aware of them";
+        when tiers_ayant_personnellement_connaissance(m, tiers);
+        then opposable_a(m, tiers);
+    }
+}
+@source(CC_ART441)
+rule PositionDevoirFixerDureeDansMaximum(m: MesureDeProtection) strict {
+    label fr official "Article 441. La durée de la mesure doit respecter le maximum légal";
+    label en unofficial "Article 441. The measure duration must respect the statutory maximum";
+    when mesure_ouverte(m);
+    then duty DevoirFixerDureeDansMaximum {
+        bearer entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        goal achievement {
+            condition fixer_duree_mesure_dans_maximum(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}
+@source(CC_ART442)
+rule PositionPouvoirRenouvelerMesure(m: MesureDeProtection) strict {
+    label fr official "Article 442. Le juge peut renouveler la mesure dans le maximum légal";
+    label en unofficial "Article 442. The judge may renew the measure within the statutory maximum";
+    when mesure_ouverte(m);
+    then liberty PouvoirRenouvelerMesure {
+        holder entity_ref("urn:fr:cc:personnes:juge-tutelles");
+        action renouveler_mesure_dans_maximum(m);
+        window [@2009-01-01, infinity);
+    };
+}
+@source(CC_ART444)
+rule PositionDevoirPublierMentionMesure(m: MesureDeProtection) strict {
+    label fr official "Article 444. Le jugement doit être mentionné en marge de l'acte de naissance";
+    label en unofficial "Article 444. The judgment must be noted in the margin of the birth record";
+    when mesure_ouverte(m);
+    then duty DevoirPublierMentionMesure {
+        bearer entity_ref("urn:fr:cc:personnes:greffe");
+        goal achievement {
+            condition publier_mention_mesure(m);
+            window [@2009-01-01, infinity];
+        };
+    };
+}

@@ -1,0 +1,475 @@
+// CHAPITRE III — DE LA PORTION DE BIENS DISPONIBLE ET DE LA RÉDUCTION
+// (articles 912 à 930-5). Section 1 : réserve et quotité disponible ;
+// section 2 : réduction des libéralités excessives.
+//
+// STRATES :
+//   A. enfants laissés au sens de l'article 913 (lus dans la dévolution) ;
+//   B. quotité disponible en fraction (913, 914-1, 916) et réserve (912) ;
+//   C. masse de calcul (922) et quotité disponible en valeur ;
+//   D. imputation des donations hors part par ordre de date (919-2, 923),
+//      forme close : donation datée d ← reste après les donations antérieures ;
+//   E. legs : imputés après les donations, réduits au marc le franc (923, 926) ;
+//   F. indemnité de réduction (924).
+//
+// FRONTIÈRES DÉCLARÉES : donations de même date (923 ne les départage pas),
+// donation en avancement de part successorale (919-1 : imputation sur la
+// réserve du gratifié, vague B4), legs préféré (927), réduction en nature
+// (924-1), valeur à l'époque du partage (924-2 : la valeur fournie vaut pour
+// la réunion et l'indemnité).
+
+language "law.core" version "0.2";
+package fr.code_civil.liberalites version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-liberalites";
+
+use self::{
+    CC_ART912,
+    CC_ART913,
+    CC_ART913_1,
+    CC_ART914_1,
+    CC_ART916,
+    CC_ART919_1,
+    CC_ART919_2,
+    CC_ART922,
+    CC_ART923,
+    CC_ART924,
+    CC_ART926,
+    Liberalite,
+    NatureDeLiberalite,
+    Personne,
+    Succession,
+    biens_existants_au_deces,
+    date_de_la_donation,
+    hors_part_successorale,
+    liberalite_du_defunt,
+    nature,
+    valeur_reunie,
+};
+
+// --- A. Enfants laissés (913, 913-1) ----------------------------------------------------
+
+pub relation enfant_compte(s: Succession, c: Personne) kind derived {
+    label fr official "enfant compté au sens de l'article 913 : enfant au premier degré venant de son chef ou représenté (913, alinéa 2 ; 913-1)";
+    label en unofficial "child counted under Article 913: first-degree child taking in his own right or represented (913, paragraph 2; 913-1)";
+}
+pub relation presence_d_enfant(s: Succession) kind derived {
+    label fr official "le disposant laisse au moins un enfant au sens de l'article 913";
+    label en unofficial "the disposer leaves at least one child within the meaning of Article 913";
+}
+pub relation nombre_d_enfants_laisses(s: Succession, n: Integer) kind derived {
+    key(s);
+    label fr official "nombre d'enfants laissés par le défunt (article 913)";
+    label en unofficial "number of children left by the deceased (Article 913)";
+}
+
+@source(CC_ART913, CC_ART913_1) {
+    rule EnfantCompte(s: Succession, c: Personne) strict {
+        label fr official "Articles 913, alinéa 2, et 913-1. Sont comptés les enfants au premier degré qui viennent de leur chef ou sont représentés ; le renonçant non représenté n'est pas compris";
+        label en unofficial "Articles 913, paragraph 2, and 913-1. First-degree children taking in their own right or represented are counted; an unrepresented renouncing child is not";
+        when fr.code_civil.successions::descendant(s, c, 1) and fr.code_civil.successions::noeud_utile(s, c, 1);
+        then enfant_compte(s, c);
+    }
+    rule PresenceDEnfant(s: Succession, c: Personne) strict {
+        label fr official "Article 913. Présence d'au moins un enfant";
+        label en unofficial "Article 913. Presence of at least one child";
+        when enfant_compte(s, c);
+        then presence_d_enfant(s);
+    }
+    rule NombreDEnfantsLaisses(s: Succession, c: Personne) strict {
+        label fr official "Article 913, alinéa 1. Nombre d'enfants laissés par le disposant à son décès";
+        label en unofficial "Article 913, paragraph 1. Number of children left by the disposer at death";
+        when enfant_compte(s, c);
+        then nombre_d_enfants_laisses(s, (count distinct x: Personne where enfant_compte(s, x)));
+    }
+}
+
+// --- B. Quotité disponible et réserve --------------------------------------------------
+
+pub relation quotite_disponible(s: Succession, q: Rational) kind derived {
+    key(s);
+    label fr official "quotité disponible : fraction des biens dont le défunt a pu disposer librement (articles 912 à 916)";
+    label en unofficial "disposable portion: fraction of the property the deceased could freely dispose of (Articles 912 to 916)";
+}
+pub relation reserve_globale(s: Succession, r: Rational) kind derived {
+    key(s);
+    label fr official "réserve héréditaire globale : la part non disponible (article 912, alinéa 1)";
+    label en unofficial "global hereditary reserve: the non-disposable share (Article 912, paragraph 1)";
+}
+
+@source(CC_ART913) {
+    rule QuotiteUnEnfant(s: Succession) strict {
+        label fr official "Article 913, alinéa 1. Les libéralités ne pourront excéder la moitié des biens du disposant s'il ne laisse à son décès qu'un enfant";
+        label en unofficial "Article 913, paragraph 1. Dispositions may not exceed half of the property if the disposer leaves one child";
+        when nombre_d_enfants_laisses(s, 1);
+        then quotite_disponible(s, 1 / 2);
+    }
+    rule QuotiteDeuxEnfants(s: Succession) strict {
+        label fr official "Article 913, alinéa 1. Le tiers, s'il laisse deux enfants";
+        label en unofficial "Article 913, paragraph 1. One third, if two children";
+        when nombre_d_enfants_laisses(s, 2);
+        then quotite_disponible(s, 1 / 3);
+    }
+    rule QuotiteTroisEnfantsOuPlus(s: Succession, n: Integer) strict {
+        label fr official "Article 913, alinéa 1. Le quart, s'il en laisse trois ou un plus grand nombre";
+        label en unofficial "Article 913, paragraph 1. One quarter, if three or more children";
+        when nombre_d_enfants_laisses(s, n) and n >= 3;
+        then quotite_disponible(s, 1 / 4);
+    }
+}
+
+@source(CC_ART914_1)
+rule QuotiteAvecConjointSansDescendant(s: Succession, c: Personne) strict {
+    label fr official "Article 914-1. Les libéralités ne pourront excéder les trois quarts des biens si, à défaut de descendant, le défunt laisse un conjoint survivant non divorcé";
+    label en unofficial "Article 914-1. Dispositions may not exceed three quarters of the property if, in default of descendants, the deceased leaves a non-divorced surviving spouse";
+    when not_known(presence_d_enfant(s)) and fr.code_civil.successions::conjoint_successible(s, c);
+    then quotite_disponible(s, 3 / 4);
+}
+
+@source(CC_ART916)
+rule QuotiteTotale(s: Succession, m: Money) strict {
+    label fr official "Article 916. A défaut de descendant et de conjoint survivant non divorcé, les libéralités pourront épuiser la totalité des biens";
+    label en unofficial "Article 916. In default of descendants and of a non-divorced surviving spouse, dispositions may exhaust the whole property";
+    when biens_existants_au_deces(s, m) and not_known(presence_d_enfant(s))
+        and not_known(fr.code_civil.successions::presence_de_conjoint_successible(s));
+    then quotite_disponible(s, 1 / 1);
+}
+
+@source(CC_ART912)
+rule ReserveGlobale(s: Succession, q: Rational) strict {
+    label fr official "Article 912. La réserve héréditaire est la part des biens dont la loi assure la dévolution aux héritiers réservataires : le complément de la quotité disponible";
+    label en unofficial "Article 912. The hereditary reserve is the share of property the law secures for the forced heirs: the complement of the disposable portion";
+    when quotite_disponible(s, q);
+    then reserve_globale(s, (1 / 1) - q);
+}
+
+// --- C. Masse de calcul et valeur disponible (922) -----------------------------------------
+
+pub relation donation_reunie(s: Succession, l: Liberalite) kind derived {
+    label fr official "donation entre vifs fictivement réunie à la masse (article 922, alinéa 2)";
+    label en unofficial "inter vivos gift notionally added to the mass (Article 922, paragraph 2)";
+}
+pub relation presence_de_donation(s: Succession) kind derived {
+    label fr official "au moins une donation entre vifs est réunie à la masse";
+    label en unofficial "at least one inter vivos gift is added to the mass";
+}
+pub relation legs_du_defunt(s: Succession, l: Liberalite) kind derived {
+    label fr official "disposition testamentaire du défunt (article 923)";
+    label en unofficial "testamentary disposition of the deceased (Article 923)";
+}
+pub relation masse_de_calcul(s: Succession, m: Money) kind derived {
+    key(s);
+    label fr official "masse de tous les biens existant au décès, augmentée des donations fictivement réunies (article 922)";
+    label en unofficial "mass of all property existing at death, increased by the notionally added gifts (Article 922)";
+}
+pub relation valeur_disponible(s: Succession, v: Money) kind derived {
+    key(s);
+    label fr official "quotité disponible en valeur : masse de calcul multipliée par la fraction disponible (article 922, alinéa 3)";
+    label en unofficial "disposable portion in value: the mass multiplied by the disposable fraction (Article 922, paragraph 3)";
+}
+
+@source(CC_ART922) {
+    rule DonationReunie(s: Succession, l: Liberalite) strict {
+        label fr official "Article 922, alinéa 2. Les biens dont il a été disposé par donation entre vifs sont fictivement réunis à la masse";
+        label en unofficial "Article 922, paragraph 2. Property disposed of by inter vivos gift is notionally added to the mass";
+        when liberalite_du_defunt(s, l) and nature(l, DonationEntreVifs);
+        then donation_reunie(s, l);
+    }
+    rule PresenceDeDonation(s: Succession, l: Liberalite) strict {
+        label fr official "Article 922, alinéa 2. Présence d'une donation à réunir";
+        label en unofficial "Article 922, paragraph 2. Presence of a gift to be added";
+        when donation_reunie(s, l);
+        then presence_de_donation(s);
+    }
+    rule LegsDuDefunt(s: Succession, l: Liberalite) strict {
+        label fr official "Article 923. Disposition testamentaire comprise dans le calcul de la réduction";
+        label en unofficial "Article 923. Testamentary disposition included in the reduction computation";
+        when liberalite_du_defunt(s, l) and nature(l, Legs);
+        then legs_du_defunt(s, l);
+    }
+    rule MasseAvecDonations(s: Succession, b: Money) strict {
+        label fr official "Article 922, alinéas 1 et 2. La masse est formée des biens existant au décès auxquels sont réunies les donations entre vifs";
+        label en unofficial "Article 922, paragraphs 1 and 2. The mass consists of the property existing at death to which the inter vivos gifts are added";
+        when biens_existants_au_deces(s, b) and presence_de_donation(s);
+        then masse_de_calcul(s, b + (sum all v: Money for l: Liberalite where donation_reunie(s, l) and valeur_reunie(l, v)));
+    }
+    rule MasseSansDonation(s: Succession, b: Money) strict {
+        label fr official "Article 922, alinéa 1. Sans donation entre vifs, la masse est formée des seuls biens existant au décès";
+        label en unofficial "Article 922, paragraph 1. Without inter vivos gifts, the mass consists only of the property existing at death";
+        when biens_existants_au_deces(s, b) and not_known(presence_de_donation(s));
+        then masse_de_calcul(s, b);
+    }
+    rule ValeurDisponible(s: Succession, m: Money, n: Integer, d: Decimal) strict {
+        label fr official "Article 922, alinéa 3. On calcule sur tous ces biens, eu égard à la qualité des héritiers, la quotité dont le défunt a pu disposer — arrondie au centime selon la politique du paquet (non norme)";
+        label en unofficial "Article 922, paragraph 3. On all this property, having regard to the heirs, the portion the deceased could dispose of is computed — rounded to the cent under the package policy (not a norm)";
+        when masse_de_calcul(s, m) and termes_de_la_quotite(s, n, d);
+        then valeur_disponible(s, div_round(m * n, d, 2, "HALF_UP"));
+    }
+}
+
+// POLITIQUE DU PAQUET, NON NORME (décision du propriétaire D-Q1, 17.09.2026).
+// Le Code ne nomme aucune règle d'arrondi pour la quotité en valeur ; le
+// produit exact `masse × fraction` n'est pas toujours un nombre de centimes
+// (100 000 × 1/3). Le paquet arrondit au centime, demi-supérieur, UNE fois,
+// sur le quotient exact : `div_round(masse × numérateur, dénominateur)`. Sur une
+// masse divisible le résultat est identique au produit exact (scénario q03).
+// La fraction reste la norme (`quotite_disponible`) ; ses termes ne sont
+// qu'un moyen de calcul.
+
+pub relation termes_de_la_quotite(s: Succession, numerateur: Integer, denominateur: Decimal) kind derived {
+    key(s);
+    label fr official "numérateur et dénominateur de la quotité disponible, pour le calcul arrondi en valeur (politique du paquet, non norme)";
+    label en unofficial "numerator and denominator of the disposable portion, for the rounded value computation (package policy, not a norm)";
+}
+
+@source(CC_ART922) {
+    rule TermesMoitie(s: Succession, q: Rational) strict {
+        label fr official "Politique du paquet, non norme : la quotité de moitié se calcule comme 1 sur 2";
+        label en unofficial "Package policy, not a norm: the one-half portion is computed as 1 over 2";
+        when quotite_disponible(s, q) and q == 1 / 2;
+        then termes_de_la_quotite(s, 1, 2.0);
+    }
+    rule TermesTiers(s: Succession, q: Rational) strict {
+        label fr official "Politique du paquet, non norme : la quotité du tiers se calcule comme 1 sur 3";
+        label en unofficial "Package policy, not a norm: the one-third portion is computed as 1 over 3";
+        when quotite_disponible(s, q) and q == 1 / 3;
+        then termes_de_la_quotite(s, 1, 3.0);
+    }
+    rule TermesQuart(s: Succession, q: Rational) strict {
+        label fr official "Politique du paquet, non norme : la quotité du quart se calcule comme 1 sur 4";
+        label en unofficial "Package policy, not a norm: the one-quarter portion is computed as 1 over 4";
+        when quotite_disponible(s, q) and q == 1 / 4;
+        then termes_de_la_quotite(s, 1, 4.0);
+    }
+    rule TermesTroisQuarts(s: Succession, q: Rational) strict {
+        label fr official "Politique du paquet, non norme : la quotité des trois quarts se calcule comme 3 sur 4";
+        label en unofficial "Package policy, not a norm: the three-quarters portion is computed as 3 over 4";
+        when quotite_disponible(s, q) and q == 3 / 4;
+        then termes_de_la_quotite(s, 3, 4.0);
+    }
+    rule TermesTotalite(s: Succession, q: Rational) strict {
+        label fr official "Politique du paquet, non norme : la totalité se calcule comme 1 sur 1";
+        label en unofficial "Package policy, not a norm: the whole is computed as 1 over 1";
+        when quotite_disponible(s, q) and q == 1 / 1;
+        then termes_de_la_quotite(s, 1, 1.0);
+    }
+}
+
+// --- D. Imputation des donations hors part par ordre de date (919-2, 923) ---------------
+
+pub relation donation_hors_part(s: Succession, l: Liberalite) kind derived {
+    label fr official "donation faite hors part successorale : s'impute sur la quotité disponible (article 919-2)";
+    label en unofficial "gift made outside the hereditary share: charged against the disposable portion (Article 919-2)";
+}
+pub relation imputation_non_formalisee(s: Succession, l: Liberalite) kind derived {
+    label fr official "donation en avancement de part successorale : imputation sur la réserve du gratifié (article 919-1) non formalisée dans ce pilote";
+    label en unofficial "gift as an advance on the hereditary share: charging against the beneficiary's reserve (Article 919-1) not formalized in this pilot";
+}
+pub relation donation_anterieure(s: Succession, l: Liberalite, m: Liberalite) kind derived {
+    label fr official "la donation m est de date antérieure à la donation l (ordre de réduction, article 923)";
+    label en unofficial "gift m predates gift l (order of reduction, Article 923)";
+}
+pub relation presence_de_donations_anterieures(s: Succession, l: Liberalite) kind derived {
+    label fr official "au moins une donation hors part est antérieure à celle-ci";
+    label en unofficial "at least one outside-share gift predates this one";
+}
+pub relation donations_de_meme_date(s: Succession, jour: Date) kind derived {
+    label fr official "frontière : plusieurs donations hors part portent la même date ; l'article 923 ne les départage pas";
+    label en unofficial "boundary: several outside-share gifts bear the same date; Article 923 does not rank them";
+}
+pub relation cumul_des_donations_anterieures(s: Succession, l: Liberalite, c: Money) kind derived {
+    key(s, l);
+    label fr official "valeur cumulée des donations hors part de date antérieure";
+    label en unofficial "cumulative value of the earlier outside-share gifts";
+}
+pub relation disponible_restant(s: Succession, l: Liberalite, r: Money) kind derived {
+    key(s, l);
+    label fr official "quotité disponible restant après imputation des donations antérieures";
+    label en unofficial "disposable portion remaining after charging the earlier gifts";
+}
+pub relation imputation_de_donation(s: Succession, l: Liberalite, i: Money) kind derived {
+    key(s, l);
+    label fr official "partie de la donation imputée sur la quotité disponible (article 919-2)";
+    label en unofficial "part of the gift charged against the disposable portion (Article 919-2)";
+}
+pub relation reduction_de_donation(s: Succession, l: Liberalite, x: Money) kind derived {
+    key(s, l);
+    label fr official "excédent de la donation sujet à réduction (articles 919-2, 920, 923)";
+    label en unofficial "excess of the gift subject to reduction (Articles 919-2, 920, 923)";
+}
+
+@source(CC_ART919_2, CC_ART919_1) {
+    rule DonationHorsPart(s: Succession, l: Liberalite) strict {
+        label fr official "Article 919-2. La libéralité faite hors part successorale s'impute sur la quotité disponible";
+        label en unofficial "Article 919-2. A disposition made outside the hereditary share is charged against the disposable portion";
+        when donation_reunie(s, l) and hors_part_successorale(l);
+        then donation_hors_part(s, l);
+    }
+    rule ImputationNonFormalisee(s: Succession, l: Liberalite) strict {
+        label fr official "Article 919-1. La donation en avancement de part successorale s'impute sur la part de réserve du gratifié : non formalisée ici (frontière déclarée)";
+        label en unofficial "Article 919-1. A gift as an advance on the hereditary share is charged against the beneficiary's reserve: not formalized here (declared boundary)";
+        when donation_reunie(s, l) and not_known(hors_part_successorale(l));
+        then imputation_non_formalisee(s, l);
+    }
+}
+
+@source(CC_ART923) {
+    rule DonationAnterieure(s: Succession, l: Liberalite, m: Liberalite, d: Date, e: Date) strict {
+        label fr official "Article 923. La réduction remonte des dernières donations aux plus anciennes : ordre des dates";
+        label en unofficial "Article 923. Reduction goes back from the latest gifts to the oldest: date order";
+        when donation_hors_part(s, l) and donation_hors_part(s, m)
+            and date_de_la_donation(l, d) and date_de_la_donation(m, e) and e < d;
+        then donation_anterieure(s, l, m);
+    }
+    rule PresenceDeDonationsAnterieures(s: Succession, l: Liberalite, m: Liberalite) strict {
+        label fr official "Article 923. Présence de donations antérieures à celle-ci";
+        label en unofficial "Article 923. Presence of gifts earlier than this one";
+        when donation_anterieure(s, l, m);
+        then presence_de_donations_anterieures(s, l);
+    }
+    rule DonationsDeMemeDate(s: Succession, l: Liberalite, d: Date) strict {
+        label fr official "Article 923. Plusieurs donations hors part à la même date : le texte ne fixe pas d'ordre entre elles — frontière";
+        label en unofficial "Article 923. Several outside-share gifts on the same date: the text sets no order among them — boundary";
+        when donation_hors_part(s, l) and date_de_la_donation(l, d)
+            and (count distinct x: Liberalite where donation_hors_part(s, x) and date_de_la_donation(x, d)) >= 2;
+        then donations_de_meme_date(s, d);
+    }
+    rule CumulAvecAnterieures(s: Succession, l: Liberalite) strict {
+        label fr official "Article 923. Valeur cumulée des donations antérieures, à imputer avant celle-ci";
+        label en unofficial "Article 923. Cumulative value of the earlier gifts, charged before this one";
+        when donation_hors_part(s, l) and presence_de_donations_anterieures(s, l);
+        then cumul_des_donations_anterieures(s, l,
+            (sum all v: Money for m: Liberalite where donation_anterieure(s, l, m) and valeur_reunie(m, v)));
+    }
+    rule CumulSansAnterieure(s: Succession, l: Liberalite) strict {
+        label fr official "Article 923. La plus ancienne donation ne suit aucune autre : cumul nul";
+        label en unofficial "Article 923. The oldest gift follows no other: zero cumulative value";
+        when donation_hors_part(s, l) and not_known(presence_de_donations_anterieures(s, l));
+        then cumul_des_donations_anterieures(s, l, 0 EUR);
+    }
+    rule DisponibleRestant(s: Succession, l: Liberalite, q: Money, c: Money) strict {
+        label fr official "Articles 919-2 et 923. Ce qui reste de la quotité disponible après les donations antérieures, jamais négatif";
+        label en unofficial "Articles 919-2 and 923. What remains of the disposable portion after the earlier gifts, never negative";
+        when valeur_disponible(s, q) and cumul_des_donations_anterieures(s, l, c);
+        then disponible_restant(s, l, max(0 EUR, q - c));
+    }
+    rule ImputationDeDonation(s: Succession, l: Liberalite, v: Money, r: Money) strict {
+        label fr official "Article 919-2. La donation s'impute sur le disponible restant, à concurrence de sa valeur";
+        label en unofficial "Article 919-2. The gift is charged against the remaining disposable portion, up to its value";
+        when valeur_reunie(l, v) and disponible_restant(s, l, r);
+        then imputation_de_donation(s, l, min(v, r));
+    }
+    rule ReductionDeDonation(s: Succession, l: Liberalite, v: Money, i: Money) strict {
+        label fr official "Articles 919-2, 920 et 923. L'excédent non imputé est sujet à réduction";
+        label en unofficial "Articles 919-2, 920 and 923. The excess not charged is subject to reduction";
+        when valeur_reunie(l, v) and imputation_de_donation(s, l, i);
+        then reduction_de_donation(s, l, v - i);
+    }
+}
+
+// --- E. Legs : après les donations, au marc le franc (923, 926) --------------------------
+
+pub relation total_des_donations_hors_part(s: Succession, t: Money) kind derived {
+    key(s);
+    label fr official "valeur totale des donations hors part imputées avant les legs (article 923)";
+    label en unofficial "total value of the outside-share gifts charged before the legacies (Article 923)";
+}
+pub relation presence_de_donation_hors_part(s: Succession) kind derived {
+    label fr official "au moins une donation hors part";
+    label en unofficial "at least one outside-share gift";
+}
+pub relation disponible_pour_les_legs(s: Succession, r: Money) kind derived {
+    key(s);
+    label fr official "portion de la quotité disponible qui reste après déduction des donations (article 926)";
+    label en unofficial "portion of the disposable portion remaining after deducting the gifts (Article 926)";
+}
+pub relation total_des_legs(s: Succession, t: Money) kind derived {
+    key(s);
+    label fr official "valeur totale des dispositions testamentaires";
+    label en unofficial "total value of the testamentary dispositions";
+}
+pub relation reduction_de_legs(s: Succession, l: Liberalite, x: Money) kind derived {
+    key(s, l);
+    label fr official "réduction du legs, au marc le franc entre tous les legs (article 926)";
+    label en unofficial "reduction of the legacy, pro rata among all legacies (Article 926)";
+}
+
+@source(CC_ART923, CC_ART926) {
+    rule PresenceDeDonationHorsPart(s: Succession, l: Liberalite) strict {
+        label fr official "Article 923. Présence de donations hors part";
+        label en unofficial "Article 923. Presence of outside-share gifts";
+        when donation_hors_part(s, l);
+        then presence_de_donation_hors_part(s);
+    }
+    rule TotalDesDonationsHorsPart(s: Succession) strict {
+        label fr official "Article 923. Total des donations hors part";
+        label en unofficial "Article 923. Total of the outside-share gifts";
+        when presence_de_donation_hors_part(s);
+        then total_des_donations_hors_part(s, (sum all v: Money for l: Liberalite where donation_hors_part(s, l) and valeur_reunie(l, v)));
+    }
+    rule TotalDesDonationsNul(s: Succession, q: Money) strict {
+        label fr official "Article 923. Sans donation hors part, rien n'est déduit avant les legs";
+        label en unofficial "Article 923. Without outside-share gifts, nothing is deducted before the legacies";
+        when valeur_disponible(s, q) and not_known(presence_de_donation_hors_part(s));
+        then total_des_donations_hors_part(s, 0 EUR);
+    }
+    rule DisponiblePourLesLegs(s: Succession, q: Money, t: Money) strict {
+        label fr official "Article 926. Portion de la quotité qui reste après avoir déduit la valeur des donations entre vifs, jamais négative";
+        label en unofficial "Article 926. Portion of the disposable share remaining after deducting the value of the inter vivos gifts, never negative";
+        when valeur_disponible(s, q) and total_des_donations_hors_part(s, t);
+        then disponible_pour_les_legs(s, max(0 EUR, q - t));
+    }
+    rule TotalDesLegs(s: Succession, l: Liberalite) strict {
+        label fr official "Article 926. Valeur totale des dispositions testamentaires";
+        label en unofficial "Article 926. Total value of the testamentary dispositions";
+        when legs_du_defunt(s, l);
+        then total_des_legs(s, (sum all v: Money for m: Liberalite where legs_du_defunt(s, m) and valeur_reunie(m, v)));
+    }
+    rule LegsSansReduction(s: Succession, l: Liberalite, t: Money, r: Money) strict {
+        label fr official "Article 926. Les legs qui n'excèdent pas la portion disponible ne sont pas réduits";
+        label en unofficial "Article 926. Legacies that do not exceed the disposable portion are not reduced";
+        when legs_du_defunt(s, l) and total_des_legs(s, t) and disponible_pour_les_legs(s, r) and t <= r;
+        then reduction_de_legs(s, l, 0 EUR);
+    }
+    rule LegsReduitsAuMarcLeFranc(s: Succession, l: Liberalite, v: Money, t: Money, r: Money) strict {
+        label fr official "Article 926. Lorsque les dispositions testamentaires excèdent la portion disponible, la réduction est faite au marc le franc, sans distinction entre legs universels et particuliers";
+        label en unofficial "Article 926. When testamentary dispositions exceed the disposable portion, reduction is pro rata, without distinction between universal and particular legacies";
+        when legs_du_defunt(s, l) and valeur_reunie(l, v) and total_des_legs(s, t) and disponible_pour_les_legs(s, r) and t > r;
+        // Politique du paquet (D-Q1) : la part conservée v × r / t est arrondie
+        // au centime une seule fois sur le quotient exact ; les montants sont
+        // ramenés en nombres d'euros (`x / 1 EUR`, quotient décimal exact).
+        then reduction_de_legs(s, l, v - div_round(v * (r / 1 EUR), t / 1 EUR, 2, "HALF_UP"));
+    }
+}
+
+// --- F. Indemnité de réduction (924) -----------------------------------------------------
+
+pub relation indemnite_de_reduction(s: Succession, l: Liberalite, x: Money) kind derived {
+    key(s, l);
+    label fr official "indemnité due par le gratifié aux héritiers réservataires à concurrence de la portion excessive (article 924)";
+    label en unofficial "indemnity owed by the beneficiary to the forced heirs up to the excessive portion (Article 924)";
+}
+
+pub relation indemniser_excedent_924(s: Succession, l: Liberalite, x: Money) kind empirical { key(s, l); label fr official "le gratifié indemnise l'excédent"; label en unofficial "the beneficiary indemnifies the excess"; }
+@source(CC_ART924)
+rule PositionDevoirIndemniserExcedent(s: Succession, l: Liberalite, x: Money) strict {
+    label fr official "Article 924. Le gratifié doit indemniser l'excédent";
+    label en unofficial "Article 924. The beneficiary must indemnify the excess";
+    when reduction_de_donation(s, l, x) and x > 0 EUR;
+    then duty DevoirIndemniserExcedent {
+        bearer entity_ref("urn:fr:cc:liberalites:gratifié");
+        goal achievement { condition indemniser_excedent_924(s, l, x); window [@1804-01-01, infinity); };
+    };
+}
+@source(CC_ART924) {
+    rule IndemniteDonation(s: Succession, l: Liberalite, x: Money) strict {
+        label fr official "Article 924, alinéa 1. Le donataire dont la donation excède la quotité disponible indemnise les héritiers réservataires à concurrence de l'excédent";
+        label en unofficial "Article 924, paragraph 1. A donee whose gift exceeds the disposable portion indemnifies the forced heirs up to the excess";
+        when reduction_de_donation(s, l, x) and x > 0 EUR;
+        then indemnite_de_reduction(s, l, x);
+    }
+    rule IndemniteLegs(s: Succession, l: Liberalite, x: Money) strict {
+        label fr official "Article 924, alinéa 1. Le légataire dont le legs excède la portion disponible indemnise les héritiers réservataires à concurrence de l'excédent";
+        label en unofficial "Article 924, paragraph 1. A legatee whose legacy exceeds the disposable portion indemnifies the forced heirs up to the excess";
+        when reduction_de_legs(s, l, x) and x > 0 EUR;
+        then indemnite_de_reduction(s, l, x);
+    }
+}

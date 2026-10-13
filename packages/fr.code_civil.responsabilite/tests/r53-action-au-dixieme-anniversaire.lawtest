@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1245-15 : mise en circulation le 10 mai 2014, action le 10 mai 2024 — dans les dix ans.
+test "urn:query:fr-code-civil-responsabilite-r53-action-au-dixieme-anniversaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": produit_en_cause(entity_ref("urn:fr:cc:resp:v2o:f"), entity_ref("urn:fr:cc:resp:v2o:prod")) { origin adjudicated; }
+        assert "f2": a_cause(entity_ref("urn:fr:cc:resp:v2o:f"), entity_ref("urn:fr:cc:resp:v2o:d")) { origin adjudicated; }
+        assert "f3": producteur(entity_ref("urn:fr:cc:resp:v2o:prod"), entity_ref("urn:fr:cc:resp:v2o:fab")) { origin case_input; }
+        assert "f4": dessaisissement_volontaire_le(entity_ref("urn:fr:cc:resp:v2o:prod"), @2014-05-10) { origin case_input; }
+        assert "f5": action_en_justice_engagee_le(entity_ref("urn:fr:cc:resp:v2o:d"), @2024-05-10) { origin case_input; }
+    }
+    evaluate truth(responsabilite_eteinte(entity_ref("urn:fr:cc:resp:v2o:d")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}

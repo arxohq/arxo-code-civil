@@ -1,0 +1,121 @@
+// Очереди: фонд и веса каждой — общая форма обоих режимов.
+//
+// ОДНА МЕХАНИКА НА ДВА РЕЖИМА. Всё, что ниже этого модуля (усечение, остаток,
+// ранги, раздача), читает ТОЛЬКО `class_pool` и `class_weight` и не знает,
+// откуда они взялись. Режим Proportional даёт одну очередь ранга 1 с фондом
+// во всю сумму и весами с входа. Режим Sequential даёт очередь на каждый
+// различный ранг, фонд её ограничен требованиями и остатком после
+// предыдущих, а вес получателя — его требование, выраженное числом
+// минимальных единиц.
+//
+// ФОНД ОЧЕРЕДИ БЕЗ РЕКУРСИИ. «Каждая очередь получает не больше того, что
+// осталось после предыдущих» звучит рекурсивно, но им не является: очереди
+// удовлетворяются целиком, пока сумма позволяет, поэтому всё, что ушло ДО
+// очереди k, есть min(сумма, требования очередей ниже k). Отсюда
+// фонд(k) = min(требования(k), сумма - min(сумма, требования_до(k))) —
+// закрытая форма, и рекурсии через агрегат, которую стратификация §111 не
+// пропустила бы, здесь нет.
+//
+// ВЕС В SEQUENTIAL — ЧАСТНОЕ ДЕНЕГ. `requirement / unit` есть `Money / Money`
+// (errata E-0083): частное безразмерно и при единице, равной степени десяти,
+// всегда конечная десятичная дробь — точный `Decimal`, а не `Rational`.
+// Именно ради этого единица обязана быть степенью десяти (UnitNotMinimal), а
+// требование — представимым при точности (ClaimNotRepresentable).
+
+language "law.core" version "0.2";
+package calc.allocation version "0.1.0";
+namespace "urn:law:calc:allocation";
+
+use self::{
+    Allocation,
+    AllocationMode,
+    Recipient,
+    allocation_mode,
+    allocation_total,
+    allocation_unit,
+    allocation_wellformed,
+    allocation_zero,
+    class_claims,
+    class_pool,
+    class_prior_claims,
+    class_weight,
+    class_weight_sum,
+    recipient_claim,
+    recipient_of,
+    recipient_rank,
+    recipient_weight,
+};
+
+// --- Режим Proportional: одна очередь ----------------------------------------
+
+rule ProportionalPool(a: Allocation, t: Money) strict {
+    label ru official "при пропорциональном распределении единственная очередь получает всю сумму";
+    when allocation_wellformed(a) and allocation_mode(a, Proportional)
+        and allocation_total(a, t);
+    then class_pool(a, 1, t);
+}
+
+rule ProportionalWeight(a: Allocation, r: Recipient, w: Decimal) strict {
+    label ru official "при пропорциональном распределении вес получателя в очереди есть его объявленный вес";
+    when allocation_wellformed(a) and allocation_mode(a, Proportional)
+        and recipient_of(r, a) and recipient_weight(r, w);
+    then class_weight(a, 1, r, w);
+}
+
+// --- Режим Sequential: очередь на каждый ранг --------------------------------
+//
+// Ранг очереди связывается получателем `r0`, который в ней состоит: иначе
+// целочисленной переменной не от чего оттолкнуться. Голова выводится один
+// раз на ранг — одинаковые выводы разных `r0` совпадают как факты.
+
+rule ClassClaims(a: Allocation, r0: Recipient, k: Integer) strict {
+    label ru official "сумма требований очереди есть свод требований получателей этого ранга";
+    when allocation_wellformed(a) and allocation_mode(a, Sequential)
+        and recipient_of(r0, a) and recipient_rank(r0, k);
+    then class_claims(a, k, (sum all c: Money for r: Recipient where recipient_of(r, a) and recipient_rank(r, k)
+                and recipient_claim(r, c)));
+}
+
+rule ClassPriorClaimsNone(a: Allocation, r0: Recipient, k: Integer, zero: Money) strict {
+    label ru official "перед первой по порядку очередью требований нет";
+    when allocation_wellformed(a) and allocation_mode(a, Sequential)
+        and recipient_of(r0, a) and recipient_rank(r0, k) and allocation_zero(a, zero)
+        and (count distinct r: Recipient for j: Integer where recipient_of(r, a) and recipient_rank(r, j) and j < k) == 0;
+    then class_prior_claims(a, k, zero);
+}
+
+rule ClassPriorClaimsSum(a: Allocation, r0: Recipient, k: Integer) strict {
+    label ru official "перед очередью стоят требования всех очередей меньшего ранга";
+    when allocation_wellformed(a) and allocation_mode(a, Sequential)
+        and recipient_of(r0, a) and recipient_rank(r0, k)
+        and (count distinct r: Recipient for j: Integer where recipient_of(r, a) and recipient_rank(r, j) and j < k) >= 1;
+    then class_prior_claims(a, k, (sum all c: Money for r: Recipient, j: Integer where recipient_of(r, a) and recipient_rank(r, j)
+                and j < k and recipient_claim(r, c)));
+}
+
+rule SequentialPool(a: Allocation, k: Integer, t: Money, claims: Money, prior: Money) strict {
+    label ru official "фонд очереди есть меньшее из её требований и того, что осталось после предыдущих очередей";
+    when allocation_total(a, t)
+        and class_claims(a, k, claims) and class_prior_claims(a, k, prior);
+    then class_pool(a, k, min(claims, t - min(t, prior)));
+}
+
+rule SequentialWeight(a: Allocation, r: Recipient, k: Integer, c: Money, u: Money) strict {
+    label ru official "при распределении по очередям вес получателя есть его требование в минимальных единицах";
+    when allocation_wellformed(a) and allocation_mode(a, Sequential)
+        and recipient_of(r, a) and recipient_rank(r, k) and recipient_claim(r, c)
+        and allocation_unit(a, u);
+    then class_weight(a, k, r, c / u);
+}
+
+// --- Сумма весов очереди -----------------------------------------------------
+//
+// Свод берётся СПИСКОМ (`collect all`, errata E-0012): два получателя с
+// ОДИНАКОВЫМ весом — две позиции свода, и множество молча потеряло бы одну.
+
+rule ClassWeightSum(a: Allocation, k: Integer, pool: Money) strict {
+    label ru official "сумма весов очереди есть свод весов её получателей";
+    when class_pool(a, k, pool)
+        and (count all w: Decimal for r: Recipient where class_weight(a, k, r, w)) >= 1;
+    then class_weight_sum(a, k, (sum all w: Decimal for r: Recipient where class_weight(a, k, r, w)));
+}

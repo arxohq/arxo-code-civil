@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 671, al. 1. Le règlement particulier ou l'usage constant et reconnu
+// passe AVANT la distance supplétive : ici trois mètres, non deux.
+test "urn:query:fr-code-civil-biens-s05-reglement-local-l-emporte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": plantee_sur(entity_ref("urn:fr:cc:biens:s05:P"), entity_ref("urn:fr:cc:biens:s05:F")) { origin case_input; }
+        assert "f2": voisin(entity_ref("urn:fr:cc:biens:s05:F"), entity_ref("urn:fr:cc:biens:s05:V")) { origin case_input; }
+        assert "f3": distance_prescrite_par_reglement_ou_usage(entity_ref("urn:fr:cc:biens:s05:F"), 3 m) { origin case_input; }
+        assert "f4": hauteur_de_la_plantation(entity_ref("urn:fr:cc:biens:s05:P"), 4 m) { origin case_input; }
+        assert "f5": distance_a_la_ligne_separative(entity_ref("urn:fr:cc:biens:s05:P"), 2.5 m) { origin case_input; }
+    }
+    evaluate truth(plantation_a_distance_moindre(entity_ref("urn:fr:cc:biens:s05:P")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

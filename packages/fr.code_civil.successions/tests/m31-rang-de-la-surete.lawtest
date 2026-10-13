@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 796, alinéa 2 : entre inscrits, le rang de la sûreté décide.
+test "urn:query:fr-code-civil-successions-m31-rang-de-la-surete" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m31:S"), entity_ref("urn:fr:cc:successions:adm:m31:P1"), CreancierInscrit) { origin case_input; }
+        assert "f2": qualite_du_creancier(entity_ref("urn:fr:cc:successions:adm:m31:S"), entity_ref("urn:fr:cc:successions:adm:m31:P2"), CreancierInscrit) { origin case_input; }
+        assert "f3": rang_de_la_surete(entity_ref("urn:fr:cc:successions:adm:m31:S"), entity_ref("urn:fr:cc:successions:adm:m31:P1"), 1) { origin case_input; }
+        assert "f4": rang_de_la_surete(entity_ref("urn:fr:cc:successions:adm:m31:S"), entity_ref("urn:fr:cc:successions:adm:m31:P2"), 3) { origin case_input; }
+    }
+    evaluate truth(paye_avant(entity_ref("urn:fr:cc:successions:adm:m31:S"), entity_ref("urn:fr:cc:successions:adm:m31:P1"), entity_ref("urn:fr:cc:successions:adm:m31:P2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(PaiementParRangDeLaSurete);
+}

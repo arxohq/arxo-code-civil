@@ -1,0 +1,74 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-SURETEGENERALE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": porte_sur_la_generalite_des_biens(entity_ref("urn:law:catalog:suretegenerale:v0")) { origin case_input; }
+        assert "cat-1": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:suretegenerale:v0"), entity_ref("urn:law:catalog:suretegenerale:v1")) { origin case_input; }
+    }
+    evaluate truth(surete_generale(entity_ref("urn:law:catalog:suretegenerale:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETEIMMOBILIERE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": porte_sur_des_immeubles(entity_ref("urn:law:catalog:sureteimmobiliere:v0")) { origin case_input; }
+        assert "cat-1": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:sureteimmobiliere:v0"), entity_ref("urn:law:catalog:sureteimmobiliere:v1")) { origin case_input; }
+    }
+    evaluate truth(surete_immobiliere(entity_ref("urn:law:catalog:sureteimmobiliere:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETEJUDICIAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:suretejudiciaire:v0"), entity_ref("urn:law:catalog:suretejudiciaire:v1")) { origin case_input; }
+        assert "cat-1": surete_accordee_par_jugement(entity_ref("urn:law:catalog:suretejudiciaire:v0")) { origin case_input; }
+    }
+    evaluate truth(surete_judiciaire(entity_ref("urn:law:catalog:suretejudiciaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETELEGALE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": surete_accordee_par_la_loi(entity_ref("urn:law:catalog:suretelegale:v0")) { origin case_input; }
+        assert "cat-1": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:suretelegale:v0"), entity_ref("urn:law:catalog:suretelegale:v1")) { origin case_input; }
+    }
+    evaluate truth(surete_legale(entity_ref("urn:law:catalog:suretelegale:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETEMOBILIERE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": porte_sur_des_meubles(entity_ref("urn:law:catalog:suretemobiliere:v0")) { origin case_input; }
+        assert "cat-1": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:suretemobiliere:v0"), entity_ref("urn:law:catalog:suretemobiliere:v1")) { origin case_input; }
+    }
+    evaluate truth(surete_mobiliere(entity_ref("urn:law:catalog:suretemobiliere:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-SURETESPECIALE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": porte_sur_des_biens_determines(entity_ref("urn:law:catalog:suretespeciale:v0")) { origin case_input; }
+        assert "cat-1": affectation_au_paiement_preferentiel(entity_ref("urn:law:catalog:suretespeciale:v0"), entity_ref("urn:law:catalog:suretespeciale:v1")) { origin case_input; }
+    }
+    evaluate truth(surete_speciale(entity_ref("urn:law:catalog:suretespeciale:v0")));
+    expect truth_status == TRUE_ONLY;
+}

@@ -1,0 +1,263 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1788,
+    CC_ART1789,
+    CC_ART1790,
+    CC_ART1792,
+    CC_ART1792_3,
+    CC_ART1792_4_1,
+    CC_ART1792_5,
+    CC_ART1792_6,
+    CC_ART1793,
+    CC_ART1794,
+    CC_ART1795,
+    CC_ART1797,
+    CC_ART1799_1,
+    Marche,
+    Personne,
+    absence_de_cause_etrangere_etablie,
+    absence_de_faute_de_l_ouvrier_etablie,
+    absence_de_garantie_de_paiement,
+    absence_de_vice_de_la_matiere,
+    action_garantie_equipement_introduite_le,
+    action_garantie_equipement_recevable,
+    action_parfait_achevement_introduite_le,
+    augmentation_de_prix_exclue,
+    augmentation_reclamee_avec_autorisation,
+    augmentation_reclamee_par_constructeur,
+    changement_autorise_par_ecrit,
+    changement_non_autorise_par_ecrit,
+    chose_du_marche_perie_avant_livraison,
+    clause_exclut_ou_limite_garanties_constructeur,
+    clause_reputee_non_ecrite,
+    constructeur_decharge_responsabilite_decennale_le,
+    constructeur_du_marche,
+    construction_a_forfait_selon_plan_convenu,
+    deces_ouvrier_architecte_ou_entrepreneur,
+    desordre_signale_par_reserve_ou_notification,
+    dommage_cause_par_personne_employee,
+    dommage_compromet_solidite_ouvrage,
+    dommage_element_equipement_bon_fonctionnement,
+    dommage_rend_ouvrage_impropre_destination,
+    entrepreneur_impaye_travaux_executes,
+    entrepreneur_peut_suspendre_execution,
+    entrepreneur_responsable_du_fait_des_employes,
+    faute_de_l_ouvrier_etablie,
+    garantie_de_paiement_due,
+    garantie_parfait_achevement_ouverte,
+    indemnisation_integrale_entrepreneur_due,
+    maitre_de_l_ouvrage,
+    maitre_non_en_demeure_de_recevoir,
+    marche_dissous_par_deces,
+    mise_en_demeure_de_garantir_le,
+    ouvrier_du_marche,
+    ouvrier_fournit_matiere,
+    ouvrier_responsable_de_la_perte,
+    ouvrier_sans_salaire_pour_perte,
+    perte_a_la_charge_de_l_ouvrier,
+    perte_supportee_par_ouvrier,
+    reception_contradictoire_prononcee,
+    reception_ouvrage_le,
+    resiliation_unilaterale_par_maitre,
+    responsabilite_constructeur_de_plein_droit,
+    seuil_decret_1799_1,
+    sommes_dues_entrepreneur,
+    suspension_execution_le,
+    travail_seul_fourni,
+};
+
+@source(CC_ART1788)
+rule PerteMatiereAvantLivraison(m: Marche, o: Personne) strict {
+    label fr official "Article 1788. Lorsque l'ouvrier fournit la matière, la perte avant livraison est pour lui, sauf demeure du maître";
+    label en unofficial "Article 1788. Where the worker supplies the material, loss before delivery lies with the worker unless the owner is in default";
+    when ouvrier_du_marche(m, o) and ouvrier_fournit_matiere(m)
+        and chose_du_marche_perie_avant_livraison(m) and maitre_non_en_demeure_de_recevoir(m);
+    then perte_a_la_charge_de_l_ouvrier(m);
+}
+
+@source(CC_ART1789)
+rule PerteTravailSeulFaute(m: Marche, o: Personne) strict {
+    label fr official "Article 1789. L'ouvrier qui fournit seulement son travail n'est tenu de la perte que par sa faute";
+    label en unofficial "Article 1789. A worker supplying only labour is liable for loss only through his fault";
+    when ouvrier_du_marche(m, o) and travail_seul_fourni(m)
+        and chose_du_marche_perie_avant_livraison(m) and faute_de_l_ouvrier_etablie(m);
+    then ouvrier_responsable_de_la_perte(m);
+}
+
+@source(CC_ART1789)
+rule PositionDevoirOuvrierSupporterPerteFaute(m: Marche, o: Personne) strict {
+    label fr official "Article 1789. Devoir de l'ouvrier de supporter la perte en cas de faute";
+    label en unofficial "Article 1789. Worker's duty to bear the loss in case of fault";
+    when ouvrier_du_marche(m, o) and travail_seul_fourni(m)
+        and chose_du_marche_perie_avant_livraison(m) and faute_de_l_ouvrier_etablie(m);
+    then duty SupporterPerteEnCasDeFaute {
+        bearer o;
+        achieve perte_supportee_par_ouvrier(m) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1790)
+rule PerteSansFauteExclutSalaire(m: Marche) strict {
+    label fr official "Article 1790. En cas de perte avant réception sans faute de l'ouvrier ni demeure du maître, aucun salaire n'est dû sauf vice de la matière";
+    label en unofficial "Article 1790. Where the thing is lost before acceptance without the worker's fault or the owner's default, no wage is due unless the material was defective";
+    when travail_seul_fourni(m) and chose_du_marche_perie_avant_livraison(m)
+        and absence_de_faute_de_l_ouvrier_etablie(m) and maitre_non_en_demeure_de_recevoir(m)
+        and absence_de_vice_de_la_matiere(m);
+    then ouvrier_sans_salaire_pour_perte(m);
+}
+
+@source(CC_ART1792)
+rule ResponsabiliteDePleinDroitDuConstructeur(m: Marche, c: Personne) strict {
+    label fr official "Article 1792. Le constructeur répond de plein droit des dommages compromettant la solidité ou rendant l'ouvrage impropre à sa destination, sauf cause étrangère prouvée";
+    label en unofficial "Article 1792. A builder is strictly liable for damage impairing solidity or fitness for purpose, unless an external cause is proved";
+    when constructeur_du_marche(m, c)
+        and (dommage_compromet_solidite_ouvrage(m) or dommage_rend_ouvrage_impropre_destination(m))
+        and absence_de_cause_etrangere_etablie(m);
+    then responsabilite_constructeur_de_plein_droit(m);
+}
+
+@source(CC_ART1792_3)
+rule GarantieEquipementDansDeuxAns(m: Marche, reception: Date, introduction: Date) strict {
+    label fr official "Article 1792-3. La garantie de bon fonctionnement des autres éléments d'équipement dure au moins deux ans à compter de la réception";
+    label en unofficial "Article 1792-3. The good-operation guarantee for other equipment lasts at least two years from acceptance";
+    when dommage_element_equipement_bon_fonctionnement(m) and reception_ouvrage_le(m, reception)
+        and action_garantie_equipement_introduite_le(m, introduction)
+        and introduction <= add_calendar_period(reception, 2 calendar_year);
+    then action_garantie_equipement_recevable(m);
+}
+
+@source(CC_ART1792_4_1)
+rule DechargeDecennaleDuConstructeur(m: Marche, reception: Date) strict {
+    label fr official "Article 1792-4-1. Les responsabilités décennales cessent dix ans après la réception des travaux";
+    label en unofficial "Article 1792-4-1. Ten-year construction liabilities end ten years after acceptance of the works";
+    when reception_ouvrage_le(m, reception);
+    then constructeur_decharge_responsabilite_decennale_le(m, add_calendar_period(reception, 10 calendar_year));
+}
+
+@source(CC_ART1792_5)
+rule ClauseLimitativeReputeeNonEcrite(m: Marche) strict {
+    label fr official "Article 1792-5. Toute clause excluant ou limitant les responsabilités et garanties légales du constructeur est réputée non écrite";
+    label en unofficial "Article 1792-5. Any clause excluding or limiting statutory builder liabilities and guarantees is deemed unwritten";
+    when clause_exclut_ou_limite_garanties_constructeur(m);
+    then clause_reputee_non_ecrite(m);
+}
+
+@source(CC_ART1792_6)
+rule GarantieParfaitAchevementDansUnAn(m: Marche, reception: Date, introduction: Date) strict {
+    label fr official "Article 1792-6, alinéa 2. La garantie de parfait achèvement couvre pendant un an les désordres signalés par réserve ou notification écrite";
+    label en unofficial "Article 1792-6, paragraph 2. For one year, the perfect-completion guarantee covers defects reported by reservation or written notice";
+    when reception_contradictoire_prononcee(m) and reception_ouvrage_le(m, reception)
+        and desordre_signale_par_reserve_ou_notification(m)
+        and action_parfait_achevement_introduite_le(m, introduction)
+        and introduction <= add_calendar_period(reception, 1 calendar_year);
+    then garantie_parfait_achevement_ouverte(m);
+}
+
+@source(CC_ART1793)
+rule PasDAugmentationForfaitSansAutorisationEcrite(m: Marche) strict {
+    label fr official "Article 1793. Le constructeur à forfait ne peut demander d'augmentation pour un changement non autorisé par écrit et dont le prix n'a pas été convenu";
+    label en unofficial "Article 1793. A fixed-price builder cannot claim an increase for a change not authorised in writing and priced by agreement";
+    when construction_a_forfait_selon_plan_convenu(m) and changement_non_autorise_par_ecrit(m);
+    then augmentation_de_prix_exclue(m);
+}
+
+@source(CC_ART1793)
+rule PositionInterdictionAugmentationSansAutorisation(m: Marche, c: Personne) strict {
+    label fr official "Article 1793. Interdiction au constructeur de réclamer une augmentation sans autorisation écrite";
+    label en unofficial "Article 1793. Builder's prohibition on claiming an increase without written authorisation";
+    when constructeur_du_marche(m, c) and construction_a_forfait_selon_plan_convenu(m)
+        and changement_non_autorise_par_ecrit(m);
+    then prohibition NePasReclamerAugmentationSansAutorisation {
+        bearer c;
+        action augmentation_reclamee_par_constructeur(m);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1793)
+rule PositionDevoirMaintenirAutorisationAugmentation(m: Marche, c: Personne) strict {
+    label fr official "Article 1793. Devoir de maintenir l'autorisation écrite de l'augmentation";
+    label en unofficial "Article 1793. Duty to maintain written authorisation for an increase";
+    when constructeur_du_marche(m, c) and construction_a_forfait_selon_plan_convenu(m)
+        and changement_non_autorise_par_ecrit(m);
+    then duty MaintenirAutorisationAugmentation {
+        bearer c;
+        achieve augmentation_reclamee_avec_autorisation(m) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1793)
+rule PositionLiberteReclamerAugmentationAutorisee(m: Marche, c: Personne) strict {
+    label fr official "Article 1793. Liberté du constructeur de réclamer l'augmentation autorisée par écrit";
+    label en unofficial "Article 1793. Builder's liberty to claim an increase authorised in writing";
+    when constructeur_du_marche(m, c) and construction_a_forfait_selon_plan_convenu(m)
+        and changement_autorise_par_ecrit(m);
+    then liberty ReclamerAugmentationAutorisee {
+        holder c;
+        action augmentation_reclamee_avec_autorisation(m);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1794)
+rule PositionPouvoirResiliationUnilateraleDuMaitre(m: Marche, p: Personne) strict {
+    label fr official "Article 1794. Pouvoir du maître de résilier unilatéralement le marché à forfait";
+    label en unofficial "Article 1794. Owner's power to terminate a fixed-price contract unilaterally";
+    when maitre_de_l_ouvrage(m, p) and resiliation_unilaterale_par_maitre(m);
+    then power PouvoirResiliationUnilateraleDuMaitre {
+        holder p;
+        exercise resiliation_unilaterale_par_maitre(m);
+        valid_when resiliation_unilaterale_par_maitre(m);
+        effect indemnisation_integrale_entrepreneur_due(m);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1794)
+rule ResiliationUnilateraleAvecIndemnisation(m: Marche) strict {
+    label fr official "Article 1794. Le maître peut résilier unilatéralement le marché à forfait en indemnisant toutes dépenses, travaux et gains manqués";
+    label en unofficial "Article 1794. The owner may unilaterally terminate a fixed-price contract by compensating all expenses, work and lost profit";
+    when resiliation_unilaterale_par_maitre(m);
+    then indemnisation_integrale_entrepreneur_due(m);
+}
+
+@source(CC_ART1795)
+rule DissolutionParDecesDuLocateur(m: Marche) strict {
+    label fr official "Article 1795. Le louage d'ouvrage est dissous par la mort de l'ouvrier, de l'architecte ou de l'entrepreneur";
+    label en unofficial "Article 1795. A contract for work is dissolved by the death of the worker, architect or contractor";
+    when deces_ouvrier_architecte_ou_entrepreneur(m);
+    then marche_dissous_par_deces(m);
+}
+
+@source(CC_ART1797)
+rule ResponsabiliteDuFaitDesEmployes(m: Marche) strict {
+    label fr official "Article 1797. L'entrepreneur répond du fait des personnes qu'il emploie";
+    label en unofficial "Article 1797. The contractor is liable for the acts of persons employed by the contractor";
+    when dommage_cause_par_personne_employee(m);
+    then entrepreneur_responsable_du_fait_des_employes(m);
+}
+
+@source(CC_ART1799_1)
+rule GarantiePaiementAuDessusDuSeuilReglementaire(m: Marche, dues: Money, seuil: Money) strict {
+    label fr official "Article 1799-1, alinéa 1. Le maître garantit le paiement lorsque les sommes dues dépassent le seuil fixé par décret";
+    label en unofficial "Article 1799-1, paragraph 1. The owner guarantees payment where the sums due exceed the threshold fixed by decree";
+    when sommes_dues_entrepreneur(m, dues) and seuil_decret_1799_1(m, seuil) and dues > seuil;
+    then garantie_de_paiement_due(m);
+}
+
+@source(CC_ART1799_1)
+rule SuspensionApresQuinzeJoursSansGarantie(m: Marche, demeure: Date, suspension: Date) strict {
+    label fr official "Article 1799-1, alinéa 3. Sans garantie et demeuré impayé, l'entrepreneur peut suspendre après une mise en demeure restée sans effet pendant quinze jours";
+    label en unofficial "Article 1799-1, paragraph 3. Without security and while unpaid, the contractor may suspend after a formal demand remains ineffective for fifteen days";
+    when absence_de_garantie_de_paiement(m) and entrepreneur_impaye_travaux_executes(m)
+        and mise_en_demeure_de_garantir_le(m, demeure) and suspension_execution_le(m, suspension)
+        and suspension >= add_calendar_period(demeure, 15 calendar_day);
+    then entrepreneur_peut_suspendre_execution(m);
+}
+
+// Article 1799-1 names a threshold fixed by decree. `seuil_decret_1799_1`
+// remains a typed external case input; this package deliberately supplies no
+// value. The rule can operate only when the external threshold is provided.

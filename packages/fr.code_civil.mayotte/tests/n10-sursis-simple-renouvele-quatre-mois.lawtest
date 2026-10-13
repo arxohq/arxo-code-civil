@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.mayotte version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-mayotte";
+
+// Art. 2497, première phrase : renouvelé une fois par décision spécialement motivée — quatre mois, soit le 15 mai 2026.
+test "urn:query:fr-code-civil-mayotte-n10-sursis-simple-renouvele-quatre-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Indian/Mayotte"; deadline_policy CC_MAYOTTE_CALENDRIER; }
+        assert "f1": ne_a_mayotte(entity_ref("urn:fr:cc:may:j:enf")) { origin case_input; }
+        assert "f2": reconnaissance_de_l_enfant(entity_ref("urn:fr:cc:may:j:rec"), entity_ref("urn:fr:cc:may:j:enf")) { origin case_input; }
+        assert "f3": motif_du_sursis(entity_ref("urn:fr:cc:may:j:rec"), SursisSimple) { origin case_input; }
+        assert "f4": sursis_decide_le(entity_ref("urn:fr:cc:may:j:rec"), @2026-01-15) { origin case_input; }
+        assert "f5": renouvellement_specialement_motive(entity_ref("urn:fr:cc:may:j:rec")) { origin case_input; }
+    }
+    evaluate truth(sursis_expire_le(entity_ref("urn:fr:cc:may:j:rec"), @2026-05-15));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SursisSimpleRenouveleUneFois);
+}

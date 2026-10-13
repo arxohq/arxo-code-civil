@@ -1,0 +1,30 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-AUTORISATIONJUDICIAIRE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": refus_de_l_epoux_beneficiaire(entity_ref("urn:law:catalog:autorisationjudiciaire:v0")) { origin case_input; }
+        assert "cat-1": interet_de_la_famille_exige(entity_ref("urn:law:catalog:autorisationjudiciaire:v0")) { origin case_input; }
+        assert "cat-2": faculte_d_inscrire_la_participation(entity_ref("urn:law:catalog:autorisationjudiciaire:v0")) { origin case_input; }
+    }
+    evaluate truth(autorisation_judiciaire_possible(entity_ref("urn:law:catalog:autorisationjudiciaire:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-CESSIONDERANGPARLEPOUX" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": faculte_d_inscrire_la_participation(entity_ref("urn:law:catalog:cessionderangparlepoux:v0")) { origin case_input; }
+    }
+    evaluate truth(cession_de_rang_permise(entity_ref("urn:law:catalog:cessionderangparlepoux:v0")));
+    expect truth_status == TRUE_ONLY;
+}

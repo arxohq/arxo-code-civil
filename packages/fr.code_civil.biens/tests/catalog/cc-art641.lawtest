@@ -1,0 +1,41 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-DROITDUSERDESEAUXPLUVIALES" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": eaux_pluviales_tombant_sur_le_fonds(entity_ref("urn:law:catalog:droitduserdeseauxpluviales:v0")) { origin case_input; }
+        assert "cat-1": proprietaire_du_bien(entity_ref("urn:law:catalog:droitduserdeseauxpluviales:v0"), entity_ref("urn:law:catalog:droitduserdeseauxpluviales:v1")) { origin case_input; }
+    }
+    evaluate truth(droit_d_user_des_eaux_pluviales(entity_ref("urn:law:catalog:droitduserdeseauxpluviales:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-INDEMNITEPOURAGGRAVATIONDELECOULEMENT" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": aggravation_par_le_proprietaire_superieur(entity_ref("urn:law:catalog:indemnitepouraggravationdelecoulement:v1")) { origin case_input; }
+        assert "cat-1": servitude_naturelle_d_ecoulement(entity_ref("urn:law:catalog:indemnitepouraggravationdelecoulement:v0"), entity_ref("urn:law:catalog:indemnitepouraggravationdelecoulement:v1")) { origin case_input; }
+    }
+    evaluate truth(indemnite_due_au_proprietaire_inferieur(entity_ref("urn:law:catalog:indemnitepouraggravationdelecoulement:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-PASDAGGRAVATIONPOURLESENCLOSATTENANTS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": servitude_naturelle_d_ecoulement(entity_ref("urn:law:catalog:pasdaggravationpourlesenclosattenants:v0"), entity_ref("urn:law:catalog:pasdaggravationpourlesenclosattenants:v1")) { origin case_input; }
+        assert "cat-1": maison_cour_jardin_parc_ou_enclos_attenant(entity_ref("urn:law:catalog:pasdaggravationpourlesenclosattenants:v0")) { origin case_input; }
+    }
+    evaluate truth(aucune_aggravation_pour_les_enclos_attenants(entity_ref("urn:law:catalog:pasdaggravationpourlesenclosattenants:v0")));
+    expect truth_status == TRUE_ONLY;
+}

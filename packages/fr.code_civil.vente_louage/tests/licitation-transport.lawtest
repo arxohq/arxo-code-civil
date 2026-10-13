@@ -1,0 +1,340 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+// Licitation (1686, 1687), transport des créances (1689 à 1701-1), résolution
+// judiciaire de la vente d'immeubles (1655), contenance (1620, 1623) et bail
+// d'appartement meublé (1758).
+
+test "urn:query:fr-code-civil-vente-louage-1655-danger-resolution-aussitot" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:t1:v")) { origin case_input; }
+        assert "np": acheteur_n_a_pas_paye_le_prix(entity_ref("urn:fr:cc12:t1:v")) { origin case_input; }
+        assert "dg": danger_de_perdre_la_chose_et_le_prix(entity_ref("urn:fr:cc12:t1:v")) { origin adjudicated; }
+    }
+    evaluate truth(resolution_immobiliere_prononcee_aussitot(entity_ref("urn:fr:cc12:t1:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(juge_peut_accorder_un_delai_a_l_acquereur(entity_ref("urn:fr:cc12:t1:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1655-sans-danger-delai-judiciaire" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:t2:v")) { origin case_input; }
+        assert "np": acheteur_n_a_pas_paye_le_prix(entity_ref("urn:fr:cc12:t2:v")) { origin case_input; }
+    }
+    evaluate truth(juge_peut_accorder_un_delai_a_l_acquereur(entity_ref("urn:fr:cc12:t2:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(resolution_prononcee_apres_le_delai(entity_ref("urn:fr:cc12:t2:v")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1655-delai-passe-sans-paiement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "imm": vente_immobiliere(entity_ref("urn:fr:cc12:t3:v")) { origin case_input; }
+        assert "np": acheteur_n_a_pas_paye_le_prix(entity_ref("urn:fr:cc12:t3:v")) { origin case_input; }
+        assert "over": delai_judiciaire_passe_sans_paiement(entity_ref("urn:fr:cc12:t3:v")) { origin case_input; }
+    }
+    evaluate truth(resolution_prononcee_apres_le_delai(entity_ref("urn:fr:cc12:t3:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1620-interets-du-supplement-si-immeuble-garde" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": vente_de_corps_certain_ou_de_fonds_distincts(entity_ref("urn:fr:cc12:t4:v")) { origin case_input; }
+        assert "r": contenance_reelle(entity_ref("urn:fr:cc12:t4:v"), 1050) { origin case_input; }
+        assert "p": contenance_portee_au_contrat(entity_ref("urn:fr:cc12:t4:v"), 1000) { origin case_input; }
+        assert "k": acquereur_a_garde_l_immeuble(entity_ref("urn:fr:cc12:t4:v")) { origin case_input; }
+    }
+    evaluate truth(augmentation_de_prix_pour_excedent_de_mesure(entity_ref("urn:fr:cc12:t4:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(interets_du_supplement_de_prix_dus(entity_ref("urn:fr:cc12:t4:v")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(acquereur_a_le_choix_du_supplement_ou_du_desistement(entity_ref("urn:fr:cc12:t4:v")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1620-immeuble-non-garde-aucun-interet" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "c": vente_de_corps_certain_ou_de_fonds_distincts(entity_ref("urn:fr:cc12:t5:v")) { origin case_input; }
+        assert "r": contenance_reelle(entity_ref("urn:fr:cc12:t5:v"), 1050) { origin case_input; }
+        assert "p": contenance_portee_au_contrat(entity_ref("urn:fr:cc12:t5:v"), 1000) { origin case_input; }
+    }
+    evaluate truth(interets_du_supplement_de_prix_dus(entity_ref("urn:fr:cc12:t5:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1623-compensation-entre-deux-fonds" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "two": deux_fonds_vendus_par_le_meme_contrat_pour_un_seul_prix(entity_ref("urn:fr:cc12:t6:v")) { origin case_input; }
+        assert "gap": moins_de_contenance_en_l_un_et_plus_en_l_autre(entity_ref("urn:fr:cc12:t6:v")) { origin case_input; }
+    }
+    evaluate truth(compensation_jusqu_a_due_concurrence(entity_ref("urn:fr:cc12:t6:v")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1686-licitation-chose-non-partageable" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "n": chose_commune_non_partageable_commodement(entity_ref("urn:fr:cc12:t7:l")) { origin adjudicated; }
+    }
+    evaluate truth(vente_aux_encheres_et_partage_du_prix(entity_ref("urn:fr:cc12:t7:l")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1686-partage-commode-pas-de-licitation" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "co": coproprietaire(entity_ref("urn:fr:cc12:t8:l"), entity_ref("urn:fr:cc12:t8:a")) { origin case_input; }
+    }
+    evaluate truth(vente_aux_encheres_et_partage_du_prix(entity_ref("urn:fr:cc12:t8:l")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1687-etrangers-necessairement-appeles-mineur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "co": coproprietaire(entity_ref("urn:fr:cc12:t9:l"), entity_ref("urn:fr:cc12:t9:a")) { origin case_input; }
+        assert "min": coproprietaire_mineur(entity_ref("urn:fr:cc12:t9:l"), entity_ref("urn:fr:cc12:t9:a")) { origin case_input; }
+    }
+    evaluate truth(etrangers_appeles_a_la_licitation(entity_ref("urn:fr:cc12:t9:l")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1687-tous-majeurs-sans-demande" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "co": coproprietaire(entity_ref("urn:fr:cc12:t10:l"), entity_ref("urn:fr:cc12:t10:a")) { origin case_input; }
+    }
+    evaluate truth(etrangers_appeles_a_la_licitation(entity_ref("urn:fr:cc12:t10:l")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1689-1690-delivrance-et-saisine" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": titre_remis_au_cessionnaire(entity_ref("urn:fr:cc12:t11:t")) { origin case_input; }
+        assert "s": signification_du_transport_au_debiteur(entity_ref("urn:fr:cc12:t11:t")) { origin case_input; }
+    }
+    evaluate truth(delivrance_du_droit_cede_operee(entity_ref("urn:fr:cc12:t11:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(cessionnaire_saisi_a_l_egard_des_tiers(entity_ref("urn:fr:cc12:t11:t")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1690-titre-remis-sans-signification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "t": titre_remis_au_cessionnaire(entity_ref("urn:fr:cc12:t12:t")) { origin case_input; }
+    }
+    evaluate truth(delivrance_du_droit_cede_operee(entity_ref("urn:fr:cc12:t12:t")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(cessionnaire_saisi_a_l_egard_des_tiers(entity_ref("urn:fr:cc12:t12:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1690-acceptation-authentique-vaut-saisine" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "a": acceptation_du_transport_par_acte_authentique(entity_ref("urn:fr:cc12:t13:t")) { origin case_input; }
+    }
+    evaluate truth(cessionnaire_saisi_a_l_egard_des_tiers(entity_ref("urn:fr:cc12:t13:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1691-paiement-avant-signification-libere" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": debiteur_a_paye_le_cedant(entity_ref("urn:fr:cc12:t14:t")) { origin case_input; }
+    }
+    evaluate truth(debiteur_valablement_libere(entity_ref("urn:fr:cc12:t14:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1691-paiement-apres-signification" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": debiteur_a_paye_le_cedant(entity_ref("urn:fr:cc12:t15:t")) { origin case_input; }
+        assert "s": signification_du_transport_au_debiteur(entity_ref("urn:fr:cc12:t15:t")) { origin case_input; }
+    }
+    evaluate truth(debiteur_valablement_libere(entity_ref("urn:fr:cc12:t15:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1693-garantie-de-l-existence-du-droit" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "i": vente_d_un_droit_incorporel(entity_ref("urn:fr:cc12:t16:t")) { origin case_input; }
+        assert "ng": cession_sans_garantie(entity_ref("urn:fr:cc12:t16:t")) { origin case_input; }
+    }
+    evaluate truth(garantie_de_l_existence_du_droit_due(entity_ref("urn:fr:cc12:t16:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1701-1-cession-de-creance-hors-champ" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "i": vente_d_un_droit_incorporel(entity_ref("urn:fr:cc12:t17:t")) { origin case_input; }
+        assert "t": titre_remis_au_cessionnaire(entity_ref("urn:fr:cc12:t17:t")) { origin case_input; }
+        assert "r": cession_regie_par_les_articles_1321_a_1326(entity_ref("urn:fr:cc12:t17:t")) { origin case_input; }
+    }
+    evaluate truth(articles_1689_a_1693_inapplicables(entity_ref("urn:fr:cc12:t17:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(garantie_de_l_existence_du_droit_due(entity_ref("urn:fr:cc12:t17:t")));
+    expect truth_status == NEITHER;
+    evaluate truth(delivrance_du_droit_cede_operee(entity_ref("urn:fr:cc12:t17:t")));
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1696-1698-vente-de-succession" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": vente_d_une_succession_sans_specifier_les_objets(entity_ref("urn:fr:cc12:t18:t")) { origin case_input; }
+        assert "f": vendeur_a_profite_des_fruits_ou_creances_de_la_succession(entity_ref("urn:fr:cc12:t18:t")) { origin case_input; }
+        assert "d": dettes_et_charges_payees_par_le_vendeur(entity_ref("urn:fr:cc12:t18:t")) { origin case_input; }
+    }
+    evaluate truth(garantie_limitee_a_la_qualite_d_heritier(entity_ref("urn:fr:cc12:t18:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(remboursement_a_l_acquereur_de_la_succession_du(entity_ref("urn:fr:cc12:t18:t")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(remboursement_au_vendeur_de_la_succession_du(entity_ref("urn:fr:cc12:t18:t")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1697-reserve-expresse" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "s": vente_d_une_succession_sans_specifier_les_objets(entity_ref("urn:fr:cc12:t19:t")) { origin case_input; }
+        assert "f": vendeur_a_profite_des_fruits_ou_creances_de_la_succession(entity_ref("urn:fr:cc12:t19:t")) { origin case_input; }
+        assert "r": reserve_expresse_lors_de_la_vente(entity_ref("urn:fr:cc12:t19:t")) { origin case_input; }
+    }
+    evaluate truth(remboursement_a_l_acquereur_de_la_succession_du(entity_ref("urn:fr:cc12:t19:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1699-1700-retrait-litigieux-ouvert" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": proces_et_contestation_sur_le_fond_du_droit(entity_ref("urn:fr:cc12:t20:t")) { origin case_input; }
+    }
+    evaluate truth(droit_litigieux(entity_ref("urn:fr:cc12:t20:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(retrait_litigieux_ouvert(entity_ref("urn:fr:cc12:t20:t")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1701-cession-a-un-coheritier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": proces_et_contestation_sur_le_fond_du_droit(entity_ref("urn:fr:cc12:t21:t")) { origin case_input; }
+        assert "h": cession_a_un_coheritier_ou_coproprietaire(entity_ref("urn:fr:cc12:t21:t")) { origin case_input; }
+    }
+    evaluate truth(retrait_litigieux_ouvert(entity_ref("urn:fr:cc12:t21:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1701-cession-a-un-creancier-en-paiement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": proces_et_contestation_sur_le_fond_du_droit(entity_ref("urn:fr:cc12:t22:t")) { origin case_input; }
+        assert "c": cession_a_un_creancier_en_paiement(entity_ref("urn:fr:cc12:t22:t")) { origin case_input; }
+    }
+    evaluate truth(retrait_litigieux_ouvert(entity_ref("urn:fr:cc12:t22:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1701-cession-au-possesseur-de-l-heritage" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "p": proces_et_contestation_sur_le_fond_du_droit(entity_ref("urn:fr:cc12:t23:t")) { origin case_input; }
+        assert "o": cession_au_possesseur_de_l_heritage(entity_ref("urn:fr:cc12:t23:t")) { origin case_input; }
+    }
+    evaluate truth(retrait_litigieux_ouvert(entity_ref("urn:fr:cc12:t23:t")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1758-bail-meuble-au-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "m": bail_d_appartement_meuble_a_tant_par_mois(entity_ref("urn:fr:cc12:t24:b")) { origin case_input; }
+    }
+    evaluate truth(periode_du_bail_meuble(entity_ref("urn:fr:cc12:t24:b"), Mois));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(periode_du_bail_meuble(entity_ref("urn:fr:cc12:t24:b"), Annee));
+    expect truth_status == NEITHER;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1693-garantie-existence" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "right": vente_d_un_droit_incorporel(entity_ref("urn:fr:cc12:t:pos1693")) { origin case_input; }
+        assert "assignor": cedant(entity_ref("urn:fr:cc12:t:pos1693"), entity_ref("urn:fr:cc12:t:cedant1693")) { origin case_input; }
+        assert "assignee": cessionnaire(entity_ref("urn:fr:cc12:t:pos1693"), entity_ref("urn:fr:cc12:t:assignee1693")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirGarantirExistenceDroit1693Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1696-garantie-heritier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "estate": vente_d_une_succession_sans_specifier_les_objets(entity_ref("urn:fr:cc12:t:pos1696")) { origin case_input; }
+        assert "assignor": cedant(entity_ref("urn:fr:cc12:t:pos1696"), entity_ref("urn:fr:cc12:t:cedant1696")) { origin case_input; }
+        assert "assignee": cessionnaire(entity_ref("urn:fr:cc12:t:pos1696"), entity_ref("urn:fr:cc12:t:assignee1696")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirGarantirQualiteHeritier1696Actif, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1697-remboursement" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "estate": vente_d_une_succession_sans_specifier_les_objets(entity_ref("urn:fr:cc12:t:pos1697")) { origin case_input; }
+        assert "assignor": cedant(entity_ref("urn:fr:cc12:t:pos1697"), entity_ref("urn:fr:cc12:t:cedant1697")) { origin case_input; }
+        assert "assignee": cessionnaire(entity_ref("urn:fr:cc12:t:pos1697"), entity_ref("urn:fr:cc12:t:assignee1697")) { origin case_input; }
+        assert "fruits": vendeur_a_profite_des_fruits_ou_creances_de_la_succession(entity_ref("urn:fr:cc12:t:pos1697")) { origin case_input; }
+        assert "unreserved": fruits_ou_creances_non_reserves(entity_ref("urn:fr:cc12:t:pos1697")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4DevoirRembourserFruitsSuccession1697Actif, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-vente-louage-1758-rien-ne-constate-usage-des-lieux" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "b": bail_en_vigueur(entity_ref("urn:fr:cc12:t25:b")) { origin case_input; }
+    }
+    evaluate truth(periode_du_bail_meuble(entity_ref("urn:fr:cc12:t25:b"), UsageDesLieux));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

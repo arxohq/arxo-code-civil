@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2315 : le juge retient le délai raisonnable — le cautionnement prend fin le 30 septembre 2024.
+test "urn:query:fr-code-civil-suretes-c40-delai-raisonnable-retenu" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c40:K"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c40:K"), entity_ref("urn:fr:cc:suretes:c40:C")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c40:K"), entity_ref("urn:fr:cc:suretes:c40:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c40:C")) { origin case_input; }
+        assert "f5": creancier_professionnel(entity_ref("urn:fr:cc:suretes:c40:B")) { origin case_input; }
+        assert "f6": cautionnement_de_dettes_futures(entity_ref("urn:fr:cc:suretes:c40:K")) { origin case_input; }
+        assert "f7": resiliation_notifiee_le(entity_ref("urn:fr:cc:suretes:c40:K"), @2024-07-01) { origin case_input; }
+        assert "f8": prise_d_effet_invoquee(entity_ref("urn:fr:cc:suretes:c40:K"), @2024-09-30) { origin case_input; }
+        assert "f9": delai_raisonnable_respecte(entity_ref("urn:fr:cc:suretes:c40:K")) { origin adjudicated; }
+    }
+    evaluate truth(fin_du_cautionnement(entity_ref("urn:fr:cc:suretes:c40:K"), @2024-09-30));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(FinApresDelaiRaisonnable);
+    expect judgment_requests(0);
+}

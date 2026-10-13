@@ -1,0 +1,161 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    CC_ART1650,
+    CC_ART1651,
+    CC_ART1652,
+    CC_ART1653,
+    CC_ART1654,
+    Personne,
+    Vente,
+    absence_de_jour_et_lieu_du_paiement_convenus,
+    acheteur,
+    acheteur_n_a_pas_paye_le_prix,
+    acheteur_peut_suspendre_paiement,
+    acheteur_somme_de_payer,
+    aucune_clause_imposant_paiement_malgre_trouble,
+    chose_livree_produit_fruits_ou_revenus,
+    demande_resolution_par_vendeur,
+    interets_convenus,
+    interets_du_prix_dus,
+    interets_du_prix_payes,
+    jour_et_lieu_du_paiement_convenus,
+    paiement_du_prix_au_jour_et_lieu_convenus,
+    paiement_du_prix_du_a_la_delivrance,
+    paiement_suspendu_par_acheteur,
+    prix_paye_a_la_delivrance,
+    prix_paye_integralement,
+    resolution_demandee_par_vendeur,
+    trouble_ou_crainte_legitime_d_eviction,
+    vendeur,
+    vendeur_n_a_pas_donne_caution,
+    vendeur_n_a_pas_fait_cesser_le_trouble,
+    vendeur_peut_demander_resolution,
+    vente_en_vigueur,
+};
+
+@source(CC_ART1650)
+rule PositionPayerLePrixAuJourEtLieuConvenus(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1650. L'acheteur doit payer le prix au jour et au lieu réglés par la vente";
+    label en unofficial "Article 1650. The buyer must pay the price on the day and at the place fixed by the sale";
+    when vente_en_vigueur(v) and vendeur(v, s) and acheteur(v, a)
+        and jour_et_lieu_du_paiement_convenus(v);
+    then duty PayerLePrixAuJourEtLieuConvenus {
+        bearer a; beneficiary s;
+        achieve prix_paye_integralement(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1651)
+rule PaiementParDefautLorsDeLaDelivrance(v: Vente) strict {
+    label fr official "Article 1651. À défaut de convention, le prix est dû au lieu et au temps de la délivrance";
+    label en unofficial "Article 1651. In the absence of agreement, the price is due at the place and time of delivery";
+    when absence_de_jour_et_lieu_du_paiement_convenus(v);
+    then paiement_du_prix_du_a_la_delivrance(v);
+}
+
+@source(CC_ART1651)
+rule PositionAcheteurPayerAlaDelivrance(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1651. Devoir de l'acheteur de payer au moment de la délivrance";
+    label en unofficial "Article 1651. Buyer's duty to pay upon delivery";
+    when vendeur(v, s) and acheteur(v, a) and absence_de_jour_et_lieu_du_paiement_convenus(v);
+    then duty PayerPrixALaDelivrance {
+        bearer a; beneficiary s;
+        achieve prix_paye_a_la_delivrance(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1652)
+rule InteretsDuPrixParConvention(v: Vente) strict {
+    label fr official "Article 1652. Les intérêts du prix sont dus lorsqu'ils ont été convenus";
+    label en unofficial "Article 1652. Interest on the price is due when agreed";
+    when interets_convenus(v);
+    then interets_du_prix_dus(v);
+}
+
+@source(CC_ART1652)
+rule InteretsDuPrixPourChoseFrugifere(v: Vente) strict {
+    label fr official "Article 1652. Les intérêts du prix sont dus lorsque la chose vendue et livrée produit des fruits ou revenus";
+    label en unofficial "Article 1652. Interest on the price is due where the thing sold and delivered produces fruits or income";
+    when chose_livree_produit_fruits_ou_revenus(v);
+    then interets_du_prix_dus(v);
+}
+
+@source(CC_ART1652)
+rule InteretsDuPrixApresSommation(v: Vente) strict {
+    label fr official "Article 1652. Après sommation de payer, les intérêts du prix courent depuis la sommation";
+    label en unofficial "Article 1652. After formal demand for payment, interest on the price runs from that demand";
+    when acheteur_somme_de_payer(v);
+    then interets_du_prix_dus(v);
+}
+
+@source(CC_ART1652)
+rule PositionAcheteurPayerInteretsDuPrix(v: Vente, a: Personne) strict {
+    label fr official "Article 1652. Devoir de l'acheteur de payer les intérêts du prix";
+    label en unofficial "Article 1652. Buyer's duty to pay price interest";
+    when acheteur(v, a) and interets_convenus(v);
+    then duty PayerInteretsDuPrix {
+        bearer a;
+        achieve interets_du_prix_payes(v) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1653)
+rule SuspensionPaiementPourTrouble(v: Vente) strict {
+    label fr official "Article 1653. L'acheteur menacé d'éviction peut suspendre le prix jusqu'à cessation du trouble, sauf caution ou clause contraire";
+    label en unofficial "Article 1653. A buyer threatened with eviction may suspend the price until the disturbance ends, save for security or a contrary clause";
+    when trouble_ou_crainte_legitime_d_eviction(v) and vendeur_n_a_pas_fait_cesser_le_trouble(v)
+        and vendeur_n_a_pas_donne_caution(v) and aucune_clause_imposant_paiement_malgre_trouble(v);
+    then acheteur_peut_suspendre_paiement(v);
+}
+
+@source(CC_ART1653)
+rule PositionLiberteSuspendrePaiementPourTrouble(v: Vente, a: Personne) strict {
+    label fr official "Article 1653. Liberté de l'acheteur de suspendre le paiement";
+    label en unofficial "Article 1653. Buyer's liberty to suspend payment";
+    when acheteur(v, a) and trouble_ou_crainte_legitime_d_eviction(v)
+        and vendeur_n_a_pas_fait_cesser_le_trouble(v)
+        and vendeur_n_a_pas_donne_caution(v)
+        and aucune_clause_imposant_paiement_malgre_trouble(v);
+    then liberty SuspendrePaiementPourTrouble {
+        holder a;
+        action paiement_suspendu_par_acheteur(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1654)
+rule ResolutionDemandeePourPrixImpaye(v: Vente) strict {
+    label fr official "Article 1654. Si l'acheteur ne paie pas le prix, le vendeur peut demander la résolution de la vente";
+    label en unofficial "Article 1654. If the buyer does not pay the price, the seller may seek termination of the sale";
+    when acheteur_n_a_pas_paye_le_prix(v);
+    then vendeur_peut_demander_resolution(v);
+}
+
+@source(CC_ART1654)
+rule PositionPouvoirResolutionPourPrixImpaye(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1654. Pouvoir du vendeur de demander la résolution pour prix impayé";
+    label en unofficial "Article 1654. Seller's power to seek rescission for unpaid price";
+    when vendeur(v, s) and acheteur(v, a) and acheteur_n_a_pas_paye_le_prix(v);
+    then power PouvoirResolutionPourPrixImpaye {
+        holder s;
+        over a;
+        exercise demande_resolution_par_vendeur(v);
+        valid_when acheteur_n_a_pas_paye_le_prix(v);
+        effect resolution_demandee_par_vendeur(v);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1650)
+rule PositionAcheteurPayerPrixAuJourEtLieu(v: Vente, s: Personne, a: Personne) strict {
+    label fr official "Article 1650. Obligation de l'acheteur de payer au jour et au lieu convenus";
+    label en unofficial "Article 1650. Buyer's duty to pay on the agreed day and place";
+    when vendeur(v, s) and acheteur(v, a) and jour_et_lieu_du_paiement_convenus(v);
+    then duty PayerPrixAuJourEtLieu {
+        bearer a; beneficiary s;
+        achieve paiement_du_prix_au_jour_et_lieu_convenus(v) during [@1804-03-21, infinity);
+    };
+}

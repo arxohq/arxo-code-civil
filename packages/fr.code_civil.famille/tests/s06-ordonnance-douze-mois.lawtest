@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 515-12 : ordonnance notifiée le 31 janvier 2026 — mesures au plus tard jusqu au 31 janvier 2027.
+test "urn:query:fr-code-civil-famille-s06-ordonnance-douze-mois" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": ordonnance_notifiee_le(entity_ref("urn:fr:cc:fam:dd:o"), @2026-01-31) { origin case_input; }
+    }
+    evaluate truth(mesures_de_protection_jusqu_au(entity_ref("urn:fr:cc:fam:dd:o"), @2027-01-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DureeMaximaleDesMesures);
+}

@@ -1,0 +1,21 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 812-1-1 : l'intérêt sérieux et légitime est une appréciation (§47.3).
+test "urn:query:fr-code-civil-successions-m58-interet-serieux-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-17T09:00:00Z; knowledge_time @2026-09-17T09:00:00Z; legal_time @2026-09-17; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": mandat_de_la_succession(entity_ref("urn:fr:cc:successions:adm:m58:M"), entity_ref("urn:fr:cc:successions:adm:m58:S")) { origin case_input; }
+        assert "f2": mandataire_jouit_de_la_pleine_capacite_civile(entity_ref("urn:fr:cc:successions:adm:m58:M")) { origin case_input; }
+        assert "f3": mandat_donne_le(entity_ref("urn:fr:cc:successions:adm:m58:M"), @2024-01-15) { origin case_input; }
+        assert "f4": terme_prevu_le(entity_ref("urn:fr:cc:successions:adm:m58:M"), @2026-01-15) { origin case_input; }
+        assert "f5": motivation_precise_du_mandat(entity_ref("urn:fr:cc:successions:adm:m58:M")) { origin case_input; }
+        assert "f6": forme_authentique(entity_ref("urn:fr:cc:successions:adm:m58:M")) { origin case_input; }
+        assert "f7": accepte_avant_le_deces_du_mandant(entity_ref("urn:fr:cc:successions:adm:m58:M")) { origin case_input; }
+    }
+    evaluate truth(mandat_valable(entity_ref("urn:fr:cc:successions:adm:m58:M")));
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect truth_status == NEITHER;
+    expect judgment_request(interet_serieux_et_legitime, Court);
+}

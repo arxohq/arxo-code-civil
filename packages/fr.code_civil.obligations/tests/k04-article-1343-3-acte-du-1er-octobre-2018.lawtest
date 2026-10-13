@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Loi n° 2018-287, article 16, I : l'acte du 1er octobre 2018 — le jour même du seuil —
+// relève de la rédaction nouvelle de l'article 1343-3. Paire avec k03.
+test "urn:query:fr-code-civil-obligations-k04-article-1343-3-acte-du-1er-octobre-2018" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": situation_de_la_creance(entity_ref("urn:fr:cc:obligations:k4:s"), entity_ref("urn:fr:cc:obligations:k4:c")) { origin case_input; }
+        assert "f2": fr.code_civil.transitions::acte_juridique_conclu_ou_etabli_le(entity_ref("urn:fr:cc:obligations:k4:s"), @2018-10-01) { origin case_input; }
+        assert "f3": fr.code_civil.transitions::article_invoque(entity_ref("urn:fr:cc:obligations:k4:s"), "1343-3") { origin case_input; }
+    }
+    evaluate truth(article_nouveau_de_2018_applicable(entity_ref("urn:fr:cc:obligations:k4:c"), "1343-3"));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ArticleNouveauDe2018Applicable);
+}

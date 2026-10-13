@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1301-4 : charges de 1 234 EUR, intérêt de 37 % — part de 456,58 EUR.
+test "urn:query:fr-code-civil-responsabilite-r62-repartition-a-proportion-des-interets" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": gestion_sans_y_etre_tenu(entity_ref("urn:fr:cc:resp:v2x:g")) { origin case_input; }
+        assert "f2": gestion_utile(entity_ref("urn:fr:cc:resp:v2x:g")) { origin adjudicated; }
+        assert "f3": interet_personnel_du_gerant(entity_ref("urn:fr:cc:resp:v2x:g")) { origin case_input; }
+        assert "f4": charges_de_l_affaire_commune(entity_ref("urn:fr:cc:resp:v2x:g"), 1234 EUR) { origin case_input; }
+        assert "f5": interet_en_pourcentage(entity_ref("urn:fr:cc:resp:v2x:g"), entity_ref("urn:fr:cc:resp:v2x:gerant"), 37) { origin case_input; }
+    }
+    evaluate truth(part_des_charges(entity_ref("urn:fr:cc:resp:v2x:g"), entity_ref("urn:fr:cc:resp:v2x:gerant"), 456.58 EUR));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RepartitionAProportionDesInterets);
+}

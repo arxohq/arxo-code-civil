@@ -1,0 +1,247 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:positions:fr-code-civil-vente-louage-1793-authorised-increase-first" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793x:m"), entity_ref("urn:fr:cc12:pos1793x:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793x:m")) { origin case_input; }
+        assert "authorised": changement_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793x:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ReclamerAugmentationAutorisee, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-authorised-increase-second" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793y:m"), entity_ref("urn:fr:cc12:pos1793y:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793y:m")) { origin case_input; }
+        assert "authorised": changement_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793y:m")) { origin case_input; }
+        assert "claimed": augmentation_reclamee_avec_autorisation(entity_ref("urn:fr:cc12:pos1793y:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ReclamerAugmentationAutorisee, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-matiere-perdue" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "o": ouvrier_du_marche(entity_ref("urn:fr:cc12:o:m"), entity_ref("urn:fr:cc12:o:w")) { origin case_input; }
+        assert "m": ouvrier_fournit_matiere(entity_ref("urn:fr:cc12:o:m")) { origin case_input; }
+        assert "p": chose_du_marche_perie_avant_livraison(entity_ref("urn:fr:cc12:o:m")) { origin case_input; }
+        assert "not-default": maitre_non_en_demeure_de_recevoir(entity_ref("urn:fr:cc12:o:m")) { origin case_input; }
+    }
+    evaluate truth(perte_a_la_charge_de_l_ouvrier(entity_ref("urn:fr:cc12:o:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1789-perte-duty" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "worker": ouvrier_du_marche(entity_ref("urn:fr:cc12:pos1789:m"), entity_ref("urn:fr:cc12:pos1789:o")) { origin case_input; }
+        assert "labour": travail_seul_fourni(entity_ref("urn:fr:cc12:pos1789:m")) { origin case_input; }
+        assert "lost": chose_du_marche_perie_avant_livraison(entity_ref("urn:fr:cc12:pos1789:m")) { origin case_input; }
+        assert "fault": faute_de_l_ouvrier_etablie(entity_ref("urn:fr:cc12:pos1789:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(SupporterPerteEnCasDeFaute, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1789-perte-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "worker": ouvrier_du_marche(entity_ref("urn:fr:cc12:pos1789b:m"), entity_ref("urn:fr:cc12:pos1789b:o")) { origin case_input; }
+        assert "labour": travail_seul_fourni(entity_ref("urn:fr:cc12:pos1789b:m")) { origin case_input; }
+        assert "lost": chose_du_marche_perie_avant_livraison(entity_ref("urn:fr:cc12:pos1789b:m")) { origin case_input; }
+        assert "fault": faute_de_l_ouvrier_etablie(entity_ref("urn:fr:cc12:pos1789b:m")) { origin case_input; }
+        assert "borne": perte_supportee_par_ouvrier(entity_ref("urn:fr:cc12:pos1789b:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(SupporterPerteEnCasDeFaute, SATISFIED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-no-increase" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793:m"), entity_ref("urn:fr:cc12:pos1793:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793:m")) { origin case_input; }
+        assert "change": changement_non_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerAugmentationSansAutorisation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-no-increase-violated-wave" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793wave:m"), entity_ref("urn:fr:cc12:pos1793wave:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793wave:m")) { origin case_input; }
+        assert "change": changement_non_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793wave:m")) { origin case_input; }
+        assert "claim": augmentation_reclamee_par_constructeur(entity_ref("urn:fr:cc12:pos1793wave:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerAugmentationSansAutorisation, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-no-increase-maintenance-active" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793maint:m"), entity_ref("urn:fr:cc12:pos1793maint:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793maint:m")) { origin case_input; }
+        assert "change": changement_non_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793maint:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerAugmentationSansAutorisation, ACTIVE);
+    expect position(MaintenirAutorisationAugmentation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-no-increase-maintenance-violated" {
+    given {
+        context { decision_time @2026-09-20T09:00:00Z; knowledge_time @2026-09-20T09:00:00Z; legal_time @2026-09-20; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793maintv:m"), entity_ref("urn:fr:cc12:pos1793maintv:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793maintv:m")) { origin case_input; }
+        assert "change": changement_non_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793maintv:m")) { origin case_input; }
+        assert "claim": augmentation_reclamee_par_constructeur(entity_ref("urn:fr:cc12:pos1793maintv:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerAugmentationSansAutorisation, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1793-no-increase-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:pos1793b:m"), entity_ref("urn:fr:cc12:pos1793b:c")) { origin case_input; }
+        assert "fixed": construction_a_forfait_selon_plan_convenu(entity_ref("urn:fr:cc12:pos1793b:m")) { origin case_input; }
+        assert "change": changement_non_autorise_par_ecrit(entity_ref("urn:fr:cc12:pos1793b:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(NePasReclamerAugmentationSansAutorisation, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1794-resiliation-power" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": maitre_de_l_ouvrage(entity_ref("urn:fr:cc12:pos1794:m"), entity_ref("urn:fr:cc12:pos1794:p")) { origin case_input; }
+        assert "terminate": resiliation_unilaterale_par_maitre(entity_ref("urn:fr:cc12:pos1794:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUnilateraleDuMaitre, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-1794-resiliation-satisfied" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "owner": maitre_de_l_ouvrage(entity_ref("urn:fr:cc12:pos1794b:m"), entity_ref("urn:fr:cc12:pos1794b:p")) { origin case_input; }
+        assert "terminate": resiliation_unilaterale_par_maitre(entity_ref("urn:fr:cc12:pos1794b:m")) { origin case_input; }
+        assert "comp": indemnisation_integrale_entrepreneur_due(entity_ref("urn:fr:cc12:pos1794b:m")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(PouvoirResiliationUnilateraleDuMaitre, ACTIVE);
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-maitre-en-demeure" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "o": ouvrier_du_marche(entity_ref("urn:fr:cc12:o2:m"), entity_ref("urn:fr:cc12:o2:w")) { origin case_input; }
+        assert "m": ouvrier_fournit_matiere(entity_ref("urn:fr:cc12:o2:m")) { origin case_input; }
+        assert "p": chose_du_marche_perie_avant_livraison(entity_ref("urn:fr:cc12:o2:m")) { origin case_input; }
+        assert "default": maitre_en_demeure_de_recevoir(entity_ref("urn:fr:cc12:o2:m")) { origin case_input; }
+    }
+    evaluate truth(perte_a_la_charge_de_l_ouvrier(entity_ref("urn:fr:cc12:o2:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-responsabilite-solidite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "builder": constructeur_du_marche(entity_ref("urn:fr:cc12:o3:m"), entity_ref("urn:fr:cc12:o3:c")) { origin case_input; }
+        assert "damage": dommage_compromet_solidite_ouvrage(entity_ref("urn:fr:cc12:o3:m")) { origin case_input; }
+        assert "cause": absence_de_cause_etrangere_etablie(entity_ref("urn:fr:cc12:o3:m")) { origin case_input; }
+    }
+    evaluate truth(responsabilite_constructeur_de_plein_droit(entity_ref("urn:fr:cc12:o3:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-garantie-equipement-deux-ans" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "damage": dommage_element_equipement_bon_fonctionnement(entity_ref("urn:fr:cc12:o4:m")) { origin case_input; }
+        assert "acceptance": reception_ouvrage_le(entity_ref("urn:fr:cc12:o4:m"), @2024-04-01) { origin case_input; }
+        assert "claim": action_garantie_equipement_introduite_le(entity_ref("urn:fr:cc12:o4:m"), @2026-04-01) { origin case_input; }
+    }
+    evaluate truth(action_garantie_equipement_recevable(entity_ref("urn:fr:cc12:o4:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-parfait-achevement-un-an" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "acceptance": reception_contradictoire_prononcee(entity_ref("urn:fr:cc12:o5:m")) { origin case_input; }
+        assert "date": reception_ouvrage_le(entity_ref("urn:fr:cc12:o5:m"), @2025-02-28) { origin case_input; }
+        assert "defect": desordre_signale_par_reserve_ou_notification(entity_ref("urn:fr:cc12:o5:m")) { origin case_input; }
+        assert "claim": action_parfait_achevement_introduite_le(entity_ref("urn:fr:cc12:o5:m"), @2026-02-28) { origin case_input; }
+    }
+    evaluate truth(garantie_parfait_achevement_ouverte(entity_ref("urn:fr:cc12:o5:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-clause-non-ecrite" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "clause": clause_exclut_ou_limite_garanties_constructeur(entity_ref("urn:fr:cc12:o6:m")) { origin case_input; }
+    }
+    evaluate truth(clause_reputee_non_ecrite(entity_ref("urn:fr:cc12:o6:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-garantie-paiement-seuil-externe" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "due": sommes_dues_entrepreneur(entity_ref("urn:fr:cc12:o7:m"), 15000 EUR) { origin case_input; }
+        assert "threshold": seuil_decret_1799_1(entity_ref("urn:fr:cc12:o7:m"), 12000 EUR) { origin case_input; }
+    }
+    evaluate truth(garantie_de_paiement_due(entity_ref("urn:fr:cc12:o7:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-ouvrage-suspension-quinze-jours" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "no-security": absence_de_garantie_de_paiement(entity_ref("urn:fr:cc12:o8:m")) { origin case_input; }
+        assert "unpaid": entrepreneur_impaye_travaux_executes(entity_ref("urn:fr:cc12:o8:m")) { origin case_input; }
+        assert "notice": mise_en_demeure_de_garantir_le(entity_ref("urn:fr:cc12:o8:m"), @2026-03-01) { origin case_input; }
+        assert "suspension": suspension_execution_le(entity_ref("urn:fr:cc12:o8:m"), @2026-03-16) { origin case_input; }
+    }
+    evaluate truth(entrepreneur_peut_suspendre_execution(entity_ref("urn:fr:cc12:o8:m")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// Article 1792-4-1 : la décharge décennale elle-même, gardée par une paire —
+// la date d'échéance exacte et le jour suivant. Sans cette paire, la mutation
+// « dix ans → neuf ans » ne faisait rougir aucun témoin de cette famille.
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-1-decharge-au-jour-exact" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:d1:m"), @2015-03-10) { origin case_input; }
+    }
+    evaluate truth(constructeur_decharge_responsabilite_decennale_le(entity_ref("urn:fr:cc12:d1:m"), @2025-03-10));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}
+
+test "urn:query:fr-code-civil-vente-louage-1792-4-1-decharge-pas-un-jour-plus-tot" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "rec": reception_ouvrage_le(entity_ref("urn:fr:cc12:d2:m"), @2015-03-10) { origin case_input; }
+    }
+    evaluate truth(constructeur_decharge_responsabilite_decennale_le(entity_ref("urn:fr:cc12:d2:m"), @2025-03-09));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+    evaluate truth(constructeur_decharge_responsabilite_decennale_le(entity_ref("urn:fr:cc12:d2:m"), @2025-03-11));
+    expect truth_status == NEITHER;
+}

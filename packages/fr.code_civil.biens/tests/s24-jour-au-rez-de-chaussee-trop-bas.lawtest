@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 677. Le témoin jumeau de s23 : vingt-cinq décimètres au
+// rez-de-chaussée, et le jour est trop bas — alors que la même hauteur
+// serait permise à un étage supérieur, où dix-neuf décimètres suffisent.
+test "urn:query:fr-code-civil-biens-s24-jour-rez-de-chaussee-trop-bas" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": ouverture_dans(entity_ref("urn:fr:cc:biens:s24:O"), entity_ref("urn:fr:cc:biens:s24:M")) { origin case_input; }
+        assert "f2": espece_de_l_ouverture(entity_ref("urn:fr:cc:biens:s24:O"), JourAFerMailleEtVerreDormant) { origin case_input; }
+        assert "f3": niveau_de_l_ouverture(entity_ref("urn:fr:cc:biens:s24:O"), RezDeChaussee) { origin case_input; }
+        assert "f4": hauteur_au_dessus_du_plancher(entity_ref("urn:fr:cc:biens:s24:O"), 25 dm) { origin case_input; }
+    }
+    evaluate truth(jour_trop_bas(entity_ref("urn:fr:cc:biens:s24:O")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

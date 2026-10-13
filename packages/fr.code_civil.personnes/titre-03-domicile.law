@@ -1,0 +1,155 @@
+// TITRE III — DU DOMICILE (articles 102 à 111).
+//
+// Le domicile est le lieu du principal établissement (102) ; trois règles
+// spéciales le fixent ailleurs — le mineur non émancipé chez ses parents
+// (108-2), le majeur en tutelle chez son tuteur (108-3), le titulaire de
+// fonctions à vie au lieu de ces fonctions (107) — et une règle le CONSERVE
+// malgré une fonction temporaire (106). Le changement réel (103), la
+// déclaration expresse (104) et l'appréciation judiciaire des circonstances
+// (105) alimentent le même résultat sans transformer l'appréciation en fait plat.
+
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+use self::{
+    CC_ART102,
+    CC_ART103,
+    CC_ART104,
+    CC_ART105,
+    CC_ART106,
+    CC_ART107,
+    CC_ART108_1,
+    CC_ART108_2,
+    CC_ART108_3,
+    CC_ART109,
+    CC_ART111,
+    Lieu,
+    Personne,
+    election_de_domicile,
+    fonction_a_vie_exercee_a,
+    fonction_temporaire_ou_revocable,
+    intention_contraire_manifestee,
+    mineur_non_emancipe,
+    parent_de,
+    principal_etablissement,
+    reside_avec,
+    residence_separee_en_procedure,
+    tuteur_de,
+};
+
+// Deux étages, pour que le domicile du mineur ne se déduise pas du domicile
+// du mineur : le DOMICILE PROPRE (102, 106, 107) d'abord, puis le domicile
+// dérivé de celui d'autrui (108-2, 108-3). Une seule relation récursive
+// n'était pas stratifiable (LDC-E4102).
+pub relation domicile_propre(p: Personne, lieu: Lieu) kind derived {
+    label fr official "domicile que la personne tient d'elle-même : principal établissement ou lieu des fonctions à vie (articles 102, 106, 107)";
+    label en unofficial "domicile the person holds in his own right: principal establishment or place of lifetime functions (Articles 102, 106, 107)";
+}
+pub relation domicile(p: Personne, lieu: Lieu) kind derived {
+    label fr official "domicile de la personne quant à l'exercice de ses droits civils (articles 102 à 109)";
+    label en unofficial "person's domicile for the exercise of civil rights (Articles 102 to 109)";
+}
+pub relation domicile_distinct_de_plein_droit(p: Personne) kind derived {
+    label fr official "domicile distinct de plein droit des époux (article 108-1)";
+    label en unofficial "separate domicile by operation of law for spouses (Article 108-1)";
+}
+pub relation sous_tutelle(p: Personne) kind derived {
+    label fr official "le majeur est en tutelle : son domicile est celui de son tuteur (article 108-3)";
+    label en unofficial "the adult is under guardianship: his domicile is his guardian's (Article 108-3)";
+}
+pub relation domicile_elu_pour_l_acte(p: Personne, lieu: Lieu) kind derived {
+    label fr official "domicile élu pour l'exécution d'un acte : significations, demandes et poursuites peuvent y être faites (article 111)";
+    label en unofficial "domicile elected for the performance of an act: service, claims and proceedings may be made there (Article 111)";
+}
+pub relation habitation_reelle_nouveau_lieu(p: Personne, lieu: Lieu) kind empirical { label fr official "la personne habite réellement dans le nouveau lieu"; label en unofficial "the person actually lives in the new place"; }
+pub relation intention_principal_etablissement_nouveau_lieu(p: Personne, lieu: Lieu) kind empirical { label fr official "la personne entend fixer son principal établissement dans le nouveau lieu"; label en unofficial "the person intends to fix the principal establishment in the new place"; }
+pub relation declaration_changement_domicile_deux_communes(p: Personne, lieu: Lieu) kind empirical { label fr official "la personne déclare son changement à la commune quittée et à la commune d'arrivée"; label en unofficial "the person declares the change to the former and new municipalities"; }
+pub external judgment relation circonstances_prouvent_intention_domicile(p: Personne, lieu: Lieu) { authority Court; label fr official "les circonstances prouvent l'intention de fixer le domicile"; label en unofficial "the circumstances prove intent to fix domicile"; }
+pub relation majeur_service_et_reside_chez(p: Personne, employeur: Personne) kind empirical { label fr official "le majeur sert ou travaille habituellement chez une personne et demeure avec elle"; label en unofficial "the adult habitually serves or works for a person and lives with that person"; }
+
+@source(CC_ART102)
+rule DomicileAuPrincipalEtablissement(p: Personne, lieu: Lieu) defeasible {
+    label fr official "Article 102, alinéa 1. Le domicile de tout Français, quant à l'exercice de ses droits civils, est au lieu où il a son principal établissement";
+    label en unofficial "Article 102, paragraph 1. The domicile of any French person, for the exercise of civil rights, is where he has his principal establishment";
+    when principal_etablissement(p, lieu);
+    then domicile_propre(p, lieu);
+}
+
+@source(CC_ART107)
+rule DomicileDesFonctionsAVie(p: Personne, lieu: Lieu) defeasible {
+    label fr official "Article 107. L'acceptation de fonctions conférées à vie emporte translation immédiate du domicile dans le lieu où ces fonctions doivent être exercées";
+    label en unofficial "Article 107. Accepting functions conferred for life immediately transfers the domicile to the place where they are exercised";
+    when fonction_a_vie_exercee_a(p, lieu);
+    then domicile_propre(p, lieu);
+}
+
+@source(CC_ART106)
+rule FonctionTemporaireConserveLeDomicile(p: Personne, lieu: Lieu) defeater {
+    label fr official "Article 106. Le citoyen appelé à une fonction publique temporaire ou révocable conserve le domicile qu'il avait auparavant, s'il n'a pas manifesté d'intention contraire";
+    label en unofficial "Article 106. A citizen called to a temporary or revocable public office keeps his former domicile, absent a contrary intention";
+    when fonction_temporaire_ou_revocable(p) and fonction_a_vie_exercee_a(p, lieu)
+        and not_known(intention_contraire_manifestee(p));
+    defeat domicile_propre(p, lieu);
+}
+
+@source(CC_ART108_2)
+rule DomicileDuMineurNonEmancipe(mineur: Personne, parent: Personne, lieu: Lieu) defeasible {
+    label fr official "Article 108-2. Le mineur non émancipé est domicilié chez ses père et mère ; si ceux-ci ont des domiciles distincts, chez celui avec lequel il réside";
+    label en unofficial "Article 108-2. An unemancipated minor is domiciled with his parents; if they have separate domiciles, with the one he lives with";
+    when parent_de(parent, mineur) and mineur_non_emancipe(mineur)
+        and reside_avec(mineur, parent) and domicile_propre(parent, lieu);
+    then domicile(mineur, lieu);
+}
+
+@source(CC_ART108_3)
+rule DomicileDuMajeurEnTutelle(protege: Personne, tuteur: Personne, lieu: Lieu) defeasible {
+    label fr official "Article 108-3. Le majeur en tutelle est domicilié chez son tuteur";
+    label en unofficial "Article 108-3. An adult under guardianship is domiciled with his guardian";
+    when tuteur_de(tuteur, protege) and domicile_propre(tuteur, lieu);
+    then domicile(protege, lieu);
+}
+
+@source(CC_ART102)
+rule DomicilePropreEstLeDomicile(p: Personne, lieu: Lieu) defeasible {
+    label fr official "Articles 102 à 107. Le domicile que la personne tient d'elle-même est son domicile, sauf règle spéciale des articles 108-2 et 108-3";
+    label en unofficial "Articles 102 to 107. The domicile a person holds in his own right is his domicile, save the special rules of Articles 108-2 and 108-3";
+    when domicile_propre(p, lieu) and not_known(mineur_non_emancipe(p)) and not_known(sous_tutelle(p));
+    then domicile(p, lieu);
+}
+
+@source(CC_ART108_3)
+rule SousTutelle(protege: Personne, tuteur: Personne) defeasible {
+    label fr official "Article 108-3. Le majeur qui a un tuteur est en tutelle pour l'application des règles de domicile";
+    label en unofficial "Article 108-3. An adult who has a guardian is under guardianship for the purposes of the domicile rules";
+    when tuteur_de(tuteur, protege);
+    then sous_tutelle(protege);
+}
+
+@source(CC_ART108_1)
+rule ResidenceSepareeEnProcedure(p: Personne) strict {
+    label fr official "Article 108-1. La résidence séparée des époux, au cours de la procédure de divorce ou de séparation de corps, entraîne de plein droit domicile distinct";
+    label en unofficial "Article 108-1. Separate residence of spouses during divorce or legal-separation proceedings entails a separate domicile by operation of law";
+    when residence_separee_en_procedure(p);
+    then domicile_distinct_de_plein_droit(p);
+}
+
+@source(CC_ART111)
+rule DomicileElu(p: Personne, lieu: Lieu) strict {
+    label fr official "Article 111. Lorsqu'un acte contient élection de domicile en un autre lieu que le domicile réel, les significations, demandes et poursuites relatives à cet acte peuvent être faites au domicile convenu";
+    label en unofficial "Article 111. Where an act contains an election of domicile elsewhere than the real domicile, service, claims and proceedings relating to that act may be made at the agreed domicile";
+    when election_de_domicile(p, lieu);
+    then domicile_elu_pour_l_acte(p, lieu);
+}
+
+@source(CC_ART103)
+rule ChangementDomicileHabitationEtIntention(p: Personne, lieu: Lieu) defeasible { label fr official "Article 103. L'habitation réelle jointe à l'intention transfère le domicile"; label en unofficial "Article 103. Actual residence combined with intention transfers domicile"; when habitation_reelle_nouveau_lieu(p, lieu) and intention_principal_etablissement_nouveau_lieu(p, lieu); then domicile_propre(p, lieu); }
+
+@source(CC_ART104)
+rule PreuveIntentionParDeclaration(p: Personne, lieu: Lieu) strict { label fr official "Article 104. La déclaration aux deux communes prouve l'intention de changer de domicile"; label en unofficial "Article 104. Declaration to both municipalities proves intent to change domicile"; when declaration_changement_domicile_deux_communes(p, lieu); then intention_principal_etablissement_nouveau_lieu(p, lieu); }
+
+@source(CC_ART105)
+rule PreuveIntentionParCirconstances(p: Personne, lieu: Lieu) defeasible { label fr official "Article 105. A défaut de déclaration, le jugement sur les circonstances établit l'intention"; label en unofficial "Article 105. Without declaration, judgment on circumstances establishes intention"; when circonstances_prouvent_intention_domicile(p, lieu); then intention_principal_etablissement_nouveau_lieu(p, lieu); }
+
+@source(CC_ART109)
+rule DomicileMajeurChezEmployeur(p: Personne, employeur: Personne, lieu: Lieu) defeasible { label fr official "Article 109. Le majeur qui sert et demeure chez autrui a le même domicile"; label en unofficial "Article 109. An adult who serves and lives with another has the same domicile"; when majeur_service_et_reside_chez(p, employeur) and domicile_propre(employeur, lieu); then domicile(p, lieu); }

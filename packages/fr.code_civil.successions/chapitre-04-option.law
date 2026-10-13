@@ -1,0 +1,1027 @@
+// CHAPITRE IV — DE L'OPTION DE L'HÉRITIER (articles 768 à 808).
+//
+// L'option est un calendrier. Le chapitre fixe à quel moment l'héritier peut
+// être pressé et ce qui arrive s'il se tait :
+//
+//   — quatre mois depuis l'ouverture avant toute sommation (771) ; deux mois
+//     après la sommation, faute de quoi il est réputé acceptant pur et simple
+//     (772) ; l'héritier subséquent et les héritiers de l'héritier décédé
+//     sans opter ont leurs quatre mois propres (774, 775) ;
+//   — dix ans pour opter, faute de quoi il est réputé renonçant, avec les
+//     points de départ différés de l'article 780 ;
+//   — cinq ans pour attaquer l'option viciée (777) ;
+//   — acceptation pure et simple par cession ou renonciation « in favorem »
+//     (783), actes conservatoires qui n'emportent pas acceptation (784), et
+//     l'irrévocabilité de l'acceptation, sauf décharge d'une dette ignorée
+//     demandée dans les cinq mois (786) ;
+//   — l'acceptation à concurrence de l'actif net : inventaire dans les deux
+//     mois (790), déclaration des créanciers dans les quinze mois (792),
+//     quinze jours pour déclarer la conservation ou l'aliénation et trois
+//     mois pour la contester (794), deux mois pour payer (797), déchéance
+//     pour omission de mauvaise foi (800) ;
+//   — la renonciation, qui ne se présume pas, et sa révocation (804 à 807).
+//
+// Le recel (778) et la mauvaise foi (800) sont des faits constatés par le juge
+// (origine `adjudicated`) ; les motifs « sérieux et légitimes » d'une
+// prorogation (772, 790) sont une appréciation (jugement §47.3). Le paquet ne
+// fabrique jamais un silence : l'absence d'option ou d'inventaire est
+// constatée, pas déduite d'un dossier vide.
+
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+use self::{
+    CC_ART768,
+    CC_ART770,
+    CC_ART771,
+    CC_ART772,
+    CC_ART774,
+    CC_ART775,
+    CC_ART777,
+    CC_ART778,
+    CC_ART780,
+    CC_ART783,
+    CC_ART784,
+    CC_ART786,
+    CC_ART790,
+    CC_ART792,
+    CC_ART792_1,
+    CC_ART792_2,
+    CC_ART793,
+    CC_ART794,
+    CC_ART795,
+    CC_ART796,
+    CC_ART797,
+    CC_ART800,
+    CC_ART801,
+    CC_ART806,
+    CC_ART807,
+    Personne,
+    Succession,
+    ouverte_le,
+};
+
+pub enum ModaliteDeLOption {
+    label fr official "Modalité de l'option de l'héritier (article 768)";
+    label en unofficial "Form of the heir's option (Article 768)";
+    AcceptationPureEtSimple,
+    AcceptationAConcurrenceDeLActifNet,
+    Renonciation
+}
+
+@source(CC_ART807)
+rule P3PouvoirRevoquerRenonciation(s: Succession, h: Personne) strict {
+    label fr official "Article 807. L'héritier peut révoquer sa renonciation";
+    label en unofficial "Article 807. The heir may revoke the renunciation";
+    when revocation_de_la_renonciation_possible(s, h);
+    then power P3PositionPouvoirRevoquerRenonciation {
+        holder h;
+        over s;
+        exercise revocation_renonciation_exercee(s, h);
+        effect renonciation_revoquee(s, h);
+        valid_when revocation_de_la_renonciation_possible(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART806)
+rule P3DevoirPayerFraisFunerairesRenoncant(s: Succession, h: Personne) strict {
+    label fr official "Article 806. Le renonçant reste tenu des frais funéraires de l'ascendant ou du descendant";
+    label en unofficial "Article 806. The renouncing heir remains liable for funeral expenses";
+    when tenu_des_frais_funeraires(s, h);
+    then duty P3PositionDevoirPayerFraisFunerairesRenoncant {
+        bearer h;
+        goal achievement {
+            condition frais_funeraires_exercee(s, h);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART768, CC_ART780)
+rule P3PouvoirExercerOption(s: Succession, h: Personne, fin: Date) strict {
+    label fr official "Articles 768 et 780. L'héritier peut exercer l'option dans le délai de dix ans";
+    label en unofficial "Articles 768 and 780. The heir may exercise the option within ten years";
+    when fin_de_la_faculte_d_option(s, h, fin);
+    then power P3PositionPouvoirExercerOption {
+        holder h;
+        over s;
+        exercise option_exercee_le(s, h, AcceptationPureEtSimple, fin);
+        effect option_de_l_heritier_exercee(s, h, fin);
+        valid_when fin_de_la_faculte_d_option(s, h, fin);
+        window [@2016-10-01, infinity];
+    };
+}
+
+pub enum ActeDuSuccessible {
+    label fr official "Acte accompli par le successible, dont il faut dire s'il emporte acceptation (articles 783, 784)";
+    label en unofficial "Act done by the successor, to be classified as implying acceptance or not (Articles 783, 784)";
+    CessionDeSesDroitsSuccessifs,
+    RenonciationAuProfitDeCoheritiersDetermines,
+    RenonciationATitreOnereux,
+    PaiementDesFraisFunerairesOuDettesUrgentes,
+    RecouvrementDesFruitsOuVenteDeBiensPerissables,
+    ActeEvitantLAggravationDuPassif,
+    RuptureDuContratDuSalarieDuDefunt,
+    OperationCouranteDeLEntreprise,
+    RenouvellementDeBail
+}
+
+// --- Entrées du cas --------------------------------------------------------------------------
+
+pub relation option_exercee_le(s: Succession, h: Personne, modalite: ModaliteDeLOption, jour: Date) kind empirical {
+    label fr official "l'héritier a exercé cette option ce jour (articles 768, 782, 787, 804)";
+    label en unofficial "the heir exercised this option on this day (Articles 768, 782, 787, 804)";
+}
+pub relation frais_funeraires_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "paiement des frais funéraires exercé";
+    label en unofficial "funeral expenses payment exercised";
+}
+pub relation option_conditionnelle_ou_a_terme(s: Succession, h: Personne) kind empirical {
+    label fr official "l'option a été exercée sous condition ou à terme (article 768, alinéa 2)";
+    label en unofficial "the option was exercised subject to a condition or a term (Article 768, paragraph 2)";
+}
+pub relation sommation_d_opter_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de la sommation extrajudiciaire de prendre parti (article 771, alinéa 2)";
+    label en unofficial "day of the extrajudicial notice to take a decision (Article 771, paragraph 2)";
+}
+pub relation aucune_option_ni_prorogation_constatee(s: Succession, h: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté que l'héritier n'a ni pris parti ni sollicité de délai supplémentaire (article 772)";
+    label en unofficial "it is established that the heir neither decided nor applied for more time (Article 772)";
+}
+pub relation date_d_appreciation_de_l_option(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour auquel la situation de l'héritier est appréciée";
+    label en unofficial "day on which the heir's situation is assessed";
+}
+pub relation connaissance_de_la_renonciation_ou_de_l_indignite_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour où l'héritier de rang subséquent a eu connaissance de la renonciation ou de l'indignité de l'héritier de premier rang (article 774)";
+    label en unofficial "day the subsequent-rank heir learned of the first-rank heir's renunciation or unworthiness (Article 774)";
+}
+pub relation heritier_de_l_heritier_decede_sans_opter(s: Succession, h: Personne, succession_du_defunt_heritier: Succession) kind empirical {
+    key(s, h);
+    label fr official "l'héritier agit du chef d'un héritier décédé sans avoir opté, dont la succession est celle-ci (article 775)";
+    label en unofficial "the heir acts on behalf of an heir who died without opting, whose estate is this one (Article 775)";
+}
+pub relation vice_decouvert_ou_violence_cessee_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour où l'erreur ou le dol a été découvert, ou où la violence a cessé (article 777)";
+    label en unofficial "day the mistake or fraud was discovered, or the duress ended (Article 777)";
+}
+pub relation recel_ou_dissimulation_constate(s: Succession, h: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "l'héritier a recelé des biens ou dissimulé l'existence d'un cohéritier (article 778)";
+    label en unofficial "the heir concealed estate property or hid a co-heir's existence (Article 778)";
+}
+pub relation conjoint_laisse_en_jouissance(s: Succession, h: Personne, succession_du_conjoint: Succession) kind empirical {
+    key(s, h);
+    label fr official "l'héritier a laissé le conjoint survivant en jouissance des biens héréditaires ; la succession du conjoint est celle-ci (article 780, alinéa 3)";
+    label en unofficial "the heir left the surviving spouse in enjoyment of the estate; the spouse's estate is this one (Article 780, paragraph 3)";
+}
+pub relation acte_accompli(s: Succession, h: Personne, acte: ActeDuSuccessible) kind empirical {
+    label fr official "acte accompli par le successible (articles 783, 784)";
+    label en unofficial "act done by the successor (Articles 783, 784)";
+}
+pub relation titre_ou_qualite_d_heritier_pris(s: Succession, h: Personne) kind empirical {
+    label fr official "le successible a pris le titre ou la qualité d'héritier dans l'acte (article 784)";
+    label en unofficial "the successor took the title or capacity of heir in the act (Article 784)";
+}
+pub relation connaissance_de_la_dette_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour où l'héritier a eu connaissance de l'existence et de l'importance de la dette (article 786)";
+    label en unofficial "day the heir learned of the debt's existence and size (Article 786)";
+}
+pub relation inventaire_depose_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour du dépôt de l'inventaire au tribunal (article 790)";
+    label en unofficial "day the inventory was filed with the court (Article 790)";
+}
+pub relation aucun_inventaire_depose_constate(s: Succession, h: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "il est constaté qu'aucun inventaire n'a été déposé et qu'aucune prorogation n'a été demandée (article 790)";
+    label en unofficial "it is established that no inventory was filed and no extension sought (Article 790)";
+}
+pub relation publicite_de_la_declaration_le(s: Succession, jour: Date) kind empirical {
+    key(s);
+    label fr official "jour de la publicité nationale de la déclaration d'acceptation à concurrence de l'actif net (article 788)";
+    label en unofficial "day of national publication of the declaration of acceptance up to net assets (Article 788)";
+}
+pub relation creance_declaree_le(s: Succession, creancier: Personne, jour: Date) kind empirical {
+    key(s, creancier);
+    label fr official "jour où le créancier successoral a déclaré sa créance au domicile élu (article 792)";
+    label en unofficial "day the estate creditor lodged his claim at the chosen address (Article 792)";
+}
+pub relation creance_assortie_de_surete(s: Succession, creancier: Personne) kind empirical {
+    label fr official "la créance est assortie d'une sûreté sur les biens de la succession (article 792)";
+    label en unofficial "the claim is secured on estate property (Article 792)";
+}
+pub relation creancier_successoral(s: Succession, creancier: Personne) kind empirical {
+    label fr official "créancier de la succession";
+    label en unofficial "estate creditor";
+}
+pub relation conservation_ou_alienation_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de la décision de conserver ou d'aliéner un bien de la succession (article 794)";
+    label en unofficial "day of the decision to keep or sell an estate asset (Article 794)";
+}
+pub relation declaration_au_tribunal_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    key(s, h);
+    label fr official "jour de la déclaration de la conservation ou de l'aliénation au tribunal (article 794)";
+    label en unofficial "day the keeping or sale was declared to the court (Article 794)";
+}
+pub relation omission_de_mauvaise_foi_constatee(s: Succession, h: Personne) kind empirical {
+    origin adjudicated;
+    label fr official "l'héritier a omis sciemment et de mauvaise foi des éléments de l'inventaire, ou n'a pas affecté aux créanciers la valeur des biens (article 800, alinéa 4)";
+    label en unofficial "the heir knowingly and in bad faith left items out of the inventory, or did not apply asset values to creditors (Article 800, paragraph 4)";
+}
+pub relation deja_acceptee_par_un_autre_ou_etat_envoye(s: Succession) kind empirical {
+    label fr official "la succession a déjà été acceptée par un autre héritier, ou l'État a été envoyé en possession (article 807)";
+    label en unofficial "the estate was already accepted by another heir, or the State was put in possession (Article 807)";
+}
+pub relation frais_funeraires_d_un_ascendant_ou_descendant(s: Succession) kind empirical {
+    label fr official "la succession est celle d'un ascendant ou d'un descendant du renonçant, avec des frais funéraires (article 806)";
+    label en unofficial "the estate is that of an ascendant or descendant of the renouncing heir, with funeral expenses (Article 806)";
+}
+
+// --- Résultats -------------------------------------------------------------------------------
+
+pub relation option_nulle(s: Succession, h: Personne) kind derived {
+    label fr official "l'option conditionnelle ou à terme est nulle (article 768, alinéa 2)";
+    label en unofficial "a conditional or term option is void (Article 768, paragraph 2)";
+}
+pub relation option_prematuree_sans_effet(s: Succession, h: Personne) kind derived {
+    label fr official "l'option ne peut être exercée avant l'ouverture de la succession (article 770)";
+    label en unofficial "the option cannot be exercised before the estate opens (Article 770)";
+}
+pub relation option_prematuree_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "exercice prématuré de l'option (article 770)";
+    label en unofficial "premature exercise of the option (Article 770)";
+}
+pub relation sommation_possible_a_compter_du(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "premier jour où l'héritier peut être sommé de prendre parti : quatre mois depuis le point de départ (articles 771, 774, 775)";
+    label en unofficial "first day the heir can be given notice to decide: four months from the starting point (Articles 771, 774, 775)";
+}
+pub relation sommation_prematuree(s: Succession, h: Personne) kind derived {
+    label fr official "la sommation est faite avant l'expiration du délai de quatre mois (article 771)";
+    label en unofficial "the notice was given before the four-month period expired (Article 771)";
+}
+pub relation fin_du_delai_apres_sommation(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des deux mois qui suivent la sommation (article 772)";
+    label en unofficial "last day of the two months following the notice (Article 772)";
+}
+pub relation repute_acceptant_pur_et_simple(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier est réputé acceptant pur et simple (articles 772, 778, 790, 800)";
+    label en unofficial "the heir is deemed to have accepted outright (Articles 772, 778, 790, 800)";
+}
+pub relation fin_de_la_faculte_d_option(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des dix ans de la faculté d'option (article 780)";
+    label en unofficial "last day of the ten-year option period (Article 780)";
+}
+pub relation option_de_l_heritier_exercee(s: Succession, h: Personne, jour: Date) kind institutional {
+    label fr official "l'héritier a exercé son option dans le délai (articles 768 et 780)";
+    label en unofficial "the heir has exercised the option within the time limit (Articles 768 and 780)";
+}
+pub relation repute_renoncant(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier qui n'a pas pris parti dans les dix ans est réputé renonçant (article 780, alinéa 2)";
+    label en unofficial "an heir who did not decide within ten years is deemed to have renounced (Article 780, paragraph 2)";
+}
+pub relation nullite_de_l_option_prescrite_le(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "l'action en nullité de l'option viciée se prescrit ce jour : cinq ans (article 777)";
+    label en unofficial "the action to annul a vitiated option is time-barred on this day: five years (Article 777)";
+}
+pub relation sans_part_dans_les_biens_receles(s: Succession, h: Personne) kind derived {
+    label fr official "le receleur ne peut prétendre à aucune part dans les biens recelés (article 778)";
+    label en unofficial "the concealer can claim no share of the concealed property (Article 778)";
+}
+pub relation reclamation_part_biens_receles_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "réclamation d'une part dans les biens recelés";
+    label en unofficial "claim to a share in concealed property";
+}
+pub relation option_ou_prorogation_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "prise de parti ou demande de délai exercée (article 772)";
+    label en unofficial "decision or extension request exercised (Article 772)";
+}
+pub relation acte_emportant_acceptation(s: Succession, h: Personne) kind derived {
+    label fr official "l'acte emporte acceptation pure et simple (article 783)";
+    label en unofficial "the act implies outright acceptance (Article 783)";
+}
+pub relation acte_sans_acceptation(s: Succession, h: Personne) kind derived {
+    label fr official "l'acte conservatoire ou d'administration provisoire n'emporte pas acceptation (article 784)";
+    label en unofficial "the protective or provisional-management act does not imply acceptance (Article 784)";
+}
+pub relation decharge_demandee_hors_delai(s: Succession, h: Personne) kind derived {
+    label fr official "l'action en décharge d'une dette ignorée n'est pas introduite dans les cinq mois (article 786)";
+    label en unofficial "the action for release from an unknown debt was not brought within five months (Article 786)";
+}
+pub relation fin_du_delai_de_decharge(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des cinq mois pour demander la décharge d'une dette ignorée (article 786)";
+    label en unofficial "last day of the five months to seek release from an unknown debt (Article 786)";
+}
+pub relation fin_du_delai_d_inventaire(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des deux mois pour déposer l'inventaire (article 790)";
+    label en unofficial "last day of the two months to file the inventory (Article 790)";
+}
+pub relation fin_du_delai_de_declaration_des_creances(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des quinze mois pour déclarer les créances (article 792)";
+    label en unofficial "last day of the fifteen months to lodge claims (Article 792)";
+}
+pub relation creance_eteinte_a_l_egard_de_la_succession(s: Succession, creancier: Personne) kind derived {
+    label fr official "la créance non assortie de sûreté et non déclarée dans les quinze mois est éteinte à l'égard de la succession (article 792)";
+    label en unofficial "an unsecured claim not lodged within fifteen months is extinguished against the estate (Article 792)";
+}
+pub relation declaration_tardive_au_tribunal(s: Succession, h: Personne) kind derived {
+    label fr official "la conservation ou l'aliénation n'est pas déclarée dans les quinze jours (article 794) : l'aliénation non déclarée engage l'héritier sur ses biens personnels (article 795)";
+    label en unofficial "the keeping or sale was not declared within fifteen days (Article 794): an undeclared sale binds the heir's own assets (Article 795)";
+}
+pub relation fin_du_delai_de_contestation(s: Succession, jour: Date) kind derived {
+    key(s);
+    label fr official "dernier jour des trois mois pour contester la valeur du bien conservé ou le prix de l'aliénation (article 794)";
+    label en unofficial "last day of the three months to challenge the value of the kept asset or the sale price (Article 794)";
+}
+pub relation fin_du_delai_de_paiement(s: Succession, h: Personne, jour: Date) kind derived {
+    key(s, h);
+    label fr official "dernier jour des deux mois pour payer les créanciers (article 797)";
+    label en unofficial "last day of the two months to pay the creditors (Article 797)";
+}
+pub relation paiement_creanciers_exerce(s: Succession, h: Personne) kind empirical {
+    label fr official "paiement des créanciers de la succession exercé";
+    label en unofficial "estate creditors paid";
+}
+pub relation contestation_valeur_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "contestation de la valeur ou du prix exercée";
+    label en unofficial "challenge to value or price exercised";
+}
+pub relation valeur_ou_prix_conteste(s: Succession, h: Personne) kind institutional {
+    label fr official "le créancier successoral a contesté la valeur ou le prix déclaré (article 794)";
+    label en unofficial "the estate creditor has contested the declared value or price (Article 794)";
+}
+pub relation action_nullite_option_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "action en nullité de l'option exercée";
+    label en unofficial "action to annul the option exercised";
+}
+pub relation nullite_de_l_option_demandee(s: Succession, h: Personne) kind institutional {
+    label fr official "l'héritier a exercé l'action en nullité de son option (article 777)";
+    label en unofficial "the heir has brought the action for nullity of the option (Article 777)";
+}
+pub relation action_decharge_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "action en décharge de la dette exercée";
+    label en unofficial "release action for the debt exercised";
+}
+pub relation heritage_regle_passif_exerce(s: Succession, h: Personne) kind empirical {
+    label fr official "règlement du passif de la succession exercé";
+    label en unofficial "estate liabilities settled";
+}
+pub relation heritier_regleur(s: Succession, h: Personne) kind empirical {
+    label fr official "héritier chargé du règlement du passif";
+    label en unofficial "heir responsible for settling liabilities";
+}
+@source(CC_ART795)
+pub relation declaration_conservation_non_publiee(s: Succession, h: Personne) kind empirical {
+    label fr official "déclaration de conservation non publiée";
+    label en unofficial "unpublished retention declaration";
+}
+pub relation declaration_conservation_opposable_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "opposabilité de la déclaration de conservation exercée";
+    label en unofficial "opposability of the retention declaration exercised";
+}
+pub relation sommation_prematuree_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "sommation prématurée d'opter exercée";
+    label en unofficial "premature notice to decide exercised";
+}
+pub relation renonciation_impossible(s: Succession, h: Personne) kind derived {
+    label fr official "l'acceptation, pure et simple ou à concurrence de l'actif net, empêche toute renonciation (articles 786, 801)";
+    label en unofficial "acceptance, outright or up to net assets, prevents any renunciation (Articles 786, 801)";
+}
+pub relation revocation_de_la_renonciation_possible(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier peut révoquer sa renonciation en acceptant purement et simplement (article 807)";
+    label en unofficial "the heir may revoke his renunciation by accepting outright (Article 807)";
+}
+pub relation renonciation_revoquee(s: Succession, h: Personne) kind institutional {
+    label fr official "l'héritier a révoqué sa renonciation en acceptant purement et simplement (article 807)";
+    label en unofficial "the heir has revoked the waiver by accepting outright (Article 807)";
+}
+pub relation revocation_renonciation_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "révocation de la renonciation exercée";
+    label en unofficial "revocation of renunciation exercised";
+}
+pub relation renonciation_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "renonciation à la succession exercée";
+    label en unofficial "renunciation of the estate exercised";
+}
+pub relation voie_execution_ou_surete_exercee(s: Succession, h: Personne) kind empirical {
+    label fr official "voie d'exécution ou inscription de sûreté exercée";
+    label en unofficial "enforcement or security registration exercised";
+}
+pub relation difficultes_recouvrement_constatees(s: Succession) kind empirical {
+    label fr official "difficultés de recouvrement constatées";
+    label en unofficial "collection difficulties established";
+}
+pub relation partage_provoque_exerce(s: Succession, h: Personne) kind empirical {
+    label fr official "partage provoqué par le créancier exercé";
+    label en unofficial "partition provoked by the creditor exercised";
+}
+pub relation partage_provoque_par_le_creancier(s: Succession, h: Personne) kind institutional {
+    label fr official "le créancier a provoqué le partage en raison des difficultés de recouvrement (article 792-2)";
+    label en unofficial "the creditor has called for partition because of recovery difficulties (Article 792-2)";
+}
+pub relation bien_conserve_en_nature_exerce(s: Succession, h: Personne) kind empirical {
+    label fr official "conservation en nature du bien exercée";
+    label en unofficial "retention in kind of the asset exercised";
+}
+pub relation bien_conserve_en_nature_par_l_heritier(s: Succession, h: Personne) kind institutional {
+    label fr official "l'héritier conserve le bien en nature (article 793)";
+    label en unofficial "the heir keeps the asset in kind (Article 793)";
+}
+pub relation acceptations_mixtes_constatees(s: Succession) kind empirical {
+    label fr official "acceptations pure et simple et à concurrence de l'actif net constatées";
+    label en unofficial "outright and net-asset acceptances established";
+}
+pub relation conservation_bien_declaree_le(s: Succession, h: Personne, jour: Date) kind empirical {
+    label fr official "jour de la déclaration de conservation en nature d'un bien";
+    label en unofficial "day the heir declared retention in kind of an asset";
+}
+pub relation tenu_des_frais_funeraires(s: Succession, h: Personne) kind derived {
+    label fr official "le renonçant reste tenu, à proportion de ses moyens, des frais funéraires de l'ascendant ou du descendant (article 806)";
+    label en unofficial "the renouncing heir remains liable, in proportion to his means, for the funeral expenses of the ascendant or descendant (Article 806)";
+}
+
+// --- Articles 768 et 770 -----------------------------------------------------------------------
+
+@source(CC_ART768)
+rule OptionConditionnelleNulle(s: Succession, h: Personne) strict {
+    label fr official "Article 768, alinéa 2. Est nulle l'option conditionnelle ou à terme";
+    label en unofficial "Article 768, paragraph 2. A conditional or term option is void";
+    when option_conditionnelle_ou_a_terme(s, h);
+    then option_nulle(s, h);
+}
+
+@source(CC_ART770)
+rule OptionAvantLOuverture(s: Succession, h: Personne, m: ModaliteDeLOption, jour: Date, ouverture: Date) strict {
+    label fr official "Article 770. L'option ne peut être exercée avant l'ouverture de la succession, même par contrat de mariage";
+    label en unofficial "Article 770. The option cannot be exercised before the estate opens, even by marriage contract";
+    when option_exercee_le(s, h, m, jour) and ouverte_le(s, ouverture) and jour < ouverture;
+    then option_prematuree_sans_effet(s, h);
+}
+
+@source(CC_ART770)
+rule P3InterdictionOptionAvantOuverture(s: Succession, h: Personne, m: ModaliteDeLOption, jour: Date, ouverture: Date) strict {
+    label fr official "Article 770. L'option ne peut être exercée avant l'ouverture de la succession";
+    label en unofficial "Article 770. The option cannot be exercised before the estate opens";
+    when option_exercee_le(s, h, m, jour) and ouverte_le(s, ouverture) and jour < ouverture;
+    then prohibition P3PositionInterdictionOptionAvantOuverture {
+        bearer h;
+        action option_prematuree_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Articles 771 à 775 : sommation et délais ---------------------------------------------------
+
+@source(CC_ART771) {
+    rule QuatreMoisDepuisLOuverture(s: Succession, h: Personne, ouverture: Date) strict {
+        label fr official "Article 771, alinéa 1. L'héritier ne peut être contraint à opter avant l'expiration d'un délai de quatre mois à compter de l'ouverture de la succession";
+        label en unofficial "Article 771, paragraph 1. The heir cannot be compelled to opt before four months from the estate's opening";
+        when sommation_d_opter_le(s, h, _) and ouverte_le(s, ouverture)
+            and not_known(heritier_subsequent_ou_du_chef(s, h));
+        then sommation_possible_a_compter_du(s, h, add_calendar_period(ouverture, 4 calendar_month));
+    }
+    rule SommationPrematuree(s: Succession, h: Personne, possible: Date, sommation: Date) strict {
+        label fr official "Article 771, alinéa 2. La sommation n'est ouverte qu'à l'expiration du délai de quatre mois";
+        label en unofficial "Article 771, paragraph 2. Notice is available only once the four months have expired";
+        when sommation_possible_a_compter_du(s, h, possible) and sommation_d_opter_le(s, h, sommation)
+            and sommation < possible;
+        then sommation_prematuree(s, h);
+    }
+}
+
+pub relation heritier_subsequent_ou_du_chef(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier est de rang subséquent ou agit du chef d'un héritier décédé sans opter : ses quatre mois ont un point de départ propre (articles 774, 775)";
+    label en unofficial "the heir is of subsequent rank or acts for an heir who died without opting: his four months have their own starting point (Articles 774, 775)";
+}
+
+@source(CC_ART774)
+rule QuatreMoisDeLHeritierSubsequent(s: Succession, h: Personne, connaissance: Date) strict {
+    label fr official "Article 774. Pour l'héritier de rang subséquent, le délai de quatre mois court du jour où il a eu connaissance de la renonciation ou de l'indignité";
+    label en unofficial "Article 774. For the subsequent-rank heir, the four months run from the day he learned of the renunciation or unworthiness";
+    when connaissance_de_la_renonciation_ou_de_l_indignite_le(s, h, connaissance);
+    then sommation_possible_a_compter_du(s, h, add_calendar_period(connaissance, 4 calendar_month));
+}
+
+@source(CC_ART774, CC_ART775) {
+    rule SubsequentOuDuChefParLaConnaissance(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 774. L'héritier de rang subséquent a un point de départ propre";
+        label en unofficial "Article 774. The subsequent-rank heir has his own starting point";
+        when connaissance_de_la_renonciation_ou_de_l_indignite_le(s, h, jour);
+        then heritier_subsequent_ou_du_chef(s, h);
+    }
+    rule SubsequentOuDuChefParLeDeces(s: Succession, h: Personne, autre: Succession) strict {
+        label fr official "Article 775. L'héritier de celui qui décède sans avoir opté a un point de départ propre";
+        label en unofficial "Article 775. The heir of one who died without opting has his own starting point";
+        when heritier_de_l_heritier_decede_sans_opter(s, h, autre);
+        then heritier_subsequent_ou_du_chef(s, h);
+    }
+}
+
+@source(CC_ART775)
+rule QuatreMoisDesHeritiersDeLHeritierDecede(s: Succession, h: Personne, autre: Succession, ouverture: Date) strict {
+    label fr official "Article 775. Pour les héritiers de celui qui décède sans avoir opté, le délai de quatre mois court de l'ouverture de la succession de ce dernier";
+    label en unofficial "Article 775. For the heirs of one who died without opting, the four months run from the opening of his estate";
+    when heritier_de_l_heritier_decede_sans_opter(s, h, autre) and ouverte_le(autre, ouverture);
+    then sommation_possible_a_compter_du(s, h, add_calendar_period(ouverture, 4 calendar_month));
+}
+
+@source(CC_ART772) {
+    rule DeuxMoisApresLaSommation(s: Succession, h: Personne, sommation: Date) strict {
+        label fr official "Article 772, alinéa 1. Dans les deux mois qui suivent la sommation, l'héritier doit prendre parti ou solliciter un délai supplémentaire";
+        label en unofficial "Article 772, paragraph 1. Within two months of the notice, the heir must decide or apply for more time";
+        when sommation_d_opter_le(s, h, sommation) and not_known(sommation_prematuree(s, h));
+        then fin_du_delai_apres_sommation(s, h, add_calendar_period(sommation, 2 calendar_month));
+    }
+    rule SilenceApresLaSommation(s: Succession, h: Personne, fin: Date, examen: Date) strict {
+        label fr official "Article 772, alinéa 2. À défaut d'avoir pris parti à l'expiration du délai de deux mois, l'héritier est réputé acceptant pur et simple";
+        label en unofficial "Article 772, paragraph 2. If he has not decided when the two months expire, the heir is deemed to have accepted outright";
+        when fin_du_delai_apres_sommation(s, h, fin) and aucune_option_ni_prorogation_constatee(s, h)
+            and date_d_appreciation_de_l_option(s, h, examen) and examen > fin;
+        then repute_acceptant_pur_et_simple(s, h);
+    }
+}
+
+@source(CC_ART772)
+rule P3DevoirPrendrePartiApresSommation(s: Succession, h: Personne, sommation: Date) strict {
+    label fr official "Article 772. Dans les deux mois qui suivent la sommation, l'héritier doit prendre parti ou solliciter un délai supplémentaire";
+    label en unofficial "Article 772. Within two months of notice, the heir must decide or request an extension";
+    when sommation_d_opter_le(s, h, sommation) and not_known(sommation_prematuree(s, h));
+    then duty P3PositionDevoirPrendrePartiApresSommation {
+        bearer h;
+        goal achievement {
+            condition option_ou_prorogation_exercee(s, h);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+@source(CC_ART771)
+rule P3InterdictionSommationAvantQuatreMois(s: Succession, h: Personne) strict {
+    label fr official "Article 771. L'héritier ne peut être contraint à opter avant quatre mois";
+    label en unofficial "Article 771. An heir cannot be compelled to decide before four months";
+    when sommation_prematuree(s, h);
+    then prohibition P3PositionInterdictionSommationAvantQuatreMois {
+        bearer h;
+        action sommation_prematuree_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Articles 777 et 780 : nullité et prescription de l'option ------------------------------------
+
+@source(CC_ART777)
+rule CinqAnsPourLaNulliteDeLOption(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 777. L'action en nullité de l'option pour erreur, dol ou violence se prescrit par cinq ans à compter de la découverte ou de la cessation de la violence";
+    label en unofficial "Article 777. The action to annul the option for mistake, fraud or duress is time-barred five years from discovery or the end of the duress";
+    when vice_decouvert_ou_violence_cessee_le(s, h, jour);
+    then nullite_de_l_option_prescrite_le(s, h, add_calendar_period(jour, 5 calendar_year));
+}
+
+@source(CC_ART777)
+rule P3PouvoirDemanderNulliteOption(s: Succession, h: Personne, jour: Date, fin: Date, examen: Date) strict {
+    label fr official "Article 777. L'héritier peut exercer l'action en nullité de l'option dans les cinq ans";
+    label en unofficial "Article 777. The heir may bring an action to annul the option within five years";
+    when vice_decouvert_ou_violence_cessee_le(s, h, jour)
+        and nullite_de_l_option_prescrite_le(s, h, fin)
+        and date_d_appreciation_de_l_option(s, h, examen)
+        and examen <= fin;
+    then power P3PositionPouvoirDemanderNulliteOption {
+        holder h;
+        over s;
+        exercise action_nullite_option_exercee(s, h);
+        effect nullite_de_l_option_demandee(s, h);
+        valid_when vice_decouvert_ou_violence_cessee_le(s, h, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART780) {
+    rule DixAnsDepuisLOuverture(s: Succession, h: Personne, ouverture: Date) strict {
+        label fr official "Article 780, alinéa 1. La faculté d'option se prescrit par dix ans à compter de l'ouverture de la succession";
+        label en unofficial "Article 780, paragraph 1. The option is time-barred ten years from the estate's opening";
+        when date_d_appreciation_de_l_option(s, h, _) and ouverte_le(s, ouverture)
+            and not_known(point_de_depart_differe_de_l_option(s, h));
+        then fin_de_la_faculte_d_option(s, h, add_calendar_period(ouverture, 10 calendar_year));
+    }
+    rule DixAnsDepuisLaSuccessionDuConjoint(s: Succession, h: Personne, autre: Succession, ouverture: Date) strict {
+        label fr official "Article 780, alinéa 3. La prescription ne court contre l'héritier qui a laissé le conjoint survivant en jouissance des biens qu'à compter de l'ouverture de la succession de ce dernier";
+        label en unofficial "Article 780, paragraph 3. Limitation runs against an heir who left the surviving spouse in enjoyment only from the opening of the spouse's estate";
+        when conjoint_laisse_en_jouissance(s, h, autre) and ouverte_le(autre, ouverture);
+        then fin_de_la_faculte_d_option(s, h, add_calendar_period(ouverture, 10 calendar_year));
+    }
+    rule PointDeDepartDifferePourLeConjointEnJouissance(s: Succession, h: Personne, autre: Succession) strict {
+        label fr official "Article 780, alinéa 3. Le point de départ est différé à la succession du conjoint";
+        label en unofficial "Article 780, paragraph 3. The starting point is deferred to the spouse's estate";
+        when conjoint_laisse_en_jouissance(s, h, autre);
+        then point_de_depart_differe_de_l_option(s, h);
+    }
+    rule ReputeRenoncantApresDixAns(s: Succession, h: Personne, fin: Date, examen: Date) strict {
+        label fr official "Article 780, alinéa 2. L'héritier qui n'a pas pris parti dans ce délai est réputé renonçant";
+        label en unofficial "Article 780, paragraph 2. An heir who has not decided within this period is deemed to have renounced";
+        when fin_de_la_faculte_d_option(s, h, fin) and date_d_appreciation_de_l_option(s, h, examen)
+            and examen > fin and not_known(option_exercee(s, h));
+        then repute_renoncant(s, h);
+    }
+    rule OptionExercee(s: Succession, h: Personne, m: ModaliteDeLOption, jour: Date) strict {
+        label fr official "Article 780. L'héritier a pris parti";
+        label en unofficial "Article 780. The heir has decided";
+        when option_exercee_le(s, h, m, jour);
+        then option_exercee(s, h);
+    }
+}
+
+pub relation point_de_depart_differe_de_l_option(s: Succession, h: Personne) kind derived {
+    label fr official "le point de départ des dix ans est différé (article 780, alinéas 3 à 5)";
+    label en unofficial "the start of the ten years is deferred (Article 780, paragraphs 3 to 5)";
+}
+pub relation option_exercee(s: Succession, h: Personne) kind derived {
+    label fr official "l'héritier a pris parti, sous l'une des trois modalités (article 768)";
+    label en unofficial "the heir has decided, in one of the three forms (Article 768)";
+}
+
+// --- Article 778 : le recel ---------------------------------------------------------------------
+
+@source(CC_ART778) {
+    rule ReceleurReputeAcceptant(s: Succession, h: Personne) strict {
+        label fr official "Article 778, alinéa 1. L'héritier qui a recelé des biens ou dissimulé un cohéritier est réputé accepter purement et simplement, nonobstant toute renonciation ou acceptation à concurrence de l'actif net";
+        label en unofficial "Article 778, paragraph 1. An heir who concealed property or hid a co-heir is deemed to accept outright, notwithstanding any renunciation or net-assets acceptance";
+        when recel_ou_dissimulation_constate(s, h);
+        then repute_acceptant_pur_et_simple(s, h);
+    }
+    rule ReceleurSansPart(s: Succession, h: Personne) strict {
+        label fr official "Article 778, alinéa 1. Il ne peut prétendre à aucune part dans les biens ou droits détournés ou recelés";
+        label en unofficial "Article 778, paragraph 1. He can claim no share of the diverted or concealed property or rights";
+        when recel_ou_dissimulation_constate(s, h);
+        then sans_part_dans_les_biens_receles(s, h);
+    }
+}
+
+@source(CC_ART778)
+rule P3InterdictionReclamerBiensReceles(s: Succession, h: Personne) strict {
+    label fr official "Article 778. Il ne peut prétendre à aucune part dans les biens ou droits détournés ou recelés";
+    label en unofficial "Article 778. The concealer cannot claim any share in concealed property";
+    when recel_ou_dissimulation_constate(s, h);
+    then prohibition P3PositionInterdictionReclamerBiensReceles {
+        bearer h;
+        action reclamation_part_biens_receles_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Articles 783 à 786 : acceptation pure et simple ------------------------------------------
+
+@source(CC_ART783) {
+    rule CessionEmporteAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 783, alinéa 1. Toute cession, à titre gratuit ou onéreux, de tout ou partie de ses droits dans la succession emporte acceptation pure et simple";
+        label en unofficial "Article 783, paragraph 1. Any transfer, gratuitous or for value, of all or part of one's rights in the estate implies outright acceptance";
+        when acte_accompli(s, h, CessionDeSesDroitsSuccessifs);
+        then acte_emportant_acceptation(s, h);
+    }
+    rule RenonciationInFavoremEmporteAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 783, 1°. De même de la renonciation, même gratuite, au profit d'un ou plusieurs cohéritiers déterminés";
+        label en unofficial "Article 783, 1°. Likewise a renunciation, even gratuitous, in favour of one or more specified co-heirs";
+        when acte_accompli(s, h, RenonciationAuProfitDeCoheritiersDetermines);
+        then acte_emportant_acceptation(s, h);
+    }
+    rule RenonciationOnereuseEmporteAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 783, 2°. De même de la renonciation à titre onéreux, même au profit de tous les cohéritiers";
+        label en unofficial "Article 783, 2°. Likewise a renunciation for value, even in favour of all co-heirs";
+        when acte_accompli(s, h, RenonciationATitreOnereux);
+        then acte_emportant_acceptation(s, h);
+    }
+    rule AccepteParSonActe(s: Succession, h: Personne) strict {
+        label fr official "Article 783. L'acte qui emporte acceptation rend l'héritier acceptant pur et simple";
+        label en unofficial "Article 783. An act implying acceptance makes the heir an outright acceptor";
+        when acte_emportant_acceptation(s, h);
+        then repute_acceptant_pur_et_simple(s, h);
+    }
+}
+
+@source(CC_ART784) {
+    rule PaiementUrgentSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784, 1°. Le paiement des frais funéraires et de dernière maladie, des impôts, des loyers et des dettes urgentes est purement conservatoire";
+        label en unofficial "Article 784, 1°. Paying funeral and last-illness costs, taxes, rent and urgent debts is purely protective";
+        when acte_accompli(s, h, PaiementDesFraisFunerairesOuDettesUrgentes) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+    rule RecouvrementDesFruitsSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784, 2°. Le recouvrement des fruits et revenus ou la vente des biens périssables est purement conservatoire";
+        label en unofficial "Article 784, 2°. Collecting fruits and income or selling perishable goods is purely protective";
+        when acte_accompli(s, h, RecouvrementDesFruitsOuVenteDeBiensPerissables) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+    rule ActeContreLAggravationSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784, 3°. L'acte destiné à éviter l'aggravation du passif est purement conservatoire";
+        label en unofficial "Article 784, 3°. An act aimed at preventing the liabilities from growing is purely protective";
+        when acte_accompli(s, h, ActeEvitantLAggravationDuPassif) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+    rule RuptureDuContratDeTravailSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784, 4°. Les actes liés à la rupture du contrat du salarié du particulier employeur décédé sont purement conservatoires";
+        label en unofficial "Article 784, 4°. Acts linked to ending the employment of the deceased private employer's employee are purely protective";
+        when acte_accompli(s, h, RuptureDuContratDuSalarieDuDefunt) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+    rule OperationCouranteSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784. Les opérations courantes nécessaires à la continuation à court terme de l'entreprise sont des actes d'administration provisoire";
+        label en unofficial "Article 784. Routine operations needed to keep the business going short term are acts of provisional management";
+        when acte_accompli(s, h, OperationCouranteDeLEntreprise) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+    rule RenouvellementDeBailSansAcceptation(s: Succession, h: Personne) strict {
+        label fr official "Article 784. Le renouvellement des baux qui, à défaut, donneraient lieu au paiement d'une indemnité n'emporte pas acceptation tacite";
+        label en unofficial "Article 784. Renewing leases that would otherwise trigger compensation does not imply tacit acceptance";
+        when acte_accompli(s, h, RenouvellementDeBail) and not_known(titre_ou_qualite_d_heritier_pris(s, h));
+        then acte_sans_acceptation(s, h);
+    }
+}
+
+@source(CC_ART786) {
+    rule AcceptationPureIrrevocable(s: Succession, h: Personne, jour: Date) strict {
+        label fr official "Article 786, alinéa 1. L'héritier acceptant purement et simplement ne peut plus renoncer ni accepter à concurrence de l'actif net";
+        label en unofficial "Article 786, paragraph 1. An outright acceptor can no longer renounce or accept up to net assets";
+        when option_exercee_le(s, h, AcceptationPureEtSimple, jour);
+        then renonciation_impossible(s, h);
+    }
+    rule CinqMoisPourLaDecharge(s: Succession, h: Personne, connaissance: Date) strict {
+        label fr official "Article 786, alinéa 3. L'héritier doit introduire l'action en décharge dans les cinq mois du jour où il a eu connaissance de l'existence et de l'importance de la dette";
+        label en unofficial "Article 786, paragraph 3. The heir must bring the release action within five months of learning of the debt's existence and size";
+        when connaissance_de_la_dette_le(s, h, connaissance);
+        then fin_du_delai_de_decharge(s, h, add_calendar_period(connaissance, 5 calendar_month));
+    }
+}
+
+@source(CC_ART786)
+rule P3DevoirIntroduireActionDecharge(s: Succession, h: Personne, connaissance: Date) strict {
+    label fr official "Article 786. L'héritier doit introduire l'action en décharge dans les cinq mois";
+    label en unofficial "Article 786. The heir must bring the release action within five months";
+    when connaissance_de_la_dette_le(s, h, connaissance);
+    then duty P3PositionDevoirIntroduireActionDecharge {
+        bearer h;
+        goal achievement {
+            condition action_decharge_exercee(s, h);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+// --- Articles 790 à 801 : acceptation à concurrence de l'actif net -----------------------------
+
+@source(CC_ART790) {
+    rule DeuxMoisPourLInventaire(s: Succession, h: Personne, declaration: Date) strict {
+        label fr official "Article 790, alinéa 1. L'inventaire est déposé au tribunal dans le délai de deux mois à compter de la déclaration";
+        label en unofficial "Article 790, paragraph 1. The inventory is filed with the court within two months of the declaration";
+        when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, declaration);
+        then fin_du_delai_d_inventaire(s, h, add_calendar_period(declaration, 2 calendar_month));
+    }
+    rule InventaireTardif(s: Succession, h: Personne, fin: Date, depot: Date) strict {
+        label fr official "Article 790, alinéa 4. Faute d'avoir déposé l'inventaire dans le délai, l'héritier est réputé acceptant pur et simple";
+        label en unofficial "Article 790, paragraph 4. Failing to file the inventory in time, the heir is deemed an outright acceptor";
+        when fin_du_delai_d_inventaire(s, h, fin) and inventaire_depose_le(s, h, depot) and depot > fin;
+        then repute_acceptant_pur_et_simple(s, h);
+    }
+    rule AucunInventaire(s: Succession, h: Personne, fin: Date, examen: Date) strict {
+        label fr official "Article 790, alinéa 4. L'absence constatée d'inventaire à l'expiration du délai emporte la même conséquence";
+        label en unofficial "Article 790, paragraph 4. An established absence of inventory when the period expires has the same effect";
+        when fin_du_delai_d_inventaire(s, h, fin) and aucun_inventaire_depose_constate(s, h)
+            and date_d_appreciation_de_l_option(s, h, examen) and examen > fin;
+        then repute_acceptant_pur_et_simple(s, h);
+    }
+}
+
+@source(CC_ART790)
+rule P3DevoirDeposerInventaire(s: Succession, h: Personne, declaration: Date) strict {
+    label fr official "Article 790. L'héritier doit déposer l'inventaire dans les deux mois";
+    label en unofficial "Article 790. The heir must file the inventory within two months";
+    when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, declaration);
+    then duty P3PositionDevoirDeposerInventaire {
+        bearer h;
+        goal achievement {
+            condition inventaire_depose_le(s, h, declaration);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART792) {
+    rule QuinzeMoisPourDeclarer(s: Succession, publicite: Date) strict {
+        label fr official "Article 792, alinéa 2. Les créances sont déclarées dans un délai de quinze mois à compter de la publicité de l'article 788";
+        label en unofficial "Article 792, paragraph 2. Claims are lodged within fifteen months of the publication under Article 788";
+        when publicite_de_la_declaration_le(s, publicite);
+        then fin_du_delai_de_declaration_des_creances(s, add_calendar_period(publicite, 15 calendar_month));
+    }
+    rule CreanceTardiveEteinte(s: Succession, creancier: Personne, fin: Date, declaration: Date) strict {
+        label fr official "Article 792, alinéa 2. Faute de déclaration dans le délai, les créances non assorties de sûretés sur les biens de la succession sont éteintes à l'égard de celle-ci";
+        label en unofficial "Article 792, paragraph 2. Absent timely lodging, claims not secured on estate property are extinguished against the estate";
+        when fin_du_delai_de_declaration_des_creances(s, fin) and creance_declaree_le(s, creancier, declaration)
+            and declaration > fin and not_known(creance_assortie_de_surete(s, creancier));
+        then creance_eteinte_a_l_egard_de_la_succession(s, creancier);
+    }
+}
+
+@source(CC_ART792)
+rule P3DevoirDeclarerCreance(s: Succession, h: Personne, publicite: Date) strict {
+    label fr official "Article 792. Le créancier doit déclarer sa créance dans les quinze mois";
+    label en unofficial "Article 792. A creditor must lodge the claim within fifteen months";
+    when publicite_de_la_declaration_le(s, publicite)
+        and creancier_successoral(s, h);
+    then duty P3PositionDevoirDeclarerCreance {
+        bearer h;
+        goal achievement {
+            condition creance_declaree_le(s, h, publicite);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART792_1)
+rule P3InterdictionVoieExecutionPendantDeclaration(s: Succession, h: Personne, publicite: Date) strict {
+    label fr official "Article 792-1. La déclaration interdit les voies d'exécution et les nouvelles sûretés";
+    label en unofficial "Article 792-1. The declaration bars enforcement and new security registrations";
+    when publicite_de_la_declaration_le(s, publicite)
+        and creancier_successoral(s, h);
+    then prohibition P3PositionInterdictionVoieExecutionPendantDeclaration {
+        bearer h;
+        action voie_execution_ou_surete_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART792_2)
+rule P3PouvoirProvoquerPartageParCreancier(s: Succession, h: Personne) strict {
+    label fr official "Article 792-2. Le créancier peut provoquer le partage en cas de difficultés de recouvrement";
+    label en unofficial "Article 792-2. A creditor may provoke partition where collection is difficult";
+    when acceptations_mixtes_constatees(s)
+        and difficultes_recouvrement_constatees(s)
+        and creancier_successoral(s, h);
+    then power P3PositionPouvoirProvoquerPartageParCreancier {
+        holder h;
+        over s;
+        exercise partage_provoque_exerce(s, h);
+        effect partage_provoque_par_le_creancier(s, h);
+        valid_when difficultes_recouvrement_constatees(s);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART793)
+rule P3PouvoirConserverBienEnNature(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 793. L'héritier peut déclarer qu'il conserve en nature un bien";
+    label en unofficial "Article 793. An heir may declare that an asset is retained in kind";
+    when conservation_bien_declaree_le(s, h, jour);
+    then power P3PositionPouvoirConserverBienEnNature {
+        holder h;
+        over s;
+        exercise bien_conserve_en_nature_exerce(s, h);
+        effect bien_conserve_en_nature_par_l_heritier(s, h);
+        valid_when conservation_bien_declaree_le(s, h, jour);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART794, CC_ART795) {
+    rule QuinzeJoursPourDeclarerLaConservation(s: Succession, h: Personne, acte: Date, declaration: Date) strict {
+        label fr official "Article 794, alinéa 1. La déclaration de l'aliénation ou de la conservation est faite dans les quinze jours au tribunal ; à défaut, l'aliénation engage l'héritier sur ses biens personnels (article 795)";
+        label en unofficial "Article 794, paragraph 1. The sale or keeping is declared to the court within fifteen days; otherwise the sale binds the heir's own assets (Article 795)";
+        when conservation_ou_alienation_le(s, h, acte) and declaration_au_tribunal_le(s, h, declaration)
+            and declaration > add_calendar_period(acte, 15 calendar_day);
+        then declaration_tardive_au_tribunal(s, h);
+    }
+    rule TroisMoisPourContester(s: Succession, publicite: Date) strict {
+        label fr official "Article 794, alinéa 2. Tout créancier successoral peut contester la valeur ou le prix dans un délai de trois mois après la publicité";
+        label en unofficial "Article 794, paragraph 2. Any estate creditor may challenge the value or price within three months after publication";
+        when publicite_de_la_declaration_le(s, publicite);
+        then fin_du_delai_de_contestation(s, add_calendar_period(publicite, 3 calendar_month));
+    }
+}
+
+@source(CC_ART794)
+rule P3PouvoirContesterValeurOuPrix(s: Succession, h: Personne, publicite: Date, fin: Date, examen: Date) strict {
+    label fr official "Article 794. Le créancier successoral peut contester la valeur ou le prix";
+    label en unofficial "Article 794. An estate creditor may challenge the value or price";
+    when publicite_de_la_declaration_le(s, publicite)
+        and fin_du_delai_de_contestation(s, fin)
+        and examen <= fin
+        and creance_declaree_le(s, h, examen);
+    then power P3PositionPouvoirContesterValeurOuPrix {
+        holder h;
+        over s;
+        exercise contestation_valeur_exercee(s, h);
+        effect valeur_ou_prix_conteste(s, h);
+        valid_when creance_declaree_le(s, h, examen);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART797)
+rule DeuxMoisPourPayer(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 797. L'héritier doit payer les créanciers dans les deux mois suivant la déclaration de conserver le bien ou le jour où le produit de l'aliénation est disponible";
+    label en unofficial "Article 797. The heir must pay creditors within two months of declaring the asset kept or of the sale proceeds being available";
+    when declaration_au_tribunal_le(s, h, jour);
+    then fin_du_delai_de_paiement(s, h, add_calendar_period(jour, 2 calendar_month));
+}
+
+@source(CC_ART796)
+rule P3DevoirReglerPassifSuccession(s: Succession, h: Personne) strict {
+    label fr official "Article 796. L'héritier règle le passif de la succession";
+    label en unofficial "Article 796. The heir settles the estate liabilities";
+    when heritier_regleur(s, h);
+    then duty P3PositionDevoirReglerPassifSuccession {
+        bearer h;
+        goal achievement {
+            condition heritage_regle_passif_exerce(s, h);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART795)
+rule P3InterdictionOpposerConservationNonPubliee(s: Succession, h: Personne) strict {
+    label fr official "Article 795. La déclaration de conservation n'est pas opposable avant sa publication";
+    label en unofficial "Article 795. A retention declaration is not opposable before publication";
+    when declaration_conservation_non_publiee(s, h);
+    then prohibition P3PositionInterdictionOpposerConservationNonPubliee {
+        bearer h;
+        action declaration_conservation_opposable_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+@source(CC_ART797)
+rule P3DevoirPayerCreanciersApresDeclaration(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 797. L'héritier doit payer les créanciers dans les deux mois";
+    label en unofficial "Article 797. The heir must pay creditors within two months";
+    when declaration_au_tribunal_le(s, h, jour);
+    then duty P3PositionDevoirPayerCreanciersApresDeclaration {
+        bearer h;
+        goal achievement {
+            condition paiement_creanciers_exerce(s, h);
+            window [@2016-10-01, infinity);
+        };
+    };
+}
+
+@source(CC_ART800)
+rule DecheanceDeLActifNet(s: Succession, h: Personne) strict {
+    label fr official "Article 800, alinéa 4. L'héritier qui a omis sciemment et de mauvaise foi des éléments de l'inventaire est déchu de l'acceptation à concurrence de l'actif net et réputé acceptant pur et simple";
+    label en unofficial "Article 800, paragraph 4. An heir who knowingly and in bad faith omitted items from the inventory loses net-assets acceptance and is deemed an outright acceptor";
+    when omission_de_mauvaise_foi_constatee(s, h);
+    then repute_acceptant_pur_et_simple(s, h);
+}
+
+@source(CC_ART801)
+rule ActifNetEmpecheLaRenonciation(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 801, alinéa 2. L'acceptation à concurrence de l'actif net empêche toute renonciation à la succession";
+    label en unofficial "Article 801, paragraph 2. Acceptance up to net assets prevents any renunciation of the estate";
+    when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+    then renonciation_impossible(s, h);
+}
+
+@source(CC_ART801)
+rule P3InterdictionRenoncerApresActifNet(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 801. L'acceptation à concurrence de l'actif net empêche toute renonciation";
+    label en unofficial "Article 801. Acceptance up to net assets prohibits renunciation";
+    when option_exercee_le(s, h, AcceptationAConcurrenceDeLActifNet, jour);
+    then prohibition P3PositionInterdictionRenoncerApresActifNet {
+        bearer h;
+        action renonciation_exercee(s, h);
+        window [@2016-10-01, infinity];
+    };
+}
+
+// --- Articles 806 et 807 : la renonciation ------------------------------------------------------
+
+@source(CC_ART806)
+rule RenoncantTenuDesFraisFuneraires(s: Succession, h: Personne, jour: Date) strict {
+    label fr official "Article 806. Le renonçant n'est pas tenu des dettes, mais il est tenu à proportion de ses moyens des frais funéraires de l'ascendant ou du descendant";
+    label en unofficial "Article 806. The renouncing heir is not liable for the debts, but is liable in proportion to his means for the funeral expenses of the ascendant or descendant";
+    when option_exercee_le(s, h, Renonciation, jour) and frais_funeraires_d_un_ascendant_ou_descendant(s);
+    then tenu_des_frais_funeraires(s, h);
+}
+
+@source(CC_ART807)
+rule RevocationDeLaRenonciation(s: Succession, h: Personne, jour: Date, fin: Date, examen: Date) strict {
+    label fr official "Article 807. Tant que la prescription du droit d'accepter n'est pas acquise, l'héritier peut révoquer sa renonciation, si la succession n'a pas été acceptée par un autre héritier ni l'État envoyé en possession";
+    label en unofficial "Article 807. Until the right to accept is time-barred, the heir may revoke his renunciation, unless another heir accepted or the State was put in possession";
+    when option_exercee_le(s, h, Renonciation, jour)
+        and fin_de_la_faculte_d_option(s, h, fin) and date_d_appreciation_de_l_option(s, h, examen)
+        and examen <= fin
+        and not_known(deja_acceptee_par_un_autre_ou_etat_envoye(s));
+    then revocation_de_la_renonciation_possible(s, h);
+}

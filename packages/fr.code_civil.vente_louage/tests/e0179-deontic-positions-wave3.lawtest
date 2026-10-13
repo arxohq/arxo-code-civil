@@ -1,0 +1,59 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-reception-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:c:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:c:v"), entity_ref("urn:fr:cc12:e0179:1642-1:c:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:c:v"), entity_ref("urn:fr:cc12:e0179:1642-1:c:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:e0179:1642-1:c:v"), @2024-03-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:e0179:1642-1:c:v"), @2024-01-10) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantReception1642_1Actif, ACTIVE);
+    expect position(P4MaintenanceInterdictionDechargeAvantReception1642_1Duty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-reception-violated" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; deadline_policy CC_VENTE_LOUAGE_AN; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:d:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:d:v"), entity_ref("urn:fr:cc12:e0179:1642-1:d:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:d:v"), entity_ref("urn:fr:cc12:e0179:1642-1:d:p")) { origin case_input; }
+        assert "acceptance": reception_des_travaux_le(entity_ref("urn:fr:cc12:e0179:1642-1:d:v"), @2024-03-01) { origin case_input; }
+        assert "possession": prise_de_possession_par_acquereur_le(entity_ref("urn:fr:cc12:e0179:1642-1:d:v"), @2024-01-10) { origin case_input; }
+        assert "attempt": decharge_vendeur_avant_delai_exercee(entity_ref("urn:fr:cc12:e0179:1642-1:d:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionDechargeAvantReception1642_1Actif, VIOLATED);
+    expect position(P4MaintenanceInterdictionDechargeAvantReception1642_1Duty, VIOLATED);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-reparation-active" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:e:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:e:v"), entity_ref("urn:fr:cc12:e0179:1642-1:e:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:e:v"), entity_ref("urn:fr:cc12:e0179:1642-1:e:p")) { origin case_input; }
+        assert "undertaking": vendeur_s_oblige_a_reparer_vices_apparents(entity_ref("urn:fr:cc12:e0179:1642-1:e:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionResolutionMalgreReparation1642_1Actif, ACTIVE);
+    expect position(P4MaintenanceInterdictionResolutionMalgreReparation1642_1Duty, ACTIVE);
+}
+
+test "urn:positions:fr-code-civil-vente-louage-e0179-1642-1-reparation-violated" {
+    given {
+        context { decision_time @2026-09-21T09:00:00Z; knowledge_time @2026-09-21T09:00:00Z; legal_time @2026-09-21; timezone "Europe/Paris"; }
+        assert "sale": vente_d_immeuble_a_construire(entity_ref("urn:fr:cc12:e0179:1642-1:f:v")) { origin case_input; }
+        assert "seller": vendeur(entity_ref("urn:fr:cc12:e0179:1642-1:f:v"), entity_ref("urn:fr:cc12:e0179:1642-1:f:l")) { origin case_input; }
+        assert "buyer": acquereur(entity_ref("urn:fr:cc12:e0179:1642-1:f:v"), entity_ref("urn:fr:cc12:e0179:1642-1:f:p")) { origin case_input; }
+        assert "undertaking": vendeur_s_oblige_a_reparer_vices_apparents(entity_ref("urn:fr:cc12:e0179:1642-1:f:v")) { origin case_input; }
+        assert "attempt": resolution_ou_diminution_malgre_reparation_exercee(entity_ref("urn:fr:cc12:e0179:1642-1:f:v")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(P4InterdictionResolutionMalgreReparation1642_1Actif, VIOLATED);
+    expect position(P4MaintenanceInterdictionResolutionMalgreReparation1642_1Duty, VIOLATED);
+}

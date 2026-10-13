@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2312 : deux cautions ; K1 a payé 9 000 — recours contre K2 pour sa part, 4 500 EUR.
+test "urn:query:fr-code-civil-suretes-c31-recours-contre-l-autre-caution" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; }
+        assert "f1": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c31:K1"), @2022-03-01) { origin case_input; }
+        assert "f2": caution(entity_ref("urn:fr:cc:suretes:c31:K1"), entity_ref("urn:fr:cc:suretes:c31:C1")) { origin case_input; }
+        assert "f3": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c31:K1"), entity_ref("urn:fr:cc:suretes:c31:B")) { origin case_input; }
+        assert "f4": est_personne_morale(entity_ref("urn:fr:cc:suretes:c31:C1")) { origin case_input; }
+        assert "f5": fr.code_civil.transitions::cautionnement_conclu_le(entity_ref("urn:fr:cc:suretes:c31:K2"), @2022-03-01) { origin case_input; }
+        assert "f6": caution(entity_ref("urn:fr:cc:suretes:c31:K2"), entity_ref("urn:fr:cc:suretes:c31:C2")) { origin case_input; }
+        assert "f7": creancier_du_cautionnement(entity_ref("urn:fr:cc:suretes:c31:K2"), entity_ref("urn:fr:cc:suretes:c31:B")) { origin case_input; }
+        assert "f8": est_personne_morale(entity_ref("urn:fr:cc:suretes:c31:C2")) { origin case_input; }
+        assert "f9": dette_garantie(entity_ref("urn:fr:cc:suretes:c31:K1"), entity_ref("urn:fr:cc:suretes:c31:D")) { origin case_input; }
+        assert "f10": dette_garantie(entity_ref("urn:fr:cc:suretes:c31:K2"), entity_ref("urn:fr:cc:suretes:c31:D")) { origin case_input; }
+        assert "f11": paiement_par_la_caution(entity_ref("urn:fr:cc:suretes:c31:K1"), @2023-05-10, 9000 EUR) { origin case_input; }
+    }
+    evaluate truth(recours_contre_une_autre_caution(entity_ref("urn:fr:cc:suretes:c31:K1"), entity_ref("urn:fr:cc:suretes:c31:K2"), 4500 EUR));
+    expect truth_status == TRUE_ONLY;
+    expect applied(RecoursContreLesAutresCautions);
+}

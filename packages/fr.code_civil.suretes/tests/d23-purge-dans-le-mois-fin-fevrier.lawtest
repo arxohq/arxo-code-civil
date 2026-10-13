@@ -1,0 +1,15 @@
+language "law.core" version "0.2";
+package fr.code_civil.suretes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-suretes";
+
+// Art. 2464 : sommation le 31 janvier 2024 — le mois expire le 29 février ; notification ce jour, en temps utile.
+test "urn:query:fr-code-civil-suretes-d23-purge-dans-le-mois-fin-fevrier" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SURETES_MOIS_AN; }
+        assert "f1": titre_translatif_publie(entity_ref("urn:fr:cc:suretes:d23:S")) { origin case_input; }
+        assert "f2": sommation_de_payer_le(entity_ref("urn:fr:cc:suretes:d23:S"), @2024-01-31) { origin case_input; }
+        assert "f3": notification_de_purge_le(entity_ref("urn:fr:cc:suretes:d23:S"), @2024-02-29) { origin case_input; }
+    }
+    evaluate truth(purge_notifiee_en_temps_utile(entity_ref("urn:fr:cc:suretes:d23:S")));
+    expect truth_status == TRUE_ONLY;
+}

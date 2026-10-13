@@ -1,0 +1,430 @@
+language "law.core" version "0.2";
+package fr.code_civil.vente_louage version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-vente-louage";
+
+use self::{
+    Bail,
+    CC_ART1717,
+    CC_ART1719,
+    CC_ART1720,
+    CC_ART1721,
+    CC_ART1722,
+    CC_ART1724,
+    CC_ART1725,
+    CC_ART1728,
+    CC_ART1736,
+    CC_ART1737,
+    CC_ART1738,
+    CC_ART1739,
+    CC_ART1742,
+    CC_ART1743,
+    CC_ART1751,
+    CC_ART1753,
+    CC_ART1759,
+    CC_ART1762,
+    Personne,
+    absence_opposition_du_bailleur,
+    acquereur_de_la_chose_louee,
+    acquereur_ne_peut_expulser_le_preneur,
+    acquereur_peut_expulser_le_preneur,
+    bail_authentique_ou_a_date_certaine,
+    bail_cesse_de_plein_droit,
+    bail_d_habitation_sans_caractere_professionnel_ou_commercial,
+    bail_de_bien_non_rural,
+    bail_ecrit,
+    bail_en_vigueur,
+    bail_expire,
+    bail_non_resolu_par_deces,
+    bail_renouvele_par_tacite_reconduction,
+    bail_resilie_de_plein_droit,
+    bail_sans_ecrit,
+    bailleur,
+    chose_louee_en_bon_etat_de_reparations,
+    chose_louee_vendue,
+    conge_de_reprise_signifie,
+    conge_de_reprise_soumis_a_l_usage_local,
+    conge_signifie,
+    conge_soumis_a_l_usage_local,
+    deces_du_bailleur_ou_du_preneur,
+    demande_conjointe_des_partenaires_pacs,
+    demande_diminution_pour_reparations,
+    demande_resiliation_apres_destruction_partielle,
+    destruction_partielle_par_cas_fortuit,
+    destruction_totale_par_cas_fortuit,
+    dette_de_sous_location_a_la_saisie,
+    droit_au_bail_appartient_aux_deux_titulaires,
+    droit_d_expulser_reserve_par_le_bail,
+    droit_de_reprise_pour_occupation_reserve,
+    epoux_titulaires_du_bail,
+    faculte_de_sous_louer_non_interdite,
+    indemnisation_du_preneur_due,
+    jouissance_paisible_assuree,
+    jours_de_reparations,
+    local_sert_effectivement_a_l_habitation_de_deux_epoux,
+    partenaires_pacs_titulaires_du_bail,
+    permanence_et_qualite_des_plantations_assurees,
+    perte_causee_au_preneur_par_vice,
+    plafond_du_sous_locataire_envers_proprietaire,
+    preneur,
+    preneur_laisse_en_jouissance,
+    preneur_peut_demander_diminution_de_prix,
+    preneur_peut_demander_resiliation,
+    preneur_peut_sous_louer,
+    preneur_supporte_reparations_urgentes,
+    prix_du_bail_paye_aux_termes_convenus,
+    proprietaire_du_bien_sous_loue,
+    reparations_necessaires_non_locatives_effectuees,
+    reparations_urgentes_non_differables,
+    sous_locataire,
+    sous_location_exercee_par_preneur,
+    tacite_reconduction_exclue,
+    terme_ecrit_expire,
+    trouble_de_fait_par_des_tiers_sans_droit,
+    usage_conforme_a_la_destination,
+    usage_local_delai_de_conge,
+    usage_raisonnable_de_la_chose_louee,
+    vice_ou_defaut_empeche_usage,
+};
+
+// La livraison du bail ne se confond pas avec celle de la vente : le fait de
+// performance est intentionnellement un nouvel input du cas.
+pub relation chose_louee_delivree(b: Bail) kind empirical {
+    label fr official "le bailleur a délivré au preneur la chose louée (article 1719, 1°)";
+    label en unofficial "the lessor has delivered the leased thing to the lessee (Article 1719, 1)";
+}
+pub relation chose_louee_entretenue(b: Bail) kind empirical {
+    label fr official "le bailleur entretient la chose en état de servir à l'usage pour lequel elle a été louée (article 1719, 2°)";
+    label en unofficial "the lessor maintains the thing fit for the use for which it was let (Article 1719, 2)";
+}
+
+@source(CC_ART1719)
+rule ObligationDelivranceBailleur(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1719. Position du bailleur de délivrer la chose louée";
+    label en unofficial "Article 1719. Lessor's position to deliver the leased thing";
+    when bailleur(b, l) and preneur(b, p);
+    then duty DelivrerLaChoseLouee {
+        bearer l; beneficiary p;
+        achieve chose_louee_delivree(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1719)
+rule ObligationEntretienBailleur(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1719. Position du bailleur d'entretenir la chose louée";
+    label en unofficial "Article 1719. Lessor's position to maintain the leased thing";
+    when bailleur(b, l) and preneur(b, p);
+    then duty EntretenirLaChoseLouee {
+        bearer l; beneficiary p;
+        maintain chose_louee_entretenue(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1717)
+rule SousLocationPermiseSiNonInterdite(b: Bail) strict {
+    label fr official "Article 1717, alinéas 1 et 2. Le preneur peut sous-louer si cette faculté n'a pas été interdite en tout ou partie";
+    label en unofficial "Article 1717, paragraphs 1 and 2. The lessee may sublet where that power has not been prohibited in whole or in part";
+    when faculte_de_sous_louer_non_interdite(b);
+    then preneur_peut_sous_louer(b);
+}
+
+@source(CC_ART1717)
+rule PositionLiberteSousLouer(b: Bail, p: Personne) strict {
+    label fr official "Article 1717. Liberté du preneur de sous-louer si le bail ne l'interdit pas";
+    label en unofficial "Article 1717. Lessee's liberty to sublet where not prohibited";
+    when bail_en_vigueur(b) and preneur(b, p) and faculte_de_sous_louer_non_interdite(b);
+    then liberty SousLouerLeBien {
+        holder p;
+        action sous_location_exercee_par_preneur(b);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1719)
+rule ObligationJouissancePaisibleBailleur(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1719, 3°. Le bailleur doit assurer la jouissance paisible pendant la durée du bail";
+    label en unofficial "Article 1719(3). The lessor must ensure peaceful enjoyment throughout the lease";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty AssurerJouissancePaisible {
+        bearer l; beneficiary p;
+        maintain jouissance_paisible_assuree(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1719)
+rule ObligationPlantationsBailleur(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1719, 4°. Le bailleur doit assurer la permanence et la qualité des plantations";
+    label en unofficial "Article 1719(4). The lessor must ensure the permanence and quality of plantations";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty AssurerPlantations {
+        bearer l; beneficiary p;
+        maintain permanence_et_qualite_des_plantations_assurees(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1720)
+rule PositionDelivrerEnBonEtatDeReparations(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1720, alinéa 1. Le bailleur doit délivrer la chose en bon état de réparations de toute espèce";
+    label en unofficial "Article 1720, paragraph 1. The lessor must deliver the thing in good repair of every kind";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty DelivrerEnBonEtatDeReparations {
+        bearer l; beneficiary p;
+        achieve chose_louee_en_bon_etat_de_reparations(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1720)
+rule PositionEffectuerReparationsNecessairesNonLocatives(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1720, alinéa 2. Le bailleur doit effectuer pendant le bail les réparations nécessaires autres que locatives";
+    label en unofficial "Article 1720, paragraph 2. During the lease the lessor must make necessary repairs other than tenant repairs";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty EffectuerReparationsNecessairesNonLocatives {
+        bearer l; beneficiary p;
+        achieve reparations_necessaires_non_locatives_effectuees(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1721)
+rule IndemnisationPourViceDeLaChoseLouee(b: Bail) strict {
+    label fr official "Article 1721. Le bailleur indemnise la perte causée au preneur par un vice ou défaut empêchant l'usage";
+    label en unofficial "Article 1721. The lessor compensates loss caused to the lessee by a defect preventing use";
+    when vice_ou_defaut_empeche_usage(b) and perte_causee_au_preneur_par_vice(b);
+    then indemnisation_du_preneur_due(b);
+}
+pub relation indemnisation_vice_verse_au_preneur(b: Bail) kind empirical {
+    label fr official "indemnisation du preneur pour vice de la chose versée";
+    label en unofficial "indemnity for the leased thing's defect paid to the lessee";
+}
+@source(CC_ART1721)
+rule P4DevoirIndemniserVice1721(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1721. Le bailleur doit indemniser la perte causée au preneur par le vice";
+    label en unofficial "Article 1721. The lessor must indemnify the lessee for loss caused by the defect";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p)
+        and vice_ou_defaut_empeche_usage(b)
+        and perte_causee_au_preneur_par_vice(b);
+    then duty P4DevoirIndemniserVice1721Actif {
+        bearer l;
+        beneficiary p;
+        achieve indemnisation_vice_verse_au_preneur(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1724)
+rule SupporterLesReparationsUrgentes(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1724, alinéa 1. Le preneur doit supporter les réparations urgentes qui ne peuvent être différées";
+    label en unofficial "Article 1724, paragraph 1. The lessee must tolerate urgent repairs that cannot be deferred";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p)
+        and reparations_urgentes_non_differables(b);
+    then duty SupporterReparationsUrgentes {
+        bearer p; beneficiary l;
+        achieve preneur_supporte_reparations_urgentes(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1728)
+rule PositionUserRaisonnablementEtSelonDestination(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1728, 1°. Le preneur doit user raisonnablement de la chose suivant sa destination";
+    label en unofficial "Article 1728(1). The lessee must use the thing reasonably and according to its intended purpose";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty UserRaisonnablementEtSelonDestination {
+        bearer p; beneficiary l;
+        maintain usage_raisonnable_de_la_chose_louee(b) and usage_conforme_a_la_destination(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1728)
+rule PositionPayerLePrixDuBail(b: Bail, l: Personne, p: Personne) strict {
+    label fr official "Article 1728, 2°. Le preneur doit payer le prix du bail aux termes convenus";
+    label en unofficial "Article 1728(2). The lessee must pay rent at the agreed times";
+    when bail_en_vigueur(b) and bailleur(b, l) and preneur(b, p);
+    then duty PayerLePrixDuBail {
+        bearer p; beneficiary l;
+        achieve prix_du_bail_paye_aux_termes_convenus(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1722)
+rule DestructionTotaleResilieLeBail(b: Bail) strict {
+    label fr official "Article 1722. La destruction totale par cas fortuit résilie le bail de plein droit";
+    label en unofficial "Article 1722. Total destruction by fortuitous event terminates the lease by operation of law";
+    when destruction_totale_par_cas_fortuit(b);
+    then bail_resilie_de_plein_droit(b);
+}
+
+@source(CC_ART1722)
+rule DestructionPartielleDonneDeuxOptions(b: Bail) strict {
+    label fr official "Article 1722. En cas de destruction partielle, le preneur peut demander diminution du prix ou résiliation";
+    label en unofficial "Article 1722. In case of partial destruction, the lessee may seek a price reduction or termination";
+    when destruction_partielle_par_cas_fortuit(b);
+    then preneur_peut_demander_diminution_de_prix(b);
+}
+
+@source(CC_ART1722)
+rule DestructionPartiellePermetResiliation(b: Bail) strict {
+    label fr official "Article 1722. La destruction partielle peut ouvrir une demande de résiliation au preneur";
+    label en unofficial "Article 1722. Partial destruction may permit the lessee to seek termination";
+    when destruction_partielle_par_cas_fortuit(b);
+    then preneur_peut_demander_resiliation(b);
+}
+
+@source(CC_ART1722)
+rule PositionPouvoirResiliationApresDestructionPartielle(b: Bail, p: Personne) strict {
+    label fr official "Article 1722. Pouvoir du preneur de demander la résiliation après destruction partielle";
+    label en unofficial "Article 1722. Lessee's power to seek termination after partial destruction";
+    when bail_en_vigueur(b) and preneur(b, p) and destruction_partielle_par_cas_fortuit(b);
+    then power PouvoirResiliationApresDestruction {
+        holder p;
+        exercise demande_resiliation_apres_destruction_partielle(b);
+        valid_when destruction_partielle_par_cas_fortuit(b);
+        effect preneur_peut_demander_resiliation(b);
+        window [@1804-03-21, infinity);
+    };
+}
+pub relation poursuite_trouble_tiers_exercee(b: Bail) kind empirical {
+    label fr official "poursuite personnelle du trouble causé par les tiers exercée";
+    label en unofficial "personal action against third-party disturbance exercised";
+}
+@source(CC_ART1725)
+rule P4LibertePoursuivreTroubleTiers1725(b: Bail, p: Personne) strict {
+    label fr official "Article 1725. Liberté du preneur de poursuivre personnellement les auteurs des voies de fait";
+    label en unofficial "Article 1725. Lessee's liberty to personally pursue the perpetrators of acts of force";
+    when bail_en_vigueur(b) and preneur(b, p)
+        and trouble_de_fait_par_des_tiers_sans_droit(b);
+    then liberty P4LibertePoursuivreTroubleTiers1725Actif {
+        holder p;
+        action poursuite_trouble_tiers_exercee(b);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1724)
+rule ReparationsPlusDeVingtEtUnJours(b: Bail, n: Integer) strict {
+    label fr official "Article 1724. Des réparations urgentes de plus de vingt et un jours ouvrent une diminution proportionnelle du prix";
+    label en unofficial "Article 1724. Urgent repairs lasting more than twenty-one days open a proportional rent reduction";
+    when reparations_urgentes_non_differables(b) and jours_de_reparations(b, n) and n > 21;
+    then preneur_peut_demander_diminution_de_prix(b);
+}
+
+@source(CC_ART1724)
+rule PositionPouvoirDiminutionPourReparations(b: Bail, p: Personne, n: Integer) strict {
+    label fr official "Article 1724. Pouvoir du preneur de demander une diminution pour réparations";
+    label en unofficial "Article 1724. Lessee's power to seek a rent reduction for repairs";
+    when bail_en_vigueur(b) and preneur(b, p) and reparations_urgentes_non_differables(b)
+        and jours_de_reparations(b, n) and n > 21;
+    then power PouvoirDiminutionPourReparations {
+        holder p;
+        exercise demande_diminution_pour_reparations(b);
+        valid_when jours_de_reparations(b, n);
+        effect preneur_peut_demander_diminution_de_prix(b);
+        window [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1736)
+rule CongeSansEcritSuitUsageLocal(b: Bail, n: Integer) strict {
+    label fr official "Article 1736. Sans écrit, le congé observe le délai fixé par l'usage des lieux";
+    label en unofficial "Article 1736. Without a written lease, notice observes the local customary period";
+    when bail_sans_ecrit(b) and usage_local_delai_de_conge(b, n);
+    then conge_soumis_a_l_usage_local(b);
+}
+
+@source(CC_ART1762)
+rule CongeDeRepriseSuitUsageLocal(b: Bail, n: Integer) strict {
+    label fr official "Article 1762. Lorsque le bailleur s'est réservé le droit de reprendre la maison, le congé doit être signifié aux époques déterminées par l'usage des lieux";
+    label en unofficial "Article 1762. Where the lessor reserved a right to retake the house, notice must be given at the times fixed by local custom";
+    when droit_de_reprise_pour_occupation_reserve(b) and usage_local_delai_de_conge(b, n);
+    then conge_de_reprise_soumis_a_l_usage_local(b);
+}
+
+@source(CC_ART1762)
+rule PositionDevoirSignifierCongeDeReprise(b: Bail, l: Personne, n: Integer) strict {
+    label fr official "Article 1762. Devoir du bailleur de signifier le congé de reprise dans le délai usité";
+    label en unofficial "Article 1762. Lessor's duty to serve repossession notice within customary time";
+    when bailleur(b, l) and droit_de_reprise_pour_occupation_reserve(b)
+        and usage_local_delai_de_conge(b, n);
+    then duty SignifierCongeDeReprise {
+        bearer l;
+        achieve conge_de_reprise_signifie(b) during [@1804-03-21, infinity);
+    };
+}
+
+@source(CC_ART1738)
+rule TaciteReconductonBailEcrit(b: Bail) strict {
+    label fr official "Article 1738. Après l'expiration du bail écrit, le preneur resté et laissé en possession conclut un nouveau bail";
+    label en unofficial "Article 1738. After expiry of a written lease, a lessee remaining and left in possession enters a new lease";
+    when bail_ecrit(b) and bail_expire(b) and preneur_laisse_en_jouissance(b);
+    then bail_renouvele_par_tacite_reconduction(b);
+}
+
+@source(CC_ART1737)
+rule CessationDePleinDroitAuTermeEcrit(b: Bail) strict {
+    label fr official "Article 1737. Le bail écrit cesse de plein droit à l'expiration du terme fixé sans congé";
+    label en unofficial "Article 1737. A written lease ends by operation of law at the fixed term without notice";
+    when terme_ecrit_expire(b);
+    then bail_cesse_de_plein_droit(b);
+}
+
+@source(CC_ART1739)
+rule CongeExclutTaciteReconducton(b: Bail) strict {
+    label fr official "Article 1739. Un congé signifié exclut la tacite reconduction malgré la continuation de la jouissance";
+    label en unofficial "Article 1739. Notice excludes tacit renewal despite continued possession";
+    when conge_signifie(b) and preneur_laisse_en_jouissance(b);
+    then tacite_reconduction_exclue(b);
+}
+
+@source(CC_ART1742)
+rule DecesNeResoutPasLeBail(b: Bail) strict {
+    label fr official "Article 1742. Le décès du bailleur ou du preneur ne résout pas le bail";
+    label en unofficial "Article 1742. The death of the lessor or lessee does not terminate the lease";
+    when deces_du_bailleur_ou_du_preneur(b);
+    then bail_non_resolu_par_deces(b);
+}
+
+@source(CC_ART1759)
+rule TaciteReconductonMaisonSansOpposition(b: Bail, n: Integer) strict {
+    label fr official "Article 1759. La jouissance continuée sans opposition renouvelle le bail aux mêmes conditions pour le terme fixé par l'usage des lieux";
+    label en unofficial "Article 1759. Continued possession without the lessor's opposition renews the lease on the same conditions for the locally customary term";
+    when bail_ecrit(b) and bail_expire(b) and preneur_laisse_en_jouissance(b)
+        and absence_opposition_du_bailleur(b) and usage_local_delai_de_conge(b, n);
+    then bail_renouvele_par_tacite_reconduction(b);
+}
+
+@source(CC_ART1753)
+rule PlafondDetteSousLocataireEnversProprietaire(b: Bail, s: Personne, p: Personne, dette: Money) strict {
+    label fr official "Article 1753. Le sous-locataire n'est tenu envers le propriétaire qu'à concurrence du prix de sous-location dû au moment de la saisie";
+    label en unofficial "Article 1753. The subtenant is liable to the owner only up to the subrent owed when attachment occurs";
+    when sous_locataire(b, s) and proprietaire_du_bien_sous_loue(b, p)
+        and dette_de_sous_location_a_la_saisie(b, dette);
+    then plafond_du_sous_locataire_envers_proprietaire(b, dette);
+}
+
+@source(CC_ART1743)
+rule VentePreserveBailCertain(b: Bail, a: Personne) strict {
+    label fr official "Article 1743. L'acquéreur ne peut expulser le preneur titulaire d'un bail authentique ou à date certaine";
+    label en unofficial "Article 1743. The purchaser may not evict the tenant holding an authentic lease or one with a certain date";
+    when chose_louee_vendue(b) and acquereur_de_la_chose_louee(b, a) and bail_authentique_ou_a_date_certaine(b);
+    then acquereur_ne_peut_expulser_le_preneur(b);
+}
+
+@source(CC_ART1743)
+rule ReserveExpulsionBienNonRural(b: Bail, a: Personne) strict {
+    label fr official "Article 1743. La réserve contractuelle permet à l'acquéreur d'expulser le locataire d'un bien non rural";
+    label en unofficial "Article 1743. A contractual reservation permits the purchaser to evict the tenant of non-rural property";
+    when chose_louee_vendue(b) and acquereur_de_la_chose_louee(b, a) and bail_de_bien_non_rural(b) and droit_d_expulser_reserve_par_le_bail(b);
+    then acquereur_peut_expulser_le_preneur(b);
+}
+
+@source(CC_ART1751)
+rule CotitulariteDesEpoux(b: Bail, premier: Personne, second: Personne) strict {
+    label fr official "Article 1751. Le droit au bail d'habitation appartient aux deux époux";
+    label en unofficial "Article 1751. The residential lease right belongs to both spouses";
+    when bail_d_habitation_sans_caractere_professionnel_ou_commercial(b) and local_sert_effectivement_a_l_habitation_de_deux_epoux(b) and epoux_titulaires_du_bail(b, premier, second);
+    then droit_au_bail_appartient_aux_deux_titulaires(b, premier, second);
+}
+
+@source(CC_ART1751)
+rule CotitulariteDesPartenairesPacs(b: Bail, premier: Personne, second: Personne) strict {
+    label fr official "Article 1751. Sur demande conjointe, le droit au bail d'habitation appartient aux deux partenaires liés par un pacte civil de solidarité";
+    label en unofficial "Article 1751. On their joint request, the residential lease right belongs to both civil-solidarity partners";
+    when bail_d_habitation_sans_caractere_professionnel_ou_commercial(b) and partenaires_pacs_titulaires_du_bail(b, premier, second) and demande_conjointe_des_partenaires_pacs(b);
+    then droit_au_bail_appartient_aux_deux_titulaires(b, premier, second);
+}

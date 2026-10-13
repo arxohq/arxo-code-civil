@@ -1,0 +1,28 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+// Порождённые сценарии-свидетельства каталога вопросов (DECISION-0190):
+// мир выполняет посылки правила, запрос спрашивает его вывод.
+// Собраны corpus/tools/questions_catalog/build_catalog.py по CLIR пакета;
+// правка руками — только вместе с каталогом.
+
+// 
+test "CATALOG-LIMITATIONSTATUTAIREPOUVOIRGERANTINOPPOSABLE" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": clause_limite_pouvoir_gerant(entity_ref("urn:law:catalog:limitationstatutairepouvoirgerantinopposable:v0")) { origin case_input; }
+    }
+    evaluate truth(clause_limite_pouvoir_inopposable_tiers(entity_ref("urn:law:catalog:limitationstatutairepouvoirgerantinopposable:v0")));
+    expect truth_status == TRUE_ONLY;
+}
+
+// 
+test "CATALOG-OPPOSITIONGERANTCONNUEESTOPPOSABLEAUTIERS" {
+    given {
+        context { decision_time @2026-08-25T12:00:00Z; knowledge_time @2026-08-25T12:00:00Z; legal_time @2026-08-25; timezone "Asia/Almaty"; }
+        assert "cat-0": opposition_gerant_connue_du_tiers(entity_ref("urn:law:catalog:oppositiongerantconnueestopposableautiers:v0")) { origin case_input; }
+    }
+    evaluate truth(opposition_gerant_opposable_tiers(entity_ref("urn:law:catalog:oppositiongerantconnueestopposableautiers:v0")));
+    expect truth_status == TRUE_ONLY;
+}

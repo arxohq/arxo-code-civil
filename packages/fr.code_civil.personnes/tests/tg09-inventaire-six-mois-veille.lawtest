@@ -1,0 +1,13 @@
+language "law.core" version "0.2";
+package fr.code_civil.personnes version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-personnes";
+
+// Art. 503: the day before the six-month term is not the statutory term.
+test "urn:query:fr-code-civil-personnes-tg09-inventaire-six-mois-veille" {
+    given {
+        context { decision_time @2026-07-09T09:00:00Z; knowledge_time @2026-07-09T09:00:00Z; legal_time @2026-07-09; timezone "Europe/Paris"; deadline_policy CC_PERSONNES_CALENDRIER; }
+        assert "f1": ouverture_tutelle_gestion(entity_ref("urn:fr:cc:personnes:tg09:m"), entity_ref("urn:fr:cc:personnes:tg09:p"), entity_ref("urn:fr:cc:personnes:tg09:t"), @2026-01-10) { origin adjudicated; }
+    }
+    evaluate truth(echeance_inventaire_autres_biens(entity_ref("urn:fr:cc:personnes:tg09:m"), @2026-07-09));
+    expect truth_status == NEITHER;
+}

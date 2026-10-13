@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 800, alinéa 4 : omission de mauvaise foi dans l'inventaire — réputé acceptant pur et simple.
+test "urn:query:fr-code-civil-successions-o34-decheance-pour-omission-de-mauvaise-foi" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": option_exercee_le(entity_ref("urn:fr:cc:successions:opt:o34:S"), entity_ref("urn:fr:cc:successions:opt:o34:H"), AcceptationAConcurrenceDeLActifNet, @2025-12-31) { origin case_input; }
+        assert "f2": omission_de_mauvaise_foi_constatee(entity_ref("urn:fr:cc:successions:opt:o34:S"), entity_ref("urn:fr:cc:successions:opt:o34:H")) { origin adjudicated; }
+    }
+    evaluate truth(repute_acceptant_pur_et_simple(entity_ref("urn:fr:cc:successions:opt:o34:S"), entity_ref("urn:fr:cc:successions:opt:o34:H")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(DecheanceDeLActifNet);
+}

@@ -1,0 +1,24 @@
+language "law.core" version "0.2";
+package fr.code_civil.successions version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-successions";
+
+// Art. 754 al. 1, 805 : le renonçant est représenté par son enfant, qui prend la souche entière : 1/2.
+test "urn:query:fr-code-civil-successions-b01-renoncant-represente" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_SUCCESSIONS_CALENDRIER; }
+        assert "f1": defunt(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:D")) { origin case_input; }
+        assert "f2": ouverte_le(entity_ref("urn:fr:cc:successions:b:S"), @2026-03-01) { origin case_input; }
+        assert "f3": famille(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:F")) { origin case_input; }
+        assert "f4": filiation(entity_ref("urn:fr:cc:successions:b:F"), entity_ref("urn:fr:cc:successions:b:D"), entity_ref("urn:fr:cc:successions:b:C1")) { origin case_input; }
+        assert "f5": filiation(entity_ref("urn:fr:cc:successions:b:F"), entity_ref("urn:fr:cc:successions:b:D"), entity_ref("urn:fr:cc:successions:b:C2")) { origin case_input; }
+        assert "f6": filiation(entity_ref("urn:fr:cc:successions:b:F"), entity_ref("urn:fr:cc:successions:b:C1"), entity_ref("urn:fr:cc:successions:b:G")) { origin case_input; }
+        assert "f7": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:C1")) { origin case_input; }
+        assert "f8": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:C2")) { origin case_input; }
+        assert "f9": existe_a_l_ouverture(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:G")) { origin case_input; }
+        assert "f10": renonce(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:C1")) { origin case_input; }
+    }
+    evaluate truth(part_hereditaire(entity_ref("urn:fr:cc:successions:b:S"), entity_ref("urn:fr:cc:successions:b:G"), 1 / 2));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RepresentableRenoncant);
+}

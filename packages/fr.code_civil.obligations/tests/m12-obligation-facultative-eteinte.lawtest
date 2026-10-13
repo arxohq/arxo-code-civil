@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1308, al. 2 : l'obligation facultative est éteinte si l'exécution de la
+// prestation initialement convenue devient impossible pour cause de force majeure.
+test "urn:query:fr-code-civil-obligations-m12-obligation-facultative-eteinte" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": espece_de_l_obligation_plurale(entity_ref("urn:fr:cc:obligations:fac:c"), Facultative) { origin case_input; }
+        assert "f2": prestation_initialement_convenue(entity_ref("urn:fr:cc:obligations:fac:c"), entity_ref("urn:fr:cc:obligations:fac:p1")) { origin case_input; }
+        assert "f3": prestation_devenue_impossible(entity_ref("urn:fr:cc:obligations:fac:p1")) { origin case_input; }
+        assert "f4": force_majeure_sur_la_prestation(entity_ref("urn:fr:cc:obligations:fac:p1")) { origin adjudicated; }
+    }
+    evaluate truth(obligation_facultative_eteinte(entity_ref("urn:fr:cc:obligations:fac:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(ExtinctionDeLObligationFacultative);
+}

@@ -1,0 +1,20 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 716, al. 1. Trouvé dans le fonds d'autrui, le trésor est pour moitié
+// à l'inventeur et pour l'autre moitié au propriétaire du fonds.
+test "urn:query:fr-code-civil-biens-q02-tresor-fonds-d-autrui" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": chose_cachee_ou_enfouie(entity_ref("urn:fr:cc:biens:q02:T")) { origin case_input; }
+        assert "f2": personne_ne_peut_justifier_sa_propriete(entity_ref("urn:fr:cc:biens:q02:T")) { origin case_input; }
+        assert "f3": decouverte_par_le_pur_effet_du_hasard(entity_ref("urn:fr:cc:biens:q02:T")) { origin case_input; }
+        assert "f4": decouvert_dans_le_fonds(entity_ref("urn:fr:cc:biens:q02:T"), entity_ref("urn:fr:cc:biens:q02:F")) { origin case_input; }
+        assert "f5": inventeur_du_tresor(entity_ref("urn:fr:cc:biens:q02:T"), entity_ref("urn:fr:cc:biens:q02:INV")) { origin case_input; }
+        assert "f6": proprietaire_du_bien(entity_ref("urn:fr:cc:biens:q02:F"), entity_ref("urn:fr:cc:biens:q02:MAITRE")) { origin case_input; }
+    }
+    evaluate truth(part_du_tresor(entity_ref("urn:fr:cc:biens:q02:T"), entity_ref("urn:fr:cc:biens:q02:INV"), 1 / 2));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

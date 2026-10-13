@@ -1,0 +1,186 @@
+language "law.core" version "0.2";
+package fr.code_civil.core version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-core";
+
+test "CC01-01-date-fixee" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:fixe"), @2026-03-01) { origin case_input; }
+        assert "d": date_d_entree_en_vigueur_fixee(entity_ref("urn:cc01:acte:fixe"), @2026-04-01) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:fixe"), @2026-04-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EntreeEnVigueurDateFixee);
+}
+
+test "CC01-02-lendemain-publication" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:lendemain"), @2026-03-31) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:lendemain"), @2026-04-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EntreeEnVigueurLendemain);
+}
+
+test "CC01-03-pas-le-jour-de-publication" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:lendemain"), @2026-03-31) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:lendemain"), @2026-03-31));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "CC01-04-mesures-application" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:mesures"), @2026-03-01) { origin case_input; }
+        assert "m1": mesures_d_application_necessaires(entity_ref("urn:cc01:acte:mesures")) { origin case_input; }
+        assert "m2": mesures_d_application_en_vigueur_le(entity_ref("urn:cc01:acte:mesures"), @2026-05-01) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:mesures"), @2026-05-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EntreeEnVigueurMesures);
+}
+
+test "CC01-05-urgence" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:urgence"), @2026-03-01) { origin case_input; }
+        assert "u": urgence_prescrite(entity_ref("urn:cc01:acte:urgence")) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:urgence"), @2026-03-01));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(EntreeEnVigueurUrgence);
+}
+
+test "CC01-06-acte-individuel-exclu" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; deadline_policy CC_CORE_JOUR; }
+        assert "p": publie_au_journal_officiel_le(entity_ref("urn:cc01:acte:individuel"), @2026-03-01) { origin case_input; }
+        assert "i": acte_individuel(entity_ref("urn:cc01:acte:individuel")) { origin case_input; }
+    }
+    evaluate truth(entre_en_vigueur_le(entity_ref("urn:cc01:acte:individuel"), @2026-03-02));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "CC01-07-non-retroactivite-jour-entree" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "l": loi_entree_en_vigueur_le(entity_ref("urn:cc01:loi:nr"), @2026-01-01) { origin case_input; }
+        assert "s": situation_survenue_le(entity_ref("urn:cc01:situation:jour"), @2026-01-01) { origin case_input; }
+    }
+    evaluate truth(loi_applicable_sans_retroactivite(entity_ref("urn:cc01:loi:nr"), entity_ref("urn:cc01:situation:jour")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(NonRetroactivite);
+}
+
+test "CC01-08-non-retroactivite-veille" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "l": loi_entree_en_vigueur_le(entity_ref("urn:cc01:loi:nr"), @2026-01-01) { origin case_input; }
+        assert "s": situation_survenue_le(entity_ref("urn:cc01:situation:veille"), @2025-12-31) { origin case_input; }
+    }
+    evaluate truth(loi_applicable_sans_retroactivite(entity_ref("urn:cc01:loi:nr"), entity_ref("urn:cc01:situation:veille")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
+
+test "CC01-09-application-territoriale" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "p1": loi_de_police_ou_de_surete(entity_ref("urn:cc01:loi:police")) { origin case_input; }
+        assert "p2": personne_habite_le_territoire(entity_ref("urn:cc01:personne:resident")) { origin case_input; }
+        assert "i": bien_est_immeuble(entity_ref("urn:cc01:bien:immeuble")) { origin case_input; }
+        assert "f1": personne_est_francaise(entity_ref("urn:cc01:personne:fr")) { origin case_input; }
+        assert "f2": question_d_etat_ou_de_capacite(entity_ref("urn:cc01:personne:fr"), entity_ref("urn:cc01:situation:capacite")) { origin case_input; }
+    }
+    evaluate truth(loi_oblige_personne(entity_ref("urn:cc01:loi:police"), entity_ref("urn:cc01:personne:resident")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(immeuble_releve_de_la_loi_francaise(entity_ref("urn:cc01:bien:immeuble")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(loi_francaise_regit_etat_ou_capacite(entity_ref("urn:cc01:personne:fr"), entity_ref("urn:cc01:situation:capacite")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "CC01-10-obligation-de-juger-satisfaite" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "s": juge_saisi(entity_ref("urn:cc01:juge:1"), entity_ref("urn:cc01:instance:1")) { origin case_input; }
+        assert "l": loi_silencieuse_obscure_ou_insuffisante(entity_ref("urn:cc01:instance:1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ObligationDeStatuer, ACTIVE);
+}
+
+test "CC01-11-obligation-de-juger-violee" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "s": juge_saisi(entity_ref("urn:cc01:juge:2"), entity_ref("urn:cc01:instance:2")) { origin case_input; }
+        assert "l": loi_silencieuse_obscure_ou_insuffisante(entity_ref("urn:cc01:instance:2")) { origin case_input; }
+        assert "r": juge_refuse_de_juger(entity_ref("urn:cc01:juge:2"), entity_ref("urn:cc01:instance:2")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(ObligationDeStatuer, VIOLATED);
+}
+
+test "CC01-12-interdiction-arret-reglement" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "a": decision_rendue_par(entity_ref("urn:cc01:decision:1"), entity_ref("urn:cc01:juge:3")) { origin case_input; }
+        assert "g": disposition_generale_et_reglementaire(entity_ref("urn:cc01:decision:1")) { origin case_input; }
+    }
+    evaluate positions();
+    expect position(InterdictionDesArretsDeReglement, VIOLATED);
+}
+
+test "CC01-13-ordre-public-attend-le-juge" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "d": convention_deroge_a_une_loi(entity_ref("urn:cc01:convention:1")) { origin case_input; }
+    }
+    evaluate truth(derogation_conventionnelle_interdite(entity_ref("urn:cc01:convention:1")));
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect truth_status == NEITHER;
+    expect judgment_request(loi_interesse_ordre_public_ou_bonnes_moeurs, Court);
+}
+
+test "CC01-14-ordre-public-retenu" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "d": convention_deroge_a_une_loi(entity_ref("urn:cc01:convention:2")) { origin case_input; }
+        assert "o": loi_interesse_ordre_public_ou_bonnes_moeurs(entity_ref("urn:cc01:convention:2")) { origin adjudicated; }
+    }
+    evaluate truth(derogation_conventionnelle_interdite(entity_ref("urn:cc01:convention:2")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(OrdrePublicConvention);
+    expect judgment_requests(0);
+}
+
+test "CC01-15-egalite-mariage-et-exception" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "e1": effet_du_mariage_ou_de_l_adoption_pleniere(entity_ref("urn:cc01:effet:commun")) { origin case_input; }
+        assert "e2": effet_du_mariage_ou_de_l_adoption_pleniere(entity_ref("urn:cc01:effet:exclu")) { origin case_input; }
+        assert "x": effet_releve_chapitres_un_a_quatre_titre_sept(entity_ref("urn:cc01:effet:exclu")) { origin case_input; }
+    }
+    evaluate truth(effet_identique_independant_du_sexe(entity_ref("urn:cc01:effet:commun")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(effet_identique_independant_du_sexe(entity_ref("urn:cc01:effet:exclu")));
+    expect truth_status == NEITHER;
+}
+
+test "CC01-16-egalite-des-enfants-et-famille" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "f": filiation_legalement_etablie(entity_ref("urn:cc01:lien:1"), entity_ref("urn:cc01:enfant:1"), entity_ref("urn:cc01:parent:1")) { origin case_input; }
+    }
+    evaluate truth(enfant_a_droits_et_devoirs_egaux(entity_ref("urn:cc01:lien:1"), entity_ref("urn:cc01:enfant:1"), entity_ref("urn:cc01:parent:1")));
+    expect truth_status == TRUE_ONLY;
+    evaluate truth(enfant_entre_dans_famille_du_parent(entity_ref("urn:cc01:lien:1"), entity_ref("urn:cc01:enfant:1"), entity_ref("urn:cc01:parent:1")));
+    expect truth_status == TRUE_ONLY;
+}
+
+test "CC01-17-adoption-simple-reserve" {
+    given { context { legal_time @2026-09-16; decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; timezone "Europe/Paris"; }
+        assert "f": filiation_legalement_etablie(entity_ref("urn:cc01:lien:2"), entity_ref("urn:cc01:enfant:2"), entity_ref("urn:cc01:parent:2")) { origin case_input; }
+        assert "s": filiation_adoptive_simple(entity_ref("urn:cc01:lien:2")) { origin case_input; }
+    }
+    evaluate truth(enfant_a_droits_et_devoirs_egaux(entity_ref("urn:cc01:lien:2"), entity_ref("urn:cc01:enfant:2"), entity_ref("urn:cc01:parent:2")));
+    expect truth_status == NEITHER;
+    evaluate truth(enfant_entre_dans_famille_du_parent(entity_ref("urn:cc01:lien:2"), entity_ref("urn:cc01:enfant:2"), entity_ref("urn:cc01:parent:2")));
+    expect truth_status == TRUE_ONLY;
+}

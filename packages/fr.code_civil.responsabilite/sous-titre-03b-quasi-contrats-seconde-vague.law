@@ -1,0 +1,236 @@
+// SOUS-TITRE III — QUASI-CONTRATS, SECONDE VAGUE
+// (articles 1301-1, 1301-4, 1302-2 et 1302-3).
+//
+//   — le gérant doit les soins d'une personne raisonnable ; le juge PEUT
+//     modérer l'indemnité due au maître en raison de ses fautes (1301-1) :
+//     la faute est une appréciation, la modération une faculté du juge ;
+//   — l'intérêt personnel du gérant n'exclut pas la gestion d'affaires, et la
+//     charge se répartit à proportion des intérêts de chacun (1301-4) : une
+//     règle de trois que le paquet calcule, arrondie au centime par politique
+//     du paquet (D-13), non par norme ; le diviseur de `div_round` est un
+//     `Decimal` (100.0), comme le dénominateur de la quotité en CC-07 ;
+//   — celui qui a payé par erreur ou sous la contrainte la dette d'autrui
+//     agit contre le créancier, sauf titre détruit ou sûretés abandonnées,
+//     et peut aussi agir contre le débiteur (1302-2) ;
+//   — la restitution suit les articles 1352 à 1352-9 (paquet CC-10, renvoi
+//     de référence) et peut être réduite si le paiement procède d'une faute,
+//     appréciée par le juge (1302-3).
+
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+use self::{
+    CC_ART1301_1,
+    CC_ART1301_4,
+    CC_ART1302_2,
+    CC_ART1302_3,
+    Gestion,
+    Paiement,
+    Personne,
+    gestion_d_affaires,
+    paiement_recu_par,
+    sujet_a_restitution,
+};
+
+// --- Appréciations déléguées ----------------------------------------------------------------------
+
+@source(CC_ART1301_1)
+pub external judgment relation faute_ou_negligence_du_gerant(g: Gestion) {
+    authority Court;
+    label fr official "le gérant n'a pas apporté à la gestion les soins d'une personne raisonnable : faute ou négligence (article 1301-1)";
+    label en unofficial "the manager did not bring to the management the care of a reasonable person: fault or negligence (Article 1301-1)";
+}
+
+@source(CC_ART1302_3)
+pub external judgment relation paiement_procedant_d_une_faute(pa: Paiement) {
+    authority Court;
+    label fr official "le paiement procède d'une faute de celui qui l'a fait (article 1302-3, alinéa 2)";
+    label en unofficial "the payment results from a fault of the payer (Article 1302-3, paragraph 2)";
+}
+
+// --- Entrées du cas ------------------------------------------------------------------------------
+
+pub relation interet_personnel_du_gerant(g: Gestion) kind empirical {
+    label fr official "le gérant avait un intérêt personnel à se charger de l'affaire (article 1301-4)";
+    label en unofficial "the manager had a personal interest in taking on the affair (Article 1301-4)";
+}
+pub relation charges_de_l_affaire_commune(g: Gestion, montant: Money) kind empirical {
+    key(g);
+    label fr official "total des engagements, dépenses et dommages de l'affaire commune (article 1301-4)";
+    label en unofficial "total commitments, expenses and losses of the common affair (Article 1301-4)";
+}
+pub relation interet_en_pourcentage(g: Gestion, personne: Personne, pourcentage: Integer) kind empirical {
+    key(g, personne);
+    label fr official "part de l'intérêt de cette personne dans l'affaire commune, en pour cent (article 1301-4)";
+    label en unofficial "this person's share of interest in the common affair, in per cent (Article 1301-4)";
+}
+pub relation dette_d_autrui_acquittee(pa: Paiement, debiteur: Personne) kind empirical {
+    key(pa);
+    label fr official "le paiement a acquitté la dette de cette autre personne (article 1302-2)";
+    label en unofficial "the payment discharged this other person's debt (Article 1302-2)";
+}
+pub relation paye_par_erreur_ou_sous_contrainte(pa: Paiement) kind empirical {
+    label fr official "le paiement a été fait par erreur ou sous la contrainte (article 1302-2)";
+    label en unofficial "the payment was made by mistake or under duress (Article 1302-2)";
+}
+pub relation titre_detruit_ou_suretes_abandonnees(pa: Paiement) kind empirical {
+    label fr official "par suite du paiement, le créancier a détruit son titre ou abandonné les sûretés qui garantissaient sa créance (article 1302-2)";
+    label en unofficial "following the payment, the creditor destroyed his title or abandoned the securities guaranteeing his claim (Article 1302-2)";
+}
+
+// --- Résultats -----------------------------------------------------------------------------------
+
+pub relation indemnite_moderable_par_le_juge(g: Gestion) kind derived {
+    label fr official "le juge peut modérer l'indemnité due au maître en raison des fautes ou de la négligence du gérant (article 1301-1, alinéa 2)";
+    label en unofficial "the court may moderate the compensation owed to the principal because of the manager's fault or negligence (Article 1301-1, paragraph 2)";
+}
+pub relation gestion_malgre_l_interet_personnel(g: Gestion) kind derived {
+    label fr official "l'intérêt personnel du gérant n'exclut pas l'application des règles de la gestion d'affaires (article 1301-4, alinéa 1)";
+    label en unofficial "the manager's personal interest does not exclude the rules of management of another's affairs (Article 1301-4, paragraph 1)";
+}
+pub relation part_des_charges(g: Gestion, personne: Personne, montant: Money) kind derived {
+    key(g, personne);
+    label fr official "part des engagements, dépenses et dommages qui revient à cette personne, à proportion de son intérêt, arrondie au centime par politique du paquet (article 1301-4, alinéa 2)";
+    label en unofficial "share of commitments, expenses and losses borne by this person, in proportion to his interest, rounded to the cent by package policy (Article 1301-4, paragraph 2)";
+}
+pub relation restitution_contre_le_creancier(pa: Paiement, creancier: Personne) kind derived {
+    label fr official "celui qui a acquitté la dette d'autrui par erreur ou sous la contrainte peut agir en restitution contre le créancier (article 1302-2, alinéa 1)";
+    label en unofficial "whoever paid another's debt by mistake or under duress may claim restitution from the creditor (Article 1302-2, paragraph 1)";
+}
+pub relation restitution_contre_le_debiteur(pa: Paiement, debiteur: Personne) kind derived {
+    label fr official "la restitution peut aussi être demandée à celui dont la dette a été acquittée par erreur (article 1302-2, alinéa 2)";
+    label en unofficial "restitution may also be claimed from the person whose debt was paid by mistake (Article 1302-2, paragraph 2)";
+}
+pub relation restitution_reductible(pa: Paiement) kind derived {
+    label fr official "la restitution peut être réduite : le paiement procède d'une faute (article 1302-3, alinéa 2)";
+    label en unofficial "restitution may be reduced: the payment results from a fault (Article 1302-3, paragraph 2)";
+}
+
+// --- Article 1301-1 ------------------------------------------------------------------------------
+
+@source(CC_ART1301_1)
+rule ModerationDeLIndemnite(g: Gestion) defeasible {
+    label fr official "Article 1301-1. Le gérant doit à la gestion les soins d'une personne raisonnable ; le juge peut, selon les circonstances, modérer l'indemnité due au maître de l'affaire en raison des fautes ou de la négligence du gérant";
+    label en unofficial "Article 1301-1. The manager owes the management the care of a reasonable person; the court may, according to circumstances, moderate the compensation owed to the principal because of the manager's fault or negligence";
+    when gestion_d_affaires(g) and faute_ou_negligence_du_gerant(g);
+    then indemnite_moderable_par_le_juge(g);
+}
+pub relation apporter_soins_raisonnables_1301_1(g: Gestion) kind empirical {
+    label fr official "le gérant apporte à la gestion les soins d'une personne raisonnable";
+    label en unofficial "the manager brings reasonable-person care to the management";
+}
+@source(CC_ART1301_1)
+rule PositionDevoirApporterSoinsRaisonnables(g: Gestion) strict {
+    label fr official "Article 1301-1. Le gérant doit apporter les soins d'une personne raisonnable";
+    label en unofficial "Article 1301-1. The manager must bring reasonable-person care";
+    when gestion_d_affaires(g);
+    then duty DevoirApporterSoinsRaisonnables {
+        bearer entity_ref("urn:fr:cc:responsabilite:gerant");
+        goal achievement {
+            condition apporter_soins_raisonnables_1301_1(g);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 1301-4 ------------------------------------------------------------------------------
+
+@source(CC_ART1301_4) {
+    rule InteretPersonnelNExcluePasLaGestion(g: Gestion) defeasible {
+        label fr official "Article 1301-4, alinéa 1. L'intérêt personnel du gérant à se charger de l'affaire d'autrui n'exclut pas l'application des règles de la gestion d'affaires";
+        label en unofficial "Article 1301-4, paragraph 1. The manager's personal interest in taking on another's affair does not exclude the rules of management of another's affairs";
+        when gestion_d_affaires(g) and interet_personnel_du_gerant(g);
+        then gestion_malgre_l_interet_personnel(g);
+    }
+    rule RepartitionAProportionDesInterets(g: Gestion, personne: Personne, total: Money, part: Integer) defeasible {
+        label fr official "Article 1301-4, alinéa 2. La charge des engagements, des dépenses et des dommages se répartit à proportion des intérêts de chacun dans l'affaire commune";
+        label en unofficial "Article 1301-4, paragraph 2. Commitments, expenses and losses are shared in proportion to each party's interest in the common affair";
+        when gestion_malgre_l_interet_personnel(g)
+            and charges_de_l_affaire_commune(g, total)
+            and interet_en_pourcentage(g, personne, part);
+        then part_des_charges(g, personne, div_round(total * part, 100.0, 2, "HALF_UP"));
+    }
+}
+pub relation supporter_part_charges_1301_4(g: Gestion, personne: Personne, total: Money, part: Integer) kind empirical {
+    label fr official "la personne supporte sa part des charges de l'affaire commune";
+    label en unofficial "the person bears their share of the common affair's charges";
+}
+@source(CC_ART1301_4)
+rule PositionDevoirSupporterPartCharges(g: Gestion, personne: Personne, total: Money, part: Integer) strict {
+    label fr official "Article 1301-4. Chaque intéressé doit supporter sa part des charges communes";
+    label en unofficial "Article 1301-4. Each interested person must bear their share of common charges";
+    when gestion_malgre_l_interet_personnel(g)
+        and charges_de_l_affaire_commune(g, total)
+        and interet_en_pourcentage(g, personne, part);
+    then duty DevoirSupporterPartCharges {
+        bearer personne;
+        goal achievement {
+            condition supporter_part_charges_1301_4(g, personne, total, part);
+            window [@2016-10-01, infinity];
+        };
+    };
+}
+
+// --- Article 1302-2 ------------------------------------------------------------------------------
+
+@source(CC_ART1302_2) {
+    rule RestitutionContreLeCreancier(pa: Paiement, creancier: Personne, debiteur: Personne) strict {
+        label fr official "Article 1302-2, alinéa 1. Celui qui par erreur ou sous la contrainte a acquitté la dette d'autrui peut agir en restitution contre le créancier ; ce droit cesse si le créancier, par suite du paiement, a détruit son titre ou abandonné ses sûretés";
+        label en unofficial "Article 1302-2, paragraph 1. Whoever paid another's debt by mistake or under duress may claim restitution from the creditor; the right ends if the creditor, following the payment, destroyed his title or abandoned his securities";
+        when paiement_recu_par(pa, creancier) and dette_d_autrui_acquittee(pa, debiteur)
+            and paye_par_erreur_ou_sous_contrainte(pa)
+            and not_known(titre_detruit_ou_suretes_abandonnees(pa));
+        then restitution_contre_le_creancier(pa, creancier);
+    }
+    rule RestitutionContreLeDebiteur(pa: Paiement, debiteur: Personne) strict {
+        label fr official "Article 1302-2, alinéa 2. La restitution peut aussi être demandée à celui dont la dette a été acquittée par erreur";
+        label en unofficial "Article 1302-2, paragraph 2. Restitution may also be claimed from the person whose debt was paid by mistake";
+        when dette_d_autrui_acquittee(pa, debiteur) and paye_par_erreur_ou_sous_contrainte(pa);
+        then restitution_contre_le_debiteur(pa, debiteur);
+    }
+}
+pub relation demander_restitution_contre_creancier_1302_2(pa: Paiement, creancier: Personne) kind empirical {
+    label fr official "le payeur demande restitution contre le créancier";
+    label en unofficial "the payer seeks restitution from the creditor";
+}
+@source(CC_ART1302_2)
+rule PositionPouvoirDemanderRestitutionCreancier(pa: Paiement, creancier: Personne) strict {
+    label fr official "Article 1302-2. Le payeur peut agir en restitution contre le créancier";
+    label en unofficial "Article 1302-2. The payer may seek restitution from the creditor";
+    when paye_par_erreur_ou_sous_contrainte(pa)
+        and demander_restitution_contre_creancier_1302_2(pa, creancier);
+    then liberty PouvoirDemanderRestitutionCreancier {
+        holder entity_ref("urn:fr:cc:responsabilite:payeur");
+        action demander_restitution_contre_creancier_1302_2(pa, creancier);
+        window [@2016-10-01, infinity);
+    };
+}
+
+// --- Article 1302-3 ------------------------------------------------------------------------------
+
+@source(CC_ART1302_3)
+rule RestitutionReduitePourFaute(pa: Paiement) defeasible {
+    label fr official "Article 1302-3. La restitution est soumise aux règles des articles 1352 à 1352-9 ; elle peut être réduite si le paiement procède d'une faute";
+    label en unofficial "Article 1302-3. Restitution is governed by Articles 1352 to 1352-9; it may be reduced if the payment results from a fault";
+    when sujet_a_restitution(pa) and paiement_procedant_d_une_faute(pa);
+    then restitution_reductible(pa);
+}
+pub relation demander_reduction_restitution_1302_3(pa: Paiement, creancier: Personne) kind empirical {
+    label fr official "le créancier demande la réduction de la restitution pour faute du payeur";
+    label en unofficial "the creditor seeks reduction of restitution for the payer's fault";
+}
+@source(CC_ART1302_3)
+rule PositionPouvoirDemanderReductionRestitution(pa: Paiement, creancier: Personne) strict {
+    label fr official "Article 1302-3. Le créancier peut demander la réduction de la restitution";
+    label en unofficial "Article 1302-3. The creditor may seek reduction of restitution";
+    when sujet_a_restitution(pa)
+        and paiement_recu_par(pa, creancier)
+        and paiement_procedant_d_une_faute(pa)
+        and demander_reduction_restitution_1302_3(pa, creancier);
+    then liberty PouvoirDemanderReductionRestitution {
+        holder creancier;
+        action demander_reduction_restitution_1302_3(pa, creancier);
+        window [@2016-10-01, infinity);
+    };
+}

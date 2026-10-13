@@ -1,0 +1,274 @@
+language "law.core" version "0.2";
+package fr.code_civil.contrats_speciaux version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-contrats-speciaux";
+
+use self::{
+    Bien,
+    CC_ART1838,
+    CC_ART1844_1,
+    CC_ART1844_7,
+    CC_ART1844_8,
+    CC_ART1852,
+    CC_ART1854_1,
+    CC_ART1861,
+    CC_ART1869,
+    CC_ART1870,
+    CC_ART1871,
+    CC_ART1872,
+    CC_ART1872_1,
+    CauseFinSociete,
+    Personne,
+    Societe,
+    acte_accompli_au_nom_personnel,
+    agrement_tous_associes,
+    apport_en_industrie,
+    associe,
+    associe_peut_se_retirer,
+    associe_retire_de_la_societe,
+    associes_agissent_ouvertement,
+    aucune_clause_dissolution_deces,
+    bien_mis_a_disposition,
+    cause_fin_societe,
+    cession_parts_autorisee,
+    clause_attribue_tout_profit,
+    clause_exclut_tout_profit,
+    clause_exonere_toute_perte,
+    clause_impose_toute_perte,
+    clause_reputee_non_ecrite,
+    consultation_fusion_non_requise,
+    contrat_de_societe,
+    contribution_aux_pertes,
+    deces_associe,
+    decision_excede_pouvoirs_gerants,
+    decision_hors_pouvoirs_valide,
+    demande_mandataire_consultation_exercee,
+    depourvue_personnalite_morale,
+    dispense_de_publicite,
+    dissolution_opposable_aux_tiers,
+    dissolution_publiee,
+    duree_societe_admissible,
+    duree_societe_ans,
+    justes_motifs_de_dissolution,
+    liquidation_requise,
+    mandataire_consultation_demandable,
+    obligation_personnelle_envers_tiers,
+    obligation_solidaire_envers_tiers,
+    plus_faible_quote_part_capital,
+    pourcentage_capital_demandeurs,
+    pourcentage_parts_absorbee_detenu,
+    preuve_par_tous_moyens,
+    projet_cession_parts,
+    proprietaire_envers_tiers,
+    quote_part_benefices,
+    quote_part_capital,
+    remboursement_retrait,
+    repartition_legale_applicable,
+    retrait_autorise_unanimement,
+    retrait_exerce,
+    retrait_prevu_statuts,
+    societe_caractere_commercial,
+    societe_continue_apres_deces,
+    societe_en_participation,
+    societe_non_immatriculee,
+    societe_prend_fin,
+    unanimite_associes,
+    valeur_droits_sociaux,
+};
+
+@source(CC_ART1838)
+rule DureeSocieteAuPlusQuatreVingtDixNeufAns(s: Societe, n: Integer) strict {
+    label fr official "Article 1838. La durée de la société ne peut excéder quatre-vingt-dix-neuf ans";
+    label en unofficial "Article 1838. A company's duration may not exceed ninety-nine years";
+    when duree_societe_ans(s, n) and n <= 99;
+    then duree_societe_admissible(s);
+}
+
+@source(CC_ART1844_1) {
+    rule BeneficesProportionnelsAuCapital(s: Societe, p: Personne, q: Rational) strict {
+        label fr official "Article 1844-1, alinéa 1. La part dans les bénéfices est proportionnelle à la part dans le capital";
+        label en unofficial "Article 1844-1, paragraph 1. The profit share is proportional to the capital share";
+        when associe(s, p) and quote_part_capital(s, p, q) and repartition_legale_applicable(s, p);
+        then quote_part_benefices(s, p, q);
+    }
+    rule PertesProportionnellesAuCapital(s: Societe, p: Personne, q: Rational) strict {
+        label fr official "Article 1844-1, alinéa 1. La contribution aux pertes est proportionnelle à la part dans le capital";
+        label en unofficial "Article 1844-1, paragraph 1. The contribution to losses is proportional to the capital share";
+        when associe(s, p) and quote_part_capital(s, p, q) and repartition_legale_applicable(s, p);
+        then contribution_aux_pertes(s, p, q);
+    }
+    rule IndustrieEgaleAuPlusFaibleApportBenefices(s: Societe, p: Personne, q: Rational) strict {
+        label fr official "Article 1844-1, alinéa 1. La part de l'associé en industrie égale celle de l'associé qui a le moins apporté";
+        label en unofficial "Article 1844-1, paragraph 1. A services contributor receives the share of the smallest contributor";
+        when associe(s, p) and apport_en_industrie(s, p) and plus_faible_quote_part_capital(s, q) and repartition_legale_applicable(s, p);
+        then quote_part_benefices(s, p, q);
+    }
+    rule IndustrieEgaleAuPlusFaibleApportPertes(s: Societe, p: Personne, q: Rational) strict {
+        label fr official "Article 1844-1, alinéa 1. La contribution aux pertes de l'associé en industrie égale celle du plus faible apporteur";
+        label en unofficial "Article 1844-1, paragraph 1. A services contributor bears the loss share of the smallest contributor";
+        when associe(s, p) and apport_en_industrie(s, p) and plus_faible_quote_part_capital(s, q) and repartition_legale_applicable(s, p);
+        then contribution_aux_pertes(s, p, q);
+    }
+    rule ClauseToutProfitNonEcrite(s: Societe, p: Personne) strict {
+        label fr official "Article 1844-1, alinéa 2. La clause attribuant tout le profit à un associé est réputée non écrite";
+        label en unofficial "Article 1844-1, paragraph 2. A clause assigning all profit to one member is deemed unwritten";
+        when clause_attribue_tout_profit(s, p);
+        then clause_reputee_non_ecrite(s, p);
+    }
+    rule ClauseExonerationTotalePertesNonEcrite(s: Societe, p: Personne) strict {
+        label fr official "Article 1844-1, alinéa 2. La clause exonérant un associé de toutes les pertes est réputée non écrite";
+        label en unofficial "Article 1844-1, paragraph 2. A clause exempting one member from all losses is deemed unwritten";
+        when clause_exonere_toute_perte(s, p);
+        then clause_reputee_non_ecrite(s, p);
+    }
+    rule ClauseExclusionTotaleProfitNonEcrite(s: Societe, p: Personne) strict {
+        label fr official "Article 1844-1, alinéa 2. La clause excluant totalement un associé du profit est réputée non écrite";
+        label en unofficial "Article 1844-1, paragraph 2. A clause excluding one member from all profit is deemed unwritten";
+        when clause_exclut_tout_profit(s, p);
+        then clause_reputee_non_ecrite(s, p);
+    }
+    rule ClauseChargeTotalePertesNonEcrite(s: Societe, p: Personne) strict {
+        label fr official "Article 1844-1, alinéa 2. La clause mettant toutes les pertes à la charge d'un associé est réputée non écrite";
+        label en unofficial "Article 1844-1, paragraph 2. A clause charging all losses to one member is deemed unwritten";
+        when clause_impose_toute_perte(s, p);
+        then clause_reputee_non_ecrite(s, p);
+    }
+}
+
+@source(CC_ART1844_7) {
+    rule FinSocieteExpiration(s: Societe) strict { label fr official "Article 1844-7, 1°. La société prend fin par expiration"; label en unofficial "Article 1844-7(1). The company ends on expiry"; when cause_fin_societe(s, Expiration); then societe_prend_fin(s); }
+    rule FinSocieteObjetRealise(s: Societe) strict { label fr official "Article 1844-7, 2°. La société prend fin par réalisation de son objet"; label en unofficial "Article 1844-7(2). The company ends when its purpose is achieved"; when cause_fin_societe(s, ObjetRealise); then societe_prend_fin(s); }
+    rule FinSocieteObjetEteint(s: Societe) strict { label fr official "Article 1844-7, 2°. La société prend fin par extinction de son objet"; label en unofficial "Article 1844-7(2). The company ends when its purpose disappears"; when cause_fin_societe(s, ObjetEteint); then societe_prend_fin(s); }
+    rule FinSocieteAnnulation(s: Societe) strict { label fr official "Article 1844-7, 3°. La société prend fin par annulation"; label en unofficial "Article 1844-7(3). The company ends by annulment"; when cause_fin_societe(s, Annulation); then societe_prend_fin(s); }
+    rule FinSocieteDecisionAssocies(s: Societe) strict { label fr official "Article 1844-7, 4°. La société prend fin par décision des associés"; label en unofficial "Article 1844-7(4). The company ends by members' decision"; when cause_fin_societe(s, DecisionAssocies); then societe_prend_fin(s); }
+    rule FinSocieteTribunalJustesMotifs(s: Societe) strict { label fr official "Article 1844-7, 5°. Le tribunal prononce la dissolution pour justes motifs"; label en unofficial "Article 1844-7(5). The court orders dissolution on proper grounds"; when cause_fin_societe(s, TribunalJustesMotifs) and justes_motifs_de_dissolution(s); then societe_prend_fin(s); }
+    rule FinSocieteReunionParts(s: Societe) strict { label fr official "Article 1844-7, 6°. La société prend fin dans le cas de l'article 1844-5"; label en unofficial "Article 1844-7(6). The company ends in the Article 1844-5 case"; when cause_fin_societe(s, ReunionParts); then societe_prend_fin(s); }
+    rule FinSocieteClotureInsuffisanceActif(s: Societe) strict { label fr official "Article 1844-7, 7°. La société prend fin par clôture pour insuffisance d'actif"; label en unofficial "Article 1844-7(7). The company ends on closure for insufficient assets"; when cause_fin_societe(s, ClotureInsuffisanceActif); then societe_prend_fin(s); }
+    rule FinSocieteCauseStatutaire(s: Societe) strict { label fr official "Article 1844-7, 8°. La société prend fin pour une cause statutaire"; label en unofficial "Article 1844-7(8). The company ends on a ground in its articles"; when cause_fin_societe(s, CauseStatutaire); then societe_prend_fin(s); }
+}
+
+@source(CC_ART1844_8) {
+    rule DissolutionEntraineLiquidation(s: Societe) strict {
+        label fr official "Article 1844-8, alinéa 1. La dissolution entraîne la liquidation";
+        label en unofficial "Article 1844-8, paragraph 1. Dissolution entails liquidation";
+        when societe_prend_fin(s); then liquidation_requise(s);
+    }
+    rule DissolutionOpposableApresPublication(s: Societe) strict {
+        label fr official "Article 1844-8, alinéa 1. La dissolution n'est opposable aux tiers qu'après publication";
+        label en unofficial "Article 1844-8, paragraph 1. Dissolution binds third parties only after publication";
+        when societe_prend_fin(s) and dissolution_publiee(s); then dissolution_opposable_aux_tiers(s);
+    }
+}
+
+@source(CC_ART1852)
+rule DecisionHorsPouvoirsUnanimeSansClause(s: Societe) strict {
+    label fr official "Article 1852. À défaut de disposition statutaire, les décisions excédant les pouvoirs des gérants sont unanimes";
+    label en unofficial "Article 1852. Absent a provision in the articles, decisions beyond managers' powers are unanimous";
+    when decision_excede_pouvoirs_gerants(s) and unanimite_associes(s);
+    then decision_hors_pouvoirs_valide(s);
+}
+
+@source(CC_ART1854_1) {
+    rule FusionDetentionQuatreVingtDixPourCent(s: Societe, q: Decimal) strict {
+        label fr official "Article 1854-1. La consultation n'est pas requise si l'absorbante détient au moins 90 % des parts";
+        label en unofficial "Article 1854-1. Consultation is not required where the absorbing company holds at least 90%";
+        when pourcentage_parts_absorbee_detenu(s, q) and q >= 90.0;
+        then consultation_fusion_non_requise(s);
+    }
+    rule FusionDemandeursCinqPourCent(s: Societe, q: Decimal) strict {
+        label fr official "Article 1854-1. Des associés réunissant au moins 5 % peuvent demander un mandataire";
+        label en unofficial "Article 1854-1. Members holding at least 5% may seek appointment of a representative";
+        when pourcentage_capital_demandeurs(s, q) and q >= 5.0;
+        then mandataire_consultation_demandable(s);
+    }
+    rule P3PouvoirDemanderMandataireConsultation(s: Societe, associe_: Personne, q: Decimal) strict {
+        label fr official "Article 1854-1. Des associés réunissant au moins 5 % peuvent demander un mandataire";
+        label en unofficial "Article 1854-1. Members holding at least 5% may seek appointment of a representative";
+        when pourcentage_capital_demandeurs(s, q) and q >= 5.0 and associe(s, associe_);
+        then power P3PositionPouvoirDemanderMandataireConsultation {
+            holder associe_;
+            over s;
+            exercise demande_mandataire_consultation_exercee(s, associe_);
+            effect mandataire_consultation_demandable(s);
+            valid_when pourcentage_capital_demandeurs(s, q);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+@source(CC_ART1861)
+rule CessionPartsAvecAgrementDeTous(s: Societe, p: Personne) strict {
+    label fr official "Article 1861, alinéa 1. Les parts ne sont cédées qu'avec l'agrément de tous les associés";
+    label en unofficial "Article 1861, paragraph 1. Shares may be transferred only with every member's approval";
+    when projet_cession_parts(s, p) and agrement_tous_associes(s, p);
+    then cession_parts_autorisee(s, p);
+}
+
+@source(CC_ART1869) {
+    rule RetraitSelonStatuts(s: Societe, p: Personne) strict {
+        label fr official "Article 1869, alinéa 1. Le retrait est permis dans les conditions statutaires";
+        label en unofficial "Article 1869, paragraph 1. Withdrawal is allowed under the articles";
+        when associe(s, p) and retrait_prevu_statuts(s, p); then associe_peut_se_retirer(s, p);
+    }
+    rule RetraitParUnanimiteDesAutres(s: Societe, p: Personne) strict {
+        label fr official "Article 1869, alinéa 1. À défaut, le retrait est autorisé unanimement par les autres associés";
+        label en unofficial "Article 1869, paragraph 1. Otherwise withdrawal requires unanimous authorization by the other members";
+        when associe(s, p) and retrait_autorise_unanimement(s, p); then associe_peut_se_retirer(s, p);
+    }
+    rule RemboursementValeurDroitsRetrait(s: Societe, p: Personne, m: Money) strict {
+        label fr official "Article 1869, alinéa 2. L'associé qui se retire reçoit la valeur de ses droits sociaux";
+        label en unofficial "Article 1869, paragraph 2. A withdrawing member is repaid the value of their membership rights";
+        when associe_peut_se_retirer(s, p) and valeur_droits_sociaux(s, p, m); then remboursement_retrait(s, p, m);
+    }
+    rule P3PouvoirAssocieSeRetirer(s: Societe, p: Personne) strict {
+        label fr official "Article 1869. Un associé peut se retirer dans les conditions prévues ou après autorisation unanime";
+        label en unofficial "Article 1869. A member may withdraw under the articles or after unanimous authorization";
+        when associe_peut_se_retirer(s, p);
+        then power P3PositionPouvoirAssocieSeRetirer {
+            holder p;
+            over s;
+            exercise retrait_exerce(s, p);
+            effect associe_retire_de_la_societe(s, p);
+            valid_when associe_peut_se_retirer(s, p);
+            window [@2016-10-01, infinity];
+        };
+    }
+}
+
+@source(CC_ART1870)
+rule ContinuationApresDecesAssocie(s: Societe, p: Personne) strict {
+    label fr official "Article 1870, alinéa 1. Le décès d'un associé ne dissout pas la société, sauf stipulation contraire";
+    label en unofficial "Article 1870, paragraph 1. A member's death does not dissolve the company absent a contrary provision";
+    when deces_associe(s, p) and aucune_clause_dissolution_deces(s);
+    then societe_continue_apres_deces(s);
+}
+
+@source(CC_ART1871) {
+    rule QualificationSocieteEnParticipation(s: Societe) strict {
+        label fr official "Article 1871, alinéa 1. La société non immatriculée est une société en participation";
+        label en unofficial "Article 1871, paragraph 1. A non-registered company is a société en participation";
+        when contrat_de_societe(s) and societe_non_immatriculee(s); then societe_en_participation(s);
+    }
+    rule ParticipationSansPersonnalite(s: Societe) strict { label fr official "Article 1871, alinéa 1. La société en participation n'est pas une personne morale"; label en unofficial "Article 1871, paragraph 1. A société en participation has no legal personality"; when societe_en_participation(s); then depourvue_personnalite_morale(s); }
+    rule ParticipationSansPublicite(s: Societe) strict { label fr official "Article 1871, alinéa 1. La société en participation n'est pas soumise à publicité"; label en unofficial "Article 1871, paragraph 1. A société en participation is not subject to publication"; when societe_en_participation(s); then dispense_de_publicite(s); }
+    rule ParticipationProuveeParTousMoyens(s: Societe) strict { label fr official "Article 1871, alinéa 1. La société en participation se prouve par tous moyens"; label en unofficial "Article 1871, paragraph 1. A société en participation may be proved by any means"; when societe_en_participation(s); then preuve_par_tous_moyens(s); }
+}
+
+@source(CC_ART1872)
+rule BienResteProprieteDeLAssocieEnversTiers(s: Societe, p: Personne, b: Bien) strict {
+    label fr official "Article 1872, alinéa 1. Chaque associé reste propriétaire envers les tiers des biens mis à disposition";
+    label en unofficial "Article 1872, paragraph 1. Each member remains owner against third parties of assets made available";
+    when societe_en_participation(s) and bien_mis_a_disposition(s, p, b); then proprietaire_envers_tiers(s, p, b);
+}
+
+@source(CC_ART1872_1) {
+    rule EngagementPersonnelParticipant(s: Societe, p: Personne) strict {
+        label fr official "Article 1872-1, alinéa 1. Chaque associé contractant en son nom est seul engagé envers les tiers";
+        label en unofficial "Article 1872-1, paragraph 1. Each member contracting in their own name is solely bound to third parties";
+        when societe_en_participation(s) and acte_accompli_au_nom_personnel(s, p); then obligation_personnelle_envers_tiers(s, p);
+    }
+    rule SolidariteParticipationCommercialeOuverte(s: Societe, p: Personne) strict {
+        label fr official "Article 1872-1, alinéa 2. Les participants agissant ouvertement sont solidaires si la société est commerciale";
+        label en unofficial "Article 1872-1, paragraph 2. Participants acting openly are jointly liable where the company is commercial";
+        when societe_en_participation(s) and associe(s, p) and associes_agissent_ouvertement(s) and societe_caractere_commercial(s); then obligation_solidaire_envers_tiers(s, p);
+    }
+}

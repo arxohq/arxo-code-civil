@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1360, canal §47.3 : l'exception à l'exigence d'écrit tient à une IMPOSSIBILITÉ
+// MATÉRIELLE OU MORALE de se le procurer — appréciation que le texte confie au juge.
+// Sans réponse, l'exception n'est pas acquise et le cas porte une demande de jugement.
+test "urn:query:fr-code-civil-obligations-e13-impossibilite-morale-attend-le-juge" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": somme_ou_valeur_de_l_acte(entity_ref("urn:fr:cc:obligations:imp:a"), 2000 EUR) { origin case_input; }
+        assert "f2": seuil_de_la_preuve_par_ecrit(entity_ref("urn:fr:cc:obligations:imp:a"), 1500 EUR) { origin case_input; }
+    }
+    evaluate truth(exception_a_l_exigence_d_ecrit(entity_ref("urn:fr:cc:obligations:imp:a")));
+    expect truth_status == NEITHER;
+    expect evaluation_status == REQUIRES_JUDGMENT;
+    expect judgment_request(impossibilite_de_se_procurer_un_ecrit, Court);
+}

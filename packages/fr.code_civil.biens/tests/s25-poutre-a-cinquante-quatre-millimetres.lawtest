@@ -1,0 +1,16 @@
+language "law.core" version "0.2";
+package fr.code_civil.biens version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-biens";
+
+// Art. 657. « à cinquante-quatre millimètres près » : la poutre qui laisse
+// exactement cinquante-quatre millimètres d'épaisseur de mur est permise.
+test "urn:query:fr-code-civil-biens-s25-poutre-cinquante-quatre-millimetres" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_BIENS_CALENDRIER; }
+        assert "f1": cloture_separant(entity_ref("urn:fr:cc:biens:s25:M"), entity_ref("urn:fr:cc:biens:s25:F"), entity_ref("urn:fr:cc:biens:s25:V"), MurEntreBatimentsJusquALHeberge) { origin case_input; }
+        assert "f2": poutre_ou_solive_placee_dans_le_mur(entity_ref("urn:fr:cc:biens:s25:M"), entity_ref("urn:fr:cc:biens:s25:F"), 54 mm) { origin case_input; }
+    }
+    evaluate truth(droit_de_batir_contre_le_mur_mitoyen(entity_ref("urn:fr:cc:biens:s25:M"), entity_ref("urn:fr:cc:biens:s25:F")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+}

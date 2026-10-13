@@ -1,0 +1,18 @@
+language "law.core" version "0.2";
+package fr.code_civil.responsabilite version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-responsabilite";
+
+// Art. 1302-2, alinéa 2 : la restitution peut aussi être demandée au débiteur, même titre détruit.
+test "urn:query:fr-code-civil-responsabilite-r65-restitution-contre-le-debiteur" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_RESPONSABILITE_CALENDRIER; }
+        assert "f1": paiement_recu_par(entity_ref("urn:fr:cc:resp:v3a:pa"), entity_ref("urn:fr:cc:resp:v3a:creancier")) { origin case_input; }
+        assert "f2": dette_d_autrui_acquittee(entity_ref("urn:fr:cc:resp:v3a:pa"), entity_ref("urn:fr:cc:resp:v3a:debiteur")) { origin case_input; }
+        assert "f3": paye_par_erreur_ou_sous_contrainte(entity_ref("urn:fr:cc:resp:v3a:pa")) { origin adjudicated; }
+        assert "f4": titre_detruit_ou_suretes_abandonnees(entity_ref("urn:fr:cc:resp:v3a:pa")) { origin adjudicated; }
+    }
+    evaluate truth(restitution_contre_le_debiteur(entity_ref("urn:fr:cc:resp:v3a:pa"), entity_ref("urn:fr:cc:resp:v3a:debiteur")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(RestitutionContreLeDebiteur);
+}

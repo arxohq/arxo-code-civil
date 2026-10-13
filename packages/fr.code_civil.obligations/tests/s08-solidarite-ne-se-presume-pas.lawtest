@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.obligations version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-obligations";
+
+// Art. 1310 : la solidarité est légale ou conventionnelle ; elle NE SE PRÉSUME PAS.
+// Ni la loi ni le contrat ne l'établissent : l'obligation se divise (art. 1309).
+test "urn:query:fr-code-civil-obligations-s08-solidarite-ne-se-presume-pas" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_OBLIGATIONS_CALENDRIER; }
+        assert "f1": fr.code_civil.core::objet_monetaire(entity_ref("urn:fr:cc:obligations:div:c"), 9000 EUR) { origin case_input; }
+        assert "f2": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:div:c"), entity_ref("urn:fr:cc:obligations:div:A")) { origin case_input; }
+        assert "f3": fr.code_civil.core::debiteur(entity_ref("urn:fr:cc:obligations:div:c"), entity_ref("urn:fr:cc:obligations:div:B")) { origin case_input; }
+    }
+    evaluate truth(solidarite_non_presumee(entity_ref("urn:fr:cc:obligations:div:c")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == TRUE_ONLY;
+    expect applied(SolidariteNonPresumee);
+    expect applied(DivisionDePleinDroit);
+}

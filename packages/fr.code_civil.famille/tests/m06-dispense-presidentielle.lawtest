@@ -1,0 +1,19 @@
+language "law.core" version "0.2";
+package fr.code_civil.famille version "0.1.0";
+namespace "urn:fr:corpus:clir:code-civil-famille";
+
+// Art. 164 : la levée présidentielle de la prohibition de l article 163 efface l empêchement.
+test "urn:query:fr-code-civil-famille-m06-dispense-presidentielle" {
+    given {
+        context { decision_time @2026-09-16T09:00:00Z; knowledge_time @2026-09-16T09:00:00Z; legal_time @2026-09-16; timezone "Europe/Paris"; deadline_policy CC_FAMILLE_CALENDRIER; }
+        assert "f1": graphe_familial(entity_ref("urn:fr:cc:fam:e:F")) { origin case_input; }
+        assert "f2": filiation_etablie(entity_ref("urn:fr:cc:fam:e:F"), entity_ref("urn:fr:cc:fam:e:g"), entity_ref("urn:fr:cc:fam:e:oncle")) { origin case_input; }
+        assert "f3": filiation_etablie(entity_ref("urn:fr:cc:fam:e:F"), entity_ref("urn:fr:cc:fam:e:g"), entity_ref("urn:fr:cc:fam:e:p")) { origin case_input; }
+        assert "f4": filiation_etablie(entity_ref("urn:fr:cc:fam:e:F"), entity_ref("urn:fr:cc:fam:e:p"), entity_ref("urn:fr:cc:fam:e:niece")) { origin case_input; }
+        assert "f5": epoux(entity_ref("urn:fr:cc:fam:e:m"), entity_ref("urn:fr:cc:fam:e:oncle"), entity_ref("urn:fr:cc:fam:e:niece")) { origin case_input; }
+        assert "f6": dispense_presidentielle(entity_ref("urn:fr:cc:fam:e:m")) { origin adjudicated; }
+    }
+    evaluate truth(empechement_de_parente(entity_ref("urn:fr:cc:fam:e:m")));
+    expect evaluation_status == COMPUTED;
+    expect truth_status == NEITHER;
+}
