@@ -2,6 +2,8 @@
 
 # Arxo Code civil
 
+[![Smithery](https://smithery.ai/badge/arxohq/code-civil)](https://smithery.ai/servers/arxohq/code-civil)
+
 [Français](README.md) · [English](README.en.md)
 
 Explorez le Code civil français par **les faits, la date juridique, les constatations du juge et des réponses reproductibles**. Cette livraison réunit 16 paquets contemporains et un modèle historique de 1804. Les textes et étiquettes sources restent français ; les explications anglaises sont non officielles.
