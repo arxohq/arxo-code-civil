@@ -2,7 +2,7 @@
 
 # Arxo Code civil
 
-[![Smithery](https://smithery.ai/badge/arxohq/code-civil)](https://smithery.ai/servers/arxohq/code-civil)
+[![LightNow capabilities](https://lightnow.ai/badge/io.arxo/code-civil)](https://lightnow.ai/servers/io.arxo/code-civil)
 
 [Français](README.md) · [English](README.en.md)
 
